@@ -1,5 +1,7 @@
-import { TransitionBlock, EmphasisBlock, EntranceBlock, ExitBlock, ScrollerBlock, MotionBlock, ExitBlockConfig, TransitionBlockConfig, EntranceBlockConfig } from "./AnimBlock";
-import { ConnectorEntranceBlock, ConnectorExitBlock } from "./AnimBlockLine";
+import {
+  TransitionBlock, EmphasisBlock, EntranceBlock, ExitBlock, ScrollerBlock, MotionBlock, ExitBlockConfig, TransitionBlockConfig, EntranceBlockConfig,
+  ConnectorEntranceBlock, ConnectorExitBlock,
+} from "./categoricalBlocks";
 import { AnimationBank, WebFlik } from "./WebFlik";
 import { computeSelfScrollingBounds, negateNumString, overrideHidden, splitXYAlignmentString, splitXYTupleString, unOverrideHidden } from "./utils/helpers";
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "./utils/interfaces";

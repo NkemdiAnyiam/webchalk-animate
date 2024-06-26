@@ -1,5 +1,8 @@
-import { AnimBlock, EntranceBlock, ExitBlock, EmphasisBlock, AnimBlockConfig, MotionBlock, ScrollerBlock, TransitionBlock, ExitBlockConfig, EntranceBlockConfig } from "./AnimBlock";
-import { ConnectorEntranceBlock, ConnectorExitBlock, ConnectorSetterBlock } from "./AnimBlockLine";
+import { AnimBlock, AnimBlockConfig} from "./AnimBlock";
+import {
+  EntranceBlock, ExitBlock, EmphasisBlock, MotionBlock, ScrollerBlock, TransitionBlock, ExitBlockConfig, EntranceBlockConfig,
+  ConnectorEntranceBlock, ConnectorExitBlock, ConnectorSetterBlock
+} from "./categoricalBlocks";
 import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
 import { presetEntrances, presetExits, presetEmphases, presetMotions, presetConnectorEntrances, presetConnectorExits, presetScrolls, presetTransitions } from "./presetBanks";
 import { useEasing } from "./utils/easing";
