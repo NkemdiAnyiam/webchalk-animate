@@ -1,0 +1,33 @@
+{
+  "name": "webflik",
+  "version": "0.0.0",
+  "description": "Description of WebFlik will go here.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/index.js",
+    "dist/index.d.ts",
+    "dist/index.mjs",
+    "dist/index.d.mts"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "pack-up": "npm run build && npm pack",
+    "in": "npm i && npm run pack-up",
+    "out": "rm -rf ./dist ./node_modules",
+    "in-and-out": "npm run in && npm run out",
+    "lint": "tsc"
+  },
+  "keywords": [
+    "webflik",
+    "animation",
+    "typescript"
+  ],
+  "author": "Nkemdi Anyiam",
+  "license": "ISC",
+  "devDependencies": {
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3"
+  }
+}
