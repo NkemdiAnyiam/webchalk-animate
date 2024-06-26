@@ -7,38 +7,6 @@ import { CustomErrors, BlockErrorGenerator, errorTip, generateError } from "./ut
 import { AnimationCategory } from "./utils/interfaces";
 import { WbfkConnector } from "./AnimBlockLine";
 
-type CustomKeyframeEffectOptions = {
-  startsNextBlock: boolean;
-  startsWithPrevious: boolean;
-  commitsStyles: boolean;
-  commitStylesForcefully: boolean; // attempt to unhide, commit, then re-hide
-  composite: CompositeOperation;
-  classesToAddOnFinish: string[];
-  classesToAddOnStart: string[];
-  classesToRemoveOnFinish: string[];
-  classesToRemoveOnStart: string[];
-  runGeneratorsNow: boolean;
-}
-
-type KeyframeTimingOptions = {
-  duration: number;
-  easing: EasingString;
-  playbackRate: number;
-  delay: number;
-  endDelay: number;
-}
-
-export type AnimBlockConfig = KeyframeTimingOptions & CustomKeyframeEffectOptions;
-export type EntranceBlockConfig = AnimBlockConfig & {
-  hideNowType: 'display-none' | 'visibility-hidden' | null;
-};
-export type ExitBlockConfig = AnimBlockConfig & {
-  exitType: 'display-none' | 'visibility-hidden';
-};
-export type TransitionBlockConfig = AnimBlockConfig & {
-  removeInlineStylesOnFinish: boolean;
-}
-
 type Segment = [
   endDelay: number,
   callbacks: ((...args: any[]) => void)[],
@@ -505,22 +473,32 @@ export class WebFlikAnimation extends Animation {
 
 
 
+type CustomKeyframeEffectOptions = {
+  startsNextBlock: boolean;
+  startsWithPrevious: boolean;
+  commitsStyles: boolean;
+  commitStylesForcefully: boolean; // attempt to unhide, commit, then re-hide
+  composite: CompositeOperation;
+  classesToAddOnFinish: string[];
+  classesToAddOnStart: string[];
+  classesToRemoveOnFinish: string[];
+  classesToRemoveOnStart: string[];
+  runGeneratorsNow: boolean;
+}
+
+type KeyframeTimingOptions = {
+  duration: number;
+  easing: EasingString;
+  playbackRate: number;
+  delay: number;
+  endDelay: number;
+}
+
+export type AnimBlockConfig = KeyframeTimingOptions & CustomKeyframeEffectOptions;
 export abstract class AnimBlock<TBankEntry extends AnimationBankEntry = AnimationBankEntry> implements AnimBlockConfig {
   private static id: number = 0;
   private static get emptyBankEntry() { return {generateKeyframes() { return [[], []]; }} as AnimationBankEntry; }
-
   protected abstract get defaultConfig(): Partial<AnimBlockConfig>;
-  protected generateError: BlockErrorGenerator = (ErrorClassOrInstance, msg = '<unspecified error>', elementOverride?: Element) => {
-    return generateError(ErrorClassOrInstance, msg as string, {
-      timeline: this.parentTimeline,
-      sequence: this.parentSequence,
-      block: this,
-      element: elementOverride ? elementOverride : this.domElem
-    });
-  }
-  private throwChildPlaybackError(funcName: string): never {
-    throw this.generateError(CustomErrors.ChildPlaybackError, `Cannot directly call ${funcName}() on an animation block while is is part of a sequence.`);
-  }
 
   parentSequence?: AnimSequence;
   parentTimeline?: AnimTimeline;
@@ -531,22 +509,6 @@ export abstract class AnimBlock<TBankEntry extends AnimationBankEntry = Animatio
   bankEntry: TBankEntry;
   animArgs: GeneratorParams<TBankEntry> = {} as GeneratorParams<TBankEntry>;
   domElem: Element;
-  /**@internal*/get rafLoopsProgress(): number {
-    const { progress, direction } = this.animation.effect!.getComputedTiming();
-    // ?? 1 because during the active phase (the only time when raf runs), null progress means finished
-    return direction === 'normal' ? (progress ?? 1) : 1 - (progress ?? 1);
-  }
-  
-  startsNextBlock: boolean = false;
-  startsWithPrevious: boolean = false;
-  commitsStyles: boolean = true;
-  commitStylesForcefully: boolean = false; // attempt to unhide, commit, then re-hide
-  composite: CompositeOperation = 'replace';
-  classesToAddOnFinish: string[] = [];
-  classesToAddOnStart: string[] = [];
-  classesToRemoveOnFinish: string[] = [];
-  classesToRemoveOnStart: string[] = [];
-  runGeneratorsNow: boolean = false;
   /**@internal*/keyframesGenerators?: {
     forwardGenerator: () => Keyframe[];
     backwardGenerator?: () => Keyframe[];
@@ -559,23 +521,80 @@ export abstract class AnimBlock<TBankEntry extends AnimationBankEntry = Animatio
     forwardGenerator: () => () => void;
     backwardGenerator: () => () => void;
   }
-  computeTween(initialVal: number, finalVal: number): number {
-    return initialVal + (finalVal - initialVal) * this.rafLoopsProgress;
+  /**@internal*/get rafLoopsProgress(): number {
+    const { progress, direction } = this.animation.effect!.getComputedTiming();
+    // ?? 1 because during the active phase (the only time when raf runs), null progress means finished
+    return direction === 'normal' ? (progress ?? 1) : 1 - (progress ?? 1);
+  }
+  
+  /** @internal */startsNextBlock: boolean = false;
+  /** @internal */startsWithPrevious: boolean = false;
+  /** @internal */commitsStyles: boolean = true;
+  /** @internal */commitStylesForcefully: boolean = false; // attempt to unhide, commit, then re-hide
+  /** @internal */composite: CompositeOperation = 'replace';
+  /** @internal */classesToAddOnFinish: string[] = [];
+  /** @internal */classesToAddOnStart: string[] = [];
+  /** @internal */classesToRemoveOnFinish: string[] = [];
+  /** @internal */classesToRemoveOnStart: string[] = [];
+  /** @internal */runGeneratorsNow: boolean = false;
+
+  /** @internal */isAnimating = false;
+  /** @internal */isPaused = false;
+  /** @internal */duration: number = 500;
+  /** @internal */delay: number = 0;
+  /** @internal */endDelay: number = 0;
+  /** @internal */easing: EasingString = 'linear';
+  /** @internal */playbackRate: number = 1; // actually base playback rate
+  /** @internal */get compoundedPlaybackRate(): number { return this.playbackRate * (this.parentSequence?.compoundedPlaybackRate ?? 1); }
+
+  /** @internal */fullStartTime = NaN;
+  /** @internal */get activeStartTime() { return (this.fullStartTime + this.delay) / this.playbackRate; }
+  /** @internal */get activeFinishTime() { return( this.fullStartTime + this.delay + this.duration) / this.playbackRate; }
+  /** @internal */get fullFinishTime() { return (this.fullStartTime + this.delay + this.duration + this.endDelay) / this.playbackRate; }
+
+  getTiming() {
+    return {
+      startsNextBlock: this.startsNextBlock,
+      startsWithPrevious: this.startsWithPrevious,
+      composite: this.composite,
+      duration: this.duration,
+      delay: this.delay,
+      endDelay: this.endDelay,
+      easing: this.easing,
+      basePlaybackRate: this.playbackRate,
+      compoundedPlaybackRate: this.compoundedPlaybackRate,
+      runGeneratorsNow: this.runGeneratorsNow
+    } as const;
   }
 
-  private isAnimating = false;
-  private isPaused = false;
-  duration: number = 500;
-  delay: number = 0;
-  endDelay: number = 0;
-  easing: EasingString = 'linear';
-  playbackRate: number = 1; // actually base playback rate
-  get compoundedPlaybackRate(): number { return this.playbackRate * (this.parentSequence?.compoundedPlaybackRate ?? 1); }
+  getEffects() {
+    return {
+      classes: {
+        toAddOnFinish: this.classesToAddOnFinish,
+        toAddOnStart: this.classesToAddOnStart,
+        toRemoveOnFinish: this.classesToRemoveOnFinish,
+        toRemoveOnStart: this.classesToRemoveOnStart,
+      },
+      composite: this.composite,
+      commitsStyles: this.commitsStyles,
+      commitsStylesForcefully: this.commitStylesForcefully,
+    } as const;
+  }
 
-  fullStartTime = NaN;
-  get activeStartTime() { return (this.fullStartTime + this.delay) / this.playbackRate; }
-  get activeFinishTime() { return( this.fullStartTime + this.delay + this.duration) / this.playbackRate; }
-  get fullFinishTime() { return (this.fullStartTime + this.delay + this.duration + this.endDelay) / this.playbackRate; }
+  getStatus() {
+    return {
+      animating: this.isAnimating,
+      paused: this.isPaused,
+    } as const;
+  }
+
+  /*****************************************************************************************************************************/
+  /************************************        CONSTRUCTOR & INITIALIZERS        ***********************************************/
+  /*****************************************************************************************************************************/
+  /**@internal*/setID(idSeq: number, idTimeline: number): void {
+    [this.sequenceID, this.timelineID] = [idSeq, idTimeline];
+    [this.animation.sequenceID, this.animation.timelineID] = [idSeq, idTimeline];
+  }
 
   constructor(domElem: Element | null | undefined, public animName: string, bank: AnimationBank, public category: AnimationCategory) {
     this.id = AnimBlock.id++;
@@ -601,8 +620,47 @@ export abstract class AnimBlock<TBankEntry extends AnimationBankEntry = Animatio
 
     this.domElem = domElem;
   }
-  
-  /**@internal*/initialize(animArgs: GeneratorParams<TBankEntry>, userConfig: Partial<AnimBlockConfig> = {}): this {
+
+  private mergeConfigs(userConfig: Partial<AnimBlockConfig>, bankEntryConfig: Partial<AnimBlockConfig>): Partial<AnimBlockConfig> {
+    return {
+      // subclass defaults take priority
+      ...this.defaultConfig,
+
+      // config defined in animation bank take priority
+      ...bankEntryConfig,
+
+      // custom config take priority
+      ...userConfig,
+
+      // mergeable properties
+      classesToAddOnStart: mergeArrays(
+        this.defaultConfig.classesToAddOnStart ?? [],
+        bankEntryConfig.classesToAddOnStart ?? [],
+        userConfig.classesToAddOnStart ?? [],
+      ),
+
+      classesToRemoveOnStart: mergeArrays(
+        this.defaultConfig.classesToRemoveOnStart ?? [],
+        bankEntryConfig.classesToRemoveOnStart ?? [],
+        userConfig.classesToRemoveOnStart ?? [],
+      ),
+
+      classesToAddOnFinish: mergeArrays(
+        this.defaultConfig.classesToAddOnFinish ?? [],
+        bankEntryConfig.classesToAddOnFinish ?? [],
+        userConfig.classesToAddOnFinish ?? [],
+      ),
+
+      classesToRemoveOnFinish: mergeArrays(
+        this.defaultConfig.classesToRemoveOnFinish ?? [],
+        bankEntryConfig.classesToRemoveOnFinish ?? [],
+        userConfig.classesToRemoveOnFinish ?? [],
+      ),
+    };
+  }
+
+  /**@internal*/
+  initialize(animArgs: GeneratorParams<TBankEntry>, userConfig: Partial<AnimBlockConfig> = {}): this {
     this.animArgs = animArgs;
     const mergedConfig = this.mergeConfigs(userConfig, this.bankEntry.config ?? {});
     Object.assign(this, mergedConfig);
@@ -700,11 +758,9 @@ export abstract class AnimBlock<TBankEntry extends AnimationBankEntry = Animatio
     return this;
   }
 
-  /**@internal*/setID(idSeq: number, idTimeline: number): void {
-    [this.sequenceID, this.timelineID] = [idSeq, idTimeline];
-    [this.animation.sequenceID, this.animation.timelineID] = [idSeq, idTimeline];
-  }
-
+  /*****************************************************************************************************************************/
+  /********************************************        PLAYBACK        *********************************************************/
+  /*****************************************************************************************************************************/
   play(): Promise<boolean>;
   /**@internal*/play(parentSequence: AnimSequence): Promise<boolean>;
   play(parentSequence?: AnimSequence): Promise<boolean> {
@@ -760,6 +816,9 @@ export abstract class AnimBlock<TBankEntry extends AnimationBankEntry = Animatio
   // multiplies playback rate of parent timeline and sequence (if exist) with base playback rate
   /**@internal*/useCompoundedPlaybackRate() { this.animation.updatePlaybackRate(this.compoundedPlaybackRate); }
 
+  /*****************************************************************************************************************************/
+  /********************************************         ANIMATE         ********************************************************/
+  /*****************************************************************************************************************************/
   protected _onStartForward(): void {};
   protected _onFinishForward(): void {};
   protected _onStartBackward(): void {};
@@ -953,45 +1012,31 @@ export abstract class AnimBlock<TBankEntry extends AnimationBankEntry = Animatio
     requestAnimationFrame(this.loop);
   }
 
-  private mergeConfigs(userConfig: Partial<AnimBlockConfig>, bankEntryConfig: Partial<AnimBlockConfig>): Partial<AnimBlockConfig> {
-    return {
-      // subclass defaults take priority
-      ...this.defaultConfig,
+  computeTween(initialVal: number, finalVal: number): number {
+    return initialVal + (finalVal - initialVal) * this.rafLoopsProgress;
+  }
 
-      // config defined in animation bank take priority
-      ...bankEntryConfig,
+  /*****************************************************************************************************************************/
+  /********************************************         ERRORS         *********************************************************/
+  /*****************************************************************************************************************************/
+  protected generateError: BlockErrorGenerator = (ErrorClassOrInstance, msg = '<unspecified error>', elementOverride?: Element) => {
+    return generateError(ErrorClassOrInstance, msg as string, {
+      timeline: this.parentTimeline,
+      sequence: this.parentSequence,
+      block: this,
+      element: elementOverride ? elementOverride : this.domElem
+    });
+  }
 
-      // custom config take priority
-      ...userConfig,
-
-      // mergeable properties
-      classesToAddOnStart: mergeArrays(
-        this.defaultConfig.classesToAddOnStart ?? [],
-        bankEntryConfig.classesToAddOnStart ?? [],
-        userConfig.classesToAddOnStart ?? [],
-      ),
-
-      classesToRemoveOnStart: mergeArrays(
-        this.defaultConfig.classesToRemoveOnStart ?? [],
-        bankEntryConfig.classesToRemoveOnStart ?? [],
-        userConfig.classesToRemoveOnStart ?? [],
-      ),
-
-      classesToAddOnFinish: mergeArrays(
-        this.defaultConfig.classesToAddOnFinish ?? [],
-        bankEntryConfig.classesToAddOnFinish ?? [],
-        userConfig.classesToAddOnFinish ?? [],
-      ),
-
-      classesToRemoveOnFinish: mergeArrays(
-        this.defaultConfig.classesToRemoveOnFinish ?? [],
-        bankEntryConfig.classesToRemoveOnFinish ?? [],
-        userConfig.classesToRemoveOnFinish ?? [],
-      ),
-    };
+  private throwChildPlaybackError(funcName: string): never {
+    throw this.generateError(CustomErrors.ChildPlaybackError, `Cannot directly call ${funcName}() on an animation block while is is part of a sequence.`);
   }
 }
 
+
+export type EntranceBlockConfig = AnimBlockConfig & {
+  hideNowType: 'display-none' | 'visibility-hidden' | null;
+};
 export class EntranceBlock<TBankEntry extends AnimationBankEntry<EntranceBlock, EntranceBlockConfig> = AnimationBankEntry> extends AnimBlock<TBankEntry> {
   private backwardsHidingMethod: ExitBlockConfig['exitType'] = '' as ExitBlockConfig['exitType'];
 
@@ -1067,6 +1112,10 @@ export class EntranceBlock<TBankEntry extends AnimationBankEntry<EntranceBlock, 
   }
 }
 
+
+export type ExitBlockConfig = AnimBlockConfig & {
+  exitType: 'display-none' | 'visibility-hidden';
+};
 // TODO: prevent already hidden blocks from being allowed to use exit animation
 export class ExitBlock<TBankEntry extends AnimationBankEntry<ExitBlock, ExitBlockConfig> = AnimationBankEntry> extends AnimBlock<TBankEntry> {
   private exitType: ExitBlockConfig['exitType'] = '' as ExitBlockConfig['exitType'];
@@ -1129,6 +1178,10 @@ export class ScrollerBlock<TBankEntry extends AnimationBankEntry = AnimationBank
   }
 }
 
+
+export type TransitionBlockConfig = AnimBlockConfig & {
+  removeInlineStylesOnFinish: boolean;
+}
 export class TransitionBlock<TBankEntry extends AnimationBankEntry<TransitionBlock, TransitionBlockConfig> = AnimationBankEntry> extends AnimBlock<TBankEntry> {
   // determines whether properties affected by this transition should be removed from inline style upon finishing animation
   private removeInlineStyleOnFinish: boolean = false;

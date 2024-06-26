@@ -209,18 +209,31 @@ type PlaybackButtons = {
 export class AnimTimeline {
   private static id = 0;
 
-  id; // used to uniquely identify this specific timeline
-  animSequences: AnimSequence[] = []; // array of every AnimSequence in this timeline
-  loadedSeqIndex = 0; // index into animSequences
-  isAnimating = false; // true if currently in the middle of executing animations; false otherwise
-  skippingOn = false; // used to determine whether or not all animations should be instantaneous
-  isPaused = false;
-  currDirection: 'forward' | 'backward' = 'forward'; // set to 'forward' after stepForward() or 'backward' after stepBackward()
-  usingJumpTo = false; // true if currently using jumpTo()
+  readonly id; // used to uniquely identify this specific timeline
+  /** @internal */animSequences: AnimSequence[] = []; // array of every AnimSequence in this timeline
+  /** @internal */loadedSeqIndex = 0; // index into animSequences
+  /** @internal */isAnimating = false; // true if currently in the middle of executing animations; false otherwise
+  /** @internal */skippingOn = false; // used to determine whether or not all animations should be instantaneous
+  /** @internal */isPaused = false;
+  /** @internal */currDirection: 'forward' | 'backward' = 'forward'; // set to 'forward' after stepForward() or 'backward' after stepBackward()
+  /** @internal */usingJumpTo = false; // true if currently using jumpTo()
   playbackRate = 1;
   config: AnimTimelineConfig;
   // CHANGE NOTE: AnimTimeline now stores references to in-progress sequences and also does not act directly on individual animations
-  inProgressSequences: Map<number, AnimSequence> = new Map();
+  private inProgressSequences: Map<number, AnimSequence> = new Map();
+
+  getStatus() {
+    return {
+      animating: this.isAnimating,
+      skippingOn: this.skippingOn,
+      paused: this.isPaused,
+      currentDirection: this.currDirection,
+      jumping: this.usingJumpTo,
+      stepNumber: this.loadedSeqIndex + 1,
+      atBeginning: this.atBeginning,
+      atEnd: this.atEnd
+    } as const;
+  }
 
   playbackButtons: PlaybackButtons = {
     backwardButton: null,
@@ -231,9 +244,9 @@ export class AnimTimeline {
   };
 
   get numSequences(): number { return this.animSequences.length; }
-  get atBeginning(): boolean { return this.loadedSeqIndex === 0; }
-  get atEnd(): boolean { return this.loadedSeqIndex === this.numSequences; }
-  get stepNumber(): number { return this.loadedSeqIndex + 1; }
+  private get atBeginning(): boolean { return this.loadedSeqIndex === 0; }
+  private get atEnd(): boolean { return this.loadedSeqIndex === this.numSequences; }
+  private get stepNumber(): number { return this.loadedSeqIndex + 1; }
 
   constructor(config: Partial<AnimTimelineConfig> = {}) {
     this.id = AnimTimeline.id++;
@@ -422,7 +435,6 @@ export class AnimTimeline {
 
     return this;
   }
-  getPlaybackRate() { return this.playbackRate; }
 
   // steps forward or backward and does error-checking
   async step(direction: 'forward' | 'backward'): Promise<typeof direction>;
