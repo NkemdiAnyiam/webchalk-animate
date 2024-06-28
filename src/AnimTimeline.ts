@@ -397,37 +397,36 @@ export class AnimTimeline {
       if (!Number.isSafeInteger(targetOffset)) { throw new TypeError(`Invalid searchOffset "${searchOffset}". Value must be an integer.`); }
       
       let isBackwardSearch = false;
-      let sequencesSubset: AnimSequence[] = [];
+      let fromIndex: number;
       switch(search) {
         case "forward":
-          sequencesSubset = this.animSequences.slice(Math.max(this.loadedSeqIndex + 1 + searchOffset, 0));
+          fromIndex = Math.max(this.loadedSeqIndex + 1 + searchOffset, 0);
           break;
         case "backward":
-          sequencesSubset = this.animSequences.slice(0, Math.max(this.loadedSeqIndex + searchOffset, 0));
+          fromIndex = Math.max(this.loadedSeqIndex - 1 + searchOffset, 0);
           isBackwardSearch = true;
           break;
         case "forward-from-beginning":
-          sequencesSubset = this.animSequences.slice(Math.max(searchOffset, 0));
+          fromIndex = Math.max(searchOffset, 0);
           break;
         case "backward-from-end":
-          sequencesSubset = this.animSequences.slice(0, Math.max(this.numSequences + searchOffset));
+          fromIndex = Math.max(this.numSequences - 1 + searchOffset, 0);
           isBackwardSearch = true;
           break;
         default:
           throw new TypeError(`Invalid search value "${search}".`);
       }
-      let isForwardSearch = !isBackwardSearch;
-      const sequenceMatchesTag = (sequence: AnimSequence, tag: RegExp | string): boolean => tag instanceof RegExp ? !!sequence?.getTag().match(tag) : sequence?.getTag() === tag;
+      const sequenceMatchesTag = (sequence: AnimSequence, tag: RegExp | string): boolean => tag instanceof RegExp ? tag.test(sequence.getTag()) : sequence.getTag() === tag;
 
-      // accounts for the number of sequences preceding the target subset
-      const forwardSearchInset = isForwardSearch ? this.numSequences - sequencesSubset.length : 0;
-      // get index corresponding to matching AnimSequence + offset
-      targetIndex = (isBackwardSearch
-        ? findLastIndex(sequencesSubset, animSequence => sequenceMatchesTag(animSequence, tag))
-        : sequencesSubset.findIndex(animSequence => sequenceMatchesTag(animSequence, tag))
-      ) + forwardSearchInset + targetOffset;
+      let initialIndex = -1;
+      // get index corresponding to matching AnimSequence
+      if (!isBackwardSearch)
+        { for (let i = fromIndex; i < this.numSequences; ++i) { if (sequenceMatchesTag(this.animSequences[i], tag)) { initialIndex = i; break; } } }
+      else
+        { for (let i = fromIndex; i >= 0; --i) { if (sequenceMatchesTag(this.animSequences[i], tag)) { initialIndex = i; break; } } }
 
-      if (targetIndex - forwardSearchInset - targetOffset === -1) { throw new Error(`Sequence tag "${tag}" not found.`); }
+      if (initialIndex === -1) { throw new Error(`Sequence tag "${tag}" not found given conditions: search: ${search}; searchOffset: ${searchOffset}.`); }
+      targetIndex = initialIndex + targetOffset;
     }
     // find target index based on either the beginning or end of the timeline
     else {
