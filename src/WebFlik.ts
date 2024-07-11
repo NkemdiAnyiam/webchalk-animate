@@ -9,49 +9,49 @@ import { useEasing } from "./utils/easing";
 import { createStyles } from "./utils/helpers";
 import { MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./utils/interfaces";
 
-type KeyframesGenerator<T extends unknown> = {
-  generateKeyframes(this: T, ...animArgs: unknown[]): [forward: Keyframe[], backward?: Keyframe[]];
+type KeyframesGenerator<TBlockContext extends unknown> = {
+  generateKeyframes(this: TBlockContext, ...effectOptions: unknown[]): [forward: Keyframe[], backward?: Keyframe[]];
   generateKeyframeGenerators?: never;
   generateRafMutators?: never;
   generateRafMutatorGenerators?: never;
 };
-type KeyframesFunctionsGenerator<T extends unknown> = {
+type KeyframesGeneratorsGenerator<TBlockContext extends unknown> = {
   generateKeyframes?: never;
-  generateKeyframeGenerators(this: T, ...animArgs: unknown[]): [forwardGenerator: () => Keyframe[], backwardGenerator?: () => Keyframe[]];
+  generateKeyframeGenerators(this: TBlockContext, ...effectOptions: unknown[]): [forwardGenerator: () => Keyframe[], backwardGenerator?: () => Keyframe[]];
   generateRafMutators?: never;
   generateRafMutatorGenerators?: never;
 };
-type RafMutatorsGenerator<T extends unknown> = {
+type RafMutatorsGenerator<TBlockContext extends unknown> = {
   generateKeyframes?: never;
   generateKeyframeGenerators?: never;
-  generateRafMutators(this: T & Readonly<(Pick<AnimBlock, 'computeTween'>)>, ...animArgs: unknown[]): [forwardMutator: () => void, backwardMutator: () => void];
+  generateRafMutators(this: TBlockContext & Readonly<(Pick<AnimBlock, 'computeTween'>)>, ...effectOptions: unknown[]): [forwardMutator: () => void, backwardMutator: () => void];
   generateRafMutatorGenerators?: never;
 };
-type RafMutatorsFunctionsGenerator<T extends unknown> = {
+type RafMutatorsGeneratorsGenerator<TBlockContext extends unknown> = {
   generateKeyframes?: never;
   generateKeyframeGenerators?: never;
   generateRafMutators?: never;
-  generateRafMutatorGenerators(this: T & Readonly<(Pick<AnimBlock, 'computeTween'>)>, ...animArgs: unknown[]): [forwardGenerator: () => () => void, backwardGenerator: () => () => void];
+  generateRafMutatorGenerators(this: TBlockContext & Readonly<(Pick<AnimBlock, 'computeTween'>)>, ...effectOptions: unknown[]): [forwardGenerator: () => () => void, backwardGenerator: () => () => void];
 };
 
-export type EffectBankEntry<TBlockThis extends unknown = unknown, TConfig extends unknown = unknown> = Readonly<
+export type EffectGenerator<TBlockContext extends unknown = unknown, TConfig extends unknown = unknown> = Readonly<
   { config?: Partial<TConfig>; }
-  & (KeyframesGenerator<TBlockThis> | KeyframesFunctionsGenerator<TBlockThis> | RafMutatorsGenerator<TBlockThis> | RafMutatorsFunctionsGenerator<TBlockThis>)
+  & (KeyframesGenerator<TBlockContext> | KeyframesGeneratorsGenerator<TBlockContext> | RafMutatorsGenerator<TBlockContext> | RafMutatorsGeneratorsGenerator<TBlockContext>)
 >;
 
-// represents an object where every string key is paired with a KeyframesBankEntry value
-export type EffectBank<TBlock extends AnimBlock = AnimBlock, TBlockConfig extends unknown = AnimBlockConfig> = Readonly<
-  Record<string, EffectBankEntry<
+// represents an object where every string key is paired with a EffectGenerator value
+export type EffectGeneratorBank<TBlock extends AnimBlock = AnimBlock, TBlockConfig extends unknown = AnimBlockConfig> = Readonly<
+  Record<string, EffectGenerator<
     Readonly<Pick<TBlock, 'effectName' | 'domElem'>>,
     TBlockConfig
   >>
 >;
 
-export type GeneratorParams<TBankEntry extends EffectBankEntry> = Parameters<
-TBankEntry extends KeyframesGenerator<unknown> ? TBankEntry['generateKeyframes'] : (
-  TBankEntry extends KeyframesFunctionsGenerator<unknown> ? TBankEntry['generateKeyframeGenerators'] : (
-    TBankEntry extends RafMutatorsGenerator<unknown> ? TBankEntry['generateRafMutators'] : (
-      TBankEntry extends RafMutatorsFunctionsGenerator<unknown> ? TBankEntry['generateRafMutatorGenerators'] : (
+export type EffectOptions<TBankGenerator extends EffectGenerator> = Parameters<
+TBankGenerator extends KeyframesGenerator<unknown> ? TBankGenerator['generateKeyframes'] : (
+  TBankGenerator extends KeyframesGeneratorsGenerator<unknown> ? TBankGenerator['generateKeyframeGenerators'] : (
+    TBankGenerator extends RafMutatorsGenerator<unknown> ? TBankGenerator['generateRafMutators'] : (
+      TBankGenerator extends RafMutatorsGeneratorsGenerator<unknown> ? TBankGenerator['generateRafMutatorGenerators'] : (
         never
       )
     )
@@ -61,8 +61,8 @@ TBankEntry extends KeyframesGenerator<unknown> ? TBankEntry['generateKeyframes']
 
 // CHANGE NOTE: AnimNameIn now handles keyof and Extract
 // extracts only those strings in an object whose paired value is a KeyframesBankEntry
-export type AnimationNameIn<TBank extends EffectBank> = Exclude<keyof {
-  [key in keyof TBank as TBank[key] extends EffectBankEntry ? key : never]: TBank[key];
+export type EffectNameIn<TGeneratorBank extends EffectGeneratorBank> = Exclude<keyof {
+  [key in keyof TGeneratorBank as TGeneratorBank[key] extends EffectGenerator ? key : never]: TGeneratorBank[key];
 }, number | symbol>;
 
 
@@ -71,22 +71,22 @@ class _WebFlik {
   <
    // default = {} ensures intellisense for a given bank still works
    // without specifying the field (why? not sure)
-    UserEntranceBank extends EffectBank<EntranceBlock, EntranceBlockConfig> = {},
-    UserExitBank extends EffectBank<ExitBlock, ExitBlockConfig> = {},
-    UserEmphasisBank extends EffectBank = {},
-    UserMotionBank extends EffectBank = {},
-    _EmptyTransitionBank extends EffectBank = {},
-    _EmptyConnectorEntranceBank extends EffectBank = {},
-    _EmptyConnectorExitBank extends EffectBank = {},
-    _EmptyScrollerBank extends EffectBank = {},
+    UserEntranceBank extends EffectGeneratorBank<EntranceBlock, EntranceBlockConfig> = {},
+    UserExitBank extends EffectGeneratorBank<ExitBlock, ExitBlockConfig> = {},
+    UserEmphasisBank extends EffectGeneratorBank = {},
+    UserMotionBank extends EffectGeneratorBank = {},
+    _EmptyTransitionBank extends EffectGeneratorBank = {},
+    _EmptyConnectorEntranceBank extends EffectGeneratorBank = {},
+    _EmptyConnectorExitBank extends EffectGeneratorBank = {},
+    _EmptyScrollerBank extends EffectGeneratorBank = {},
     IncludePresets extends boolean = true
   >
   (
     customBankAddons: {
-      entrances?: UserEntranceBank & EffectBank<EntranceBlock, EntranceBlockConfig>;
-      exits?: UserExitBank & EffectBank<ExitBlock, ExitBlockConfig>;
-      emphases?: UserEmphasisBank & EffectBank<EmphasisBlock>;
-      motions?: UserMotionBank & EffectBank<MotionBlock>;
+      entrances?: UserEntranceBank & EffectGeneratorBank<EntranceBlock, EntranceBlockConfig>;
+      exits?: UserExitBank & EffectGeneratorBank<ExitBlock, ExitBlockConfig>;
+      emphases?: UserEmphasisBank & EffectGeneratorBank<EmphasisBlock>;
+      motions?: UserMotionBank & EffectGeneratorBank<MotionBlock>;
     } = {},
     includePresets: IncludePresets | void = true as IncludePresets
   ) {
@@ -110,33 +110,33 @@ class _WebFlik {
     // return functions that can be used to instantiate AnimBlocks with intellisense for the combined banks
     return {
       Entrance: function<
-        BankType extends typeof combinedEntranceBank, AnimName extends AnimationNameIn<BankType>, EntryType extends BankType[AnimName]
-      >(domElem: Element | null | undefined, animName: AnimName, ...params: Parameters<EntranceBlock<EntryType>['initialize']>) {
-        return new EntranceBlock<EntryType>(domElem, animName, combinedEntranceBank, 'Entrance').initialize(...params);
+        TGeneratorBank extends typeof combinedEntranceBank, EffectName extends EffectNameIn<TGeneratorBank>, EntryType extends TGeneratorBank[EffectName]
+      >(domElem: Element | null | undefined, effectName: EffectName, ...params: Parameters<EntranceBlock<EntryType>['initialize']>) {
+        return new EntranceBlock<EntryType>(domElem, effectName, combinedEntranceBank, 'Entrance').initialize(...params);
       },
 
       Exit: function<
-        BankType extends typeof combinedExitBank, AnimName extends AnimationNameIn<BankType>, EntryType extends BankType[AnimName]
-      >(domElem: Element | null | undefined, animName: AnimName, ...params: Parameters<ExitBlock<EntryType>['initialize']>) {
-        return new ExitBlock<EntryType>(domElem, animName, combinedExitBank, 'Exit').initialize(...params);
+        TGeneratorBank extends typeof combinedExitBank, EffectName extends EffectNameIn<TGeneratorBank>, EntryType extends TGeneratorBank[EffectName]
+      >(domElem: Element | null | undefined, effectName: EffectName, ...params: Parameters<ExitBlock<EntryType>['initialize']>) {
+        return new ExitBlock<EntryType>(domElem, effectName, combinedExitBank, 'Exit').initialize(...params);
       },
 
       Emphasis: function<
-        BankType extends typeof combinedEmphasisBank, AnimName extends AnimationNameIn<BankType>, EntryType extends BankType[AnimName]
-      >(domElem: Element | null | undefined, animName: AnimName, ...params: Parameters<EmphasisBlock<EntryType>['initialize']>) {
-        return new EmphasisBlock<EntryType>(domElem, animName, combinedEmphasisBank, 'Emphasis').initialize(...params);
+        TGeneratorBank extends typeof combinedEmphasisBank, EffectName extends EffectNameIn<TGeneratorBank>, EntryType extends TGeneratorBank[EffectName]
+      >(domElem: Element | null | undefined, effectName: EffectName, ...params: Parameters<EmphasisBlock<EntryType>['initialize']>) {
+        return new EmphasisBlock<EntryType>(domElem, effectName, combinedEmphasisBank, 'Emphasis').initialize(...params);
       },
 
       Motion: function<
-        BankType extends typeof combinedMotionBank, AnimName extends AnimationNameIn<BankType>, EntryType extends BankType[AnimName]
-      >(domElem: Element | null | undefined, animName: AnimName, ...params: Parameters<MotionBlock<EntryType>['initialize']>) {
-        return new MotionBlock<EntryType>(domElem, animName, combinedMotionBank, 'Motion').initialize(...params);
+        TGeneratorBank extends typeof combinedMotionBank, EffectName extends EffectNameIn<TGeneratorBank>, EntryType extends TGeneratorBank[EffectName]
+      >(domElem: Element | null | undefined, effectName: EffectName, ...params: Parameters<MotionBlock<EntryType>['initialize']>) {
+        return new MotionBlock<EntryType>(domElem, effectName, combinedMotionBank, 'Motion').initialize(...params);
       },
 
       Transition: function<
-        BankType extends typeof combinedTransitionBank, AnimName extends AnimationNameIn<BankType>, EntryType extends BankType[AnimName]
-      >(domElem: Element | null | undefined, animName: AnimName, ...params: Parameters<TransitionBlock<EntryType>['initialize']>) {
-        return new TransitionBlock<EntryType>(domElem, animName, combinedTransitionBank, 'Transition').initialize(...params);
+        TGeneratorBank extends typeof combinedTransitionBank, EffectName extends EffectNameIn<TGeneratorBank>, EntryType extends TGeneratorBank[EffectName]
+      >(domElem: Element | null | undefined, effectName: EffectName, ...params: Parameters<TransitionBlock<EntryType>['initialize']>) {
+        return new TransitionBlock<EntryType>(domElem, effectName, combinedTransitionBank, 'Transition').initialize(...params);
       },
 
       ConnectorSetter: function(
@@ -149,19 +149,19 @@ class _WebFlik {
       },
 
       ConnectorEntrance: function<
-        BankType extends typeof combinedConnectorEntranceBank, AnimName extends AnimationNameIn<BankType>, EntryType extends BankType[AnimName]
-      >(connectorElem: WbfkConnector | null | undefined, animName: AnimName, ...params: Parameters<ConnectorEntranceBlock<EntryType>['initialize']>) {
-        return new ConnectorEntranceBlock<EntryType>(connectorElem, animName, combinedConnectorEntranceBank, 'Connector Entrance').initialize(...params);
+        TGeneratorBank extends typeof combinedConnectorEntranceBank, EffectName extends EffectNameIn<TGeneratorBank>, EntryType extends TGeneratorBank[EffectName]
+      >(connectorElem: WbfkConnector | null | undefined, effectName: EffectName, ...params: Parameters<ConnectorEntranceBlock<EntryType>['initialize']>) {
+        return new ConnectorEntranceBlock<EntryType>(connectorElem, effectName, combinedConnectorEntranceBank, 'Connector Entrance').initialize(...params);
       },
 
-      ConnectorExit: function<BankType extends typeof combinedConnectorExitBank, AnimName extends AnimationNameIn<BankType>, EntryType extends BankType[AnimName]>
-      (connectorElem: WbfkConnector | null | undefined, animName: AnimName, ...params: Parameters<ConnectorExitBlock<EntryType>['initialize']>)
-      { return new ConnectorExitBlock<EntryType>(connectorElem, animName, combinedConnectorExitBank, 'Connector Exit').initialize(...params); },
+      ConnectorExit: function<TGeneratorBank extends typeof combinedConnectorExitBank, EffectName extends EffectNameIn<TGeneratorBank>, EntryType extends TGeneratorBank[EffectName]>
+      (connectorElem: WbfkConnector | null | undefined, effectName: EffectName, ...params: Parameters<ConnectorExitBlock<EntryType>['initialize']>)
+      { return new ConnectorExitBlock<EntryType>(connectorElem, effectName, combinedConnectorExitBank, 'Connector Exit').initialize(...params); },
       
       Scroller: function
-      <BankType extends typeof combinedScrollerBank, AnimName extends AnimationNameIn<BankType>, EntryType extends BankType[AnimName]>
-      (domElem: Element | null | undefined, animName: AnimName, ...params: Parameters<ScrollerBlock<EntryType>['initialize']>) {
-        return new ScrollerBlock<EntryType>(domElem, animName, combinedScrollerBank, 'Scroller').initialize(...params);
+      <TGeneratorBank extends typeof combinedScrollerBank, EffectName extends EffectNameIn<TGeneratorBank>, EntryType extends TGeneratorBank[EffectName]>
+      (domElem: Element | null | undefined, effectName: EffectName, ...params: Parameters<ScrollerBlock<EntryType>['initialize']>) {
+        return new ScrollerBlock<EntryType>(domElem, effectName, combinedScrollerBank, 'Scroller').initialize(...params);
       },
     };
   }
@@ -175,10 +175,10 @@ class _WebFlik {
     };
   }
 
-  private static checkBanksFormatting(...banks: (EffectBank | undefined)[]) {
+  private static checkBanksFormatting(...banks: (EffectGeneratorBank | undefined)[]) {
     const errors: string[] = [];
     
-    const checkForArrowFunctions = (bank?: EffectBank) => {
+    const checkForArrowFunctions = (bank?: EffectGeneratorBank) => {
       if (!bank) { return; }
       for (const animName in bank) {
         const entry = bank[animName];

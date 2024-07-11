@@ -1,6 +1,6 @@
 import { AnimSequence } from "./AnimSequence";
 import { AnimTimeline } from "./AnimTimeline";
-import { GeneratorParams, EffectBank, EffectBankEntry } from "./WebFlik";
+import { EffectOptions, EffectGeneratorBank, EffectGenerator } from "./WebFlik";
 import { mergeArrays } from "./utils/helpers";
 import { EasingString, useEasing } from "./utils/easing";
 import { CustomErrors, BlockErrorGenerator, errorTip, generateError } from "./utils/errors";
@@ -31,9 +31,9 @@ type KeyframeTimingOptions = {
 
 export type AnimBlockConfig = KeyframeTimingOptions & CustomKeyframeEffectOptions;
 
-export abstract class AnimBlock<TBankEntry extends EffectBankEntry = EffectBankEntry> implements AnimBlockConfig {
+export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = EffectGenerator> implements AnimBlockConfig {
   private static id: number = 0;
-  private static get emptyBankEntry() { return {generateKeyframes() { return [[], []]; }} as EffectBankEntry; }
+  private static get emptyBankEntry() { return {generateKeyframes() { return [[], []]; }} as EffectGenerator; }
   protected abstract get defaultConfig(): Partial<AnimBlockConfig>;
 
   parentSequence?: AnimSequence;
@@ -42,8 +42,8 @@ export abstract class AnimBlock<TBankEntry extends EffectBankEntry = EffectBankE
   timelineID: number = NaN; // set to match the id of the parent AnimTimeline
   id: number;
   protected animation: WebFlikAnimation = {} as WebFlikAnimation;
-  bankEntry: TBankEntry;
-  effectOptions: GeneratorParams<TBankEntry> = {} as GeneratorParams<TBankEntry>;
+  effectGenerator: TEffectGenerator;
+  effectOptions: EffectOptions<TEffectGenerator> = {} as EffectOptions<TEffectGenerator>;
   domElem: Element;
   /**@internal*/keyframesGenerators?: {
     forwardGenerator: () => Keyframe[];
@@ -132,7 +132,7 @@ export abstract class AnimBlock<TBankEntry extends EffectBankEntry = EffectBankE
     [this.animation.sequenceID, this.animation.timelineID] = [idSeq, idTimeline];
   }
 
-  constructor(domElem: Element | null | undefined, public effectName: string, bank: EffectBank, public category: EffectCategory) {
+  constructor(domElem: Element | null | undefined, public effectName: string, bank: EffectGeneratorBank, public category: EffectCategory) {
     this.id = AnimBlock.id++;
     
     if ((category === 'Entrance' || category === 'Exit') && domElem instanceof WbfkConnector) {
@@ -150,9 +150,9 @@ export abstract class AnimBlock<TBankEntry extends EffectBankEntry = EffectBankE
     }
     
     // if empty bank was passed, generate a bank entry with a no-op animation
-    if (Object.keys(bank).length === 0) { this.bankEntry = AnimBlock.emptyBankEntry as TBankEntry; }
+    if (Object.keys(bank).length === 0) { this.effectGenerator = AnimBlock.emptyBankEntry as TEffectGenerator; }
     else if (!bank[effectName]) { throw this.generateError(RangeError, `Invalid ${this.category} effect name "${effectName}".`); }
-    else { this.bankEntry = bank[effectName] as TBankEntry; }
+    else { this.effectGenerator = bank[effectName] as TEffectGenerator; }
 
     this.domElem = domElem;
   }
@@ -162,7 +162,7 @@ export abstract class AnimBlock<TBankEntry extends EffectBankEntry = EffectBankE
       // subclass defaults take priority
       ...this.defaultConfig,
 
-      // config defined in animation bank take priority
+      // config defined in effect bank take priority
       ...bankEntryConfig,
 
       // custom config take priority
@@ -196,9 +196,9 @@ export abstract class AnimBlock<TBankEntry extends EffectBankEntry = EffectBankE
   }
 
   /**@internal*/
-  initialize(animArgs: GeneratorParams<TBankEntry>, userConfig: Partial<AnimBlockConfig> = {}): this {
-    this.effectOptions = animArgs;
-    const mergedConfig = this.mergeConfigs(userConfig, this.bankEntry.config ?? {});
+  initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<AnimBlockConfig> = {}): this {
+    this.effectOptions = effectOptions;
+    const mergedConfig = this.mergeConfigs(effectConfig, this.effectGenerator.config ?? {});
     Object.assign(this, mergedConfig);
     // cannot be exactly 0 because that causes some Animation-related bugs that can't be easily worked around
     this.duration = Math.max(this.duration as number, 0.01);
@@ -213,15 +213,15 @@ export abstract class AnimBlock<TBankEntry extends EffectBankEntry = EffectBankE
 
     try {
       // generateKeyframes()
-      if (this.bankEntry.generateKeyframes) {
+      if (this.effectGenerator.generateKeyframes) {
         // if pregenerating, produce F and B frames now
         if (this.runGeneratorsNow) {
-          [forwardFrames, backwardFrames] = this.bankEntry.generateKeyframes.call(this, ...animArgs);
+          [forwardFrames, backwardFrames] = this.effectGenerator.generateKeyframes.call(this, ...effectOptions);
         }
       }
       // generateKeyframeGenerators()
-      else if (this.bankEntry.generateKeyframeGenerators) {
-        const [forwardGenerator, backwardGenerator] = this.bankEntry.generateKeyframeGenerators.call(this, ...animArgs);
+      else if (this.effectGenerator.generateKeyframeGenerators) {
+        const [forwardGenerator, backwardGenerator] = this.effectGenerator.generateKeyframeGenerators.call(this, ...effectOptions);
         this.keyframesGenerators = {forwardGenerator, backwardGenerator};
         // if pregenerating, produce F and B frames now
         if (this.runGeneratorsNow) {
@@ -229,15 +229,15 @@ export abstract class AnimBlock<TBankEntry extends EffectBankEntry = EffectBankE
         }
       }
       // generateRafMutators()
-      else if (this.bankEntry.generateRafMutators) {
+      else if (this.effectGenerator.generateRafMutators) {
         if (this.runGeneratorsNow) {
-          const [forwardMutator, backwardMutator] = this.bankEntry.generateRafMutators.call(this, ...animArgs);
+          const [forwardMutator, backwardMutator] = this.effectGenerator.generateRafMutators.call(this, ...effectOptions);
           this.rafMutators = { forwardMutator, backwardMutator };
         }
       }
       // generateRafMutatorGenerators()
       else {
-        const [forwardGenerator, backwardGenerator] = this.bankEntry.generateRafMutatorGenerators.call(this, ...animArgs);
+        const [forwardGenerator, backwardGenerator] = this.effectGenerator.generateRafMutatorGenerators.call(this, ...effectOptions);
         this.rafMutatorGenerators = {forwardGenerator, backwardGenerator};
         if (this.runGeneratorsNow) {
           this.rafMutators = {forwardMutator: forwardGenerator(), backwardMutator: backwardGenerator()};
@@ -384,7 +384,7 @@ export abstract class AnimBlock<TBankEntry extends EffectBankEntry = EffectBankE
     // After delay phase, then apply class modifications and call onStart functions.
     // Additionally, generate keyframes on 'forward' if keyframe pregeneration is disabled.
     animation.onDelayFinish = () => {
-      const bankEntry = this.bankEntry;
+      const bankEntry = this.effectGenerator;
 
       switch(direction) {
         case 'forward':
