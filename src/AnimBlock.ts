@@ -1,10 +1,10 @@
 import { AnimSequence } from "./AnimSequence";
 import { AnimTimeline } from "./AnimTimeline";
-import { GeneratorParams, AnimationBank, AnimationBankEntry } from "./WebFlik";
+import { GeneratorParams, EffectBank, EffectBankEntry } from "./WebFlik";
 import { mergeArrays } from "./utils/helpers";
 import { EasingString, useEasing } from "./utils/easing";
 import { CustomErrors, BlockErrorGenerator, errorTip, generateError } from "./utils/errors";
-import { AnimationCategory } from "./utils/interfaces";
+import { EffectCategory } from "./utils/interfaces";
 import { WbfkConnector } from "./WbfkConnector";
 import { WebFlikAnimation } from "./WebFlikAnimation";
 
@@ -31,9 +31,9 @@ type KeyframeTimingOptions = {
 
 export type AnimBlockConfig = KeyframeTimingOptions & CustomKeyframeEffectOptions;
 
-export abstract class AnimBlock<TBankEntry extends AnimationBankEntry = AnimationBankEntry> implements AnimBlockConfig {
+export abstract class AnimBlock<TBankEntry extends EffectBankEntry = EffectBankEntry> implements AnimBlockConfig {
   private static id: number = 0;
-  private static get emptyBankEntry() { return {generateKeyframes() { return [[], []]; }} as AnimationBankEntry; }
+  private static get emptyBankEntry() { return {generateKeyframes() { return [[], []]; }} as EffectBankEntry; }
   protected abstract get defaultConfig(): Partial<AnimBlockConfig>;
 
   parentSequence?: AnimSequence;
@@ -43,7 +43,7 @@ export abstract class AnimBlock<TBankEntry extends AnimationBankEntry = Animatio
   id: number;
   protected animation: WebFlikAnimation = {} as WebFlikAnimation;
   bankEntry: TBankEntry;
-  animArgs: GeneratorParams<TBankEntry> = {} as GeneratorParams<TBankEntry>;
+  effectOptions: GeneratorParams<TBankEntry> = {} as GeneratorParams<TBankEntry>;
   domElem: Element;
   /**@internal*/keyframesGenerators?: {
     forwardGenerator: () => Keyframe[];
@@ -132,7 +132,7 @@ export abstract class AnimBlock<TBankEntry extends AnimationBankEntry = Animatio
     [this.animation.sequenceID, this.animation.timelineID] = [idSeq, idTimeline];
   }
 
-  constructor(domElem: Element | null | undefined, public animName: string, bank: AnimationBank, public category: AnimationCategory) {
+  constructor(domElem: Element | null | undefined, public effectName: string, bank: EffectBank, public category: EffectCategory) {
     this.id = AnimBlock.id++;
     
     if ((category === 'Entrance' || category === 'Exit') && domElem instanceof WbfkConnector) {
@@ -151,8 +151,8 @@ export abstract class AnimBlock<TBankEntry extends AnimationBankEntry = Animatio
     
     // if empty bank was passed, generate a bank entry with a no-op animation
     if (Object.keys(bank).length === 0) { this.bankEntry = AnimBlock.emptyBankEntry as TBankEntry; }
-    else if (!bank[animName]) { throw this.generateError(RangeError, `Invalid ${this.category} animation name "${animName}".`); }
-    else { this.bankEntry = bank[animName] as TBankEntry; }
+    else if (!bank[effectName]) { throw this.generateError(RangeError, `Invalid ${this.category} effect name "${effectName}".`); }
+    else { this.bankEntry = bank[effectName] as TBankEntry; }
 
     this.domElem = domElem;
   }
@@ -197,7 +197,7 @@ export abstract class AnimBlock<TBankEntry extends AnimationBankEntry = Animatio
 
   /**@internal*/
   initialize(animArgs: GeneratorParams<TBankEntry>, userConfig: Partial<AnimBlockConfig> = {}): this {
-    this.animArgs = animArgs;
+    this.effectOptions = animArgs;
     const mergedConfig = this.mergeConfigs(userConfig, this.bankEntry.config ?? {});
     Object.assign(this, mergedConfig);
     // cannot be exactly 0 because that causes some Animation-related bugs that can't be easily worked around
@@ -399,7 +399,7 @@ export abstract class AnimBlock<TBankEntry extends AnimationBankEntry = Animatio
             try {
               // if generateKeyframes() is the method of generation, generate f-ward and b-ward frames
               if (bankEntry.generateKeyframes) {
-                let [forwardFrames, backwardFrames] = bankEntry.generateKeyframes.call(this, ...this.animArgs);
+                let [forwardFrames, backwardFrames] = bankEntry.generateKeyframes.call(this, ...this.effectOptions);
                 animation.setForwardAndBackwardFrames(forwardFrames, backwardFrames ?? [...forwardFrames], backwardFrames ? false : true);
               }
               // if generateKeyframeGenerators() is the method of generation, generate f-ward frames
@@ -408,7 +408,7 @@ export abstract class AnimBlock<TBankEntry extends AnimationBankEntry = Animatio
               }
               // if generateRafMutators() is the method of generation, generate f-ward and b-ward mutators
               else if (bankEntry.generateRafMutators) {
-                const [forwardMutator, backwardMutator] = bankEntry.generateRafMutators.call(this, ...this.animArgs);
+                const [forwardMutator, backwardMutator] = bankEntry.generateRafMutators.call(this, ...this.effectOptions);
                 this.rafMutators = { forwardMutator, backwardMutator };
               }
               // if generateRafMutatorGenerators() is the method of generation, generate f-ward mutator

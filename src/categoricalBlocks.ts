@@ -1,8 +1,8 @@
 import { AnimBlock, AnimBlockConfig } from "./AnimBlock";
-import { GeneratorParams, AnimationBank, AnimationBankEntry } from "./WebFlik";
+import { GeneratorParams, EffectBank, EffectBankEntry } from "./WebFlik";
 import { CustomErrors, errorTip } from "./utils/errors";
 import { parseMultiUnitPlacement } from "./utils/helpers";
-import { AnimationCategory, ParsedMultiUnitPlacement, MultiUnitPlacementX, MultiUnitPlacementY } from "./utils/interfaces";
+import { EffectCategory, ParsedMultiUnitPlacement, MultiUnitPlacementX, MultiUnitPlacementY } from "./utils/interfaces";
 import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
 
 /*****************************************************************************************************************************/
@@ -11,7 +11,7 @@ import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
 export type EntranceBlockConfig = AnimBlockConfig & {
   hideNowType: 'display-none' | 'visibility-hidden' | null;
 };
-export class EntranceBlock<TBankEntry extends AnimationBankEntry<EntranceBlock, EntranceBlockConfig> = AnimationBankEntry> extends AnimBlock<TBankEntry> {
+export class EntranceBlock<TBankEntry extends EffectBankEntry<EntranceBlock, EntranceBlockConfig> = EffectBankEntry> extends AnimBlock<TBankEntry> {
   private backwardsHidingMethod: ExitBlockConfig['exitType'] = '' as ExitBlockConfig['exitType'];
 
   protected get defaultConfig(): Partial<EntranceBlockConfig> {
@@ -94,7 +94,7 @@ export type ExitBlockConfig = AnimBlockConfig & {
   exitType: 'display-none' | 'visibility-hidden';
 };
 // TODO: prevent already hidden blocks from being allowed to use exit animation
-export class ExitBlock<TBankEntry extends AnimationBankEntry<ExitBlock, ExitBlockConfig> = AnimationBankEntry> extends AnimBlock<TBankEntry> {
+export class ExitBlock<TBankEntry extends EffectBankEntry<ExitBlock, ExitBlockConfig> = EffectBankEntry> extends AnimBlock<TBankEntry> {
   private exitType: ExitBlockConfig['exitType'] = '' as ExitBlockConfig['exitType'];
 
   protected get defaultConfig(): Partial<ExitBlockConfig> {
@@ -135,7 +135,7 @@ export class ExitBlock<TBankEntry extends AnimationBankEntry<ExitBlock, ExitBloc
 /*****************************************************************************************************************************/
 /*********************************************        EMPHASIS        ********************************************************/
 /*****************************************************************************************************************************/
-export class EmphasisBlock<TBankEntry extends AnimationBankEntry = AnimationBankEntry> extends AnimBlock<TBankEntry> {
+export class EmphasisBlock<TBankEntry extends EffectBankEntry = EffectBankEntry> extends AnimBlock<TBankEntry> {
   protected get defaultConfig(): Partial<AnimBlockConfig> {
     return {};
   }
@@ -144,7 +144,7 @@ export class EmphasisBlock<TBankEntry extends AnimationBankEntry = AnimationBank
 /*****************************************************************************************************************************/
 /**********************************************        MOTION        *********************************************************/
 /*****************************************************************************************************************************/
-export class MotionBlock<TBankEntry extends AnimationBankEntry = AnimationBankEntry> extends AnimBlock<TBankEntry> {
+export class MotionBlock<TBankEntry extends EffectBankEntry = EffectBankEntry> extends AnimBlock<TBankEntry> {
   protected get defaultConfig(): Partial<AnimBlockConfig> {
     return {
       composite: 'accumulate',
@@ -156,7 +156,7 @@ export class MotionBlock<TBankEntry extends AnimationBankEntry = AnimationBankEn
 /*********************************************        SCROLLER        ********************************************************/
 /*****************************************************************************************************************************/
 // TODO: implement rewindScrollBehavior: 'prior-user-position' | 'prior-scroll-target' = 'prior-scroll-target'
-export class ScrollerBlock<TBankEntry extends AnimationBankEntry = AnimationBankEntry> extends AnimBlock<TBankEntry> {
+export class ScrollerBlock<TBankEntry extends EffectBankEntry = EffectBankEntry> extends AnimBlock<TBankEntry> {
   protected get defaultConfig(): Partial<AnimBlockConfig> {
     return {
       commitsStyles: false,
@@ -170,7 +170,7 @@ export class ScrollerBlock<TBankEntry extends AnimationBankEntry = AnimationBank
 export type TransitionBlockConfig = AnimBlockConfig & {
   removeInlineStylesOnFinish: boolean;
 }
-export class TransitionBlock<TBankEntry extends AnimationBankEntry<TransitionBlock, TransitionBlockConfig> = AnimationBankEntry> extends AnimBlock<TBankEntry> {
+export class TransitionBlock<TBankEntry extends EffectBankEntry<TransitionBlock, TransitionBlockConfig> = EffectBankEntry> extends AnimBlock<TBankEntry> {
   // determines whether properties affected by this transition should be removed from inline style upon finishing animation
   private removeInlineStyleOnFinish: boolean = false;
 
@@ -186,7 +186,7 @@ export class TransitionBlock<TBankEntry extends AnimationBankEntry<TransitionBlo
 
   protected _onFinishForward(): void {
     if (this.removeInlineStyleOnFinish) {
-      const keyframe = this.animArgs[0] as Keyframe;
+      const keyframe = this.effectOptions[0] as Keyframe;
       for (const property in keyframe) {
         (this.domElem as HTMLElement).style[property as any] = "";
       }
@@ -220,8 +220,8 @@ export class ConnectorSetterBlock extends AnimBlock {
     pointA: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
     pointB: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
     animName: string,
-    bank: AnimationBank,
-    category: AnimationCategory,
+    bank: EffectBank,
+    category: EffectCategory,
     connectorConfig: Partial<WbfkConnectorConfig> = {},
     ) {
     super(connectorElem, animName, bank, category);
@@ -270,7 +270,7 @@ export class ConnectorSetterBlock extends AnimBlock {
 /*****************************************************************************************************************************/
 /****************************************        CONNECTOR ENTRANCE        ***************************************************/
 /*****************************************************************************************************************************/
-export class ConnectorEntranceBlock<TBankEntry extends AnimationBankEntry = AnimationBankEntry> extends AnimBlock<TBankEntry> {
+export class ConnectorEntranceBlock<TBankEntry extends EffectBankEntry = EffectBankEntry> extends AnimBlock<TBankEntry> {
   domElem: WbfkConnector;
 
   protected get defaultConfig(): Partial<AnimBlockConfig> {
@@ -280,8 +280,8 @@ export class ConnectorEntranceBlock<TBankEntry extends AnimationBankEntry = Anim
     };
   }
 
-  constructor(connectorElem: WbfkConnector | null | undefined, public animName: string, bank: AnimationBank, category: AnimationCategory) {
-    super(connectorElem, animName, bank, category);
+  constructor(connectorElem: WbfkConnector | null | undefined, public effectName: string, bank: EffectBank, category: EffectCategory) {
+    super(connectorElem, effectName, bank, category);
 
     if (!(connectorElem instanceof WbfkConnector)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WbfkConnector.name} element.`); }
     this.domElem = connectorElem;
@@ -304,7 +304,7 @@ export class ConnectorEntranceBlock<TBankEntry extends AnimationBankEntry = Anim
 /*****************************************************************************************************************************/
 /******************************************        CONNECTOR EXIT        *****************************************************/
 /*****************************************************************************************************************************/
-export class ConnectorExitBlock<TBankEntry extends AnimationBankEntry = AnimationBankEntry> extends AnimBlock<TBankEntry> {
+export class ConnectorExitBlock<TBankEntry extends EffectBankEntry = EffectBankEntry> extends AnimBlock<TBankEntry> {
   domElem: WbfkConnector;
 
   protected get defaultConfig(): Partial<AnimBlockConfig> {
@@ -314,8 +314,8 @@ export class ConnectorExitBlock<TBankEntry extends AnimationBankEntry = Animatio
     };
   }
 
-  constructor(connectorElem: WbfkConnector | null | undefined, public animName: string, bank: AnimationBank, category: AnimationCategory) {
-    super(connectorElem, animName, bank, category);
+  constructor(connectorElem: WbfkConnector | null | undefined, public effectName: string, bank: EffectBank, category: EffectCategory) {
+    super(connectorElem, effectName, bank, category);
 
     if (!(connectorElem instanceof WbfkConnector)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WbfkConnector.name} element.`); }
 

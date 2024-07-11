@@ -2,7 +2,7 @@ import {
   TransitionBlock, EmphasisBlock, EntranceBlock, ExitBlock, ScrollerBlock, MotionBlock, ExitBlockConfig, TransitionBlockConfig, EntranceBlockConfig,
   ConnectorEntranceBlock, ConnectorExitBlock,
 } from "./categoricalBlocks";
-import { AnimationBank, WebFlik } from "./WebFlik";
+import { EffectBank, WebFlik } from "./WebFlik";
 import { computeSelfScrollingBounds, negateNumString, overrideHidden, splitXYAlignmentString, splitXYTupleString, unOverrideHidden } from "./utils/helpers";
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "./utils/interfaces";
 import { useEasing } from "./utils/easing";
@@ -135,7 +135,7 @@ export const presetEntrances = {
   },
 
   // invalidProperty: 5,
-} satisfies AnimationBank<EntranceBlock, EntranceBlockConfig>;
+} satisfies EffectBank<EntranceBlock, EntranceBlockConfig>;
 
 
 export const presetExits = {
@@ -256,7 +256,7 @@ export const presetExits = {
       }
     }
   },
-} satisfies AnimationBank<ExitBlock, ExitBlockConfig>;
+} satisfies EffectBank<ExitBlock, ExitBlockConfig>;
 
 
 export const presetEmphases = {
@@ -284,7 +284,7 @@ export const presetEmphases = {
       classesToRemoveOnFinish: [`wbfk-highlightable`],
     },
   },
-} satisfies AnimationBank<EmphasisBlock>;
+} satisfies EffectBank<EmphasisBlock>;
 
 
 export const presetMotions = {
@@ -374,7 +374,7 @@ export const presetMotions = {
       ];
     },
   },
-} satisfies AnimationBank<MotionBlock>;
+} satisfies EffectBank<MotionBlock>;
 
 
 export const presetTransitions = {
@@ -415,7 +415,7 @@ export const presetTransitions = {
       return [ [original, {...keyframe}] ];
     },
   },
-} satisfies AnimationBank<TransitionBlock, TransitionBlockConfig>;
+} satisfies EffectBank<TransitionBlock, TransitionBlockConfig>;
 
 
 export const presetConnectorEntrances = {
@@ -480,7 +480,7 @@ export const presetConnectorEntrances = {
       }
     },
   },
-} satisfies AnimationBank<ConnectorEntranceBlock>;
+} satisfies EffectBank<ConnectorEntranceBlock>;
 
 
 export const presetConnectorExits = {
@@ -542,7 +542,7 @@ export const presetConnectorExits = {
       }
     },
   },
-} satisfies AnimationBank<ConnectorExitBlock>;
+} satisfies EffectBank<ConnectorExitBlock>;
 
 
 export const presetScrolls = {
@@ -655,4 +655,4 @@ export const presetScrolls = {
       runGeneratorsNow: false,
     }
   },
-} satisfies AnimationBank<ScrollerBlock>;
+} satisfies EffectBank<ScrollerBlock>;

@@ -80,7 +80,7 @@ export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg =
       : ''
     ) +
     (block
-      ? `\nBlock:    [Category: ${block.category}] [Animation: ${block.animName}]` +
+      ? `\nBlock:    [Category: ${block.category}] [Effect: ${block.effectName}]` +
         `\nDOM Tag:  ${getOpeningTag(element)}`
       : ''
     ) +

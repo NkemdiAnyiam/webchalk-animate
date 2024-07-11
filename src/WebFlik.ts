@@ -34,20 +34,20 @@ type RafMutatorsFunctionsGenerator<T extends unknown> = {
   generateRafMutatorGenerators(this: T & Readonly<(Pick<AnimBlock, 'computeTween'>)>, ...animArgs: unknown[]): [forwardGenerator: () => () => void, backwardGenerator: () => () => void];
 };
 
-export type AnimationBankEntry<TBlockThis extends unknown = unknown, TConfig extends unknown = unknown> = Readonly<
+export type EffectBankEntry<TBlockThis extends unknown = unknown, TConfig extends unknown = unknown> = Readonly<
   { config?: Partial<TConfig>; }
   & (KeyframesGenerator<TBlockThis> | KeyframesFunctionsGenerator<TBlockThis> | RafMutatorsGenerator<TBlockThis> | RafMutatorsFunctionsGenerator<TBlockThis>)
 >;
 
 // represents an object where every string key is paired with a KeyframesBankEntry value
-export type AnimationBank<TBlock extends AnimBlock = AnimBlock, TBlockConfig extends unknown = AnimBlockConfig> = Readonly<
-  Record<string, AnimationBankEntry<
-    Readonly<Pick<TBlock, 'animName' | 'domElem'>>,
+export type EffectBank<TBlock extends AnimBlock = AnimBlock, TBlockConfig extends unknown = AnimBlockConfig> = Readonly<
+  Record<string, EffectBankEntry<
+    Readonly<Pick<TBlock, 'effectName' | 'domElem'>>,
     TBlockConfig
   >>
 >;
 
-export type GeneratorParams<TBankEntry extends AnimationBankEntry> = Parameters<
+export type GeneratorParams<TBankEntry extends EffectBankEntry> = Parameters<
 TBankEntry extends KeyframesGenerator<unknown> ? TBankEntry['generateKeyframes'] : (
   TBankEntry extends KeyframesFunctionsGenerator<unknown> ? TBankEntry['generateKeyframeGenerators'] : (
     TBankEntry extends RafMutatorsGenerator<unknown> ? TBankEntry['generateRafMutators'] : (
@@ -61,8 +61,8 @@ TBankEntry extends KeyframesGenerator<unknown> ? TBankEntry['generateKeyframes']
 
 // CHANGE NOTE: AnimNameIn now handles keyof and Extract
 // extracts only those strings in an object whose paired value is a KeyframesBankEntry
-export type AnimationNameIn<TBank extends AnimationBank> = Exclude<keyof {
-  [key in keyof TBank as TBank[key] extends AnimationBankEntry ? key : never]: TBank[key];
+export type AnimationNameIn<TBank extends EffectBank> = Exclude<keyof {
+  [key in keyof TBank as TBank[key] extends EffectBankEntry ? key : never]: TBank[key];
 }, number | symbol>;
 
 
@@ -71,22 +71,22 @@ class _WebFlik {
   <
    // default = {} ensures intellisense for a given bank still works
    // without specifying the field (why? not sure)
-    UserEntranceBank extends AnimationBank<EntranceBlock, EntranceBlockConfig> = {},
-    UserExitBank extends AnimationBank<ExitBlock, ExitBlockConfig> = {},
-    UserEmphasisBank extends AnimationBank = {},
-    UserMotionBank extends AnimationBank = {},
-    _EmptyTransitionBank extends AnimationBank = {},
-    _EmptyConnectorEntranceBank extends AnimationBank = {},
-    _EmptyConnectorExitBank extends AnimationBank = {},
-    _EmptyScrollerBank extends AnimationBank = {},
+    UserEntranceBank extends EffectBank<EntranceBlock, EntranceBlockConfig> = {},
+    UserExitBank extends EffectBank<ExitBlock, ExitBlockConfig> = {},
+    UserEmphasisBank extends EffectBank = {},
+    UserMotionBank extends EffectBank = {},
+    _EmptyTransitionBank extends EffectBank = {},
+    _EmptyConnectorEntranceBank extends EffectBank = {},
+    _EmptyConnectorExitBank extends EffectBank = {},
+    _EmptyScrollerBank extends EffectBank = {},
     IncludePresets extends boolean = true
   >
   (
     customBankAddons: {
-      entrances?: UserEntranceBank & AnimationBank<EntranceBlock, EntranceBlockConfig>;
-      exits?: UserExitBank & AnimationBank<ExitBlock, ExitBlockConfig>;
-      emphases?: UserEmphasisBank & AnimationBank<EmphasisBlock>;
-      motions?: UserMotionBank & AnimationBank<MotionBlock>;
+      entrances?: UserEntranceBank & EffectBank<EntranceBlock, EntranceBlockConfig>;
+      exits?: UserExitBank & EffectBank<ExitBlock, ExitBlockConfig>;
+      emphases?: UserEmphasisBank & EffectBank<EmphasisBlock>;
+      motions?: UserMotionBank & EffectBank<MotionBlock>;
     } = {},
     includePresets: IncludePresets | void = true as IncludePresets
   ) {
@@ -175,10 +175,10 @@ class _WebFlik {
     };
   }
 
-  private static checkBanksFormatting(...banks: (AnimationBank | undefined)[]) {
+  private static checkBanksFormatting(...banks: (EffectBank | undefined)[]) {
     const errors: string[] = [];
     
-    const checkForArrowFunctions = (bank?: AnimationBank) => {
+    const checkForArrowFunctions = (bank?: EffectBank) => {
       if (!bank) { return; }
       for (const animName in bank) {
         const entry = bank[animName];
