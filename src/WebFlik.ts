@@ -7,7 +7,7 @@ import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
 import { presetEntrances, presetExits, presetEmphases, presetMotions, presetConnectorEntrances, presetConnectorExits, presetScrolls, presetTransitions } from "./presetBanks";
 import { useEasing } from "./utils/easing";
 import { createStyles } from "./utils/helpers";
-import { MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./utils/interfaces";
+import { MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions, StripDuplicateMethodAutocompletion } from "./utils/interfaces";
 
 type KeyframesGenerator<TBlockContext extends unknown> = {
   generateKeyframes(this: TBlockContext, ...effectOptions: unknown[]): [forward: Keyframe[], backward?: Keyframe[]];
@@ -36,7 +36,9 @@ type RafMutatorsGeneratorsGenerator<TBlockContext extends unknown> = {
 
 export type EffectGenerator<TBlockContext extends unknown = unknown, TConfig extends unknown = unknown> = Readonly<
   { config?: Partial<TConfig>; }
-  & (KeyframesGenerator<TBlockContext> | KeyframesGeneratorsGenerator<TBlockContext> | RafMutatorsGenerator<TBlockContext> | RafMutatorsGeneratorsGenerator<TBlockContext>)
+  & StripDuplicateMethodAutocompletion<(
+    KeyframesGenerator<TBlockContext> | KeyframesGeneratorsGenerator<TBlockContext> | RafMutatorsGenerator<TBlockContext> | RafMutatorsGeneratorsGenerator<TBlockContext>
+  )>
 >;
 
 // represents an object where every string key is paired with a EffectGenerator value
