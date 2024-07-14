@@ -11,7 +11,7 @@ import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
 export type EntranceBlockConfig = AnimBlockConfig & {
   hideNowType: 'display-none' | 'visibility-hidden' | null;
 };
-export class EntranceBlock<TBankEntry extends EffectGenerator<EntranceBlock, EntranceBlockConfig> = EffectGenerator> extends AnimBlock<TBankEntry> {
+export class EntranceBlock<TEffectGenerator extends EffectGenerator<EntranceBlock, EntranceBlockConfig> = EffectGenerator> extends AnimBlock<TEffectGenerator> {
   private backwardsHidingMethod: ExitBlockConfig['exitType'] = '' as ExitBlockConfig['exitType'];
 
   protected get defaultConfig(): Partial<EntranceBlockConfig> {
@@ -22,7 +22,7 @@ export class EntranceBlock<TBankEntry extends EffectGenerator<EntranceBlock, Ent
     };
   }
 
-  /**@internal*/initialize(effectOptions: EffectOptions<TBankEntry>, effectConfig: Partial<EntranceBlockConfig> = {}) {
+  /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<EntranceBlockConfig> = {}) {
     super.initialize(effectOptions, effectConfig);
 
     const hideNow = effectConfig.hideNowType ?? this.effectGenerator.config?.hideNowType ?? this.defaultConfig.hideNowType!;
@@ -94,7 +94,7 @@ export type ExitBlockConfig = AnimBlockConfig & {
   exitType: 'display-none' | 'visibility-hidden';
 };
 // TODO: prevent already hidden blocks from being allowed to use exit animation
-export class ExitBlock<TBankEntry extends EffectGenerator<ExitBlock, ExitBlockConfig> = EffectGenerator> extends AnimBlock<TBankEntry> {
+export class ExitBlock<TEffectGenerator extends EffectGenerator<ExitBlock, ExitBlockConfig> = EffectGenerator> extends AnimBlock<TEffectGenerator> {
   private exitType: ExitBlockConfig['exitType'] = '' as ExitBlockConfig['exitType'];
 
   protected get defaultConfig(): Partial<ExitBlockConfig> {
@@ -105,7 +105,7 @@ export class ExitBlock<TBankEntry extends EffectGenerator<ExitBlock, ExitBlockCo
     };
   }
 
-  /**@internal*/initialize(effectOptions: EffectOptions<TBankEntry>, effectConfig: Partial<ExitBlockConfig> = {}) {
+  /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<ExitBlockConfig> = {}) {
     super.initialize(effectOptions, effectConfig);
 
     const exitType = effectConfig.exitType ?? this.effectGenerator.config?.exitType ?? this.defaultConfig.exitType!;
@@ -135,7 +135,7 @@ export class ExitBlock<TBankEntry extends EffectGenerator<ExitBlock, ExitBlockCo
 /*****************************************************************************************************************************/
 /*********************************************        EMPHASIS        ********************************************************/
 /*****************************************************************************************************************************/
-export class EmphasisBlock<TBankEntry extends EffectGenerator = EffectGenerator> extends AnimBlock<TBankEntry> {
+export class EmphasisBlock<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimBlock<TEffectGenerator> {
   protected get defaultConfig(): Partial<AnimBlockConfig> {
     return {};
   }
@@ -144,7 +144,7 @@ export class EmphasisBlock<TBankEntry extends EffectGenerator = EffectGenerator>
 /*****************************************************************************************************************************/
 /**********************************************        MOTION        *********************************************************/
 /*****************************************************************************************************************************/
-export class MotionBlock<TBankEntry extends EffectGenerator = EffectGenerator> extends AnimBlock<TBankEntry> {
+export class MotionBlock<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimBlock<TEffectGenerator> {
   protected get defaultConfig(): Partial<AnimBlockConfig> {
     return {
       composite: 'accumulate',
@@ -156,7 +156,7 @@ export class MotionBlock<TBankEntry extends EffectGenerator = EffectGenerator> e
 /*********************************************        SCROLLER        ********************************************************/
 /*****************************************************************************************************************************/
 // TODO: implement rewindScrollBehavior: 'prior-user-position' | 'prior-scroll-target' = 'prior-scroll-target'
-export class ScrollerBlock<TBankEntry extends EffectGenerator = EffectGenerator> extends AnimBlock<TBankEntry> {
+export class ScrollerBlock<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimBlock<TEffectGenerator> {
   protected get defaultConfig(): Partial<AnimBlockConfig> {
     return {
       commitsStyles: false,
@@ -170,7 +170,7 @@ export class ScrollerBlock<TBankEntry extends EffectGenerator = EffectGenerator>
 export type TransitionBlockConfig = AnimBlockConfig & {
   removeInlineStylesOnFinish: boolean;
 }
-export class TransitionBlock<TBankEntry extends EffectGenerator<TransitionBlock, TransitionBlockConfig> = EffectGenerator> extends AnimBlock<TBankEntry> {
+export class TransitionBlock<TEffectGenerator extends EffectGenerator<TransitionBlock, TransitionBlockConfig> = EffectGenerator> extends AnimBlock<TEffectGenerator> {
   // determines whether properties affected by this transition should be removed from inline style upon finishing animation
   private removeInlineStyleOnFinish: boolean = false;
 
@@ -178,7 +178,7 @@ export class TransitionBlock<TBankEntry extends EffectGenerator<TransitionBlock,
     return {};
   }
 
-  /**@internal*/initialize(effectOptions: EffectOptions<TBankEntry>, effectConfig: Partial<TransitionBlockConfig> = {}) {
+  /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<TransitionBlockConfig> = {}) {
     super.initialize(effectOptions, effectConfig);
     this.removeInlineStyleOnFinish = effectConfig.removeInlineStylesOnFinish ?? this.effectGenerator.config?.removeInlineStylesOnFinish ?? this.defaultConfig.removeInlineStylesOnFinish!;
     return this;
@@ -270,7 +270,7 @@ export class ConnectorSetterBlock extends AnimBlock {
 /*****************************************************************************************************************************/
 /****************************************        CONNECTOR ENTRANCE        ***************************************************/
 /*****************************************************************************************************************************/
-export class ConnectorEntranceBlock<TBankEntry extends EffectGenerator = EffectGenerator> extends AnimBlock<TBankEntry> {
+export class ConnectorEntranceBlock<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimBlock<TEffectGenerator> {
   domElem: WbfkConnector;
 
   protected get defaultConfig(): Partial<AnimBlockConfig> {
@@ -304,7 +304,7 @@ export class ConnectorEntranceBlock<TBankEntry extends EffectGenerator = EffectG
 /*****************************************************************************************************************************/
 /******************************************        CONNECTOR EXIT        *****************************************************/
 /*****************************************************************************************************************************/
-export class ConnectorExitBlock<TBankEntry extends EffectGenerator = EffectGenerator> extends AnimBlock<TBankEntry> {
+export class ConnectorExitBlock<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimBlock<TEffectGenerator> {
   domElem: WbfkConnector;
 
   protected get defaultConfig(): Partial<AnimBlockConfig> {
