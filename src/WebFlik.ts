@@ -49,11 +49,11 @@ export type EffectGeneratorBank<TBlock extends AnimBlock = AnimBlock, TBlockConf
   >>
 >;
 
-export type EffectOptions<TBankGenerator extends EffectGenerator> = Parameters<
-TBankGenerator extends KeyframesGenerator<unknown> ? TBankGenerator['generateKeyframes'] : (
-  TBankGenerator extends KeyframesGeneratorsGenerator<unknown> ? TBankGenerator['generateKeyframeGenerators'] : (
-    TBankGenerator extends RafMutatorsGenerator<unknown> ? TBankGenerator['generateRafMutators'] : (
-      TBankGenerator extends RafMutatorsGeneratorsGenerator<unknown> ? TBankGenerator['generateRafMutatorGenerators'] : (
+export type EffectOptions<TEffectGenerator extends EffectGenerator> = Parameters<
+TEffectGenerator extends KeyframesGenerator<unknown> ? TEffectGenerator['generateKeyframes'] : (
+  TEffectGenerator extends KeyframesGeneratorsGenerator<unknown> ? TEffectGenerator['generateKeyframeGenerators'] : (
+    TEffectGenerator extends RafMutatorsGenerator<unknown> ? TEffectGenerator['generateRafMutators'] : (
+      TEffectGenerator extends RafMutatorsGeneratorsGenerator<unknown> ? TEffectGenerator['generateRafMutatorGenerators'] : (
         never
       )
     )
