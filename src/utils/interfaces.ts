@@ -5,7 +5,10 @@ export type Union<T, U> = T | (U & Nothing);
  * For functions, explicitly adding "& Function" seems to get rid of the version without the method signature.
  */
 export type StripDuplicateMethodAutocompletion<T> = { [K in keyof T]: T[K] extends Function ? T[K] & Function : T[K] }
+
 export type KeysOf<T extends object> = (Extract<keyof T, string>)[];
+export type ReadonlyPick<T, K extends keyof T> = Readonly<Pick<T, K>>;
+export type ReadonlyRecord<K extends keyof any, T> = Readonly<Record<K, T>>;
 
 type TranslationOffset = {
   offsetSelf: `${CssLength}, ${CssLength}`; // determines offsets to apply to both X and Y positional properties

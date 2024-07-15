@@ -7,7 +7,7 @@ import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
 import { presetEntrances, presetExits, presetEmphases, presetMotions, presetConnectorEntrances, presetConnectorExits, presetScrolls, presetTransitions } from "./presetBanks";
 import { useEasing } from "./utils/easing";
 import { createStyles } from "./utils/helpers";
-import { MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions, StripDuplicateMethodAutocompletion } from "./utils/interfaces";
+import { MultiUnitPlacementX, MultiUnitPlacementY, ReadonlyPick, ReadonlyRecord, ScrollingOptions, StripDuplicateMethodAutocompletion } from "./utils/interfaces";
 
 type KeyframesGenerator<TBlockContext extends unknown> = {
   generateKeyframes(this: TBlockContext, ...effectOptions: unknown[]): [forward: Keyframe[], backward?: Keyframe[]];
@@ -24,14 +24,14 @@ type KeyframesGeneratorsGenerator<TBlockContext extends unknown> = {
 type RafMutatorsGenerator<TBlockContext extends unknown> = {
   generateKeyframes?: never;
   generateKeyframeGenerators?: never;
-  generateRafMutators(this: TBlockContext & Readonly<(Pick<AnimBlock, 'computeTween'>)>, ...effectOptions: unknown[]): [forwardMutator: () => void, backwardMutator: () => void];
+  generateRafMutators(this: TBlockContext & ReadonlyPick<AnimBlock, 'computeTween'>, ...effectOptions: unknown[]): [forwardMutator: () => void, backwardMutator: () => void];
   generateRafMutatorGenerators?: never;
 };
 type RafMutatorsGeneratorsGenerator<TBlockContext extends unknown> = {
   generateKeyframes?: never;
   generateKeyframeGenerators?: never;
   generateRafMutators?: never;
-  generateRafMutatorGenerators(this: TBlockContext & Readonly<(Pick<AnimBlock, 'computeTween'>)>, ...effectOptions: unknown[]): [forwardGenerator: () => () => void, backwardGenerator: () => () => void];
+  generateRafMutatorGenerators(this: TBlockContext & ReadonlyPick<AnimBlock, 'computeTween'>, ...effectOptions: unknown[]): [forwardGenerator: () => () => void, backwardGenerator: () => () => void];
 };
 
 export type EffectGenerator<TBlockContext extends unknown = unknown, TConfig extends unknown = unknown> = Readonly<
@@ -42,11 +42,9 @@ export type EffectGenerator<TBlockContext extends unknown = unknown, TConfig ext
 >;
 
 // represents an object where every string key is paired with a EffectGenerator value
-export type EffectGeneratorBank<TBlock extends AnimBlock = AnimBlock, TBlockConfig extends unknown = AnimBlockConfig> = Readonly<
-  Record<string, EffectGenerator<
-    Readonly<Pick<TBlock, 'effectName' | 'domElem'>>,
-    TBlockConfig
-  >>
+export type EffectGeneratorBank<TBlock extends AnimBlock = AnimBlock, TBlockConfig extends {} = AnimBlockConfig> = ReadonlyRecord<
+  string, 
+  EffectGenerator<ReadonlyPick<TBlock, 'effectName' | 'domElem'>, TBlockConfig>
 >;
 
 export type EffectOptions<TEffectGenerator extends EffectGenerator> = Parameters<
@@ -61,8 +59,8 @@ TEffectGenerator extends KeyframesGenerator<unknown> ? TEffectGenerator['generat
 )
 >;
 
-// CHANGE NOTE: AnimNameIn now handles keyof and Extract
-// extracts only those strings in an object whose paired value is a KeyframesBankEntry
+// CHANGE NOTE: EffectNameIn now handles keyof and Extract
+// extracts only those strings in an object whose paired value is an EffectGenerator
 export type EffectNameIn<TGeneratorBank extends EffectGeneratorBank> = Exclude<keyof {
   [key in keyof TGeneratorBank as TGeneratorBank[key] extends EffectGenerator ? key : never]: TGeneratorBank[key];
 }, number | symbol>;
