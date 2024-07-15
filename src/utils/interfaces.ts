@@ -1,6 +1,27 @@
-import { PostfixProps } from "./utilityTypes";
+import { AnimBlockConfig } from "../AnimBlock";
+import { EffectGenerator } from "../WebFlik";
+import { PrefixProps } from "./utilityTypes";
 
-export type AddImportantConfig<TBlockConfig extends {}> = PostfixProps<TBlockConfig, "__nooverride"> & TBlockConfig;
+type FrozenPrefix = '__';
+export type FromFrozenKey<S extends string> = S extends `${FrozenPrefix}${infer key}` ? key : never;
+export type FromFrozenKeys<T extends Partial<AnimBlockConfig> | undefined> = keyof { [key in Extract<keyof T, string> as FromFrozenKey<key>]: void };
+export type ToFrozenKey<S extends string> = S extends `${FrozenPrefix}${string}` ? never : `${FrozenPrefix}${S}`;
+export type ToFrozenKeys<T extends AnimBlockConfig> = keyof { [key in Extract<keyof T, string> as ToFrozenKey<key>]: void }
+
+export type AddFreezableConfig<TBlockConfig extends AnimBlockConfig> = PrefixProps<TBlockConfig, FrozenPrefix> & TBlockConfig;
+
+/**
+ * Returns TBlockConfig without any props marked as frozen in TEffectGenerator's config.
+ * @interface StripFrozenConfig
+ * @typeParam TBlockConfig - Configuration interface for AnimBlock or an AnimBlock subclass.
+ * @typeParam TEffectGenerator - An effect generator defined in any generator bank.
+ */
+export type StripFrozenConfig<
+  TBlockConfig extends AnimBlockConfig,
+  TEffectGenerator extends EffectGenerator
+> = Omit<TBlockConfig, FromFrozenKeys<TEffectGenerator['config']>>;
+
+
 
 type TranslationOffset = {
   offsetSelf: `${CssLength}, ${CssLength}`; // determines offsets to apply to both X and Y positional properties
