@@ -7,7 +7,8 @@ import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
 import { presetEntrances, presetExits, presetEmphases, presetMotions, presetConnectorEntrances, presetConnectorExits, presetScrolls, presetTransitions } from "./presetBanks";
 import { useEasing } from "./utils/easing";
 import { createStyles } from "./utils/helpers";
-import { MultiUnitPlacementX, MultiUnitPlacementY, ReadonlyPick, ReadonlyRecord, ScrollingOptions, StripDuplicateMethodAutocompletion } from "./utils/interfaces";
+import { MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./utils/interfaces";
+import { ReadonlyPick, ReadonlyRecord, StripDuplicateMethodAutocompletion } from "./utils/utilityTypes";
 
 type KeyframesGenerator<TBlockContext extends unknown> = {
   generateKeyframes(this: TBlockContext, ...effectOptions: unknown[]): [forward: Keyframe[], backward?: Keyframe[]];

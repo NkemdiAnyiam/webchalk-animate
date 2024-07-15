@@ -1,4 +1,4 @@
-import { Union } from "./interfaces";
+import { Union } from "./utilityTypes";
 
 type PresetLinearEasingKey = `${`power${'1' | '2' | '3' | '4'}` | `quad` | `expo` | `circ` | `sine` | `back` | `elastic` | `bounce`}-${'in' | 'out' | 'in-out'}`;
 // type EasingFunction<funcName extends string> = `${funcName}(${string})`;
