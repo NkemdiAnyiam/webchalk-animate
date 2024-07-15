@@ -1,3 +1,7 @@
+import { PostfixProps } from "./utilityTypes";
+
+export type AddImportantConfig<TBlockConfig extends {}> = PostfixProps<TBlockConfig, "__nooverride"> & TBlockConfig;
+
 type TranslationOffset = {
   offsetSelf: `${CssLength}, ${CssLength}`; // determines offsets to apply to both X and Y positional properties
   offsetSelfX: CssLength; // determines offset to apply to the respective positional property
