@@ -4,7 +4,7 @@ import { EffectOptions, EffectGeneratorBank, EffectGenerator } from "./WebFlik";
 import { mergeArrays } from "./utils/helpers";
 import { EasingString, useEasing } from "./utils/easing";
 import { CustomErrors, BlockErrorGenerator, errorTip, generateError } from "./utils/errors";
-import { EffectCategory } from "./utils/interfaces";
+import { EffectCategory, StripFrozenConfig } from "./utils/interfaces";
 import { WbfkConnector } from "./WbfkConnector";
 import { WebFlikAnimation } from "./WebFlikAnimation";
 
@@ -33,7 +33,7 @@ export type AnimBlockConfig = KeyframeTimingOptions & CustomKeyframeEffectOption
 
 export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = EffectGenerator> implements AnimBlockConfig {
   private static id: number = 0;
-  private static get emptyBankEntry() { return {generateKeyframes() { return [[], []]; }} as EffectGenerator; }
+  public static get emptyEffectGenerator() { return {generateKeyframes() { return [[], []]; }} as EffectGenerator; }
   protected abstract get defaultConfig(): Partial<AnimBlockConfig>;
 
   parentSequence?: AnimSequence;
@@ -42,6 +42,8 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   timelineID: number = NaN; // set to match the id of the parent AnimTimeline
   id: number;
   protected animation: WebFlikAnimation = {} as WebFlikAnimation;
+  public abstract get category(): EffectCategory;
+  effectName: string;
   effectGenerator: TEffectGenerator;
   effectOptions: EffectOptions<TEffectGenerator> = {} as EffectOptions<TEffectGenerator>;
   domElem: Element;
@@ -132,72 +134,28 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
     [this.animation.sequenceID, this.animation.timelineID] = [idSeq, idTimeline];
   }
 
-  constructor(domElem: Element | null | undefined, public effectName: string, bank: EffectGeneratorBank, public category: EffectCategory) {
+  constructor(domElem: Element | null | undefined, effectName: string, bank: EffectGeneratorBank) {
     this.id = AnimBlock.id++;
-    
-    if ((category === 'Entrance' || category === 'Exit') && domElem instanceof WbfkConnector) {
-      throw this.generateError(CustomErrors.InvalidElementError,
-        `Connectors cannot be animated using ${category}().` +
-        `${errorTip(`WbfkConnector elements cannot be animated using Entrance() or Exit() because many of the animations are not really applicable.` +
-          ` Instead, any entrance or exit animations that make sense for connectors are defined in ConnectorEntrance() and ConnectorExit().`
-        )}`,
-        domElem
-      );
-    }
     
     if (!domElem) {
       throw this.generateError(CustomErrors.InvalidElementError, `Element must not be null or undefined.`);
     }
-    
-    // if empty bank was passed, generate a bank entry with a no-op animation
-    if (Object.keys(bank).length === 0) { this.effectGenerator = AnimBlock.emptyBankEntry as TEffectGenerator; }
-    else if (!bank[effectName]) { throw this.generateError(RangeError, `Invalid ${this.category} effect name "${effectName}".`); }
-    else { this.effectGenerator = bank[effectName] as TEffectGenerator; }
-
     this.domElem = domElem;
-  }
+    this.effectName = effectName;
+    
+    this.effectGenerator = bank[effectName] as TEffectGenerator;
 
-  private mergeConfigs(userConfig: Partial<AnimBlockConfig>, bankEntryConfig: Partial<AnimBlockConfig>): Partial<AnimBlockConfig> {
-    return {
-      // subclass defaults take priority
-      ...this.defaultConfig,
-
-      // config defined in effect bank take priority
-      ...bankEntryConfig,
-
-      // custom config take priority
-      ...userConfig,
-
-      // mergeable properties
-      classesToAddOnStart: mergeArrays(
-        this.defaultConfig.classesToAddOnStart ?? [],
-        bankEntryConfig.classesToAddOnStart ?? [],
-        userConfig.classesToAddOnStart ?? [],
-      ),
-
-      classesToRemoveOnStart: mergeArrays(
-        this.defaultConfig.classesToRemoveOnStart ?? [],
-        bankEntryConfig.classesToRemoveOnStart ?? [],
-        userConfig.classesToRemoveOnStart ?? [],
-      ),
-
-      classesToAddOnFinish: mergeArrays(
-        this.defaultConfig.classesToAddOnFinish ?? [],
-        bankEntryConfig.classesToAddOnFinish ?? [],
-        userConfig.classesToAddOnFinish ?? [],
-      ),
-
-      classesToRemoveOnFinish: mergeArrays(
-        this.defaultConfig.classesToRemoveOnFinish ?? [],
-        bankEntryConfig.classesToRemoveOnFinish ?? [],
-        userConfig.classesToRemoveOnFinish ?? [],
-      ),
-    };
+    // checking if this.effectGenerator exists is deferred until initialize()
   }
 
   /**@internal*/
-  initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<AnimBlockConfig> = {}): this {
+  initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<StripFrozenConfig<AnimBlockConfig, TEffectGenerator>> = {}): this {
+    // Throw error if invalid effectName
+    // Deferred until initialize() so that this.category has actually been initialized by derived class by now
+    if (!this.effectGenerator) { throw this.generateError(RangeError, `Invalid effect name: "${this.effectName}" does not exists in the "${this.category}" category.`); }
+
     this.effectOptions = effectOptions;
+
     const mergedConfig = this.mergeConfigs(effectConfig, this.effectGenerator.config ?? {});
     Object.assign(this, mergedConfig);
     // cannot be exactly 0 because that causes some Animation-related bugs that can't be easily worked around
@@ -292,6 +250,44 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
     }
 
     return this;
+  }
+
+  private mergeConfigs(userConfig: Partial<AnimBlockConfig>, effectGeneratorConfig: Partial<AnimBlockConfig>): Partial<AnimBlockConfig> {
+    return {
+      // subclass defaults take priority
+      ...this.defaultConfig,
+
+      // config defined in effect generator take priority
+      ...effectGeneratorConfig,
+
+      // custom config take priority
+      ...userConfig,
+
+      // mergeable properties
+      classesToAddOnStart: mergeArrays(
+        this.defaultConfig.classesToAddOnStart ?? [],
+        effectGeneratorConfig.classesToAddOnStart ?? [],
+        userConfig.classesToAddOnStart ?? [],
+      ),
+
+      classesToRemoveOnStart: mergeArrays(
+        this.defaultConfig.classesToRemoveOnStart ?? [],
+        effectGeneratorConfig.classesToRemoveOnStart ?? [],
+        userConfig.classesToRemoveOnStart ?? [],
+      ),
+
+      classesToAddOnFinish: mergeArrays(
+        this.defaultConfig.classesToAddOnFinish ?? [],
+        effectGeneratorConfig.classesToAddOnFinish ?? [],
+        userConfig.classesToAddOnFinish ?? [],
+      ),
+
+      classesToRemoveOnFinish: mergeArrays(
+        this.defaultConfig.classesToRemoveOnFinish ?? [],
+        effectGeneratorConfig.classesToRemoveOnFinish ?? [],
+        userConfig.classesToRemoveOnFinish ?? [],
+      ),
+    };
   }
 
   /*****************************************************************************************************************************/
@@ -566,5 +562,17 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
 
   private throwChildPlaybackError(funcName: string): never {
     throw this.generateError(CustomErrors.ChildPlaybackError, `Cannot directly call ${funcName}() on an animation block while is is part of a sequence.`);
+  }
+
+  protected preventConnector() {
+    if (this.domElem instanceof WbfkConnector) {
+      throw this.generateError(CustomErrors.InvalidElementError,
+        `Connectors cannot be animated using ${this.category}().` +
+        `${errorTip(`WbfkConnector elements cannot be animated using Entrance() or Exit() because many of the animations are not really applicable.` +
+          ` Instead, any entrance or exit animations that make sense for connectors are defined in ConnectorEntrance() and ConnectorExit().`
+        )}`,
+        this.domElem
+      );
+    }
   }
 }

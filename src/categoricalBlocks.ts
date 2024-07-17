@@ -1,8 +1,8 @@
 import { AnimBlock, AnimBlockConfig } from "./AnimBlock";
-import { EffectOptions, EffectGeneratorBank, EffectGenerator } from "./WebFlik";
+import { EffectOptions, EffectGenerator, EffectGeneratorBank } from "./WebFlik";
 import { CustomErrors, errorTip } from "./utils/errors";
 import { parseMultiUnitPlacement } from "./utils/helpers";
-import { EffectCategory, ParsedMultiUnitPlacement, MultiUnitPlacementX, MultiUnitPlacementY } from "./utils/interfaces";
+import { ParsedMultiUnitPlacement, MultiUnitPlacementX, MultiUnitPlacementY } from "./utils/interfaces";
 import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
 
 /*****************************************************************************************************************************/
@@ -12,6 +12,7 @@ export type EntranceBlockConfig = AnimBlockConfig & {
   hideNowType: 'display-none' | 'visibility-hidden' | null;
 };
 export class EntranceBlock<TEffectGenerator extends EffectGenerator<EntranceBlock, EntranceBlockConfig> = EffectGenerator> extends AnimBlock<TEffectGenerator> {
+  get category(): 'Entrance' { return 'Entrance'; }
   private backwardsHidingMethod: ExitBlockConfig['exitType'] = '' as ExitBlockConfig['exitType'];
 
   protected get defaultConfig(): Partial<EntranceBlockConfig> {
@@ -20,6 +21,11 @@ export class EntranceBlock<TEffectGenerator extends EffectGenerator<EntranceBloc
       runGeneratorsNow: true,
       hideNowType: null,
     };
+  }
+
+  constructor(domElem: Element | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
+    super(domElem, effectName, effectGeneratorBank);
+    super.preventConnector();
   }
 
   /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<EntranceBlockConfig> = {}) {
@@ -95,6 +101,7 @@ export type ExitBlockConfig = AnimBlockConfig & {
 };
 // TODO: prevent already hidden blocks from being allowed to use exit animation
 export class ExitBlock<TEffectGenerator extends EffectGenerator<ExitBlock, ExitBlockConfig> = EffectGenerator> extends AnimBlock<TEffectGenerator> {
+  get category(): 'Exit' { return 'Exit'; }
   private exitType: ExitBlockConfig['exitType'] = '' as ExitBlockConfig['exitType'];
 
   protected get defaultConfig(): Partial<ExitBlockConfig> {
@@ -103,6 +110,11 @@ export class ExitBlock<TEffectGenerator extends EffectGenerator<ExitBlock, ExitB
       runGeneratorsNow: true,
       exitType: 'display-none',
     };
+  }
+
+  constructor(domElem: Element | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
+    super(domElem, effectName, effectGeneratorBank);
+    super.preventConnector();
   }
 
   /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<ExitBlockConfig> = {}) {
@@ -136,6 +148,7 @@ export class ExitBlock<TEffectGenerator extends EffectGenerator<ExitBlock, ExitB
 /*********************************************        EMPHASIS        ********************************************************/
 /*****************************************************************************************************************************/
 export class EmphasisBlock<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimBlock<TEffectGenerator> {
+  public get category(): 'Emphasis' { return 'Emphasis'; }
   protected get defaultConfig(): Partial<AnimBlockConfig> {
     return {};
   }
@@ -145,6 +158,7 @@ export class EmphasisBlock<TEffectGenerator extends EffectGenerator = EffectGene
 /**********************************************        MOTION        *********************************************************/
 /*****************************************************************************************************************************/
 export class MotionBlock<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimBlock<TEffectGenerator> {
+  public get category(): 'Motion' { return 'Motion'; }
   protected get defaultConfig(): Partial<AnimBlockConfig> {
     return {
       composite: 'accumulate',
@@ -157,6 +171,7 @@ export class MotionBlock<TEffectGenerator extends EffectGenerator = EffectGenera
 /*****************************************************************************************************************************/
 // TODO: implement rewindScrollBehavior: 'prior-user-position' | 'prior-scroll-target' = 'prior-scroll-target'
 export class ScrollerBlock<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimBlock<TEffectGenerator> {
+  public get category(): 'Scroller' { return 'Scroller'; }
   protected get defaultConfig(): Partial<AnimBlockConfig> {
     return {
       commitsStyles: false,
@@ -171,6 +186,7 @@ export type TransitionBlockConfig = AnimBlockConfig & {
   removeInlineStylesOnFinish: boolean;
 }
 export class TransitionBlock<TEffectGenerator extends EffectGenerator<TransitionBlock, TransitionBlockConfig> = EffectGenerator> extends AnimBlock<TEffectGenerator> {
+  public get category(): 'Transition' { return 'Transition'; }
   // determines whether properties affected by this transition should be removed from inline style upon finishing animation
   private removeInlineStyleOnFinish: boolean = false;
 
@@ -198,6 +214,7 @@ export class TransitionBlock<TEffectGenerator extends EffectGenerator<Transition
 /*****************************************        CONNECTOR SETTER        ****************************************************/
 /*****************************************************************************************************************************/
 export class ConnectorSetterBlock extends AnimBlock {
+  public get category(): 'Connector Setter' { return 'Connector Setter'; }
   domElem: WbfkConnector;
   previousPointA?: [elemA: Element, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
   previousPointB?: [elemB: Element, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
@@ -220,11 +237,10 @@ export class ConnectorSetterBlock extends AnimBlock {
     pointA: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
     pointB: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
     effectName: string,
-    bank: EffectGeneratorBank,
-    category: EffectCategory,
+    effectGeneratorBank: EffectGeneratorBank,
     connectorConfig: Partial<WbfkConnectorConfig> = {},
     ) {
-    super(connectorElem, effectName, bank, category);
+    super(connectorElem, effectName, effectGeneratorBank);
 
     if (!(connectorElem instanceof WbfkConnector)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WbfkConnector.name} element.`); }
 
@@ -271,6 +287,7 @@ export class ConnectorSetterBlock extends AnimBlock {
 /****************************************        CONNECTOR ENTRANCE        ***************************************************/
 /*****************************************************************************************************************************/
 export class ConnectorEntranceBlock<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimBlock<TEffectGenerator> {
+  public get category(): 'Connector Entrance' { return 'Connector Entrance'; }
   domElem: WbfkConnector;
 
   protected get defaultConfig(): Partial<AnimBlockConfig> {
@@ -280,8 +297,8 @@ export class ConnectorEntranceBlock<TEffectGenerator extends EffectGenerator = E
     };
   }
 
-  constructor(connectorElem: WbfkConnector | null | undefined, public effectName: string, bank: EffectGeneratorBank, category: EffectCategory) {
-    super(connectorElem, effectName, bank, category);
+  constructor(connectorElem: WbfkConnector | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
+    super(connectorElem, effectName, effectGeneratorBank);
 
     if (!(connectorElem instanceof WbfkConnector)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WbfkConnector.name} element.`); }
     this.domElem = connectorElem;
@@ -305,6 +322,7 @@ export class ConnectorEntranceBlock<TEffectGenerator extends EffectGenerator = E
 /******************************************        CONNECTOR EXIT        *****************************************************/
 /*****************************************************************************************************************************/
 export class ConnectorExitBlock<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimBlock<TEffectGenerator> {
+  public get category(): 'Connector Exit' { return 'Connector Exit'; }
   domElem: WbfkConnector;
 
   protected get defaultConfig(): Partial<AnimBlockConfig> {
@@ -314,8 +332,8 @@ export class ConnectorExitBlock<TEffectGenerator extends EffectGenerator = Effec
     };
   }
 
-  constructor(connectorElem: WbfkConnector | null | undefined, public effectName: string, bank: EffectGeneratorBank, category: EffectCategory) {
-    super(connectorElem, effectName, bank, category);
+  constructor(connectorElem: WbfkConnector | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
+    super(connectorElem, effectName, effectGeneratorBank);
 
     if (!(connectorElem instanceof WbfkConnector)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WbfkConnector.name} element.`); }
 

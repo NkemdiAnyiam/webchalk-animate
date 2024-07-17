@@ -6,7 +6,6 @@ import {
 import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
 import { presetEntrances, presetExits, presetEmphases, presetMotions, presetConnectorEntrances, presetConnectorExits, presetScrolls, presetTransitions } from "./presetBanks";
 import { useEasing } from "./utils/easing";
-import { createStyles } from "./utils/helpers";
 import { MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./utils/interfaces";
 import { ReadonlyPick, ReadonlyRecord, StripDuplicateMethodAutocompletion } from "./utils/utilityTypes";
 
@@ -131,34 +130,44 @@ class _WebFlik {
 
     // return functions that can be used to instantiate AnimBlocks with intellisense for the combined banks
     return {
-      Entrance: function<
-        TGeneratorBank extends typeof combinedEntranceBank, EffectName extends EffectNameIn<TGeneratorBank>, EntryType extends TGeneratorBank[EffectName]
-      >(domElem: Element | null | undefined, effectName: EffectName, ...params: Parameters<EntranceBlock<EntryType>['initialize']>) {
-        return new EntranceBlock<EntryType>(domElem, effectName, combinedEntranceBank, 'Entrance').initialize(...params);
+      Entrance: function<TGeneratorBank extends typeof combinedEntranceBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
+        domElem: Element | null | undefined,
+        effectName: TEffectName,
+        ...initializationParams: Parameters<EntranceBlock<TEffectGenerator>['initialize']>
+      ) {
+        return new EntranceBlock<TEffectGenerator>(domElem, effectName, combinedEntranceBank).initialize(...initializationParams);
       },
 
-      Exit: function<
-        TGeneratorBank extends typeof combinedExitBank, EffectName extends EffectNameIn<TGeneratorBank>, EntryType extends TGeneratorBank[EffectName]
-      >(domElem: Element | null | undefined, effectName: EffectName, ...params: Parameters<ExitBlock<EntryType>['initialize']>) {
-        return new ExitBlock<EntryType>(domElem, effectName, combinedExitBank, 'Exit').initialize(...params);
+      Exit: function<TGeneratorBank extends typeof combinedExitBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
+        domElem: Element | null | undefined,
+        effectName: TEffectName,
+        ...initializationParams: Parameters<ExitBlock<TEffectGenerator>['initialize']>
+      ) {
+        return new ExitBlock<TEffectGenerator>(domElem, effectName, combinedExitBank).initialize(...initializationParams);
       },
 
-      Emphasis: function<
-        TGeneratorBank extends typeof combinedEmphasisBank, EffectName extends EffectNameIn<TGeneratorBank>, EntryType extends TGeneratorBank[EffectName]
-      >(domElem: Element | null | undefined, effectName: EffectName, ...params: Parameters<EmphasisBlock<EntryType>['initialize']>) {
-        return new EmphasisBlock<EntryType>(domElem, effectName, combinedEmphasisBank, 'Emphasis').initialize(...params);
+      Emphasis: function<TGeneratorBank extends typeof combinedEmphasisBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
+        domElem: Element | null | undefined,
+        effectName: TEffectName,
+        ...initializationParams: Parameters<EmphasisBlock<TEffectGenerator>['initialize']>
+      ) {
+        return new EmphasisBlock<TEffectGenerator>(domElem, effectName, combinedEmphasisBank).initialize(...initializationParams);
       },
 
-      Motion: function<
-        TGeneratorBank extends typeof combinedMotionBank, EffectName extends EffectNameIn<TGeneratorBank>, EntryType extends TGeneratorBank[EffectName]
-      >(domElem: Element | null | undefined, effectName: EffectName, ...params: Parameters<MotionBlock<EntryType>['initialize']>) {
-        return new MotionBlock<EntryType>(domElem, effectName, combinedMotionBank, 'Motion').initialize(...params);
+      Motion: function<TGeneratorBank extends typeof combinedMotionBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
+        domElem: Element | null | undefined,
+        effectName: TEffectName,
+        ...initializationParams: Parameters<MotionBlock<TEffectGenerator>['initialize']>
+      ) {
+        return new MotionBlock<TEffectGenerator>(domElem, effectName, combinedMotionBank).initialize(...initializationParams);
       },
 
-      Transition: function<
-        TGeneratorBank extends typeof combinedTransitionBank, EffectName extends EffectNameIn<TGeneratorBank>, EntryType extends TGeneratorBank[EffectName]
-      >(domElem: Element | null | undefined, effectName: EffectName, ...params: Parameters<TransitionBlock<EntryType>['initialize']>) {
-        return new TransitionBlock<EntryType>(domElem, effectName, combinedTransitionBank, 'Transition').initialize(...params);
+      Transition: function<TGeneratorBank extends typeof combinedTransitionBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
+        domElem: Element | null | undefined,
+        effectName: TEffectName,
+        ...initializationParams: Parameters<TransitionBlock<TEffectGenerator>['initialize']>
+      ) {
+        return new TransitionBlock<TEffectGenerator>(domElem, effectName, combinedTransitionBank).initialize(...initializationParams);
       },
 
       ConnectorSetter: function(
@@ -167,23 +176,37 @@ class _WebFlik {
         pointB: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
         connectorConfig: WbfkConnectorConfig = {} as WbfkConnectorConfig
       ) {
-        return new ConnectorSetterBlock(connectorElem, pointA, pointB, `~set-line-points`, {}, 'Connector Setter', connectorConfig).initialize([]);
+        const effectName = `~set-line-points`;
+        return new ConnectorSetterBlock(
+          connectorElem, pointA, pointB, effectName, {[effectName]: {...AnimBlock.emptyEffectGenerator, effectName}}, connectorConfig
+        ).initialize([]);
       },
 
       ConnectorEntrance: function<
-        TGeneratorBank extends typeof combinedConnectorEntranceBank, EffectName extends EffectNameIn<TGeneratorBank>, EntryType extends TGeneratorBank[EffectName]
-      >(connectorElem: WbfkConnector | null | undefined, effectName: EffectName, ...params: Parameters<ConnectorEntranceBlock<EntryType>['initialize']>) {
-        return new ConnectorEntranceBlock<EntryType>(connectorElem, effectName, combinedConnectorEntranceBank, 'Connector Entrance').initialize(...params);
+        TGeneratorBank extends typeof combinedConnectorEntranceBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]
+      >(
+        connectorElem: WbfkConnector | null | undefined,
+        effectName: TEffectName,
+        ...initializationParams: Parameters<ConnectorEntranceBlock<TEffectGenerator>['initialize']>
+      ) {
+        return new ConnectorEntranceBlock<TEffectGenerator>(connectorElem, effectName, combinedConnectorEntranceBank).initialize(...initializationParams);
       },
 
-      ConnectorExit: function<TGeneratorBank extends typeof combinedConnectorExitBank, EffectName extends EffectNameIn<TGeneratorBank>, EntryType extends TGeneratorBank[EffectName]>
-      (connectorElem: WbfkConnector | null | undefined, effectName: EffectName, ...params: Parameters<ConnectorExitBlock<EntryType>['initialize']>)
-      { return new ConnectorExitBlock<EntryType>(connectorElem, effectName, combinedConnectorExitBank, 'Connector Exit').initialize(...params); },
+      ConnectorExit: function<TGeneratorBank extends typeof combinedConnectorExitBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
+        connectorElem: WbfkConnector | null | undefined,
+        effectName: TEffectName,
+        ...initializationParams: Parameters<ConnectorExitBlock<TEffectGenerator>['initialize']>
+      ) { 
+        return new ConnectorExitBlock<TEffectGenerator>(connectorElem, effectName, combinedConnectorExitBank).initialize(...initializationParams);
+      },
       
-      Scroller: function
-      <TGeneratorBank extends typeof combinedScrollerBank, EffectName extends EffectNameIn<TGeneratorBank>, EntryType extends TGeneratorBank[EffectName]>
-      (domElem: Element | null | undefined, effectName: EffectName, ...params: Parameters<ScrollerBlock<EntryType>['initialize']>) {
-        return new ScrollerBlock<EntryType>(domElem, effectName, combinedScrollerBank, 'Scroller').initialize(...params);
+      Scroller: function<TGeneratorBank extends typeof combinedScrollerBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>
+      (
+        domElem: Element | null | undefined,
+        effectName: TEffectName,
+        ...initializationParams: Parameters<ScrollerBlock<TEffectGenerator>['initialize']>
+      ) {
+        return new ScrollerBlock<TEffectGenerator>(domElem, effectName, combinedScrollerBank).initialize(...initializationParams);
       },
     };
   }
