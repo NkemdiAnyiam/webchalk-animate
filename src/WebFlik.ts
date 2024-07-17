@@ -112,7 +112,10 @@ class _WebFlik {
       const combinedBank = {...(includePresets ? presets : {}), ...(userDefined ?? {})} as EffectGeneratorBank;
       // set effectName and sourceBank properties of each generator to thier obviously corresponding values
       // Object.assign circumvents the Readonly<>, preventing a TS error
-      for (const key in combinedBank) { Object.assign(combinedBank, { effectName: key, sourceBank: combinedBank } satisfies Partial<EffectGenerator>); }
+      for (const key in combinedBank) {
+        const extras = { effectName: key, sourceBank: combinedBank } satisfies Partial<EffectGenerator>;
+        Object.assign(combinedBank, extras);
+      }
       return combinedBank as TogglePresets<P, U>;
     }
     
