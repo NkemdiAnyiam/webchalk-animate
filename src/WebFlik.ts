@@ -222,28 +222,3 @@ class _WebFlik {
 }
 
 export const WebFlik = new _WebFlik();
-
-createStyles(/*css*/`
-/* Using :where makes it possible for developer to easily override the default color */
-:where(:root) {
-  --wbfk-highlight-color: #F9F278;
-  --wbfk-playback-button-press-color: #db0000;
-  --wbfk-playback-button-hold-color: #62B720;
-  --wbfk-playback-button-disabled-color: gray;
-  --wbfk-playback-button-background-color: #444;
-  --wbfk-playback-button-symbol-color: white;
-}
-
-.wbfk-hidden:not(.wbfk-override-hidden) {
-  display: none !important;
-}
-
-.wbfk-invisible:not(.wbfk-override-hidden) {
-  visibility: hidden !important;
-}
-
-.wbfk-highlightable {
-  background-image: linear-gradient(to right, var(--wbfk-highlight-color) 50%, transparent 50%);
-  background-size: 202%;
-  background-position-x: 100%;
-}`);

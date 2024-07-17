@@ -1,4 +1,6 @@
 export class WbfkPlaybackButton extends HTMLElement {
+  /**@internal*/ static addToCustomElementRegistry() { customElements.define('wbfk-playback-button', WbfkPlaybackButton); }
+
   action: `step-${'forward' | 'backward'}` | 'pause' | 'fast-forward' | 'toggle-skipping';
   shortcutKey: KeyboardEvent['key'] | null;
   triggerMode: 'press' | 'hold' = 'press';
@@ -174,5 +176,3 @@ export class WbfkPlaybackButton extends HTMLElement {
     this.deactivate?.();
   }
 }
-
-customElements.define('wbfk-playback-button', WbfkPlaybackButton);

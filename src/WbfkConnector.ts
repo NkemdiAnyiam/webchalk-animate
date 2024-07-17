@@ -26,6 +26,7 @@ if (window.CSS.registerProperty) {
 
 // CHANGE NOTE: Completely get rid of obsolete AnimBlockLineUpdater
 export class WbfkConnector extends HTMLElement {
+  /**@internal*/ static addToCustomElementRegistry() { customElements.define('wbfk-connector', WbfkConnector); }
   private static staticId: number = 0;
 
   private connectorId: number = 0;
@@ -307,5 +308,3 @@ export class WbfkConnector extends HTMLElement {
     window.cancelAnimationFrame(this.continuousTrackingReqId);
   }
 }
-
-customElements.define('wbfk-connector', WbfkConnector);
