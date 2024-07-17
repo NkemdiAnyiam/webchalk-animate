@@ -36,7 +36,19 @@ type RafMutatorsGeneratorsGenerator<TBlockContext extends unknown> = {
 };
 
 export type EffectGenerator<TBlockContext extends unknown = unknown, TConfig extends unknown = unknown> = Readonly<
-  { config?: Partial<TConfig>; }
+  {
+    config?: Partial<TConfig>;
+    /**
+     * The effect name. E.g., 'fade-in', 'appear', etc.
+     * This is automatically set at at run-time. There is no need to set it manually (and trying to does nothing).
+     */
+    effectName?: string;
+    /**
+     * Reference to the full effect generator bank this effect generator belongs to.
+     * This is set automatically at run-time. There is no need to set it manually (and trying to does nothing).
+     */
+    sourceBank?: EffectGeneratorBank<any>;
+  }
   & StripDuplicateMethodAutocompletion<(
     KeyframesGenerator<TBlockContext> | KeyframesGeneratorsGenerator<TBlockContext> | RafMutatorsGenerator<TBlockContext> | RafMutatorsGeneratorsGenerator<TBlockContext>
   )>
@@ -96,7 +108,13 @@ class _WebFlik {
 
     type TogglePresets<TPresetBank, TUserBank> = Readonly<(IncludePresets extends true ? TPresetBank : {}) & TUserBank>;
 
-    const combineBanks = <P, U>(presets: P, userDefined: U) => ({...(includePresets ? presets : {}), ...(userDefined ?? {})}) as TogglePresets<P, U>;
+    const combineBanks = <P, U>(presets: P, userDefined: U) => {
+      const combinedBank = {...(includePresets ? presets : {}), ...(userDefined ?? {})} as EffectGeneratorBank;
+      // set effectName and sourceBank properties of each generator to thier obviously corresponding values
+      // Object.assign circumvents the Readonly<>, preventing a TS error
+      for (const key in combinedBank) { Object.assign(combinedBank, { effectName: key, sourceBank: combinedBank } satisfies Partial<EffectGenerator>); }
+      return combinedBank as TogglePresets<P, U>;
+    }
     
     // Add the keyframes groups to the static banks of the block classes
     const combinedEntranceBank = combineBanks(presetEntrances, entrances as UserEntranceBank);
