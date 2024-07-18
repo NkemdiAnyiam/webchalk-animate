@@ -17,14 +17,11 @@ type CssClassOptions = {
 };
 
 type CustomKeyframeEffectOptions = {
-  startsNextBlock: boolean;
+  startsNextBlockToo: boolean;
   startsWithPrevious: boolean;
   commitsStyles: boolean;
   commitStylesForcefully: boolean; // attempt to unhide, commit, then re-hide
   composite: CompositeOperation;
-  /**
-   * Huuba stank
-   */
   cssClasses: Partial<CssClassOptions>;
   runGeneratorsNow: boolean;
 }
@@ -73,7 +70,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
     return direction === 'normal' ? (progress ?? 1) : 1 - (progress ?? 1);
   }
   
-  /** @internal */startsNextBlock: boolean = false;
+  /** @internal */startsNextBlockToo: boolean = false;
   /** @internal */startsWithPrevious: boolean = false;
   /** @internal */commitsStyles: boolean = true;
   /** @internal */commitStylesForcefully: boolean = false; // attempt to unhide, commit, then re-hide
@@ -102,7 +99,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
 
   getTiming() {
     return {
-      startsNextBlock: this.startsNextBlock,
+      startsNextBlock: this.startsNextBlockToo,
       startsWithPrevious: this.startsWithPrevious,
       composite: this.composite,
       duration: this.duration,

@@ -240,7 +240,7 @@ export class ConnectorSetterBlock extends AnimBlock {
       duration: 0,
       commitsStyles: false,
       runGeneratorsNow: true,
-      startsNextBlock: true,
+      startsNextBlockToo: true,
     };
   }
   

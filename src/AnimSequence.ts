@@ -338,7 +338,7 @@ export class AnimSequence implements AnimSequenceConfig {
     for (let i = 0; i < numBlocks; ++i) {
       const currAnimBlock = animBlocks[i];
       const prevBlock = animBlocks[i-1];
-      const startsWithPrev = currAnimBlock.startsWithPrevious || prevBlock?.startsNextBlock;
+      const startsWithPrev = currAnimBlock.startsWithPrevious || prevBlock?.startsNextBlockToo;
       let currStartTime: number;
 
       if (startsWithPrev || i === 0) {
