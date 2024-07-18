@@ -10,7 +10,7 @@ import {
   TransitionBlockConfig
 } from "./categoricalBlocks";
 import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
-import { libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions, libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions } from "./presetBanks";
+import { libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions, libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions } from "./libraryPresetBanks";
 import { useEasing } from "./utils/easing";
 import { MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./utils/interfaces";
 import { ReadonlyPick, ReadonlyRecord, StripDuplicateMethodAutocompletion } from "./utils/utilityTypes";

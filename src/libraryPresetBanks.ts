@@ -1,16 +1,17 @@
 import {
-  TransitionBlock, EmphasisBlock, EntranceBlock, ExitBlock, ScrollerBlock, MotionBlock, ExitBlockConfig, TransitionBlockConfig, EntranceBlockConfig,
-  ConnectorEntranceBlock, ConnectorExitBlock,
-  EmphasisBlockConfig,
-  MotionBlockConfig,
-  ConnectorEntranceBlockConfig,
-  ConnectorExitBlockConfig,
+  EntranceBlock,          EntranceBlockConfig,
+  ExitBlock,              ExitBlockConfig,
+  EmphasisBlock,          EmphasisBlockConfig,
+  MotionBlock,            MotionBlockConfig,
+  TransitionBlock,        TransitionBlockConfig,
+  ScrollerBlock,          ScrollerBlockConfig,
+  ConnectorEntranceBlock, ConnectorEntranceBlockConfig,
+  ConnectorExitBlock,     ConnectorExitBlockConfig,
 } from "./categoricalBlocks";
 import { EffectGeneratorBank, WebFlik } from "./WebFlik";
 import { computeSelfScrollingBounds, negateNumString, overrideHidden, splitXYAlignmentString, splitXYTupleString, unOverrideHidden } from "./utils/helpers";
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "./utils/interfaces";
 import { useEasing } from "./utils/easing";
-import { AnimBlockConfig } from "./AnimBlock";
 
 // type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }
 
@@ -660,4 +661,4 @@ export const libPresetScrolls = {
       runGeneratorsNow: false,
     }
   },
-} satisfies EffectGeneratorBank<ScrollerBlock, AnimBlockConfig, false>;
+} satisfies EffectGeneratorBank<ScrollerBlock, ScrollerBlockConfig, false>;
