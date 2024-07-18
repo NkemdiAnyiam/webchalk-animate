@@ -47,17 +47,17 @@ export class AnimSequence implements AnimSequenceConfig {
   id: number;
   timelineID: number = NaN; // set to match the id of the AnimTimeline to which it belongs
   parentTimeline?: AnimTimeline; // pointer to parent AnimTimeline
-  /** @internal */description: string = '<blank sequence description>';
-  /** @internal */tag: string = ''; // helps idenfity current AnimSequence for using AnimTimeline's jumpToSequenceTag()
-  /** @internal */autoplaysNextSequence: boolean = false; // decides whether the next AnimSequence should automatically play after this one
-  /** @internal */autoplays: boolean = false;
+  /**@internal*/ description: string = '<blank sequence description>';
+  /**@internal*/ tag: string = ''; // helps idenfity current AnimSequence for using AnimTimeline's jumpToSequenceTag()
+  /**@internal*/ autoplaysNextSequence: boolean = false; // decides whether the next AnimSequence should automatically play after this one
+  /**@internal*/ autoplays: boolean = false;
   basePlaybackRate: number = 1;
-  /** @internal */isPaused = false;
+  /**@internal*/ isPaused = false;
   private usingFinish = false;
-  /** @internal */inProgress = false;
-  /** @internal*/wasPlayed = false;
-  /** @internal*/wasRewinded = false;
-  /** @internal */get skippingOn() { return this.parentTimeline?.skippingOn || this.parentTimeline?.usingJumpTo || this.usingFinish; }
+  /**@internal*/ inProgress = false;
+  /**@internal*/ wasPlayed = false;
+  /**@internal*/ wasRewinded = false;
+  /**@internal*/ get skippingOn() { return this.parentTimeline?.skippingOn || this.parentTimeline?.usingJumpTo || this.usingFinish; }
   get compoundedPlaybackRate() { return this.basePlaybackRate * (this.parentTimeline?.playbackRate ?? 1); }
   private animBlocks: AnimBlock[] = []; // array of animBlocks
 
@@ -85,12 +85,12 @@ export class AnimSequence implements AnimSequenceConfig {
     } as const;
   }
 
-  /** @internal */
+  /**@internal*/
   onStart: {do: () => void; undo: () => void;} = {
     do: () => {},
     undo: () => {},
   };
-  /** @internal */
+  /**@internal*/
   onFinish: {do: () => void; undo: () => void;} = {
     do: () => {},
     undo: () => {},
@@ -316,7 +316,7 @@ export class AnimSequence implements AnimSequenceConfig {
   private static endDelayFinishComparator = (blockA: AnimBlock, blockB: AnimBlock) => blockA.fullFinishTime - blockB.fullFinishTime;
 
   // TODO: Complete this method
-  /** @internal */
+  /**@internal*/
   commit(): AnimSequence {
     const {
       activeBackwardFinishComparator,

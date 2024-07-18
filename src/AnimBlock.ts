@@ -52,50 +52,54 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   effectGenerator: TEffectGenerator;
   effectOptions: EffectOptions<TEffectGenerator> = {} as EffectOptions<TEffectGenerator>;
   domElem: Element;
-  /**@internal*/keyframesGenerators?: {
+  /**@internal*/
+  keyframesGenerators?: {
     forwardGenerator: () => Keyframe[];
     backwardGenerator?: () => Keyframe[];
   };
-  /**@internal*/rafMutators?: {
+  /**@internal*/
+  rafMutators?: {
     forwardMutator: () => void;
     backwardMutator: () => void;
   };
-  /**@internal */rafMutatorGenerators?: {
+  /**@internal*/
+  rafMutatorGenerators?: {
     forwardGenerator: () => () => void;
     backwardGenerator: () => () => void;
   }
-  /**@internal*/get rafLoopsProgress(): number {
+  /**@internal*/
+  get rafLoopsProgress(): number {
     const { progress, direction } = this.animation.effect!.getComputedTiming();
     // ?? 1 because during the active phase (the only time when raf runs), null progress means finished
     return direction === 'normal' ? (progress ?? 1) : 1 - (progress ?? 1);
   }
   
-  /** @internal */startsNextBlockToo: boolean = false;
-  /** @internal */startsWithPrevious: boolean = false;
-  /** @internal */commitsStyles: boolean = true;
-  /** @internal */commitStylesForcefully: boolean = false; // attempt to unhide, commit, then re-hide
-  /** @internal */composite: CompositeOperation = 'replace';
-  /** @internal */cssClasses: CssClassOptions = {
+  /** @internal */ startsNextBlockToo: boolean = false;
+  /** @internal */ startsWithPrevious: boolean = false;
+  /** @internal */ commitsStyles: boolean = true;
+  /** @internal */ commitStylesForcefully: boolean = false; // attempt to unhide, commit, then re-hide
+  /** @internal */ composite: CompositeOperation = 'replace';
+  /** @internal */ cssClasses: CssClassOptions = {
     toAddOnStart: [],
     toAddOnFinish: [],
     toRemoveOnStart: [],
     toRemoveOnFinish: [],
   };
-  /** @internal */runGeneratorsNow: boolean = false;
+  /** @internal */ runGeneratorsNow: boolean = false;
 
-  /** @internal */isAnimating = false;
-  /** @internal */isPaused = false;
-  /** @internal */duration: number = 500;
-  /** @internal */delay: number = 0;
-  /** @internal */endDelay: number = 0;
-  /** @internal */easing: EasingString = 'linear';
-  /** @internal */playbackRate: number = 1; // actually base playback rate
-  /** @internal */get compoundedPlaybackRate(): number { return this.playbackRate * (this.parentSequence?.compoundedPlaybackRate ?? 1); }
+  /** @internal */ isAnimating = false;
+  /** @internal */ isPaused = false;
+  /** @internal */ duration: number = 500;
+  /** @internal */ delay: number = 0;
+  /** @internal */ endDelay: number = 0;
+  /** @internal */ easing: EasingString = 'linear';
+  /** @internal */ playbackRate: number = 1; // actually base playback rate
+  /** @internal */ get compoundedPlaybackRate(): number { return this.playbackRate * (this.parentSequence?.compoundedPlaybackRate ?? 1); }
 
-  /** @internal */fullStartTime = NaN;
-  /** @internal */get activeStartTime() { return (this.fullStartTime + this.delay) / this.playbackRate; }
-  /** @internal */get activeFinishTime() { return( this.fullStartTime + this.delay + this.duration) / this.playbackRate; }
-  /** @internal */get fullFinishTime() { return (this.fullStartTime + this.delay + this.duration + this.endDelay) / this.playbackRate; }
+  /** @internal */ fullStartTime = NaN;
+  /** @internal */ get activeStartTime() { return (this.fullStartTime + this.delay) / this.playbackRate; }
+  /** @internal */ get activeFinishTime() { return( this.fullStartTime + this.delay + this.duration) / this.playbackRate; }
+  /** @internal */ get fullFinishTime() { return (this.fullStartTime + this.delay + this.duration + this.endDelay) / this.playbackRate; }
 
   getTiming() {
     return {
@@ -136,7 +140,8 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   /*****************************************************************************************************************************/
   /************************************        CONSTRUCTOR & INITIALIZERS        ***********************************************/
   /*****************************************************************************************************************************/
-  /**@internal*/setID(idSeq: number, idTimeline: number): void {
+  /**@internal*/
+  setID(idSeq: number, idTimeline: number): void {
     [this.sequenceID, this.timelineID] = [idSeq, idTimeline];
     [this.animation.sequenceID, this.animation.timelineID] = [idSeq, idTimeline];
   }
@@ -303,7 +308,8 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   /********************************************        PLAYBACK        *********************************************************/
   /*****************************************************************************************************************************/
   play(): Promise<boolean>;
-  /**@internal*/play(parentSequence: AnimSequence): Promise<boolean>;
+  /**@internal*/
+  play(parentSequence: AnimSequence): Promise<boolean>;
   play(parentSequence?: AnimSequence): Promise<boolean> {
     // both parentSequence vars should either be undefined or the same AnimSequence
     if (this.parentSequence !== parentSequence) { this.throwChildPlaybackError('play'); }
@@ -311,14 +317,16 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   }
 
   rewind(): Promise<boolean>;
-  /**@internal*/rewind(parentSequence: AnimSequence): Promise<boolean>;
+  /**@internal*/
+  rewind(parentSequence: AnimSequence): Promise<boolean>;
   rewind(parentSequence?: AnimSequence): Promise<boolean> {
     if (this.parentSequence !== parentSequence) { this.throwChildPlaybackError('rewind'); }
     return this.animate('backward');
   }
 
   pause(): void;
-  /**@internal*/pause(parentSequence: AnimSequence): void;
+  /**@internal*/
+  pause(parentSequence: AnimSequence): void;
   pause(parentSequence?: AnimSequence): void {
     if (this.parentSequence !== parentSequence) { this.throwChildPlaybackError('pause'); }
     if (this.isAnimating) {
@@ -328,7 +336,8 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   }
 
   unpause(): void;
-  /**@internal*/unpause(parentSequence: AnimSequence): void;
+  /**@internal*/
+  unpause(parentSequence: AnimSequence): void;
   unpause(parentSequence?: AnimSequence): void {
     if (this.parentSequence !== parentSequence) { this.throwChildPlaybackError('unpause'); }
     if (this.isPaused) {
@@ -338,7 +347,8 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   }
 
   finish(): void;
-  /**@internal*/finish(parentSequence: AnimSequence): void;
+  /**@internal*/
+  finish(parentSequence: AnimSequence): void;
   finish(parentSequence?: AnimSequence): void {
     if (this.parentSequence !== parentSequence) { this.throwChildPlaybackError('finish'); }
     // needs to play if not in progress
@@ -352,10 +362,12 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   }
 
   get generateTimePromise() { return this.animation.generateTimePromise.bind(this.animation); }
-  /**@internal*/get addIntegrityblocks() { return this.animation.addIntegrityblocks.bind(this.animation); }
+  /**@internal*/
+  get addIntegrityblocks() { return this.animation.addIntegrityblocks.bind(this.animation); }
   get addRoadblocks() { return this.animation.addRoadblocks.bind(this.animation); }
   // multiplies playback rate of parent timeline and sequence (if exist) with base playback rate
-  /**@internal*/useCompoundedPlaybackRate() { this.animation.updatePlaybackRate(this.compoundedPlaybackRate); }
+  /**@internal*/
+  useCompoundedPlaybackRate() { this.animation.updatePlaybackRate(this.compoundedPlaybackRate); }
 
   /*****************************************************************************************************************************/
   /********************************************         ANIMATE         ********************************************************/

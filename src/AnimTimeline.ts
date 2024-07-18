@@ -1,5 +1,4 @@
 import { AnimSequence } from "./AnimSequence";
-import { findLastIndex } from "./utils/helpers";
 import { WbfkPlaybackButton } from "./WbfkPlaybackButton";
 
 type AnimTimelineConfig = {
@@ -26,13 +25,13 @@ export class AnimTimeline {
   private static id = 0;
 
   readonly id; // used to uniquely identify this specific timeline
-  /** @internal */animSequences: AnimSequence[] = []; // array of every AnimSequence in this timeline
-  /** @internal */loadedSeqIndex = 0; // index into animSequences
-  /** @internal */isAnimating = false; // true if currently in the middle of executing animations; false otherwise
-  /** @internal */skippingOn = false; // used to determine whether or not all animations should be instantaneous
-  /** @internal */isPaused = false;
-  /** @internal */currDirection: 'forward' | 'backward' = 'forward'; // set to 'forward' after stepForward() or 'backward' after stepBackward()
-  /** @internal */usingJumpTo = false; // true if currently using jumpTo()
+  /**@internal*/ animSequences: AnimSequence[] = []; // array of every AnimSequence in this timeline
+  /**@internal*/ loadedSeqIndex = 0; // index into animSequences
+  /**@internal*/ isAnimating = false; // true if currently in the middle of executing animations; false otherwise
+  /**@internal*/ skippingOn = false; // used to determine whether or not all animations should be instantaneous
+  /**@internal*/ isPaused = false;
+  /**@internal*/ currDirection: 'forward' | 'backward' = 'forward'; // set to 'forward' after stepForward() or 'backward' after stepBackward()
+  /**@internal*/ usingJumpTo = false; // true if currently using jumpTo()
   playbackRate = 1;
   config: AnimTimelineConfig;
   // CHANGE NOTE: AnimTimeline now stores references to in-progress sequences and also does not act directly on individual animations
@@ -254,7 +253,8 @@ export class AnimTimeline {
 
   // steps forward or backward and does error-checking
   async step(direction: 'forward' | 'backward'): Promise<typeof direction>;
-  /**@internal*/async step(direction: 'forward' | 'backward', options: {viaButton: boolean}): Promise<typeof direction>;
+  /**@internal*/
+  async step(direction: 'forward' | 'backward', options: {viaButton: boolean}): Promise<typeof direction>;
   async step(direction: 'forward' | 'backward', options?: {viaButton: boolean}): Promise<typeof direction> {
     if (this.isPaused) { throw new Error('Cannot step while playback is paused.'); }
     if (this.isAnimating) { throw new Error('Cannot step while already animating.'); }
@@ -522,7 +522,8 @@ export class AnimTimeline {
   }
 
   toggleSkipping(isSkipping?: boolean): boolean;
-  /**@internal*/toggleSkipping(isSkipping?: boolean, options?: {viaButton: boolean}): boolean;
+  /**@internal*/
+  toggleSkipping(isSkipping?: boolean, options?: {viaButton: boolean}): boolean;
   toggleSkipping(isSkipping?: boolean, options?: {viaButton: boolean}): boolean {
     this.skippingOn = isSkipping ?? !this.skippingOn;
     if (!options?.viaButton) {
