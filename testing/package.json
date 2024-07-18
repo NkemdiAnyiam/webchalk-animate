@@ -1,0 +1,17 @@
+{
+  "name": "testing",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean-up": "rm -rf ./.parcel-cache ./.cache",
+    "out": "npm run clean-up && rm -rf node_modules",
+    "start": "npm run clean-up && npx parcel@2.7.0 index.html --no-cache"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.5.3"
+  }
+}

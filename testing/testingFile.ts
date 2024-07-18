@@ -1,4 +1,4 @@
-import { WebFlik } from "../src/WebFlik";
+import { WebFlik } from "webflik";
 
 const {Motion, Entrance} = WebFlik.createAnimationBanks({
   entrances: {
@@ -13,5 +13,5 @@ const {Motion, Entrance} = WebFlik.createAnimationBanks({
   }
 });
 
-Entrance(x, '~pinwheel', [])
-Motion(new HTMLElement, '~move-to', [], {})
+Entrance(new HTMLElement, '~pinwheel', []);
+Motion(new HTMLElement, '~move-to', [document.documentElement], {});
