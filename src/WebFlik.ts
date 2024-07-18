@@ -113,7 +113,7 @@ class _WebFlik {
       // Object.assign circumvents the Readonly<>, preventing a TS error
       for (const key in combinedBank) {
         const extras = { effectName: key, sourceBank: combinedBank } satisfies Partial<EffectGenerator>;
-        Object.assign(combinedBank, extras);
+        Object.assign(combinedBank[key], extras);
       }
       return combinedBank as TogglePresets<P, U>;
     }
