@@ -569,7 +569,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
       throw this.generateError(CustomErrors.InvalidElementError,
         `Connectors cannot be animated using ${this.category}().` +
         `${errorTip(`WbfkConnector elements cannot be animated using Entrance() or Exit() because many of the animations are not really applicable.` +
-          ` Instead, any entrance or exit animations that make sense for connectors are defined in ConnectorEntrance() and ConnectorExit().`
+          ` Instead, any entrance or exit effects that make sense for connectors are defined in ConnectorEntrance() and ConnectorExit().`
         )}`,
         this.domElem
       );
