@@ -1,6 +1,10 @@
 import {
   TransitionBlock, EmphasisBlock, EntranceBlock, ExitBlock, ScrollerBlock, MotionBlock, ExitBlockConfig, TransitionBlockConfig, EntranceBlockConfig,
   ConnectorEntranceBlock, ConnectorExitBlock,
+  EmphasisBlockConfig,
+  MotionBlockConfig,
+  ConnectorEntranceBlockConfig,
+  ConnectorExitBlockConfig,
 } from "./categoricalBlocks";
 import { EffectGeneratorBank, WebFlik } from "./WebFlik";
 import { computeSelfScrollingBounds, negateNumString, overrideHidden, splitXYAlignmentString, splitXYTupleString, unOverrideHidden } from "./utils/helpers";
@@ -285,7 +289,7 @@ export const presetEmphases = {
       classesToRemoveOnFinish: [`wbfk-highlightable`],
     },
   },
-} satisfies EffectGeneratorBank<EmphasisBlock, AnimBlockConfig, false>;
+} satisfies EffectGeneratorBank<EmphasisBlock, EmphasisBlockConfig, false>;
 
 
 export const presetMotions = {
@@ -375,7 +379,7 @@ export const presetMotions = {
       ];
     },
   },
-} satisfies EffectGeneratorBank<MotionBlock, AnimBlockConfig, false>;
+} satisfies EffectGeneratorBank<MotionBlock, MotionBlockConfig, false>;
 
 
 export const presetTransitions = {
@@ -481,7 +485,7 @@ export const presetConnectorEntrances = {
       }
     },
   },
-} satisfies EffectGeneratorBank<ConnectorEntranceBlock, AnimBlockConfig, false>;
+} satisfies EffectGeneratorBank<ConnectorEntranceBlock, ConnectorEntranceBlockConfig, false>;
 
 
 export const presetConnectorExits = {
@@ -543,7 +547,7 @@ export const presetConnectorExits = {
       }
     },
   },
-} satisfies EffectGeneratorBank<ConnectorExitBlock, AnimBlockConfig, false>;
+} satisfies EffectGeneratorBank<ConnectorExitBlock, ConnectorExitBlockConfig, false>;
 
 
 export const presetScrolls = {

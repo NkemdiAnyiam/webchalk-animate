@@ -1,7 +1,13 @@
 import { AnimBlock, AnimBlockConfig} from "./AnimBlock";
 import {
   EntranceBlock, ExitBlock, EmphasisBlock, MotionBlock, ScrollerBlock, TransitionBlock, ExitBlockConfig, EntranceBlockConfig,
-  ConnectorEntranceBlock, ConnectorExitBlock, ConnectorSetterBlock
+  ConnectorEntranceBlock, ConnectorExitBlock, ConnectorSetterBlock,
+  EmphasisBlockConfig,
+  MotionBlockConfig,
+  ScrollerBlockConfig,
+  ConnectorExitBlockConfig,
+  ConnectorEntranceBlockConfig,
+  TransitionBlockConfig
 } from "./categoricalBlocks";
 import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
 import { presetEntrances, presetExits, presetEmphases, presetMotions, presetConnectorEntrances, presetConnectorExits, presetScrolls, presetTransitions } from "./presetBanks";
@@ -91,28 +97,28 @@ class _WebFlik {
    // without specifying the field (why? not sure)
     UserEntranceBank extends EffectGeneratorBank<EntranceBlock, EntranceBlockConfig, false> = {},
     UserExitBank extends EffectGeneratorBank<ExitBlock, ExitBlockConfig, false> = {},
-    UserEmphasisBank extends EffectGeneratorBank<EmphasisBlock, AnimBlockConfig, false> = {},
-    UserMotionBank extends EffectGeneratorBank<MotionBlock, AnimBlockConfig, false> = {},
-    _EmptyTransitionBank extends EffectGeneratorBank = {},
-    _EmptyConnectorEntranceBank extends EffectGeneratorBank = {},
-    _EmptyConnectorExitBank extends EffectGeneratorBank = {},
-    _EmptyScrollerBank extends EffectGeneratorBank = {},
+    UserEmphasisBank extends EffectGeneratorBank<EmphasisBlock, EmphasisBlockConfig, false> = {},
+    UserMotionBank extends EffectGeneratorBank<MotionBlock, MotionBlockConfig, false> = {},
+    _EmptyTransitionBank extends EffectGeneratorBank<TransitionBlock, TransitionBlockConfig> = {},
+    _EmptyConnectorEntranceBank extends EffectGeneratorBank<ConnectorEntranceBlock, ConnectorEntranceBlockConfig> = {},
+    _EmptyConnectorExitBank extends EffectGeneratorBank<ConnectorExitBlock, ConnectorExitBlockConfig> = {},
+    _EmptyScrollerBank extends EffectGeneratorBank<ScrollerBlock, ScrollerBlockConfig> = {},
     IncludePresets extends boolean = true
   >
   (
     customBankAddons: {
       entrances?: UserEntranceBank & EffectGeneratorBank<EntranceBlock, EntranceBlockConfig, false>;
       exits?: UserExitBank & EffectGeneratorBank<ExitBlock, ExitBlockConfig, false>;
-      emphases?: UserEmphasisBank & EffectGeneratorBank<EmphasisBlock, AnimBlockConfig, false>;
-      motions?: UserMotionBank & EffectGeneratorBank<MotionBlock, AnimBlockConfig, false>;
+      emphases?: UserEmphasisBank & EffectGeneratorBank<EmphasisBlock, EmphasisBlockConfig, false>;
+      motions?: UserMotionBank & EffectGeneratorBank<MotionBlock, MotionBlockConfig, false>;
     } = {},
     includePresets: IncludePresets | void = true as IncludePresets
   ) {
     const {entrances, exits, emphases, motions} = customBankAddons as {
       entrances?: UserEntranceBank & EffectGeneratorBank<EntranceBlock, EntranceBlockConfig>;
       exits?: UserExitBank & EffectGeneratorBank<ExitBlock, ExitBlockConfig>;
-      emphases?: UserEmphasisBank & EffectGeneratorBank<EmphasisBlock, AnimBlockConfig>;
-      motions?: UserMotionBank & EffectGeneratorBank<MotionBlock, AnimBlockConfig>;
+      emphases?: UserEmphasisBank & EffectGeneratorBank<EmphasisBlock, EmphasisBlockConfig>;
+      motions?: UserMotionBank & EffectGeneratorBank<MotionBlock, MotionBlockConfig>;
     };
     _WebFlik.checkBanksFormatting(entrances, exits, emphases, motions);
 
