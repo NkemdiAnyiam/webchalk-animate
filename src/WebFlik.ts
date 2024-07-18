@@ -34,29 +34,35 @@ type RafMutatorsGeneratorsGenerator<TBlockContext extends unknown> = {
   generateRafMutatorGenerators(this: TBlockContext & ReadonlyPick<AnimBlock, 'computeTween'>, ...effectOptions: unknown[]): [forwardGenerator: () => () => void, backwardGenerator: () => () => void];
 };
 
-export type EffectGenerator<TBlockContext extends unknown = unknown, TConfig extends unknown = unknown> = Readonly<
+export type EffectGenerator<TBlockContext extends unknown = unknown, TConfig extends unknown = unknown, IncludeExtras extends boolean = true> = Readonly<
   {
     config?: Partial<TConfig>;
-    /**
-     * The effect name. E.g., 'fade-in', 'appear', etc.
-     * This is automatically set at at run-time. There is no need to set it manually (and trying to does nothing).
-     */
-    effectName?: string;
-    /**
-     * Reference to the full effect generator bank this effect generator belongs to.
-     * This is set automatically at run-time. There is no need to set it manually (and trying to does nothing).
-     */
-    sourceBank?: EffectGeneratorBank<any>;
   }
+  & (
+    IncludeExtras extends true
+    ? {
+      /**
+       * The effect name. E.g., 'fade-in', 'appear', etc.
+       * This is automatically set at at run-time. There is no need to set it manually (and trying to does nothing).
+       */
+      effectName?: string;
+      /**
+       * Reference to the full effect generator bank this effect generator belongs to.
+       * This is set automatically at run-time. There is no need to set it manually (and trying to does nothing).
+       */
+      sourceBank?: EffectGeneratorBank<any>;
+    }
+    : {}
+  )
   & StripDuplicateMethodAutocompletion<(
     KeyframesGenerator<TBlockContext> | KeyframesGeneratorsGenerator<TBlockContext> | RafMutatorsGenerator<TBlockContext> | RafMutatorsGeneratorsGenerator<TBlockContext>
   )>
 >;
 
 // represents an object where every string key is paired with a EffectGenerator value
-export type EffectGeneratorBank<TBlock extends AnimBlock = AnimBlock, TBlockConfig extends {} = AnimBlockConfig> = ReadonlyRecord<
+export type EffectGeneratorBank<TBlock extends AnimBlock = AnimBlock, TBlockConfig extends {} = AnimBlockConfig, IncludeGeneratorExtras extends boolean = true> = ReadonlyRecord<
   string, 
-  EffectGenerator<ReadonlyPick<TBlock, 'effectName' | 'domElem'>, TBlockConfig>
+  EffectGenerator<ReadonlyPick<TBlock, 'effectName' | 'domElem'>, TBlockConfig, IncludeGeneratorExtras>
 >;
 
 export type EffectOptions<TEffectGenerator extends EffectGenerator> = Parameters<
@@ -83,10 +89,10 @@ class _WebFlik {
   <
    // default = {} ensures intellisense for a given bank still works
    // without specifying the field (why? not sure)
-    UserEntranceBank extends EffectGeneratorBank<EntranceBlock, EntranceBlockConfig> = {},
-    UserExitBank extends EffectGeneratorBank<ExitBlock, ExitBlockConfig> = {},
-    UserEmphasisBank extends EffectGeneratorBank = {},
-    UserMotionBank extends EffectGeneratorBank = {},
+    UserEntranceBank extends EffectGeneratorBank<EntranceBlock, EntranceBlockConfig, false> = {},
+    UserExitBank extends EffectGeneratorBank<ExitBlock, ExitBlockConfig, false> = {},
+    UserEmphasisBank extends EffectGeneratorBank<EmphasisBlock, AnimBlockConfig, false> = {},
+    UserMotionBank extends EffectGeneratorBank<MotionBlock, AnimBlockConfig, false> = {},
     _EmptyTransitionBank extends EffectGeneratorBank = {},
     _EmptyConnectorEntranceBank extends EffectGeneratorBank = {},
     _EmptyConnectorExitBank extends EffectGeneratorBank = {},
@@ -95,14 +101,19 @@ class _WebFlik {
   >
   (
     customBankAddons: {
-      entrances?: UserEntranceBank & EffectGeneratorBank<EntranceBlock, EntranceBlockConfig>;
-      exits?: UserExitBank & EffectGeneratorBank<ExitBlock, ExitBlockConfig>;
-      emphases?: UserEmphasisBank & EffectGeneratorBank<EmphasisBlock>;
-      motions?: UserMotionBank & EffectGeneratorBank<MotionBlock>;
+      entrances?: UserEntranceBank & EffectGeneratorBank<EntranceBlock, EntranceBlockConfig, false>;
+      exits?: UserExitBank & EffectGeneratorBank<ExitBlock, ExitBlockConfig, false>;
+      emphases?: UserEmphasisBank & EffectGeneratorBank<EmphasisBlock, AnimBlockConfig, false>;
+      motions?: UserMotionBank & EffectGeneratorBank<MotionBlock, AnimBlockConfig, false>;
     } = {},
     includePresets: IncludePresets | void = true as IncludePresets
   ) {
-    const {entrances, exits, emphases, motions} = customBankAddons;
+    const {entrances, exits, emphases, motions} = customBankAddons as {
+      entrances?: UserEntranceBank & EffectGeneratorBank<EntranceBlock, EntranceBlockConfig>;
+      exits?: UserExitBank & EffectGeneratorBank<ExitBlock, ExitBlockConfig>;
+      emphases?: UserEmphasisBank & EffectGeneratorBank<EmphasisBlock, AnimBlockConfig>;
+      motions?: UserMotionBank & EffectGeneratorBank<MotionBlock, AnimBlockConfig>;
+    };
     _WebFlik.checkBanksFormatting(entrances, exits, emphases, motions);
 
     type TogglePresets<TPresetBank, TUserBank> = Readonly<(IncludePresets extends true ? TPresetBank : {}) & TUserBank>;
