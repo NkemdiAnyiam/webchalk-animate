@@ -1,3 +1,5 @@
+import { AnimSequence } from "./AnimSequence";
+import { AnimTimeline } from "./AnimTimeline";
 import { CustomErrors, BlockErrorGenerator } from "./utils/errors";
 
 type Segment = [
@@ -16,8 +18,8 @@ type Segment = [
 type SegmentsCache = [delayPhaseEnd: Segment, activePhaseEnd: Segment, endDelayPhaseEnd: Segment]
 
 export class WebFlikAnimation extends Animation {
-  private _timelineID: number = NaN;
-  private _sequenceID: number = NaN;
+  private _timeline?: AnimTimeline;
+  private _sequence?: AnimSequence;
   direction: 'forward' | 'backward' = 'forward';
   private getEffect(direction: 'forward' | 'backward'): KeyframeEffect { return direction === 'forward' ? this.forwardEffect : this.backwardEffect; }
   private inProgress = false;
@@ -38,10 +40,10 @@ export class WebFlikAnimation extends Animation {
   pauseForRoadblocks: Function = () => { throw new Error(`This should never be called before being defined by parent block`); };
   unpauseFromRoadblocks: Function = () => { throw new Error(`This should never be called before being defined by parent block`); };
 
-  get timelineID(): number { return this._timelineID; }
-  set timelineID(id: number) { this._timelineID = id; }
-  get sequenceID(): number { return this._sequenceID; }
-  set sequenceID(id: number) { this._sequenceID = id; }
+  get parentTimeline(): AnimTimeline | undefined { return this._timeline; }
+  set parentTimeline(timeline: AnimTimeline | undefined) { this._timeline = timeline; }
+  get parentSequence(): AnimSequence | undefined { return this._sequence; }
+  set parentSequence(sequence: AnimSequence | undefined) { this._sequence = sequence; }
 
   constructor(private forwardEffect: KeyframeEffect, private backwardEffect: KeyframeEffect, private errorGenerator: BlockErrorGenerator) {
     super();

@@ -44,8 +44,7 @@ type AnimationOperation = (animation: AnimBlock) => void;
 export class AnimSequence implements AnimSequenceConfig {
   private static id = 0;
   
-  id: number;
-  timelineID: number = NaN; // set to match the id of the AnimTimeline to which it belongs
+  readonly id: number;
   parentTimeline?: AnimTimeline; // pointer to parent AnimTimeline
   /**@internal*/ description: string = '<blank sequence description>';
   /**@internal*/ tag: string = ''; // helps idenfity current AnimSequence for using AnimTimeline's jumpToSequenceTag()
@@ -111,10 +110,10 @@ export class AnimSequence implements AnimSequenceConfig {
   setDescription(description: string): AnimSequence { this.description = description; return this; }
   setTag(tag: string): AnimSequence { this.tag = tag; return this; }
   /**@internal*/
-  setID(id: number) {
-    this.timelineID = id;
+  setLineage(timeline: AnimTimeline) {
+    this.parentTimeline = timeline;
     for (const animBlock of this.animBlocks) {
-      animBlock.setID(this.id, this.timelineID); // timelineID is really the only thing new there
+      animBlock.setLineage(this, this.parentTimeline); // timelineID is really the only thing new there
       animBlock.parentTimeline = this.parentTimeline;
     }
   }
@@ -132,9 +131,7 @@ export class AnimSequence implements AnimSequenceConfig {
   addBlocks(...animBlocks: AnimBlock[]): AnimSequence {
     // CHANGE NOTE: removed addOneBlock()
     for (const animBlock of animBlocks) {
-      animBlock.setID(this.id, this.timelineID);
-      animBlock.parentTimeline = this.parentTimeline;
-      animBlock.parentSequence = this;
+      animBlock.setLineage(this, this.parentTimeline);
     }
     this.animBlocks.push(...animBlocks);
     return this;
@@ -142,9 +139,7 @@ export class AnimSequence implements AnimSequenceConfig {
 
   addBlocksAt(index: number, ...animBlocks: AnimBlock[]): AnimSequence {
     for (const animBlock of animBlocks) {
-      animBlock.setID(this.id, this.timelineID);
-      animBlock.parentTimeline = this.parentTimeline;
-      animBlock.parentSequence = this;
+      animBlock.setLineage(this, this.parentTimeline);
     }
     this.animBlocks.splice(index, 0, ...animBlocks);
     return this;

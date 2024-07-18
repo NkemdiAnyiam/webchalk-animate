@@ -43,9 +43,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
 
   parentSequence?: AnimSequence;
   parentTimeline?: AnimTimeline;
-  sequenceID: number = NaN; // set to match the id of the parent AnimSequence
-  timelineID: number = NaN; // set to match the id of the parent AnimTimeline
-  id: number;
+  readonly id: number;
   protected animation: WebFlikAnimation = {} as WebFlikAnimation;
   public abstract get category(): EffectCategory;
   effectName: string;
@@ -141,9 +139,9 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   /************************************        CONSTRUCTOR & INITIALIZERS        ***********************************************/
   /*****************************************************************************************************************************/
   /**@internal*/
-  setID(idSeq: number, idTimeline: number): void {
-    [this.sequenceID, this.timelineID] = [idSeq, idTimeline];
-    [this.animation.sequenceID, this.animation.timelineID] = [idSeq, idTimeline];
+  setLineage(sequence: AnimSequence, timeline: AnimTimeline | undefined): void {
+    [this.parentSequence, this.parentTimeline] = [sequence, timeline];
+    [this.animation.parentSequence, this.animation.parentTimeline] = [sequence, timeline];
   }
 
   constructor(domElem: Element | null | undefined, effectName: string, bank: EffectGeneratorBank) {

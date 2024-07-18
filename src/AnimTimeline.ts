@@ -230,8 +230,7 @@ export class AnimTimeline {
 
   addSequences(...animSequences: AnimSequence[]): AnimTimeline {
     for(const animSequence of animSequences) {
-      animSequence.parentTimeline = this;
-      animSequence.setID(this.id);
+      animSequence.setLineage(this);
     };
     this.animSequences.push(...animSequences);
 
