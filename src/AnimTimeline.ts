@@ -47,7 +47,7 @@ export class AnimTimeline {
       stepNumber: this.loadedSeqIndex + 1,
       atBeginning: this.atBeginning,
       atEnd: this.atEnd
-    } as const;
+    };
   }
 
   playbackButtons: PlaybackButtons = {

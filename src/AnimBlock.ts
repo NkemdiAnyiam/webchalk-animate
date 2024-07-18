@@ -113,7 +113,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
       basePlaybackRate: this.playbackRate,
       compoundedPlaybackRate: this.compoundedPlaybackRate,
       runGeneratorsNow: this.runGeneratorsNow
-    } as const;
+    };
   }
 
   getEffects() {
@@ -127,14 +127,14 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
       composite: this.composite,
       commitsStyles: this.commitsStyles,
       commitsStylesForcefully: this.commitStylesForcefully,
-    } as const;
+    };
   }
 
   getStatus() {
     return {
       animating: this.isAnimating,
       paused: this.isPaused,
-    } as const;
+    };
   }
 
   /*****************************************************************************************************************************/

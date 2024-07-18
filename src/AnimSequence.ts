@@ -74,7 +74,7 @@ export class AnimSequence implements AnimSequenceConfig {
       autoplaysNextSequence: this.autoplaysNextSequence,
       description: this.description,
       tag: this.tag,
-    } as const;
+    };
   }
 
   getStatus() {
@@ -82,7 +82,7 @@ export class AnimSequence implements AnimSequenceConfig {
       animating: this.inProgress,
       paused: this.isPaused,
       skippingOn: this.skippingOn,
-    } as const;
+    };
   }
 
   /**@internal*/
