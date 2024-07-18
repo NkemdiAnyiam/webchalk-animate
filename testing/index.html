@@ -1,15 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-  
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-
+  <title>Testing</title>
   <link rel="stylesheet" href="./styles/main.css">
+  <script type="module" src="./scripts/index.ts"></script>
 </head>
+
 <body>
-  <p>HELLO</p>
+  <main class="main">
+    <wbfk-connector class="connector connector--1 wbfk-hidden"></wbfk-connector>
+    <div class="square">
+      <wbfk-connector class="connector connector--2 wbfk-hidden"></wbfk-connector></div>
+    <div class="circle circle--1"></div>
+    <div class="circle circle--2"></div>
+    <div class="circle circle--3"></div>
+    <div class="circle circle--4"></div>
+  </main>
+
+  <wbfk-connector class="connector connector--3 wbfk-hidden"></wbfk-connector>
+
+  <div class="playback-buttons" timeline-name="Basic">
+    <wbfk-playback-button action="step-backward" shortcut="ArrowLeft"></wbfk-playback-button>
+    <wbfk-playback-button action="pause" shortcut="Space"></wbfk-playback-button>
+    <wbfk-playback-button action="step-forward" shortcut="ArrowRight"></wbfk-playback-button>
+    <wbfk-playback-button action="fast-forward" shortcut="F" trigger="hold"></wbfk-playback-button>
+    <wbfk-playback-button action="toggle-skipping" shortcut="S"></wbfk-playback-button>
+  </div>
+  <wbfk-connector class="connector connector--4 wbfk-hidden"></wbfk-connector>
 </body>
 
 </html>

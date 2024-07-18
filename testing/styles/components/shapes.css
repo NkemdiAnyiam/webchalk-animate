@@ -1,0 +1,51 @@
+.square {
+  width: 10rem;
+  height: 10rem;
+  background-color: #f7f7f7;
+  outline: 3px solid black;
+  position: relative;
+}
+
+.circle {
+  position: absolute;
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.circle--1 {
+  background-color: #99ffff;
+}
+
+.circle--2 {
+  background-color: #9999ff;
+}
+
+.circle--3 {
+  background-color: #ff9999;
+}
+
+.circle--4 {
+  background-color: #99ff99;
+}
+
+.connector {
+  stroke-width: 5px;
+}
+
+.connector--1 {
+  stroke: #99ffff;
+}
+
+.connector--2 {
+  stroke: #9999ff;
+}
+
+.connector--3 {
+  stroke: #ff9999;
+}
+
+.connector--4 {
+  stroke: #99ff99;
+}

@@ -1,0 +1,8 @@
+.playback-buttons {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  background-color: #dddddd;
+  padding: 2rem 1rem;
+  transform-origin: bottom left;
+}
