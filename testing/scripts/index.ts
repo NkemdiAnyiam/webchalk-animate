@@ -16,7 +16,7 @@ const {Motion, Entrance} = WebFlik.createAnimationFactories({
 const square = document.querySelector('.square');
 
 const ent = Entrance(square, '~appear', []);
-ent.id = 2;
+ent.domElem = new HTMLElement()
 Motion(square, '~move-to', [document.documentElement], {});
 
 const timeline = new AnimTimeline();

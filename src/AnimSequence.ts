@@ -45,7 +45,8 @@ export class AnimSequence implements AnimSequenceConfig {
   private static id = 0;
   
   readonly id: number;
-  parentTimeline?: AnimTimeline; // pointer to parent AnimTimeline
+  /**@internal*/ _parentTimeline?: AnimTimeline; // pointer to parent AnimTimeline
+  get parentTimeline() { return this._parentTimeline; }
   /**@internal*/ description: string = '<blank sequence description>';
   /**@internal*/ tag: string = ''; // helps idenfity current AnimSequence for using AnimTimeline's jumpToSequenceTag()
   /**@internal*/ autoplaysNextSequence: boolean = false; // decides whether the next AnimSequence should automatically play after this one
@@ -56,8 +57,8 @@ export class AnimSequence implements AnimSequenceConfig {
   /**@internal*/ inProgress = false;
   /**@internal*/ wasPlayed = false;
   /**@internal*/ wasRewinded = false;
-  /**@internal*/ get skippingOn() { return this.parentTimeline?.skippingOn || this.parentTimeline?.usingJumpTo || this.usingFinish; }
-  get compoundedPlaybackRate() { return this.basePlaybackRate * (this.parentTimeline?.playbackRate ?? 1); }
+  /**@internal*/ get skippingOn() { return this._parentTimeline?.skippingOn || this._parentTimeline?.usingJumpTo || this.usingFinish; }
+  get compoundedPlaybackRate() { return this.basePlaybackRate * (this._parentTimeline?.playbackRate ?? 1); }
   private animBlocks: AnimBlock[] = []; // array of animBlocks
 
   private animBlockGroupings_activeFinishOrder: AnimBlock[][] = [];
@@ -111,10 +112,9 @@ export class AnimSequence implements AnimSequenceConfig {
   setTag(tag: string): AnimSequence { this.tag = tag; return this; }
   /**@internal*/
   setLineage(timeline: AnimTimeline) {
-    this.parentTimeline = timeline;
+    this._parentTimeline = timeline;
     for (const animBlock of this.animBlocks) {
-      animBlock.setLineage(this, this.parentTimeline); // timelineID is really the only thing new there
-      animBlock.parentTimeline = this.parentTimeline;
+      animBlock.setLineage(this, this._parentTimeline);
     }
   }
   setOnStart(promiseFunctions: {do: () => void, undo: () => void}): AnimSequence { 
@@ -131,7 +131,7 @@ export class AnimSequence implements AnimSequenceConfig {
   addBlocks(...animBlocks: AnimBlock[]): AnimSequence {
     // CHANGE NOTE: removed addOneBlock()
     for (const animBlock of animBlocks) {
-      animBlock.setLineage(this, this.parentTimeline);
+      animBlock.setLineage(this, this._parentTimeline);
     }
     this.animBlocks.push(...animBlocks);
     return this;
@@ -139,7 +139,7 @@ export class AnimSequence implements AnimSequenceConfig {
 
   addBlocksAt(index: number, ...animBlocks: AnimBlock[]): AnimSequence {
     for (const animBlock of animBlocks) {
-      animBlock.setLineage(this, this.parentTimeline);
+      animBlock.setLineage(this, this._parentTimeline);
     }
     this.animBlocks.splice(index, 0, ...animBlocks);
     return this;

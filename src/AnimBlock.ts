@@ -40,10 +40,12 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   private static id: number = 0;
   public static get emptyEffectGenerator() { return {generateKeyframes() { return [[], []]; }} as EffectGenerator; }
   protected abstract get defaultConfig(): Partial<AnimBlockConfig>;
-
-  parentSequence?: AnimSequence;
-  parentTimeline?: AnimTimeline;
+  
   readonly id: number;
+  /**@internal*/ _parentSequence?: AnimSequence;
+  /**@internal*/ _parentTimeline?: AnimTimeline;
+  get parentSequence() { return this._parentSequence; }
+  get parentTimeline() { return this._parentTimeline; }
   protected animation: WebFlikAnimation = {} as WebFlikAnimation;
   public abstract get category(): EffectCategory;
   effectName: string;
@@ -92,7 +94,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   /** @internal */ endDelay: number = 0;
   /** @internal */ easing: EasingString = 'linear';
   /** @internal */ playbackRate: number = 1; // actually base playback rate
-  /** @internal */ get compoundedPlaybackRate(): number { return this.playbackRate * (this.parentSequence?.compoundedPlaybackRate ?? 1); }
+  /** @internal */ get compoundedPlaybackRate(): number { return this.playbackRate * (this._parentSequence?.compoundedPlaybackRate ?? 1); }
 
   /** @internal */ fullStartTime = NaN;
   /** @internal */ get activeStartTime() { return (this.fullStartTime + this.delay) / this.playbackRate; }
@@ -140,7 +142,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   /*****************************************************************************************************************************/
   /**@internal*/
   setLineage(sequence: AnimSequence, timeline: AnimTimeline | undefined): void {
-    [this.parentSequence, this.parentTimeline] = [sequence, timeline];
+    [this._parentSequence, this._parentTimeline] = [sequence, timeline];
     [this.animation.parentSequence, this.animation.parentTimeline] = [sequence, timeline];
   }
 
@@ -249,13 +251,13 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
 
     // TODO: Figure out how to disable any pausing/stepping functionality in the timeline while stopped for roadblocks
     this.animation.pauseForRoadblocks = () => {
-      if (this.parentTimeline) { this.parentTimeline.pause(); }
-      else if (this.parentSequence) { this.parentSequence.pause(); }
+      if (this._parentTimeline) { this._parentTimeline.pause(); }
+      else if (this._parentSequence) { this._parentSequence.pause(); }
       else { this.pause(); }
     }
     this.animation.unpauseFromRoadblocks = () => {
-      if (this.parentTimeline) { this.parentTimeline.unpause(); }
-      else if (this.parentSequence) { this.parentSequence.unpause(); }
+      if (this._parentTimeline) { this._parentTimeline.unpause(); }
+      else if (this._parentSequence) { this._parentSequence.unpause(); }
       else { this.unpause(); }
     }
 
@@ -310,7 +312,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   play(parentSequence: AnimSequence): Promise<boolean>;
   play(parentSequence?: AnimSequence): Promise<boolean> {
     // both parentSequence vars should either be undefined or the same AnimSequence
-    if (this.parentSequence !== parentSequence) { this.throwChildPlaybackError('play'); }
+    if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('play'); }
     return this.animate('forward');
   }
 
@@ -318,7 +320,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   /**@internal*/
   rewind(parentSequence: AnimSequence): Promise<boolean>;
   rewind(parentSequence?: AnimSequence): Promise<boolean> {
-    if (this.parentSequence !== parentSequence) { this.throwChildPlaybackError('rewind'); }
+    if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('rewind'); }
     return this.animate('backward');
   }
 
@@ -326,7 +328,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   /**@internal*/
   pause(parentSequence: AnimSequence): void;
   pause(parentSequence?: AnimSequence): void {
-    if (this.parentSequence !== parentSequence) { this.throwChildPlaybackError('pause'); }
+    if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('pause'); }
     if (this.isAnimating) {
       this.isPaused = true;
       this.animation.pause();
@@ -337,7 +339,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   /**@internal*/
   unpause(parentSequence: AnimSequence): void;
   unpause(parentSequence?: AnimSequence): void {
-    if (this.parentSequence !== parentSequence) { this.throwChildPlaybackError('unpause'); }
+    if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('unpause'); }
     if (this.isPaused) {
       this.isPaused = false;
       this.animation.play();
@@ -348,7 +350,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   /**@internal*/
   finish(parentSequence: AnimSequence): void;
   finish(parentSequence?: AnimSequence): void {
-    if (this.parentSequence !== parentSequence) { this.throwChildPlaybackError('finish'); }
+    if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('finish'); }
     // needs to play if not in progress
     if (this.isAnimating) {
       this.animation.finish();
@@ -391,10 +393,10 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
     let rejecter: (reason?: any) => void;
     
     this.isAnimating = true;
-    const skipping = this.parentSequence?.skippingOn;
+    const skipping = this._parentSequence?.skippingOn;
     if (skipping) { animation.finish(true); }
     else { animation.play(); }
-    if (this.parentSequence?.isPaused) { animation.pause(); }
+    if (this._parentSequence?.isPaused) { animation.pause(); }
     
     // After delay phase, then apply class modifications and call onStart functions.
     // Additionally, generate keyframes on 'forward' if keyframe pregeneration is disabled.
@@ -572,8 +574,8 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   /*****************************************************************************************************************************/
   protected generateError: BlockErrorGenerator = (ErrorClassOrInstance, msg = '<unspecified error>', elementOverride?: Element) => {
     return generateError(ErrorClassOrInstance, msg as string, {
-      timeline: this.parentTimeline,
-      sequence: this.parentSequence,
+      timeline: this._parentTimeline,
+      sequence: this._parentSequence,
       block: this,
       element: elementOverride ? elementOverride : this.domElem
     });
