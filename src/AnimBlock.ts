@@ -262,41 +262,41 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
     return this;
   }
 
-  private mergeConfigs(userConfig: Partial<AnimBlockConfig>, effectGeneratorConfig: Partial<AnimBlockConfig>): Partial<AnimBlockConfig> {
+  private mergeConfigs(layer4Config: Partial<AnimBlockConfig>, effectGeneratorConfig: Partial<AnimBlockConfig>): Partial<AnimBlockConfig> {
     return {
-      // subclass defaults take priority
+      // subclass defaults takes priority
       ...this.defaultConfig,
 
-      // config defined in effect generator take priority
+      // config defined in effect generator takes priority over default
       ...effectGeneratorConfig,
 
-      // custom config take priority
-      ...userConfig,
+      // layer 4 config (person using WebFlik) takes priority over generator
+      ...layer4Config,
 
       // mergeable properties
       cssClasses: {
         toAddOnStart: mergeArrays(
-          this.defaultConfig.cssClasses?.toAddOnStart ?? [],
-          effectGeneratorConfig.cssClasses?.toAddOnStart ?? [],
-          userConfig.cssClasses?.toAddOnStart ?? [],
+          this.defaultConfig.cssClasses?.toAddOnStart,
+          effectGeneratorConfig.cssClasses?.toAddOnStart,
+          layer4Config.cssClasses?.toAddOnStart,
         ),
   
         toRemoveOnStart: mergeArrays(
-          this.defaultConfig.cssClasses?.toRemoveOnStart ?? [],
-          effectGeneratorConfig.cssClasses?.toRemoveOnStart ?? [],
-          userConfig.cssClasses?.toRemoveOnStart ?? [],
+          this.defaultConfig.cssClasses?.toRemoveOnStart,
+          effectGeneratorConfig.cssClasses?.toRemoveOnStart,
+          layer4Config.cssClasses?.toRemoveOnStart,
         ),
   
         toAddOnFinish: mergeArrays(
-          this.defaultConfig.cssClasses?.toAddOnFinish ?? [],
-          effectGeneratorConfig.cssClasses?.toAddOnFinish ?? [],
-          userConfig.cssClasses?.toAddOnFinish ?? [],
+          this.defaultConfig.cssClasses?.toAddOnFinish,
+          effectGeneratorConfig.cssClasses?.toAddOnFinish,
+          layer4Config.cssClasses?.toAddOnFinish,
         ),
   
         toRemoveOnFinish: mergeArrays(
-          this.defaultConfig.cssClasses?.toRemoveOnFinish ?? [],
-          effectGeneratorConfig.cssClasses?.toRemoveOnFinish ?? [],
-          userConfig.cssClasses?.toRemoveOnFinish ?? [],
+          this.defaultConfig.cssClasses?.toRemoveOnFinish,
+          effectGeneratorConfig.cssClasses?.toRemoveOnFinish,
+          layer4Config.cssClasses?.toRemoveOnFinish,
         ),
       }
     };
