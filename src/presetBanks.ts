@@ -19,7 +19,7 @@ type DiagDirection = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 type Direction = OrthoDirection | DiagDirection;
 
 
-export const presetEntrances = {
+export const libPresetEntrances = {
   [`~appear`]: {
     generateKeyframes() {
       return [[]];
@@ -143,7 +143,7 @@ export const presetEntrances = {
 } satisfies EffectGeneratorBank<EntranceBlock, EntranceBlockConfig, false>;
 
 
-export const presetExits = {
+export const libPresetExits = {
   [`~disappear`]: {
     generateKeyframes() {
       return [[]];
@@ -264,7 +264,7 @@ export const presetExits = {
 } satisfies EffectGeneratorBank<ExitBlock, ExitBlockConfig, false>;
 
 
-export const presetEmphases = {
+export const libPresetEmphases = {
   [`~highlight`]: {
     generateKeyframes() {
       return [[
@@ -292,7 +292,7 @@ export const presetEmphases = {
 } satisfies EffectGeneratorBank<EmphasisBlock, EmphasisBlockConfig, false>;
 
 
-export const presetMotions = {
+export const libPresetMotions = {
   ['~move-to']: {
     generateKeyframes(targetElem: Element | null | undefined, translationOptions: Partial<MoveToOptions> = {}) {
       if (!targetElem) {
@@ -382,7 +382,7 @@ export const presetMotions = {
 } satisfies EffectGeneratorBank<MotionBlock, MotionBlockConfig, false>;
 
 
-export const presetTransitions = {
+export const libPresetTransitions = {
   ['~from']: {
     generateKeyframes(keyframe: Keyframe) {
       return [ [{...keyframe}, {}] ];
@@ -423,7 +423,7 @@ export const presetTransitions = {
 } satisfies EffectGeneratorBank<TransitionBlock, TransitionBlockConfig, false>;
 
 
-export const presetConnectorEntrances = {
+export const libPresetConnectorEntrances = {
   [`~appear`]: {
     generateKeyframes() {
       return [[]];
@@ -488,7 +488,7 @@ export const presetConnectorEntrances = {
 } satisfies EffectGeneratorBank<ConnectorEntranceBlock, ConnectorEntranceBlockConfig, false>;
 
 
-export const presetConnectorExits = {
+export const libPresetConnectorExits = {
   [`~disappear`]: {
     generateKeyframes() {
       return [[]];
@@ -550,7 +550,7 @@ export const presetConnectorExits = {
 } satisfies EffectGeneratorBank<ConnectorExitBlock, ConnectorExitBlockConfig, false>;
 
 
-export const presetScrolls = {
+export const libPresetScrolls = {
   // [`~scroll-self`]: {
   //   generateRafMutators(target: Element | null | undefined, scrollOptions: Partial<ScrollingOptions> = {}) {
   //     if (!target) { throw new TypeError(`Target for ~scroll-self must not be null`); }

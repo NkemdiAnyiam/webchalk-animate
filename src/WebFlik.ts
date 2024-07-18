@@ -10,7 +10,7 @@ import {
   TransitionBlockConfig
 } from "./categoricalBlocks";
 import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
-import { presetEntrances, presetExits, presetEmphases, presetMotions, presetConnectorEntrances, presetConnectorExits, presetScrolls, presetTransitions } from "./presetBanks";
+import { libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions, libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions } from "./presetBanks";
 import { useEasing } from "./utils/easing";
 import { MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./utils/interfaces";
 import { ReadonlyPick, ReadonlyRecord, StripDuplicateMethodAutocompletion } from "./utils/utilityTypes";
@@ -91,59 +91,59 @@ export type EffectNameIn<TGeneratorBank extends EffectGeneratorBank> = Exclude<k
 
 
 class _WebFlik {
-  createAnimationBanks
+  createAnimationFactories
   <
    // default = {} ensures intellisense for a given bank still works
    // without specifying the field (why? not sure)
-    UserEntranceBank extends EffectGeneratorBank<EntranceBlock, EntranceBlockConfig, false> = {},
-    UserExitBank extends EffectGeneratorBank<ExitBlock, ExitBlockConfig, false> = {},
-    UserEmphasisBank extends EffectGeneratorBank<EmphasisBlock, EmphasisBlockConfig, false> = {},
-    UserMotionBank extends EffectGeneratorBank<MotionBlock, MotionBlockConfig, false> = {},
+    CustomEntranceBank extends EffectGeneratorBank<EntranceBlock, EntranceBlockConfig, false> = {},
+    CustomExitBank extends EffectGeneratorBank<ExitBlock, ExitBlockConfig, false> = {},
+    CustomEmphasisBank extends EffectGeneratorBank<EmphasisBlock, EmphasisBlockConfig, false> = {},
+    CustomMotionBank extends EffectGeneratorBank<MotionBlock, MotionBlockConfig, false> = {},
     _EmptyTransitionBank extends EffectGeneratorBank<TransitionBlock, TransitionBlockConfig> = {},
     _EmptyConnectorEntranceBank extends EffectGeneratorBank<ConnectorEntranceBlock, ConnectorEntranceBlockConfig> = {},
     _EmptyConnectorExitBank extends EffectGeneratorBank<ConnectorExitBlock, ConnectorExitBlockConfig> = {},
     _EmptyScrollerBank extends EffectGeneratorBank<ScrollerBlock, ScrollerBlockConfig> = {},
-    IncludePresets extends boolean = true
+    IncludeLibPresets extends boolean = true
   >
   (
-    customBankAddons: {
-      entrances?: UserEntranceBank & EffectGeneratorBank<EntranceBlock, EntranceBlockConfig, false>;
-      exits?: UserExitBank & EffectGeneratorBank<ExitBlock, ExitBlockConfig, false>;
-      emphases?: UserEmphasisBank & EffectGeneratorBank<EmphasisBlock, EmphasisBlockConfig, false>;
-      motions?: UserMotionBank & EffectGeneratorBank<MotionBlock, MotionBlockConfig, false>;
+    customPresetEffectBanks: {
+      customEntranceEffects?: CustomEntranceBank & EffectGeneratorBank<EntranceBlock, EntranceBlockConfig, false>;
+      customExitEffects?: CustomExitBank & EffectGeneratorBank<ExitBlock, ExitBlockConfig, false>;
+      customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisBlock, EmphasisBlockConfig, false>;
+      customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionBlock, MotionBlockConfig, false>;
     } = {},
-    includePresets: IncludePresets | void = true as IncludePresets
+    includeLibraryPresets: IncludeLibPresets | void = true as IncludeLibPresets
   ) {
-    const {entrances, exits, emphases, motions} = customBankAddons as {
-      entrances?: UserEntranceBank & EffectGeneratorBank<EntranceBlock, EntranceBlockConfig>;
-      exits?: UserExitBank & EffectGeneratorBank<ExitBlock, ExitBlockConfig>;
-      emphases?: UserEmphasisBank & EffectGeneratorBank<EmphasisBlock, EmphasisBlockConfig>;
-      motions?: UserMotionBank & EffectGeneratorBank<MotionBlock, MotionBlockConfig>;
+    const {customEntranceEffects, customExitEffects, customEmphasisEffects, customMotionEffects} = customPresetEffectBanks as {
+      customEntranceEffects?: CustomEntranceBank & EffectGeneratorBank<EntranceBlock, EntranceBlockConfig>;
+      customExitEffects?: CustomExitBank & EffectGeneratorBank<ExitBlock, ExitBlockConfig>;
+      customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisBlock, EmphasisBlockConfig>;
+      customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionBlock, MotionBlockConfig>;
     };
-    _WebFlik.checkBanksFormatting(entrances, exits, emphases, motions);
+    _WebFlik.checkBanksFormatting(customEntranceEffects, customExitEffects, customEmphasisEffects, customMotionEffects);
 
-    type TogglePresets<TPresetBank, TUserBank> = Readonly<(IncludePresets extends true ? TPresetBank : {}) & TUserBank>;
+    type TogglePresets<TLibBank, TCustomBank> = Readonly<(IncludeLibPresets extends true ? TLibBank : {}) & TCustomBank>;
 
-    const combineBanks = <P, U>(presets: P, userDefined: U) => {
-      const combinedBank = {...(includePresets ? presets : {}), ...(userDefined ?? {})} as EffectGeneratorBank;
+    const mergeBanks = <L, U>(libraryBank: L, customBank: U) => {
+      const combinedBank = {...(includeLibraryPresets ? libraryBank : {}), ...(customBank ?? {})} as EffectGeneratorBank;
       // set effectName and sourceBank properties of each generator to thier obviously corresponding values
       // Object.assign circumvents the Readonly<>, preventing a TS error
       for (const key in combinedBank) {
         const extras = { effectName: key, sourceBank: combinedBank } satisfies Partial<EffectGenerator>;
         Object.assign(combinedBank[key], extras);
       }
-      return combinedBank as TogglePresets<P, U>;
+      return combinedBank as TogglePresets<L, U>;
     }
     
     // Add the keyframes groups to the static banks of the block classes
-    const combinedEntranceBank = combineBanks(presetEntrances, entrances as UserEntranceBank);
-    const combinedExitBank = combineBanks(presetExits, exits as UserExitBank);
-    const combinedEmphasisBank = combineBanks(presetEmphases, emphases as UserEmphasisBank);
-    const combinedMotionBank = combineBanks(presetMotions, motions as UserMotionBank);
-    const combinedTransitionBank = combineBanks(presetTransitions, {} as _EmptyTransitionBank);
-    const combinedConnectorEntranceBank = combineBanks(presetConnectorEntrances, {} as _EmptyConnectorEntranceBank);
-    const combinedConnectorExitBank = combineBanks(presetConnectorExits, {} as _EmptyConnectorExitBank);
-    const combinedScrollerBank = combineBanks(presetScrolls, {} as _EmptyScrollerBank);
+    const combinedEntranceBank = mergeBanks(libPresetEntrances, customEntranceEffects as CustomEntranceBank);
+    const combinedExitBank = mergeBanks(libPresetExits, customExitEffects as CustomExitBank);
+    const combinedEmphasisBank = mergeBanks(libPresetEmphases, customEmphasisEffects as CustomEmphasisBank);
+    const combinedMotionBank = mergeBanks(libPresetMotions, customMotionEffects as CustomMotionBank);
+    const combinedTransitionBank = mergeBanks(libPresetTransitions, {} as _EmptyTransitionBank);
+    const combinedConnectorEntranceBank = mergeBanks(libPresetConnectorEntrances, {} as _EmptyConnectorEntranceBank);
+    const combinedConnectorExitBank = mergeBanks(libPresetConnectorExits, {} as _EmptyConnectorExitBank);
+    const combinedScrollerBank = mergeBanks(libPresetScrolls, {} as _EmptyScrollerBank);
 
     // return functions that can be used to instantiate AnimBlocks with intellisense for the combined banks
     return {
