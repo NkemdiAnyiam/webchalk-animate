@@ -8,16 +8,24 @@ import { EffectCategory, StripFrozenConfig } from "./utils/interfaces";
 import { WbfkConnector } from "./WbfkConnector";
 import { WebFlikAnimation } from "./WebFlikAnimation";
 
+
+type CssClassOptions = {
+  toAddOnFinish: string[];
+  toAddOnStart: string[];
+  toRemoveOnFinish: string[];
+  toRemoveOnStart: string[];
+};
+
 type CustomKeyframeEffectOptions = {
   startsNextBlock: boolean;
   startsWithPrevious: boolean;
   commitsStyles: boolean;
   commitStylesForcefully: boolean; // attempt to unhide, commit, then re-hide
   composite: CompositeOperation;
-  classesToAddOnFinish: string[];
-  classesToAddOnStart: string[];
-  classesToRemoveOnFinish: string[];
-  classesToRemoveOnStart: string[];
+  /**
+   * Huuba stank
+   */
+  cssClasses: Partial<CssClassOptions>;
   runGeneratorsNow: boolean;
 }
 
@@ -70,10 +78,12 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   /** @internal */commitsStyles: boolean = true;
   /** @internal */commitStylesForcefully: boolean = false; // attempt to unhide, commit, then re-hide
   /** @internal */composite: CompositeOperation = 'replace';
-  /** @internal */classesToAddOnFinish: string[] = [];
-  /** @internal */classesToAddOnStart: string[] = [];
-  /** @internal */classesToRemoveOnFinish: string[] = [];
-  /** @internal */classesToRemoveOnStart: string[] = [];
+  /** @internal */cssClasses: CssClassOptions = {
+    toAddOnStart: [],
+    toAddOnFinish: [],
+    toRemoveOnStart: [],
+    toRemoveOnFinish: [],
+  };
   /** @internal */runGeneratorsNow: boolean = false;
 
   /** @internal */isAnimating = false;
@@ -107,12 +117,12 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
 
   getEffects() {
     return {
-      classes: {
-        toAddOnFinish: this.classesToAddOnFinish,
-        toAddOnStart: this.classesToAddOnStart,
-        toRemoveOnFinish: this.classesToRemoveOnFinish,
-        toRemoveOnStart: this.classesToRemoveOnStart,
-      },
+      cssClasses: {
+        toAddOnStart: [...(this.cssClasses.toAddOnStart ?? [])],
+        toAddOnFinish: [...(this.cssClasses.toAddOnFinish ?? [])],
+        toRemoveOnStart: [...(this.cssClasses.toRemoveOnStart ?? [])],
+        toRemoveOnFinish: [...(this.cssClasses.toRemoveOnFinish ?? [])],
+      } as CssClassOptions,
       composite: this.composite,
       commitsStyles: this.commitsStyles,
       commitsStylesForcefully: this.commitStylesForcefully,
@@ -264,29 +274,31 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
       ...userConfig,
 
       // mergeable properties
-      classesToAddOnStart: mergeArrays(
-        this.defaultConfig.classesToAddOnStart ?? [],
-        effectGeneratorConfig.classesToAddOnStart ?? [],
-        userConfig.classesToAddOnStart ?? [],
-      ),
-
-      classesToRemoveOnStart: mergeArrays(
-        this.defaultConfig.classesToRemoveOnStart ?? [],
-        effectGeneratorConfig.classesToRemoveOnStart ?? [],
-        userConfig.classesToRemoveOnStart ?? [],
-      ),
-
-      classesToAddOnFinish: mergeArrays(
-        this.defaultConfig.classesToAddOnFinish ?? [],
-        effectGeneratorConfig.classesToAddOnFinish ?? [],
-        userConfig.classesToAddOnFinish ?? [],
-      ),
-
-      classesToRemoveOnFinish: mergeArrays(
-        this.defaultConfig.classesToRemoveOnFinish ?? [],
-        effectGeneratorConfig.classesToRemoveOnFinish ?? [],
-        userConfig.classesToRemoveOnFinish ?? [],
-      ),
+      cssClasses: {
+        toAddOnStart: mergeArrays(
+          this.defaultConfig.cssClasses?.toAddOnStart ?? [],
+          effectGeneratorConfig.cssClasses?.toAddOnStart ?? [],
+          userConfig.cssClasses?.toAddOnStart ?? [],
+        ),
+  
+        toRemoveOnStart: mergeArrays(
+          this.defaultConfig.cssClasses?.toRemoveOnStart ?? [],
+          effectGeneratorConfig.cssClasses?.toRemoveOnStart ?? [],
+          userConfig.cssClasses?.toRemoveOnStart ?? [],
+        ),
+  
+        toAddOnFinish: mergeArrays(
+          this.defaultConfig.cssClasses?.toAddOnFinish ?? [],
+          effectGeneratorConfig.cssClasses?.toAddOnFinish ?? [],
+          userConfig.cssClasses?.toAddOnFinish ?? [],
+        ),
+  
+        toRemoveOnFinish: mergeArrays(
+          this.defaultConfig.cssClasses?.toRemoveOnFinish ?? [],
+          effectGeneratorConfig.cssClasses?.toRemoveOnFinish ?? [],
+          userConfig.cssClasses?.toRemoveOnFinish ?? [],
+        ),
+      }
     };
   }
 
@@ -384,8 +396,8 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
 
       switch(direction) {
         case 'forward':
-          this.domElem.classList.add(...this.classesToAddOnStart);
-          this.domElem.classList.remove(...this.classesToRemoveOnStart);
+          this.domElem.classList.add(...this.cssClasses.toAddOnStart);
+          this.domElem.classList.remove(...this.cssClasses.toRemoveOnStart);
           this._onStartForward();
   
           // If keyframes were not pregenerated, generate them now
@@ -424,8 +436,8 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   
         case 'backward':
           this._onStartBackward();
-          this.domElem.classList.add(...this.classesToRemoveOnFinish);
-          this.domElem.classList.remove(...this.classesToAddOnFinish);
+          this.domElem.classList.add(...this.cssClasses.toRemoveOnFinish);
+          this.domElem.classList.remove(...this.cssClasses.toAddOnFinish);
 
           if (!this.runGeneratorsNow) {
             try {
@@ -500,14 +512,14 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
 
       switch(direction) {
         case 'forward':
-          this.domElem.classList.add(...this.classesToAddOnFinish);
-          this.domElem.classList.remove(...this.classesToRemoveOnFinish);
+          this.domElem.classList.add(...this.cssClasses.toAddOnFinish);
+          this.domElem.classList.remove(...this.cssClasses.toRemoveOnFinish);
           this._onFinishForward();
           break;
         case 'backward':
           this._onFinishBackward();
-          this.domElem.classList.add(...this.classesToRemoveOnStart);
-          this.domElem.classList.remove(...this.classesToAddOnStart);
+          this.domElem.classList.add(...this.cssClasses.toRemoveOnStart);
+          this.domElem.classList.remove(...this.cssClasses.toAddOnStart);
           break;
       }
     };

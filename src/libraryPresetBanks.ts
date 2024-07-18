@@ -274,7 +274,7 @@ export const libPresetEmphases = {
       ]];
     },
     config: {
-      classesToAddOnStart: [`wbfk-highlightable`],
+      cssClasses: { toAddOnStart: [`wbfk-highlightable`] },
       // invalidProp: 4,
     },
   },
@@ -287,7 +287,7 @@ export const libPresetEmphases = {
       ]];
     },
     config: {
-      classesToRemoveOnFinish: [`wbfk-highlightable`],
+      cssClasses: { toRemoveOnFinish: [`wbfk-highlightable`] },
     },
   },
 } satisfies EffectGeneratorBank<EmphasisBlock, EmphasisBlockConfig, false>;
