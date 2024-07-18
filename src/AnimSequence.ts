@@ -110,7 +110,8 @@ export class AnimSequence implements AnimSequenceConfig {
   
   setDescription(description: string): AnimSequence { this.description = description; return this; }
   setTag(tag: string): AnimSequence { this.tag = tag; return this; }
-  /**@internal*/setID(id: number) {
+  /**@internal*/
+  setID(id: number) {
     this.timelineID = id;
     for (const animBlock of this.animBlocks) {
       animBlock.setID(this.id, this.timelineID); // timelineID is really the only thing new there
@@ -289,7 +290,8 @@ export class AnimSequence implements AnimSequenceConfig {
     this.useCompoundedPlaybackRate();
   }
 
-  /**@internal*/useCompoundedPlaybackRate(): void {
+  /**@internal*/
+  useCompoundedPlaybackRate(): void {
     this.doForInProgressBlocks(animBlock => animBlock.useCompoundedPlaybackRate());
   }
 
