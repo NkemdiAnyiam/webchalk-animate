@@ -16,4 +16,4 @@ Entrance(square, '~appear', []);
 Motion(square, '~move-to', [document.documentElement], {});
 
 const timeline = new AnimTimeline();
-timeline.togglePause(true,)
+timeline.togglePause()

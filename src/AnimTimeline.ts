@@ -143,11 +143,11 @@ export class AnimTimeline {
     if (pauseButton) {
       pauseButton.activate = () => {
         pauseButton.styleActivation();
-        this.togglePause(true, {viaButton: true});
+        this.pause({viaButton: true});
       };
       pauseButton.deactivate = () => {
         pauseButton.styleDeactivation();
-        this.togglePause(false, {viaButton: true});
+        this.unpause({viaButton: true});
       };
 
       pauseButton.styleActivation = () => {
@@ -458,7 +458,7 @@ export class AnimTimeline {
     this.usingJumpTo = true;
     // if paused, then unpause to perform the jumping; then re-pause
     let wasPaused = this.isPaused;
-    if (wasPaused) { this.togglePause(false); }
+    if (wasPaused) { this.unpause(); }
     // if skipping is not currently enabled, activate skipping button styling
     let wasSkipping = this.skippingOn;
     if (!wasSkipping) { this.playbackButtons.toggleSkippingButton?.styleActivation(); }
@@ -516,7 +516,7 @@ export class AnimTimeline {
     }
 
     if (!wasSkipping) { this.playbackButtons.toggleSkippingButton?.styleDeactivation(); }
-    if (wasPaused) { this.togglePause(true); }
+    if (wasPaused) { this.pause(); }
 
     this.usingJumpTo = false;
   }
@@ -538,24 +538,49 @@ export class AnimTimeline {
   finishInProgressSequences(): void { this.doForInProgressSequences(sequence => sequence.finish()); }
 
   // pauses or unpauses playback
-  togglePause(isPaused?: boolean): boolean;
-  /**@internal*/togglePause(isPaused?: boolean, options?: { viaButton: boolean }): boolean;
-  togglePause(isPaused?: boolean, options?: { viaButton: boolean }): boolean {
-    this.isPaused = isPaused ?? !this.isPaused;
-    if (this.isPaused) {
-      if (!options?.viaButton) { this.playbackButtons.pauseButton?.styleActivation(); }
-      this.doForInProgressSequences(sequence => sequence.pause());
+  togglePause(options: {
+    /**@internal */
+    viaButton?: boolean,
+    forceState?: 'pause' | 'unpause'
+  } = {}): boolean {
+    if (options.forceState) {
+      const prevPauseState = this.isPaused;
+      switch(options.forceState) {
+        case 'pause': this.isPaused = true; break;
+        case 'unpause': this.isPaused = false; break;
+        default: {}
+      }
+      // if toggling did nothing, just return
+      if (prevPauseState === this.isPaused) { return prevPauseState; }
     }
     else {
-      if (!options?.viaButton) { this.playbackButtons.pauseButton?.styleDeactivation(); }
-      this.doForInProgressSequences(sequence => sequence.unpause());
-      if (this.skippingOn) { this.finishInProgressSequences(); }
+      this.isPaused = !this.isPaused;
     }
+
+    this.isPaused ? this.pause() : this.unpause();
+    
     return this.isPaused;
   }
 
-  pause(): void { this.togglePause(true); }
-  unpause(): void { this.togglePause(false); }
+  
+  pause(): void;
+  /**@internal*/
+  pause(options?: { viaButton: boolean }): void;
+  pause(options?: { viaButton: boolean }): void {
+    this.isPaused = true;
+    if (!options?.viaButton) { this.playbackButtons.pauseButton?.styleActivation(); }
+    this.doForInProgressSequences(sequence => sequence.pause());
+  }
+  
+  unpause(): void;
+  /**@internal*/
+  unpause(options?: { viaButton: boolean }): void;
+  unpause(options?: { viaButton: boolean }): void {
+    this.isPaused = false;
+    if (!options?.viaButton) { this.playbackButtons.pauseButton?.styleDeactivation(); }
+    this.doForInProgressSequences(sequence => sequence.unpause());
+    if (this.skippingOn) { this.finishInProgressSequences(); }
+  }
 
   // get all currently running animations that belong to this timeline and perform operation() with them
   private doForInProgressSequences(operation: SequenceOperation): void {
