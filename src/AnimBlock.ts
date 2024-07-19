@@ -106,7 +106,8 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   };
   /** @internal */ runGeneratorsNow: boolean = false;
 
-  /** @internal */ isAnimating = false;
+  /** @internal */ inProgress = false; // true only during animate() (regardless of pause state)
+  /** @internal */ isRunning = false; // true only when inProgress and !isPaused
   /** @internal */ isPaused = false;
   /** @internal */ duration: number = 500;
   /** @internal */ delay: number = 0;
@@ -150,7 +151,8 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
 
   getStatus() {
     return {
-      animating: this.isAnimating,
+      inProgress: this.inProgress,
+      running: this.isRunning,
       paused: this.isPaused,
     };
   }
@@ -347,8 +349,9 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   pause(parentSequence: AnimSequence): void;
   pause(parentSequence?: AnimSequence): void {
     if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('pause'); }
-    if (this.isAnimating) {
+    if (this.isRunning) {
       this.isPaused = true;
+      this.isRunning = false;
       this.animation.pause();
     }
   }
@@ -360,6 +363,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
     if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('unpause'); }
     if (this.isPaused) {
       this.isPaused = false;
+      this.isRunning = true;
       this.animation.play();
     }
   }
@@ -369,12 +373,26 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   finish(parentSequence: AnimSequence): void;
   finish(parentSequence?: AnimSequence): void {
     if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('finish'); }
-    // needs to play if not in progress
-    if (this.isAnimating) {
+    if (this.inProgress) {
       this.animation.finish();
     }
-    else if (this.animation.direction === 'forward') {
-      this.play(parentSequence!); // TODO: Find cleaner looking solution (perhaps simple if-else)
+    // Needs to play first if not already in progress.
+    // This is essentially for the case where the animation is NOT part of a sequence and finish() is
+    // is called without having first called play() or rewind() (I decided that the expected behavior is to
+    // instantly finish the animation in whatever the current direction is).
+    else {
+      switch(this.animation.direction) {
+        case "forward":
+          this.play(parentSequence!);
+          break;
+        case "backward":
+          this.rewind(parentSequence!);
+          break;
+        default: throw this.generateError(
+          Error,
+          `An error here should be impossible. this.animation.direction should only be 'forward' or 'backward'.`
+        );
+      }
       this.animation.finish();
     }
   }
@@ -396,7 +414,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   protected _onFinishBackward(): void {};
 
   protected async animate(direction: 'forward' | 'backward'): Promise<boolean> {
-    if (this.isAnimating) { return false; }
+    if (this.inProgress) { return false; }
 
     const animation = this.animation;
     animation.setDirection(direction);
@@ -410,7 +428,9 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
     let resolver: (value: boolean | PromiseLike<boolean>) => void;
     let rejecter: (reason?: any) => void;
     
-    this.isAnimating = true;
+    this.inProgress = true;
+    this.isRunning = true;
+
     const skipping = this._parentSequence?.skippingOn;
     if (skipping) { animation.finish(true); }
     else { animation.play(); }
@@ -553,7 +573,8 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
     
     // After endDelay phase, then cancel animation, remove this block from the timeline, and resolve overall promise.
     animation.onEndDelayFinish = () => {
-      this.isAnimating = false;
+      this.inProgress = false;
+      this.isRunning = false;
       animation.cancel();
       resolver(true);
     };
