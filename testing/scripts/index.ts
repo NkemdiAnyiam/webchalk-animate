@@ -8,16 +8,16 @@ const {Motion, Entrance} = WebFlik.createAnimationFactories({
       },
       config: {
         
-      }
+      },
     },
-  }
+  },
 })
 
 const square = document.querySelector('.square');
 
 const ent = Entrance(square, '~appear', []);
 ent.domElem = new HTMLElement()
-Motion(square, '~move-to', [document.documentElement], {});
+Motion(square, '~move-to', [document.documentElement], {}).getTiming().compoundedPlaybackRate
 
 const timeline = new AnimTimeline();
 timeline.togglePause()

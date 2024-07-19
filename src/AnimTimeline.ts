@@ -46,7 +46,7 @@ export class AnimTimeline {
       jumping: this.usingJumpTo,
       stepNumber: this.loadedSeqIndex + 1,
       atBeginning: this.atBeginning,
-      atEnd: this.atEnd
+      atEnd: this.atEnd,
     };
   }
 

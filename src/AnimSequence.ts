@@ -79,7 +79,7 @@ export class AnimSequence implements AnimSequenceConfig {
 
   getStatus() {
     return {
-      animating: this.inProgress,
+      inProgress: this.inProgress,
       paused: this.isPaused,
       skippingOn: this.skippingOn,
     };

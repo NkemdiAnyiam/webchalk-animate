@@ -17,6 +17,9 @@ type CssClassOptions = {
 };
 
 type CustomKeyframeEffectOptions = {
+  /**
+   * Description for startsNextBlockToo
+   */
   startsNextBlockToo: boolean;
   startsWithPrevious: boolean;
   commitsStyles: boolean;
@@ -35,6 +38,22 @@ type KeyframeTimingOptions = {
 }
 
 export type AnimBlockConfig = KeyframeTimingOptions & CustomKeyframeEffectOptions;
+
+export type AnimBlockTiming = Pick<AnimBlockConfig, 
+  'startsNextBlockToo' |
+  'startsWithPrevious' |
+  'duration' |
+  'delay' |
+  'endDelay' |
+  'easing' |
+  'playbackRate' |
+  'runGeneratorsNow'
+> & {
+  /**
+   * Description for compoundedPlaybackRate
+   */
+  compoundedPlaybackRate: number;
+}
 
 export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = EffectGenerator> implements AnimBlockConfig {
   private static id: number = 0;
@@ -101,22 +120,21 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   /** @internal */ get activeFinishTime() { return( this.fullStartTime + this.delay + this.duration) / this.playbackRate; }
   /** @internal */ get fullFinishTime() { return (this.fullStartTime + this.delay + this.duration + this.endDelay) / this.playbackRate; }
 
-  getTiming() {
+  getTiming(): AnimBlockTiming {
     return {
-      startsNextBlock: this.startsNextBlockToo,
+      startsNextBlockToo: this.startsNextBlockToo,
       startsWithPrevious: this.startsWithPrevious,
-      composite: this.composite,
       duration: this.duration,
       delay: this.delay,
       endDelay: this.endDelay,
       easing: this.easing,
-      basePlaybackRate: this.playbackRate,
+      playbackRate: this.playbackRate,
       compoundedPlaybackRate: this.compoundedPlaybackRate,
-      runGeneratorsNow: this.runGeneratorsNow
+      runGeneratorsNow: this.runGeneratorsNow,
     };
   }
 
-  getEffects() {
+  getModifiers() {
     return {
       cssClasses: {
         toAddOnStart: [...(this.cssClasses.toAddOnStart ?? [])],
