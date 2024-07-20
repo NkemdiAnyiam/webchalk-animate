@@ -77,23 +77,6 @@ export class AnimSequence implements AnimSequenceConfig {
   
   private fullyFinished: FullyFinishedPromise<this> = this.getNewFullyFinished();
 
-  getConfig(): Readonly<AnimSequenceConfig> {
-    return {
-      autoplays: this.autoplays,
-      autoplaysNextSequence: this.autoplaysNextSequence,
-      description: this.description,
-      tag: this.tag,
-    };
-  }
-
-  getStatus() {
-    return {
-      inProgress: this.inProgress,
-      paused: this.isPaused,
-      skippingOn: this.skippingOn,
-    };
-  }
-
   /**@internal*/
   onStart: {do: () => void; undo: () => void;} = {
     do: () => {},
@@ -114,11 +97,29 @@ export class AnimSequence implements AnimSequenceConfig {
     this.addBlocks(...(config instanceof AnimBlock ? [config, ...animBlocks] : animBlocks));
   }
 
+  getConfig(): Readonly<AnimSequenceConfig> {
+    return {
+      autoplays: this.autoplays,
+      autoplaysNextSequence: this.autoplaysNextSequence,
+      description: this.description,
+      tag: this.tag,
+    };
+  }
+
+  getStatus() {
+    return {
+      inProgress: this.inProgress,
+      paused: this.isPaused,
+      skippingOn: this.skippingOn,
+    };
+  }
+
   getDescription() { return this.description; }
   getTag() { return this.tag; }
   
-  setDescription(description: string): AnimSequence { this.description = description; return this; }
-  setTag(tag: string): AnimSequence { this.tag = tag; return this; }
+  setDescription(description: string): this { this.description = description; return this; }
+  setTag(tag: string): this { this.tag = tag; return this; }
+
   /**@internal*/
   setLineage(timeline: AnimTimeline) {
     this._parentTimeline = timeline;
@@ -126,18 +127,19 @@ export class AnimSequence implements AnimSequenceConfig {
       animBlock.setLineage(this, this._parentTimeline);
     }
   }
-  setOnStart(promiseFunctions: {do: () => void, undo: () => void}): AnimSequence { 
+
+  setOnStart(promiseFunctions: {do: () => void, undo: () => void}): this { 
     this.onStart.do = promiseFunctions.do;
     this.onStart.undo = promiseFunctions.undo;
     return this;
   }
-  setOnFinish(promiseFunctions: {do: () => void, undo: () => void}): AnimSequence { 
+  setOnFinish(promiseFunctions: {do: () => void, undo: () => void}): this { 
     this.onFinish.do = promiseFunctions.do;
     this.onFinish.undo = promiseFunctions.undo;
     return this;
   }
 
-  addBlocks(...animBlocks: AnimBlock[]): AnimSequence {
+  addBlocks(...animBlocks: AnimBlock[]): this {
     // CHANGE NOTE: removed addOneBlock()
     for (const animBlock of animBlocks) {
       animBlock.setLineage(this, this._parentTimeline);
@@ -146,7 +148,7 @@ export class AnimSequence implements AnimSequenceConfig {
     return this;
   }
 
-  addBlocksAt(index: number, ...animBlocks: AnimBlock[]): AnimSequence {
+  addBlocksAt(index: number, ...animBlocks: AnimBlock[]): this {
     for (const animBlock of animBlocks) {
       animBlock.setLineage(this, this._parentTimeline);
     }
@@ -307,21 +309,6 @@ export class AnimSequence implements AnimSequenceConfig {
     this.doForInProgressBlocks(animBlock => animBlock.unpause(this));
   }
 
-  updatePlaybackRate(newRate: number): void {
-    this.basePlaybackRate = newRate;
-    this.useCompoundedPlaybackRate();
-  }
-
-  /**@internal*/
-  useCompoundedPlaybackRate(): void {
-    this.doForInProgressBlocks(animBlock => animBlock.useCompoundedPlaybackRate());
-  }
-
-  // used to skip currently running animation so they don't run at regular speed while using finish()
-  async finishInProgressAnimations(): Promise<this> {
-    return this.doForInProgressBlocks_async(animBlock => animBlock.finish(this));
-  }
-  
   // TODO: probably want to make this async
   async finish(): Promise<this> {
     if (this.usingFinish || this.isPaused) { return this; }
@@ -337,13 +324,30 @@ export class AnimSequence implements AnimSequenceConfig {
     return this.fullyFinished.promise;
   }
 
+  // used to skip currently running animation so they don't run at regular speed while using finish()
+  async finishInProgressAnimations(): Promise<this> {
+    return this.doForInProgressBlocks_async(animBlock => animBlock.finish(this));
+  }
+
+  updatePlaybackRate(newRate: number): this {
+    this.basePlaybackRate = newRate;
+    this.useCompoundedPlaybackRate();
+    return this;
+  }
+
+  /**@internal*/
+  useCompoundedPlaybackRate(): this {
+    this.doForInProgressBlocks(animBlock => animBlock.useCompoundedPlaybackRate());
+    return this;
+  }
+
   private static activeBackwardFinishComparator = (blockA: AnimBlock, blockB: AnimBlock) => blockB.activeStartTime - blockA.activeStartTime;
   private static activeFinishComparator = (blockA: AnimBlock, blockB: AnimBlock) => blockA.activeFinishTime - blockB.activeFinishTime;
   private static endDelayFinishComparator = (blockA: AnimBlock, blockB: AnimBlock) => blockA.fullFinishTime - blockB.fullFinishTime;
 
   // TODO: Complete this method
   /**@internal*/
-  commit(): AnimSequence {
+  commit(): this {
     const {
       activeBackwardFinishComparator,
       activeFinishComparator,
@@ -409,10 +413,11 @@ export class AnimSequence implements AnimSequenceConfig {
   }
 
   // get all currently running animations that belong to this timeline and perform operation() with them
-  private doForInProgressBlocks(operation: AnimationOperation): void {
+  private doForInProgressBlocks(operation: AnimationOperation): this {
     for (const animBlock of this.inProgressBlocks.values()) {
       operation(animBlock);
     }
+    return this;
   }
 
   private async doForInProgressBlocks_async(operation: AsyncAnimationOperation): Promise<this> {
