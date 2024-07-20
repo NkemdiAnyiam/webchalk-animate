@@ -547,7 +547,7 @@ export class AnimTimeline {
     /**@internal */
     viaButton?: boolean,
     forceState?: 'pause' | 'unpause'
-  } = {}): boolean {
+  } = {}): this {
     if (options.forceState) {
       const prevPauseState = this.isPaused;
       switch(options.forceState) {
@@ -556,7 +556,7 @@ export class AnimTimeline {
         default: {}
       }
       // if toggling did nothing, just return
-      if (prevPauseState === this.isPaused) { return prevPauseState; }
+      if (prevPauseState === this.isPaused) { return this; }
     }
     else {
       this.isPaused = !this.isPaused;
@@ -564,7 +564,7 @@ export class AnimTimeline {
 
     this.isPaused ? this.pause() : this.unpause();
     
-    return this.isPaused;
+    return this;
   }
 
   
