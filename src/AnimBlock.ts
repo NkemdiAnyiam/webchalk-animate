@@ -368,22 +368,19 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
     }
   }
 
-  finish(): void;
+  async finish(): Promise<void>;
   /**@internal*/
-  finish(parentSequence: AnimSequence): void;
-  finish(parentSequence?: AnimSequence): void {
+  async finish(parentSequence: AnimSequence): Promise<void>;
+  async finish(parentSequence?: AnimSequence): Promise<void> {
     if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('finish'); }
     // finish() is not allowed to execute if block is paused
     if (this.isPaused) { return; }
     
-    if (this.inProgress) {
-      this.animation.finish();
-    }
-    // Needs to play first if not already in progress.
+    // Needs to play/rewind first if not already in progress.
     // This is essentially for the case where the animation is NOT part of a sequence and finish() is
     // is called without having first called play() or rewind() (I decided that the expected behavior is to
     // instantly finish the animation in whatever the current direction is).
-    else {
+    if (!this.inProgress) {
       switch(this.animation.direction) {
         case "forward":
           this.play(parentSequence!);
@@ -396,8 +393,9 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
           `An error here should be impossible. this.animation.direction should only be 'forward' or 'backward'.`
         );
       }
-      this.animation.finish();
     }
+
+    return this.animation.finish();
   }
 
   get generateTimePromise() { return this.animation.generateTimePromise.bind(this.animation); }

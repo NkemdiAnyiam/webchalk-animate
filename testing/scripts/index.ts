@@ -35,15 +35,20 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 // })
 
 (async function() {
-  await wait(1000);
-  motion.play();
-  await wait(500);
-  motion.pause();
-  await wait(500);
-  motion.finish();
-  await wait(500);
-  console.log(motion.getStatus().paused);
-  motion.unpause();
-  motion.finish();
-  console.log(motion.getStatus().paused);
+  // await wait(1000);
+  // motion.play();
+  // await wait(500);
+  // motion.pause();
+  // await wait(500);
+  // motion.finish();
+  // await wait(500);
+  // console.log(motion.getStatus().paused);
+  // motion.unpause();
+  // motion.finish();
+  // console.log(motion.getStatus().paused);
+
+  motion.addRoadblocks('forward', 'activePhase', '25%', [() => wait(2000)]);
+
+  await motion.finish();
+  console.log('HELLO WORLD')
 })()
