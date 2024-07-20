@@ -49,6 +49,8 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   motion.addRoadblocks('forward', 'activePhase', '25%', [() => wait(2000)]);
 
-  await motion.finish();
+  await motion.finish().then((e) => {
+    e.getTiming();
+  });
   console.log('HELLO WORLD')
 })()

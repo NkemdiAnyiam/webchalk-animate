@@ -93,33 +93,33 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
     return direction === 'normal' ? (progress ?? 1) : 1 - (progress ?? 1);
   }
   
-  /** @internal */ startsNextBlockToo: boolean = false;
-  /** @internal */ startsWithPrevious: boolean = false;
-  /** @internal */ commitsStyles: boolean = true;
-  /** @internal */ commitStylesForcefully: boolean = false; // attempt to unhide, commit, then re-hide
-  /** @internal */ composite: CompositeOperation = 'replace';
-  /** @internal */ cssClasses: CssClassOptions = {
+  /**@internal*/ startsNextBlockToo: boolean = false;
+  /**@internal*/ startsWithPrevious: boolean = false;
+  /**@internal*/ commitsStyles: boolean = true;
+  /**@internal*/ commitStylesForcefully: boolean = false; // attempt to unhide, commit, then re-hide
+  /**@internal*/ composite: CompositeOperation = 'replace';
+  /**@internal*/ cssClasses: CssClassOptions = {
     toAddOnStart: [],
     toAddOnFinish: [],
     toRemoveOnStart: [],
     toRemoveOnFinish: [],
   };
-  /** @internal */ runGeneratorsNow: boolean = false;
+  /**@internal*/ runGeneratorsNow: boolean = false;
 
-  /** @internal */ inProgress = false; // true only during animate() (regardless of pause state)
-  /** @internal */ isRunning = false; // true only when inProgress and !isPaused
-  /** @internal */ isPaused = false;
-  /** @internal */ duration: number = 500;
-  /** @internal */ delay: number = 0;
-  /** @internal */ endDelay: number = 0;
-  /** @internal */ easing: EasingString = 'linear';
-  /** @internal */ playbackRate: number = 1; // actually base playback rate
-  /** @internal */ get compoundedPlaybackRate(): number { return this.playbackRate * (this._parentSequence?.compoundedPlaybackRate ?? 1); }
+  /**@internal*/ inProgress = false; // true only during animate() (regardless of pause state)
+  /**@internal*/ isRunning = false; // true only when inProgress and !isPaused
+  /**@internal*/ isPaused = false;
+  /**@internal*/ duration: number = 500;
+  /**@internal*/ delay: number = 0;
+  /**@internal*/ endDelay: number = 0;
+  /**@internal*/ easing: EasingString = 'linear';
+  /**@internal*/ playbackRate: number = 1; // actually base playback rate
+  /**@internal*/ get compoundedPlaybackRate(): number { return this.playbackRate * (this._parentSequence?.compoundedPlaybackRate ?? 1); }
 
-  /** @internal */ fullStartTime = NaN;
-  /** @internal */ get activeStartTime() { return (this.fullStartTime + this.delay) / this.playbackRate; }
-  /** @internal */ get activeFinishTime() { return( this.fullStartTime + this.delay + this.duration) / this.playbackRate; }
-  /** @internal */ get fullFinishTime() { return (this.fullStartTime + this.delay + this.duration + this.endDelay) / this.playbackRate; }
+  /**@internal*/ fullStartTime = NaN;
+  /**@internal*/ get activeStartTime() { return (this.fullStartTime + this.delay) / this.playbackRate; }
+  /**@internal*/ get activeFinishTime() { return( this.fullStartTime + this.delay + this.duration) / this.playbackRate; }
+  /**@internal*/ get fullFinishTime() { return (this.fullStartTime + this.delay + this.duration + this.endDelay) / this.playbackRate; }
 
   getTiming(): AnimBlockTiming {
     return {
@@ -344,28 +344,30 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
     return this.animate('backward');
   }
 
-  pause(): void;
+  pause(): this;
   /**@internal*/
-  pause(parentSequence: AnimSequence): void;
-  pause(parentSequence?: AnimSequence): void {
+  pause(parentSequence: AnimSequence): this;
+  pause(parentSequence?: AnimSequence): this {
     if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('pause'); }
     if (this.isRunning) {
       this.isPaused = true;
       this.isRunning = false;
       this.animation.pause();
     }
+    return this;
   }
 
-  unpause(): void;
+  unpause(): this;
   /**@internal*/
-  unpause(parentSequence: AnimSequence): void;
-  unpause(parentSequence?: AnimSequence): void {
+  unpause(parentSequence: AnimSequence): this;
+  unpause(parentSequence?: AnimSequence): this {
     if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('unpause'); }
     if (this.isPaused) {
       this.isPaused = false;
       this.isRunning = true;
       this.animation.play();
     }
+    return this;
   }
 
   async finish(): Promise<this>;
