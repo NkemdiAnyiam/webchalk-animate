@@ -15,7 +15,12 @@ type Segment = [
   }>,
 ];
 
-type SegmentsCache = [delayPhaseEnd: Segment, activePhaseEnd: Segment, endDelayPhaseEnd: Segment]
+type SegmentsCache = [delayPhaseEnd: Segment, activePhaseEnd: Segment, endDelayPhaseEnd: Segment];
+
+type FullyFinishedPromise = {
+  promise: Promise<WebFlikAnimation>;
+  resolve: (value: WebFlikAnimation | PromiseLike<WebFlikAnimation>) => void;
+};
 
 export class WebFlikAnimation extends Animation {
   private _timeline?: AnimTimeline;
@@ -32,6 +37,7 @@ export class WebFlikAnimation extends Animation {
   private segmentsBackwardCache: SegmentsCache;
 
   private isExpediting = false;
+  private fullyFinished: FullyFinishedPromise = this.getNewFullyFinished();
   
   onDelayFinish: Function = () => {};
   onActiveFinish: Function = () => {};
@@ -100,6 +106,11 @@ export class WebFlikAnimation extends Animation {
         throw this.errorGenerator(RangeError, `Invalid direction "${direction}" passed to setDirection(). Must be "forward" or "backward".`);
     }
   }
+
+  private getNewFullyFinished(): FullyFinishedPromise {
+    const {resolve, promise} = Promise.withResolvers<WebFlikAnimation>();
+    return {resolve, promise};
+  }
   
   async play(): Promise<void> {
     // If animation is already in progress and is just paused, resume the animation directly.
@@ -115,6 +126,7 @@ export class WebFlikAnimation extends Animation {
     
     if (this.isFinished) {
       this.isFinished = false;
+      this.fullyFinished = this.getNewFullyFinished();
       // If going forward, reset backward promises. If going backward, reset forward promises.
       this.resetPhases(this.direction === 'forward' ? 'backward' : 'forward');
     }
@@ -170,6 +182,7 @@ export class WebFlikAnimation extends Animation {
     this.inProgress = false;
     this.isFinished = true;
     this.isExpediting = false;
+    this.fullyFinished.resolve(this);
   }
 
   async finish(): Promise<void> {
@@ -179,14 +192,15 @@ export class WebFlikAnimation extends Animation {
     // If animation not in progress yet, just play(). From there,
     // isExpediting will be in effect
     if (!this.inProgress) {
-      return this.play();
+      this.play();
     }
     // If animation is already in progress, expedite its current segment.
     // From there, it will continue expediting using isExpediting
     else {
       super.finish();
-      await this.finished;
     }
+
+    await this.fullyFinished.promise;
   }
 
   private resetPhases(direction: 'forward' | 'backward' | 'both'): void {
