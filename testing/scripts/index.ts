@@ -64,13 +64,20 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   motion.addRoadblocks('forward', 'activePhase', '25%', [() => wait(2000)]);
   motion.addRoadblocks('backward', 'activePhase', '50%', [() => wait(2000)]);
 
-  seq.play();
-  await seq.finish().then(() => {
-    console.log('HELLO WORLD')
-  });
+  // seq.play();
+  // await seq.finish().then(() => {
+  //   console.log('HELLO WORLD')
+  // });
 
-  seq.rewind();
-  seq.finish().then(() => {
-    console.log('WE BACK')
+  // seq.rewind();
+  // seq.finish().then(() => {
+  //   console.log('WE BACK')
+  // });
+
+  const timeline = new AnimTimeline().addSequences(seq);
+
+  timeline.step('forward');
+  timeline.toggleSkipping().then(() => {
+    console.log('HEY, EVERYONE!!!');
   })
 })()

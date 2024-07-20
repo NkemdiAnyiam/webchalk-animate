@@ -8,6 +8,7 @@ type AnimTimelineConfig = {
 };
 
 type SequenceOperation = (sequence: AnimSequence) => void;
+type AsyncSequenceOperation = (sequence: AnimSequence) => Promise<unknown>;
 
 
 // playback button class constants
@@ -520,22 +521,25 @@ export class AnimTimeline {
     this.usingJumpTo = false;
   }
 
-  toggleSkipping(isSkipping?: boolean): boolean;
+  async toggleSkipping(isSkipping?: boolean): Promise<this>;
   /**@internal*/
-  toggleSkipping(isSkipping?: boolean, options?: {viaButton: boolean}): boolean;
-  toggleSkipping(isSkipping?: boolean, options?: {viaButton: boolean}): boolean {
+  async toggleSkipping(isSkipping?: boolean, options?: {viaButton: boolean}): Promise<this>;
+  async toggleSkipping(isSkipping?: boolean, options?: {viaButton: boolean}): Promise<this> {
     this.skippingOn = isSkipping ?? !this.skippingOn;
     if (!options?.viaButton) {
       const button = this.playbackButtons.toggleSkippingButton;
       this.skippingOn ? button?.styleActivation() : button?.styleDeactivation();
     }
     // if skipping is enabled in the middle of animating, force currently running AnimSequence to finish
-    if (this.skippingOn && this.isAnimating && !this.isPaused) { this.finishInProgressSequences(); }
-    return this.skippingOn;
+    if (this.skippingOn && this.isAnimating && !this.isPaused) { await this.finishInProgressSequences(); }
+    
+    return this;
   }
 
   // tells the current AnimSequence(s) (really just 1 in this project iteration) to instantly finish its animations
-  finishInProgressSequences(): void { this.doForInProgressSequences(sequence => sequence.finish()); }
+  async finishInProgressSequences(): Promise<this> {
+    return this.doForInProgressSequences_async(sequence => sequence.finish());
+  }
 
   // pauses or unpauses playback
   togglePause(options: {
@@ -583,9 +587,19 @@ export class AnimTimeline {
   }
 
   // get all currently running animations that belong to this timeline and perform operation() with them
-  private doForInProgressSequences(operation: SequenceOperation): void {
+  private doForInProgressSequences(operation: SequenceOperation): this {
     for (const sequence of this.inProgressSequences.values()) {
       operation(sequence);
     }
+    return this;
+  }
+
+  private async doForInProgressSequences_async(operation: AsyncSequenceOperation): Promise<this> {
+    const promises: Promise<unknown>[] = [];
+    for (const sequence of this.inProgressSequences.values()) {
+      promises.push(operation(sequence));
+    }
+    await Promise.all(promises);
+    return this;
   }
 }

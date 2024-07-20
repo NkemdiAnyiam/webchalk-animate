@@ -309,7 +309,7 @@ export class AnimSequence implements AnimSequenceConfig {
     this.doForInProgressBlocks(animBlock => animBlock.unpause(this));
   }
 
-  // TODO: probably want to make this async
+  // TODO: check to see if it's necessary to prevent direct finish() calls if sequence has a parent timeline
   async finish(): Promise<this> {
     if (this.usingFinish || this.isPaused) { return this; }
     this.usingFinish = true; // resets to false at the end of play() and rewind()
