@@ -77,7 +77,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   const timeline = new AnimTimeline().addSequences(seq);
 
   timeline.step('forward');
-  timeline.toggleSkipping().then(() => {
+  timeline.toggleSkipping({forceState: 'on'}).then(() => {
     console.log('HEY, EVERYONE!!!');
   })
 })()

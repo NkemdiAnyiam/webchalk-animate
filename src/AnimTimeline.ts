@@ -1,4 +1,5 @@
 import { AnimSequence } from "./AnimSequence";
+import { generateError, TimelineErrorGenerator } from "./utils/errors";
 import { WbfkPlaybackButton } from "./WbfkPlaybackButton";
 
 type AnimTimelineConfig = {
@@ -45,7 +46,7 @@ export class AnimTimeline {
       paused: this.isPaused,
       currentDirection: this.currDirection,
       jumping: this.usingJumpTo,
-      stepNumber: this.loadedSeqIndex + 1,
+      stepNumber: this.stepNumber,
       atBeginning: this.atBeginning,
       atEnd: this.atEnd,
     };
@@ -532,7 +533,9 @@ export class AnimTimeline {
       switch(options.forceState) {
         case "on": this.skippingOn = true; break;
         case "off": this.skippingOn = false; break;
-        default: {}
+        default: {
+          throw this.generateError(RangeError, `Invalid force value ${options.forceState}. Use "on" to turn on skipping or "off" to turn off skipping.`);
+        }
       }
       // if toggling did nothing, just return
       if (prevSkippingState === this.skippingOn) { return this; }
@@ -581,7 +584,9 @@ export class AnimTimeline {
       switch(options.forceState) {
         case 'pause': this.isPaused = true; break;
         case 'unpause': this.isPaused = false; break;
-        default: {}
+        default: {
+          throw this.generateError(RangeError, `Invalid force value ${options.forceState}. Use "pause" to pause or "unpause" to unpause.`);
+        }
       }
       // if toggling did nothing, just return
       if (prevPauseState === this.isPaused) { return this; }
@@ -632,5 +637,11 @@ export class AnimTimeline {
     }
     await Promise.all(promises);
     return this;
+  }
+
+  protected generateError: TimelineErrorGenerator = (ErrorClassOrInstance, msg = '<unspecified error>') => {
+    return generateError(ErrorClassOrInstance, msg as string, {
+      timeline: this
+    });
   }
 }

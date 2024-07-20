@@ -9,6 +9,11 @@ export type BlockErrorGenerator = {
   <TError extends Error>(ErrorClass: new (message: string) => TError, msg: string, elementOverride?: Element): TError;
 };
 
+export type TimelineErrorGenerator = {
+  <TError extends Error>(error: TError): TError;
+  <TError extends Error>(ErrorClass: new (message: string) => TError, msg: string): TError;
+};
+
 export type GeneralErrorGenerator = {
   <TError extends Error>(
     ErrorClassOrInstance: TError | (new (message: string) => TError),
