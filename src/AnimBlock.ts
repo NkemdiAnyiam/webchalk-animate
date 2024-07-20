@@ -327,19 +327,19 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   /*****************************************************************************************************************************/
   /********************************************        PLAYBACK        *********************************************************/
   /*****************************************************************************************************************************/
-  play(): Promise<boolean>;
+  async play(): Promise<this>;
   /**@internal*/
-  play(parentSequence: AnimSequence): Promise<boolean>;
-  play(parentSequence?: AnimSequence): Promise<boolean> {
+  async play(parentSequence: AnimSequence): Promise<this>;
+  async play(parentSequence?: AnimSequence): Promise<this> {
     // both parentSequence vars should either be undefined or the same AnimSequence
     if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('play'); }
     return this.animate('forward');
   }
 
-  rewind(): Promise<boolean>;
+  async rewind(): Promise<this>;
   /**@internal*/
-  rewind(parentSequence: AnimSequence): Promise<boolean>;
-  rewind(parentSequence?: AnimSequence): Promise<boolean> {
+  async rewind(parentSequence: AnimSequence): Promise<this>;
+  async rewind(parentSequence?: AnimSequence): Promise<this> {
     if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('rewind'); }
     return this.animate('backward');
   }
@@ -368,13 +368,13 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
     }
   }
 
-  async finish(): Promise<void>;
+  async finish(): Promise<this>;
   /**@internal*/
-  async finish(parentSequence: AnimSequence): Promise<void>;
-  async finish(parentSequence?: AnimSequence): Promise<void> {
+  async finish(parentSequence: AnimSequence): Promise<this>;
+  async finish(parentSequence?: AnimSequence): Promise<this> {
     if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('finish'); }
     // finish() is not allowed to execute if block is paused
-    if (this.isPaused) { return; }
+    if (this.isPaused) { return this; }
     
     // Needs to play/rewind first if not already in progress.
     // This is essentially for the case where the animation is NOT part of a sequence and finish() is
@@ -395,7 +395,8 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
       }
     }
 
-    return this.animation.finish();
+    await this.animation.finish();
+    return this;
   }
 
   get generateTimePromise() { return this.animation.generateTimePromise.bind(this.animation); }
@@ -414,8 +415,8 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   protected _onStartBackward(): void {};
   protected _onFinishBackward(): void {};
 
-  protected async animate(direction: 'forward' | 'backward'): Promise<boolean> {
-    if (this.inProgress) { return false; }
+  protected async animate(direction: 'forward' | 'backward'): Promise<this> {
+    if (this.inProgress) { return this; }
 
     const animation = this.animation;
     animation.setDirection(direction);
@@ -426,8 +427,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
     this.useCompoundedPlaybackRate();
 
     // used as resolve() and reject() in the eventually returned promise
-    let resolver: (value: boolean | PromiseLike<boolean>) => void;
-    let rejecter: (reason?: any) => void;
+    const { promise, resolve, reject } = Promise.withResolvers<this>();
     
     this.inProgress = true;
     this.isRunning = true;
@@ -529,7 +529,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
         catch (_) {
           // If forced commit is disabled, do not re-attempt to commit the styles; throw error instead.
           if (!this.commitStylesForcefully) {
-            rejecter(this.generateError(CustomErrors.CommitStylesError,
+            reject(this.generateError(CustomErrors.CommitStylesError,
               `Cannot commit animation styles while element is not rendered.` +
               ` To temporarily (instantly) override the hidden state, set the 'commitStylesForcefully' config option to true` +
               ` (however, if the element's ancestor is unrendered, this will still fail).` +
@@ -550,7 +550,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
           }
           // If this fails, then the element's parent is hidden. Do not attempt to remedy; throw error instead.
           catch (err) {
-            rejecter(this.generateError(CustomErrors.CommitStylesError,
+            reject(this.generateError(CustomErrors.CommitStylesError,
               `Failed to commit styles by overriding element's hidden state with 'commitStylesAttemptForcefully'.` +
               ` Cannot commit styles if element is unrendered because of an unrendered ancestor.`
             ));
@@ -577,13 +577,10 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
       this.inProgress = false;
       this.isRunning = false;
       animation.cancel();
-      resolver(true);
+      resolve(this);
     };
 
-    return new Promise<boolean>((resolve, reject) => {
-      resolver = resolve;
-      rejecter = reject;
-    });
+    return promise;
   }
 
   private loop = (): void => {
