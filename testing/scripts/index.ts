@@ -1,4 +1,4 @@
-import { AnimTimeline, WebFlik } from "webflik";
+import { AnimTimeline, WebFlik, AnimSequence } from "webflik";
 
 const {Motion, Entrance} = WebFlik.createAnimationFactories({
   customEntranceEffects: {
@@ -17,6 +17,7 @@ const square = document.querySelector('.square');
 
 const ent = Entrance(square, '~appear', []);
 
+const entrance = Entrance(square, '~fade-in', [], {duration: 2000, hideNowType: 'display-none'});
 const motion = Motion(square, '~translate', [{translate: '200px, 200px'}], {duration: 2000});
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -47,10 +48,29 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   // motion.finish();
   // console.log(motion.getStatus().paused);
 
-  motion.addRoadblocks('forward', 'activePhase', '25%', [() => wait(2000)]);
+  // motion.addRoadblocks('forward', 'activePhase', '25%', [() => wait(2000)]);
 
-  await motion.finish().then((e) => {
-    e.getTiming();
+  // await motion.finish().then((e) => {
+  //   e.getTiming();
+  //   e.pause()
+  // });
+  // console.log('HELLO WORLD')
+
+  const seq = new AnimSequence(
+    entrance,
+    motion,
+  );
+
+  motion.addRoadblocks('forward', 'activePhase', '25%', [() => wait(2000)]);
+  motion.addRoadblocks('backward', 'activePhase', '50%', [() => wait(2000)]);
+
+  seq.play();
+  await seq.finish().then(() => {
+    console.log('HELLO WORLD')
   });
-  console.log('HELLO WORLD')
+
+  seq.rewind();
+  seq.finish().then(() => {
+    console.log('WE BACK')
+  })
 })()
