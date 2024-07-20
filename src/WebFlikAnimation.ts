@@ -172,24 +172,21 @@ export class WebFlikAnimation extends Animation {
     this.isExpediting = false;
   }
 
-  finish(): void;
-  /**@internal*/finish(forced: boolean): void;
-  finish(forced?: boolean): void {
+  async finish(): Promise<void> {
     if (this.isExpediting) { return; }
-
     this.isExpediting = true;
-    // Calling finish() on an unplayed animation should play and finish the animation
-    // ONLY if the animation is about to go forwards
+
+    // If animation not in progress yet, just play(). From there,
+    // isExpediting will be in effect
     if (!this.inProgress) {
-      if (this.direction === 'forward' || forced) { this.play(); }
-      else {
-        this.isExpediting = false;
-        return;
-      }
+      return this.play();
     }
     // If animation is already in progress, expedite its current segment.
     // From there, it will continue expediting using isExpediting
-    else { super.finish(); }
+    else {
+      super.finish();
+      await this.finished;
+    }
   }
 
   private resetPhases(direction: 'forward' | 'backward' | 'both'): void {

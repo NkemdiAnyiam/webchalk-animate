@@ -435,7 +435,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
     this.isRunning = true;
 
     const skipping = this._parentSequence?.skippingOn;
-    if (skipping) { animation.finish(true); }
+    if (skipping) { animation.finish(); }
     else { animation.play(); }
     if (this._parentSequence?.isPaused) { animation.pause(); }
     
