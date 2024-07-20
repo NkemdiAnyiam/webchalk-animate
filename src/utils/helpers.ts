@@ -10,6 +10,28 @@ export function findLastIndex<T>(array: Array<T>, predicate: (value: T, index: n
   return -1;
 }
 export const negateNumString = (str: string): string => str[0] === '-' ? str.slice(1) : `-${str}`;
+
+export function numToOrdinal(value: number | `${number}`) {
+  const suffixes = ["th", "st", "nd", "rd"];
+  
+  return value + ((num: number) => {
+    // Get ones digit of number
+    const onesDigit = num % 10;
+
+    // Handle special cases for 11, 12, 13  
+    if (num % 100 >= 11 && num % 100 <= 13) {
+      return "th";
+    }
+
+    // Pick suffix from array based on ones digit
+    return onesDigit < 4 ? suffixes[onesDigit] : suffixes[0]; 
+  })(Number(value));
+}
+
+export function indexToOrdinal(value: number | `${number}`) {
+  return numToOrdinal(Number(value) + 1);
+}
+
 export const createStyles = (rules: string = ''): void => {
   const sheet = document.createElement('style');
   sheet.id = `wbfk-global-styles`;
