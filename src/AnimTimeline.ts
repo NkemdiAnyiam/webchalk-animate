@@ -541,7 +541,8 @@ export class AnimTimeline {
       this.skippingOn = !this.skippingOn;
     }
 
-    return this.skippingOn ? this.turnOnSkipping() : this.turnOffSkipping();
+    const viaButton = options.viaButton ?? false;
+    return this.skippingOn ? this.turnOnSkipping({viaButton}) : this.turnOffSkipping({viaButton});
   }
 
   async turnOnSkipping(): Promise<this>;
@@ -589,7 +590,8 @@ export class AnimTimeline {
       this.isPaused = !this.isPaused;
     }
 
-    this.isPaused ? this.pause() : this.unpause();
+    const viaButton = options.viaButton ?? false;
+    this.isPaused ? this.pause({viaButton}) : this.unpause({viaButton});
     
     return this;
   }
