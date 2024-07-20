@@ -63,7 +63,7 @@ export class AnimSequence implements AnimSequenceConfig {
   /**@internal*/ inProgress = false;
   private isFinished: boolean = false;
   /**@internal*/ wasPlayed = false;
-  /**@internal*/ wasRewinded = false;
+  /**@internal*/ wasRewound = false;
   /**@internal*/ get skippingOn() { return this._parentTimeline?.skippingOn || this._parentTimeline?.usingJumpTo || this.usingFinish; }
   get compoundedPlaybackRate() { return this.basePlaybackRate * (this._parentTimeline?.playbackRate ?? 1); }
   private animBlocks: AnimBlock[] = []; // array of animBlocks
@@ -223,7 +223,7 @@ export class AnimSequence implements AnimSequenceConfig {
     this.inProgress = false;
     this.isFinished = true;
     this.wasPlayed = true;
-    this.wasRewinded = false;
+    this.wasRewound = false;
     this.usingFinish = false;
     this.fullyFinished.resolve(this);
     this.onFinish.do();
@@ -289,7 +289,7 @@ export class AnimSequence implements AnimSequenceConfig {
     this.inProgress = false;
     this.isFinished = true;
     this.wasPlayed = false;
-    this.wasRewinded = true;
+    this.wasRewound = true;
     this.usingFinish = false;
     this.fullyFinished.resolve(this);
     this.onStart.undo();
@@ -330,7 +330,7 @@ export class AnimSequence implements AnimSequenceConfig {
     // if in progress, finish the current blocks and let the proceeding ones read from this.usingFinish
     if (this.inProgress) { this.finishInProgressAnimations(); }
     // else, if this sequence is ready to play forward, just play (then all blocks will read from this.usingFinish)
-    else if (!this.wasPlayed || this.wasRewinded) { this.play(); }
+    else if (!this.wasPlayed || this.wasRewound) { this.play(); }
     // If sequence is at the end of its playback, finish() does nothing.
     // AnimTimeline calling AnimSequence.finish() in its method for finishing current sequences should still work
     // because that method is only called when sequences are already playing (so it hits the first if-statement)
