@@ -229,7 +229,7 @@ export class AnimTimeline {
     };
   }
 
-  addSequences(...animSequences: AnimSequence[]): AnimTimeline {
+  addSequences(...animSequences: AnimSequence[]): this {
     for(const animSequence of animSequences) {
       animSequence.setLineage(this);
     };
@@ -243,7 +243,7 @@ export class AnimTimeline {
   }
 
   // CHANGE NOTE: sequences, and blocks now have base playback rates that are then compounded by parents
-  setPlaybackRate(rate: number): AnimTimeline {
+  setPlaybackRate(rate: number): this {
     this.playbackRate = rate;
     // set playback rates of currently running animations so that they don't continue to run at regular speed
     this.doForInProgressSequences(sequence => sequence.useCompoundedPlaybackRate());
@@ -252,10 +252,10 @@ export class AnimTimeline {
   }
 
   // steps forward or backward and does error-checking
-  async step(direction: 'forward' | 'backward'): Promise<typeof direction>;
+  async step(direction: 'forward' | 'backward'): Promise<this>;
   /**@internal*/
-  async step(direction: 'forward' | 'backward', options: {viaButton: boolean}): Promise<typeof direction>;
-  async step(direction: 'forward' | 'backward', options?: {viaButton: boolean}): Promise<typeof direction> {
+  async step(direction: 'forward' | 'backward', options: {viaButton: boolean}): Promise<this>;
+  async step(direction: 'forward' | 'backward', options?: {viaButton: boolean}): Promise<this> {
     if (this.isPaused) { throw new Error('Cannot step while playback is paused.'); }
     if (this.isAnimating) { throw new Error('Cannot step while already animating.'); }
     this.isAnimating = true;
@@ -283,7 +283,7 @@ export class AnimTimeline {
     }
 
     this.isAnimating = false;
-    return direction;
+    return this;
   }
 
   // plays current AnimSequence and increments loadedSeqIndex
@@ -336,7 +336,7 @@ export class AnimTimeline {
       targetOffset: number;
       autoplayDetection: 'forward' | 'backward' | 'none';
     }> = {},
-  ): Promise<void> {
+  ): Promise<this> {
     const {
       search = 'forward-from-beginning',
       targetOffset = 0,
@@ -349,7 +349,7 @@ export class AnimTimeline {
   jumpToPosition(
     position: 'beginning' | 'end' | number,
     options: Partial<{targetOffset: number; autoplayDetection: 'forward' | 'backward' | 'none';}> = {},
-  ): Promise<void> {
+  ): Promise<this> {
     const {
       targetOffset = 0,
       autoplayDetection = 'none',
@@ -364,14 +364,14 @@ export class AnimTimeline {
     searchOffset: number;
     targetOffset: number;
     autoplayDetection: 'forward' | 'backward' | 'none';
-  }): Promise<void>;
-  private async jumpTo(options: {position: 'beginning' | 'end' | number; targetOffset: number; autoplayDetection: 'forward' | 'backward' | 'none';}): Promise<void>;
+  }): Promise<this>;
+  private async jumpTo(options: {position: 'beginning' | 'end' | number; targetOffset: number; autoplayDetection: 'forward' | 'backward' | 'none';}): Promise<this>;
   private async jumpTo(
     options: { targetOffset: number; autoplayDetection: 'forward' | 'backward' | 'none'; } & (
       {tag: string | RegExp; search?: 'forward' | 'backward' | 'forward-from-beginning' | 'backward-from-end'; searchOffset?: number; position?: never}
       | {position: 'beginning' | 'end' | number; tag?: never}
     ),
-  ): Promise<void> {
+  ): Promise<this> {
     if (this.isAnimating) { throw new Error('Cannot use jumpTo() while currently animating.'); }
     // Calls to jumpTo() must be separated using await or something that similarly prevents simultaneous execution of code
     if (this.usingJumpTo) { throw new Error('Cannot perform simultaneous calls to jumpTo() in timeline.'); }
@@ -519,6 +519,7 @@ export class AnimTimeline {
     if (wasPaused) { this.pause(); }
 
     this.usingJumpTo = false;
+    return this;
   }
 
   async toggleSkipping(isSkipping?: boolean): Promise<this>;
@@ -532,7 +533,7 @@ export class AnimTimeline {
     }
     // if skipping is enabled in the middle of animating, force currently running AnimSequence to finish
     if (this.skippingOn && this.isAnimating && !this.isPaused) { await this.finishInProgressSequences(); }
-    
+
     return this;
   }
 
@@ -567,23 +568,25 @@ export class AnimTimeline {
   }
 
   
-  pause(): void;
+  pause(): this;
   /**@internal*/
-  pause(options?: { viaButton: boolean }): void;
-  pause(options?: { viaButton: boolean }): void {
+  pause(options?: { viaButton: boolean }): this;
+  pause(options?: { viaButton: boolean }): this {
     this.isPaused = true;
     if (!options?.viaButton) { this.playbackButtons.pauseButton?.styleActivation(); }
     this.doForInProgressSequences(sequence => sequence.pause());
+    return this;
   }
   
-  unpause(): void;
+  unpause(): this;
   /**@internal*/
-  unpause(options?: { viaButton: boolean }): void;
-  unpause(options?: { viaButton: boolean }): void {
+  unpause(options?: { viaButton: boolean }): this;
+  unpause(options?: { viaButton: boolean }): this {
     this.isPaused = false;
     if (!options?.viaButton) { this.playbackButtons.pauseButton?.styleDeactivation(); }
     this.doForInProgressSequences(sequence => sequence.unpause());
     if (this.skippingOn) { this.finishInProgressSequences(); }
+    return this;
   }
 
   // get all currently running animations that belong to this timeline and perform operation() with them
