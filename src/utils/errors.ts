@@ -1,7 +1,7 @@
 import { AnimBlock } from "../AnimBlock";
 import { AnimSequence } from "../AnimSequence";
 import { AnimTimeline } from "../AnimTimeline";
-import { getOpeningTag } from "./helpers";
+import { getOpeningTag, indexToOrdinal } from "./helpers";
 
 export type BlockErrorGenerator = {
   <TError extends Error>(error: TError): TError;
@@ -60,7 +60,7 @@ export const CustomErrors = {
 };
 
 export const errorTip = (tip: string) => {
-  return `\n${'*'.repeat(10)}\n${tip}\n${'*'.repeat(10)}`;
+  return `\n\n${'*'.repeat(10)}\n${tip}\n${'*'.repeat(10)}`;
 };
 
 export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg = '<unspecified error>', components = {}) => {
@@ -69,13 +69,13 @@ export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg =
     `\n\n${'-'.repeat(25)}LOCATION${'-'.repeat(25)}` +
     (timeline
       ? `\nTimeline: [Timeline Name: ${timeline.config.timelineName}]` +
-        (sequence ? `\n          [At Index ${timeline.findSequenceIndex(sequence!)}]` : '') +
+        (sequence ? `\n          [At Index ${timeline.findSequenceIndex(sequence!)} (the ${indexToOrdinal(timeline.findSequenceIndex(sequence!))} sequence)]` : '') +
         ((sequence || block) ? `\n${'-'.repeat(20)}` : '')
       : ''
     ) +
     (sequence
       ? `\nSequence: [Tag: ${sequence.tag}] [Description: ${sequence.description}]` +
-        (block ? `\n          [At Index ${sequence.findBlockIndex(block!)}]` : '') +
+        (block ? `\n          [At Index ${sequence.findBlockIndex(block!)} (the ${indexToOrdinal(sequence.findBlockIndex(block!))} block)]` : '') +
         (block ? `\n${'-'.repeat(20)}` : '')
       : ''
     ) +
