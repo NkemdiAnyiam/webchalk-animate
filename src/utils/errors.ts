@@ -69,6 +69,7 @@ export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg =
     `\n\n${'-'.repeat(25)}LOCATION${'-'.repeat(25)}` +
     (timeline
       ? `\nTimeline: [Timeline Name: ${timeline.config.timelineName}]` +
+        `\n          [At Step# ${timeline.getStatus().stepNumber}]` +
         (sequence ? `\n          [At Index ${timeline.findSequenceIndex(sequence!)} (the ${indexToOrdinal(timeline.findSequenceIndex(sequence!))} sequence)]` : '') +
         ((sequence || block) ? `\n${'-'.repeat(20)}` : '')
       : ''
