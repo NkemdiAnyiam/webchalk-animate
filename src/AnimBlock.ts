@@ -373,6 +373,9 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   finish(parentSequence: AnimSequence): void;
   finish(parentSequence?: AnimSequence): void {
     if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('finish'); }
+    // finish() is not allowed to execute if block is paused
+    if (this.isPaused) { return; }
+    
     if (this.inProgress) {
       this.animation.finish();
     }
