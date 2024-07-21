@@ -9,6 +9,8 @@ import {
   ConnectorEntranceBlockConfig,
   TransitionBlockConfig
 } from "./categoricalBlocks";
+import { AnimSequence } from "./AnimSequence";
+import { AnimTimeline } from "./AnimTimeline";
 import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
 import { libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions, libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions } from "./libraryPresetBanks";
 import { useEasing } from "./utils/easing";
@@ -91,6 +93,9 @@ export type EffectNameIn<TGeneratorBank extends EffectGeneratorBank> = Exclude<k
 
 
 class _WebFlik {
+  newSequence = AnimSequence.createInstance;
+  newTimeline = AnimTimeline.createInstance;
+
   createAnimationFactories
   <
    // default = {} ensures intellisense for a given bank still works
@@ -228,7 +233,7 @@ class _WebFlik {
     };
   }
 
-  /**@internal */
+  /**@internal*/
   scrollAnchorsStack: [target: Element, scrollOptions: ScrollingOptions][] = [];
 
   get utils() {

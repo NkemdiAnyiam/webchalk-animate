@@ -88,8 +88,14 @@ export class AnimSequence implements AnimSequenceConfig {
     undo: () => {},
   };
 
-  constructor(config: Partial<AnimSequenceConfig>, ...animBlocks: AnimBlock[]);
-  constructor(...animBlocks: AnimBlock[]);
+  static createInstance(config: Partial<AnimSequenceConfig>, ...animBlocks: AnimBlock[]): AnimSequence;
+  static createInstance(...animBlocks: AnimBlock[]): AnimSequence;
+  static createInstance(config: Partial<AnimSequenceConfig> | AnimBlock = {}, ...animBlocks: AnimBlock[]): AnimSequence {
+    return new AnimSequence(config, ...animBlocks);
+  }
+
+  // constructor(config: Partial<AnimSequenceConfig>, ...animBlocks: AnimBlock[]);
+  // constructor(...animBlocks: AnimBlock[]);
   constructor(config: Partial<AnimSequenceConfig> | AnimBlock = {}, ...animBlocks: AnimBlock[]) {
     this.id = AnimSequence.id++;
 

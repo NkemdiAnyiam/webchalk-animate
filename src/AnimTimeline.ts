@@ -61,6 +61,11 @@ export class AnimTimeline {
   };
 
   get numSequences(): number { return this.animSequences.length; }
+
+  static createInstance(config: Partial<AnimTimelineConfig> = {}): AnimTimeline {
+    return new AnimTimeline(config);
+  }
+
   private get atBeginning(): boolean { return this.loadedSeqIndex === 0; }
   private get atEnd(): boolean { return this.loadedSeqIndex === this.numSequences; }
   private get stepNumber(): number { return this.loadedSeqIndex + 1; }
