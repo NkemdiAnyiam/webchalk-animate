@@ -1,4 +1,4 @@
-import { AnimTimeline, WebFlik, AnimSequence } from "webflik";
+import { WebFlik, WbfkClassTypes } from 'webflik'
 
 const {Motion, Entrance} = WebFlik.createAnimationFactories({
   customEntranceEffects: {
@@ -11,7 +11,19 @@ const {Motion, Entrance} = WebFlik.createAnimationFactories({
       },
     },
   },
-})
+});
+
+{
+  const thing: WbfkClassTypes['AnimSequence'] = WebFlik.newSequence();
+
+  const func = function(sequence: WbfkClassTypes['AnimSequence']) {
+
+  }
+
+  func(WebFlik.newSequence())
+
+  const connector = document.querySelector<WbfkClassTypes['WbfkConnector']>('.connector--red');
+}
 
 const square = document.querySelector('.square');
 
@@ -56,7 +68,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   // });
   // console.log('HELLO WORLD')
 
-  const seq = new AnimSequence(
+  const seq = WebFlik.newSequence(
     entrance,
     motion,
   );
@@ -74,7 +86,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   //   console.log('WE BACK')
   // });
 
-  const timeline = new AnimTimeline().addSequences(seq);
+  const timeline = WebFlik.newTimeline().addSequences(seq);
 
   timeline.step('forward');
   timeline.toggleSkipping({forceState: 'on'}).then(() => {
