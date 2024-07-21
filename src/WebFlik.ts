@@ -188,7 +188,7 @@ class _WebFlik {
       },
 
       ConnectorSetter: function(
-        connectorElem: WbfkConnector,
+        connectorElem: WbfkConnector | null | undefined,
         pointA: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
         pointB: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
         connectorConfig: WbfkConnectorConfig = {} as WbfkConnectorConfig
