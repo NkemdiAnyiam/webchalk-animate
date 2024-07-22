@@ -11,6 +11,9 @@
     "dist/index.mjs",
     "dist/index.d.mts"
   ],
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts",
     "pack-up": "npm run build && npm pack",
