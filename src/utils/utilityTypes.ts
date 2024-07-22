@@ -17,3 +17,4 @@ export type StripDuplicateMethodAutocompletion<T> = { [K in keyof T]: T[K] exten
 export type KeysOf<T extends object> = (Extract<keyof T, string>)[];
 export type ReadonlyPick<T, K extends keyof T> = Readonly<Pick<T, K>>;
 export type ReadonlyRecord<K extends keyof any, T> = Readonly<Record<K, T>>;
+export type PickFromArray<T, K extends (keyof T)[]> = {[key in K[number]]: T[key]};
