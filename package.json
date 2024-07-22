@@ -20,6 +20,7 @@
     "in": "npm i && npm run pack-up",
     "out": "rm -rf ./dist ./node_modules",
     "in-and-out": "npm run in && npm run out",
+    "gen-docs": "cd ./typedoc-config && npx typedoc",
     "lint": "tsc"
   },
   "keywords": [
@@ -31,6 +32,8 @@
   "license": "ISC",
   "devDependencies": {
     "tsup": "^8.0.1",
+    "typedoc": "^0.26.5",
+    "typedoc-material-theme": "^1.1.0",
     "typescript": "^5.5.3"
   }
 }
