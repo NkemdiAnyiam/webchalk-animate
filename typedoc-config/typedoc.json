@@ -1,7 +1,7 @@
 {
   "plugin": ["typedoc-material-theme"],
   "themeColor": "#99ffff",
-  "customCss": "./typedoc-styles.css",
+  "customCss": "./typedoc-styles.scss",
   "exclude": ["**/WebFlikAnimation.ts", "**/index.ts", "**/globalSideEffects.ts"],
   "entryPoints": ["../src"],
   "entryPointStrategy": "expand",

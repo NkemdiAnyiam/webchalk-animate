@@ -1,0 +1,43 @@
+* {
+  font-family: 'Fira Code' !important;
+
+  scrollbar-color: hsl(from var(--color-icon-background) h s calc(l + 20)) var(--color-icon-background);
+}
+
+.tsd-panel-group {
+  & > section {
+    display: flex;
+    flex-direction: column;
+
+    .tsd-panel.tsd-member {
+      margin-bottom: 0;
+      padding-top: 32px;
+      padding-bottom: 32px;
+
+      &:not(:last-child) {
+        border-bottom: 2px solid var(--color-text);
+      }
+    }
+  }
+}
+
+.tsd-signatures {
+  margin-bottom: 0;
+
+  .tsd-description {
+    &:not(:last-child) {
+      margin-bottom: 16px;
+      border-bottom: 1px dashed var(--color-text);
+    }
+  }
+  .tsd-signature {
+    &:not(:first-child) {
+      margin-top: 16px;
+    }
+  }
+}
+
+footer {
+  padding-top: 0;
+  padding-bottom: 0;
+}
