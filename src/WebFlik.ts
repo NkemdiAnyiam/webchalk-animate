@@ -93,8 +93,8 @@ export type EffectNameIn<TGeneratorBank extends EffectGeneratorBank> = Exclude<k
 
 
 class _WebFlik {
-  newSequence = AnimSequence.createInstance;
-  newTimeline = AnimTimeline.createInstance;
+  newSequence = AnimSequence.createInstance.bind(AnimSequence);
+  newTimeline = AnimTimeline.createInstance.bind(AnimTimeline);
 
   createAnimationFactories
   <
