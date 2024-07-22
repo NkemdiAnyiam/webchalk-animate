@@ -7,6 +7,7 @@ import { CustomErrors, BlockErrorGenerator, errorTip, generateError } from "./ut
 import { EffectCategory, StripFrozenConfig } from "./utils/interfaces";
 import { WbfkConnector } from "./WbfkConnector";
 import { WebFlikAnimation } from "./WebFlikAnimation";
+import { PickFromArray } from "./utils/utilityTypes";
 
 
 type CssClassOptions = {
@@ -40,19 +41,16 @@ type KeyframeTimingOptions = {
 export type AnimBlockConfig = KeyframeTimingOptions & CustomKeyframeEffectOptions;
 
 export type AnimBlockTiming = Pick<AnimBlockConfig, 
-  'startsNextBlockToo' |
-  'startsWithPrevious' |
-  'duration' |
-  'delay' |
-  'endDelay' |
-  'easing' |
-  'playbackRate' |
-  'runGeneratorsNow'
+  | 'startsNextBlockToo'
+  | 'startsWithPrevious'
+  | 'duration'
+  | 'delay'
+  | 'endDelay'
+  | 'easing'
+  | 'playbackRate'
+  | 'runGeneratorsNow'
 > & {
-  /**
-   * Description for compoundedPlaybackRate
-   */
-  compoundedPlaybackRate: number;
+  compoundedPlaybackRate: AnimBlock['compoundedPlaybackRate'];
 }
 
 export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = EffectGenerator> implements AnimBlockConfig {
@@ -114,14 +112,30 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   /**@internal*/ endDelay: number = 0;
   /**@internal*/ easing: EasingString = 'linear';
   /**@internal*/ playbackRate: number = 1; // actually base playback rate
-  /**@internal*/ get compoundedPlaybackRate(): number { return this.playbackRate * (this._parentSequence?.compoundedPlaybackRate ?? 1); }
+  protected get compoundedPlaybackRate(): number { return this.playbackRate * (this._parentSequence?.compoundedPlaybackRate ?? 1); }
 
   /**@internal*/ fullStartTime = NaN;
   /**@internal*/ get activeStartTime() { return (this.fullStartTime + this.delay) / this.playbackRate; }
   /**@internal*/ get activeFinishTime() { return( this.fullStartTime + this.delay + this.duration) / this.playbackRate; }
   /**@internal*/ get fullFinishTime() { return (this.fullStartTime + this.delay + this.duration + this.endDelay) / this.playbackRate; }
 
-  getTiming(): AnimBlockTiming {
+  getTiming(): AnimBlockTiming;
+  getTiming<T extends keyof AnimBlockTiming>(propName: T): AnimBlockTiming[T];
+  getTiming<T extends (keyof AnimBlockTiming)[]>(propNames: (keyof AnimBlockTiming)[] | T): PickFromArray<AnimBlockTiming, T>;
+  getTiming(specifics?: keyof AnimBlockTiming | (keyof AnimBlockTiming)[]):
+    | AnimBlockTiming
+    | AnimBlockTiming[keyof AnimBlockTiming]
+    | Partial<Pick<AnimBlockTiming, keyof AnimBlockTiming>>
+  {
+    if (typeof specifics === 'string') {
+      return this[specifics];
+    }
+    if (specifics instanceof Array) {
+      return Object.fromEntries(
+        Object.entries(this)
+          .filter(([key, _]) => specifics.includes(key as keyof AnimBlockTiming))
+      ) as Pick<AnimBlockTiming, keyof AnimBlockTiming>
+    }
     return {
       startsNextBlockToo: this.startsNextBlockToo,
       startsWithPrevious: this.startsWithPrevious,
