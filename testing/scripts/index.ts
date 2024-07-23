@@ -1,4 +1,5 @@
-import { WebFlik, WbfkClassTypes } from 'webflik'
+import { WebFlik } from 'webflik';
+import { WbfkClassTypes } from 'webflik/types'
 
 const {Motion, Entrance} = WebFlik.createAnimationFactories({
   customEntranceEffects: {
@@ -28,6 +29,8 @@ const {Motion, Entrance} = WebFlik.createAnimationFactories({
 const square = document.querySelector('.square');
 
 const ent = Entrance(square, '~appear', []);
+
+console.log(ent.generateTimePromise === ent.generateTimePromise);
 
 const entrance = Entrance(square, '~fade-in', [], {duration: 2000, hideNowType: 'display-none'});
 const motion = Motion(square, '~translate', [{translate: '200px, 200px'}], {duration: 2000});
