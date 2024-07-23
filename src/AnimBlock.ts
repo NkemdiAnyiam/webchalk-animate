@@ -415,10 +415,16 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
     return this;
   }
 
-  get generateTimePromise() { return this.animation.generateTimePromise.bind(this.animation); }
+  generateTimePromise: typeof this.animation.generateTimePromise = (direction, phase, timePosition) => {
+    return this.animation.generateTimePromise(direction, phase, timePosition);
+  }
   /**@internal*/
-  get addIntegrityblocks() { return this.animation.addIntegrityblocks.bind(this.animation); }
-  get addRoadblocks() { return this.animation.addRoadblocks.bind(this.animation); }
+  addIntegrityblocks: typeof this.animation.addIntegrityblocks = (direction, phase, timePosition, promises) => {
+    this.animation.addIntegrityblocks(direction, phase, timePosition, promises);
+  }
+  addRoadblocks: typeof this.animation.addRoadblocks = (direction, phase, timePosition, promises) => {
+    this.animation.addRoadblocks(direction, phase, timePosition, promises);
+  }
   // multiplies playback rate of parent timeline and sequence (if exist) with base playback rate
   /**@internal*/
   useCompoundedPlaybackRate() { this.animation.updatePlaybackRate(this.compoundedPlaybackRate); }
