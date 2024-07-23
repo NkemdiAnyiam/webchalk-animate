@@ -17,7 +17,7 @@ type CssClassOptions = {
   toRemoveOnStart: string[];
 };
 
-type CustomKeyframeEffectOptions = {
+export type CustomKeyframeEffectOptions = {
   /**
    * Description for startsNextBlockToo
    */
@@ -38,8 +38,14 @@ type KeyframeTimingOptions = {
   endDelay: number;
 }
 
+/**
+ * @interface
+ */
 export type AnimBlockConfig = KeyframeTimingOptions & CustomKeyframeEffectOptions;
 
+/**
+ * @interface
+ */
 export type AnimBlockTiming = Pick<AnimBlockConfig, 
   | 'startsNextBlockToo'
   | 'startsWithPrevious'
@@ -341,6 +347,9 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   /*****************************************************************************************************************************/
   /********************************************        PLAYBACK        *********************************************************/
   /*****************************************************************************************************************************/
+  /**
+   * Does the thing
+   */
   async play(): Promise<this>;
   /**@internal*/
   async play(parentSequence: AnimSequence): Promise<this>;
