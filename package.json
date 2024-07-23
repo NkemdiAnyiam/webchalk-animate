@@ -21,7 +21,8 @@
     "out": "rm -rf ./dist ./node_modules",
     "in-and-out": "npm run in && npm run out",
     "open-docs": "bash -c \"start ./docs/index.html\"",
-    "gen-docs": "cd ./typedoc-config && npx typedoc && npm run open-docs",
+    "copy-doc-assets": "cp -r ./typedoc-config/assets/fonts ./docs/assets",
+    "gen-docs": "cd ./typedoc-config && npx typedoc && cd .. && npm run copy-doc-assets && npm run open-docs",
     "lint": "tsc"
   },
   "keywords": [
