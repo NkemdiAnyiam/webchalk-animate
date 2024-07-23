@@ -10,7 +10,7 @@ import { AnimTimeline } from "./AnimTimeline";
  * @property {boolean} autoplaysNextSequence — If true, the next sequence in the timeline will automatically play after this sequence finishes.
  * @property {boolean} autoplays — If true, this sequence will automatically play after the previous sequence in the timeline finishes.
  */
-type AnimSequenceConfig = {
+export type AnimSequenceConfig = {
   /**
    * This string is logged when debugging mode is enabled.
    * @optional

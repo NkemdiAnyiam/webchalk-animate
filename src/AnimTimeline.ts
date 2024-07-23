@@ -2,7 +2,7 @@ import { AnimSequence } from "./AnimSequence";
 import { generateError, TimelineErrorGenerator } from "./utils/errors";
 import { WbfkPlaybackButton } from "./WbfkPlaybackButton";
 
-type AnimTimelineConfig = {
+export type AnimTimelineConfig = {
   debugMode: boolean;
   timelineName: string;
   findsButtons: boolean;
