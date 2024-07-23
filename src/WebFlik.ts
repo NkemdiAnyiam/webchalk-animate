@@ -92,11 +92,11 @@ export type EffectNameIn<TGeneratorBank extends EffectGeneratorBank> = Exclude<k
 }, number | symbol>;
 
 
-class _WebFlik {
-  newSequence = AnimSequence.createInstance.bind(AnimSequence);
-  newTimeline = AnimTimeline.createInstance.bind(AnimTimeline);
+export abstract class WebFlik {
+  static newSequence = AnimSequence.createInstance.bind(AnimSequence);
+  static newTimeline = AnimTimeline.createInstance.bind(AnimTimeline);
 
-  createAnimationFactories
+  static createAnimationFactories
   <
    // default = {} ensures intellisense for a given bank still works
    // without specifying the field (why? not sure)
@@ -125,7 +125,7 @@ class _WebFlik {
       customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisBlock, EmphasisBlockConfig>;
       customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionBlock, MotionBlockConfig>;
     };
-    _WebFlik.checkBanksFormatting(customEntranceEffects, customExitEffects, customEmphasisEffects, customMotionEffects);
+    WebFlik.checkBanksFormatting(customEntranceEffects, customExitEffects, customEmphasisEffects, customMotionEffects);
 
     type TogglePresets<TLibBank, TCustomBank> = Readonly<(IncludeLibPresets extends true ? TLibBank : {}) & TCustomBank>;
 
@@ -234,9 +234,9 @@ class _WebFlik {
   }
 
   /**@internal*/
-  scrollAnchorsStack: [target: Element, scrollOptions: ScrollingOptions][] = [];
+  static scrollAnchorsStack: [target: Element, scrollOptions: ScrollingOptions][] = [];
 
-  get utils() {
+  static get utils() {
     return {
       useEasing,
     };
@@ -265,5 +265,3 @@ class _WebFlik {
     }
   }
 }
-
-export const WebFlik = new _WebFlik();
