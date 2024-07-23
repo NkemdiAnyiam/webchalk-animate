@@ -1,7 +1,16 @@
 * {
   font-family: 'Fira Code' !important;
+}
 
-  scrollbar-color: hsl(from var(--color-icon-background) h s calc(l + 20)) var(--color-icon-background);
+[data-theme="dark"] {
+  &, * {
+    scrollbar-color: hsl(from var(--color-icon-background) h s calc(l + 12)) var(--color-icon-background);
+  }
+}
+[data-theme="light"] {
+  &, * {
+    scrollbar-color: hsl(from var(--color-accent) h s calc(l - 10)) var(--color-icon-background);
+  }
 }
 
 .tsd-panel-group {
