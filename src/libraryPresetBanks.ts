@@ -1,13 +1,13 @@
 import {
-  EntranceBlock,          EntranceBlockConfig,
-  ExitBlock,              ExitBlockConfig,
-  EmphasisBlock,          EmphasisBlockConfig,
-  MotionBlock,            MotionBlockConfig,
-  TransitionBlock,        TransitionBlockConfig,
-  ScrollerBlock,          ScrollerBlockConfig,
-  ConnectorEntranceBlock, ConnectorEntranceBlockConfig,
-  ConnectorExitBlock,     ConnectorExitBlockConfig,
-} from "./categoricalBlocks";
+  EntranceClip,          EntranceClipConfig,
+  ExitClip,              ExitClipConfig,
+  EmphasisClip,          EmphasisClipConfig,
+  MotionClip,            MotionClipConfig,
+  TransitionClip,        TransitionClipConfig,
+  ScrollerClip,          ScrollerClipConfig,
+  ConnectorEntranceClip, ConnectorEntranceClipConfig,
+  ConnectorExitClip,     ConnectorExitClipConfig,
+} from "./categoricalClips";
 import { EffectGeneratorBank, WebFlik } from "./WebFlik";
 import { computeSelfScrollingBounds, negateNumString, overrideHidden, splitXYAlignmentString, splitXYTupleString, unOverrideHidden } from "./utils/helpers";
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "./utils/interfaces";
@@ -141,7 +141,7 @@ export const libPresetEntrances = {
   },
 
   // invalidProperty: 5,
-} satisfies EffectGeneratorBank<EntranceBlock, EntranceBlockConfig, false>;
+} satisfies EffectGeneratorBank<EntranceClip, EntranceClipConfig, false>;
 
 
 export const libPresetExits = {
@@ -262,7 +262,7 @@ export const libPresetExits = {
       }
     }
   },
-} satisfies EffectGeneratorBank<ExitBlock, ExitBlockConfig, false>;
+} satisfies EffectGeneratorBank<ExitClip, ExitClipConfig, false>;
 
 
 export const libPresetEmphases = {
@@ -290,7 +290,7 @@ export const libPresetEmphases = {
       cssClasses: { toRemoveOnFinish: [`wbfk-highlightable`] },
     },
   },
-} satisfies EffectGeneratorBank<EmphasisBlock, EmphasisBlockConfig, false>;
+} satisfies EffectGeneratorBank<EmphasisClip, EmphasisClipConfig, false>;
 
 
 export const libPresetMotions = {
@@ -380,7 +380,7 @@ export const libPresetMotions = {
       ];
     },
   },
-} satisfies EffectGeneratorBank<MotionBlock, MotionBlockConfig, false>;
+} satisfies EffectGeneratorBank<MotionClip, MotionClipConfig, false>;
 
 
 export const libPresetTransitions = {
@@ -421,7 +421,7 @@ export const libPresetTransitions = {
       return [ [original, {...keyframe}] ];
     },
   },
-} satisfies EffectGeneratorBank<TransitionBlock, TransitionBlockConfig, false>;
+} satisfies EffectGeneratorBank<TransitionClip, TransitionClipConfig, false>;
 
 
 export const libPresetConnectorEntrances = {
@@ -486,7 +486,7 @@ export const libPresetConnectorEntrances = {
       }
     },
   },
-} satisfies EffectGeneratorBank<ConnectorEntranceBlock, ConnectorEntranceBlockConfig, false>;
+} satisfies EffectGeneratorBank<ConnectorEntranceClip, ConnectorEntranceClipConfig, false>;
 
 
 export const libPresetConnectorExits = {
@@ -548,7 +548,7 @@ export const libPresetConnectorExits = {
       }
     },
   },
-} satisfies EffectGeneratorBank<ConnectorExitBlock, ConnectorExitBlockConfig, false>;
+} satisfies EffectGeneratorBank<ConnectorExitClip, ConnectorExitClipConfig, false>;
 
 
 export const libPresetScrolls = {
@@ -661,4 +661,4 @@ export const libPresetScrolls = {
       runGeneratorsNow: false,
     }
   },
-} satisfies EffectGeneratorBank<ScrollerBlock, ScrollerBlockConfig, false>;
+} satisfies EffectGeneratorBank<ScrollerClip, ScrollerClipConfig, false>;

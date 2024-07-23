@@ -3,7 +3,7 @@ import { AnimTimeline } from "./AnimTimeline";
 import { EffectOptions, EffectGeneratorBank, EffectGenerator } from "./WebFlik";
 import { mergeArrays } from "./utils/helpers";
 import { EasingString, useEasing } from "./utils/easing";
-import { CustomErrors, BlockErrorGenerator, errorTip, generateError } from "./utils/errors";
+import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "./utils/errors";
 import { EffectCategory, StripFrozenConfig } from "./utils/interfaces";
 import { WbfkConnector } from "./WbfkConnector";
 import { WebFlikAnimation } from "./WebFlikAnimation";
@@ -19,9 +19,9 @@ type CssClassOptions = {
 
 export type CustomKeyframeEffectOptions = {
   /**
-   * Description for startsNextBlockToo
+   * Description for startsNextClipToo
    */
-  startsNextBlockToo: boolean;
+  startsNextClipToo: boolean;
   startsWithPrevious: boolean;
   commitsStyles: boolean;
   commitStylesForcefully: boolean; // attempt to unhide, commit, then re-hide
@@ -41,13 +41,13 @@ type KeyframeTimingOptions = {
 /**
  * @interface
  */
-export type AnimBlockConfig = KeyframeTimingOptions & CustomKeyframeEffectOptions;
+export type AnimClipConfig = KeyframeTimingOptions & CustomKeyframeEffectOptions;
 
 /**
  * @interface
  */
-export type AnimBlockTiming = Pick<AnimBlockConfig, 
-  | 'startsNextBlockToo'
+export type AnimClipTiming = Pick<AnimClipConfig, 
+  | 'startsNextClipToo'
   | 'startsWithPrevious'
   | 'duration'
   | 'delay'
@@ -56,13 +56,13 @@ export type AnimBlockTiming = Pick<AnimBlockConfig,
   | 'playbackRate'
   | 'runGeneratorsNow'
 > & {
-  compoundedPlaybackRate: AnimBlock['compoundedPlaybackRate'];
+  compoundedPlaybackRate: AnimClip['compoundedPlaybackRate'];
 }
 
-export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = EffectGenerator> implements AnimBlockConfig {
+export abstract class AnimClip<TEffectGenerator extends EffectGenerator = EffectGenerator> implements AnimClipConfig {
   private static id: number = 0;
   public static get emptyEffectGenerator() { return {generateKeyframes() { return [[], []]; }} as EffectGenerator; }
-  protected abstract get defaultConfig(): Partial<AnimBlockConfig>;
+  protected abstract get defaultConfig(): Partial<AnimClipConfig>;
   
   readonly id: number;
   /**@internal*/ _parentSequence?: AnimSequence;
@@ -97,7 +97,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
     return direction === 'normal' ? (progress ?? 1) : 1 - (progress ?? 1);
   }
   
-  /**@internal*/ startsNextBlockToo: boolean = false;
+  /**@internal*/ startsNextClipToo: boolean = false;
   /**@internal*/ startsWithPrevious: boolean = false;
   /**@internal*/ commitsStyles: boolean = true;
   /**@internal*/ commitStylesForcefully: boolean = false; // attempt to unhide, commit, then re-hide
@@ -125,13 +125,13 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   /**@internal*/ get activeFinishTime() { return( this.fullStartTime + this.delay + this.duration) / this.playbackRate; }
   /**@internal*/ get fullFinishTime() { return (this.fullStartTime + this.delay + this.duration + this.endDelay) / this.playbackRate; }
 
-  getTiming(): AnimBlockTiming;
-  getTiming<T extends keyof AnimBlockTiming>(propName: T): AnimBlockTiming[T];
-  getTiming<T extends (keyof AnimBlockTiming)[]>(propNames: (keyof AnimBlockTiming)[] | T): PickFromArray<AnimBlockTiming, T>;
-  getTiming(specifics?: keyof AnimBlockTiming | (keyof AnimBlockTiming)[]):
-    | AnimBlockTiming
-    | AnimBlockTiming[keyof AnimBlockTiming]
-    | Partial<Pick<AnimBlockTiming, keyof AnimBlockTiming>>
+  getTiming(): AnimClipTiming;
+  getTiming<T extends keyof AnimClipTiming>(propName: T): AnimClipTiming[T];
+  getTiming<T extends (keyof AnimClipTiming)[]>(propNames: (keyof AnimClipTiming)[] | T): PickFromArray<AnimClipTiming, T>;
+  getTiming(specifics?: keyof AnimClipTiming | (keyof AnimClipTiming)[]):
+    | AnimClipTiming
+    | AnimClipTiming[keyof AnimClipTiming]
+    | Partial<Pick<AnimClipTiming, keyof AnimClipTiming>>
   {
     if (typeof specifics === 'string') {
       return this[specifics];
@@ -139,11 +139,11 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
     if (specifics instanceof Array) {
       return Object.fromEntries(
         Object.entries(this)
-          .filter(([key, _]) => specifics.includes(key as keyof AnimBlockTiming))
-      ) as Pick<AnimBlockTiming, keyof AnimBlockTiming>
+          .filter(([key, _]) => specifics.includes(key as keyof AnimClipTiming))
+      ) as Pick<AnimClipTiming, keyof AnimClipTiming>
     }
     return {
-      startsNextBlockToo: this.startsNextBlockToo,
+      startsNextClipToo: this.startsNextClipToo,
       startsWithPrevious: this.startsWithPrevious,
       duration: this.duration,
       delay: this.delay,
@@ -187,7 +187,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   }
 
   constructor(domElem: Element | null | undefined, effectName: string, bank: EffectGeneratorBank) {
-    this.id = AnimBlock.id++;
+    this.id = AnimClip.id++;
     
     if (!domElem) {
       throw this.generateError(CustomErrors.InvalidElementError, `Element must not be null or undefined.`);
@@ -201,7 +201,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   }
 
   /**@internal*/
-  initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<StripFrozenConfig<AnimBlockConfig, TEffectGenerator>> = {}): this {
+  initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<StripFrozenConfig<AnimClipConfig, TEffectGenerator>> = {}): this {
     // Throw error if invalid effectName
     // Deferred until initialize() so that this.category has actually been initialized by derived class by now
     if (!this.effectGenerator) { throw this.generateError(RangeError, `Invalid effect name: "${this.effectName}" does not exists in the "${this.category}" category.`); }
@@ -304,7 +304,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
     return this;
   }
 
-  private mergeConfigs(layer4Config: Partial<AnimBlockConfig>, effectGeneratorConfig: Partial<AnimBlockConfig>): Partial<AnimBlockConfig> {
+  private mergeConfigs(layer4Config: Partial<AnimClipConfig>, effectGeneratorConfig: Partial<AnimClipConfig>): Partial<AnimClipConfig> {
     return {
       // subclass defaults takes priority
       ...this.defaultConfig,
@@ -398,7 +398,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   async finish(parentSequence: AnimSequence): Promise<this>;
   async finish(parentSequence?: AnimSequence): Promise<this> {
     if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('finish'); }
-    // finish() is not allowed to execute if block is paused
+    // finish() is not allowed to execute if clip is paused
     if (this.isPaused) { return this; }
     
     // Needs to play/rewind first if not already in progress.
@@ -603,7 +603,7 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
       }
     };
     
-    // After endDelay phase, then cancel animation, remove this block from the timeline, and resolve overall promise.
+    // After endDelay phase, cancel animation and resolve overall promise.
     animation.onEndDelayFinish = () => {
       this.inProgress = false;
       this.isRunning = false;
@@ -640,17 +640,17 @@ export abstract class AnimBlock<TEffectGenerator extends EffectGenerator = Effec
   /*****************************************************************************************************************************/
   /********************************************         ERRORS         *********************************************************/
   /*****************************************************************************************************************************/
-  protected generateError: BlockErrorGenerator = (ErrorClassOrInstance, msg = '<unspecified error>', elementOverride?: Element) => {
+  protected generateError: ClipErrorGenerator = (ErrorClassOrInstance, msg = '<unspecified error>', elementOverride?: Element) => {
     return generateError(ErrorClassOrInstance, msg as string, {
       timeline: this._parentTimeline,
       sequence: this._parentSequence,
-      block: this,
+      clip: this,
       element: elementOverride ? elementOverride : this.domElem
     });
   }
 
   private throwChildPlaybackError(funcName: string): never {
-    throw this.generateError(CustomErrors.ChildPlaybackError, `Cannot directly call ${funcName}() on an animation block while is is part of a sequence.`);
+    throw this.generateError(CustomErrors.ChildPlaybackError, `Cannot directly call ${funcName}() on an animation clip while is is part of a sequence.`);
   }
 
   protected preventConnector() {

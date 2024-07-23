@@ -1,4 +1,4 @@
-import { AnimBlock, AnimBlockConfig } from "./AnimBlock";
+import { AnimClip, AnimClipConfig } from "./AnimClip";
 import { EffectOptions, EffectGenerator, EffectGeneratorBank } from "./WebFlik";
 import { CustomErrors, errorTip } from "./utils/errors";
 import { parseMultiUnitPlacement } from "./utils/helpers";
@@ -8,14 +8,14 @@ import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
 /*****************************************************************************************************************************/
 /*********************************************        ENTRANCE        ********************************************************/
 /*****************************************************************************************************************************/
-export type EntranceBlockConfig = AnimBlockConfig & {
+export type EntranceClipConfig = AnimClipConfig & {
   hideNowType: 'display-none' | 'visibility-hidden' | null;
 };
-export class EntranceBlock<TEffectGenerator extends EffectGenerator<EntranceBlock, EntranceBlockConfig> = EffectGenerator> extends AnimBlock<TEffectGenerator> {
+export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip, EntranceClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator> {
   get category(): 'Entrance' { return 'Entrance'; }
-  private backwardsHidingMethod: ExitBlockConfig['exitType'] = '' as ExitBlockConfig['exitType'];
+  private backwardsHidingMethod: ExitClipConfig['exitType'] = '' as ExitClipConfig['exitType'];
 
-  protected get defaultConfig(): Partial<EntranceBlockConfig> {
+  protected get defaultConfig(): Partial<EntranceClipConfig> {
     return {
       commitsStyles: false,
       runGeneratorsNow: true,
@@ -28,7 +28,7 @@ export class EntranceBlock<TEffectGenerator extends EffectGenerator<EntranceBloc
     super.preventConnector();
   }
 
-  /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<EntranceBlockConfig> = {}) {
+  /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<EntranceClipConfig> = {}) {
     super.initialize(effectOptions, effectConfig);
 
     const hideNow = effectConfig.hideNowType ?? this.effectGenerator.config?.hideNowType ?? this.defaultConfig.hideNowType!;
@@ -98,15 +98,15 @@ export class EntranceBlock<TEffectGenerator extends EffectGenerator<EntranceBloc
 /*****************************************************************************************************************************/
 /***********************************************        EXIT        **********************************************************/
 /*****************************************************************************************************************************/
-export type ExitBlockConfig = AnimBlockConfig & {
+export type ExitClipConfig = AnimClipConfig & {
   exitType: 'display-none' | 'visibility-hidden';
 };
-// TODO: prevent already hidden blocks from being allowed to use exit animation
-export class ExitBlock<TEffectGenerator extends EffectGenerator<ExitBlock, ExitBlockConfig> = EffectGenerator> extends AnimBlock<TEffectGenerator> {
+// TODO: prevent already hidden clips from being allowed to use exit animation
+export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator> {
   get category(): 'Exit' { return 'Exit'; }
-  private exitType: ExitBlockConfig['exitType'] = '' as ExitBlockConfig['exitType'];
+  private exitType: ExitClipConfig['exitType'] = '' as ExitClipConfig['exitType'];
 
-  protected get defaultConfig(): Partial<ExitBlockConfig> {
+  protected get defaultConfig(): Partial<ExitClipConfig> {
     return {
       commitsStyles: false,
       runGeneratorsNow: true,
@@ -119,7 +119,7 @@ export class ExitBlock<TEffectGenerator extends EffectGenerator<ExitBlock, ExitB
     super.preventConnector();
   }
 
-  /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<ExitBlockConfig> = {}) {
+  /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<ExitClipConfig> = {}) {
     super.initialize(effectOptions, effectConfig);
 
     const exitType = effectConfig.exitType ?? this.effectGenerator.config?.exitType ?? this.defaultConfig.exitType!;
@@ -149,12 +149,12 @@ export class ExitBlock<TEffectGenerator extends EffectGenerator<ExitBlock, ExitB
 /*****************************************************************************************************************************/
 /*********************************************        EMPHASIS        ********************************************************/
 /*****************************************************************************************************************************/
-export type EmphasisBlockConfig = AnimBlockConfig & {
+export type EmphasisClipConfig = AnimClipConfig & {
   
 };
-export class EmphasisBlock<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimBlock<TEffectGenerator> {
+export class EmphasisClip<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimClip<TEffectGenerator> {
   public get category(): 'Emphasis' { return 'Emphasis'; }
-  protected get defaultConfig(): Partial<EmphasisBlockConfig> {
+  protected get defaultConfig(): Partial<EmphasisClipConfig> {
     return {};
   }
 }
@@ -162,12 +162,12 @@ export class EmphasisBlock<TEffectGenerator extends EffectGenerator = EffectGene
 /*****************************************************************************************************************************/
 /**********************************************        MOTION        *********************************************************/
 /*****************************************************************************************************************************/
-export type MotionBlockConfig = AnimBlockConfig & {
+export type MotionClipConfig = AnimClipConfig & {
   
 };
-export class MotionBlock<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimBlock<TEffectGenerator> {
+export class MotionClip<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimClip<TEffectGenerator> {
   public get category(): 'Motion' { return 'Motion'; }
-  protected get defaultConfig(): Partial<MotionBlockConfig> {
+  protected get defaultConfig(): Partial<MotionClipConfig> {
     return {
       composite: 'accumulate',
     };
@@ -177,13 +177,13 @@ export class MotionBlock<TEffectGenerator extends EffectGenerator = EffectGenera
 /*****************************************************************************************************************************/
 /*********************************************        SCROLLER        ********************************************************/
 /*****************************************************************************************************************************/
-export type ScrollerBlockConfig = AnimBlockConfig & {
+export type ScrollerClipConfig = AnimClipConfig & {
   
 };
 // TODO: implement rewindScrollBehavior: 'prior-user-position' | 'prior-scroll-target' = 'prior-scroll-target'
-export class ScrollerBlock<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimBlock<TEffectGenerator> {
+export class ScrollerClip<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimClip<TEffectGenerator> {
   public get category(): 'Scroller' { return 'Scroller'; }
-  protected get defaultConfig(): Partial<ScrollerBlockConfig> {
+  protected get defaultConfig(): Partial<ScrollerClipConfig> {
     return {
       commitsStyles: false,
     };
@@ -193,19 +193,19 @@ export class ScrollerBlock<TEffectGenerator extends EffectGenerator = EffectGene
 /*****************************************************************************************************************************/
 /********************************************        TRANSITION        *******************************************************/
 /*****************************************************************************************************************************/
-export type TransitionBlockConfig = AnimBlockConfig & {
+export type TransitionClipConfig = AnimClipConfig & {
   removeInlineStylesOnFinish: boolean;
 }
-export class TransitionBlock<TEffectGenerator extends EffectGenerator<TransitionBlock, TransitionBlockConfig> = EffectGenerator> extends AnimBlock<TEffectGenerator> {
+export class TransitionClip<TEffectGenerator extends EffectGenerator<TransitionClip, TransitionClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator> {
   public get category(): 'Transition' { return 'Transition'; }
   // determines whether properties affected by this transition should be removed from inline style upon finishing animation
   private removeInlineStyleOnFinish: boolean = false;
 
-  protected get defaultConfig(): Partial<TransitionBlockConfig> {
+  protected get defaultConfig(): Partial<TransitionClipConfig> {
     return {};
   }
 
-  /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<TransitionBlockConfig> = {}) {
+  /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<TransitionClipConfig> = {}) {
     super.initialize(effectOptions, effectConfig);
     this.removeInlineStyleOnFinish = effectConfig.removeInlineStylesOnFinish ?? this.effectGenerator.config?.removeInlineStylesOnFinish ?? this.defaultConfig.removeInlineStylesOnFinish!;
     return this;
@@ -224,10 +224,10 @@ export class TransitionBlock<TEffectGenerator extends EffectGenerator<Transition
 /*****************************************************************************************************************************/
 /*****************************************        CONNECTOR SETTER        ****************************************************/
 /*****************************************************************************************************************************/
-export type ConnectorSetterBlockConfig = AnimBlockConfig & {
+export type ConnectorSetterClipConfig = AnimClipConfig & {
   
 };
-export class ConnectorSetterBlock extends AnimBlock {
+export class ConnectorSetterClip extends AnimClip {
   public get category(): 'Connector Setter' { return 'Connector Setter'; }
   domElem: WbfkConnector;
   previousPointA?: [elemA: Element, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
@@ -237,12 +237,12 @@ export class ConnectorSetterBlock extends AnimBlock {
 
   connectorConfig: WbfkConnectorConfig = {} as WbfkConnectorConfig;
   previousConnectorConfig: WbfkConnectorConfig = {} as WbfkConnectorConfig;
-  protected get defaultConfig(): Partial<ConnectorSetterBlockConfig> {
+  protected get defaultConfig(): Partial<ConnectorSetterClipConfig> {
     return {
       duration: 0,
       commitsStyles: false,
       runGeneratorsNow: true,
-      startsNextBlockToo: true,
+      startsNextClipToo: true,
     };
   }
   
@@ -300,14 +300,14 @@ export class ConnectorSetterBlock extends AnimBlock {
 /*****************************************************************************************************************************/
 /****************************************        CONNECTOR ENTRANCE        ***************************************************/
 /*****************************************************************************************************************************/
-export type ConnectorEntranceBlockConfig = AnimBlockConfig & {
+export type ConnectorEntranceClipConfig = AnimClipConfig & {
   
 };
-export class ConnectorEntranceBlock<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimBlock<TEffectGenerator> {
+export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimClip<TEffectGenerator> {
   public get category(): 'Connector Entrance' { return 'Connector Entrance'; }
   domElem: WbfkConnector;
 
-  protected get defaultConfig(): Partial<ConnectorEntranceBlockConfig> {
+  protected get defaultConfig(): Partial<ConnectorEntranceClipConfig> {
     return {
       commitsStyles: false,
       // runGeneratorsNow: true,
@@ -338,14 +338,14 @@ export class ConnectorEntranceBlock<TEffectGenerator extends EffectGenerator = E
 /*****************************************************************************************************************************/
 /******************************************        CONNECTOR EXIT        *****************************************************/
 /*****************************************************************************************************************************/
-export type ConnectorExitBlockConfig = AnimBlockConfig & {
+export type ConnectorExitClipConfig = AnimClipConfig & {
   
 };
-export class ConnectorExitBlock<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimBlock<TEffectGenerator> {
+export class ConnectorExitClip<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimClip<TEffectGenerator> {
   public get category(): 'Connector Exit' { return 'Connector Exit'; }
   domElem: WbfkConnector;
 
-  protected get defaultConfig(): Partial<ConnectorExitBlockConfig> {
+  protected get defaultConfig(): Partial<ConnectorExitClipConfig> {
     return {
       commitsStyles: false,
       // runGeneratorsNow: true,

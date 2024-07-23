@@ -1,9 +1,9 @@
-import { AnimBlock } from "../AnimBlock";
+import { AnimClip } from "../AnimClip";
 import { AnimSequence } from "../AnimSequence";
 import { AnimTimeline } from "../AnimTimeline";
 import { getOpeningTag, indexToOrdinal } from "./helpers";
 
-export type BlockErrorGenerator = {
+export type ClipErrorGenerator = {
   <TError extends Error>(error: TError): TError;
   // elementOverride is used only in the constructor where this.domElem is not yet defined
   <TError extends Error>(ErrorClass: new (message: string) => TError, msg: string, elementOverride?: Element): TError;
@@ -18,7 +18,7 @@ export type GeneralErrorGenerator = {
   <TError extends Error>(
     ErrorClassOrInstance: TError | (new (message: string) => TError),
     msg: string,
-    components?: {timeline?: AnimTimeline, sequence?: AnimSequence, block?: AnimBlock, element?: Element}): TError,
+    components?: {timeline?: AnimTimeline, sequence?: AnimSequence, clip?: AnimClip, element?: Element}): TError,
 };
 
 class CommitStylesError extends Error {
@@ -69,24 +69,24 @@ export const errorTip = (tip: string) => {
 };
 
 export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg = '<unspecified error>', components = {}) => {
-  const {timeline, sequence, block, element} = components!;
+  const {timeline, sequence, clip, element} = components!;
   const postfix = (
     `\n\n${'-'.repeat(25)}LOCATION${'-'.repeat(25)}` +
     (timeline
       ? `\nTimeline: [Timeline Name: ${timeline.config.timelineName}]` +
         `\n          [At Step# ${timeline.getStatus().stepNumber}]` +
         (sequence ? `\n          [At Index ${timeline.findSequenceIndex(sequence!)} (the ${indexToOrdinal(timeline.findSequenceIndex(sequence!))} sequence)]` : '') +
-        ((sequence || block) ? `\n${'-'.repeat(20)}` : '')
+        ((sequence || clip) ? `\n${'-'.repeat(20)}` : '')
       : ''
     ) +
     (sequence
       ? `\nSequence: [Tag: ${sequence.tag}] [Description: ${sequence.description}]` +
-        (block ? `\n          [At Index ${sequence.findBlockIndex(block!)} (the ${indexToOrdinal(sequence.findBlockIndex(block!))} block)]` : '') +
-        (block ? `\n${'-'.repeat(20)}` : '')
+        (clip ? `\n          [At Index ${sequence.findClipIndex(clip!)} (the ${indexToOrdinal(sequence.findClipIndex(clip!))} clip)]` : '') +
+        (clip ? `\n${'-'.repeat(20)}` : '')
       : ''
     ) +
-    (block
-      ? `\nBlock:    [Category: ${block.category}] [Effect: ${block.effectName}]` +
+    (clip
+      ? `\nClip:     [Category: ${clip.category}] [Effect: ${clip.effectName}]` +
         `\nDOM Tag:  ${getOpeningTag(element)}`
       : ''
     ) +

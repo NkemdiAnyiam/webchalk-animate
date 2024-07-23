@@ -24,7 +24,7 @@ if (window.CSS.registerProperty) {
   });
 }
 
-// CHANGE NOTE: Completely get rid of obsolete AnimBlockLineUpdater
+// CHANGE NOTE: Completely get rid of obsolete AnimClipLineUpdater
 export class WbfkConnector extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('wbfk-connector', WbfkConnector); }
   private static staticId: number = 0;

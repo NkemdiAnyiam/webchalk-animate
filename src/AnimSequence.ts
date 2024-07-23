@@ -1,4 +1,4 @@
-import { AnimBlock } from "./AnimBlock";
+import { AnimClip } from "./AnimClip";
 import { AnimTimeline } from "./AnimTimeline";
 
 /**
@@ -39,8 +39,8 @@ export type AnimSequenceConfig = {
   autoplays: boolean;
 };
 
-type AnimationOperation = (animation: AnimBlock) => void;
-type AsyncAnimationOperation = (animation: AnimBlock) => Promise<unknown>;
+type AnimationOperation = (animation: AnimClip) => void;
+type AsyncAnimationOperation = (animation: AnimClip) => Promise<unknown>;
 
 type FullyFinishedPromise<T> = {
   promise: Promise<T>;
@@ -66,14 +66,14 @@ export class AnimSequence implements AnimSequenceConfig {
   /**@internal*/ wasRewound = false;
   /**@internal*/ get skippingOn() { return this._parentTimeline?.skippingOn || this._parentTimeline?.usingJumpTo || this.usingFinish; }
   get compoundedPlaybackRate() { return this.basePlaybackRate * (this._parentTimeline?.playbackRate ?? 1); }
-  private animBlocks: AnimBlock[] = []; // array of animBlocks
+  private animClips: AnimClip[] = []; // array of animClips
 
-  private animBlockGroupings_activeFinishOrder: AnimBlock[][] = [];
-  private animBlockGroupings_endDelayFinishOrder: AnimBlock[][] = [];
-  private animBlockGroupings_backwardActiveFinishOrder: AnimBlock[][] = [];
-  private animBlock_forwardGroupings: AnimBlock[][] = [[]];
-  // CHANGE NOTE: AnimSequence now stores references to all in-progress blocks
-  private inProgressBlocks: Map<number, AnimBlock> = new Map();
+  private animClipGroupings_activeFinishOrder: AnimClip[][] = [];
+  private animClipGroupings_endDelayFinishOrder: AnimClip[][] = [];
+  private animClipGroupings_backwardActiveFinishOrder: AnimClip[][] = [];
+  private animClip_forwardGroupings: AnimClip[][] = [[]];
+  // CHANGE NOTE: AnimSequence now stores references to all in-progress clips
+  private inProgressClips: Map<number, AnimClip> = new Map();
   
   private fullyFinished: FullyFinishedPromise<this> = this.getNewFullyFinished();
 
@@ -88,19 +88,19 @@ export class AnimSequence implements AnimSequenceConfig {
     undo: () => {},
   };
 
-  static createInstance(config: Partial<AnimSequenceConfig>, ...animBlocks: AnimBlock[]): AnimSequence;
-  static createInstance(...animBlocks: AnimBlock[]): AnimSequence;
-  static createInstance(config: Partial<AnimSequenceConfig> | AnimBlock = {}, ...animBlocks: AnimBlock[]): AnimSequence {
-    return new AnimSequence(config, ...animBlocks);
+  static createInstance(config: Partial<AnimSequenceConfig>, ...animClips: AnimClip[]): AnimSequence;
+  static createInstance(...animClips: AnimClip[]): AnimSequence;
+  static createInstance(config: Partial<AnimSequenceConfig> | AnimClip = {}, ...animClips: AnimClip[]): AnimSequence {
+    return new AnimSequence(config, ...animClips);
   }
 
-  // constructor(config: Partial<AnimSequenceConfig>, ...animBlocks: AnimBlock[]);
-  // constructor(...animBlocks: AnimBlock[]);
-  constructor(config: Partial<AnimSequenceConfig> | AnimBlock = {}, ...animBlocks: AnimBlock[]) {
+  // constructor(config: Partial<AnimSequenceConfig>, ...animClips: AnimClip[]);
+  // constructor(...animClips: AnimClip[]);
+  constructor(config: Partial<AnimSequenceConfig> | AnimClip = {}, ...animClips: AnimClip[]) {
     this.id = AnimSequence.id++;
 
-    Object.assign(this, config instanceof AnimBlock ? {} : config);
-    this.addBlocks(...(config instanceof AnimBlock ? [config, ...animBlocks] : animBlocks));
+    Object.assign(this, config instanceof AnimClip ? {} : config);
+    this.addClips(...(config instanceof AnimClip ? [config, ...animClips] : animClips));
   }
 
   getConfig(): Readonly<AnimSequenceConfig> {
@@ -129,8 +129,8 @@ export class AnimSequence implements AnimSequenceConfig {
   /**@internal*/
   setLineage(timeline: AnimTimeline) {
     this._parentTimeline = timeline;
-    for (const animBlock of this.animBlocks) {
-      animBlock.setLineage(this, this._parentTimeline);
+    for (const animClip of this.animClips) {
+      animClip.setLineage(this, this._parentTimeline);
     }
   }
 
@@ -145,25 +145,24 @@ export class AnimSequence implements AnimSequenceConfig {
     return this;
   }
 
-  addBlocks(...animBlocks: AnimBlock[]): this {
-    // CHANGE NOTE: removed addOneBlock()
-    for (const animBlock of animBlocks) {
-      animBlock.setLineage(this, this._parentTimeline);
+  addClips(...animClips: AnimClip[]): this {
+    for (const animClip of animClips) {
+      animClip.setLineage(this, this._parentTimeline);
     }
-    this.animBlocks.push(...animBlocks);
+    this.animClips.push(...animClips);
     return this;
   }
 
-  addBlocksAt(index: number, ...animBlocks: AnimBlock[]): this {
-    for (const animBlock of animBlocks) {
-      animBlock.setLineage(this, this._parentTimeline);
+  addClipsAt(index: number, ...animClips: AnimClip[]): this {
+    for (const animClip of animClips) {
+      animClip.setLineage(this, this._parentTimeline);
     }
-    this.animBlocks.splice(index, 0, ...animBlocks);
+    this.animClips.splice(index, 0, ...animClips);
     return this;
   }
 
-  findBlockIndex(animBlock: AnimBlock): number {
-    return this.animBlocks.findIndex((_animBlock) => _animBlock === animBlock);
+  findClipIndex(animClip: AnimClip): number {
+    return this.animClips.findIndex((_animClip) => _animClip === animClip);
   }
 
   private getNewFullyFinished(): FullyFinishedPromise<this> {
@@ -178,7 +177,7 @@ export class AnimSequence implements AnimSequenceConfig {
     }
   }
 
-  // plays each animBlock contained in this AnimSequence instance in sequential order
+  // plays each animClip contained in this AnimSequence instance in sequential order
   async play(): Promise<this> {
     if (this.inProgress) { return this; }
     this.inProgress = true;
@@ -188,8 +187,8 @@ export class AnimSequence implements AnimSequenceConfig {
 
     this.onStart.do();
 
-    const activeGroupings = this.animBlockGroupings_activeFinishOrder;
-    // const activeGroupings2 = this.animBlockGroupings_endDelayFinishOrder;
+    const activeGroupings = this.animClipGroupings_activeFinishOrder;
+    // const activeGroupings2 = this.animClipGroupings_endDelayFinishOrder;
     const numGroupings = activeGroupings.length;
 
     for (let i = 0; i < numGroupings; ++i) {
@@ -198,34 +197,34 @@ export class AnimSequence implements AnimSequenceConfig {
       // const activeGrouping2 = activeGroupings2[i];
       const groupingLength = activeGrouping.length;
 
-      // ensure that no block finishes its active phase before any block that should finish its active phase first (according to the calculated "perfect" timing)
+      // ensure that no clip finishes its active phase before any clip that should finish its active phase first (according to the calculated "perfect" timing)
       for (let j = 1; j < groupingLength; ++j) {
         activeGrouping[j].addIntegrityblocks('forward', 'activePhase', 'end', [activeGrouping[j-1].generateTimePromise('forward', 'activePhase', 'end')]);
         // activeGrouping2[j].animation.addIntegrityblocks('forward', 'endDelayPhase', 'end', activeGrouping2[j-1].animation.getFinished('forward', 'endDelayPhase'));
       }
     }
 
-    let parallelBlocks: Promise<void>[] = [];
-    for (let i = 0; i < this.animBlock_forwardGroupings.length; ++i) {
-      parallelBlocks = [];
-      const grouping = this.animBlock_forwardGroupings[i];
-      const firstBlock = grouping[0];
-      this.inProgressBlocks.set(firstBlock.id, firstBlock);
-      parallelBlocks.push(firstBlock.play(this)
-        .then(() => {this.inProgressBlocks.delete(firstBlock.id)})
+    let parallelClips: Promise<void>[] = [];
+    for (let i = 0; i < this.animClip_forwardGroupings.length; ++i) {
+      parallelClips = [];
+      const grouping = this.animClip_forwardGroupings[i];
+      const firstClip = grouping[0];
+      this.inProgressClips.set(firstClip.id, firstClip);
+      parallelClips.push(firstClip.play(this)
+        .then(() => {this.inProgressClips.delete(firstClip.id)})
       );
 
       for (let j = 1; j < grouping.length; ++j) {
-        // the start of any block within a grouping should line up with the beginning of the preceding block's active phase
+        // the start of any clip within a grouping should line up with the beginning of the preceding clip's active phase
         // (akin to PowerPoint timing)
         await grouping[j-1].generateTimePromise('forward', 'activePhase', 'beginning');
-        const currAnimBlock = grouping[j];
-        this.inProgressBlocks.set(currAnimBlock.id, currAnimBlock);
-        parallelBlocks.push(currAnimBlock.play(this)
-          .then(() => {this.inProgressBlocks.delete(currAnimBlock.id)})
+        const currAnimClip = grouping[j];
+        this.inProgressClips.set(currAnimClip.id, currAnimClip);
+        parallelClips.push(currAnimClip.play(this)
+          .then(() => {this.inProgressClips.delete(currAnimClip.id)})
         );
       }
-      await Promise.all(parallelBlocks);
+      await Promise.all(parallelClips);
     }
 
     this.inProgress = false;
@@ -238,13 +237,13 @@ export class AnimSequence implements AnimSequenceConfig {
     return this;
   }
 
-  // rewinds each animBlock contained in this AnimSequence instance in reverse order
+  // rewinds each animClip contained in this AnimSequence instance in reverse order
   async rewind(): Promise<this> {
     if (this.inProgress) { return this; }
     this.inProgress = true;
     this.handleFinishState();
 
-    const activeGroupings = this.animBlockGroupings_backwardActiveFinishOrder;
+    const activeGroupings = this.animClipGroupings_backwardActiveFinishOrder;
     const numGroupings = activeGroupings.length;
 
     this.onFinish.undo();
@@ -253,45 +252,45 @@ export class AnimSequence implements AnimSequenceConfig {
       const activeGrouping = activeGroupings[i];
       const groupingLength = activeGrouping.length;
 
-      // ensure that no block finishes rewinding its active phase before any block that should finishing doing so first first (according to the calculated "perfect" timing)
+      // ensure that no clip finishes rewinding its active phase before any clip that should finishing doing so first first (according to the calculated "perfect" timing)
       for (let j = 1; j < groupingLength; ++j) {
         activeGrouping[j].addIntegrityblocks('backward', 'activePhase', 'beginning', [activeGrouping[j-1].generateTimePromise('backward', 'activePhase', 'beginning')]);
       }
     }
     
-    let parallelBlocks: Promise<void>[] = [];
-    const groupings = this.animBlockGroupings_endDelayFinishOrder;
+    let parallelClips: Promise<void>[] = [];
+    const groupings = this.animClipGroupings_endDelayFinishOrder;
     const groupingsLength = groupings.length;
     
     for (let i = groupingsLength - 1; i >= 0; --i) {
-      parallelBlocks = [];
+      parallelClips = [];
       const grouping = groupings[i];
       const groupingLength = grouping.length;
-      const lastBlock = grouping[groupingLength - 1];
-      this.inProgressBlocks.set(lastBlock.id, lastBlock);
-      parallelBlocks.push(lastBlock.rewind(this)
-        .then(() => {this.inProgressBlocks.delete(lastBlock.id)})
+      const lastClip = grouping[groupingLength - 1];
+      this.inProgressClips.set(lastClip.id, lastClip);
+      parallelClips.push(lastClip.rewind(this)
+        .then(() => {this.inProgressClips.delete(lastClip.id)})
       );
 
       for (let j = groupingLength - 2; j >= 0; --j) {
-        const currAnimBlock = grouping[j];
-        const nextAnimBlock = grouping[j + 1];
-        // if the current block intersects the next block, wait for that intersection time
-        if (currAnimBlock.fullFinishTime > nextAnimBlock.fullStartTime) {
-          await nextAnimBlock.generateTimePromise('backward', 'whole', currAnimBlock.fullFinishTime - nextAnimBlock.fullStartTime);
+        const currAnimClip = grouping[j];
+        const nextAnimClip = grouping[j + 1];
+        // if the current clip intersects the next clip, wait for that intersection time
+        if (currAnimClip.fullFinishTime > nextAnimClip.fullStartTime) {
+          await nextAnimClip.generateTimePromise('backward', 'whole', currAnimClip.fullFinishTime - nextAnimClip.fullStartTime);
         }
-        // otherwise, wait for the next block to finish rewinding entirely
+        // otherwise, wait for the next clip to finish rewinding entirely
         else {
-          await nextAnimBlock.generateTimePromise('backward', 'delayPhase', 'beginning');
+          await nextAnimClip.generateTimePromise('backward', 'delayPhase', 'beginning');
         }
 
-        // once waiting period above is over, begin rewinding current block
-        this.inProgressBlocks.set(currAnimBlock.id, currAnimBlock);
-        parallelBlocks.push(currAnimBlock.rewind(this)
-          .then(() => {this.inProgressBlocks.delete(currAnimBlock.id)})
+        // once waiting period above is over, begin rewinding current clip
+        this.inProgressClips.set(currAnimClip.id, currAnimClip);
+        parallelClips.push(currAnimClip.rewind(this)
+          .then(() => {this.inProgressClips.delete(currAnimClip.id)})
         );
       }
-      await Promise.all(parallelBlocks);
+      await Promise.all(parallelClips);
     }
 
     this.inProgress = false;
@@ -307,12 +306,12 @@ export class AnimSequence implements AnimSequenceConfig {
   pause(): void {
     if (this.isPaused) { return; }
     this.isPaused = true;
-    this.doForInProgressBlocks(animBlock => animBlock.pause(this));
+    this.doForInProgressClips(animClip => animClip.pause(this));
   }
   unpause(): void {
     if (!this.isPaused) { return; }
     this.isPaused = false;
-    this.doForInProgressBlocks(animBlock => animBlock.unpause(this));
+    this.doForInProgressClips(animClip => animClip.unpause(this));
   }
 
   // TODO: check to see if it's necessary to prevent direct finish() calls if sequence has a parent timeline
@@ -320,9 +319,9 @@ export class AnimSequence implements AnimSequenceConfig {
     if (this.usingFinish || this.isPaused) { return this; }
     this.usingFinish = true; // resets to false at the end of play() and rewind()
 
-    // if in progress, finish the current blocks and let the proceeding ones read from this.usingFinish
+    // if in progress, finish the current clips and let the proceeding ones read from this.usingFinish
     if (this.inProgress) { this.finishInProgressAnimations(); }
-    // else, if this sequence is ready to play forward, just play (then all blocks will read from this.usingFinish)
+    // else, if this sequence is ready to play forward, just play (then all clips will read from this.usingFinish)
     else if (!this.wasPlayed || this.wasRewound) { this.play(); }
     // If sequence is at the end of its playback, finish() does nothing.
     // AnimTimeline calling AnimSequence.finish() in its method for finishing current sequences should still work
@@ -332,7 +331,7 @@ export class AnimSequence implements AnimSequenceConfig {
 
   // used to skip currently running animation so they don't run at regular speed while using finish()
   async finishInProgressAnimations(): Promise<this> {
-    return this.doForInProgressBlocks_async(animBlock => animBlock.finish(this));
+    return this.doForInProgressClips_async(animClip => animClip.finish(this));
   }
 
   updatePlaybackRate(newRate: number): this {
@@ -343,13 +342,13 @@ export class AnimSequence implements AnimSequenceConfig {
 
   /**@internal*/
   useCompoundedPlaybackRate(): this {
-    this.doForInProgressBlocks(animBlock => animBlock.useCompoundedPlaybackRate());
+    this.doForInProgressClips(animClip => animClip.useCompoundedPlaybackRate());
     return this;
   }
 
-  private static activeBackwardFinishComparator = (blockA: AnimBlock, blockB: AnimBlock) => blockB.activeStartTime - blockA.activeStartTime;
-  private static activeFinishComparator = (blockA: AnimBlock, blockB: AnimBlock) => blockA.activeFinishTime - blockB.activeFinishTime;
-  private static endDelayFinishComparator = (blockA: AnimBlock, blockB: AnimBlock) => blockA.fullFinishTime - blockB.fullFinishTime;
+  private static activeBackwardFinishComparator = (clipA: AnimClip, clipB: AnimClip) => clipB.activeStartTime - clipA.activeStartTime;
+  private static activeFinishComparator = (clipA: AnimClip, clipB: AnimClip) => clipA.activeFinishTime - clipB.activeFinishTime;
+  private static endDelayFinishComparator = (clipA: AnimClip, clipB: AnimClip) => clipA.fullFinishTime - clipB.fullFinishTime;
 
   // TODO: Complete this method
   /**@internal*/
@@ -361,75 +360,75 @@ export class AnimSequence implements AnimSequenceConfig {
     } = AnimSequence;
 
     let maxFinishTime = 0;
-    const animBlocks = this.animBlocks;
-    const numBlocks = animBlocks.length;
-    this.animBlock_forwardGroupings = [[]];
-    this.animBlockGroupings_backwardActiveFinishOrder = [];
-    this.animBlockGroupings_activeFinishOrder = [];
-    this.animBlockGroupings_endDelayFinishOrder = [];
-    let currActiveBackwardFinishGrouping: AnimBlock[] = [];
-    let currActiveFinishGrouping: AnimBlock[] = [];
-    let currEndDelayGrouping: AnimBlock[] = [];
+    const animClips = this.animClips;
+    const numClips = animClips.length;
+    this.animClip_forwardGroupings = [[]];
+    this.animClipGroupings_backwardActiveFinishOrder = [];
+    this.animClipGroupings_activeFinishOrder = [];
+    this.animClipGroupings_endDelayFinishOrder = [];
+    let currActiveBackwardFinishGrouping: AnimClip[] = [];
+    let currActiveFinishGrouping: AnimClip[] = [];
+    let currEndDelayGrouping: AnimClip[] = [];
 
-    for (let i = 0; i < numBlocks; ++i) {
-      const currAnimBlock = animBlocks[i];
-      const prevBlock = animBlocks[i-1];
-      const startsWithPrev = currAnimBlock.startsWithPrevious || prevBlock?.startsNextBlockToo;
+    for (let i = 0; i < numClips; ++i) {
+      const currAnimClip = animClips[i];
+      const prevClip = animClips[i-1];
+      const startsWithPrev = currAnimClip.startsWithPrevious || prevClip?.startsNextClipToo;
       let currStartTime: number;
 
       if (startsWithPrev || i === 0) {
-        // currActiveBackwardFinishGrouping.push(currAnimBlock);
-        currActiveFinishGrouping.push(currAnimBlock);
-        currEndDelayGrouping.push(currAnimBlock);
+        // currActiveBackwardFinishGrouping.push(currAnimClip);
+        currActiveFinishGrouping.push(currAnimClip);
+        currEndDelayGrouping.push(currAnimClip);
 
-        currStartTime = prevBlock?.activeStartTime ?? 0;
+        currStartTime = prevClip?.activeStartTime ?? 0;
       }
       else {
-        this.animBlock_forwardGroupings.push([]);
+        this.animClip_forwardGroupings.push([]);
         currActiveFinishGrouping.sort(activeFinishComparator);
         currEndDelayGrouping.sort(endDelayFinishComparator);
         currActiveBackwardFinishGrouping = [...currEndDelayGrouping].reverse();
         currActiveBackwardFinishGrouping.sort(activeBackwardFinishComparator);
-        this.animBlockGroupings_backwardActiveFinishOrder.push(currActiveBackwardFinishGrouping);
-        this.animBlockGroupings_activeFinishOrder.push(currActiveFinishGrouping);
-        this.animBlockGroupings_endDelayFinishOrder.push(currEndDelayGrouping);
-        currActiveBackwardFinishGrouping = [currAnimBlock];
-        currActiveFinishGrouping = [currAnimBlock];
-        currEndDelayGrouping = [currAnimBlock];
+        this.animClipGroupings_backwardActiveFinishOrder.push(currActiveBackwardFinishGrouping);
+        this.animClipGroupings_activeFinishOrder.push(currActiveFinishGrouping);
+        this.animClipGroupings_endDelayFinishOrder.push(currEndDelayGrouping);
+        currActiveBackwardFinishGrouping = [currAnimClip];
+        currActiveFinishGrouping = [currAnimClip];
+        currEndDelayGrouping = [currAnimClip];
 
         currStartTime = maxFinishTime;
       }
 
-      this.animBlock_forwardGroupings[this.animBlock_forwardGroupings.length - 1].push(currAnimBlock);
+      this.animClip_forwardGroupings[this.animClip_forwardGroupings.length - 1].push(currAnimClip);
 
-      currAnimBlock.fullStartTime = currStartTime;
+      currAnimClip.fullStartTime = currStartTime;
 
-      maxFinishTime = Math.max(currAnimBlock.fullFinishTime, maxFinishTime);
+      maxFinishTime = Math.max(currAnimClip.fullFinishTime, maxFinishTime);
     }
 
     currActiveFinishGrouping.sort(activeFinishComparator);
     currEndDelayGrouping.sort(endDelayFinishComparator);
     currActiveBackwardFinishGrouping = [...currEndDelayGrouping].reverse();
     currActiveBackwardFinishGrouping.sort(activeBackwardFinishComparator);
-    this.animBlockGroupings_backwardActiveFinishOrder.push(currActiveBackwardFinishGrouping);
-    this.animBlockGroupings_activeFinishOrder.push(currActiveFinishGrouping);
-    this.animBlockGroupings_endDelayFinishOrder.push(currEndDelayGrouping);
+    this.animClipGroupings_backwardActiveFinishOrder.push(currActiveBackwardFinishGrouping);
+    this.animClipGroupings_activeFinishOrder.push(currActiveFinishGrouping);
+    this.animClipGroupings_endDelayFinishOrder.push(currEndDelayGrouping);
 
     return this;
   }
 
   // get all currently running animations that belong to this timeline and perform operation() with them
-  private doForInProgressBlocks(operation: AnimationOperation): this {
-    for (const animBlock of this.inProgressBlocks.values()) {
-      operation(animBlock);
+  private doForInProgressClips(operation: AnimationOperation): this {
+    for (const animClip of this.inProgressClips.values()) {
+      operation(animClip);
     }
     return this;
   }
 
-  private async doForInProgressBlocks_async(operation: AsyncAnimationOperation): Promise<this> {
+  private async doForInProgressClips_async(operation: AsyncAnimationOperation): Promise<this> {
     const promises: Promise<unknown>[] = [];
-    for (const animBlock of this.inProgressBlocks.values()) {
-      promises.push(operation(animBlock));
+    for (const animClip of this.inProgressClips.values()) {
+      promises.push(operation(animClip));
     }
     await Promise.all(promises);
     return this;

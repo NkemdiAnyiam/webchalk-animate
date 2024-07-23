@@ -1,6 +1,6 @@
 import { AnimSequence } from "./AnimSequence";
 import { AnimTimeline } from "./AnimTimeline";
-import { CustomErrors, BlockErrorGenerator } from "./utils/errors";
+import { CustomErrors, ClipErrorGenerator } from "./utils/errors";
 
 type Segment = [
   endDelay: number,
@@ -43,15 +43,15 @@ export class WebFlikAnimation extends Animation {
   onActiveFinish: Function = () => {};
   onEndDelayFinish: Function = () => {};
   // FIXME: The behavior for pausing for roadblocks while expedition is in act is undefined
-  pauseForRoadblocks: Function = () => { throw new Error(`This should never be called before being defined by parent block`); };
-  unpauseFromRoadblocks: Function = () => { throw new Error(`This should never be called before being defined by parent block`); };
+  pauseForRoadblocks: Function = () => { throw new Error(`This should never be called before being defined by parent clip`); };
+  unpauseFromRoadblocks: Function = () => { throw new Error(`This should never be called before being defined by parent clip`); };
 
   get parentTimeline(): AnimTimeline | undefined { return this._timeline; }
   set parentTimeline(timeline: AnimTimeline | undefined) { this._timeline = timeline; }
   get parentSequence(): AnimSequence | undefined { return this._sequence; }
   set parentSequence(sequence: AnimSequence | undefined) { this._sequence = sequence; }
 
-  constructor(private forwardEffect: KeyframeEffect, private backwardEffect: KeyframeEffect, private errorGenerator: BlockErrorGenerator) {
+  constructor(private forwardEffect: KeyframeEffect, private backwardEffect: KeyframeEffect, private errorGenerator: ClipErrorGenerator) {
     super();
 
     if (!this.forwardEffect.target) { throw this.errorGenerator(CustomErrors.InvalidElementError, `Animation target must not be null or undefined`); }
@@ -114,7 +114,7 @@ export class WebFlikAnimation extends Animation {
   
   async play(): Promise<void> {
     // If animation is already in progress and is just paused, resume the animation directly.
-    // Through AnimBlock, the only time this can happen is when using AnimBlock.unpause()
+    // Through AnimClip, the only time this can happen is when using AnimClip.unpause()
     if (super.playState === 'paused') {
       super.play();
       return;

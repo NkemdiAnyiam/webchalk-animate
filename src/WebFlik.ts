@@ -1,14 +1,14 @@
-import { AnimBlock, AnimBlockConfig} from "./AnimBlock";
+import { AnimClip, AnimClipConfig} from "./AnimClip";
 import {
-  EntranceBlock, ExitBlock, EmphasisBlock, MotionBlock, ScrollerBlock, TransitionBlock, ExitBlockConfig, EntranceBlockConfig,
-  ConnectorEntranceBlock, ConnectorExitBlock, ConnectorSetterBlock,
-  EmphasisBlockConfig,
-  MotionBlockConfig,
-  ScrollerBlockConfig,
-  ConnectorExitBlockConfig,
-  ConnectorEntranceBlockConfig,
-  TransitionBlockConfig
-} from "./categoricalBlocks";
+  EntranceClip, ExitClip, EmphasisClip, MotionClip, ScrollerClip, TransitionClip, ExitClipConfig, EntranceClipConfig,
+  ConnectorEntranceClip, ConnectorExitClip, ConnectorSetterClip,
+  EmphasisClipConfig,
+  MotionClipConfig,
+  ScrollerClipConfig,
+  ConnectorExitClipConfig,
+  ConnectorEntranceClipConfig,
+  TransitionClipConfig
+} from "./categoricalClips";
 import { AnimSequence } from "./AnimSequence";
 import { AnimTimeline } from "./AnimTimeline";
 import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
@@ -17,32 +17,32 @@ import { useEasing } from "./utils/easing";
 import { MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./utils/interfaces";
 import { ReadonlyPick, ReadonlyRecord, StripDuplicateMethodAutocompletion } from "./utils/utilityTypes";
 
-type KeyframesGenerator<TBlockContext extends unknown> = {
-  generateKeyframes(this: TBlockContext, ...effectOptions: unknown[]): [forward: Keyframe[], backward?: Keyframe[]];
+type KeyframesGenerator<TClipContext extends unknown> = {
+  generateKeyframes(this: TClipContext, ...effectOptions: unknown[]): [forward: Keyframe[], backward?: Keyframe[]];
   generateKeyframeGenerators?: never;
   generateRafMutators?: never;
   generateRafMutatorGenerators?: never;
 };
-type KeyframesGeneratorsGenerator<TBlockContext extends unknown> = {
+type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
   generateKeyframes?: never;
-  generateKeyframeGenerators(this: TBlockContext, ...effectOptions: unknown[]): [forwardGenerator: () => Keyframe[], backwardGenerator?: () => Keyframe[]];
+  generateKeyframeGenerators(this: TClipContext, ...effectOptions: unknown[]): [forwardGenerator: () => Keyframe[], backwardGenerator?: () => Keyframe[]];
   generateRafMutators?: never;
   generateRafMutatorGenerators?: never;
 };
-type RafMutatorsGenerator<TBlockContext extends unknown> = {
+type RafMutatorsGenerator<TClipContext extends unknown> = {
   generateKeyframes?: never;
   generateKeyframeGenerators?: never;
-  generateRafMutators(this: TBlockContext & ReadonlyPick<AnimBlock, 'computeTween'>, ...effectOptions: unknown[]): [forwardMutator: () => void, backwardMutator: () => void];
+  generateRafMutators(this: TClipContext & ReadonlyPick<AnimClip, 'computeTween'>, ...effectOptions: unknown[]): [forwardMutator: () => void, backwardMutator: () => void];
   generateRafMutatorGenerators?: never;
 };
-type RafMutatorsGeneratorsGenerator<TBlockContext extends unknown> = {
+type RafMutatorsGeneratorsGenerator<TClipContext extends unknown> = {
   generateKeyframes?: never;
   generateKeyframeGenerators?: never;
   generateRafMutators?: never;
-  generateRafMutatorGenerators(this: TBlockContext & ReadonlyPick<AnimBlock, 'computeTween'>, ...effectOptions: unknown[]): [forwardGenerator: () => () => void, backwardGenerator: () => () => void];
+  generateRafMutatorGenerators(this: TClipContext & ReadonlyPick<AnimClip, 'computeTween'>, ...effectOptions: unknown[]): [forwardGenerator: () => () => void, backwardGenerator: () => () => void];
 };
 
-export type EffectGenerator<TBlockContext extends unknown = unknown, TConfig extends unknown = unknown, IncludeExtras extends boolean = true> = Readonly<
+export type EffectGenerator<TClipContext extends unknown = unknown, TConfig extends unknown = unknown, IncludeExtras extends boolean = true> = Readonly<
   {
     config?: Partial<TConfig>;
   }
@@ -63,14 +63,14 @@ export type EffectGenerator<TBlockContext extends unknown = unknown, TConfig ext
     : {}
   )
   & StripDuplicateMethodAutocompletion<(
-    KeyframesGenerator<TBlockContext> | KeyframesGeneratorsGenerator<TBlockContext> | RafMutatorsGenerator<TBlockContext> | RafMutatorsGeneratorsGenerator<TBlockContext>
+    KeyframesGenerator<TClipContext> | KeyframesGeneratorsGenerator<TClipContext> | RafMutatorsGenerator<TClipContext> | RafMutatorsGeneratorsGenerator<TClipContext>
   )>
 >;
 
 // represents an object where every string key is paired with a EffectGenerator value
-export type EffectGeneratorBank<TBlock extends AnimBlock = AnimBlock, TBlockConfig extends {} = AnimBlockConfig, IncludeGeneratorExtras extends boolean = true> = ReadonlyRecord<
+export type EffectGeneratorBank<TClip extends AnimClip = AnimClip, TClipConfig extends {} = AnimClipConfig, IncludeGeneratorExtras extends boolean = true> = ReadonlyRecord<
   string, 
-  EffectGenerator<ReadonlyPick<TBlock, 'effectName' | 'domElem'>, TBlockConfig, IncludeGeneratorExtras>
+  EffectGenerator<ReadonlyPick<TClip, 'effectName' | 'domElem'>, TClipConfig, IncludeGeneratorExtras>
 >;
 
 export type EffectOptions<TEffectGenerator extends EffectGenerator> = Parameters<
@@ -100,30 +100,30 @@ export abstract class WebFlik {
   <
    // default = {} ensures intellisense for a given bank still works
    // without specifying the field (why? not sure)
-    CustomEntranceBank extends EffectGeneratorBank<EntranceBlock, EntranceBlockConfig, false> = {},
-    CustomExitBank extends EffectGeneratorBank<ExitBlock, ExitBlockConfig, false> = {},
-    CustomEmphasisBank extends EffectGeneratorBank<EmphasisBlock, EmphasisBlockConfig, false> = {},
-    CustomMotionBank extends EffectGeneratorBank<MotionBlock, MotionBlockConfig, false> = {},
-    _EmptyTransitionBank extends EffectGeneratorBank<TransitionBlock, TransitionBlockConfig> = {},
-    _EmptyConnectorEntranceBank extends EffectGeneratorBank<ConnectorEntranceBlock, ConnectorEntranceBlockConfig> = {},
-    _EmptyConnectorExitBank extends EffectGeneratorBank<ConnectorExitBlock, ConnectorExitBlockConfig> = {},
-    _EmptyScrollerBank extends EffectGeneratorBank<ScrollerBlock, ScrollerBlockConfig> = {},
+    CustomEntranceBank extends EffectGeneratorBank<EntranceClip, EntranceClipConfig, false> = {},
+    CustomExitBank extends EffectGeneratorBank<ExitClip, ExitClipConfig, false> = {},
+    CustomEmphasisBank extends EffectGeneratorBank<EmphasisClip, EmphasisClipConfig, false> = {},
+    CustomMotionBank extends EffectGeneratorBank<MotionClip, MotionClipConfig, false> = {},
+    _EmptyTransitionBank extends EffectGeneratorBank<TransitionClip, TransitionClipConfig> = {},
+    _EmptyConnectorEntranceBank extends EffectGeneratorBank<ConnectorEntranceClip, ConnectorEntranceClipConfig> = {},
+    _EmptyConnectorExitBank extends EffectGeneratorBank<ConnectorExitClip, ConnectorExitClipConfig> = {},
+    _EmptyScrollerBank extends EffectGeneratorBank<ScrollerClip, ScrollerClipConfig> = {},
     IncludeLibPresets extends boolean = true
   >
   (
     customPresetEffectBanks: {
-      customEntranceEffects?: CustomEntranceBank & EffectGeneratorBank<EntranceBlock, EntranceBlockConfig, false>;
-      customExitEffects?: CustomExitBank & EffectGeneratorBank<ExitBlock, ExitBlockConfig, false>;
-      customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisBlock, EmphasisBlockConfig, false>;
-      customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionBlock, MotionBlockConfig, false>;
+      customEntranceEffects?: CustomEntranceBank & EffectGeneratorBank<EntranceClip, EntranceClipConfig, false>;
+      customExitEffects?: CustomExitBank & EffectGeneratorBank<ExitClip, ExitClipConfig, false>;
+      customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisClip, EmphasisClipConfig, false>;
+      customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionClip, MotionClipConfig, false>;
     } = {},
     includeLibraryPresets: IncludeLibPresets | void = true as IncludeLibPresets
   ) {
     const {customEntranceEffects, customExitEffects, customEmphasisEffects, customMotionEffects} = customPresetEffectBanks as {
-      customEntranceEffects?: CustomEntranceBank & EffectGeneratorBank<EntranceBlock, EntranceBlockConfig>;
-      customExitEffects?: CustomExitBank & EffectGeneratorBank<ExitBlock, ExitBlockConfig>;
-      customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisBlock, EmphasisBlockConfig>;
-      customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionBlock, MotionBlockConfig>;
+      customEntranceEffects?: CustomEntranceBank & EffectGeneratorBank<EntranceClip, EntranceClipConfig>;
+      customExitEffects?: CustomExitBank & EffectGeneratorBank<ExitClip, ExitClipConfig>;
+      customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisClip, EmphasisClipConfig>;
+      customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionClip, MotionClipConfig>;
     };
     WebFlik.checkBanksFormatting(customEntranceEffects, customExitEffects, customEmphasisEffects, customMotionEffects);
 
@@ -140,7 +140,7 @@ export abstract class WebFlik {
       return combinedBank as TogglePresets<L, U>;
     }
     
-    // Add the keyframes groups to the static banks of the block classes
+    // Merge the library preset banks with any custom banks addons from layer 4
     const combinedEntranceBank = mergeBanks(libPresetEntrances, customEntranceEffects as CustomEntranceBank);
     const combinedExitBank = mergeBanks(libPresetExits, customExitEffects as CustomExitBank);
     const combinedEmphasisBank = mergeBanks(libPresetEmphases, customEmphasisEffects as CustomEmphasisBank);
@@ -150,46 +150,46 @@ export abstract class WebFlik {
     const combinedConnectorExitBank = mergeBanks(libPresetConnectorExits, {} as _EmptyConnectorExitBank);
     const combinedScrollerBank = mergeBanks(libPresetScrolls, {} as _EmptyScrollerBank);
 
-    // return functions that can be used to instantiate AnimBlocks with intellisense for the combined banks
+    // return functions that can be used to instantiate AnimClips with intellisense for the combined banks
     return {
       Entrance: function<TGeneratorBank extends typeof combinedEntranceBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        ...initializationParams: Parameters<EntranceBlock<TEffectGenerator>['initialize']>
+        ...initializationParams: Parameters<EntranceClip<TEffectGenerator>['initialize']>
       ) {
-        return new EntranceBlock<TEffectGenerator>(domElem, effectName, combinedEntranceBank).initialize(...initializationParams);
+        return new EntranceClip<TEffectGenerator>(domElem, effectName, combinedEntranceBank).initialize(...initializationParams);
       },
 
       Exit: function<TGeneratorBank extends typeof combinedExitBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        ...initializationParams: Parameters<ExitBlock<TEffectGenerator>['initialize']>
+        ...initializationParams: Parameters<ExitClip<TEffectGenerator>['initialize']>
       ) {
-        return new ExitBlock<TEffectGenerator>(domElem, effectName, combinedExitBank).initialize(...initializationParams);
+        return new ExitClip<TEffectGenerator>(domElem, effectName, combinedExitBank).initialize(...initializationParams);
       },
 
       Emphasis: function<TGeneratorBank extends typeof combinedEmphasisBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        ...initializationParams: Parameters<EmphasisBlock<TEffectGenerator>['initialize']>
+        ...initializationParams: Parameters<EmphasisClip<TEffectGenerator>['initialize']>
       ) {
-        return new EmphasisBlock<TEffectGenerator>(domElem, effectName, combinedEmphasisBank).initialize(...initializationParams);
+        return new EmphasisClip<TEffectGenerator>(domElem, effectName, combinedEmphasisBank).initialize(...initializationParams);
       },
 
       Motion: function<TGeneratorBank extends typeof combinedMotionBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        ...initializationParams: Parameters<MotionBlock<TEffectGenerator>['initialize']>
+        ...initializationParams: Parameters<MotionClip<TEffectGenerator>['initialize']>
       ) {
-        return new MotionBlock<TEffectGenerator>(domElem, effectName, combinedMotionBank).initialize(...initializationParams);
+        return new MotionClip<TEffectGenerator>(domElem, effectName, combinedMotionBank).initialize(...initializationParams);
       },
 
       Transition: function<TGeneratorBank extends typeof combinedTransitionBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        ...initializationParams: Parameters<TransitionBlock<TEffectGenerator>['initialize']>
+        ...initializationParams: Parameters<TransitionClip<TEffectGenerator>['initialize']>
       ) {
-        return new TransitionBlock<TEffectGenerator>(domElem, effectName, combinedTransitionBank).initialize(...initializationParams);
+        return new TransitionClip<TEffectGenerator>(domElem, effectName, combinedTransitionBank).initialize(...initializationParams);
       },
 
       ConnectorSetter: function(
@@ -199,8 +199,8 @@ export abstract class WebFlik {
         connectorConfig: WbfkConnectorConfig = {} as WbfkConnectorConfig
       ) {
         const effectName = `~set-line-points`;
-        return new ConnectorSetterBlock(
-          connectorElem, pointA, pointB, effectName, {[effectName]: {...AnimBlock.emptyEffectGenerator, effectName}}, connectorConfig
+        return new ConnectorSetterClip(
+          connectorElem, pointA, pointB, effectName, {[effectName]: {...AnimClip.emptyEffectGenerator, effectName}}, connectorConfig
         ).initialize([]);
       },
 
@@ -209,26 +209,26 @@ export abstract class WebFlik {
       >(
         connectorElem: WbfkConnector | null | undefined,
         effectName: TEffectName,
-        ...initializationParams: Parameters<ConnectorEntranceBlock<TEffectGenerator>['initialize']>
+        ...initializationParams: Parameters<ConnectorEntranceClip<TEffectGenerator>['initialize']>
       ) {
-        return new ConnectorEntranceBlock<TEffectGenerator>(connectorElem, effectName, combinedConnectorEntranceBank).initialize(...initializationParams);
+        return new ConnectorEntranceClip<TEffectGenerator>(connectorElem, effectName, combinedConnectorEntranceBank).initialize(...initializationParams);
       },
 
       ConnectorExit: function<TGeneratorBank extends typeof combinedConnectorExitBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
         connectorElem: WbfkConnector | null | undefined,
         effectName: TEffectName,
-        ...initializationParams: Parameters<ConnectorExitBlock<TEffectGenerator>['initialize']>
+        ...initializationParams: Parameters<ConnectorExitClip<TEffectGenerator>['initialize']>
       ) { 
-        return new ConnectorExitBlock<TEffectGenerator>(connectorElem, effectName, combinedConnectorExitBank).initialize(...initializationParams);
+        return new ConnectorExitClip<TEffectGenerator>(connectorElem, effectName, combinedConnectorExitBank).initialize(...initializationParams);
       },
       
       Scroller: function<TGeneratorBank extends typeof combinedScrollerBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>
       (
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        ...initializationParams: Parameters<ScrollerBlock<TEffectGenerator>['initialize']>
+        ...initializationParams: Parameters<ScrollerClip<TEffectGenerator>['initialize']>
       ) {
-        return new ScrollerBlock<TEffectGenerator>(domElem, effectName, combinedScrollerBank).initialize(...initializationParams);
+        return new ScrollerClip<TEffectGenerator>(domElem, effectName, combinedScrollerBank).initialize(...initializationParams);
       },
     };
   }

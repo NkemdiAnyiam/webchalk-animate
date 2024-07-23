@@ -1,25 +1,25 @@
-import { AnimBlockConfig } from "../AnimBlock";
+import { AnimClipConfig } from "../AnimClip";
 import { EffectGenerator } from "../WebFlik";
 import { PrefixProps } from "./utilityTypes";
 
 type FrozenPrefix = '__';
 export type FromFrozenKey<S extends string> = S extends `${FrozenPrefix}${infer key}` ? key : never;
-export type FromFrozenKeys<T extends Partial<AnimBlockConfig> | undefined> = keyof { [key in Extract<keyof T, string> as FromFrozenKey<key>]: void };
+export type FromFrozenKeys<T extends Partial<AnimClipConfig> | undefined> = keyof { [key in Extract<keyof T, string> as FromFrozenKey<key>]: void };
 export type ToFrozenKey<S extends string> = S extends `${FrozenPrefix}${string}` ? never : `${FrozenPrefix}${S}`;
-export type ToFrozenKeys<T extends AnimBlockConfig> = keyof { [key in Extract<keyof T, string> as ToFrozenKey<key>]: void }
+export type ToFrozenKeys<T extends AnimClipConfig> = keyof { [key in Extract<keyof T, string> as ToFrozenKey<key>]: void }
 
-export type AddFreezableConfig<TBlockConfig extends AnimBlockConfig> = PrefixProps<TBlockConfig, FrozenPrefix> & TBlockConfig;
+export type AddFreezableConfig<TClipConfig extends AnimClipConfig> = PrefixProps<TClipConfig, FrozenPrefix> & TClipConfig;
 
 /**
- * Returns TBlockConfig without any props marked as frozen in TEffectGenerator's config.
+ * Returns TClipConfig without any props marked as frozen in TEffectGenerator's config.
  * @interface StripFrozenConfig
- * @typeParam TBlockConfig - Configuration interface for AnimBlock or an AnimBlock subclass.
+ * @typeParam TClipConfig - Configuration interface for AnimClip or an AnimClip subclass.
  * @typeParam TEffectGenerator - An effect generator defined in any generator bank.
  */
 export type StripFrozenConfig<
-  TBlockConfig extends AnimBlockConfig,
+  TClipConfig extends AnimClipConfig,
   TEffectGenerator extends EffectGenerator
-> = Omit<TBlockConfig, FromFrozenKeys<TEffectGenerator['config']>>;
+> = Omit<TClipConfig, FromFrozenKeys<TEffectGenerator['config']>>;
 
 
 

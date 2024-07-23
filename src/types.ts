@@ -1,4 +1,4 @@
-import { AnimBlock } from "./AnimBlock";
+import { AnimClip } from "./AnimClip";
 import { AnimSequence } from "./AnimSequence";
 import { AnimTimeline } from "./AnimTimeline";
 import { WbfkConnector } from "./WbfkConnector";
@@ -8,10 +8,10 @@ import { WbfkConnector } from "./WbfkConnector";
  * 
  * @example
  * ```ts
- * const myFunction(block: WbfkClassTypes['AnimBlock']) {
- *  return block.getConfig().duration;
+ * const myFunction(clip: WbfkClassTypes['AnimClip']) {
+ *  return clip.getConfig().duration;
  * }
- * // TS ERROR: Argument of type 'AnimTimeline' is not assignable to parameter of type 'AnimBlock<...>'.
+ * // TS ERROR: Argument of type 'AnimTimeline' is not assignable to parameter of type 'AnimClip<...>'.
  * myFunction(WebFlik.newSequence());
  * // OKAY
  * myFunction(Entrance(<...>));
@@ -32,7 +32,7 @@ import { WbfkConnector } from "./WbfkConnector";
  * ```
  */
 export type WbfkClassTypes = {
-  AnimBlock: InstanceType<typeof AnimBlock>;
+  AnimClip: InstanceType<typeof AnimClip>;
   AnimSequence: InstanceType<typeof AnimSequence>;
   AnimTimeline: InstanceType<typeof AnimTimeline>;
   WbfkConnector: InstanceType<typeof WbfkConnector>;

@@ -248,7 +248,7 @@ export class AnimTimeline {
     return this.animSequences.findIndex((_animSequence) => _animSequence === animSequence);
   }
 
-  // CHANGE NOTE: sequences, and blocks now have base playback rates that are then compounded by parents
+  // CHANGE NOTE: sequences, and clips now have base playback rates that are then compounded by parents
   setPlaybackRate(rate: number): this {
     this.playbackRate = rate;
     // set playback rates of currently running animations so that they don't continue to run at regular speed
