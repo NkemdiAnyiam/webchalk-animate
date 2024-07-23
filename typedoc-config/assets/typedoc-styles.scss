@@ -75,7 +75,7 @@ body {
         row-gap: 0.2rem;
 
         li {
-          & > span +.tsd-comment:has(+.tsd-comment) {
+          & > span +.tsd-comment:has(> p) {
             // color: var(--color-accent);
             margin-top: -0.8rem;
           }
