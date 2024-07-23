@@ -244,6 +244,13 @@ export class WebFlikAnimation extends Animation {
   }
 
   // accepts a time to wait for (converted to an endDelay) and returns a Promise that is resolved at that time
+  /**
+   * Accepts a time relative to the beginning of a phase of the animation and returns a Promise that is resolved at the time.
+   * @param direction - what direction the animation should be going in when the Promise is resolved
+   * @param phase - the phase of the animation to listen for
+   * @param timePosition - the temporal position within the phase when the Promise should be resolved
+   * @returns a Promise that is resolved at the specific time point of the animation
+   */
   generateTimePromise(
     direction: 'forward' | 'backward',
     phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
