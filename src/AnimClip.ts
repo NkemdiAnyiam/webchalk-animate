@@ -621,6 +621,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     };
 
     return promise.catch((err) => {
+      this.root.pause();
       throw err;
     })
   }
