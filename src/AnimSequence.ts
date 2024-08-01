@@ -52,6 +52,7 @@ export class AnimSequence implements AnimSequenceConfig {
   
   readonly id: number;
   /**@internal*/ _parentTimeline?: AnimTimeline; // pointer to parent AnimTimeline
+  get root(): AnimTimeline | AnimSequence { return this.parentTimeline ?? this; }
   get parentTimeline() { return this._parentTimeline; }
   /**@internal*/ description: string = '<blank sequence description>';
   /**@internal*/ tag: string = ''; // helps idenfity current AnimSequence for using AnimTimeline's jumpToSequenceTag()

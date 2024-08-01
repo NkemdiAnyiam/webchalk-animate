@@ -27,6 +27,7 @@ export class AnimTimeline {
   private static id = 0;
 
   readonly id; // used to uniquely identify this specific timeline
+  get root(): AnimTimeline { return this; }
   /**@internal*/ animSequences: AnimSequence[] = []; // array of every AnimSequence in this timeline
   /**@internal*/ loadedSeqIndex = 0; // index into animSequences
   /**@internal*/ isAnimating = false; // true if currently in the middle of executing animations; false otherwise
