@@ -69,8 +69,8 @@ export const errorTip = (tip: string) => {
 };
 
 export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg = '<unspecified error>', components = {}) => {
-  const {timeline, sequence, clip, element} = components!;
-  const postfix = (
+  const {timeline, sequence, clip, element} = components;
+  const locationPostfix = (
     `\n\n${'-'.repeat(25)}LOCATION${'-'.repeat(25)}` +
     (timeline
       ? `\nTimeline: [Timeline Name: ${timeline.config.timelineName}]` +
@@ -93,8 +93,8 @@ export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg =
     `\n${'-'.repeat(58)}`
   );
   if (ErrorClassOrInstance instanceof Error) {
-    ErrorClassOrInstance.message += postfix;
-    return ErrorClassOrInstance;
+    /** @ts-ignore */
+    return (new ErrorClassOrInstance.constructor(ErrorClassOrInstance.message + locationPostfix, {cause: ErrorClassOrInstance}));
   }
-  return new ErrorClassOrInstance(`${msg}` + postfix);
+  return new ErrorClassOrInstance(`${msg}` + locationPostfix);
 };
