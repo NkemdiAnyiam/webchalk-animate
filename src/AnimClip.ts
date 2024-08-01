@@ -650,7 +650,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   }
 
   private throwChildPlaybackError(funcName: string): never {
-    throw this.generateError(CustomErrors.ChildPlaybackError, `Cannot directly call ${funcName}() on an animation clip while is is part of a sequence.`);
+    throw this.generateError(CustomErrors.ChildPlaybackError, `Cannot directly call ${funcName}() on an animation clip while it is part of a sequence.`);
   }
 
   protected preventConnector() {
