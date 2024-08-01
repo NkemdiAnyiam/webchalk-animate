@@ -46,11 +46,6 @@ export class WebFlikAnimation extends Animation {
   pauseForRoadblocks: Function = () => { throw new Error(`This should never be called before being defined by parent clip`); };
   unpauseFromRoadblocks: Function = () => { throw new Error(`This should never be called before being defined by parent clip`); };
 
-  get parentTimeline(): AnimTimeline | undefined { return this._timeline; }
-  set parentTimeline(timeline: AnimTimeline | undefined) { this._timeline = timeline; }
-  get parentSequence(): AnimSequence | undefined { return this._sequence; }
-  set parentSequence(sequence: AnimSequence | undefined) { this._sequence = sequence; }
-
   constructor(private forwardEffect: KeyframeEffect, private backwardEffect: KeyframeEffect, private errorGenerator: ClipErrorGenerator) {
     super();
 

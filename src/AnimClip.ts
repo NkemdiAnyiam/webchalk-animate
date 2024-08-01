@@ -69,6 +69,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**@internal*/ _parentTimeline?: AnimTimeline;
   get parentSequence() { return this._parentSequence; }
   get parentTimeline() { return this._parentTimeline; }
+  get root(): AnimTimeline | AnimSequence | AnimClip { return this.parentTimeline ?? this.parentSequence ?? this; }
   protected animation: WebFlikAnimation = {} as WebFlikAnimation;
   public abstract get category(): EffectCategory;
   effectName: string;
@@ -182,8 +183,8 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /*****************************************************************************************************************************/
   /**@internal*/
   setLineage(sequence: AnimSequence, timeline: AnimTimeline | undefined): void {
-    [this._parentSequence, this._parentTimeline] = [sequence, timeline];
-    [this.animation.parentSequence, this.animation.parentTimeline] = [sequence, timeline];
+    this._parentSequence = sequence;
+    this._parentTimeline = timeline;
   }
 
   constructor(domElem: Element | null | undefined, effectName: string, bank: EffectGeneratorBank) {
@@ -291,14 +292,10 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
     // TODO: Figure out how to disable any pausing/stepping functionality in the timeline while stopped for roadblocks
     this.animation.pauseForRoadblocks = () => {
-      if (this._parentTimeline) { this._parentTimeline.pause(); }
-      else if (this._parentSequence) { this._parentSequence.pause(); }
-      else { this.pause(); }
+      this.root.pause();
     }
     this.animation.unpauseFromRoadblocks = () => {
-      if (this._parentTimeline) { this._parentTimeline.unpause(); }
-      else if (this._parentSequence) { this._parentSequence.unpause(); }
-      else { this.unpause(); }
+      this.root.unpause();
     }
 
     return this;
