@@ -32,7 +32,7 @@ const ent = Entrance(square, '~appear', []);
 
 console.log(ent.generateTimePromise === ent.generateTimePromise);
 
-const entrance = Entrance(square, '~fade-in', [], {duration: 2000, hideNowType: 'display-none'});
+const entrance = Entrance(square, '~fly-in', ['from-'], {duration: 2000, hideNowType: 'display-none'});
 const motion = Motion(square, '~translate', [{translate: '200px, 200px'}], {duration: 2000});
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -89,10 +89,10 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   //   console.log('WE BACK')
   // });
 
-  const timeline = WebFlik.newTimeline().addSequences(seq);
+  const timeline = WebFlik.newTimeline({timelineName: 'Basic'}).addSequences(seq);
 
   timeline.step('forward');
-  timeline.toggleSkipping({forceState: 'on'}).then(() => {
-    console.log('HEY, EVERYONE!!!');
-  })
+  // timeline.toggleSkipping({forceState: 'on'}).then(() => {
+  //   console.log('HEY, EVERYONE!!!');
+  // })
 })()

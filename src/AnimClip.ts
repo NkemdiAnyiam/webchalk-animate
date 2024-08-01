@@ -468,135 +468,147 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     // After delay phase, then apply class modifications and call onStart functions.
     // Additionally, generate keyframes on 'forward' if keyframe pregeneration is disabled.
     animation.onDelayFinish = () => {
-      const bankEntry = this.effectGenerator;
+      try {
+        const bankEntry = this.effectGenerator;
 
-      switch(direction) {
-        case 'forward':
-          this.domElem.classList.add(...this.cssClasses.toAddOnStart);
-          this.domElem.classList.remove(...this.cssClasses.toRemoveOnStart);
-          this._onStartForward();
-  
-          // If keyframes were not pregenerated, generate them now
-          // Keyframe generation is done here so that generations operations that rely on the side effects of class modifications and _onStartForward()...
-          // ...can function properly.
-          if (!this.runGeneratorsNow) {
-            try {
-              // if generateKeyframes() is the method of generation, generate f-ward and b-ward frames
-              if (bankEntry.generateKeyframes) {
-                let [forwardFrames, backwardFrames] = bankEntry.generateKeyframes.call(this, ...this.effectOptions);
-                animation.setForwardAndBackwardFrames(forwardFrames, backwardFrames ?? [...forwardFrames], backwardFrames ? false : true);
+        switch(direction) {
+          case 'forward':
+            this.domElem.classList.add(...this.cssClasses.toAddOnStart);
+            this.domElem.classList.remove(...this.cssClasses.toRemoveOnStart);
+            this._onStartForward();
+            
+            // If keyframes were not pregenerated, generate them now
+            // Keyframe generation is done here so that generations operations that rely on the side effects of class modifications and _onStartForward()...
+            // ...can function properly.
+            if (!this.runGeneratorsNow) {
+              try {
+                // if generateKeyframes() is the method of generation, generate f-ward and b-ward frames
+                if (bankEntry.generateKeyframes) {
+                  let [forwardFrames, backwardFrames] = bankEntry.generateKeyframes.call(this, ...this.effectOptions);
+                  animation.setForwardAndBackwardFrames(forwardFrames, backwardFrames ?? [...forwardFrames], backwardFrames ? false : true);
+                }
+                // if generateKeyframeGenerators() is the method of generation, generate f-ward frames
+                else if (bankEntry.generateKeyframeGenerators) {
+                  animation.setForwardFrames(this.keyframesGenerators!.forwardGenerator());
+                }
+                // if generateRafMutators() is the method of generation, generate f-ward and b-ward mutators
+                else if (bankEntry.generateRafMutators) {
+                  const [forwardMutator, backwardMutator] = bankEntry.generateRafMutators.call(this, ...this.effectOptions);
+                  this.rafMutators = { forwardMutator, backwardMutator };
+                }
+                // if generateRafMutatorGenerators() is the method of generation, generate f-ward mutator
+                else {
+                  const forwardMutator = this.rafMutatorGenerators!.forwardGenerator();
+                  this.rafMutators = { forwardMutator, backwardMutator(){} };
+                }
               }
-              // if generateKeyframeGenerators() is the method of generation, generate f-ward frames
-              else if (bankEntry.generateKeyframeGenerators) {
-                animation.setForwardFrames(this.keyframesGenerators!.forwardGenerator());
-              }
-              // if generateRafMutators() is the method of generation, generate f-ward and b-ward mutators
-              else if (bankEntry.generateRafMutators) {
-                const [forwardMutator, backwardMutator] = bankEntry.generateRafMutators.call(this, ...this.effectOptions);
-                this.rafMutators = { forwardMutator, backwardMutator };
-              }
-              // if generateRafMutatorGenerators() is the method of generation, generate f-ward mutator
-              else {
-                const forwardMutator = this.rafMutatorGenerators!.forwardGenerator();
-                this.rafMutators = { forwardMutator, backwardMutator(){} };
+              catch (err: unknown) {
+                throw this.generateError(err as Error);
               }
             }
-            catch (err: unknown) { throw this.generateError(err as Error); }
-          }
 
-          if (bankEntry.generateRafMutators || bankEntry.generateRafMutatorGenerators) { requestAnimationFrame(this.loop); }
+            if (bankEntry.generateRafMutators || bankEntry.generateRafMutatorGenerators) { requestAnimationFrame(this.loop); }
 
-          // sets it back to 'forwards' in case it was set to 'none' in a previous running
-          animation.effect?.updateTiming({fill: 'forwards'});
-          break;
-  
-        case 'backward':
-          this._onStartBackward();
-          this.domElem.classList.add(...this.cssClasses.toRemoveOnFinish);
-          this.domElem.classList.remove(...this.cssClasses.toAddOnFinish);
+            // sets it back to 'forwards' in case it was set to 'none' in a previous running
+            animation.effect?.updateTiming({fill: 'forwards'});
+            break;
+    
+          case 'backward':
+            this._onStartBackward();
+            this.domElem.classList.add(...this.cssClasses.toRemoveOnFinish);
+            this.domElem.classList.remove(...this.cssClasses.toAddOnFinish);
 
-          if (!this.runGeneratorsNow) {
-            try {
-              if (bankEntry.generateKeyframes) {
-                // do nothing (backward keyframes would have already been set during forward direction)
+            if (!this.runGeneratorsNow) {
+              try {
+                if (bankEntry.generateKeyframes) {
+                  // do nothing (backward keyframes would have already been set during forward direction)
+                }
+                else if (bankEntry.generateKeyframeGenerators) {
+                  const {forwardGenerator, backwardGenerator} = this.keyframesGenerators!;
+                  this.animation.setBackwardFrames(backwardGenerator?.() ?? forwardGenerator(), backwardGenerator ? false : true);
+                }
+                else if (bankEntry.generateRafMutators) {
+                  // do nothing (backward mutator would have already been set during forward direction)
+                }
+                else {
+                  const backwardMutator = this.rafMutatorGenerators!.backwardGenerator();
+                  this.rafMutators = { forwardMutator(){}, backwardMutator };
+                }
               }
-              else if (bankEntry.generateKeyframeGenerators) {
-                const {forwardGenerator, backwardGenerator} = this.keyframesGenerators!;
-                this.animation.setBackwardFrames(backwardGenerator?.() ?? forwardGenerator(), backwardGenerator ? false : true);
-              }
-              else if (bankEntry.generateRafMutators) {
-                // do nothing (backward mutator would have already been set during forward direction)
-              }
-              else {
-                const backwardMutator = this.rafMutatorGenerators!.backwardGenerator();
-                this.rafMutators = { forwardMutator(){}, backwardMutator };
-              }
+              catch (err: unknown) { throw this.generateError(err as Error); }
             }
-            catch (err: unknown) { throw this.generateError(err as Error); }
-          }
 
-          if (bankEntry.generateRafMutators || bankEntry.generateRafMutatorGenerators) { requestAnimationFrame(this.loop); }
-          break;
-  
-        default:
-          throw this.generateError(RangeError, `Invalid direction "${direction}" passed to animate(). Must be "forward" or "backward".`);
+            if (bankEntry.generateRafMutators || bankEntry.generateRafMutatorGenerators) { requestAnimationFrame(this.loop); }
+            break;
+    
+          default:
+            throw this.generateError(RangeError, `Invalid direction "${direction}" passed to animate(). Must be "forward" or "backward".`);
+        }
+      }
+      catch(err: unknown) {
+        reject(err);
       }
     };
 
     // After active phase, then handle commit settings, apply class modifications, and call onFinish functions.
     animation.onActiveFinish = () => {
       // CHANGE NOTE: Move hidden class stuff here
-      if (this.commitsStyles || this.commitStylesForcefully) {
-        // Attempt to apply the styles to the element.
-        try {
-          animation.commitStyles();
-          // ensures that accumulating effects are not stacked after commitStyles() (hopefully, new spec will prevent the need for this workaround)
-          animation.effect?.updateTiming({ fill: 'none' });
-        }
-        // If commitStyles() fails, it's because the element is not rendered.
-        catch (_) {
-          // If forced commit is disabled, do not re-attempt to commit the styles; throw error instead.
-          if (!this.commitStylesForcefully) {
-            reject(this.generateError(CustomErrors.CommitStylesError,
-              `Cannot commit animation styles while element is not rendered.` +
-              ` To temporarily (instantly) override the hidden state, set the 'commitStylesForcefully' config option to true` +
-              ` (however, if the element's ancestor is unrendered, this will still fail).` +
-              `${errorTip(
-                `Tip: By default, Exit()'s config option for 'exitType' is set to "display-none", which unrenders the element.` +
-                ` To just make the element invisible, set 'exitType' to "visibility-hidden".` +
-                `\nExample: Exit(elem, 'fade-out', [], {exitType: "visibility-hidden"})`
-              )}`
-            ));
-          }
-
-          // If forced commit is enabled, attempt to override the hidden state and apply the style.
+      try {
+        if (this.commitsStyles || this.commitStylesForcefully) {
+          // Attempt to apply the styles to the element.
           try {
-            this.domElem.classList.add('wbfk-override-hidden'); // CHANGE NOTE: Use new hidden classes
             animation.commitStyles();
+            // ensures that accumulating effects are not stacked after commitStyles() (hopefully, new spec will prevent the need for this workaround)
             animation.effect?.updateTiming({ fill: 'none' });
-            this.domElem.classList.remove('wbfk-override-hidden');
           }
-          // If this fails, then the element's parent is hidden. Do not attempt to remedy; throw error instead.
-          catch (err) {
-            reject(this.generateError(CustomErrors.CommitStylesError,
-              `Failed to commit styles by overriding element's hidden state with 'commitStylesAttemptForcefully'.` +
-              ` Cannot commit styles if element is unrendered because of an unrendered ancestor.`
-            ));
+          // If commitStyles() fails, it's because the element is not rendered.
+          catch (_) {
+            // If forced commit is disabled, do not re-attempt to commit the styles; throw error instead.
+            if (!this.commitStylesForcefully) {
+              throw this.generateError(CustomErrors.CommitStylesError,
+                `Cannot commit animation styles while element is not rendered.` +
+                ` To temporarily (instantly) override the hidden state, set the 'commitStylesForcefully' config option to true` +
+                ` (however, if the element's ancestor is unrendered, this will still fail).` +
+                `${errorTip(
+                  `Tip: By default, Exit()'s config option for 'exitType' is set to "display-none", which unrenders the element.` +
+                  ` To just make the element invisible, set 'exitType' to "visibility-hidden".` +
+                  `\nExample: Exit(elem, 'fade-out', [], {exitType: "visibility-hidden"})`
+                )}`
+              );
+            }
+  
+            // If forced commit is enabled, attempt to override the hidden state and apply the style.
+            try {
+              this.domElem.classList.add('wbfk-override-hidden'); // CHANGE NOTE: Use new hidden classes
+              animation.commitStyles();
+              animation.effect?.updateTiming({ fill: 'none' });
+              this.domElem.classList.remove('wbfk-override-hidden');
+            }
+            // If this fails, then the element's parent is hidden. Do not attempt to remedy; throw error instead.
+            catch (err: unknown) {
+              throw this.generateError(CustomErrors.CommitStylesError,
+                `Failed to commit styles by overriding element's hidden state with 'commitStylesAttemptForcefully'.` +
+                ` Cannot commit styles if element is unrendered because of an unrendered ancestor.`
+              );
+            }
           }
+        }
+  
+        switch(direction) {
+          case 'forward':
+            this.domElem.classList.add(...this.cssClasses.toAddOnFinish);
+            this.domElem.classList.remove(...this.cssClasses.toRemoveOnFinish);
+            this._onFinishForward();
+            break;
+          case 'backward':
+            this._onFinishBackward();
+            this.domElem.classList.add(...this.cssClasses.toRemoveOnStart);
+            this.domElem.classList.remove(...this.cssClasses.toAddOnStart);
+            break;
         }
       }
-
-      switch(direction) {
-        case 'forward':
-          this.domElem.classList.add(...this.cssClasses.toAddOnFinish);
-          this.domElem.classList.remove(...this.cssClasses.toRemoveOnFinish);
-          this._onFinishForward();
-          break;
-        case 'backward':
-          this._onFinishBackward();
-          this.domElem.classList.add(...this.cssClasses.toRemoveOnStart);
-          this.domElem.classList.remove(...this.cssClasses.toAddOnStart);
-          break;
+      catch (err: unknown) {
+        reject(err);
       }
     };
     
@@ -608,7 +620,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       resolve(this);
     };
 
-    return promise;
+    return promise.catch((err) => {
+      throw err;
+    })
   }
 
   private loop = (): void => {
