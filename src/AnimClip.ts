@@ -133,6 +133,26 @@ export type AnimClipTiming = Pick<AnimClipConfig,
   compoundedPlaybackRate: AnimClip['compoundedPlaybackRate'];
 }
 
+export type EffectDetails = {
+  /**
+   * Name of the animation effect.
+   */
+  effectName: AnimClip['effectName'];
+  /**
+   * Generator containing the function used to generate the effect and
+   * possibly a set of default configuration options for the effect.
+   */
+  effectGenerator: AnimClip['effectGenerator'];
+  /**
+   * An array containing the effect options used to set the behavior of the animation effect.
+   */
+  effectOptions: AnimClip['effectOptions'];
+  /**
+   * The category of the effect (e.g., `"Entrance"`, `"Exit"`, `"Motion"`, etc.).
+   */
+  category: AnimClip['category'];
+}
+
 export abstract class AnimClip<TEffectGenerator extends EffectGenerator = EffectGenerator> implements AnimClipConfig {
   private static id: number = 0;
   public static get emptyEffectGenerator() { return {generateKeyframes() { return [[], []]; }} as EffectGenerator; }
@@ -144,12 +164,15 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   get parentSequence() { return this._parentSequence; }
   get parentTimeline() { return this._parentTimeline; }
   get root(): AnimTimeline | AnimSequence | AnimClip { return this.parentTimeline ?? this.parentSequence ?? this; }
-  protected animation: WebFlikAnimation = {} as WebFlikAnimation;
-  public abstract get category(): EffectCategory;
-  effectName: string;
-  effectGenerator: TEffectGenerator;
-  effectOptions: EffectOptions<TEffectGenerator> = {} as EffectOptions<TEffectGenerator>;
-  domElem: Element;
+  protected abstract get category(): EffectCategory;
+  protected effectName: string;
+  protected effectGenerator: TEffectGenerator;
+  protected effectOptions: EffectOptions<TEffectGenerator> = {} as EffectOptions<TEffectGenerator>;
+  /**
+   * The DOM element that is to be animated.
+  */
+ readonly domElem: Element;
+ protected animation: WebFlikAnimation = {} as WebFlikAnimation;
   /**@internal*/
   keyframesGenerators?: {
     forwardGenerator: () => Keyframe[];
@@ -199,6 +222,36 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**@internal*/ get activeStartTime() { return (this.fullStartTime + this.delay) / this.playbackRate; }
   /**@internal*/ get activeFinishTime() { return( this.fullStartTime + this.delay + this.duration) / this.playbackRate; }
   /**@internal*/ get fullFinishTime() { return (this.fullStartTime + this.delay + this.duration + this.endDelay) / this.playbackRate; }
+
+  private getPartial<Source, T extends (keyof Source)[] = (keyof Source)[]>(propNames: (keyof Source)[] | T): PickFromArray<Source, T> {
+    return Object.fromEntries(
+      Object.entries(this)
+        .filter(([key, _]) => propNames.includes(key as keyof Source))
+    ) as Pick<Source, keyof Source>;
+  }
+
+  getEffectDetails(): EffectDetails;
+  getEffectDetails<T extends keyof EffectDetails>(propName: T): EffectDetails[T];
+  getEffectDetails<T extends (keyof EffectDetails)[]>(propNames: (keyof EffectDetails)[] | T): PickFromArray<EffectDetails, T>;
+  getEffectDetails(specifics?: keyof EffectDetails | (keyof EffectDetails)[]):
+    | EffectDetails
+    | EffectDetails[keyof EffectDetails]
+    | Partial<Pick<EffectDetails, keyof EffectDetails>>
+  {
+    if (typeof specifics === 'string') {
+      return this[specifics];
+    }
+    if (specifics instanceof Array) {
+      return this.getPartial<EffectDetails>(specifics);
+    }
+
+    return {
+      category: this.category,
+      effectName: this.effectName,
+      effectGenerator: this.effectGenerator,
+      effectOptions: this.effectOptions,
+    }
+  }
 
   getTiming(): AnimClipTiming;
   getTiming<T extends keyof AnimClipTiming>(propName: T): AnimClipTiming[T];

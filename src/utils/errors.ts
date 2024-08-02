@@ -86,7 +86,7 @@ export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg =
       : ''
     ) +
     (clip
-      ? `\nClip:     [Category: ${clip.category}] [Effect: ${clip.effectName}]` +
+      ? `\nClip:     [Category: ${clip.getEffectDetails('category')}] [Effect: ${clip.getEffectDetails('effectName')}]` +
         `\nDOM Tag:  ${getOpeningTag(element)}`
       : ''
     ) +

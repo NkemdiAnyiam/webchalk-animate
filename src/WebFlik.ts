@@ -70,7 +70,7 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
 // represents an object where every string key is paired with a EffectGenerator value
 export type EffectGeneratorBank<TClip extends AnimClip = AnimClip, TClipConfig extends {} = AnimClipConfig, IncludeGeneratorExtras extends boolean = true> = ReadonlyRecord<
   string, 
-  EffectGenerator<ReadonlyPick<TClip, 'effectName' | 'domElem'>, TClipConfig, IncludeGeneratorExtras>
+  EffectGenerator<ReadonlyPick<TClip, 'domElem' | 'getEffectDetails'>, TClipConfig, IncludeGeneratorExtras>
 >;
 
 export type EffectOptions<TEffectGenerator extends EffectGenerator> = Parameters<

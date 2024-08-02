@@ -12,7 +12,7 @@ export type EntranceClipConfig = AnimClipConfig & {
   hideNowType: 'display-none' | 'visibility-hidden' | null;
 };
 export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip, EntranceClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator> {
-  get category(): 'Entrance' { return 'Entrance'; }
+  protected get category(): 'Entrance' { return 'Entrance'; }
   private backwardsHidingMethod: ExitClipConfig['exitType'] = '' as ExitClipConfig['exitType'];
 
   protected get defaultConfig(): Partial<EntranceClipConfig> {
@@ -103,7 +103,7 @@ export type ExitClipConfig = AnimClipConfig & {
 };
 // TODO: prevent already hidden clips from being allowed to use exit animation
 export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator> {
-  get category(): 'Exit' { return 'Exit'; }
+  protected get category(): 'Exit' { return 'Exit'; }
   private exitType: ExitClipConfig['exitType'] = '' as ExitClipConfig['exitType'];
 
   protected get defaultConfig(): Partial<ExitClipConfig> {
@@ -153,7 +153,7 @@ export type EmphasisClipConfig = AnimClipConfig & {
   
 };
 export class EmphasisClip<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimClip<TEffectGenerator> {
-  public get category(): 'Emphasis' { return 'Emphasis'; }
+  protected get category(): 'Emphasis' { return 'Emphasis'; }
   protected get defaultConfig(): Partial<EmphasisClipConfig> {
     return {};
   }
@@ -166,7 +166,7 @@ export type MotionClipConfig = AnimClipConfig & {
   
 };
 export class MotionClip<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimClip<TEffectGenerator> {
-  public get category(): 'Motion' { return 'Motion'; }
+  protected get category(): 'Motion' { return 'Motion'; }
   protected get defaultConfig(): Partial<MotionClipConfig> {
     return {
       composite: 'accumulate',
@@ -182,7 +182,7 @@ export type ScrollerClipConfig = AnimClipConfig & {
 };
 // TODO: implement rewindScrollBehavior: 'prior-user-position' | 'prior-scroll-target' = 'prior-scroll-target'
 export class ScrollerClip<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimClip<TEffectGenerator> {
-  public get category(): 'Scroller' { return 'Scroller'; }
+  protected get category(): 'Scroller' { return 'Scroller'; }
   protected get defaultConfig(): Partial<ScrollerClipConfig> {
     return {
       commitsStyles: false,
@@ -197,7 +197,7 @@ export type TransitionClipConfig = AnimClipConfig & {
   removeInlineStylesOnFinish: boolean;
 }
 export class TransitionClip<TEffectGenerator extends EffectGenerator<TransitionClip, TransitionClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator> {
-  public get category(): 'Transition' { return 'Transition'; }
+  protected get category(): 'Transition' { return 'Transition'; }
   // determines whether properties affected by this transition should be removed from inline style upon finishing animation
   private removeInlineStyleOnFinish: boolean = false;
 
@@ -228,7 +228,7 @@ export type ConnectorSetterClipConfig = AnimClipConfig & {
   
 };
 export class ConnectorSetterClip extends AnimClip {
-  public get category(): 'Connector Setter' { return 'Connector Setter'; }
+  protected get category(): 'Connector Setter' { return 'Connector Setter'; }
   domElem: WbfkConnector;
   previousPointA?: [elemA: Element, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
   previousPointB?: [elemB: Element, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
@@ -304,7 +304,7 @@ export type ConnectorEntranceClipConfig = AnimClipConfig & {
   
 };
 export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimClip<TEffectGenerator> {
-  public get category(): 'Connector Entrance' { return 'Connector Entrance'; }
+  protected get category(): 'Connector Entrance' { return 'Connector Entrance'; }
   domElem: WbfkConnector;
 
   protected get defaultConfig(): Partial<ConnectorEntranceClipConfig> {
@@ -342,7 +342,7 @@ export type ConnectorExitClipConfig = AnimClipConfig & {
   
 };
 export class ConnectorExitClip<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimClip<TEffectGenerator> {
-  public get category(): 'Connector Exit' { return 'Connector Exit'; }
+  protected get category(): 'Connector Exit' { return 'Connector Exit'; }
   domElem: WbfkConnector;
 
   protected get defaultConfig(): Partial<ConnectorExitClipConfig> {
