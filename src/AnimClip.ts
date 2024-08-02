@@ -502,6 +502,30 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * @param phase - the phase of the animation to listen for
    * @param timePosition - the temporal position within the phase when the Promise should be resolved
    * @returns a Promise that is resolved at the specific time point of the animation
+   * 
+   * @example
+   * ```ts
+   * async function testFunc() {
+   *    const ent = Entrance(<...>);
+   *    // wait until ent is played and gets 1/5 of the way through the active phase of the animation
+   *    await ent.generateTimePromise('forward', 'activePhase', '20%');
+   *    console.log('1/5 done playing!');
+   * }
+   * 
+   * testFunc();
+   * ```
+   * 
+   * @example
+   * ```ts
+   * async function testFunc() {
+   *    const ent = Entrance(<...>);
+   *    // wait until ent is eventually rewound and gets 4/5 of the way through rewinding the active phase of the animation
+   *    await ent.generateTimePromise('backward', 'activePhase', '20%');
+   *    console.log('4/5 done rewinding!');
+   * }
+   * 
+   * testFunc();
+   * ```
    */
   generateTimePromise(
     direction: 'forward' | 'backward',
@@ -530,6 +554,30 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * @param timePosition - the temporal position within the phase when the roadblock should be encountered
    * @param promises - an array of promises or functions that return promises that block the clip's playback until resolved
    * @returns {void}
+   * 
+   * @example
+   * ```ts
+   * async function wait(milliseconds: number) { // Promise-based timer
+   *    return new Promise(resolve => setTimeout(resolve, milliseconds));
+   * }
+   * const ent = Entrance(<...>);
+   * // adds 1 roadblock that will pause the clip once the clip is 15% through the delay phase
+   * ent.addRoadblocks('forward', 'activePhase', '15%', [function() { return wait(2000); }]);
+   * // adds 2 more roadblocks at the same point.
+   * ent.addRoadblocks('forward', 'activePhase', '15%', [function() { return wait(3000); }, someOtherPromise]);
+   * 
+   * // adds 1 roadblock at 40% into the endDelay phase
+   * ent.addRoadblocks('forward', 'endDelayPhase', '40%', [new Promise()]);
+   * 
+   * // Once ent is 15% through the active phase, it will pause and handle its roadblocks
+   * // "wait(2000)" resolves after 2 seconds
+   * // "wait(3000)" resolves after 3 seconds
+   * // someOtherPromise blocks the clip's playback. Presumably, its resolver is eventually called from somewhere outside.
+   * // Once someOtherPromise is resolved, there are no more roadblocks at this point, so playback is resumed.
+   * // Once ent is 40% through the endDelay phase, it will pause and handle its roadblocks
+   * // The newly created promise obviously has no way to be resolved, so the clip is unfortunately stuck
+   * ent.play();
+   * ```
    */
   addRoadblocks(
     direction: 'forward' | 'backward',
