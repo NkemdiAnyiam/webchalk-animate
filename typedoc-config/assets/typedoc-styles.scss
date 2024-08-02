@@ -7,12 +7,31 @@
   src: url('./fonts/Filson-Pro-Regular.otf'); /* Locate the .ttf file within your directory*/
 }
 
+:root {
+  --light-name: #bb33bb;
+  --dark-name: #ffff99;
+
+  @media (prefers-color-scheme: light) {
+    --color-member-name: var(--light-name);
+  }
+  @media (prefers-color-scheme: dark) {
+    --color-member-name: var(--dark-name);
+  }
+
+  &[data-theme="light"] {
+    --color-member-name: var(--light-name);
+  }
+  &[data-theme="dark"] {
+    --color-member-name: var(--dark-name);
+  }
+}
+
 body {
   font-family: 'Fira Code' !important;
 }
 
 .tsd-comment,
-.tsd-returns-title +p {
+.tsd-returns-title + p {
   font-family: 'Filson Pro Regular';
   color: var(--color-text-aside);
 }
@@ -47,6 +66,19 @@ body {
         border-width: 2px;
       }
     }
+  }
+
+}
+
+h3.tsd-anchor-link {
+  color: var(--color-member-name);
+}
+
+h4.tsd-anchor-link:has(+ *) {
+  margin-bottom: unset;
+
+  + * {
+    margin-top: unset;
   }
 }
 
