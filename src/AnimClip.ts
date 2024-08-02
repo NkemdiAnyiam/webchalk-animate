@@ -15,29 +15,91 @@ type CssClassOptions = {
    * List of CSS classes to add to the element when the clip finishes playing.
    */
   toAddOnFinish: string[];
+  /**
+   * List of CSS classes to add to the element when the clip starts playing.
+   */
   toAddOnStart: string[];
+  /**
+   * List of CSS classes to remove from the element when the clip finishes playing.
+   */
   toRemoveOnFinish: string[];
+  /**
+   * List of CSS classes to remove from the element when the clip starts playing.
+   */
   toRemoveOnStart: string[];
 };
 
 export type CustomKeyframeEffectOptions = {
   /**
-   * Description for startsNextClipToo
+   * If ```true```, the next clip in the same sequence will play at the same time as this clip.
+   * - If this clip is not part of a sequence or is at the end of a sequence, this option has no effect.
    */
   startsNextClipToo: boolean;
+  /**
+   * If ```true```, this clip will play at the same time as the previous clip in the same sequence.
+   * - If this clip is not part of a sequence or is at the beginning of a sequence, this option has no effect.
+   */
   startsWithPrevious: boolean;
+  /**
+   * If ```true```, the effects of the animation will persist after the clip finishes.
+   * - If the element is not rendered by the time the clip finishes, an error will be thrown.
+   */
   commitsStyles: boolean;
+  /**
+   * If ```true```, the effects of the animation will persist after the clip finishes.
+   * If the element is not rendered by the time the clip finishes, we attempt to forcefully unhide the element,
+   * apply the styles, then re-hide it.
+   * - If this fails (likely because the element's parent is not rendered, meaning our element cannot be unhidden), an error will be thrown.
+   */
   commitStylesForcefully: boolean; // attempt to unhide, commit, then re-hide
+  /**
+   * Resolves how an element's animation impacts its underlying property values.
+   * @see [KeyframeEffect: composite property](https://developer.mozilla.org/en-US/docs/Web/API/KeyframeEffect/composite)
+   */
   composite: CompositeOperation;
+  /**
+   * Contains arrays of CSS classes that should be added to or removed from the element.
+   * - The list of classes to add are added first, and then the list of classes to remove are removed.
+   * - Changes are automatically undone in the appropriate order when the clip is rewound.
+   */
   cssClasses: Partial<CssClassOptions>;
+  /**
+   * If ```true```, the animation's effect is one-time generated as soon as the clip is instantiated.
+   * The result is then used upon every subsequent play/rewind.
+   * 
+   * If ```false```, the animation's effect is recomputed every time the clip is played or rewound.
+   */
   runGeneratorsNow: boolean;
 }
 
 type KeyframeTimingOptions = {
+  /**
+   * The number of milliseconds the active phase of the animation takes to complete.
+   * - This refers to the actual effect of the animation, not the delay or endDelay.
+   */
   duration: number;
+  /**
+   * The rate of the animation's change over time.
+   * - Accepts a typical <easing-function>, such as "linear", "ease-in", "step-end", "cubic-bezier(0.42, 0, 0.58, 1)", etc.
+   * - Also accepts preset easing strings (such as "bounce-in", "power-1-out", etc.) that produce different easing effects using linear functions.
+   */
   easing: EasingString;
+  /**
+   * The base playback rate of the animation (ignoring any multipliers from a parent sequence/timeline).
+   * - Example: A value of 1 means 100% (the typical playback rate), and 0.5 means 50% speed.
+   * - Example: If the playback rate of the parent sequence is 4 and the playbackRate of this clip is 5,
+   * the playbackRate property is still 5, but the clip would run at 4 * 5 = 20x speed.
+   */
   playbackRate: number;
+  /**
+   * The number of milliseconds the delay phase of the animation takes to complete.
+   * - This refers to the time before the active phase of the animation starts (i.e., before the animation effect begins)
+   */
   delay: number;
+  /**
+   * The number of milliseconds the endDelay phase of the animation takes to complete.
+   * - This refers to the time after the active phase of the animation end (i.e., after the animation effect has finished).
+   */
   endDelay: number;
 }
 
@@ -59,6 +121,11 @@ export type AnimClipTiming = Pick<AnimClipConfig,
   | 'playbackRate'
   | 'runGeneratorsNow'
 > & {
+  /**
+   * The actual playback rate of the animation after the playback rates of any parents are taken into account.
+   * - Example: If the playback rate of the parent sequence is 4 and the playbackRate rate of this clip is 5,
+   * the compoundedPlaybackRate will be 4 * 5 = 20.
+   */
   compoundedPlaybackRate: AnimClip['compoundedPlaybackRate'];
 }
 
