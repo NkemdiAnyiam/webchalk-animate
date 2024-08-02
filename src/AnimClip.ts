@@ -81,7 +81,8 @@ type KeyframeTimingOptions = {
   /**
    * The rate of the animation's change over time.
    * - Accepts a typical <easing-function>, such as "linear", "ease-in", "step-end", "cubic-bezier(0.42, 0, 0.58, 1)", etc.
-   * - Also accepts preset easing strings (such as "bounce-in", "power-1-out", etc.) that produce different easing effects using linear functions.
+   * - Also accepts autocompleted preset strings (such as "bounce-in", "power-1-out", etc.)
+   * that produce preset easing effects using linear functions.
    */
   easing: EasingString;
   /**
