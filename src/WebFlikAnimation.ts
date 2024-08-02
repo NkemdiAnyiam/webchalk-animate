@@ -237,6 +237,7 @@ export class WebFlikAnimation extends Animation {
     }
   }
 
+  // accepts a time to wait for (converted to an endDelay) and returns a Promise that is resolved at that time
   generateTimePromise<T extends Parameters<AnimClip['generateTimePromise']>>(direction: T[0], phase: T[1], timePosition: T[2]): Promise<void> {
     return new Promise(resolve => {
       // if the animation is already finished in the given direction, resolve immediately
@@ -287,20 +288,20 @@ export class WebFlikAnimation extends Animation {
   }
 
   /**@internal*/
-  addIntegrityblocks(
-    direction: 'forward' | 'backward',
-    phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
-    timePosition: number | 'beginning' | 'end' | `${number}%`,
-    promises: (Promise<unknown> | (() => Promise<unknown>))[]
+  addIntegrityblocks<T extends Parameters<AnimClip['addIntegrityblocks']>>(
+    direction: T[0],
+    phase: T[1],
+    timePosition: T[2],
+    promises: T[3]
   ): void {
     this.addAwaiteds(direction, phase, timePosition, 'integrityblock', promises);
   }
 
-  addRoadblocks(
-    direction: 'forward' | 'backward',
-    phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
-    timePosition: number | 'beginning' | 'end' | `${number}%`,
-    promises: (Promise<unknown> | (() => Promise<unknown>))[]
+  addRoadblocks<T extends Parameters<AnimClip['addIntegrityblocks']>>(
+    direction: T[0],
+    phase: T[1],
+    timePosition: T[2],
+    promises: T[3]
   ): void {
     this.addAwaiteds(direction, phase, timePosition, 'roadblock', promises);
   }

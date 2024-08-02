@@ -495,10 +495,10 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     return this;
   }
 
-   // accepts a time to wait for (converted to an endDelay) and returns a Promise that is resolved at that time
+  // accepts a time to wait for (converted to an endDelay) and returns a Promise that is resolved at that time
   /**
    * Accepts a time relative to the beginning of a phase of the animation and returns a Promise that is resolved at the time.
-   * @param direction - what direction the animation should be going in when the Promise is resolved
+   * @param direction - what direction the animation should be going when the Promise is resolved
    * @param phase - the phase of the animation to listen for
    * @param timePosition - the temporal position within the phase when the Promise should be resolved
    * @returns a Promise that is resolved at the specific time point of the animation
@@ -507,16 +507,39 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     direction: 'forward' | 'backward',
     phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
     timePosition: number | 'beginning' | 'end' | `${number}%`
-  ) {
+  ): Promise<void> {
     return this.animation.generateTimePromise(direction, phase, timePosition);
   }
+
   /**@internal*/
-  addIntegrityblocks: typeof this.animation.addIntegrityblocks = (direction, phase, timePosition, promises) => {
-    this.animation.addIntegrityblocks(direction, phase, timePosition, promises);
+  addIntegrityblocks(
+    direction: 'forward' | 'backward',
+    phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
+    timePosition: number | 'beginning' | 'end' | `${number}%`,
+    promises: (Promise<unknown> | (() => Promise<unknown>))[]
+  ): void {
+    return this.animation.addIntegrityblocks(direction, phase, timePosition, promises);
   }
-  addRoadblocks: typeof this.animation.addRoadblocks = (direction, phase, timePosition, promises) => {
-    this.animation.addRoadblocks(direction, phase, timePosition, promises);
+
+  /**
+   * Accepts a time relative to the beginning of a phase of the animation and an array of Promises or functions that return promises
+   * that will pause the playback of the clip until the promises are resolved.
+   * - If the clip is part of a structure (like a sequence), the entire structure is paused as well.
+   * @param direction - what direction the animation should be going in when `promises` pauses the clip
+   * @param phase - the phase of the animation to place the blocks in
+   * @param timePosition - the temporal position within the phase when the roadblock should be encountered
+   * @param promises - an array of promises or functions that return promises that block the clip's playback until resolved
+   * @returns {void}
+   */
+  addRoadblocks(
+    direction: 'forward' | 'backward',
+    phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
+    timePosition: number | 'beginning' | 'end' | `${number}%`,
+    promises: (Promise<unknown> | (() => Promise<unknown>))[]
+  ): void {
+    return this.animation.addRoadblocks(direction, phase, timePosition, promises);
   }
+
   // multiplies playback rate of parent timeline and sequence (if exist) with base playback rate
   /**@internal*/
   useCompoundedPlaybackRate() { this.animation.updatePlaybackRate(this.compoundedPlaybackRate); }
