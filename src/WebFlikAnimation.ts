@@ -24,8 +24,6 @@ type FullyFinishedPromise = {
 };
 
 export class WebFlikAnimation extends Animation {
-  private _timeline?: AnimTimeline;
-  private _sequence?: AnimSequence;
   direction: 'forward' | 'backward' = 'forward';
   private getEffect(direction: 'forward' | 'backward'): KeyframeEffect { return direction === 'forward' ? this.forwardEffect : this.backwardEffect; }
   private inProgress = false;
