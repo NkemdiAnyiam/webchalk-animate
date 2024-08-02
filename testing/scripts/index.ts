@@ -32,9 +32,10 @@ const ent = Entrance(square, '~appear', []);
 
 console.log(ent.generateTimePromise === ent.generateTimePromise);
 
-const entrance = Entrance(square, '~fly-in', ['from-'], {duration: 2000, hideNowType: 'display-none'});
+const entrance = Entrance(square, '~fly-in', ['from-bottom'], {duration: 2000, hideNowType: 'display-none'});
 const motion = Motion(square, '~translate', [{translate: '200px, 200px'}], {duration: 2000});
 
+entrance.getTiming()
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // wait(1000).then(() => {

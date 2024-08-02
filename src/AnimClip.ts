@@ -31,22 +31,22 @@ type CssClassOptions = {
 
 export type CustomKeyframeEffectOptions = {
   /**
-   * If ```true```, the next clip in the same sequence will play at the same time as this clip.
+   * If `true`, the next clip in the same sequence will play at the same time as this clip.
    * - If this clip is not part of a sequence or is at the end of a sequence, this option has no effect.
    */
   startsNextClipToo: boolean;
   /**
-   * If ```true```, this clip will play at the same time as the previous clip in the same sequence.
+   * If `true`, this clip will play at the same time as the previous clip in the same sequence.
    * - If this clip is not part of a sequence or is at the beginning of a sequence, this option has no effect.
    */
   startsWithPrevious: boolean;
   /**
-   * If ```true```, the effects of the animation will persist after the clip finishes.
+   * If `true`, the effects of the animation will persist after the clip finishes.
    * - If the element is not rendered by the time the clip finishes, an error will be thrown.
    */
   commitsStyles: boolean;
   /**
-   * If ```true```, the effects of the animation will persist after the clip finishes.
+   * If `true`, the effects of the animation will persist after the clip finishes.
    * If the element is not rendered by the time the clip finishes, we attempt to forcefully unhide the element,
    * apply the styles, then re-hide it.
    * - If this fails (likely because the element's parent is not rendered, meaning our element cannot be unhidden), an error will be thrown.
@@ -64,10 +64,10 @@ export type CustomKeyframeEffectOptions = {
    */
   cssClasses: Partial<CssClassOptions>;
   /**
-   * If ```true```, the animation's effect is one-time generated as soon as the clip is instantiated.
+   * If `true`, the animation's effect is one-time generated as soon as the clip is instantiated.
    * The result is then used upon every subsequent play/rewind.
    * 
-   * If ```false```, the animation's effect is recomputed every time the clip is played or rewound.
+   * If `false`, the animation's effect is recomputed every time the clip is played or rewound.
    */
   runGeneratorsNow: boolean;
 }
@@ -80,21 +80,21 @@ type KeyframeTimingOptions = {
   duration: number;
   /**
    * The rate of the animation's change over time.
-   * - Accepts a typical <easing-function>, such as "linear", "ease-in", "step-end", "cubic-bezier(0.42, 0, 0.58, 1)", etc.
-   * - Also accepts autocompleted preset strings (such as "bounce-in", "power-1-out", etc.)
+   * - Accepts a typical `<easing-function>`, such as `"linear"`, `"ease-in"`, `"step-end"`, `"cubic-bezier(0.42, 0, 0.58, 1)"`, etc.
+   * - Also accepts autocompleted preset strings (such as `"bounce-in"`, `"power-1-out"`, etc.)
    * that produce preset easing effects using linear functions.
    */
   easing: EasingString;
   /**
    * The base playback rate of the animation (ignoring any multipliers from a parent sequence/timeline).
-   * - Example: A value of 1 means 100% (the typical playback rate), and 0.5 means 50% speed.
-   * - Example: If the playback rate of the parent sequence is 4 and the playbackRate of this clip is 5,
-   * the playbackRate property is still 5, but the clip would run at 4 * 5 = 20x speed.
+   * - Example: A value of `1` means 100% (the typical playback rate), and `0.5` means 50% speed.
+   * - Example: If the playback rate of the parent sequence is `4` and the `playbackRate` of this clip is `5`,
+   * the playbackRate property is still `5`, but the clip would run at 4 * 5 = 20x speed.
    */
   playbackRate: number;
   /**
    * The number of milliseconds the delay phase of the animation takes to complete.
-   * - This refers to the time before the active phase of the animation starts (i.e., before the animation effect begins)
+   * - This refers to the time before the active phase of the animation starts (i.e., before the animation effect begins).
    */
   delay: number;
   /**
