@@ -30,6 +30,25 @@ body {
   font-family: 'Fira Code' !important;
 }
 
+.tsd-accordion-summary:has(h2) {
+  color: var(--code-background);
+  background-color: var(--color-member-name);
+  border-radius: 12px;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 0.4rem;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+  }
+
+  svg {
+    --color-text: currentColor;
+  }
+}
+
 .tsd-comment,
 .tsd-returns-title + p {
   font-family: 'Filson Pro Regular';
