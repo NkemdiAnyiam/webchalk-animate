@@ -1,3 +1,4 @@
+import { AnimClip } from "./AnimClip";
 import { AnimSequence } from "./AnimSequence";
 import { AnimTimeline } from "./AnimTimeline";
 import { CustomErrors, ClipErrorGenerator } from "./utils/errors";
@@ -238,19 +239,7 @@ export class WebFlikAnimation extends Animation {
     }
   }
 
-  // accepts a time to wait for (converted to an endDelay) and returns a Promise that is resolved at that time
-  /**
-   * Accepts a time relative to the beginning of a phase of the animation and returns a Promise that is resolved at the time.
-   * @param direction - what direction the animation should be going in when the Promise is resolved
-   * @param phase - the phase of the animation to listen for
-   * @param timePosition - the temporal position within the phase when the Promise should be resolved
-   * @returns a Promise that is resolved at the specific time point of the animation
-   */
-  generateTimePromise(
-    direction: 'forward' | 'backward',
-    phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
-    timePosition: number | 'beginning' | 'end' | `${number}%`,
-  ): Promise<void> {
+  generateTimePromise<T extends Parameters<AnimClip['generateTimePromise']>>(direction: T[0], phase: T[1], timePosition: T[2]): Promise<void> {
     return new Promise(resolve => {
       // if the animation is already finished in the given direction, resolve immediately
       if (this.isFinished && this.direction === direction) { resolve(); return; }

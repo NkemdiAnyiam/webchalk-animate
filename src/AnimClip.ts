@@ -11,6 +11,9 @@ import { PickFromArray } from "./utils/utilityTypes";
 
 
 type CssClassOptions = {
+  /**
+   * List of CSS classes to add to the element when the clip finishes playing.
+   */
   toAddOnFinish: string[];
   toAddOnStart: string[];
   toRemoveOnFinish: string[];
@@ -421,7 +424,19 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     return this;
   }
 
-  generateTimePromise: typeof this.animation.generateTimePromise = (direction, phase, timePosition) => {
+   // accepts a time to wait for (converted to an endDelay) and returns a Promise that is resolved at that time
+  /**
+   * Accepts a time relative to the beginning of a phase of the animation and returns a Promise that is resolved at the time.
+   * @param direction - what direction the animation should be going in when the Promise is resolved
+   * @param phase - the phase of the animation to listen for
+   * @param timePosition - the temporal position within the phase when the Promise should be resolved
+   * @returns a Promise that is resolved at the specific time point of the animation
+   */
+  generateTimePromise(
+    direction: 'forward' | 'backward',
+    phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
+    timePosition: number | 'beginning' | 'end' | `${number}%`
+  ) {
     return this.animation.generateTimePromise(direction, phase, timePosition);
   }
   /**@internal*/
