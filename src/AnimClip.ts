@@ -29,6 +29,9 @@ type CssClassOptions = {
   toRemoveOnStart: string[];
 };
 
+/**
+ * @hidden
+ */
 export type CustomKeyframeEffectOptions = {
   /**
    * If `true`, the next clip in the same sequence will play at the same time as this clip.
