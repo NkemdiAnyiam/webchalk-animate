@@ -5,5 +5,6 @@
   "exclude": ["**/WebFlikAnimation.ts", "**/index.ts", "**/globalSideEffects.ts"],
   "entryPoints": ["../src"],
   "entryPointStrategy": "expand",
-  "out": "../docs"
+  "out": "../docs",
+  "includeVersion": true,
 }
