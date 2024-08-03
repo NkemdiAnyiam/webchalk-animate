@@ -73,7 +73,7 @@ export type CustomKeyframeEffectOptions = {
    * If `false`, the animation's effect is recomputed every time the clip is played or rewound.
    */
   runGeneratorsNow: boolean;
-}
+};
 
 type KeyframeTimingOptions = {
   /**
@@ -105,7 +105,7 @@ type KeyframeTimingOptions = {
    * - This refers to the time after the active phase of the animation end (i.e., after the animation effect has finished).
    */
   endDelay: number;
-}
+};
 
 /**
  * @interface
@@ -131,7 +131,7 @@ export type AnimClipTiming = Pick<AnimClipConfig,
    * the compoundedPlaybackRate will be 4 * 5 = 20.
    */
   compoundedPlaybackRate: AnimClip['compoundedPlaybackRate'];
-}
+};
 
 export type EffectDetails = {
   /**
@@ -151,7 +151,24 @@ export type EffectDetails = {
    * The category of the effect (e.g., `"Entrance"`, `"Exit"`, `"Motion"`, etc.).
    */
   category: AnimClip['category'];
-}
+};
+
+export type AnimClipModifiers = Pick<AnimClipConfig, 'cssClasses' | 'composite' | 'commitsStyles' | 'commitStylesForcefully'>;
+
+export type AnimClipStatus = {
+  /**
+   * `true` only if the clip is in the process of playback (whether running or paused).
+   */
+  inProgress: AnimClip['inProgress'];
+  /**
+   * `true` only if the clip is in the process of playback and unpaused.
+   */
+  isRunning: AnimClip['isRunning'];
+  /**
+   * `true` only if the clip is in the process of playback and paused.
+   */
+  isPaused: AnimClip['isPaused'];
+};
 
 export abstract class AnimClip<TEffectGenerator extends EffectGenerator = EffectGenerator> implements AnimClipConfig {
   private static id: number = 0;
@@ -265,10 +282,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       return this[specifics];
     }
     if (specifics instanceof Array) {
-      return Object.fromEntries(
-        Object.entries(this)
-          .filter(([key, _]) => specifics.includes(key as keyof AnimClipTiming))
-      ) as Pick<AnimClipTiming, keyof AnimClipTiming>
+      this.getPartial<AnimClipTiming>(specifics);
     }
     return {
       startsNextClipToo: this.startsNextClipToo,
@@ -283,25 +297,51 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     };
   }
 
-  getModifiers() {
+  getModifiers(): AnimClipModifiers;
+  getModifiers<T extends keyof AnimClipModifiers>(propName: T): AnimClipModifiers[T];
+  getModifiers<T extends (keyof AnimClipModifiers)[]>(propNames: (keyof AnimClipModifiers)[] | T): PickFromArray<AnimClipModifiers, T>;
+  getModifiers(specifics?: keyof AnimClipModifiers | (keyof AnimClipModifiers)[]):
+    | AnimClipModifiers
+    | AnimClipModifiers[keyof AnimClipModifiers]
+    | Partial<Pick<AnimClipModifiers, keyof AnimClipModifiers>>
+  {
+    if (typeof specifics === 'string') {
+      return this[specifics];
+    }
+    if (specifics instanceof Array) {
+      this.getPartial<AnimClipModifiers>(specifics);
+    }
     return {
       cssClasses: {
         toAddOnStart: [...(this.cssClasses.toAddOnStart ?? [])],
         toAddOnFinish: [...(this.cssClasses.toAddOnFinish ?? [])],
         toRemoveOnStart: [...(this.cssClasses.toRemoveOnStart ?? [])],
         toRemoveOnFinish: [...(this.cssClasses.toRemoveOnFinish ?? [])],
-      } as CssClassOptions,
+      },
       composite: this.composite,
       commitsStyles: this.commitsStyles,
-      commitsStylesForcefully: this.commitStylesForcefully,
+      commitStylesForcefully: this.commitStylesForcefully,
     };
   }
 
-  getStatus() {
+  getStatus(): AnimClipStatus;
+  getStatus<T extends keyof AnimClipStatus>(propName: T): AnimClipStatus[T];
+  getStatus<T extends (keyof AnimClipStatus)[]>(propNames: (keyof AnimClipStatus)[] | T): PickFromArray<AnimClipStatus, T>;
+  getStatus(specifics?: keyof AnimClipStatus | (keyof AnimClipStatus)[]):
+    | AnimClipStatus
+    | AnimClipStatus[keyof AnimClipStatus]
+    | Partial<Pick<AnimClipStatus, keyof AnimClipStatus>>
+  {
+    if (typeof specifics === 'string') {
+      return this[specifics];
+    }
+    if (specifics instanceof Array) {
+      this.getPartial<AnimClipStatus>(specifics);
+    }
     return {
       inProgress: this.inProgress,
-      running: this.isRunning,
-      paused: this.isPaused,
+      isRunning: this.isRunning,
+      isPaused: this.isPaused,
     };
   }
 
