@@ -133,6 +133,9 @@ export type AnimClipTiming = Pick<AnimClipConfig,
   compoundedPlaybackRate: AnimClip['compoundedPlaybackRate'];
 };
 
+/**
+ * @interface
+ */
 export type EffectDetails = {
   /**
    * Name of the animation effect.
@@ -153,8 +156,14 @@ export type EffectDetails = {
   category: AnimClip['category'];
 };
 
+/**
+ * @interface
+ */
 export type AnimClipModifiers = Pick<AnimClipConfig, 'cssClasses' | 'composite' | 'commitsStyles' | 'commitStylesForcefully'>;
 
+/**
+ * @interface
+ */
 export type AnimClipStatus = {
   /**
    * `true` only if the clip is in the process of playback (whether running or paused).
@@ -170,6 +179,16 @@ export type AnimClipStatus = {
   isPaused: AnimClip['isPaused'];
 };
 
+/**
+ * @hideconstructor
+ * 
+ * @groupDescription Property Getter Methods
+ * Methods that return objects that contain various internal fields of the clip (such as `duration` from `getTiming()`,
+ * `inProgress` from `getStatus()`, etc.
+ * 
+ * @groupDescription Playback Methods
+ * Methods that control the playback of the animation clip.
+ */
 export abstract class AnimClip<TEffectGenerator extends EffectGenerator = EffectGenerator> implements AnimClipConfig {
   private static id: number = 0;
   public static get emptyEffectGenerator() { return {generateKeyframes() { return [[], []]; }} as EffectGenerator; }
@@ -247,6 +266,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     ) as Pick<Source, keyof Source>;
   }
 
+  /**
+   * @group Property Getter Methods
+   */
   getEffectDetails(): EffectDetails;
   getEffectDetails<T extends keyof EffectDetails>(propName: T): EffectDetails[T];
   getEffectDetails<T extends (keyof EffectDetails)[]>(propNames: (keyof EffectDetails)[] | T): PickFromArray<EffectDetails, T>;
@@ -270,6 +292,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     }
   }
 
+  /**
+   * @group Property Getter Methods
+   */
   getTiming(): AnimClipTiming;
   getTiming<T extends keyof AnimClipTiming>(propName: T): AnimClipTiming[T];
   getTiming<T extends (keyof AnimClipTiming)[]>(propNames: (keyof AnimClipTiming)[] | T): PickFromArray<AnimClipTiming, T>;
@@ -297,6 +322,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     };
   }
 
+  /**
+   * @group Property Getter Methods
+   */
   getModifiers(): AnimClipModifiers;
   getModifiers<T extends keyof AnimClipModifiers>(propName: T): AnimClipModifiers[T];
   getModifiers<T extends (keyof AnimClipModifiers)[]>(propNames: (keyof AnimClipModifiers)[] | T): PickFromArray<AnimClipModifiers, T>;
@@ -324,6 +352,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     };
   }
 
+  /**
+   * @group Property Getter Methods
+   */
   getStatus(): AnimClipStatus;
   getStatus<T extends keyof AnimClipStatus>(propName: T): AnimClipStatus[T];
   getStatus<T extends (keyof AnimClipStatus)[]>(propNames: (keyof AnimClipStatus)[] | T): PickFromArray<AnimClipStatus, T>;
@@ -513,6 +544,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /*****************************************************************************************************************************/
   /**
    * Does the thing
+   * @group Playback Methods
    */
   async play(): Promise<this>;
   /**@internal*/
@@ -523,6 +555,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     return this.animate('forward');
   }
 
+  /**
+   * @group Playback Methods
+   */
   async rewind(): Promise<this>;
   /**@internal*/
   async rewind(parentSequence: AnimSequence): Promise<this>;
@@ -531,6 +566,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     return this.animate('backward');
   }
 
+  /**
+   * @group Playback Methods
+   */
   pause(): this;
   /**@internal*/
   pause(parentSequence: AnimSequence): this;
@@ -544,6 +582,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     return this;
   }
 
+  /**
+   * @group Playback Methods
+   */
   unpause(): this;
   /**@internal*/
   unpause(parentSequence: AnimSequence): this;
@@ -557,6 +598,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     return this;
   }
 
+  /**
+   * @group Playback Methods
+   */
   async finish(): Promise<this>;
   /**@internal*/
   async finish(parentSequence: AnimSequence): Promise<this>;
