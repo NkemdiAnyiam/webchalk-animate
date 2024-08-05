@@ -13,6 +13,8 @@
   --light-name: #666600;
   --dark-name: #ffff99;
   --dark-code-background: #2f2f2f;
+  --font-sans: "Proxima Nova" !important;
+  --font-mono: "Fira Code" !important;
 
   @media (prefers-color-scheme: light) {
     --color-member-name: var(--light-name);
@@ -30,7 +32,10 @@
 }
 
 body {
-  font-family: 'Fira Code' !important;
+}
+
+.tsd-signature {
+  font-family: var(--font-mono);
 }
 
 .tsd-accordion-summary:has(h2) {
@@ -54,9 +59,7 @@ body {
 
 .tsd-comment,
 .tsd-returns-title + p {
-  font-family: 'Proxima Nova';
   color: var(--color-text-aside);
-  font-size: 17px;
 }
 
 [data-theme="dark"] {
