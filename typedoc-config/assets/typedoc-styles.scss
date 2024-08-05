@@ -35,6 +35,12 @@
 body {
 }
 
+.tsd-page-toolbar {
+  .title {
+    display: inline-block;
+  }
+}
+
 .tsd-signature {
   font-family: var(--font-mono);
 }
