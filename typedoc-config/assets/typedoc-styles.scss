@@ -39,6 +39,12 @@ body {
   font-family: var(--font-mono);
 }
 
+.tsd-signature-type,
+.tsd-kind-parameter,
+.tsd-signature-symbol {
+  font-familY: var(--font-mono);
+}
+
 code:not(.ts) {
   --code-background: var(--dark-code-inline-background);
 }
