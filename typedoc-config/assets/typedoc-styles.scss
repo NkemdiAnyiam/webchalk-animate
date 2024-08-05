@@ -10,6 +10,7 @@
 :root {
   --light-name: #666600;
   --dark-name: #ffff99;
+  --dark-code-background: #2f2f2f;
 
   @media (prefers-color-scheme: light) {
     --color-member-name: var(--light-name);
