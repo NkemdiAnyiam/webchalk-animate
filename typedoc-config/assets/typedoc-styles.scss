@@ -1,10 +1,12 @@
 @font-face {
-  font-family: 'Adobe Caslon Pro'; /* Name your font family */
-  src: url('./fonts/Adobe-Caslon-Pro-Regular.otf'); /* Locate the .ttf file within your directory*/
+  font-family: 'Proxima Nova'; /* Name your font family */
+  src: url('./fonts/Proxima Nova Regular.woff2'); /* Locate the .woff2 file within your directory*/
+  font-weight: 400;
 }
 @font-face {
-  font-family: 'Filson Pro Regular'; /* Name your font family */
-  src: url('./fonts/Filson-Pro-Regular.otf'); /* Locate the .ttf file within your directory*/
+  font-family: 'Proxima Nova'; /* Name your font family */
+  src: url('./fonts/Proxima Nova Medium.woff2');
+  font-weight: 500;
 }
 
 :root {
@@ -52,8 +54,9 @@ body {
 
 .tsd-comment,
 .tsd-returns-title + p {
-  font-family: 'Filson Pro Regular';
+  font-family: 'Proxima Nova';
   color: var(--color-text-aside);
+  font-size: 17px;
 }
 
 [data-theme="dark"] {
