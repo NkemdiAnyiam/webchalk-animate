@@ -91,8 +91,8 @@ type KeyframeTimingOptions = {
   /**
    * The base playback rate of the animation (ignoring any multipliers from a parent sequence/timeline).
    * - Example: A value of `1` means 100% (the typical playback rate), and `0.5` means 50% speed.
-   * - Example: If the playback rate of the parent sequence is `4` and the `playbackRate` of this clip is `5`,
-   * the playbackRate property is still `5`, but the clip would run at 4 * 5 = 20x speed.
+   * - Example: If the `playbackRate` of the parent sequence is `4` and the `playbackRate` of this clip is `5`,
+   * the `playbackRate` property is still `5`, but the clip would run at 4 * 5 = 20x speed.
    */
   playbackRate: number;
   /**
@@ -127,8 +127,8 @@ export type AnimClipTiming = Pick<AnimClipConfig,
 > & {
   /**
    * The actual playback rate of the animation after the playback rates of any parents are taken into account.
-   * - Example: If the playback rate of the parent sequence is 4 and the playbackRate rate of this clip is 5,
-   * the compoundedPlaybackRate will be 4 * 5 = 20.
+   * - Example: If the `playbackRate` of the parent sequence is `4` and the `playbackRate` of this clip is `5`,
+   * the `compoundedPlaybackRate` will be 4 * 5 = 20.
    */
   compoundedPlaybackRate: AnimClip['compoundedPlaybackRate'];
 };
