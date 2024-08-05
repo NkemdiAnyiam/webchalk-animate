@@ -12,7 +12,8 @@
 :root {
   --light-name: #666600;
   --dark-name: #ffff99;
-  --dark-code-background: #2f2f2f;
+  --dark-code-background: #222222;
+  --dark-code-inline-background: #2f2f2f;
   --font-sans: "Proxima Nova" !important;
   --font-mono: "Fira Code" !important;
 
@@ -36,6 +37,10 @@ body {
 
 .tsd-signature {
   font-family: var(--font-mono);
+}
+
+code:not(.ts) {
+  --code-background: var(--dark-code-inline-background);
 }
 
 .tsd-accordion-summary:has(h2) {
