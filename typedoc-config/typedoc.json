@@ -7,4 +7,8 @@
   "entryPointStrategy": "expand",
   "out": "../docs",
   "includeVersion": true,
+  "defaultCategory": "none",
+  "navigation": {
+    "includeCategories": true,
+  }
 }
