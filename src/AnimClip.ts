@@ -29,10 +29,7 @@ type CssClassOptions = {
   toRemoveOnStart: string[];
 };
 
-/**
- * @hidden
- */
-export type CustomKeyframeEffectOptions = {
+type CustomKeyframeEffectOptions = {
   /**
    * If `true`, the next clip in the same sequence will play at the same time as this clip.
    * - If this clip is not part of a sequence or is at the end of a sequence, this option has no effect.
@@ -266,12 +263,14 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     ) as Pick<Source, keyof Source>;
   }
 
+  getEffectDetails(): EffectDetails;
+  /** @ignore */
+  getEffectDetails<T extends keyof EffectDetails>(propName: T): EffectDetails[T];
+  /** @ignore */
+  getEffectDetails<T extends (keyof EffectDetails)[]>(propNames: (keyof EffectDetails)[] | T): PickFromArray<EffectDetails, T>;
   /**
    * @group Property Getter Methods
    */
-  getEffectDetails(): EffectDetails;
-  getEffectDetails<T extends keyof EffectDetails>(propName: T): EffectDetails[T];
-  getEffectDetails<T extends (keyof EffectDetails)[]>(propNames: (keyof EffectDetails)[] | T): PickFromArray<EffectDetails, T>;
   getEffectDetails(specifics?: keyof EffectDetails | (keyof EffectDetails)[]):
     | EffectDetails
     | EffectDetails[keyof EffectDetails]
@@ -296,8 +295,15 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * @group Property Getter Methods
    */
   getTiming(): AnimClipTiming;
+  /**
+   * @ignore
+   */
   getTiming<T extends keyof AnimClipTiming>(propName: T): AnimClipTiming[T];
+  /** @ignore */
   getTiming<T extends (keyof AnimClipTiming)[]>(propNames: (keyof AnimClipTiming)[] | T): PickFromArray<AnimClipTiming, T>;
+  /**
+   * @group Property Getter Methods
+   */
   getTiming(specifics?: keyof AnimClipTiming | (keyof AnimClipTiming)[]):
     | AnimClipTiming
     | AnimClipTiming[keyof AnimClipTiming]
@@ -322,12 +328,14 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     };
   }
 
+  getModifiers(): AnimClipModifiers;
+  /** @ignore */
+  getModifiers<T extends keyof AnimClipModifiers>(propName: T): AnimClipModifiers[T];
+  /** @ignore */
+  getModifiers<T extends (keyof AnimClipModifiers)[]>(propNames: (keyof AnimClipModifiers)[] | T): PickFromArray<AnimClipModifiers, T>;
   /**
    * @group Property Getter Methods
    */
-  getModifiers(): AnimClipModifiers;
-  getModifiers<T extends keyof AnimClipModifiers>(propName: T): AnimClipModifiers[T];
-  getModifiers<T extends (keyof AnimClipModifiers)[]>(propNames: (keyof AnimClipModifiers)[] | T): PickFromArray<AnimClipModifiers, T>;
   getModifiers(specifics?: keyof AnimClipModifiers | (keyof AnimClipModifiers)[]):
     | AnimClipModifiers
     | AnimClipModifiers[keyof AnimClipModifiers]
@@ -352,12 +360,14 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     };
   }
 
+  getStatus(): AnimClipStatus;
+  /** @ignore */
+  getStatus<T extends keyof AnimClipStatus>(propName: T): AnimClipStatus[T];
+  /** @ignore */
+  getStatus<T extends (keyof AnimClipStatus)[]>(propNames: (keyof AnimClipStatus)[] | T): PickFromArray<AnimClipStatus, T>;
   /**
    * @group Property Getter Methods
    */
-  getStatus(): AnimClipStatus;
-  getStatus<T extends keyof AnimClipStatus>(propName: T): AnimClipStatus[T];
-  getStatus<T extends (keyof AnimClipStatus)[]>(propNames: (keyof AnimClipStatus)[] | T): PickFromArray<AnimClipStatus, T>;
   getStatus(specifics?: keyof AnimClipStatus | (keyof AnimClipStatus)[]):
     | AnimClipStatus
     | AnimClipStatus[keyof AnimClipStatus]
