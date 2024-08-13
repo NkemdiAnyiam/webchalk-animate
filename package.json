@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "tsup src/index.ts src/types.ts --format cjs,esm --dts",
-    "pack-up": "npm run build && npm pack",
+    "pack-up": "npm run build && npm pack --pack-destination=\"./tarballs\"",
     "in": "npm i && npm run pack-up",
     "out": "rm -rf ./dist ./node_modules",
     "in-and-out": "npm run in && npm run out",
