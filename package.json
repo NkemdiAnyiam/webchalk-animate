@@ -20,7 +20,7 @@
     "in-and-out": "npm run in && npm run out",
     "open-docs": "bash -c \"start ./docs/index.html\"",
     "copy-doc-assets": "cp -r ./typedoc-config/assets/fonts ./docs/assets",
-    "gen-docs": "cd ./typedoc-config && npx typedoc && cd .. && npm run copy-doc-assets && npm run open-docs",
+    "gen-docs": "cd ./typedoc-config && typedoc && cd .. && npm run copy-doc-assets && npm run open-docs",
     "lint": "tsc"
   },
   "keywords": [
