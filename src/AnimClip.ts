@@ -185,6 +185,9 @@ export type AnimClipStatus = {
  * 
  * @groupDescription Playback Methods
  * Methods that control the playback of the animation clip.
+ * 
+ * @groupDescription Timing Event Methods
+ * Methods that involve listening to the progress of the animation clip to perform tasks at specific times.
  */
 export abstract class AnimClip<TEffectGenerator extends EffectGenerator = EffectGenerator> implements AnimClipConfig {
   private static id: number = 0;
@@ -673,6 +676,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * 
    * testFunc();
    * ```
+   * @group Timing Event Methods
    */
   generateTimePromise(
     direction: 'forward' | 'backward',
@@ -682,7 +686,10 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     return this.animation.generateTimePromise(direction, phase, timePosition);
   }
 
-  /**@internal*/
+  /**
+   * @internal
+   * @group Timing Event Methods
+   */
   addIntegrityblocks(
     direction: 'forward' | 'backward',
     phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
@@ -725,6 +732,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * // The newly created promise obviously has no way to be resolved, so the clip is unfortunately stuck
    * ent.play();
    * ```
+   * @group Timing Event Methods
    */
   addRoadblocks(
     direction: 'forward' | 'backward',
