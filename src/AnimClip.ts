@@ -9,22 +9,24 @@ import { WbfkConnector } from "./WbfkConnector";
 import { WebFlikAnimation } from "./WebFlikAnimation";
 import { PickFromArray } from "./utils/utilityTypes";
 
-
-type CssClassOptions = {
+/**
+ * @category Subtypes
+ */
+export type CssClassOptions = {
   /**
-   * List of CSS classes to add to the element when the clip finishes playing.
+   * Array of CSS classes to add to the element when the clip finishes playing.
    */
   toAddOnFinish: string[];
   /**
-   * List of CSS classes to add to the element when the clip starts playing.
+   * Array of CSS classes to add to the element when the clip starts playing.
    */
   toAddOnStart: string[];
   /**
-   * List of CSS classes to remove from the element when the clip finishes playing.
+   * Array of CSS classes to remove from the element when the clip finishes playing.
    */
   toRemoveOnFinish: string[];
   /**
-   * List of CSS classes to remove from the element when the clip starts playing.
+   * Array of CSS classes to remove from the element when the clip starts playing.
    */
   toRemoveOnStart: string[];
 };
@@ -59,7 +61,7 @@ type CustomKeyframeEffectOptions = {
   composite: CompositeOperation;
   /**
    * Contains arrays of CSS classes that should be added to or removed from the element.
-   * - The list of classes to add are added first, and then the list of classes to remove are removed.
+   * - The list of classes to add is added first, and then the list of classes to remove is removed.
    * - Changes are automatically undone in the appropriate order when the clip is rewound.
    */
   cssClasses: Partial<CssClassOptions>;
@@ -275,10 +277,26 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     ) as Pick<Source, keyof Source>;
   }
 
+  /**
+   * Returns specific details about an animation's effect.
+   * @returns An object containing
+   * - `category`,
+   * - `effectName`,
+   * - `effectGenerator`,
+   * - `effectOptions`
+   */
   getEffectDetails(): EffectDetails;
-  /** @ignore */
+  /**
+   * Returns the value of a single specific property.
+   * @param propName - name of the desired property
+   * @ignore
+   */
   getEffectDetails<T extends keyof EffectDetails>(propName: T): EffectDetails[T];
-  /** @ignore */
+  /**
+   * Returns an object containing a subset of the object that would normally be returned.
+   * @param propNames - array of strings specifying which properties should be included.
+   * @ignore
+   */
   getEffectDetails<T extends (keyof EffectDetails)[]>(propNames: (keyof EffectDetails)[] | T): PickFromArray<EffectDetails, T>;
   /**
    * @group Property Getter Methods
@@ -304,14 +322,30 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   }
 
   /**
-   * @group Property Getter Methods
+   * Returns timing-related details about the animation.
+   * @returns An object containing
+   * - `startsNextClipToo`,
+   * - `startsWithPrevious`,
+   * - `duration`,
+   * - `delay`,
+   * - `endDelay`,
+   * - `easing`,
+   * - `playbackRate`,
+   * - `compoundedPlaybackRate`,
+   * - `runGeneratorsNow`
    */
   getTiming(): AnimClipTiming;
   /**
+   * Returns the value of a single specific property.
+   * @param propName - name of the desired property
    * @ignore
    */
   getTiming<T extends keyof AnimClipTiming>(propName: T): AnimClipTiming[T];
-  /** @ignore */
+  /**
+   * Returns an object containing a subset of the object that would normally be returned.
+   * @param propNames - array of strings specifying which properties should be included.
+   * @ignore
+   */
   getTiming<T extends (keyof AnimClipTiming)[]>(propNames: (keyof AnimClipTiming)[] | T): PickFromArray<AnimClipTiming, T>;
   /**
    * @group Property Getter Methods
@@ -340,10 +374,26 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     };
   }
 
+  /**
+   * Returns details about an animation's current status.
+   * @returns An object containing
+   * - `cssClasses`,
+   * - `commitsStyles`,
+   * - `commitStylesForcefully`,
+   * - `composite`
+   */
   getModifiers(): AnimClipModifiers;
-  /** @ignore */
+  /**
+   * Returns the value of a single specific property.
+   * @param propName - name of the desired property
+   * @ignore
+   */
   getModifiers<T extends keyof AnimClipModifiers>(propName: T): AnimClipModifiers[T];
-  /** @ignore */
+  /**
+   * Returns an object containing a subset of the object that would normally be returned.
+   * @param propNames - array of strings specifying which properties should be included.
+   * @ignore
+   */
   getModifiers<T extends (keyof AnimClipModifiers)[]>(propNames: (keyof AnimClipModifiers)[] | T): PickFromArray<AnimClipModifiers, T>;
   /**
    * @group Property Getter Methods
@@ -372,10 +422,25 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     };
   }
 
+  /**
+   * Returns details about an animation's current status..
+   * @returns An object containing
+   * - `inProgress`,
+   * - `isRunning`,
+   * - `isPaused`
+   */
   getStatus(): AnimClipStatus;
-  /** @ignore */
+  /**
+   * Returns the value of a single specific property.
+   * @param propName - name of the desired property
+   * @ignore
+   */
   getStatus<T extends keyof AnimClipStatus>(propName: T): AnimClipStatus[T];
-  /** @ignore */
+  /**
+   * Returns an object containing a subset of the object that would normally be returned.
+   * @param propNames - array of strings specifying which properties should be included.
+   * @ignore
+   */
   getStatus<T extends (keyof AnimClipStatus)[]>(propNames: (keyof AnimClipStatus)[] | T): PickFromArray<AnimClipStatus, T>;
   /**
    * @group Property Getter Methods
