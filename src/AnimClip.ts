@@ -108,6 +108,7 @@ type KeyframeTimingOptions = {
 
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
+ * @category Interfaces
  * @interface
  */
 export type AnimClipConfig = KeyframeTimingOptions & CustomKeyframeEffectOptions;
@@ -115,6 +116,7 @@ export type AnimClipConfig = KeyframeTimingOptions & CustomKeyframeEffectOptions
 /**
  * Contains timing-related details about an animation. Returned by {@link AnimClip.getTiming}.
  * @see {@link AnimClip.getTiming}
+ * @category Interfaces
  * @interface
  */
 export type AnimClipTiming = Pick<AnimClipConfig, 
@@ -138,6 +140,7 @@ export type AnimClipTiming = Pick<AnimClipConfig,
 /**
  * Contains specific details about an animation's effect. Returned by {@link AnimClip.getEffectDetails}.
  * @see {@link AnimClip.getEffectDetails}
+ * @category Interfaces
  * @interface
  */
 export type EffectDetails = {
@@ -163,6 +166,7 @@ export type EffectDetails = {
 /**
  * Contains details about how the DOM element is modified beyond just the effect of the animation. Returned by {@link AnimClip.getModifiers}.
  * @see {@link AnimClip.getModifiers}
+ * @category Interfaces
  * @interface
  */
 export type AnimClipModifiers = Pick<AnimClipConfig, 'cssClasses' | 'composite' | 'commitsStyles' | 'commitStylesForcefully'>;
@@ -170,6 +174,7 @@ export type AnimClipModifiers = Pick<AnimClipConfig, 'cssClasses' | 'composite' 
 /**
  * Contains details about an animation's current status. Returned by {@link AnimClip.getStatus}.
  * @see {@link AnimClip.getStatus}
+ * @category Interfaces
  * @interface
  */
 export type AnimClipStatus = {
