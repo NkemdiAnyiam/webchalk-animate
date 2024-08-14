@@ -53,7 +53,7 @@ type CustomKeyframeEffectOptions = {
    */
   commitStylesForcefully: boolean; // attempt to unhide, commit, then re-hide
   /**
-   * Resolves how an element's animation impacts its underlying property values.
+   * Resolves how an element's animation impacts the element's underlying property values.
    * @see [KeyframeEffect: composite property](https://developer.mozilla.org/en-US/docs/Web/API/KeyframeEffect/composite)
    */
   composite: CompositeOperation;
@@ -105,11 +105,14 @@ type KeyframeTimingOptions = {
 };
 
 /**
+ * Contains configuration options used to define both the timing and effects of the animation clip.
  * @interface
  */
 export type AnimClipConfig = KeyframeTimingOptions & CustomKeyframeEffectOptions;
 
 /**
+ * Contains timing-related details about an animation. Returned by {@link AnimClip.getTiming}.
+ * @see {@link AnimClip.getTiming}
  * @interface
  */
 export type AnimClipTiming = Pick<AnimClipConfig, 
@@ -131,6 +134,8 @@ export type AnimClipTiming = Pick<AnimClipConfig,
 };
 
 /**
+ * Contains specific details about an animation's effect. Returned by {@link AnimClip.getEffectDetails}.
+ * @see {@link AnimClip.getEffectDetails}
  * @interface
  */
 export type EffectDetails = {
@@ -154,11 +159,15 @@ export type EffectDetails = {
 };
 
 /**
+ * Contains details about how the DOM element is modified beyond just the effect of the animation. Returned by {@link AnimClip.getModifiers}.
+ * @see {@link AnimClip.getModifiers}
  * @interface
  */
 export type AnimClipModifiers = Pick<AnimClipConfig, 'cssClasses' | 'composite' | 'commitsStyles' | 'commitStylesForcefully'>;
 
 /**
+ * Contains details about an animation's current status. Returned by {@link AnimClip.getStatus}.
+ * @see {@link AnimClip.getStatus}
  * @interface
  */
 export type AnimClipStatus = {
