@@ -17,14 +17,17 @@ export type CssClassOptions = {
    * Array of CSS classes to add to the element when the clip finishes playing.
    */
   toAddOnFinish: string[];
+
   /**
    * Array of CSS classes to add to the element when the clip starts playing.
    */
   toAddOnStart: string[];
+
   /**
    * Array of CSS classes to remove from the element when the clip finishes playing.
    */
   toRemoveOnFinish: string[];
+
   /**
    * Array of CSS classes to remove from the element when the clip starts playing.
    */
@@ -37,16 +40,19 @@ type CustomKeyframeEffectOptions = {
    * - If this clip is not part of a sequence or is at the end of a sequence, this option has no effect.
    */
   startsNextClipToo: boolean;
+
   /**
    * If `true`, this clip will play at the same time as the previous clip in the same sequence.
    * - If this clip is not part of a sequence or is at the beginning of a sequence, this option has no effect.
    */
   startsWithPrevious: boolean;
+
   /**
    * If `true`, the effects of the animation will persist after the clip finishes.
    * - If the element is not rendered by the time the clip finishes, an error will be thrown.
    */
   commitsStyles: boolean;
+
   /**
    * If `true`, the effects of the animation will persist after the clip finishes.
    * If the element is not rendered by the time the clip finishes, we attempt to forcefully unhide the element,
@@ -54,17 +60,20 @@ type CustomKeyframeEffectOptions = {
    * - If this fails (likely because the element's parent is not rendered, meaning our element cannot be unhidden), an error will be thrown.
    */
   commitStylesForcefully: boolean; // attempt to unhide, commit, then re-hide
+
   /**
    * Resolves how an element's animation impacts the element's underlying property values.
    * @see [KeyframeEffect: composite property](https://developer.mozilla.org/en-US/docs/Web/API/KeyframeEffect/composite)
    */
   composite: CompositeOperation;
+
   /**
    * Contains arrays of CSS classes that should be added to or removed from the element.
    * - The list of classes to add is added first, and then the list of classes to remove is removed.
    * - Changes are automatically undone in the appropriate order when the clip is rewound.
    */
   cssClasses: Partial<CssClassOptions>;
+
   /**
    * If `true`, the animation's effect is one-time generated as soon as the clip is instantiated.
    * The result is then used upon every subsequent play/rewind.
@@ -80,6 +89,7 @@ type KeyframeTimingOptions = {
    * - This refers to the actual effect of the animation, not the delay or endDelay.
    */
   duration: number;
+
   /**
    * The rate of the animation's change over time.
    * - Accepts a typical `<easing-function>`, such as `"linear"`, `"ease-in"`, `"step-end"`, `"cubic-bezier(0.42, 0, 0.58, 1)"`, etc.
@@ -87,6 +97,7 @@ type KeyframeTimingOptions = {
    * that produce preset easing effects using linear functions.
    */
   easing: EasingString;
+
   /**
    * The base playback rate of the animation (ignoring any multipliers from a parent sequence/timeline).
    * - Example: A value of `1` means 100% (the typical playback rate), and `0.5` means 50% speed.
@@ -94,11 +105,13 @@ type KeyframeTimingOptions = {
    * the `playbackRate` property is still `5`, but the clip would run at 4 * 5 = 20x speed.
    */
   playbackRate: number;
+
   /**
    * The number of milliseconds the delay phase of the animation takes to complete.
    * - This refers to the time before the active phase of the animation starts (i.e., before the animation effect begins).
    */
   delay: number;
+
   /**
    * The number of milliseconds the endDelay phase of the animation takes to complete.
    * - This refers to the time after the active phase of the animation end (i.e., after the animation effect has finished).
@@ -149,15 +162,18 @@ export type EffectDetails = {
    * Name of the animation effect.
    */
   effectName: AnimClip['effectName'];
+
   /**
    * Generator containing the function used to generate the effect and
    * possibly a set of default configuration options for the effect.
    */
   effectGenerator: AnimClip['effectGenerator'];
+
   /**
    * An array containing the effect options used to set the behavior of the animation effect.
    */
   effectOptions: AnimClip['effectOptions'];
+
   /**
    * The category of the effect (e.g., `"Entrance"`, `"Exit"`, `"Motion"`, etc.).
    */
@@ -182,15 +198,17 @@ export type AnimClipStatus = {
   /**
    * `true` only if the clip is in the process of playback (whether running or paused).
    */
-  inProgress: AnimClip['inProgress'];
+  inProgress: boolean;
+
   /**
    * `true` only if the clip is in the process of playback and unpaused.
    */
-  isRunning: AnimClip['isRunning'];
+  isRunning: boolean;
+  
   /**
    * `true` only if the clip is in the process of playback and paused.
    */
-  isPaused: AnimClip['isPaused'];
+  isPaused: boolean;
 };
 
 /**
