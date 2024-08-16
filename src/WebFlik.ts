@@ -200,7 +200,7 @@ export abstract class WebFlik {
       ) {
         const effectName = `~set-line-points`;
         return new ConnectorSetterClip(
-          connectorElem, pointA, pointB, effectName, {[effectName]: {...AnimClip.emptyEffectGenerator, effectName}}, connectorConfig
+          connectorElem, pointA, pointB, effectName, {[effectName]: {...AnimClip.createNoOpEffectGenerator(), effectName}}, connectorConfig
         ).initialize([]);
       },
 

@@ -213,7 +213,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * @remarks
    * This static method is purely for convenience.
    */
-  public static get emptyEffectGenerator() { return {generateKeyframes() { return [[], []]; }} as EffectGenerator; }
+  public static createNoOpEffectGenerator() { return {generateKeyframes() { return [[], []]; }} as EffectGenerator; }
   protected abstract get defaultConfig(): Partial<AnimClipConfig>;
   
   /**
