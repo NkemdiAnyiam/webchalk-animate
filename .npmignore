@@ -3,3 +3,4 @@ node_modules
 **/testing
 docs
 typedoc-config
+.vscode
