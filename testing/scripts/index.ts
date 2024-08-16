@@ -80,6 +80,8 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   motion.addRoadblocks('forward', 'activePhase', '25%', [() => wait(2000)]);
   motion.addRoadblocks('backward', 'activePhase', '50%', [() => wait(2000)]);
+  
+  motion.getStatus().inProgress
 
   // seq.
 

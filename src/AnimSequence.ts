@@ -2,15 +2,14 @@ import { AnimClip } from "./AnimClip";
 import { AnimTimeline } from "./AnimTimeline";
 
 /**
- * This is the description of the interface
- *
+ * Contains configuration options used to define the timing and details of the animation sequence.
+ * @category Interfaces
  * @interface
  */
 export type AnimSequenceConfig = {
   /**
    * String that is logged when debugging mode is enabled.
    * @defaultValue `'<blank sequence description>'`
-   * 
    */
   description: string;
 
@@ -34,13 +33,27 @@ export type AnimSequenceConfig = {
    * 
    */
   autoplays: boolean;
+
+  /**
+   * The base playback rate of the sequence (ignoring any multipliers from a parent timeline).
+   * - Example: A value of `1` means 100% (the typical playback rate), and `0.5` means 50% speed.
+   * - Example: If the `playbackRate` of the parent timeline is `4` and the `playbackRate` of this sequence is `5`,
+   * the `playbackRate` property is still `5`, but the sequence would run at 4 * 5 = 20x speed.
+   */
+  playbackRate: number;
 };
 
+/**
+ * Contains timing-related details about the sequence. Returned by {@link AnimSequence.getTiming()}.
+ * @see {@link AnimSequence.getTiming()}
+ * @category Interfaces
+ * @interface
+ */
 export type AnimSequenceTiming = Pick<AnimSequenceConfig,
   | 'autoplays'
   | 'autoplaysNextSequence'
+  | 'playbackRate'
 > & {
-  // TODO: incorporate basePlaybackRate
   /**
    * The actual playback rate of the sequence after the playback rates of any parents are taken into account.
    * - Example: If the `playbackRate` of the parent timeline is `4` and the `playbackRate` of this sequence is `5`,
@@ -50,15 +63,21 @@ export type AnimSequenceTiming = Pick<AnimSequenceConfig,
   compoundedPlaybackRate: AnimSequence['compoundedPlaybackRate'];
 };
 
-export type AnimSequenceStatus = Pick<AnimSequence,
-  | 'isPaused'
-  | 'inProgress'
-  | 'skippingOn'
-  | 'usingFinish'
-  | 'isFinished'
-  | 'wasPlayed'
-  | 'wasRewound'
->;
+/**
+ * Contains details about an sequence's current status. Returned by {@link AnimSequence.getStatus()}.
+ * @see {@link AnimSequence.getStatus}
+ * @category Interfaces
+ * @interface
+ */
+export type AnimSequenceStatus = {
+  isPaused: boolean;
+  inProgress: boolean;
+  skippingOn: boolean;
+  usingFinish: boolean;
+  isFinished: boolean;
+  wasPlayed: boolean;
+  wasRewound: boolean;
+};
 
 type AnimationOperation = (animation: AnimClip) => void;
 type AsyncAnimationOperation = (animation: AnimClip) => Promise<unknown>;
@@ -139,6 +158,7 @@ export class AnimSequence implements AnimSequenceConfig {
   }
 
   /**
+   * Returns details about an sequence's current status.
    * @returns an object containing
    * - {@link AnimSequenceStatus.inProgress|inProgress},
    * - {@link AnimSequenceStatus.isPaused|isPaused},
@@ -147,12 +167,12 @@ export class AnimSequence implements AnimSequenceConfig {
    * - {@link AnimSequenceStatus.usingFinish|usingFinish},
    * - {@link AnimSequenceStatus.wasPlayed|wasPlayed},
    * - {@link AnimSequenceStatus.wasRewound|wasRewound},
-   * @category Getter Methods
+   * @group Getter Methods
    */
-  getStatus() {
+  getStatus(): AnimSequenceStatus {
     return {
       inProgress: this.inProgress,
-      paused: this.isPaused,
+      isPaused: this.isPaused,
       skippingOn: this.skippingOn,
       usingFinish: this.usingFinish,
       isFinished: this.isFinished,
@@ -162,20 +182,51 @@ export class AnimSequence implements AnimSequenceConfig {
   }
 
   /**
-   * @category Getter Methods
+   * Returns timing-related details about the sequence.
+   * @returns an object containing
+   * - {@link AnimSequenceTiming.autoplays|autoplays},
+   * - {@link AnimSequenceTiming.autoplaysNextSequence|autoplaysNextSequence},
+   * - {@link AnimSequenceTiming.compoundedPlaybackRate|compoundedPlaybackRate},
+   * - {@link AnimSequenceTiming.playbackRate|playbackRate},
+   * @group Getter Methods
    */
   getTiming(): AnimSequenceTiming {
     return {
       autoplays: this.autoplays,
       autoplaysNextSequence: this.autoplaysNextSequence,
       compoundedPlaybackRate: this.compoundedPlaybackRate,
+      playbackRate: this.playbackRate,
     };
   }
 
+  /**
+   * @returns the {@link AnimSequenceConfig.description|description} for this sequence.
+   * @see {@link AnimSequenceConfig.description}
+   * @group Getter Methods
+   */
   getDescription() { return this.description; }
+
+  /**
+   * @returns the {@link AnimSequenceConfig.tag|tag} for this sequence.
+   * @see {@link AnimSequenceConfig.tag|tag}
+   * @group Getter Methods
+   */
   getTag() { return this.tag; }
   
+  /**
+   * Sets the {@link AnimSequenceConfig.description|description} for this sequence.
+   * @param description - new description
+   * @see {@link AnimSequenceConfig.description}
+   * @group Setter Methods
+   */
   setDescription(description: string): this { this.description = description; return this; }
+
+  /**
+   * Sets the {@link AnimSequenceConfig.tag|tag} for this sequence.
+   * @param tag - new tag
+   * @see {@link AnimSequenceConfig.tag}
+   * @group Setter Methods
+   */
   setTag(tag: string): this { this.tag = tag; return this; }
 
   /**@internal*/
@@ -230,6 +281,10 @@ export class AnimSequence implements AnimSequenceConfig {
   }
 
   // plays each animClip contained in this AnimSequence instance in sequential order
+  /**
+   * 
+   * @group Playback Methods
+   */
   async play(): Promise<this> {
     if (this.inProgress) { return this; }
     this.inProgress = true;
@@ -290,6 +345,9 @@ export class AnimSequence implements AnimSequenceConfig {
   }
 
   // rewinds each animClip contained in this AnimSequence instance in reverse order
+  /**
+   * @group Playback Methods
+   */
   async rewind(): Promise<this> {
     if (this.inProgress) { return this; }
     this.inProgress = true;
@@ -355,11 +413,17 @@ export class AnimSequence implements AnimSequenceConfig {
     return this;
   }
   
+  /**
+   * @group Playback Methods
+   */
   pause(): void {
     if (this.isPaused) { return; }
     this.isPaused = true;
     this.doForInProgressClips(animClip => animClip.pause(this));
   }
+  /**
+   * @group Playback Methods
+   */
   unpause(): void {
     if (!this.isPaused) { return; }
     this.isPaused = false;
@@ -367,6 +431,9 @@ export class AnimSequence implements AnimSequenceConfig {
   }
 
   // TODO: check to see if it's necessary to prevent direct finish() calls if sequence has a parent timeline
+  /**
+   * @group Playback Methods
+   */
   async finish(): Promise<this> {
     if (this.usingFinish || this.isPaused) { return this; }
     this.usingFinish = true; // resets to false at the end of play() and rewind()
@@ -382,17 +449,27 @@ export class AnimSequence implements AnimSequenceConfig {
   }
 
   // used to skip currently running animation so they don't run at regular speed while using finish()
+  /**
+   * @group Playback Methods
+   */
   async finishInProgressAnimations(): Promise<this> {
     return this.doForInProgressClips_async(animClip => animClip.finish(this));
   }
 
+  /**
+   * @param newRate
+   * @group Playback Methods
+   */
   updatePlaybackRate(newRate: number): this {
     this.playbackRate = newRate;
     this.useCompoundedPlaybackRate();
     return this;
   }
 
-  /**@internal*/
+  /**
+   * @internal
+   * @group Playback Methods
+   */
   useCompoundedPlaybackRate(): this {
     this.doForInProgressClips(animClip => animClip.useCompoundedPlaybackRate());
     return this;
