@@ -139,24 +139,6 @@ export class AnimSequence implements AnimSequenceConfig {
   }
 
   /**
-   * 
-   * @returns an object containing
-   * - {@link AnimSequenceConfig.autoplays|autoplays},
-   * - {@link AnimSequenceConfig.autoplaysNextSequence|autoplaysNextSequence},
-   * - {@link AnimSequenceConfig.description|description},
-   * - {@link AnimSequenceConfig.tag|tag},
-   * @category Getter Methods
-   */
-  getConfig(): Readonly<AnimSequenceConfig> {
-    return {
-      autoplays: this.autoplays,
-      autoplaysNextSequence: this.autoplaysNextSequence,
-      description: this.description,
-      tag: this.tag,
-    };
-  }
-
-  /**
    * @returns an object containing
    * - {@link AnimSequenceStatus.inProgress|inProgress},
    * - {@link AnimSequenceStatus.isPaused|isPaused},
