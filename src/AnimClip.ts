@@ -817,7 +817,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
   /**
    * Pauses the animation clip when it reaches the specified time in the specified direction, only unpausing after
-   * the specified array of `Promise`s or functions that return `Promise`s are resolved.
+   * the specified array of `Promise` objects is resolved.
    * - If the clip is part of a structure (like a sequence), the entire structure is paused as well.
    * @param direction - the direction the animation will be going when the clip is paused
    * @param phase - the phase of the animation to place the blocks in
@@ -830,12 +830,12 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * async function wait(milliseconds: number) { // Promise-based timer
    *    return new Promise(resolve => setTimeout(resolve, milliseconds));
    * }
+   * 
    * const ent = Entrance(<...>);
    * // adds 1 roadblock that will pause the clip once the clip is 15% through the delay phase
    * ent.addRoadblocks('forward', 'activePhase', '15%', [function() { return wait(2000); }]);
    * // adds 2 more roadblocks at the same point.
    * ent.addRoadblocks('forward', 'activePhase', '15%', [function() { return wait(3000); }, someOtherPromise]);
-   * 
    * // adds 1 roadblock at 40% into the endDelay phase
    * ent.addRoadblocks('forward', 'endDelayPhase', '40%', [new Promise()]);
    * 
