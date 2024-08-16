@@ -4,40 +4,61 @@ import { AnimTimeline } from "./AnimTimeline";
 /**
  * This is the description of the interface
  *
- * @interface AnimSequenceConfig
- * @property {string} description — This string is logged when debugging mode is enabled.
- * @property {boolean} tag — This string can be used as an argument to AnimTimeline.prototype.jumpToSequenceTag().
- * @property {boolean} autoplaysNextSequence — If true, the next sequence in the timeline will automatically play after this sequence finishes.
- * @property {boolean} autoplays — If true, this sequence will automatically play after the previous sequence in the timeline finishes.
+ * @interface
  */
 export type AnimSequenceConfig = {
   /**
-   * This string is logged when debugging mode is enabled.
-   * @optional
+   * String that is logged when debugging mode is enabled.
    * @defaultValue `'<blank sequence description>'`
    * 
-  */
+   */
   description: string;
 
   /**
-   * This string can be used as an argument to AnimTimeline.prototype.jumpToSequenceTag()
+   * This string can be used as an argument to {@link AnimTimeline.jumpToSequenceTag()}.
    * @defaultValue `''`
-  */
+   */
   tag: string;
 
   /**
-   * If true, the next sequence in the timeline will automatically play after this sequence finishes.
+   * If `true`, the next sequence in the same timeline will automatically play after this sequence finishes.
+   * - If this sequence is not part of a timeline or is at the end of a timeline, this option has no effect.
    * @defaultValue `false`
-   * */
+   */
   autoplaysNextSequence: boolean;
 
   /**
-   * If true, this sequence will automatically play after the previous sequence in the timeline finishes.
+   * If `true`, this sequence will automatically play after the previous sequence in the same timeline finishes.
+   * - If this sequence is not part of a timeline or is at the beginning of a timeline, this option has no effect.
    * @defaultValue `false`
    * 
-  */
+   */
   autoplays: boolean;
 };
+
+export type AnimSequenceTiming = Pick<AnimSequenceConfig,
+  | 'autoplays'
+  | 'autoplaysNextSequence'
+> & {
+  // TODO: incorporate basePlaybackRate
+  /**
+   * The actual playback rate of the sequence after the playback rates of any parents are taken into account.
+   * - Example: If the `playbackRate` of the parent timeline is `4` and the `playbackRate` of this sequence is `5`,
+   * the `compoundedPlaybackRate` will be 4 * 5 = 20.
+   * @see {@link AnimSequenceTiming.playbackRate}
+   */
+  compoundedPlaybackRate: AnimSequence['compoundedPlaybackRate'];
+};
+
+export type AnimSequenceStatus = Pick<AnimSequence,
+  | 'isPaused'
+  | 'inProgress'
+  | 'skippingOn'
+  | 'usingFinish'
+  | 'isFinished'
+  | 'wasPlayed'
+  | 'wasRewound'
+>;
 
 type AnimationOperation = (animation: AnimClip) => void;
 type AsyncAnimationOperation = (animation: AnimClip) => Promise<unknown>;
@@ -47,6 +68,19 @@ type FullyFinishedPromise<T> = {
   resolve: (value: T | PromiseLike<T>) => void;
 };
 
+/**
+ * @hideconstructor
+ * 
+ * @groupDescription Property Getter Methods
+ * Methods that return objects that contain various internal fields of the sequence (such as `autoplays` from `getTiming()`,
+ * `inProgress` from `getStatus()`, etc.
+ * 
+ * @groupDescription Playback Methods
+ * Methods that control the playback of the animation sequence.
+ * 
+ * @groupDescription Timing Event Methods
+ * Methods that involve listening to the progress of the animation sequence to perform tasks at specific times.
+ */
 export class AnimSequence implements AnimSequenceConfig {
   private static id = 0;
   
@@ -58,15 +92,15 @@ export class AnimSequence implements AnimSequenceConfig {
   /**@internal*/ tag: string = ''; // helps idenfity current AnimSequence for using AnimTimeline's jumpToSequenceTag()
   /**@internal*/ autoplaysNextSequence: boolean = false; // decides whether the next AnimSequence should automatically play after this one
   /**@internal*/ autoplays: boolean = false;
-  basePlaybackRate: number = 1;
+  /**@internal*/ playbackRate: number = 1;
   /**@internal*/ isPaused = false;
-  private usingFinish = false;
+  /**@internal*/ usingFinish = false;
   /**@internal*/ inProgress = false;
-  private isFinished: boolean = false;
+  /**@internal*/ isFinished: boolean = false;
   /**@internal*/ wasPlayed = false;
   /**@internal*/ wasRewound = false;
   /**@internal*/ get skippingOn() { return this._parentTimeline?.skippingOn || this._parentTimeline?.usingJumpTo || this.usingFinish; }
-  get compoundedPlaybackRate() { return this.basePlaybackRate * (this._parentTimeline?.playbackRate ?? 1); }
+  protected get compoundedPlaybackRate() { return this.playbackRate * (this._parentTimeline?.playbackRate ?? 1); }
   private animClips: AnimClip[] = []; // array of animClips
 
   private animClipGroupings_activeFinishOrder: AnimClip[][] = [];
@@ -104,6 +138,15 @@ export class AnimSequence implements AnimSequenceConfig {
     this.addClips(...(config instanceof AnimClip ? [config, ...animClips] : animClips));
   }
 
+  /**
+   * 
+   * @returns an object containing
+   * - {@link AnimSequenceConfig.autoplays|autoplays},
+   * - {@link AnimSequenceConfig.autoplaysNextSequence|autoplaysNextSequence},
+   * - {@link AnimSequenceConfig.description|description},
+   * - {@link AnimSequenceConfig.tag|tag},
+   * @category Getter Methods
+   */
   getConfig(): Readonly<AnimSequenceConfig> {
     return {
       autoplays: this.autoplays,
@@ -113,11 +156,37 @@ export class AnimSequence implements AnimSequenceConfig {
     };
   }
 
+  /**
+   * @returns an object containing
+   * - {@link AnimSequenceStatus.inProgress|inProgress},
+   * - {@link AnimSequenceStatus.isPaused|isPaused},
+   * - {@link AnimSequenceStatus.skippingOn|skippingOn},
+   * - {@link AnimSequenceStatus.isFinished|isFinished},
+   * - {@link AnimSequenceStatus.usingFinish|usingFinish},
+   * - {@link AnimSequenceStatus.wasPlayed|wasPlayed},
+   * - {@link AnimSequenceStatus.wasRewound|wasRewound},
+   * @category Getter Methods
+   */
   getStatus() {
     return {
       inProgress: this.inProgress,
       paused: this.isPaused,
       skippingOn: this.skippingOn,
+      usingFinish: this.usingFinish,
+      isFinished: this.isFinished,
+      wasPlayed: this.wasPlayed,
+      wasRewound: this.wasRewound,
+    };
+  }
+
+  /**
+   * @category Getter Methods
+   */
+  getTiming(): AnimSequenceTiming {
+    return {
+      autoplays: this.autoplays,
+      autoplaysNextSequence: this.autoplaysNextSequence,
+      compoundedPlaybackRate: this.compoundedPlaybackRate,
     };
   }
 
@@ -336,7 +405,7 @@ export class AnimSequence implements AnimSequenceConfig {
   }
 
   updatePlaybackRate(newRate: number): this {
-    this.basePlaybackRate = newRate;
+    this.playbackRate = newRate;
     this.useCompoundedPlaybackRate();
     return this;
   }

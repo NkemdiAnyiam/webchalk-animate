@@ -290,7 +290,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**@internal*/ endDelay: number = 0;
   /**@internal*/ easing: EasingString = 'linear';
   /**@internal*/ playbackRate: number = 1; // actually base playback rate
-  protected get compoundedPlaybackRate(): number { return this.playbackRate * (this._parentSequence?.compoundedPlaybackRate ?? 1); }
+  protected get compoundedPlaybackRate(): number { return this.playbackRate * (this._parentSequence?.getTiming().compoundedPlaybackRate ?? 1); }
 
   /**@internal*/ fullStartTime = NaN;
   /**@internal*/ get activeStartTime() { return (this.fullStartTime + this.delay) / this.playbackRate; }

@@ -76,9 +76,12 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     entrance,
     motion,
   );
+  
 
   motion.addRoadblocks('forward', 'activePhase', '25%', [() => wait(2000)]);
   motion.addRoadblocks('backward', 'activePhase', '50%', [() => wait(2000)]);
+
+  // seq.
 
   // seq.play();
   // await seq.finish().then(() => {
