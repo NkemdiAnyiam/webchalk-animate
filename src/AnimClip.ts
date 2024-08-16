@@ -307,10 +307,10 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**
    * Returns specific details about the animation's effect.
    * @returns an object containing
-   * - `category`,
-   * - `effectName`,
-   * - `effectGenerator`,
-   * - `effectOptions`
+   * - {@link EffectDetails.category|category},
+   * - {@link EffectDetails.effectName|effectName},
+   * - {@link EffectDetails.effectGenerator|effectGenerator},
+   * - {@link EffectDetails.effectOptions|effectOptions},
    */
   getEffectDetails(): EffectDetails;
   /**
@@ -351,15 +351,15 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**
    * Returns timing-related details about the animation.
    * @returns an object containing
-   * - `startsNextClipToo`,
-   * - `startsWithPrevious`,
-   * - `duration`,
-   * - `delay`,
-   * - `endDelay`,
-   * - `easing`,
-   * - `playbackRate`,
-   * - `compoundedPlaybackRate`,
-   * - `runGeneratorsNow`
+   * - {@link AnimClipTiming.startsWithPrevious|startsWithPrevious},
+   * - {@link AnimClipTiming.startsNextClipToo|startsNextClipToo},
+   * - {@link AnimClipTiming.duration|duration},
+   * - {@link AnimClipTiming.delay|delay},
+   * - {@link AnimClipTiming.endDelay|endDelay},
+   * - {@link AnimClipTiming.easing|easing},
+   * - {@link AnimClipTiming.playbackRate|playbackRate},
+   * - {@link AnimClipTiming.compoundedPlaybackRate|compoundedPlaybackRate},
+   * - {@link AnimClipTiming.runGeneratorsNow|runGeneratorsNow},
    */
   getTiming(): AnimClipTiming;
   /**
@@ -389,8 +389,8 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       this.getPartial<AnimClipTiming>(specifics);
     }
     return {
-      startsNextClipToo: this.startsNextClipToo,
       startsWithPrevious: this.startsWithPrevious,
+      startsNextClipToo: this.startsNextClipToo,
       duration: this.duration,
       delay: this.delay,
       endDelay: this.endDelay,
@@ -404,10 +404,10 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**
    * Returns details about how the DOM element is modified beyond just the effect of the animation.
    * @returns an object containing
-   * - `cssClasses`,
-   * - `commitsStyles`,
-   * - `commitStylesForcefully`,
-   * - `composite`
+   * - {@link AnimClipModifiers.cssClasses|cssClasses},
+   * - {@link AnimClipModifiers.commitsStyles|commitsStyles},
+   * - {@link AnimClipModifiers.commitStylesForcefully|commitStylesForcefully},
+   * - {@link AnimClipModifiers.composite|composite},
    */
   getModifiers(): AnimClipModifiers;
   /**
@@ -452,9 +452,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**
    * Returns details about the animation's current status.
    * @returns an object containing
-   * - `inProgress`,
-   * - `isRunning`,
-   * - `isPaused`
+   * - {@link AnimClipStatus.inProgress|inProgress},
+   * - {@link AnimClipStatus.isRunning|isRunning},
+   * - {@link AnimClipStatus.isPaused|isPaused},
    */
   getStatus(): AnimClipStatus;
   /**
