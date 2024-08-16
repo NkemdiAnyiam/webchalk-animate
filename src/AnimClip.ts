@@ -133,6 +133,7 @@ export type AnimClipTiming = Pick<AnimClipConfig,
    * The actual playback rate of the animation after the playback rates of any parents are taken into account.
    * - Example: If the `playbackRate` of the parent sequence is `4` and the `playbackRate` of this clip is `5`,
    * the `compoundedPlaybackRate` will be 4 * 5 = 20.
+   * @see {@link AnimClipTiming.playbackRate}
    */
   compoundedPlaybackRate: AnimClip['compoundedPlaybackRate'];
 };
@@ -207,14 +208,35 @@ export type AnimClipStatus = {
  */
 export abstract class AnimClip<TEffectGenerator extends EffectGenerator = EffectGenerator> implements AnimClipConfig {
   private static id: number = 0;
+  /**
+   * Creates an effect generator with a function that returns empty arrays (so no actual keyframes).
+   * @remarks
+   * This static method is purely for convenience.
+   */
   public static get emptyEffectGenerator() { return {generateKeyframes() { return [[], []]; }} as EffectGenerator; }
   protected abstract get defaultConfig(): Partial<AnimClipConfig>;
   
+  /**
+   * Number that uniquely identifies the clip from other clips.
+   * Automatically generated.
+   */
   readonly id: number;
   /**@internal*/ _parentSequence?: AnimSequence;
   /**@internal*/ _parentTimeline?: AnimTimeline;
+  /**
+   * The parent {@link AnimSequence} that contains this clip (may be `undefined`).
+   */
   get parentSequence() { return this._parentSequence; }
+  /**
+   * The parent {@link AnimTimeline} that contains the {@link AnimSequence} that contains this clip (may be `undefined`).
+   */
   get parentTimeline() { return this._parentTimeline; }
+  /**
+   * The highest level of this clip's lineage.
+   * - If the clip is nested within an {@link AnimTimeline}: that timeline,
+   * - Else, if the clip is within an {@link AnimSequence}: that sequence,
+   * - Else: the clip itself
+   */
   get root(): AnimTimeline | AnimSequence | AnimClip { return this.parentTimeline ?? this.parentSequence ?? this; }
   protected abstract get category(): EffectCategory;
   protected effectName: string;
@@ -283,8 +305,8 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   }
 
   /**
-   * Returns specific details about an animation's effect.
-   * @returns An object containing
+   * Returns specific details about the animation's effect.
+   * @returns an object containing
    * - `category`,
    * - `effectName`,
    * - `effectGenerator`,
@@ -328,7 +350,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
   /**
    * Returns timing-related details about the animation.
-   * @returns An object containing
+   * @returns an object containing
    * - `startsNextClipToo`,
    * - `startsWithPrevious`,
    * - `duration`,
@@ -380,8 +402,8 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   }
 
   /**
-   * Returns details about an animation's current status.
-   * @returns An object containing
+   * Returns details about how the DOM element is modified beyond just the effect of the animation.
+   * @returns an object containing
    * - `cssClasses`,
    * - `commitsStyles`,
    * - `commitStylesForcefully`,
@@ -428,8 +450,8 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   }
 
   /**
-   * Returns details about an animation's current status..
-   * @returns An object containing
+   * Returns details about the animation's current status.
+   * @returns an object containing
    * - `inProgress`,
    * - `isRunning`,
    * - `isPaused`
@@ -471,7 +493,11 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /*****************************************************************************************************************************/
   /************************************        CONSTRUCTOR & INITIALIZERS        ***********************************************/
   /*****************************************************************************************************************************/
-  /**@internal*/
+  /**
+   * Used by a parent to set pointers to itself (the parent) within the clip.
+   * @return {void}
+   * @internal
+   */
   setLineage(sequence: AnimSequence, timeline: AnimTimeline | undefined): void {
     this._parentSequence = sequence;
     this._parentTimeline = timeline;
@@ -635,7 +661,8 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /********************************************        PLAYBACK        *********************************************************/
   /*****************************************************************************************************************************/
   /**
-   * Does the thing
+   * Plays the animation clip (animation runs forward).
+   * @returns a promise that is resolved when the animation finishes playing (including playing its endDelay phase).
    * @group Playback Methods
    */
   async play(): Promise<this>;
@@ -648,6 +675,8 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   }
 
   /**
+   * Rewinds the animation clip (animation runs backward).
+   * @returns a promise that is resolved when the animation finishes rewinding (including rewinding its delay phase).
    * @group Playback Methods
    */
   async rewind(): Promise<this>;
@@ -659,6 +688,8 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   }
 
   /**
+   * Pauses the animation clip.
+   * - If the clip is not already in progress, this method does nothing.
    * @group Playback Methods
    */
   pause(): this;
@@ -675,6 +706,8 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   }
 
   /**
+   * Unpauses the animation clip.
+   * - If the clip is not currently paused, this method does nothing.
    * @group Playback Methods
    */
   unpause(): this;
@@ -691,6 +724,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   }
 
   /**
+   * Forces the animation clip to instantly finish.
+   * - This works even if the animation is not already currently in progress.
+   * - The animation will still pause for any roadblocks generated by {@link AnimClip.addRoadblocks | addRoadblocks()}.
    * @group Playback Methods
    */
   async finish(): Promise<this>;
@@ -699,10 +735,11 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   async finish(parentSequence?: AnimSequence): Promise<this> {
     if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('finish'); }
     // finish() is not allowed to execute if clip is paused
+    // TODO: maybe throw an error instead of just returning
     if (this.isPaused) { return this; }
     
     // Needs to play/rewind first if not already in progress.
-    // This is essentially for the case where the animation is NOT part of a sequence and finish() is
+    // This is essentially for the case where the animation is NOT part of a sequence and finish()
     // is called without having first called play() or rewind() (I decided that the expected behavior is to
     // instantly finish the animation in whatever the current direction is).
     if (!this.inProgress) {
@@ -726,11 +763,11 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
   // accepts a time to wait for (converted to an endDelay) and returns a Promise that is resolved at that time
   /**
-   * Accepts a time relative to the beginning of a phase of the animation and returns a Promise that is resolved at the time.
-   * @param direction - what direction the animation should be going when the Promise is resolved
-   * @param phase - the phase of the animation to listen for
-   * @param timePosition - the temporal position within the phase when the Promise should be resolved
-   * @returns a Promise that is resolved at the specific time point of the animation
+   * Returns a `Promise` that is resolved when the animation clip reaches the specified time in the specified direction.
+   * @param direction - the direction the animation will be going when the Promise is resolved
+   * @param phase - the phase of the animation where the Promise will be resolved
+   * @param timePosition - the time position within the phase when the Promise will be resolved
+   * @returns a Promise that is resolved at the specific time point of the animation.
    * 
    * @example
    * ```ts
@@ -779,12 +816,12 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   }
 
   /**
-   * Accepts a time relative to the beginning of a phase of the animation and an array of Promises or functions that return promises
-   * that will pause the playback of the clip until the promises are resolved.
+   * Pauses the animation clip when it reaches the specified time in the specified direction, only unpausing after
+   * the specified array of `Promise`s or functions that return `Promise`s are resolved.
    * - If the clip is part of a structure (like a sequence), the entire structure is paused as well.
-   * @param direction - what direction the animation should be going in when `promises` pauses the clip
+   * @param direction - the direction the animation will be going when the clip is paused
    * @param phase - the phase of the animation to place the blocks in
-   * @param timePosition - the temporal position within the phase when the roadblock should be encountered
+   * @param timePosition - the time position within the phase when the roadblocks should be encountered
    * @param promises - an array of promises or functions that return promises that block the clip's playback until resolved
    * @returns {void}
    * 
@@ -802,14 +839,14 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * // adds 1 roadblock at 40% into the endDelay phase
    * ent.addRoadblocks('forward', 'endDelayPhase', '40%', [new Promise()]);
    * 
-   * // Once ent is 15% through the active phase, it will pause and handle its roadblocks
-   * // "wait(2000)" resolves after 2 seconds
-   * // "wait(3000)" resolves after 3 seconds
+   * ent.play();
+   * // ↑ Once ent is 15% through the active phase, it will pause and handle its roadblocks.
+   * // "wait(2000)" resolves after 2 seconds.
+   * // "wait(3000)" resolves after 3 seconds.
    * // someOtherPromise blocks the clip's playback. Presumably, its resolver is eventually called from somewhere outside.
    * // Once someOtherPromise is resolved, there are no more roadblocks at this point, so playback is resumed.
    * // Once ent is 40% through the endDelay phase, it will pause and handle its roadblocks
-   * // The newly created promise obviously has no way to be resolved, so the clip is unfortunately stuck
-   * ent.play();
+   * // The newly created promise obviously has no way to be resolved, so the clip is unfortunately stuck.
    * ```
    * @group Timing Event Methods
    */
@@ -822,8 +859,11 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     return this.animation.addRoadblocks(direction, phase, timePosition, promises);
   }
 
-  // multiplies playback rate of parent timeline and sequence (if exist) with base playback rate
-  /**@internal*/
+  /**
+   * Multiplies playback rate of parent timeline and sequence (if exist) with base playback rate.
+   * @group Playback Methods
+   * @internal
+   */
   useCompoundedPlaybackRate() { this.animation.updatePlaybackRate(this.compoundedPlaybackRate); }
 
   /*****************************************************************************************************************************/
@@ -1036,6 +1076,45 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     requestAnimationFrame(this.loop);
   }
 
+  /**
+   * Calculates the value partway between two fixed numbers (an initial value and a final value)
+   * based on the progress of the animation.
+   * - Intended for use inside effect generator functions that utilize RAF loops.
+   * @param initialVal - the starting value
+   * @param finalVal - the ending value
+   * @returns the number that is a percentage of the way between `initialVal` and `finalVal` based on the
+   * percentage of completion of the animation (playing or rewinding).
+   * 
+   * @example
+   * ```ts
+    const {Entrance} = WebFlik.createAnimationFactories({
+      customEntranceEffects: {
+        rotate: {
+          generateRafMutators(degrees: number) {
+            return [
+              // when playing, keep computing the value between 0 and 'degrees'
+              () => { this.domElem.style.rotate = this.computeTween(0, degrees)+'deg'; },
+              // when rewinding, keep computing the value between 'degrees' and 0
+              () => { this.domElem.style.rotate = this.computeTween(degrees, 0)+'deg'; }
+            ];
+          }
+        }
+      },
+    });
+
+    await Entrance(someElement, 'rotate', [360], {duration: 2000}).play();
+    // ↑ At 1.5 seconds (or 1500ms), the animation is 1.5/2 = 75% done playing.
+    // Thus, computeTween(0, 360) at that exactly moment would...
+    // return the value 75% of the way between 0 and 360 (= 270).
+    // Therefore, at 1.5 seconds of playing, someElement's rotation is set to "270deg".
+
+    await Entrance(someElement, 'rotate', [360], {duration: 2000}).rewind();
+    // ↑ At 0.5 seconds (or 500ms), the animation is 0.5/2 = 25% done rewinding.
+    // Thus, computeTween(360, 0) at that exactly moment would...
+    // return the value 25% of the way between 360 and 0 (= 270).
+    // Therefore, at 0.5 seconds of rewinding, someElement's rotation is set to "270deg".
+   * ```
+   */
   computeTween(initialVal: number, finalVal: number): number {
     return initialVal + (finalVal - initialVal) * this.rafLoopsProgress;
   }
