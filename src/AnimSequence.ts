@@ -303,6 +303,7 @@ export class AnimSequence implements AnimSequenceConfig {
   async play(): Promise<this> {
     if (this.inProgress) { return this; }
     this.inProgress = true;
+    this.isRunning = true;
     this.handleFinishState();
 
     this.commit();
@@ -367,6 +368,7 @@ export class AnimSequence implements AnimSequenceConfig {
   async rewind(): Promise<this> {
     if (this.inProgress) { return this; }
     this.inProgress = true;
+    this.isRunning = true;
     this.handleFinishState();
 
     const activeGroupings = this.animClipGroupings_backwardActiveFinishOrder;
