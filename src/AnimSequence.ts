@@ -184,8 +184,7 @@ export class AnimSequence implements AnimSequenceConfig {
     undo: () => {},
   };
 
-  static createInstance(config: Partial<AnimSequenceConfig>, ...animClips: AnimClip[]): AnimSequence;
-  static createInstance(...animClips: AnimClip[]): AnimSequence;
+  /**@internal*/
   static createInstance(config: Partial<AnimSequenceConfig> | AnimClip = {}, ...animClips: AnimClip[]): AnimSequence {
     return new AnimSequence(config, ...animClips);
   }

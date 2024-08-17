@@ -9,10 +9,13 @@ import {
   ConnectorEntranceClipConfig,
   TransitionClipConfig
 } from "./categoricalClips";
-import { AnimSequence } from "./AnimSequence";
-import { AnimTimeline } from "./AnimTimeline";
+import { AnimSequence, AnimSequenceConfig } from "./AnimSequence";
+import { AnimTimeline, AnimTimelineConfig } from "./AnimTimeline";
 import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
-import { libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions, libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions } from "./libraryPresetBanks";
+import {
+  libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions,
+  libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions
+} from "./libraryPresetBanks";
 import { useEasing } from "./utils/easing";
 import { MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./utils/interfaces";
 import { ReadonlyPick, ReadonlyRecord, StripDuplicateMethodAutocompletion } from "./utils/utilityTypes";
@@ -93,8 +96,16 @@ export type EffectNameIn<TGeneratorBank extends EffectGeneratorBank> = Exclude<k
 
 
 export abstract class WebFlik {
-  static newSequence = AnimSequence.createInstance.bind(AnimSequence);
-  static newTimeline = AnimTimeline.createInstance.bind(AnimTimeline);
+  static newSequence(config: Partial<AnimSequenceConfig>, ...animClips: AnimClip[]): AnimSequence;
+  static newSequence(...animClips: AnimClip[]): AnimSequence;
+  static newSequence(config: Partial<AnimSequenceConfig> | AnimClip = {}, ...animClips: AnimClip[]): AnimSequence {
+    return new AnimSequence(config, ...animClips);
+  }
+  static newTimeline(config: Partial<AnimTimelineConfig>, ...animSequences: AnimSequence[]): AnimTimeline;
+  static newTimeline(...animSequences: AnimSequence[]): AnimTimeline;
+  static newTimeline(config: Partial<AnimTimelineConfig> | AnimSequence = {}, ...animSequences: AnimSequence[]): AnimTimeline {
+    return new AnimTimeline(config, ...animSequences);
+  }
 
   static createAnimationFactories
   <
