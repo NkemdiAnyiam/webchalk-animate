@@ -131,7 +131,7 @@ export class AnimSequence implements AnimSequenceConfig {
   /**@internal*/ isFinished: boolean = false;
   /**@internal*/ wasPlayed = false;
   /**@internal*/ wasRewound = false;
-  /**@internal*/ get skippingOn() { return this._parentTimeline?.skippingOn || this._parentTimeline?.usingJumpTo || this.usingFinish; }
+  /**@internal*/ get skippingOn() { return this._parentTimeline?.skippingOn || this._parentTimeline?.usingJumpTo || false }
   protected get compoundedPlaybackRate() { return this.playbackRate * (this._parentTimeline?.playbackRate ?? 1); }
   private animClips: AnimClip[] = []; // array of animClips
 

@@ -909,9 +909,10 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     this.inProgress = true;
     this.isRunning = true;
 
-    const skipping = this._parentSequence?.skippingOn;
-    if (skipping) { animation.finish(); }
-    else { animation.play(); }
+    if (this._parentSequence?.skippingOn || this._parentSequence?.usingFinish)
+      { animation.finish(); }
+    else
+      { animation.play(); }
     if (this._parentSequence?.isPaused) { animation.pause(); }
     
     // After delay phase, then apply class modifications and call onStart functions.
