@@ -70,7 +70,19 @@ export type AnimSequenceTiming = Pick<AnimSequenceConfig,
  * @interface
  */
 export type AnimSequenceStatus = {
+  /**
+   * `true` only if the sequence is in the process of playback and paused.
+   */
   isPaused: boolean;
+
+  /**
+   * `true` only if the sequence is in the process of playback and unpaused.
+   */
+  isRunning: boolean;
+
+  /**
+   * `true` only if the sequence is in the process of playback (whether running or paused).
+   */
   inProgress: boolean;
   skippingOn: boolean;
   usingFinish: boolean;
@@ -113,6 +125,7 @@ export class AnimSequence implements AnimSequenceConfig {
   /**@internal*/ autoplays: boolean = false;
   /**@internal*/ playbackRate: number = 1;
   /**@internal*/ isPaused = false;
+  /**@internal*/ isRunning = false;
   /**@internal*/ usingFinish = false;
   /**@internal*/ inProgress = false;
   /**@internal*/ isFinished: boolean = false;
@@ -162,6 +175,7 @@ export class AnimSequence implements AnimSequenceConfig {
    * @returns an object containing
    * - {@link AnimSequenceStatus.inProgress|inProgress},
    * - {@link AnimSequenceStatus.isPaused|isPaused},
+   * - {@link AnimSequenceStatus.isRunning|isRunning},
    * - {@link AnimSequenceStatus.skippingOn|skippingOn},
    * - {@link AnimSequenceStatus.isFinished|isFinished},
    * - {@link AnimSequenceStatus.usingFinish|usingFinish},
@@ -173,6 +187,7 @@ export class AnimSequence implements AnimSequenceConfig {
     return {
       inProgress: this.inProgress,
       isPaused: this.isPaused,
+      isRunning: this.isRunning,
       skippingOn: this.skippingOn,
       usingFinish: this.usingFinish,
       isFinished: this.isFinished,
@@ -335,6 +350,7 @@ export class AnimSequence implements AnimSequenceConfig {
     }
 
     this.inProgress = false;
+    this.isRunning = false;
     this.isFinished = true;
     this.wasPlayed = true;
     this.wasRewound = false;
@@ -404,6 +420,7 @@ export class AnimSequence implements AnimSequenceConfig {
     }
 
     this.inProgress = false;
+    this.isRunning = false;
     this.isFinished = true;
     this.wasPlayed = false;
     this.wasRewound = true;
@@ -417,7 +434,8 @@ export class AnimSequence implements AnimSequenceConfig {
    * @group Playback Methods
    */
   pause(): void {
-    if (this.isPaused) { return; }
+    if (!this.isRunning) { return; }
+    this.isRunning = false;
     this.isPaused = true;
     this.doForInProgressClips(animClip => animClip.pause(this));
   }
@@ -426,6 +444,7 @@ export class AnimSequence implements AnimSequenceConfig {
    */
   unpause(): void {
     if (!this.isPaused) { return; }
+    this.isRunning = true;
     this.isPaused = false;
     this.doForInProgressClips(animClip => animClip.unpause(this));
   }
