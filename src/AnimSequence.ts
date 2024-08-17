@@ -84,6 +84,14 @@ export type AnimSequenceStatus = {
    * `true` only if the sequence is in the process of playback (whether running or paused).
    */
   inProgress: boolean;
+
+  /**
+   * `true` only if a parent timeline has skipping enabled
+   * (`isSkipping` is `true`) or is using a jumping method
+   * (`isJumping` is `true`).
+   * @see {@link AnimTimelineStatus.isSkipping}
+   * @see {@link AnimTimelineStatus.isJumping}
+   */
   skippingOn: boolean;
   usingFinish: boolean;
   isFinished: boolean;
@@ -131,7 +139,7 @@ export class AnimSequence implements AnimSequenceConfig {
   /**@internal*/ isFinished: boolean = false;
   /**@internal*/ wasPlayed = false;
   /**@internal*/ wasRewound = false;
-  /**@internal*/ get skippingOn() { return this._parentTimeline?.skippingOn || this._parentTimeline?.usingJumpTo || false }
+  /**@internal*/ get skippingOn() { return this._parentTimeline?.skippingOn || this._parentTimeline?.isJumping || false }
   protected get compoundedPlaybackRate() { return this.playbackRate * (this._parentTimeline?.playbackRate ?? 1); }
   private animClips: AnimClip[] = []; // array of animClips
 

@@ -33,8 +33,8 @@ export class AnimTimeline {
   /**@internal*/ isAnimating = false; // true if currently in the middle of executing animations; false otherwise
   /**@internal*/ skippingOn = false; // used to determine whether or not all animations should be instantaneous
   /**@internal*/ isPaused = false;
-  /**@internal*/ currDirection: 'forward' | 'backward' = 'forward'; // set to 'forward' after stepForward() or 'backward' after stepBackward()
-  /**@internal*/ usingJumpTo = false; // true if currently using jumpTo()
+  /**@internal*/ currentDirection: 'forward' | 'backward' = 'forward'; // set to 'forward' after stepForward() or 'backward' after stepBackward()
+  /**@internal*/ isJumping = false; // true if currently using jumpTo()
   playbackRate = 1;
   config: AnimTimelineConfig;
   // CHANGE NOTE: AnimTimeline now stores references to in-progress sequences and also does not act directly on individual animations
@@ -42,11 +42,11 @@ export class AnimTimeline {
 
   getStatus() {
     return {
-      animating: this.isAnimating,
+      isAnimating: this.isAnimating,
       skippingOn: this.skippingOn,
-      paused: this.isPaused,
-      currentDirection: this.currDirection,
-      jumping: this.usingJumpTo,
+      isPaused: this.isPaused,
+      currentDirection: this.currentDirection,
+      isJumping: this.isJumping,
       stepNumber: this.stepNumber,
       atBeginning: this.atBeginning,
       atEnd: this.atEnd,
@@ -295,7 +295,7 @@ export class AnimTimeline {
 
   // plays current AnimSequence and increments loadedSeqIndex
   private async stepForward(): Promise<boolean> {
-    this.currDirection = 'forward';
+    this.currentDirection = 'forward';
     const sequences = this.animSequences;
 
     if (this.config.debugMode) { console.log(`-->> ${this.loadedSeqIndex}: ${sequences[this.loadedSeqIndex].getDescription()}`); }
@@ -316,7 +316,7 @@ export class AnimTimeline {
 
   // decrements loadedSeqIndex and rewinds the AnimSequence
   private async stepBackward(): Promise<boolean> {
-    this.currDirection = 'backward';
+    this.currentDirection = 'backward';
     const prevSeqIndex = --this.loadedSeqIndex;
     const sequences = this.animSequences;
 
@@ -381,7 +381,7 @@ export class AnimTimeline {
   ): Promise<this> {
     if (this.isAnimating) { throw new Error('Cannot use jumpTo() while currently animating.'); }
     // Calls to jumpTo() must be separated using await or something that similarly prevents simultaneous execution of code
-    if (this.usingJumpTo) { throw new Error('Cannot perform simultaneous calls to jumpTo() in timeline.'); }
+    if (this.isJumping) { throw new Error('Cannot perform simultaneous calls to jumpTo() in timeline.'); }
 
     const { targetOffset, autoplayDetection, position, tag } = options;
 
@@ -462,7 +462,7 @@ export class AnimTimeline {
         { throw new RangeError(`${errorPrefixString} ahead of timeline bounds. Max index = ${this.numSequences}, ${errorPostfixString}`); }
     }
 
-    this.usingJumpTo = true;
+    this.isJumping = true;
     // if paused, then unpause to perform the jumping; then re-pause
     let wasPaused = this.isPaused;
     if (wasPaused) { this.unpause(); }
@@ -525,7 +525,7 @@ export class AnimTimeline {
     if (!wasSkipping) { this.playbackButtons.toggleSkippingButton?.styleDeactivation(); }
     if (wasPaused) { this.pause(); }
 
-    this.usingJumpTo = false;
+    this.isJumping = false;
     return this;
   }
 
