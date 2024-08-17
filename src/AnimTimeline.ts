@@ -63,23 +63,26 @@ export class AnimTimeline {
 
   get numSequences(): number { return this.animSequences.length; }
 
-  static createInstance(config: Partial<AnimTimelineConfig> = {}): AnimTimeline {
-    return new AnimTimeline(config);
+  /**@internal*/
+  static createInstance(config: Partial<AnimTimelineConfig> | AnimSequence = {}, ...animSequences: AnimSequence[]): AnimTimeline {
+    return new AnimTimeline(config, ...animSequences);
   }
 
   private get atBeginning(): boolean { return this.loadedSeqIndex === 0; }
   private get atEnd(): boolean { return this.loadedSeqIndex === this.numSequences; }
   private get stepNumber(): number { return this.loadedSeqIndex + 1; }
 
-  constructor(config: Partial<AnimTimelineConfig> = {}) {
+  constructor(configOrSequence: Partial<AnimTimelineConfig>| AnimSequence = {}, ...animSequence: AnimSequence[]) {
     this.id = AnimTimeline.id++;
 
     this.config = {
       debugMode: false,
       timelineName: '',
       findsButtons: true,
-      ...config,
+      ...(configOrSequence instanceof AnimSequence ? {} : configOrSequence),
     };
+
+    this.addSequences(...(configOrSequence instanceof AnimSequence ? [configOrSequence, ...animSequence] : animSequence));
 
     if (this.config.findsButtons) {
       this.playbackButtons = this.setupPlaybackControls();
