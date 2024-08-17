@@ -93,9 +93,30 @@ export type AnimSequenceStatus = {
    * @see {@link AnimTimelineStatus.isJumping}
    */
   skippingOn: boolean;
+
+  /**
+   * `true` only if the sequence is currently using `finish()`.
+   * @see {@link AnimSequence.finish}
+   */
   usingFinish: boolean;
+
+  /**
+   * `true` only if the sequence has been played or rewound at least once and is not currently in progress.
+   */
   isFinished: boolean;
+
+  /**
+   * `true` only if the sequence has finished being played and not finished being rewound.
+   * (if rewound at all).
+   * - Resets to `false` once the sequence has finished being rewound.
+   */
   wasPlayed: boolean;
+
+  /**
+   * `true` only if the sequence has finished being rewound and not finished being played.
+   * - Resets to `false` once the sequence has finished being rewound.
+   * (if played at all).
+   */
   wasRewound: boolean;
 };
 
