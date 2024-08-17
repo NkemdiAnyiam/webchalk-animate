@@ -94,20 +94,22 @@ export type EffectNameIn<TGeneratorBank extends EffectGeneratorBank> = Exclude<k
   [key in keyof TGeneratorBank as TGeneratorBank[key] extends EffectGenerator ? key : never]: TGeneratorBank[key];
 }, number | symbol>;
 
-
-export abstract class WebFlik {
-  static newSequence(config: Partial<AnimSequenceConfig>, ...animClips: AnimClip[]): AnimSequence;
-  static newSequence(...animClips: AnimClip[]): AnimSequence;
-  static newSequence(config: Partial<AnimSequenceConfig> | AnimClip = {}, ...animClips: AnimClip[]): AnimSequence {
+/**
+ * @hideconstructor
+ */
+export class WebFlik {
+  newSequence(config: Partial<AnimSequenceConfig>, ...animClips: AnimClip[]): AnimSequence;
+  newSequence(...animClips: AnimClip[]): AnimSequence;
+  newSequence(config: Partial<AnimSequenceConfig> | AnimClip = {}, ...animClips: AnimClip[]): AnimSequence {
     return new AnimSequence(config, ...animClips);
   }
-  static newTimeline(config: Partial<AnimTimelineConfig>, ...animSequences: AnimSequence[]): AnimTimeline;
-  static newTimeline(...animSequences: AnimSequence[]): AnimTimeline;
-  static newTimeline(config: Partial<AnimTimelineConfig> | AnimSequence = {}, ...animSequences: AnimSequence[]): AnimTimeline {
+  newTimeline(config: Partial<AnimTimelineConfig>, ...animSequences: AnimSequence[]): AnimTimeline;
+  newTimeline(...animSequences: AnimSequence[]): AnimTimeline;
+  newTimeline(config: Partial<AnimTimelineConfig> | AnimSequence = {}, ...animSequences: AnimSequence[]): AnimTimeline {
     return new AnimTimeline(config, ...animSequences);
   }
 
-  static createAnimationFactories
+  createAnimationFactories
   <
    // default = {} ensures intellisense for a given bank still works
    // without specifying the field (why? not sure)
@@ -245,9 +247,9 @@ export abstract class WebFlik {
   }
 
   /**@internal*/
-  static scrollAnchorsStack: [target: Element, scrollOptions: ScrollingOptions][] = [];
+  scrollAnchorsStack: [target: Element, scrollOptions: ScrollingOptions][] = [];
 
-  static get utils() {
+  get utils() {
     return {
       useEasing,
     };
@@ -276,3 +278,8 @@ export abstract class WebFlik {
     }
   }
 }
+
+/**
+ * @ignore
+ */
+export const webflik = new WebFlik();

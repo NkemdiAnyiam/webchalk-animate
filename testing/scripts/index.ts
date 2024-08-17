@@ -1,7 +1,7 @@
-import { WebFlik } from 'webflik';
+import { webflik } from 'webflik';
 import { WbfkClassTypes } from 'webflik/types'
 
-const {Motion, Entrance} = WebFlik.createAnimationFactories({
+const {Motion, Entrance} = webflik.createAnimationFactories({
   customEntranceEffects: {
     hello: {
       generateKeyframes() {
@@ -15,13 +15,14 @@ const {Motion, Entrance} = WebFlik.createAnimationFactories({
 });
 
 {
-  const thing: WbfkClassTypes['AnimSequence'] = WebFlik.newSequence();
+  const thing: WbfkClassTypes['AnimSequence'] = webflik.newSequence();
 
   const func = function(sequence: WbfkClassTypes['AnimSequence']) {
 
   }
 
-  func(WebFlik.newSequence())
+  func(webflik.newSequence())
+
 
   const connector = document.querySelector<WbfkClassTypes['WbfkConnector']>('.connector--red');
 }
@@ -72,7 +73,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   // });
   // console.log('HELLO WORLD')
 
-  const seq = WebFlik.newSequence(
+  const seq = webflik.newSequence(
     entrance,
     motion,
   );
@@ -95,7 +96,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   //   console.log('WE BACK')
   // });
 
-  const timeline = WebFlik.newTimeline({timelineName: 'Basic'}).addSequences(seq);
+  const timeline = webflik.newTimeline({timelineName: 'Basic'}).addSequences(seq);
 
   timeline.step('forward');
   // timeline.toggleSkipping({forceState: 'on'}).then(() => {

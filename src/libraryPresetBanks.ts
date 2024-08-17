@@ -8,7 +8,7 @@ import {
   ConnectorEntranceClip, ConnectorEntranceClipConfig,
   ConnectorExitClip,     ConnectorExitClipConfig,
 } from "./categoricalClips";
-import { EffectGeneratorBank, WebFlik } from "./WebFlik";
+import { EffectGeneratorBank, webflik } from "./WebFlik";
 import { computeSelfScrollingBounds, negateNumString, overrideHidden, splitXYAlignmentString, splitXYTupleString, unOverrideHidden } from "./utils/helpers";
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "./utils/interfaces";
 import { useEasing } from "./utils/easing";
@@ -607,7 +607,7 @@ export const libPresetScrolls = {
         } = computeSelfScrollingBounds(this.domElem, target, scrollOptions);
         [x_from, y_from] = fromXY;
         [x_to, y_to] = toXY;
-        WebFlik.scrollAnchorsStack.push([target, scrollOptions]);
+        webflik.scrollAnchorsStack.push([target, scrollOptions]);
 
         if (getComputedStyle(target).display === 'none') {
           // TODO: improve warning
@@ -625,9 +625,9 @@ export const libPresetScrolls = {
       };
 
       const backwardGenerator = () => {
-        WebFlik.scrollAnchorsStack.pop();
-        if (WebFlik.scrollAnchorsStack.length > 0) {
-          const [anchor, anchorOptions] = WebFlik.scrollAnchorsStack[WebFlik.scrollAnchorsStack.length - 1];
+        webflik.scrollAnchorsStack.pop();
+        if (webflik.scrollAnchorsStack.length > 0) {
+          const [anchor, anchorOptions] = webflik.scrollAnchorsStack[webflik.scrollAnchorsStack.length - 1];
 
           const {
             fromXY: [x_from, y_from],
