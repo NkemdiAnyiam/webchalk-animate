@@ -143,25 +143,17 @@ type FullyFinishedPromise<T> = {
  */
 export class AnimSequence implements AnimSequenceConfig {
   private static id = 0;
-  
+  /**
+   * Number that uniquely identifies the clip from other sequences.
+   * Automatically generated.
+   */
   readonly id: number;
   /**@internal*/ _parentTimeline?: AnimTimeline; // pointer to parent AnimTimeline
   get root(): AnimTimeline | AnimSequence { return this.parentTimeline ?? this; }
+  /**
+   * The parent {@link AnimTimeline} that contains this sequence (may be `undefined`).
+   */
   get parentTimeline() { return this._parentTimeline; }
-  /**@internal*/ description: string = '<blank sequence description>';
-  /**@internal*/ tag: string = ''; // helps idenfity current AnimSequence for using AnimTimeline's jumpToSequenceTag()
-  /**@internal*/ autoplaysNextSequence: boolean = false; // decides whether the next AnimSequence should automatically play after this one
-  /**@internal*/ autoplays: boolean = false;
-  /**@internal*/ playbackRate: number = 1;
-  /**@internal*/ isPaused = false;
-  /**@internal*/ isRunning = false;
-  /**@internal*/ usingFinish = false;
-  /**@internal*/ inProgress = false;
-  /**@internal*/ isFinished: boolean = false;
-  /**@internal*/ wasPlayed = false;
-  /**@internal*/ wasRewound = false;
-  /**@internal*/ get skippingOn() { return this._parentTimeline?.skippingOn || this._parentTimeline?.isJumping || false }
-  protected get compoundedPlaybackRate() { return this.playbackRate * (this._parentTimeline?.playbackRate ?? 1); }
   private animClips: AnimClip[] = []; // array of animClips
 
   private animClipGroupings_activeFinishOrder: AnimClip[][] = [];
@@ -184,20 +176,15 @@ export class AnimSequence implements AnimSequenceConfig {
     undo: () => {},
   };
 
-  /**@internal*/
-  static createInstance(config: Partial<AnimSequenceConfig> | AnimClip = {}, ...animClips: AnimClip[]): AnimSequence {
-    return new AnimSequence(config, ...animClips);
-  }
-
-  // constructor(config: Partial<AnimSequenceConfig>, ...animClips: AnimClip[]);
-  // constructor(...animClips: AnimClip[]);
-  constructor(config: Partial<AnimSequenceConfig> | AnimClip = {}, ...animClips: AnimClip[]) {
-    this.id = AnimSequence.id++;
-
-    Object.assign(this, config instanceof AnimClip ? {} : config);
-    this.addClips(...(config instanceof AnimClip ? [config, ...animClips] : animClips));
-  }
-
+  // GROUP: Status
+  /**@internal*/ isPaused = false;
+  /**@internal*/ isRunning = false;
+  /**@internal*/ usingFinish = false;
+  /**@internal*/ inProgress = false;
+  /**@internal*/ isFinished: boolean = false;
+  /**@internal*/ wasPlayed = false;
+  /**@internal*/ wasRewound = false;
+  /**@internal*/ get skippingOn() { return this._parentTimeline?.skippingOn || this._parentTimeline?.isJumping || false }
   /**
    * Returns details about an sequence's current status.
    * @returns an object containing
@@ -223,7 +210,12 @@ export class AnimSequence implements AnimSequenceConfig {
       wasRewound: this.wasRewound,
     };
   }
-
+  
+  // GROUP: Timing
+  protected get compoundedPlaybackRate() { return this.playbackRate * (this._parentTimeline?.playbackRate ?? 1); }
+  /**@internal*/ autoplaysNextSequence: boolean = false; // decides whether the next AnimSequence should automatically play after this one
+  /**@internal*/ autoplays: boolean = false;
+  /**@internal*/ playbackRate: number = 1;
   /**
    * Returns timing-related details about the sequence.
    * @returns an object containing
@@ -242,6 +234,8 @@ export class AnimSequence implements AnimSequenceConfig {
     };
   }
 
+  // GROUP: Description and Tag
+  /**@internal*/ description: string = '<blank sequence description>';
   /**
    * @returns the {@link AnimSequenceConfig.description|description} for this sequence.
    * @see {@link AnimSequenceConfig.description}
@@ -249,6 +243,7 @@ export class AnimSequence implements AnimSequenceConfig {
    */
   getDescription() { return this.description; }
 
+  /**@internal*/ tag: string = ''; // helps idenfity current AnimSequence for using AnimTimeline's jumpToSequenceTag()
   /**
    * @returns the {@link AnimSequenceConfig.tag|tag} for this sequence.
    * @see {@link AnimSequenceConfig.tag|tag}
@@ -278,6 +273,20 @@ export class AnimSequence implements AnimSequenceConfig {
     for (const animClip of this.animClips) {
       animClip.setLineage(this, this._parentTimeline);
     }
+  }
+
+  /**@internal*/
+  static createInstance(config: Partial<AnimSequenceConfig> | AnimClip = {}, ...animClips: AnimClip[]): AnimSequence {
+    return new AnimSequence(config, ...animClips);
+  }
+
+  // constructor(config: Partial<AnimSequenceConfig>, ...animClips: AnimClip[]);
+  // constructor(...animClips: AnimClip[]);
+  constructor(config: Partial<AnimSequenceConfig> | AnimClip = {}, ...animClips: AnimClip[]) {
+    this.id = AnimSequence.id++;
+
+    Object.assign(this, config instanceof AnimClip ? {} : config);
+    this.addClips(...(config instanceof AnimClip ? [config, ...animClips] : animClips));
   }
 
   /**

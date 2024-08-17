@@ -227,13 +227,16 @@ export type AnimClipStatus = {
 export abstract class AnimClip<TEffectGenerator extends EffectGenerator = EffectGenerator> implements AnimClipConfig {
   private static id: number = 0;
   /**
-   * Creates an effect generator with a function that returns empty arrays (so no actual keyframes).
+   * @returns an effect generator with a function that returns empty arrays (so no actual keyframes).
    * @remarks
    * This static method is purely for convenience.
    */
   public static createNoOpEffectGenerator() { return {generateKeyframes() { return [[], []]; }} as EffectGenerator; }
   protected abstract get defaultConfig(): Partial<AnimClipConfig>;
-  
+
+  /*-:**************************************************************************************************************************/
+  /*-:*************************************        FIELDS & ACCESSORS        ***************************************************/
+  /*-:**************************************************************************************************************************/
   /**
    * Number that uniquely identifies the clip from other clips.
    * Automatically generated.
@@ -256,14 +259,11 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * - Else: the clip itself
    */
   get root(): AnimTimeline | AnimSequence | AnimClip { return this.parentTimeline ?? this.parentSequence ?? this; }
-  protected abstract get category(): EffectCategory;
-  protected effectName: string;
-  protected effectGenerator: TEffectGenerator;
-  protected effectOptions: EffectOptions<TEffectGenerator> = {} as EffectOptions<TEffectGenerator>;
   /**
    * The DOM element that is to be animated.
   */
  readonly domElem: Element;
+
  protected animation: WebFlikAnimation = {} as WebFlikAnimation;
   /**@internal*/
   keyframesGenerators?: {
@@ -286,29 +286,6 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     // ?? 1 because during the active phase (the only time when raf runs), null progress means finished
     return direction === 'normal' ? (progress ?? 1) : 1 - (progress ?? 1);
   }
-  
-  /**@internal*/ startsNextClipToo: boolean = false;
-  /**@internal*/ startsWithPrevious: boolean = false;
-  /**@internal*/ commitsStyles: boolean = true;
-  /**@internal*/ commitStylesForcefully: boolean = false; // attempt to unhide, commit, then re-hide
-  /**@internal*/ composite: CompositeOperation = 'replace';
-  /**@internal*/ cssClasses: CssClassOptions = {
-    toAddOnStart: [],
-    toAddOnFinish: [],
-    toRemoveOnStart: [],
-    toRemoveOnFinish: [],
-  };
-  /**@internal*/ runGeneratorsNow: boolean = false;
-
-  /**@internal*/ inProgress = false; // true only during animate() (regardless of pause state)
-  /**@internal*/ isRunning = false; // true only when inProgress and !isPaused
-  /**@internal*/ isPaused = false;
-  /**@internal*/ duration: number = 500;
-  /**@internal*/ delay: number = 0;
-  /**@internal*/ endDelay: number = 0;
-  /**@internal*/ easing: EasingString = 'linear';
-  /**@internal*/ playbackRate: number = 1; // actually base playback rate
-  protected get compoundedPlaybackRate(): number { return this.playbackRate * (this._parentSequence?.getTiming().compoundedPlaybackRate ?? 1); }
 
   /**@internal*/ fullStartTime = NaN;
   /**@internal*/ get activeStartTime() { return (this.fullStartTime + this.delay) / this.playbackRate; }
@@ -322,6 +299,11 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     ) as Pick<Source, keyof Source>;
   }
 
+  // GROUP: Effect Details
+  protected abstract get category(): EffectCategory;
+  protected effectName: string;
+  protected effectGenerator: TEffectGenerator;
+  protected effectOptions: EffectOptions<TEffectGenerator> = {} as EffectOptions<TEffectGenerator>;
   /**
    * Returns specific details about the animation's effect.
    * @returns an object containing
@@ -366,6 +348,16 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     }
   }
 
+  // GROUP: Timing
+  /**@internal*/ runGeneratorsNow: boolean = false;
+  /**@internal*/ startsNextClipToo: boolean = false;
+  /**@internal*/ startsWithPrevious: boolean = false;
+  /**@internal*/ duration: number = 500;
+  /**@internal*/ delay: number = 0;
+  /**@internal*/ endDelay: number = 0;
+  /**@internal*/ easing: EasingString = 'linear';
+  /**@internal*/ playbackRate: number = 1; // actually base playback rate
+  protected get compoundedPlaybackRate(): number { return this.playbackRate * (this._parentSequence?.getTiming().compoundedPlaybackRate ?? 1); }
   /**
    * Returns timing-related details about the animation.
    * @returns an object containing
@@ -419,6 +411,16 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     };
   }
 
+  // GROUP: Modifiers
+  /**@internal*/ commitsStyles: boolean = true;
+  /**@internal*/ commitStylesForcefully: boolean = false; // attempt to unhide, commit, then re-hide
+  /**@internal*/ composite: CompositeOperation = 'replace';
+  /**@internal*/ cssClasses: CssClassOptions = {
+    toAddOnStart: [],
+    toAddOnFinish: [],
+    toRemoveOnStart: [],
+    toRemoveOnFinish: [],
+  };
   /**
    * Returns details about how the DOM element is modified beyond just the effect of the animation.
    * @returns an object containing
@@ -467,6 +469,10 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     };
   }
 
+  // GROUP: Status
+  /**@internal*/ inProgress = false; // true only during animate() (regardless of pause state)
+  /**@internal*/ isRunning = false; // true only when inProgress and !isPaused
+  /**@internal*/ isPaused = false;
   /**
    * Returns details about the animation's current status.
    * @returns an object containing
@@ -508,9 +514,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     };
   }
 
-  /*****************************************************************************************************************************/
-  /************************************        CONSTRUCTOR & INITIALIZERS        ***********************************************/
-  /*****************************************************************************************************************************/
+  /*-:**************************************************************************************************************************/
+  /*-:*********************************        CONSTRUCTOR & INITIALIZERS        ***********************************************/
+  /*-:**************************************************************************************************************************/
   /**
    * Used by a parent to set pointers to itself (the parent) within the clip.
    * @return {void}
@@ -675,9 +681,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     };
   }
 
-  /*****************************************************************************************************************************/
-  /********************************************        PLAYBACK        *********************************************************/
-  /*****************************************************************************************************************************/
+  /*-:**************************************************************************************************************************/
+  /*-:*****************************************        PLAYBACK        *********************************************************/
+  /*-:**************************************************************************************************************************/
   /**
    * Plays the animation clip (animation runs forward).
    * @returns a promise that is resolved when the animation finishes playing (including playing its endDelay phase).
@@ -884,9 +890,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    */
   useCompoundedPlaybackRate() { this.animation.updatePlaybackRate(this.compoundedPlaybackRate); }
 
-  /*****************************************************************************************************************************/
-  /********************************************         ANIMATE         ********************************************************/
-  /*****************************************************************************************************************************/
+  /*-:**************************************************************************************************************************/
+  /*-:*****************************************         ANIMATE         ********************************************************/
+  /*-:**************************************************************************************************************************/
   protected _onStartForward(): void {};
   protected _onFinishForward(): void {};
   protected _onStartBackward(): void {};
@@ -1138,9 +1144,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     return initialVal + (finalVal - initialVal) * this.rafLoopsProgress;
   }
 
-  /*****************************************************************************************************************************/
-  /********************************************         ERRORS         *********************************************************/
-  /*****************************************************************************************************************************/
+  /*-:**************************************************************************************************************************/
+  /*-:*****************************************         ERRORS         *********************************************************/
+  /*-:**************************************************************************************************************************/
   protected generateError: ClipErrorGenerator = (ErrorClassOrInstance, msg = '<unspecified error>', elementOverride?: Element) => {
     return generateError(ErrorClassOrInstance, msg as string, {
       timeline: this._parentTimeline,
