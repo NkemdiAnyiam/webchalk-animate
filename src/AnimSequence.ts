@@ -210,7 +210,7 @@ export class AnimSequence implements AnimSequenceConfig {
    * - {@link AnimSequenceStatus.usingFinish|usingFinish},
    * - {@link AnimSequenceStatus.wasPlayed|wasPlayed},
    * - {@link AnimSequenceStatus.wasRewound|wasRewound},
-   * @group Getter Methods
+   * @group Property Getter Methods
    */
   getStatus(): AnimSequenceStatus {
     return {
@@ -232,7 +232,7 @@ export class AnimSequence implements AnimSequenceConfig {
    * - {@link AnimSequenceTiming.autoplaysNextSequence|autoplaysNextSequence},
    * - {@link AnimSequenceTiming.compoundedPlaybackRate|compoundedPlaybackRate},
    * - {@link AnimSequenceTiming.playbackRate|playbackRate},
-   * @group Getter Methods
+   * @group Property Getter Methods
    */
   getTiming(): AnimSequenceTiming {
     return {
@@ -246,14 +246,14 @@ export class AnimSequence implements AnimSequenceConfig {
   /**
    * @returns the {@link AnimSequenceConfig.description|description} for this sequence.
    * @see {@link AnimSequenceConfig.description}
-   * @group Getter Methods
+   * @group Property Getter Methods
    */
   getDescription() { return this.description; }
 
   /**
    * @returns the {@link AnimSequenceConfig.tag|tag} for this sequence.
    * @see {@link AnimSequenceConfig.tag|tag}
-   * @group Getter Methods
+   * @group Property Getter Methods
    */
   getTag() { return this.tag; }
   
@@ -261,7 +261,7 @@ export class AnimSequence implements AnimSequenceConfig {
    * Sets the {@link AnimSequenceConfig.description|description} for this sequence.
    * @param description - new description
    * @see {@link AnimSequenceConfig.description}
-   * @group Setter Methods
+   * @group Property Setter Methods
    */
   setDescription(description: string): this { this.description = description; return this; }
 
@@ -269,7 +269,7 @@ export class AnimSequence implements AnimSequenceConfig {
    * Sets the {@link AnimSequenceConfig.tag|tag} for this sequence.
    * @param tag - new tag
    * @see {@link AnimSequenceConfig.tag}
-   * @group Setter Methods
+   * @group Property Setter Methods
    */
   setTag(tag: string): this { this.tag = tag; return this; }
 
@@ -281,17 +281,36 @@ export class AnimSequence implements AnimSequenceConfig {
     }
   }
 
+  /**
+   * 
+   * @param promiseFunctions 
+   * @returns 
+   * @group Timing Event Methods
+   */
   setOnStart(promiseFunctions: {do: () => void, undo: () => void}): this { 
     this.onStart.do = promiseFunctions.do;
     this.onStart.undo = promiseFunctions.undo;
     return this;
   }
+
+  /**
+   * 
+   * @param promiseFunctions 
+   * @returns 
+   * @group Timing Event Methods
+   */
   setOnFinish(promiseFunctions: {do: () => void, undo: () => void}): this { 
     this.onFinish.do = promiseFunctions.do;
     this.onFinish.undo = promiseFunctions.undo;
     return this;
   }
 
+  /**
+   * 
+   * @param animClips 
+   * @returns 
+   * @group Structure Methods
+   */
   addClips(...animClips: AnimClip[]): this {
     for (const animClip of animClips) {
       animClip.setLineage(this, this._parentTimeline);
@@ -300,6 +319,13 @@ export class AnimSequence implements AnimSequenceConfig {
     return this;
   }
 
+  /**
+   * 
+   * @param index 
+   * @param animClips 
+   * @returns 
+   * @group Structure Methods
+   */
   addClipsAt(index: number, ...animClips: AnimClip[]): this {
     for (const animClip of animClips) {
       animClip.setLineage(this, this._parentTimeline);
@@ -308,6 +334,12 @@ export class AnimSequence implements AnimSequenceConfig {
     return this;
   }
 
+  /**
+   * 
+   * @param animClip 
+   * @returns 
+   * @group Structure Methods
+   */
   findClipIndex(animClip: AnimClip): number {
     return this.animClips.findIndex((_animClip) => _animClip === animClip);
   }
