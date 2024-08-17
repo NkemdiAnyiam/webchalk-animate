@@ -41,6 +41,14 @@ body {
   }
 }
 
+.tsd-nested-navigation {
+  & > li {
+    & > details {
+      margin-left: unset;
+    }
+  }
+}
+
 .tsd-signature {
   font-family: var(--font-mono);
 }
