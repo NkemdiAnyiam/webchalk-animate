@@ -10,6 +10,7 @@
   "defaultCategory": "none",
   "navigation": {
     "includeCategories": true,
+    "compactFolders": false,
   },
   "groupOrder": ["Properties", "Accessors", "Structure Methods", "Playback Methods", "Timing Event Methods", "Property Getter Methods", "Property Setter Methods"],
 }
