@@ -14,21 +14,26 @@
   --dark-name: #ffff99;
   --dark-code-background: #222222;
   --dark-code-inline-background: #2f2f2f;
+  --light-code-inline-background: #f3f3f3;
   --font-sans: "Proxima Nova" !important;
   --font-mono: "Fira Code" !important;
 
   @media (prefers-color-scheme: light) {
     --color-member-name: var(--light-name);
+    --code-inline-background: var(--light-code-inline-background);
   }
   @media (prefers-color-scheme: dark) {
     --color-member-name: var(--dark-name);
+    --code-inline-background: var(--dark-code-inline-background);
   }
 
   &[data-theme="light"] {
     --color-member-name: var(--light-name);
+    --code-inline-background: var(--light-code-inline-background);
   }
   &[data-theme="dark"] {
     --color-member-name: var(--dark-name);
+    --code-inline-background: var(--dark-code-inline-background);
   }
 }
 
@@ -60,7 +65,7 @@ body {
 }
 
 code:not(.ts) {
-  --code-background: var(--dark-code-inline-background);
+  background-color: var(--code-inline-background);
 }
 
 .tsd-accordion-summary:has(h2) {
