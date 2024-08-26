@@ -12,6 +12,8 @@
 :root {
   --light-name: #666600;
   --dark-name: #ffff99;
+  --light-color-ts-parameter: #880088;
+  --dark-color-ts-parameter: #dd99dd;
   --dark-code-background: #222222;
   --dark-code-inline-background: #2f2f2f;
   --light-code-inline-background: #f3f3f3;
@@ -21,19 +23,23 @@
   @media (prefers-color-scheme: light) {
     --color-member-name: var(--light-name);
     --code-inline-background: var(--light-code-inline-background);
+    --color-ts-parameter: var(--light-color-ts-parameter) !important;
   }
   @media (prefers-color-scheme: dark) {
     --color-member-name: var(--dark-name);
     --code-inline-background: var(--dark-code-inline-background);
+    --color-ts-parameter: var(--dark-color-ts-parameter) !important;
   }
 
   &[data-theme="light"] {
     --color-member-name: var(--light-name);
     --code-inline-background: var(--light-code-inline-background);
+    --color-ts-parameter: var(--light-color-ts-parameter) !important;
   }
   &[data-theme="dark"] {
     --color-member-name: var(--dark-name);
     --code-inline-background: var(--dark-code-inline-background);
+    --color-ts-parameter: var(--dark-color-ts-parameter) !important;
   }
 }
 
@@ -61,7 +67,11 @@ body {
 .tsd-signature-type,
 .tsd-kind-parameter,
 .tsd-signature-symbol {
-  font-familY: var(--font-mono);
+  font-family: var(--font-mono);
+}
+
+a.tsd-kind-property {
+  color: var(--color-link);
 }
 
 code:not(.ts) {
