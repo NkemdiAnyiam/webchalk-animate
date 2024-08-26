@@ -97,7 +97,6 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   // });
 
   const timeline = webflik.newTimeline({timelineName: 'Basic', autoLinksButtons: false}).addSequences(seq);
-  timeline.linkPlaybackButtons({onlyFind: ['Pause', 'Step Forward']});
 
   // timeline.step('forward');
   // timeline.toggleSkipping({forceState: 'on'}).then(() => {
