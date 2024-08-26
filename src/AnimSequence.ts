@@ -177,12 +177,12 @@ export class AnimSequence implements AnimSequenceConfig {
   private fullyFinished: FullyFinishedPromise<this> = this.getNewFullyFinished();
 
   /**@internal*/
-  onStart: {do: () => void; undo: () => void;} = {
+  onStart: {do: Function; undo: Function;} = {
     do: () => {},
     undo: () => {},
   };
   /**@internal*/
-  onFinish: {do: () => void; undo: () => void;} = {
+  onFinish: {do: Function; undo: Function;} = {
     do: () => {},
     undo: () => {},
   };
@@ -302,25 +302,25 @@ export class AnimSequence implements AnimSequenceConfig {
 
   /**
    * 
-   * @param promiseFunctions 
+   * @param functions 
    * @returns 
    * @group Timing Event Methods
    */
-  setOnStart(promiseFunctions: {do: () => void, undo: () => void}): this { 
-    this.onStart.do = promiseFunctions.do;
-    this.onStart.undo = promiseFunctions.undo;
+  setOnStart(functions: {do: Function, undo: Function}): this { 
+    this.onStart.do = functions.do;
+    this.onStart.undo = functions.undo;
     return this;
   }
 
   /**
    * 
-   * @param promiseFunctions 
+   * @param functions 
    * @returns 
    * @group Timing Event Methods
    */
-  setOnFinish(promiseFunctions: {do: () => void, undo: () => void}): this { 
-    this.onFinish.do = promiseFunctions.do;
-    this.onFinish.undo = promiseFunctions.undo;
+  setOnFinish(functions: {do: Function, undo: Function}): this { 
+    this.onFinish.do = functions.do;
+    this.onFinish.undo = functions.undo;
     return this;
   }
 
