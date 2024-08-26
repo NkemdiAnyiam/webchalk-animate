@@ -85,15 +85,15 @@ export class AnimTimeline {
     this.addSequences(...(configOrSequence instanceof AnimSequence ? [configOrSequence, ...animSequence] : animSequence));
 
     if (this.config.findsButtons) {
-      this.playbackButtons = this.setupPlaybackControls();
+      this.playbackButtons = this.linkPlaybackButtons();
     }
   }
 
-  setupPlaybackControls(root?: HTMLElement): typeof this.playbackButtons {
-    const potentialButtonsContainer = (root ?? document).querySelector(`[timeline-name="${this.config.timelineName}"]`);
+  linkPlaybackButtons(searchRoot?: HTMLElement): typeof this.playbackButtons {
+    const potentialButtonsContainer = (searchRoot ?? document).querySelector(`[timeline-name="${this.config.timelineName}"]`);
 
     // find the button if it has the correct timeline-name directly on it
-    const getButtonDirect = (action: WbfkPlaybackButton['action']) => (root ?? document).querySelector<WbfkPlaybackButton>(`wbfk-playback-button[action="${action}"][timeline-name="${this.config.timelineName}"]`);
+    const getButtonDirect = (action: WbfkPlaybackButton['action']) => (searchRoot ?? document).querySelector<WbfkPlaybackButton>(`wbfk-playback-button[action="${action}"][timeline-name="${this.config.timelineName}"]`);
     // find the button if it is nested in a container with the correct timeline-name and does not have a timeline-name of its own
     const getButtonGroupChild = (action: WbfkPlaybackButton['action']) => potentialButtonsContainer?.querySelector<WbfkPlaybackButton>(`wbfk-playback-button[action="${action}"]:not([timeline-name])`);
     // search for button directly, then search for child of button group
