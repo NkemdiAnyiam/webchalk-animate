@@ -143,15 +143,26 @@ type FullyFinishedPromise<T> = {
  */
 export class AnimSequence implements AnimSequenceConfig {
   private static id = 0;
+
+  
+  /*-:**************************************************************************************************************************/
+  /*-:*************************************        FIELDS & ACCESSORS        ***************************************************/
+  /*-:**************************************************************************************************************************/
   /**
    * Number that uniquely identifies the sequence from other sequences.
    * Automatically generated.
    */
   readonly id: number;
   /**@internal*/ _parentTimeline?: AnimTimeline; // pointer to parent AnimTimeline
+  /**
+   * The highest level of this sequence's lineage.
+   * - If the sequence is nested within an {@link AnimTimeline}: that timeline,
+   * - Else: the sequence itself
+   */
   get root(): AnimTimeline | AnimSequence { return this.parentTimeline ?? this; }
   /**
-   * The parent {@link AnimTimeline} that contains this sequence (may be `undefined`).
+   * The parent {@link AnimTimeline} that contains this sequence
+   * (`undefined` if the sequence is not part of a timeline).
    */
   get parentTimeline() { return this._parentTimeline; }
   private animClips: AnimClip[] = []; // array of animClips
@@ -313,9 +324,13 @@ export class AnimSequence implements AnimSequenceConfig {
     return this;
   }
 
+  
+  /*-:**************************************************************************************************************************/
+  /*-:*************************************        STRUCTURE METHODS        ****************************************************/
+  /*-:**************************************************************************************************************************/
   /**
-   * 
-   * @param animClips 
+   * Adds one or more {@link AnimClip} objects to the end of the sequence.
+   * @param animClips - comma separated list of animation clips
    * @returns 
    * @group Structure Methods
    */
@@ -327,10 +342,11 @@ export class AnimSequence implements AnimSequenceConfig {
     return this;
   }
 
+  // TODO: prevent play() and rewind() when sequence contains undefined entries
   /**
-   * 
-   * @param index 
-   * @param animClips 
+   * Adds one or more {@link AnimClip} objects to the specified index of the sequence.
+   * @param index - the index at which the clips should be inserted
+   * @param animClips - comma separated list of animation clips
    * @returns 
    * @group Structure Methods
    */
@@ -343,15 +359,18 @@ export class AnimSequence implements AnimSequenceConfig {
   }
 
   /**
-   * 
-   * @param animClip 
-   * @returns 
+   * Finds the index of a given {@link AnimClip} object within the sequence
+   * @param animClip - the animation clip to search for within the sequence
+   * @returns the index of {@link animClip} within the sequence or `-1` if the clip is not part of the sequence.
    * @group Structure Methods
    */
   findClipIndex(animClip: AnimClip): number {
     return this.animClips.findIndex((_animClip) => _animClip === animClip);
   }
 
+  /*-:**************************************************************************************************************************/
+  /*-:*****************************************        PLAYBACK        *********************************************************/
+  /*-:**************************************************************************************************************************/
   private getNewFullyFinished(): FullyFinishedPromise<this> {
     const {resolve, promise} = Promise.withResolvers<this>();
     return {resolve, promise};
@@ -366,7 +385,8 @@ export class AnimSequence implements AnimSequenceConfig {
 
   // plays each animClip contained in this AnimSequence instance in sequential order
   /**
-   * 
+   * Plays the animation sequence (sequence runs forward).
+   * @returns a promise that is resolved when the sequence finishes playing.
    * @group Playback Methods
    */
   async play(): Promise<this> {
@@ -432,6 +452,8 @@ export class AnimSequence implements AnimSequenceConfig {
 
   // rewinds each animClip contained in this AnimSequence instance in reverse order
   /**
+   * Rewinds the animation sequence (sequence runs backward).
+   * @returns a promise that is resolved when the sequence finishes rewinding.
    * @group Playback Methods
    */
   async rewind(): Promise<this> {
@@ -502,6 +524,8 @@ export class AnimSequence implements AnimSequenceConfig {
   }
   
   /**
+   * Pauses the animation sequence.
+   * - If the sequence is not already in progress, this method does nothing.
    * @group Playback Methods
    */
   pause(): void {
@@ -510,7 +534,10 @@ export class AnimSequence implements AnimSequenceConfig {
     this.isPaused = true;
     this.doForInProgressClips(animClip => animClip.pause(this));
   }
+
   /**
+   * Unpauses the animation sequence.
+   * - If the sequence is not currently paused, this method does nothing.
    * @group Playback Methods
    */
   unpause(): void {
@@ -522,6 +549,10 @@ export class AnimSequence implements AnimSequenceConfig {
 
   // TODO: check to see if it's necessary to prevent direct finish() calls if sequence has a parent timeline
   /**
+   * Forces the animation sequence to instantly finish.
+   * - This works even if the animation sequence is not already currently in progress.
+   * - The sequence will still pause for any roadblocks generated by {@link AnimClip.addRoadblocks}.
+   * - Does not work if the sequence is currently paused.
    * @group Playback Methods
    */
   async finish(): Promise<this> {
@@ -540,6 +571,9 @@ export class AnimSequence implements AnimSequenceConfig {
 
   // used to skip currently running animation so they don't run at regular speed while using finish()
   /**
+   * Forces the animation clips that are currently running within the sequence to instantly finish.
+   * - After the currently running animation clips complete, the rest of the sequence runs normally.
+   * - The sequence will still pause for any roadblocks generated by {@link AnimClip.addRoadblocks}.
    * @group Playback Methods
    */
   async finishInProgressAnimations(): Promise<this> {
@@ -547,7 +581,8 @@ export class AnimSequence implements AnimSequenceConfig {
   }
 
   /**
-   * @param newRate
+   * Sets the base playback rate of the sequence.
+   * @param newRate - the new playback rate
    * @group Playback Methods
    */
   updatePlaybackRate(newRate: number): this {
@@ -557,8 +592,9 @@ export class AnimSequence implements AnimSequenceConfig {
   }
 
   /**
-   * @internal
+   * Multiplies playback rate of parent timeline (if exists) with base playback rate.
    * @group Playback Methods
+   * @internal
    */
   useCompoundedPlaybackRate(): this {
     this.doForInProgressClips(animClip => animClip.useCompoundedPlaybackRate());
