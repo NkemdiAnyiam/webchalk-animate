@@ -3,9 +3,9 @@ import { errorTip, generateError, TimelineErrorGenerator } from "./utils/errors"
 import { WbfkPlaybackButton } from "./WbfkPlaybackButton";
 
 export type AnimTimelineConfig = {
-  debugMode: boolean;
   timelineName: string;
-  findsButtons: boolean;
+  debugMode: boolean;
+  autoLinksButtons: boolean;
 };
 
 type SequenceOperation = (sequence: AnimSequence) => void;
@@ -78,17 +78,18 @@ export class AnimTimeline {
     this.config = {
       debugMode: false,
       timelineName: '',
-      findsButtons: true,
+      autoLinksButtons: true,
       ...(configOrSequence instanceof AnimSequence ? {} : configOrSequence),
     };
 
     this.addSequences(...(configOrSequence instanceof AnimSequence ? [configOrSequence, ...animSequence] : animSequence));
 
-    if (this.config.findsButtons) {
+    if (this.config.autoLinksButtons) {
       this.playbackButtons = this.linkPlaybackButtons();
     }
   }
 
+  // TODO: make it possible to not completely replace all buttons every time this method is called
   linkPlaybackButtons(searchRoot?: HTMLElement): typeof this.playbackButtons {
     const potentialButtonsContainer = (searchRoot ?? document).querySelector(`[timeline-name="${this.config.timelineName}"]`);
 
@@ -231,11 +232,11 @@ export class AnimTimeline {
     if (wasWarned) {
       console.warn(
         `Some buttons for timeline named "${this.config.timelineName}" not found.`
-        + `Missing buttons: ${warnedList.join(', ')}.`
+        + ` Missing buttons: ${warnedList.join(', ')}.`
         + errorTip(
           `For <wbfk-playback-button> tags to be detected, their 'timeline-name' attribute (or the 'timeline-name' attribute of`
           + ` their parent container) must match this timeline's 'timelineName' configuration option.`
-          + ` If this timeline does not need to detect any buttons, you may set its 'findsButtons' config option to false`
+          + ` If this timeline does not need to detect any buttons, you may set its 'autoLinkButtons' config option to false`
         + ` to prevent this warning.`)
       );
     }
