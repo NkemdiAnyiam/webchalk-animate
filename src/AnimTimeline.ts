@@ -1,5 +1,5 @@
 import { AnimSequence } from "./AnimSequence";
-import { generateError, TimelineErrorGenerator } from "./utils/errors";
+import { errorTip, generateError, TimelineErrorGenerator } from "./utils/errors";
 import { WbfkPlaybackButton } from "./WbfkPlaybackButton";
 
 export type AnimTimelineConfig = {
@@ -214,10 +214,11 @@ export class AnimTimeline {
     }
 
     let wasWarned = false;
+    const warnedList: string[] = [];
 
     const warnButton = (button: WbfkPlaybackButton | null | undefined, purpose: string) => {
       if (!button) {
-        console.warn(`${purpose} button for timeline named "${this.config.timelineName}" not found.`);
+        warnedList.push(purpose);
         wasWarned = true;
       }
     }
@@ -229,8 +230,13 @@ export class AnimTimeline {
     warnButton(toggleSkippingButton, 'Toggle Skipping');
     if (wasWarned) {
       console.warn(
-        `For <wbfk-playback-button> tags to be detected, their 'timeline-name' attributes must match this timeline's 'timelineName' config option.`
-        + ` If this timeline does not need to detect any buttons, you may set its 'findsButtons' config option to false.`
+        `Some buttons for timeline named "${this.config.timelineName}" not found.`
+        + `Missing buttons: ${warnedList.join(', ')}.`
+        + errorTip(
+          `For <wbfk-playback-button> tags to be detected, their 'timeline-name' attribute (or the 'timeline-name' attribute of`
+          + ` their parent container) must match this timeline's 'timelineName' configuration option.`
+          + ` If this timeline does not need to detect any buttons, you may set its 'findsButtons' config option to false`
+        + ` to prevent this warning.`)
       );
     }
 
