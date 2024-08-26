@@ -633,10 +633,12 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
     // TODO: Figure out how to disable any pausing/stepping functionality in the timeline while stopped for roadblocks
     this.animation.pauseForRoadblocks = () => {
+      this.parentTimeline?.disablePlaybackButtons();
       this.root.pause();
     }
     this.animation.unpauseFromRoadblocks = () => {
       this.root.unpause();
+      this.parentTimeline?.enablePlaybackButtons();
     }
 
     return this;
