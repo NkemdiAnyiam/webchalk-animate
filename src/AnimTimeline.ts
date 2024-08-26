@@ -86,12 +86,11 @@ export class AnimTimeline {
     this.addSequences(...(configOrSequence instanceof AnimSequence ? [configOrSequence, ...animSequence] : animSequence));
 
     if (this.config.autoLinksButtons) {
-      this.playbackButtons = this.linkPlaybackButtons();
+      this.linkPlaybackButtons();
     }
   }
 
-  // TODO: make it possible to not completely replace all buttons every time this method is called
-  linkPlaybackButtons(options: Partial<{searchRoot: HTMLElement, buttonsSubset: PlaybackButtonPurpose[]}> = {}): typeof this.playbackButtons {
+  linkPlaybackButtons(options: Partial<{searchRoot: HTMLElement, buttonsSubset: PlaybackButtonPurpose[]}> = {}): this {
     const {
       searchRoot,
       buttonsSubset = [`Step Forward`, `Step Backward`, `Fast Forward`, `Pause`, `Toggle Skipping`],
@@ -135,7 +134,6 @@ export class AnimTimeline {
     }
 
     if (backwardButton) {
-      const forwardButton = this.playbackButtons.forwardButton;
       backwardButton.activate = () => {
         if (this.isAnimating || this.isPaused || this.atBeginning) { return; }
 
@@ -255,9 +253,11 @@ export class AnimTimeline {
       );
     }
 
-    return {
+    this.playbackButtons = {
       forwardButton, backwardButton, pauseButton, fastForwardButton, toggleSkippingButton,
     };
+
+    return this;
   }
 
   addSequences(...animSequences: AnimSequence[]): this {
