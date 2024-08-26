@@ -96,9 +96,10 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   //   console.log('WE BACK')
   // });
 
-  const timeline = webflik.newTimeline({timelineName: 'Basic'}).addSequences(seq);
+  const timeline = webflik.newTimeline({timelineName: 'Basic', autoLinksButtons: false}).addSequences(seq);
+  timeline.linkPlaybackButtons({onlyFind: ['Pause', 'Step Forward']});
 
-  timeline.step('forward');
+  // timeline.step('forward');
   // timeline.toggleSkipping({forceState: 'on'}).then(() => {
   //   console.log('HEY, EVERYONE!!!');
   // })

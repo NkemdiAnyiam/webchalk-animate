@@ -22,6 +22,7 @@ const DISABLED_FROM_PAUSE = 'playback-button--disabledFromPause';
 type PlaybackButtons = {
   [key in `${'forward' | 'backward' | 'pause' | 'toggleSkipping' | 'fastForward'}Button`]: WbfkPlaybackButton | null | undefined;
 };
+type PlaybackButtonPurpose = `Step ${'Forward' | 'Backward'}` | 'Pause' | 'Fast Forward' | 'Toggle Skipping';
 
 export class AnimTimeline {
   private static id = 0;
@@ -90,7 +91,11 @@ export class AnimTimeline {
   }
 
   // TODO: make it possible to not completely replace all buttons every time this method is called
-  linkPlaybackButtons(searchRoot?: HTMLElement): typeof this.playbackButtons {
+  linkPlaybackButtons(options: Partial<{searchRoot: HTMLElement, buttonsSubset: PlaybackButtonPurpose[]}> = {}): typeof this.playbackButtons {
+    const {
+      searchRoot,
+      buttonsSubset = [`Step Forward`, `Step Backward`, `Fast Forward`, `Pause`, `Toggle Skipping`],
+    } = options;
     const potentialButtonsContainer = (searchRoot ?? document).querySelector(`[timeline-name="${this.config.timelineName}"]`);
 
     // find the button if it has the correct timeline-name directly on it
@@ -100,11 +105,11 @@ export class AnimTimeline {
     // search for button directly, then search for child of button group
     const getButton = (action: WbfkPlaybackButton['action']) => getButtonDirect(action) ?? getButtonGroupChild(action);
 
-    const forwardButton = getButton("step-forward");
-    const backwardButton = getButton("step-backward");
-    const pauseButton = getButton("pause");
-    const fastForwardButton = getButton("fast-forward");
-    const toggleSkippingButton = getButton("toggle-skipping");
+    const forwardButton = buttonsSubset.includes('Step Forward') ? getButton("step-forward") : undefined;
+    const backwardButton = buttonsSubset.includes('Step Backward') ? getButton("step-backward") : undefined;
+    const pauseButton = buttonsSubset.includes('Pause') ? getButton("pause") : undefined;
+    const fastForwardButton = buttonsSubset.includes('Fast Forward') ? getButton("fast-forward") : undefined;
+    const toggleSkippingButton = buttonsSubset.includes('Toggle Skipping') ? getButton("toggle-skipping") : undefined;
 
     if (forwardButton) {
       forwardButton.activate = () => {
@@ -114,12 +119,14 @@ export class AnimTimeline {
         this.step('forward', {viaButton: true}).then(() => { forwardButton.styleDeactivation(); });
       }
       forwardButton.styleActivation = () => {
+        const backwardButton = this.playbackButtons.backwardButton;
         forwardButton.classList.add(PRESSED);
         backwardButton?.classList.remove(DISABLED_FROM_EDGE); // if stepping forward, we of course won't be at the left edge of timeline
         backwardButton?.classList.add(DISABLED_FROM_STEPPING);
         forwardButton.classList.add(DISABLED_POINTER_FROM_STEPPING);
       };
       forwardButton.styleDeactivation = () => {
+        const backwardButton = this.playbackButtons.backwardButton;
         forwardButton.classList.remove(PRESSED);
         forwardButton.classList.remove(DISABLED_POINTER_FROM_STEPPING);
         backwardButton?.classList.remove(DISABLED_FROM_STEPPING);
@@ -128,6 +135,7 @@ export class AnimTimeline {
     }
 
     if (backwardButton) {
+      const forwardButton = this.playbackButtons.forwardButton;
       backwardButton.activate = () => {
         if (this.isAnimating || this.isPaused || this.atBeginning) { return; }
 
@@ -136,12 +144,14 @@ export class AnimTimeline {
       };
 
       backwardButton.styleActivation = () => {
+        const forwardButton = this.playbackButtons.forwardButton;
         backwardButton.classList.add(PRESSED);
         forwardButton?.classList.remove(DISABLED_FROM_EDGE);
         forwardButton?.classList.add(DISABLED_FROM_STEPPING);
         backwardButton.classList.add(DISABLED_POINTER_FROM_STEPPING);
       };
       backwardButton.styleDeactivation = () => {
+        const forwardButton = this.playbackButtons.forwardButton;
         backwardButton.classList.remove(PRESSED);
         forwardButton?.classList.remove(DISABLED_FROM_STEPPING);
         backwardButton.classList.remove(DISABLED_POINTER_FROM_STEPPING);
@@ -162,12 +172,16 @@ export class AnimTimeline {
       };
 
       pauseButton.styleActivation = () => {
+        const forwardButton = this.playbackButtons.forwardButton;
+        const backwardButton = this.playbackButtons.backwardButton;
         pauseButton.active = true;
         pauseButton.classList.add(PRESSED);
         forwardButton?.classList.add(DISABLED_FROM_PAUSE);
         backwardButton?.classList.add(DISABLED_FROM_PAUSE);
       };
       pauseButton.styleDeactivation = () => {
+        const forwardButton = this.playbackButtons.forwardButton;
+        const backwardButton = this.playbackButtons.backwardButton;
         pauseButton.active = false;
         pauseButton.classList.remove(PRESSED);
         forwardButton?.classList.remove(DISABLED_FROM_PAUSE);
@@ -217,8 +231,8 @@ export class AnimTimeline {
     let wasWarned = false;
     const warnedList: string[] = [];
 
-    const warnButton = (button: WbfkPlaybackButton | null | undefined, purpose: string) => {
-      if (!button) {
+    const warnButton = (button: WbfkPlaybackButton | null | undefined, purpose: PlaybackButtonPurpose) => {
+      if (!button && buttonsSubset.includes(purpose)) {
         warnedList.push(purpose);
         wasWarned = true;
       }
