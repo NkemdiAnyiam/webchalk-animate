@@ -15,6 +15,6 @@
     "typescript": "^5.5.3"
   },
   "dependencies": {
-    "webflik": "file:../tarballs/webflik-0.9.0.tgz"
+    "webflik": "file:../tarballs/webflik-0.10.0.tgz"
   }
 }
