@@ -32,7 +32,7 @@
   "license": "ISC",
   "devDependencies": {
     "tsup": "^8.0.1",
-    "typedoc": "github:TypeStrong/typedoc",
+    "typedoc": "^0.26.6",
     "typedoc-material-theme": "^1.1.0",
     "typescript": "^5.5.3"
   }
