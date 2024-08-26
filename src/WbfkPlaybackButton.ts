@@ -8,12 +8,15 @@ export class WbfkPlaybackButton extends HTMLElement {
   private _mouseHeld: boolean = false;
   private _shortcutHeld: boolean = false;
   private _active: boolean = false;
+  private _disabled: boolean = false;
   get mouseHeld(): boolean { return this._mouseHeld; }
   /**@internal*/set mouseHeld(value: boolean) { this._mouseHeld = value; }
   get shortcutHeld(): boolean { return this._shortcutHeld; }
   /**@internal*/set shortcutHeld(value: boolean) { this._shortcutHeld = value; }
   get active(): boolean { return this._active; }
   /**@internal*/set active(value: boolean) { this._active = value; }
+  get disabled(): boolean { return this._disabled; }
+  /**@internal*/ set disabled(value: boolean) { this._disabled = value; }
 
   constructor() {
     super();
@@ -126,7 +129,6 @@ export class WbfkPlaybackButton extends HTMLElement {
     // handle button activation with mouse click
     this.addEventListener('mousedown', this.handleMousePress);
     window.addEventListener('mouseup', this.handleMouseRelease);
-
   }
 
   activate: () => void = (): void => {};
@@ -134,7 +136,11 @@ export class WbfkPlaybackButton extends HTMLElement {
   styleActivation: () => void = (): void => {};
   styleDeactivation: () => void = (): void => {};
 
+  disable = () => { this.disabled = true; }
+  enable = () => { this.disabled = false; }
+
   private handleMousePress = (e: MouseEvent): void => {
+    if (this.disabled) { return; }
     if (e.button !== 0) { return; } // only allow left mouse click
     this.mouseHeld = true;
     if (this.shortcutHeld) { return; }
@@ -145,6 +151,7 @@ export class WbfkPlaybackButton extends HTMLElement {
   }
 
   private handleMouseRelease = (e: MouseEvent): void => {
+    if (this.disabled) { return; }
     if (e.button !== 0) { return; } // only allow left mouse click
     if (!this.mouseHeld) { return; }
     this.mouseHeld = false;
@@ -154,6 +161,7 @@ export class WbfkPlaybackButton extends HTMLElement {
   }
 
   private handleShortcutPress = (e: KeyboardEvent): void => {
+    if (this.disabled) { return; }
     if (e.key.toLowerCase() !== this.shortcutKey?.toLowerCase() && e.code !== this.shortcutKey) { return; }
     // if the key is held down and holding is not allowed, return
     if (e.repeat && !this.allowHolding) { return; }
@@ -168,6 +176,7 @@ export class WbfkPlaybackButton extends HTMLElement {
   }
 
   private handleShortcutRelease = (e: KeyboardEvent): void => {
+    if (this.disabled) { return; }
     if (e.key.toLowerCase() !== this.shortcutKey?.toLowerCase() && e.code !== this.shortcutKey) { return; }
     if (!this.shortcutHeld) { return; }
     this.shortcutHeld = false;

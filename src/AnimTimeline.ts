@@ -260,6 +260,13 @@ export class AnimTimeline {
     return this;
   }
 
+  disablePlaybackButtons() {
+    for (const button of Object.values(this.playbackButtons)) { button?.disable(); }
+  }
+  enablePlaybackButtons() {
+    for (const button of Object.values(this.playbackButtons)) { button?.enable(); }
+  }
+
   addSequences(...animSequences: AnimSequence[]): this {
     for(const animSequence of animSequences) {
       animSequence.setLineage(this);
