@@ -144,7 +144,7 @@ type FullyFinishedPromise<T> = {
 export class AnimSequence implements AnimSequenceConfig {
   private static id = 0;
   /**
-   * Number that uniquely identifies the clip from other sequences.
+   * Number that uniquely identifies the sequence from other sequences.
    * Automatically generated.
    */
   readonly id: number;
