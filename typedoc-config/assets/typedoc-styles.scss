@@ -53,6 +53,8 @@ body {
 }
 
 .tsd-nested-navigation {
+  margin-left: 2rem !important;
+
   & > li {
     & > details {
       margin-left: unset;
