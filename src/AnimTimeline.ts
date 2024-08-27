@@ -24,9 +24,30 @@ type PlaybackButtons = {
 };
 type PlaybackButtonPurpose = `Step ${'Forward' | 'Backward'}` | 'Pause' | 'Fast Forward' | 'Toggle Skipping';
 
+/**
+ * @hideconstructor
+ * 
+ * @groupDescription Property Getter Methods
+ * Methods that return objects that contain various internal fields of the timeline (such as `isPaused` from `getStatus()`).
+ * 
+ * @groupDescription Playback Methods
+ * Methods that control the playback of the animation timeline.
+ * 
+ * @groupDescription Timing Event Methods
+ * Methods that involve listening to the progress of the animation timeline to perform tasks at specific times.
+ * 
+ * @groupDescription Playback UI Methods
+ * Methods that control the connection between the timeline and HTML buttons.
+ * 
+ * @groupDescription Structure Methods
+ * Methods that relate to building the timeline or locating sequences within it.
+ */
 export class AnimTimeline {
   private static id = 0;
 
+  /*-:**************************************************************************************************************************/
+  /*-:*************************************        FIELDS & ACCESSORS        ***************************************************/
+  /*-:**************************************************************************************************************************/
   readonly id; // used to uniquely identify this specific timeline
   get root(): AnimTimeline { return this; }
   /**@internal*/ animSequences: AnimSequence[] = []; // array of every AnimSequence in this timeline
@@ -41,6 +62,11 @@ export class AnimTimeline {
   // CHANGE NOTE: AnimTimeline now stores references to in-progress sequences and also does not act directly on individual animations
   private inProgressSequences: Map<number, AnimSequence> = new Map();
 
+  /**
+   * 
+   * @returns 
+   * @group Property Getter Methods
+   */
   getStatus() {
     return {
       isAnimating: this.isAnimating,
@@ -90,6 +116,15 @@ export class AnimTimeline {
     }
   }
 
+  /*-:**************************************************************************************************************************/
+  /*-:************************************        PLAYBACK UI METHODS        ***************************************************/
+  /*-:**************************************************************************************************************************/
+  /**
+   * 
+   * @param options 
+   * @returns 
+   * @group Playback UI Methods
+   */
   linkPlaybackButtons(options: Partial<{searchRoot: HTMLElement, buttonsSubset: PlaybackButtonPurpose[]}> = {}): this {
     const {
       searchRoot,
@@ -260,13 +295,28 @@ export class AnimTimeline {
     return this;
   }
 
+  /**
+   * @group Playback UI Methods
+   */
   disablePlaybackButtons() {
     for (const button of Object.values(this.playbackButtons)) { button?.disable(); }
   }
+  /**
+   * @group Playback UI Methods
+   */
   enablePlaybackButtons() {
     for (const button of Object.values(this.playbackButtons)) { button?.enable(); }
   }
 
+  /*-:**************************************************************************************************************************/
+  /*-:*************************************        STRUCTURE METHODS        ****************************************************/
+  /*-:**************************************************************************************************************************/
+  /**
+   * Adds one or more {@link AnimSequence} objects to the end of the timeline.
+   * @param animSequences - comma separated list of animation sequences
+   * @returns 
+   * @group Structure Methods
+   */
   addSequences(...animSequences: AnimSequence[]): this {
     for(const animSequence of animSequences) {
       animSequence.setLineage(this);
@@ -276,11 +326,26 @@ export class AnimTimeline {
     return this;
   }
 
+  /**
+   * Finds the index of a given {@link AnimSequence} object within the timeline
+   * @param animSequence - the animation sequence to search for within the timeline
+   * @returns the index of {@link animSequence} within the timeline or `-1` if the sequence is not part of the timeline.
+   * @group Structure Methods
+   */
   findSequenceIndex(animSequence: AnimSequence): number {
     return this.animSequences.findIndex((_animSequence) => _animSequence === animSequence);
   }
 
+  /*-:**************************************************************************************************************************/
+  /*-:*************************************        PLAYBACK METHODS        *****************************************************/
+  /*-:**************************************************************************************************************************/
   // CHANGE NOTE: sequences, and clips now have base playback rates that are then compounded by parents
+  /**
+   * Sets the base playback rate of the timeline.
+   * @param rate - the new playback rate
+   * @returns 
+   * @group Playback Methods
+   */
   setPlaybackRate(rate: number): this {
     this.playbackRate = rate;
     // set playback rates of currently running animations so that they don't continue to run at regular speed
@@ -290,6 +355,11 @@ export class AnimTimeline {
   }
 
   // steps forward or backward and does error-checking
+  /**
+   * 
+   * @param direction 
+   * @group Playback Methods
+   */
   async step(direction: 'forward' | 'backward'): Promise<this>;
   /**@internal*/
   async step(direction: 'forward' | 'backward', options: {viaButton: boolean}): Promise<this>;
@@ -325,6 +395,11 @@ export class AnimTimeline {
   }
 
   // plays current AnimSequence and increments loadedSeqIndex
+  /**
+   * 
+   * @returns 
+   * @group Playback Methods
+   */
   private async stepForward(): Promise<boolean> {
     this.currentDirection = 'forward';
     const sequences = this.animSequences;
@@ -346,6 +421,11 @@ export class AnimTimeline {
   }
 
   // decrements loadedSeqIndex and rewinds the AnimSequence
+  /**
+   * 
+   * @returns 
+   * @group Playback Methods
+   */
   private async stepBackward(): Promise<boolean> {
     this.currentDirection = 'backward';
     const prevSeqIndex = --this.loadedSeqIndex;
@@ -366,6 +446,13 @@ export class AnimTimeline {
     return autorewindPrevious;
   }
 
+  /**
+   * 
+   * @param tag 
+   * @param options 
+   * @returns 
+   * @group Playback Methods
+   */
   jumpToSequenceTag(
     tag: string | RegExp,
     options: Partial<{
@@ -384,6 +471,13 @@ export class AnimTimeline {
     return this.jumpTo({ tag, search, searchOffset, targetOffset, autoplayDetection });
   }
 
+  /**
+   * 
+   * @param position 
+   * @param options 
+   * @returns 
+   * @group Playback Methods
+   */
   jumpToPosition(
     position: 'beginning' | 'end' | number,
     options: Partial<{targetOffset: number; autoplayDetection: 'forward' | 'backward' | 'none';}> = {},
@@ -560,6 +654,12 @@ export class AnimTimeline {
     return this;
   }
 
+  /**
+   * 
+   * @param options 
+   * @returns 
+   * @group Playback Methods
+   */
   async toggleSkipping(options: {
     /**@internal */
     viaButton?: boolean,
@@ -585,6 +685,9 @@ export class AnimTimeline {
     return this.skippingOn ? this.turnOnSkipping({viaButton}) : this.turnOffSkipping({viaButton});
   }
 
+  /**
+   * @group Playback Methods
+   */
   async turnOnSkipping(): Promise<this>;
   /**@internal*/
   async turnOnSkipping(options?: { viaButton: boolean }): Promise<this>;
@@ -596,6 +699,9 @@ export class AnimTimeline {
     return this;
   }
 
+  /**
+   * @group Playback Methods
+   */
   turnOffSkipping(): this;
   /**@internal*/
   turnOffSkipping(options?: { viaButton: boolean }): this;
@@ -606,11 +712,22 @@ export class AnimTimeline {
   }
 
   // tells the current AnimSequence(s) (really just 1 in this project iteration) to instantly finish its animations
+  /**
+   * 
+   * @returns 
+   * @group Playback Methods
+   */
   async finishInProgressSequences(): Promise<this> {
     return this.doForInProgressSequences_async(sequence => sequence.finish());
   }
 
   // pauses or unpauses playback
+  /**
+   * 
+   * @param options 
+   * @returns 
+   * @group Playback Methods
+   */
   togglePause(options: {
     /**@internal */
     viaButton?: boolean,
@@ -638,6 +755,9 @@ export class AnimTimeline {
     return this;
   }
 
+  /**
+   * @group Playback Methods
+   */
   pause(): this;
   /**@internal*/
   pause(options?: { viaButton: boolean }): this;
@@ -648,6 +768,9 @@ export class AnimTimeline {
     return this;
   }
   
+  /**
+   * @group Playback Methods
+   */
   unpause(): this;
   /**@internal*/
   unpause(options?: { viaButton: boolean }): this;
@@ -676,6 +799,9 @@ export class AnimTimeline {
     return this;
   }
 
+  /*-:**************************************************************************************************************************/
+  /*-:******************************************        ERRORS        **********************************************************/
+  /*-:**************************************************************************************************************************/
   protected generateError: TimelineErrorGenerator = (ErrorClassOrInstance, msg = '<unspecified error>') => {
     return generateError(ErrorClassOrInstance, msg as string, {
       timeline: this
