@@ -143,7 +143,6 @@ type FullyFinishedPromise<T> = {
  */
 export class AnimSequence implements AnimSequenceConfig {
   private static id = 0;
-
   
   /*-:**************************************************************************************************************************/
   /*-:*************************************        FIELDS & ACCESSORS        ***************************************************/
@@ -278,14 +277,9 @@ export class AnimSequence implements AnimSequenceConfig {
    */
   setTag(tag: string): this { this.tag = tag; return this; }
 
-  /**@internal*/
-  setLineage(timeline: AnimTimeline) {
-    this._parentTimeline = timeline;
-    for (const animClip of this.animClips) {
-      animClip.setLineage(this, this._parentTimeline);
-    }
-  }
-
+  /*-:**************************************************************************************************************************/
+  /*-:*********************************        CONSTRUCTOR & INITIALIZERS        ***********************************************/
+  /*-:**************************************************************************************************************************/
   /**@internal*/
   static createInstance(config: Partial<AnimSequenceConfig> | AnimClip = {}, ...animClips: AnimClip[]): AnimSequence {
     return new AnimSequence(config, ...animClips);
@@ -299,35 +293,21 @@ export class AnimSequence implements AnimSequenceConfig {
     Object.assign(this, config instanceof AnimClip ? {} : config);
     this.addClips(...(config instanceof AnimClip ? [config, ...animClips] : animClips));
   }
-
-  /**
-   * 
-   * @param functions 
-   * @returns 
-   * @group Timing Event Methods
-   */
-  setOnStart(functions: {do: Function, undo: Function}): this { 
-    this.onStart.do = functions.do;
-    this.onStart.undo = functions.undo;
-    return this;
-  }
-
-  /**
-   * 
-   * @param functions 
-   * @returns 
-   * @group Timing Event Methods
-   */
-  setOnFinish(functions: {do: Function, undo: Function}): this { 
-    this.onFinish.do = functions.do;
-    this.onFinish.undo = functions.undo;
-    return this;
-  }
-
   
   /*-:**************************************************************************************************************************/
   /*-:*************************************        STRUCTURE METHODS        ****************************************************/
   /*-:**************************************************************************************************************************/
+  /**
+   * @internal
+   * @group Structure Methods
+   */
+  setLineage(timeline: AnimTimeline) {
+    this._parentTimeline = timeline;
+    for (const animClip of this.animClips) {
+      animClip.setLineage(this, this._parentTimeline);
+    }
+  }
+
   /**
    * Adds one or more {@link AnimClip} objects to the end of the sequence.
    * @param animClips - comma separated list of animation clips
@@ -686,6 +666,33 @@ export class AnimSequence implements AnimSequenceConfig {
       promises.push(operation(animClip));
     }
     await Promise.all(promises);
+    return this;
+  }
+
+  /*-:**************************************************************************************************************************/
+  /*-:************************************        TIMING EVENT METHODS        **************************************************/
+  /*-:**************************************************************************************************************************/
+  /**
+   * 
+   * @param functions 
+   * @returns 
+   * @group Timing Event Methods
+   */
+  setOnStart(functions: {do: Function, undo: Function}): this { 
+    this.onStart.do = functions.do;
+    this.onStart.undo = functions.undo;
+    return this;
+  }
+
+  /**
+   * 
+   * @param functions 
+   * @returns 
+   * @group Timing Event Methods
+   */
+  setOnFinish(functions: {do: Function, undo: Function}): this { 
+    this.onFinish.do = functions.do;
+    this.onFinish.undo = functions.undo;
     return this;
   }
 }
