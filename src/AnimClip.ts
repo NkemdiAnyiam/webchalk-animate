@@ -63,7 +63,7 @@ type CustomKeyframeEffectOptions = {
 
   /**
    * Resolves how an element's animation impacts the element's underlying property values.
-   * @see [KeyframeEffect: composite property](https://developer.mozilla.org/en-US/docs/Web/API/KeyframeEffect/composite)
+   * @see {@link !KeyframeEffect.composite}
    */
   composite: CompositeOperation;
 

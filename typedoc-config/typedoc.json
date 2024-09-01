@@ -1,5 +1,5 @@
 {
-  "plugin": ["typedoc-material-theme"],
+  "plugin": ["typedoc-material-theme", "typedoc-plugin-mdn-links"],
   "themeColor": "#99ffff",
   "customCss": "./assets/typedoc-styles.scss",
   "exclude": ["**/WebFlikAnimation.ts", "**/index.ts", "**/globalSideEffects.ts"],

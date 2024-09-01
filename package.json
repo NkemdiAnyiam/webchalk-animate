@@ -34,6 +34,7 @@
     "tsup": "^8.0.1",
     "typedoc": "^0.26.6",
     "typedoc-material-theme": "^1.1.0",
+    "typedoc-plugin-mdn-links": "^3.2.11",
     "typescript": "^5.5.3"
   }
 }
