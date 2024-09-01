@@ -21,28 +21,40 @@ import { MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./ut
 import { ReadonlyPick, ReadonlyRecord, StripDuplicateMethodAutocompletion } from "./utils/utilityTypes";
 
 type KeyframesGenerator<TClipContext extends unknown> = {
-  generateKeyframes(this: TClipContext, ...effectOptions: unknown[]): [forward: Keyframe[], backward?: Keyframe[]];
+  generateKeyframes(
+    /**@ignore*/
+    this: TClipContext,
+    ...effectOptions: unknown[]): [forward: Keyframe[], backward?: Keyframe[]];
   generateKeyframeGenerators?: never;
   generateRafMutators?: never;
   generateRafMutatorGenerators?: never;
 };
 type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
   generateKeyframes?: never;
-  generateKeyframeGenerators(this: TClipContext, ...effectOptions: unknown[]): [forwardGenerator: () => Keyframe[], backwardGenerator?: () => Keyframe[]];
+  generateKeyframeGenerators(
+    /**@ignore*/
+    this: TClipContext,
+    ...effectOptions: unknown[]): [forwardGenerator: () => Keyframe[], backwardGenerator?: () => Keyframe[]];
   generateRafMutators?: never;
   generateRafMutatorGenerators?: never;
 };
 type RafMutatorsGenerator<TClipContext extends unknown> = {
   generateKeyframes?: never;
   generateKeyframeGenerators?: never;
-  generateRafMutators(this: TClipContext & ReadonlyPick<AnimClip, 'computeTween'>, ...effectOptions: unknown[]): [forwardMutator: () => void, backwardMutator: () => void];
+  generateRafMutators(
+    /**@ignore*/
+    this: TClipContext & ReadonlyPick<AnimClip, 'computeTween'>,
+    ...effectOptions: unknown[]): [forwardMutator: () => void, backwardMutator: () => void];
   generateRafMutatorGenerators?: never;
 };
 type RafMutatorsGeneratorsGenerator<TClipContext extends unknown> = {
   generateKeyframes?: never;
   generateKeyframeGenerators?: never;
   generateRafMutators?: never;
-  generateRafMutatorGenerators(this: TClipContext & ReadonlyPick<AnimClip, 'computeTween'>, ...effectOptions: unknown[]): [forwardGenerator: () => () => void, backwardGenerator: () => () => void];
+  generateRafMutatorGenerators(
+    /**@ignore*/
+    this: TClipContext & ReadonlyPick<AnimClip, 'computeTween'>,
+    ...effectOptions: unknown[]): [forwardGenerator: () => () => void, backwardGenerator: () => () => void];
 };
 
 export type EffectGenerator<TClipContext extends unknown = unknown, TConfig extends unknown = unknown, IncludeExtras extends boolean = true> = Readonly<
