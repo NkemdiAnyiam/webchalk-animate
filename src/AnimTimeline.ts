@@ -2,9 +2,31 @@ import { AnimSequence } from "./AnimSequence";
 import { errorTip, generateError, TimelineErrorGenerator } from "./utils/errors";
 import { WbfkPlaybackButton } from "./WbfkPlaybackButton";
 
+/**
+ * @category Interfaces
+ * @interface
+ */
 export type AnimTimelineConfig = {
+  /**
+   * String representing the name of the timeline.
+   * This value is used to sync with `<wbfk-playback-button>` elements that share the same
+   * value in their `timeline-name` attribute.
+   */
   timelineName: string;
+  
+  /**
+   * Controls whether information about the timeline is logged to the console
+   * during playback.
+   */
   debugMode: boolean;
+
+  /**
+   * If `true`, the timeline will instantly attempt to find `<wbfk-playback-button>` elements whose
+   * `timeline-name` attributes are equivalent to the timeline's `timelineName` configuration option
+   * using {@link AnimTimeline.linkPlaybackButtons|linkPlaybackButtons()}.
+   * @see {@link AnimTimelineConfig.timelineName|timelineName}
+   * @see {@link AnimTimeline.linkPlaybackButtons|linkPlaybackButtons()}
+   */
   autoLinksButtons: boolean;
 };
 
