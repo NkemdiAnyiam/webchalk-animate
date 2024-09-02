@@ -330,9 +330,9 @@ export class AnimTimeline {
       );
     }
 
-    this._playbackButtons = {
+    Object.assign(this._playbackButtons, {
       forwardButton, backwardButton, pauseButton, fastForwardButton, toggleSkippingButton,
-    };
+    });
 
     return this;
   }
