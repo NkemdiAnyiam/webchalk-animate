@@ -467,8 +467,11 @@ export class AnimTimeline {
 
   // steps forward or backward and does error-checking
   /**
-   * 
-   * @param direction 
+   * Takes 1 step in the specified direction.
+   * - If any sequences are set to autoplay, the timeline automatically continues stepping through them.
+   * @param direction - the direction in which the timeline should step
+   * @returns a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise|Promise}
+   * that resolves when the timeline has finished stepping.
    * @group Playback Methods
    */
   async step(direction: 'forward' | 'backward'): Promise<this>;
@@ -559,19 +562,35 @@ export class AnimTimeline {
 
   /**
    * 
-   * @param tag 
-   * @param options 
-   * @returns 
+   * @param tag - string that is used to search for the target sequence with the matching {@link AnimSequence.getTag|AnimSequence.getTag()} value
+   * @param options - set of options defining the behavior of the search, the offset of the jump, and whether to consider autoplay
+   * @returns a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise|Promise} that
+   * resolves when the timeline has finished jumping.
    * @group Playback Methods
    */
   jumpToSequenceTag(
     tag: string | RegExp,
-    options: Partial<{
-      search: 'forward-from-beginning' | 'backward-from-end' | 'forward' | 'backward';
-      searchOffset: number;
-      targetOffset: number;
-      autoplayDetection: 'forward' | 'backward' | 'none';
-    }> = {},
+    options: {
+      /**
+       * the direction and/or the starting point of the search
+       * @defaultValue `'forward-from-beginning'`
+       */
+      search?: 'forward-from-beginning' | 'backward-from-end' | 'forward' | 'backward';
+      /** offset that changes the starting point of the search by the indicated amount */
+      searchOffset?: number;
+      /** offset that adds to the initial landing position */
+      targetOffset?: number;
+      /**
+       * determines how the timeline should handle sequences set to autoplay once the
+       * jump destination (after considering {@link options.targetOffset}) has been reached
+       * - if `'none`', the timeline stays at the final landing position after the initial jumping operation.
+       * - if `'forward'`, the timeline will jump forward for as long as the next sequence is supposed to autoplay after the current sequence.
+       * - if `'backward'`, the timeline will jump backward for as long as the previous sequence as long as the previous sequence is supposed to automatically
+       * rewind after the current sequence is rewound (this is naturally only true when the current sequence is set to autoplay when the timeline steps forward).
+       * @defaultValue `'none'`
+       */
+      autoplayDetection?: 'forward' | 'backward' | 'none';
+    } = {},
   ): Promise<this> {
     const {
       search = 'forward-from-beginning',
@@ -584,14 +603,28 @@ export class AnimTimeline {
 
   /**
    * 
-   * @param position 
-   * @param options 
-   * @returns 
+   * @param position - the target position within the timeline
+   * @param options - set of options defining the offset of the jump and whether to consider autoplay
+   * @returns a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise|Promise} that
+   * resolves when the timeline has finished jumping.
    * @group Playback Methods
    */
   jumpToPosition(
     position: 'beginning' | 'end' | number,
-    options: Partial<{targetOffset: number; autoplayDetection: 'forward' | 'backward' | 'none';}> = {},
+    options: {
+      /** offset that adds to the initial landing position */
+      targetOffset?: number;
+      /**
+       * determines how the timeline should handle sequences set to autoplay once the
+       * jump destination (after considering {@link options.targetOffset}) has been reached
+       * - if `'none`', the timeline stays at the final landing position after the initial jumping operation.
+       * - if `'forward'`, the timeline will jump forward for as long as the next sequence is supposed to autoplay after the current sequence.
+       * - if `'backward'`, the timeline will jump backward for as long as the previous sequence as long as the previous sequence is supposed to automatically
+       * rewind after the current sequence is rewound (this is naturally only true when the current sequence is set to autoplay when the timeline steps forward).
+       * @defaultValue `'none'`
+       */
+      autoplayDetection?: 'forward' | 'backward' | 'none';
+    } = {},
   ): Promise<this> {
     const {
       targetOffset = 0,
@@ -601,6 +634,10 @@ export class AnimTimeline {
   }
 
   // immediately jumps to an AnimSequence in animSequences with the matching search arguments
+  /**
+   * @param options 
+   * @group Playback Methods
+   */
   private async jumpTo(options: {
     tag: string | RegExp;
     search: 'forward' | 'backward' | 'forward-from-beginning' | 'backward-from-end';
