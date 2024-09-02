@@ -136,11 +136,6 @@ export class AnimTimeline {
   /*-:**************************************************************************************************************************/
   /*-:****************************************        PLAYBACK UI        *******************************************************/
   /*-:**************************************************************************************************************************/
-  /**
-   * Object containing properties that are either references to `<wbfk-playback-button>` elements that are connected to this timeline or `null`.
-   * - A property being `null` indicates that there is currently no corresponding button on the page that is linked to this timeline.
-   * @group Playback UI
-   */
   private _playbackButtons: PlaybackButtons = {
     backwardButton: null,
     fastForwardButton: null,
@@ -149,6 +144,11 @@ export class AnimTimeline {
     toggleSkippingButton: null,
   };
 
+  /**
+   * Object containing properties that are either references to `<wbfk-playback-button>` elements that are connected to this timeline or `null`.
+   * - A property being `null` indicates that there is currently no corresponding button on the page that is linked to this timeline.
+   * @group Playback UI
+   */
   get playbackButtons(): Readonly<PlaybackButtons> { return {...this._playbackButtons}; }
 
   /**
@@ -336,7 +336,6 @@ export class AnimTimeline {
 
     return this;
   }
-
 
   /**
    * Disables this timeline's connection to its playback buttons until re-enabled
