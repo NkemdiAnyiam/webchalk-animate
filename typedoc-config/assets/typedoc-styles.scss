@@ -17,6 +17,8 @@
   --dark-code-background: #222222;
   --dark-code-inline-background: #2f2f2f;
   --light-code-inline-background: #f3f3f3;
+  --light-h5: #226666;
+  --dark-h5: #99ffff;
   --font-sans: "Proxima Nova" !important;
   --font-mono: "Fira Code" !important;
 
@@ -24,26 +26,39 @@
     --color-member-name: var(--light-name);
     --code-inline-background: var(--light-code-inline-background);
     --color-ts-parameter: var(--light-color-ts-parameter) !important;
+    --color-h5: var(--light-h5);
   }
   @media (prefers-color-scheme: dark) {
     --color-member-name: var(--dark-name);
     --code-inline-background: var(--dark-code-inline-background);
     --color-ts-parameter: var(--dark-color-ts-parameter) !important;
+    --color-h5: var(--dark-h5);
   }
 
   &[data-theme="light"] {
     --color-member-name: var(--light-name);
     --code-inline-background: var(--light-code-inline-background);
     --color-ts-parameter: var(--light-color-ts-parameter) !important;
+    --color-h5: var(--light-h5);
   }
   &[data-theme="dark"] {
     --color-member-name: var(--dark-name);
     --code-inline-background: var(--dark-code-inline-background);
     --color-ts-parameter: var(--dark-color-ts-parameter) !important;
+    --color-h5: var(--dark-h5);
   }
 }
 
 body {
+}
+
+h5.custom-color {
+  & > :first-child {
+    &.tsd-kind-property,
+    &.tsd-kind-method {
+      color: var(--color-h5);
+    }
+  }
 }
 
 .tsd-page-toolbar {
