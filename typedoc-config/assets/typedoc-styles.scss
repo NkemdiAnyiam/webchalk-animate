@@ -173,7 +173,7 @@ h4.tsd-anchor-link:has(+ *) {
       .tsd-parameter-list {
         display: flex;
         flex-direction: column;
-        row-gap: 0.2rem;
+        row-gap: 0.8rem;
 
         li {
           & > span +.tsd-comment:has(> p) {
@@ -183,7 +183,9 @@ h4.tsd-anchor-link:has(+ *) {
           
           & > span:first-of-type {
             display: inline-block;
+            vertical-align: top;
             padding: 0.6rem;
+            margin-top: -0.6rem;
             background-color: var(--md-sys-color-surface-container-high);
             border-radius: 12px;
           }
