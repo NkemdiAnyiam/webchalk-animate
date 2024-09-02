@@ -62,7 +62,11 @@ body {
   }
 }
 
-.tsd-signature {
+.tsd-signature,
+.tsd-signature-symbol,
+.tsd-kind-property,
+.tsd-kind-method,
+.tsd-kind-type {
   font-family: var(--font-mono);
 }
 
