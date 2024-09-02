@@ -170,6 +170,14 @@ h4.tsd-anchor-link:has(+ *) {
   }
 }
 
+h3.tsd-anchor-link {
+  & + .tsd-signatures .tsd-signature,
+  & + .tsd-signature {
+    border-color: var(--color-member-name);
+    border-width: 1px !important;
+  }
+}
+
 .tsd-signatures {
   margin-bottom: 0;
 
