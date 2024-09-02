@@ -31,6 +31,57 @@ export type AnimTimelineConfig = {
   autoLinksButtons: boolean;
 };
 
+// TYPE
+/**
+ * @category Interfaces
+ * @interface
+ */
+export type AnimTimelineStatus = {
+  /**
+   * `true` only if the timeline is in the process of playback (whether paused or unpaused).
+   */
+  isAnimating: boolean;
+
+  /**
+   * `true` only if skipping is currently on (for example, after using {@link AnimTimeline.turnOnSkipping|turnOnSkipping()}).
+   */
+  skippingOn: boolean;
+
+  /**
+   * `true` only if the timeline is paused.
+   */
+  isPaused: boolean;
+
+  /**
+   * The direction the timeline stepped in last (or `'forward'` if the timeline has not stepped yet).
+   * - If the timeline last stepped forward, `'forward'`
+   * - If the timeline last stepped backward, `'backward'`
+   */
+  currentDirection: AnimTimeline['currentDirection'];
+
+  /**
+   * `true` only if the timeline is currently jumping to a point (e.g., using {@link AnimTimeline.jumpToSequenceTag|jumpToSequenceTag()}).
+   */
+  isJumping: boolean;
+
+  /**
+   * The current sequential step number, starting from `1` at the start of an unplayed timeline.
+   * - Stepping forward increments the step number by 1 for each sequence played.
+   * - Stepping backward decrements the step number by 1 for each sequence rewound.
+   */
+  stepNumber: number;
+
+  /**
+   * `true` only if the timeline is at the very beginning (i.e., {@link AnimTimeline.stepNumber|stepNumber} is `1`).
+   */
+  atBeginning: boolean;
+
+  /**
+   * `true` only if the timeline is at the very end (i.e., the last sequence has been played).
+   */
+  atEnd: boolean;
+};
+
 type SequenceOperation = (sequence: AnimSequence) => void;
 type AsyncSequenceOperation = (sequence: AnimSequence) => Promise<unknown>;
 
@@ -73,26 +124,41 @@ export class AnimTimeline {
   /*-:**************************************************************************************************************************/
   /*-:*************************************        FIELDS & ACCESSORS        ***************************************************/
   /*-:**************************************************************************************************************************/
-  readonly id; // used to uniquely identify this specific timeline
+  /**
+   * Number that uniquely identifies the timeline from other timelines.
+   * Automatically generated.
+   */
+  readonly id;
+
+  /**
+   * The highest level of this timeline's lineage.
+   * - The timeline itself (there is currently no higher possible level)
+   */
   get root(): AnimTimeline { return this; }
   /**@internal*/ animSequences: AnimSequence[] = []; // array of every AnimSequence in this timeline
+  get numSequences(): number { return this.animSequences.length; }
   /**@internal*/ loadedSeqIndex = 0; // index into animSequences
+  playbackRate = 1;
+  config: AnimTimelineConfig;
+  // CHANGE NOTE: AnimTimeline now stores references to in-progress sequences and also does not act directly on individual animations
+  private inProgressSequences: Map<number, AnimSequence> = new Map();
+
+  // GROUP: Status
   /**@internal*/ isAnimating = false; // true if currently in the middle of executing animations; false otherwise
   /**@internal*/ skippingOn = false; // used to determine whether or not all animations should be instantaneous
   /**@internal*/ isPaused = false;
   /**@internal*/ currentDirection: 'forward' | 'backward' = 'forward'; // set to 'forward' after stepForward() or 'backward' after stepBackward()
   /**@internal*/ isJumping = false; // true if currently using jumpTo()
-  playbackRate = 1;
-  config: AnimTimelineConfig;
-  // CHANGE NOTE: AnimTimeline now stores references to in-progress sequences and also does not act directly on individual animations
-  private inProgressSequences: Map<number, AnimSequence> = new Map();
+  private get stepNumber(): number { return this.loadedSeqIndex + 1; }
+  private get atBeginning(): boolean { return this.loadedSeqIndex === 0; }
+  private get atEnd(): boolean { return this.loadedSeqIndex === this.numSequences; }
 
   /**
    * 
    * @returns 
    * @group Property Getter Methods
    */
-  getStatus() {
+  getStatus(): AnimTimelineStatus {
     return {
       isAnimating: this.isAnimating,
       skippingOn: this.skippingOn,
@@ -104,17 +170,14 @@ export class AnimTimeline {
       atEnd: this.atEnd,
     };
   }
-
-  get numSequences(): number { return this.animSequences.length; }
-
+  
+  /*-:**************************************************************************************************************************/
+  /*-:*********************************        CONSTRUCTOR & INITIALIZERS        ***********************************************/
+  /*-:**************************************************************************************************************************/
   /**@internal*/
   static createInstance(config: Partial<AnimTimelineConfig> | AnimSequence = {}, ...animSequences: AnimSequence[]): AnimTimeline {
     return new AnimTimeline(config, ...animSequences);
   }
-
-  private get atBeginning(): boolean { return this.loadedSeqIndex === 0; }
-  private get atEnd(): boolean { return this.loadedSeqIndex === this.numSequences; }
-  private get stepNumber(): number { return this.loadedSeqIndex + 1; }
 
   constructor(configOrSequence: Partial<AnimTimelineConfig>| AnimSequence = {}, ...animSequence: AnimSequence[]) {
     this.id = AnimTimeline.id++;
