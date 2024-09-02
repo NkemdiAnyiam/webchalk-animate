@@ -43,7 +43,7 @@ export type AnimTimelineStatus = {
   isAnimating: boolean;
 
   /**
-   * `true` only if skipping is currently on (for example, after using {@link AnimTimeline.turnOnSkipping|turnOnSkipping()}).
+   * `true` only if skipping is currently on (for example, after using {@link AnimTimeline.turnSkippingOn|turnSkippingOn()}).
    */
   skippingOn: boolean;
 
@@ -830,16 +830,16 @@ export class AnimTimeline {
     }
 
     const viaButton = options.viaButton ?? false;
-    return this.skippingOn ? this.turnOnSkipping({viaButton}) : this.turnOffSkipping({viaButton});
+    return this.skippingOn ? this.turnSkippingOn({viaButton}) : this.turnSkippingOff({viaButton});
   }
 
   /**
    * @group Playback Methods
    */
-  async turnOnSkipping(): Promise<this>;
+  async turnSkippingOn(): Promise<this>;
   /**@internal*/
-  async turnOnSkipping(options?: { viaButton: boolean }): Promise<this>;
-  async turnOnSkipping(options?: { viaButton: boolean }): Promise<this> {
+  async turnSkippingOn(options?: { viaButton: boolean }): Promise<this>;
+  async turnSkippingOn(options?: { viaButton: boolean }): Promise<this> {
     this.skippingOn = true;
     if (!options?.viaButton) { this.playbackButtons.toggleSkippingButton?.styleActivation(); }
     // if skipping is enabled in the middle of animating, force currently running AnimSequence to finish
@@ -850,10 +850,10 @@ export class AnimTimeline {
   /**
    * @group Playback Methods
    */
-  turnOffSkipping(): this;
+  turnSkippingOff(): this;
   /**@internal*/
-  turnOffSkipping(options?: { viaButton: boolean }): this;
-  turnOffSkipping(options?: { viaButton: boolean }): this {
+  turnSkippingOff(options?: { viaButton: boolean }): this;
+  turnSkippingOff(options?: { viaButton: boolean }): this {
     this.skippingOn = false;
     if (!options?.viaButton) { this.playbackButtons.toggleSkippingButton?.styleDeactivation(); }
     return this;
