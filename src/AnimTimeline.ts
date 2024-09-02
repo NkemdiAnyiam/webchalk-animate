@@ -2,6 +2,7 @@ import { AnimSequence } from "./AnimSequence";
 import { errorTip, generateError, TimelineErrorGenerator } from "./utils/errors";
 import { WbfkPlaybackButton } from "./WbfkPlaybackButton";
 
+// TYPE
 /**
  * @category Interfaces
  * @interface
@@ -13,7 +14,7 @@ export type AnimTimelineConfig = {
    * value in their `timeline-name` attribute.
    */
   timelineName: string;
-  
+
   /**
    * Controls whether information about the timeline is logged to the console
    * during playback.
@@ -41,9 +42,11 @@ const DISABLED_POINTER_FROM_STEPPING = 'playback-button--disabledPointerFromStep
 const DISABLED_FROM_EDGE = 'playback-button--disabledFromTimelineEdge'; // disables pointer and grays out button
 const DISABLED_FROM_PAUSE = 'playback-button--disabledFromPause';
 
+// TYPE
 type PlaybackButtons = {
   [key in `${'forward' | 'backward' | 'pause' | 'toggleSkipping' | 'fastForward'}Button`]: WbfkPlaybackButton | null | undefined;
 };
+// TYPE
 type PlaybackButtonPurpose = `Step ${'Forward' | 'Backward'}` | 'Pause' | 'Fast Forward' | 'Toggle Skipping';
 
 /**
@@ -102,14 +105,6 @@ export class AnimTimeline {
     };
   }
 
-  playbackButtons: PlaybackButtons = {
-    backwardButton: null,
-    fastForwardButton: null,
-    forwardButton: null,
-    pauseButton: null,
-    toggleSkippingButton: null
-  };
-
   get numSequences(): number { return this.animSequences.length; }
 
   /**@internal*/
@@ -139,15 +134,40 @@ export class AnimTimeline {
   }
 
   /*-:**************************************************************************************************************************/
-  /*-:************************************        PLAYBACK UI METHODS        ***************************************************/
+  /*-:****************************************        PLAYBACK UI        *******************************************************/
   /*-:**************************************************************************************************************************/
   /**
-   * 
-   * @param options 
-   * @returns 
-   * @group Playback UI Methods
+   * Object containing properties that are either references to `<wbfk-playback-button>` elements that are connected to this timeline or `null`.
+   * - A property being `null` indicates that there is currently no corresponding button on the page that is linked to this timeline.
+   * @group Playback UI
    */
-  linkPlaybackButtons(options: Partial<{searchRoot: HTMLElement, buttonsSubset: PlaybackButtonPurpose[]}> = {}): this {
+  private _playbackButtons: PlaybackButtons = {
+    backwardButton: null,
+    fastForwardButton: null,
+    forwardButton: null,
+    pauseButton: null,
+    toggleSkippingButton: null,
+  };
+
+  get playbackButtons(): Readonly<PlaybackButtons> { return {...this._playbackButtons}; }
+
+  /**
+   * Searches the page for `<wbfk-playback-button>` elements whose
+   * `timeline-name` attributes are equivalent to this timeline's `timelineName` configuration option,
+   * then links those buttons to this timeline.
+   * - By default, all button types are searched for.
+   * @param options - Settings to define the behavior of the search
+   * @param options.searchRoot - The HTML element from which to begin searching for the buttons
+   * @param options.buttonsSubset - Array of strings indicating which specific buttons we want to link
+   * @returns 
+   * @group Playback UI
+   */
+  linkPlaybackButtons(options: {
+    /** The HTML element from which to begin searching for the buttons */
+    searchRoot?: HTMLElement,
+    /** Array of strings indicating which specific buttons we want to link. By default, all buttons are searched for. */
+    buttonsSubset?: PlaybackButtonPurpose[]
+  } = {}): this {
     const {
       searchRoot,
       buttonsSubset = [`Step Forward`, `Step Backward`, `Fast Forward`, `Pause`, `Toggle Skipping`],
@@ -310,21 +330,28 @@ export class AnimTimeline {
       );
     }
 
-    this.playbackButtons = {
+    this._playbackButtons = {
       forwardButton, backwardButton, pauseButton, fastForwardButton, toggleSkippingButton,
     };
 
     return this;
   }
 
+
   /**
-   * @group Playback UI Methods
+   * Disables this timeline's connection to its playback buttons until re-enabled
+   * using {@link AnimTimelinePlaybackUI.enablePlaybackButtons|enablePlaybackButtons()}.
+   * @group Playback UI
    */
   disablePlaybackButtons() {
     for (const button of Object.values(this.playbackButtons)) { button?.disable(); }
   }
+
   /**
-   * @group Playback UI Methods
+   * Allows this timeline's linked playback buttons to trigger (and be triggered by) this timeline's playback methods.
+   * - This method is only useful if the buttons were previously
+   * disabled using {@link AnimTimelinePlaybackUI.disablePlaybackButtons|disablePlaybackButtons()}.
+   * @group Playback UI
    */
   enablePlaybackButtons() {
     for (const button of Object.values(this.playbackButtons)) { button?.enable(); }
