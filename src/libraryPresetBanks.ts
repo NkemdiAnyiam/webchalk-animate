@@ -199,10 +199,9 @@ export const libPresetEntrances = {
      * @returns 
      */
     generateKeyframeGenerators() {
-      const {top} = this.domElem.getBoundingClientRect();
       return [
         () => [
-          {translate: `0 ${window.innerHeight - top}px`, opacity: 0, easing: useEasing('power2-out')},
+          {translate: `0 ${window.innerHeight - this.domElem.getBoundingClientRect().top}px`, opacity: 0, easing: useEasing('power2-out')},
           {translate: `0 -25px`, offset: 0.83333},
           {translate: `0 -25px`, offset: 0.86, easing: useEasing('power1-in')},
           {translate: `0 0`},
@@ -355,13 +354,12 @@ export const libPresetExits = {
      * @returns 
      */
     generateKeyframeGenerators() {
-      const {top} = this.domElem.getBoundingClientRect();
       return [
         () => [
           {translate: `0 0`, easing: useEasing('power1-out')},
           {translate: `0 -25px`, offset: 0.14 },
           {translate: `0 -25px`, easing: useEasing('power2-in'), offset: 0.16666666},
-          {translate: `0 ${window.innerHeight - top}px`, opacity: 0},
+          {translate: `0 ${window.innerHeight - this.domElem.getBoundingClientRect().top}px`, opacity: 0},
         ],
       ];
     },
