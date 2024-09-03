@@ -38,7 +38,7 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
   /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<EntranceClipConfig> = {}) {
     super.initialize(effectOptions, effectConfig);
 
-    const hideNow = effectConfig.hideNowType ?? this.effectGenerator.config?.hideNowType ?? this.defaultConfig.hideNowType!;
+    const hideNow = effectConfig.hideNowType ?? this.effectGenerator.defaultConfig?.hideNowType ?? this.defaultConfig.hideNowType!;
     switch(hideNow) {
       case "display-none":
         this.domElem.classList.add('wbfk-hidden');
@@ -136,7 +136,7 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
   /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<ExitClipConfig> = {}) {
     super.initialize(effectOptions, effectConfig);
 
-    const exitType = effectConfig.exitType ?? this.effectGenerator.config?.exitType ?? this.defaultConfig.exitType!;
+    const exitType = effectConfig.exitType ?? this.effectGenerator.defaultConfig?.exitType ?? this.defaultConfig.exitType!;
     if (exitType !== 'display-none' && exitType !== 'visibility-hidden') {
       throw this.generateError(RangeError, `Invalid 'exitType' config value "${exitType}". Must be "display-none" or "visibility-hidden".`);
     }
@@ -249,7 +249,7 @@ export class TransitionClip<TEffectGenerator extends EffectGenerator<TransitionC
 
   /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<TransitionClipConfig> = {}) {
     super.initialize(effectOptions, effectConfig);
-    this.removeInlineStyleOnFinish = effectConfig.removeInlineStylesOnFinish ?? this.effectGenerator.config?.removeInlineStylesOnFinish ?? this.defaultConfig.removeInlineStylesOnFinish!;
+    this.removeInlineStyleOnFinish = effectConfig.removeInlineStylesOnFinish ?? this.effectGenerator.defaultConfig?.removeInlineStylesOnFinish ?? this.defaultConfig.removeInlineStylesOnFinish!;
     return this;
   }
 

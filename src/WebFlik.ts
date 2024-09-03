@@ -59,7 +59,7 @@ type RafMutatorsGeneratorsGenerator<TClipContext extends unknown> = {
 
 export type EffectGenerator<TClipContext extends unknown = unknown, TConfig extends unknown = unknown, IncludeExtras extends boolean = true> = Readonly<
   {
-    config?: Partial<TConfig>;
+    defaultConfig?: Partial<TConfig>;
   }
   & (
     IncludeExtras extends true

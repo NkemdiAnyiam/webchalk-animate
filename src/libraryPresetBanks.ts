@@ -107,7 +107,7 @@ export const libPresetEntrances = {
     generateKeyframes() {
       return [[]] as const;
     },
-    config: {
+    defaultConfig: {
       duration: 0,
     } as const
   },
@@ -165,7 +165,7 @@ export const libPresetEntrances = {
         // () => [ {translate: computeTranslationStr()} ]
       ];
     },
-    config: {
+    defaultConfig: {
       runGeneratorsNow: false,
       composite: 'accumulate',
     } as const
@@ -206,7 +206,7 @@ export const libPresetEntrances = {
         ],
       ];
     },
-    config: {
+    defaultConfig: {
       composite: 'accumulate',
     } as const
   },
@@ -264,7 +264,7 @@ export const libPresetExits = {
     generateKeyframes() {
       return [[]];
     },
-    config: {
+    defaultConfig: {
       duration: 0,
     } as const
   },
@@ -318,7 +318,7 @@ export const libPresetExits = {
         // () => [ {translate: computeTranslationStr()}, {translate: `0 0`} ]
       ];
     },
-    config: {
+    defaultConfig: {
       runGeneratorsNow: false,
       composite: 'accumulate',
     } as const
@@ -359,7 +359,7 @@ export const libPresetExits = {
         ],
       ];
     },
-    config: {
+    defaultConfig: {
       composite: 'accumulate',
     } as const
   },
@@ -418,7 +418,7 @@ export const libPresetEmphases = {
         {backgroundPositionX: '0%'},
       ]];
     },
-    config: {
+    defaultConfig: {
       cssClasses: { toAddOnStart: [`wbfk-highlightable`] },
       // invalidProp: 4,
     } as const,
@@ -435,7 +435,7 @@ export const libPresetEmphases = {
         {backgroundPositionX: '100%'},
       ]];
     },
-    config: {
+    defaultConfig: {
       cssClasses: { toRemoveOnFinish: [`wbfk-highlightable`] },
     } as const,
   },
@@ -557,7 +557,7 @@ export const libPresetTransitions = {
     generateKeyframes(keyframe: Keyframe) {
       return [ [{...keyframe}, {}] ];
     },
-    config: {
+    defaultConfig: {
       commitsStyles: false,
     } as const
   },
@@ -609,7 +609,7 @@ export const libPresetConnectorEntrances = {
     generateKeyframes() {
       return [[]];
     },
-    config: {
+    defaultConfig: {
       duration: 0
     } as const
   },
@@ -689,7 +689,7 @@ export const libPresetConnectorExits = {
     generateKeyframes() {
       return [[]];
     },
-    config: {
+    defaultConfig: {
       duration: 0
     } as const
   },
@@ -868,7 +868,7 @@ export const libPresetScrolls = {
 
       return [forwardGenerator, backwardGenerator];
     },
-    config: {
+    defaultConfig: {
       runGeneratorsNow: false,
     }
   },

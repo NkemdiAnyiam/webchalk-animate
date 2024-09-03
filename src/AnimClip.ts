@@ -550,7 +550,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
     this.effectOptions = effectOptions;
 
-    const mergedConfig = this.mergeConfigs(effectConfig, this.effectGenerator.config ?? {});
+    const mergedConfig = this.mergeConfigs(effectConfig, this.effectGenerator.defaultConfig ?? {});
     Object.assign(this, mergedConfig);
     // cannot be exactly 0 because that causes some Animation-related bugs that can't be easily worked around
     this.duration = Math.max(this.duration as number, 0.01);

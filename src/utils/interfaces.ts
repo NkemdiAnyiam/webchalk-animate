@@ -19,7 +19,7 @@ export type AddFreezableConfig<TClipConfig extends AnimClipConfig> = PrefixProps
 export type StripFrozenConfig<
   TClipConfig extends AnimClipConfig,
   TEffectGenerator extends EffectGenerator
-> = Omit<TClipConfig, FromFrozenKeys<TEffectGenerator['config']>>;
+> = Omit<TClipConfig, FromFrozenKeys<TEffectGenerator['defaultConfig']>>;
 
 
 
