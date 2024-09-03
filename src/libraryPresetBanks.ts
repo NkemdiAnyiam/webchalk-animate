@@ -94,6 +94,9 @@ export type LibraryTransitions = typeof libPresetTransitions & docsScriptRunner;
  */
 export type LibraryScrolls = typeof libPresetScrolls & docsScriptRunner;
 
+/*-:**************************************************************************************************************************/
+/*-:****************************************        ENTRANCES        *********************************************************/
+/*-:**************************************************************************************************************************/
 /**
  * @category hidden
  */
@@ -186,7 +189,7 @@ export const libPresetEntrances = {
           opacity: 0,
         },
         {},
-      ]]
+      ]] as const;
     },
   },
 
@@ -252,6 +255,9 @@ export const libPresetEntrances = {
   // invalidProperty: 5,
 } satisfies EffectGeneratorBank<EntranceClip, EntranceClipConfig, false>;
 
+/*-:**************************************************************************************************************************/
+/*-:******************************************        EXITS        ***********************************************************/
+/*-:**************************************************************************************************************************/
 /**
  * @category hidden
  */
@@ -278,7 +284,7 @@ export const libPresetExits = {
       return [[
         {},
         {opacity: '0'},
-      ]]
+      ]] as const;
     },
   },
 
@@ -339,7 +345,7 @@ export const libPresetExits = {
           scale: 0,
           opacity: 0,
         },
-      ]]
+      ]] as const;
     },
   },
 
@@ -403,6 +409,9 @@ export const libPresetExits = {
   },
 } satisfies EffectGeneratorBank<ExitClip, ExitClipConfig, false>;
 
+/*-:**************************************************************************************************************************/
+/*-:*****************************************        EMPHASES        *********************************************************/
+/*-:**************************************************************************************************************************/
 /**
  * @category hidden
  */
@@ -416,7 +425,7 @@ export const libPresetEmphases = {
       return [[
         {backgroundPositionX: '100%'},
         {backgroundPositionX: '0%'},
-      ]];
+      ]] as const;
     },
     defaultConfig: {
       cssClasses: { toAddOnStart: [`wbfk-highlightable`] },
@@ -433,7 +442,7 @@ export const libPresetEmphases = {
       return [[
         {backgroundPositionX: '0%'},
         {backgroundPositionX: '100%'},
-      ]];
+      ]] as const;
     },
     defaultConfig: {
       cssClasses: { toRemoveOnFinish: [`wbfk-highlightable`] },
@@ -441,6 +450,9 @@ export const libPresetEmphases = {
   },
 } satisfies EffectGeneratorBank<EmphasisClip, EmphasisClipConfig, false>;
 
+/*-:**************************************************************************************************************************/
+/*-:*****************************************        MOTIONS        **********************************************************/
+/*-:**************************************************************************************************************************/
 /**
  * @category hidden
  */
@@ -521,7 +533,7 @@ export const libPresetMotions = {
      * @param translationOptions 
      * @returns 
      */
-    generateKeyframes(translationOptions: Partial<TranslateOptions> = {}): [Keyframe[], Keyframe[]] {
+    generateKeyframes(translationOptions: Partial<TranslateOptions> = {}) {
       const translationComponents = splitXYTupleString(translationOptions.translate);
       const offsetSelfComponents =  splitXYTupleString(translationOptions.offsetSelf);
 
@@ -544,6 +556,9 @@ export const libPresetMotions = {
   },
 } satisfies EffectGeneratorBank<MotionClip, MotionClipConfig, false>;
 
+/*-:**************************************************************************************************************************/
+/*-:***************************************        TRANSITIONS        ********************************************************/
+/*-:**************************************************************************************************************************/
 /**
  * @category hidden
  */
@@ -597,6 +612,9 @@ export const libPresetTransitions = {
   },
 } satisfies EffectGeneratorBank<TransitionClip, TransitionClipConfig, false>;
 
+/*-:**************************************************************************************************************************/
+/*-:***********************************        CONNECTOR ENTRANCES      ******************************************************/
+/*-:**************************************************************************************************************************/
 /**
  * @category hidden
  */
@@ -607,7 +625,7 @@ export const libPresetConnectorEntrances = {
      * @returns 
      */
     generateKeyframes() {
-      return [[]];
+      return [[]] as const;
     },
     defaultConfig: {
       duration: 0
@@ -623,7 +641,7 @@ export const libPresetConnectorEntrances = {
       return [[
         {opacity: '0'},
         {},
-      ]];
+      ]] as const;
     },
   },
 
@@ -677,6 +695,9 @@ export const libPresetConnectorEntrances = {
   },
 } satisfies EffectGeneratorBank<ConnectorEntranceClip, ConnectorEntranceClipConfig, false>;
 
+/*-:**************************************************************************************************************************/
+/*-:*************************************        CONNECTOR EXITS        ******************************************************/
+/*-:**************************************************************************************************************************/
 /**
  * @category hidden
  */
@@ -687,7 +708,7 @@ export const libPresetConnectorExits = {
      * @returns 
      */
     generateKeyframes() {
-      return [[]];
+      return [[]] as const;
     },
     defaultConfig: {
       duration: 0
@@ -703,7 +724,7 @@ export const libPresetConnectorExits = {
       return [[
         {},
         {opacity: '0'},
-      ]];
+      ]] as const;
     },
   },
 
@@ -753,6 +774,9 @@ export const libPresetConnectorExits = {
   },
 } satisfies EffectGeneratorBank<ConnectorExitClip, ConnectorExitClipConfig, false>;
 
+/*-:**************************************************************************************************************************/
+/*-:*****************************************        SCROLLS        **********************************************************/
+/*-:**************************************************************************************************************************/
 /**
  * @category hidden
  */
