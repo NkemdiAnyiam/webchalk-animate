@@ -157,7 +157,7 @@ export type AnimClipTiming = Pick<AnimClipConfig,
  * @category Interfaces
  * @interface
  */
-export type EffectDetails = {
+export type AnimClipEffectDetails = {
   /**
    * Name of the animation effect.
    */
@@ -308,37 +308,37 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**
    * Returns specific details about the animation's effect.
    * @returns an object containing
-   * - {@link EffectDetails.category|category},
-   * - {@link EffectDetails.effectName|effectName},
-   * - {@link EffectDetails.effectGenerator|effectGenerator},
-   * - {@link EffectDetails.effectOptions|effectOptions},
+   * - {@link AnimClipEffectDetails.category|category},
+   * - {@link AnimClipEffectDetails.effectName|effectName},
+   * - {@link AnimClipEffectDetails.effectGenerator|effectGenerator},
+   * - {@link AnimClipEffectDetails.effectOptions|effectOptions},
    */
-  getEffectDetails(): EffectDetails;
+  getEffectDetails(): AnimClipEffectDetails;
   /**
    * Returns the value of a single specific property.
    * @param propName - name of the desired property
    * @ignore
    */
-  getEffectDetails<T extends keyof EffectDetails>(propName: T): EffectDetails[T];
+  getEffectDetails<T extends keyof AnimClipEffectDetails>(propName: T): AnimClipEffectDetails[T];
   /**
    * Returns an object containing a subset of the object that would normally be returned.
    * @param propNames - array of strings specifying which properties should be included.
    * @ignore
    */
-  getEffectDetails<T extends (keyof EffectDetails)[]>(propNames: (keyof EffectDetails)[] | T): PickFromArray<EffectDetails, T>;
+  getEffectDetails<T extends (keyof AnimClipEffectDetails)[]>(propNames: (keyof AnimClipEffectDetails)[] | T): PickFromArray<AnimClipEffectDetails, T>;
   /**
    * @group Property Getter Methods
    */
-  getEffectDetails(specifics?: keyof EffectDetails | (keyof EffectDetails)[]):
-    | EffectDetails
-    | EffectDetails[keyof EffectDetails]
-    | Partial<Pick<EffectDetails, keyof EffectDetails>>
+  getEffectDetails(specifics?: keyof AnimClipEffectDetails | (keyof AnimClipEffectDetails)[]):
+    | AnimClipEffectDetails
+    | AnimClipEffectDetails[keyof AnimClipEffectDetails]
+    | Partial<Pick<AnimClipEffectDetails, keyof AnimClipEffectDetails>>
   {
     if (typeof specifics === 'string') {
       return this[specifics];
     }
     if (specifics instanceof Array) {
-      return this.getPartial<EffectDetails>(specifics);
+      return this.getPartial<AnimClipEffectDetails>(specifics);
     }
 
     return {
