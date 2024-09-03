@@ -870,6 +870,6 @@ export const libPresetScrolls = {
     },
     defaultConfig: {
       runGeneratorsNow: false,
-    }
+    } as const
   },
-} as const satisfies EffectGeneratorBank<ScrollerClip, ScrollerClipConfig, false>;
+} satisfies EffectGeneratorBank<ScrollerClip, ScrollerClipConfig, false>;
