@@ -19,27 +19,121 @@ type OrthoDirection = 'left' | 'top' | 'right' | 'bottom';
 type DiagDirection = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 type Direction = OrthoDirection | DiagDirection;
 
+/**
+ * @ignore
+ * @internal
+ */
+type docsScriptRunner = {
+  /**
+   * <script>
+   *  window.onload = () => {
+   *    document.querySelector('a#______').closest('.tsd-panel.tsd-member').remove();
+   *    [...document.querySelectorAll('a[href$="#______"]')].forEach((elem) => elem.remove());
+   * 
+   *    document.querySelector('.col-content > .tsd-signature').remove();
+   *    document.querySelector('.col-content > .tsd-sources').remove();
+   *    const members = [...document.querySelectorAll('.tsd-panel.tsd-member')];
+   *    for (const member of members) {
+   *      member.querySelector(':scope > .tsd-signature').remove();
+   *      member.querySelector(':scope h5 + ul.tsd-parameters')?.remove();
+   *      const h5List = [...member.querySelectorAll(':scope h5')];
+   *      for (const h5 of h5List) { h5.classList.add('custom-color'); }
+   *      member.querySelector('.tsd-returns-title')?.remove();
+   *    }
+   *  }
+   * </script>
+   */
+  ______: any
+}
 
+/**
+ * 
+ * @interface
+ */
+export type LibraryEntrances = typeof libPresetEntrances & docsScriptRunner;
+
+/**
+ * 
+ * @interface
+ */
+export type LibraryExits = typeof libPresetExits & docsScriptRunner;
+
+/**
+ * 
+ * @interface
+ */
+export type LibraryEmphases = typeof libPresetEmphases & docsScriptRunner;
+
+/**
+ * 
+ * @interface
+ */
+export type LibraryMotions = typeof libPresetMotions & docsScriptRunner;
+
+/**
+ * 
+ * @interface
+ */
+export type LibraryConnectorEntrances = typeof libPresetConnectorEntrances & docsScriptRunner;
+
+/**
+ * 
+ * @interface
+ */
+export type LibraryConnectorExits = typeof libPresetConnectorExits & docsScriptRunner;
+
+/**
+ * 
+ * @interface
+ */
+export type LibraryTransitions = typeof libPresetTransitions & docsScriptRunner;
+
+/**
+ * 
+ * @interface
+ */
+export type LibraryScrolls = typeof libPresetScrolls & docsScriptRunner;
+
+/**
+ * @category hidden
+ */
 export const libPresetEntrances = {
+  /** Makes the element appear instantaneously. */
   [`~appear`]: {
+    /**
+     * 
+     * @returns 
+     */
     generateKeyframes() {
-      return [[]];
+      return [[]] as const;
     },
     config: {
       duration: 0,
-    }
+    } as const
   },
 
   [`~fade-in`]: {
+    /**
+     * 
+     * @returns 
+     */
     generateKeyframes() {
       return [[
         {opacity: '0'},
         {},
-      ]];
+      ]] as const;
     },
   },
 
+  /**
+   * Makes thing fly in from offscreen from the specified direction.
+   */
   [`~fly-in`]: {
+    /**
+     * 
+     * @param direction - geee
+     * @returns 
+     */
     generateKeyframeGenerators(direction: `from-${Direction}` = 'from-bottom') {
       const computeOrthoDist = (dir: `from-${OrthoDirection}`) => {
         const {left, right, top, bottom} = this.domElem.getBoundingClientRect();
@@ -74,10 +168,16 @@ export const libPresetEntrances = {
     config: {
       runGeneratorsNow: false,
       composite: 'accumulate',
-    }
+    } as const
   },
 
   [`~pinwheel`]: {
+    /**
+     * 
+     * @param numSpins 
+     * @param direction 
+     * @returns 
+     */
     generateKeyframes(numSpins: number = 2, direction: 'clockwise' | 'counterclockwise' = 'counterclockwise') {
       return [[
         {
@@ -91,6 +191,10 @@ export const libPresetEntrances = {
   },
 
   [`~rise-up`]: {
+    /**
+     * 
+     * @returns 
+     */
     generateKeyframeGenerators() {
       const {top} = this.domElem.getBoundingClientRect();
       return [
@@ -104,10 +208,15 @@ export const libPresetEntrances = {
     },
     config: {
       composite: 'accumulate',
-    }
+    } as const
   },
 
   [`~wipe`]: {
+    /**
+     * 
+     * @param direction 
+     * @returns 
+     */
     generateKeyframes(direction: 'from-bottom' | 'from-left' | 'from-top' | 'from-right' = 'from-bottom') {
       switch(direction) {
         case 'from-bottom':
@@ -143,18 +252,28 @@ export const libPresetEntrances = {
   // invalidProperty: 5,
 } satisfies EffectGeneratorBank<EntranceClip, EntranceClipConfig, false>;
 
-
+/**
+ * @category hidden
+ */
 export const libPresetExits = {
   [`~disappear`]: {
+    /**
+     * 
+     * @returns 
+     */
     generateKeyframes() {
       return [[]];
     },
     config: {
       duration: 0,
-    }
+    } as const
   },
 
   [`~fade-out`]: {
+    /**
+     * 
+     * @returns 
+     */
     generateKeyframes() {
       return [[
         {},
@@ -164,6 +283,11 @@ export const libPresetExits = {
   },
 
   [`~fly-out`]: {
+    /**
+     * 
+     * @param direction 
+     * @returns 
+     */
     generateKeyframeGenerators(direction: `to-${OrthoDirection | DiagDirection}` = 'to-bottom') {
       const computeOrthoDist = (dir: `to-${OrthoDirection}`) => {
         const {left, right, top, bottom} = this.domElem.getBoundingClientRect();
@@ -197,10 +321,16 @@ export const libPresetExits = {
     config: {
       runGeneratorsNow: false,
       composite: 'accumulate',
-    }
+    } as const
   },
 
   [`~pinwheel`]: {
+    /**
+     * 
+     * @param numSpins 
+     * @param direction 
+     * @returns 
+     */
     generateKeyframes(numSpins: number = 2, direction: 'clockwise' | 'counterclockwise' = 'clockwise') {
       return [[
         {},
@@ -214,6 +344,10 @@ export const libPresetExits = {
   },
 
   [`~sink-down`]: {
+    /**
+     * 
+     * @returns 
+     */
     generateKeyframeGenerators() {
       const {top} = this.domElem.getBoundingClientRect();
       return [
@@ -227,10 +361,15 @@ export const libPresetExits = {
     },
     config: {
       composite: 'accumulate',
-    }
+    } as const
   },
   
   [`~wipe`]: {
+    /**
+     * 
+     * @param direction 
+     * @returns 
+     */
     generateKeyframes(direction: 'from-bottom' | 'from-left' | 'from-top' | 'from-right' = 'from-bottom') {
       switch(direction) {
         case 'from-bottom':
@@ -264,9 +403,15 @@ export const libPresetExits = {
   },
 } satisfies EffectGeneratorBank<ExitClip, ExitClipConfig, false>;
 
-
+/**
+ * @category hidden
+ */
 export const libPresetEmphases = {
   [`~highlight`]: {
+    /**
+     * 
+     * @returns 
+     */
     generateKeyframes() {
       return [[
         {backgroundPositionX: '100%'},
@@ -276,10 +421,14 @@ export const libPresetEmphases = {
     config: {
       cssClasses: { toAddOnStart: [`wbfk-highlightable`] },
       // invalidProp: 4,
-    },
+    } as const,
   },
 
   [`~un-highlight`]: {
+    /**
+     * 
+     * @returns 
+     */
     generateKeyframes() {
       return [[
         {backgroundPositionX: '0%'},
@@ -288,13 +437,21 @@ export const libPresetEmphases = {
     },
     config: {
       cssClasses: { toRemoveOnFinish: [`wbfk-highlightable`] },
-    },
+    } as const,
   },
 } satisfies EffectGeneratorBank<EmphasisClip, EmphasisClipConfig, false>;
 
-
+/**
+ * @category hidden
+ */
 export const libPresetMotions = {
   ['~move-to']: {
+    /**
+     * 
+     * @param targetElem 
+     * @param translationOptions 
+     * @returns 
+     */
     generateKeyframes(targetElem: Element | null | undefined, translationOptions: Partial<MoveToOptions> = {}) {
       if (!targetElem) {
         throw new TypeError(`Target for ~move-to must not be null`);
@@ -359,6 +516,11 @@ export const libPresetMotions = {
   },
 
   ['~translate']: {
+    /**
+     * 
+     * @param translationOptions 
+     * @returns 
+     */
     generateKeyframes(translationOptions: Partial<TranslateOptions> = {}): [Keyframe[], Keyframe[]] {
       const translationComponents = splitXYTupleString(translationOptions.translate);
       const offsetSelfComponents =  splitXYTupleString(translationOptions.offsetSelf);
@@ -382,18 +544,30 @@ export const libPresetMotions = {
   },
 } satisfies EffectGeneratorBank<MotionClip, MotionClipConfig, false>;
 
-
+/**
+ * @category hidden
+ */
 export const libPresetTransitions = {
   ['~from']: {
+    /**
+     * 
+     * @param keyframe 
+     * @returns 
+     */
     generateKeyframes(keyframe: Keyframe) {
       return [ [{...keyframe}, {}] ];
     },
     config: {
       commitsStyles: false,
-    }
+    } as const
   },
 
   ['~to']: {
+    /**
+     * 
+     * @param keyframe 
+     * @returns 
+     */
     generateKeyframes(keyframe: Keyframe) {
       const computedStyles = getComputedStyle(this.domElem);
       const original = Object.keys(keyframe).reduce((acc, key) => {
@@ -423,18 +597,28 @@ export const libPresetTransitions = {
   },
 } satisfies EffectGeneratorBank<TransitionClip, TransitionClipConfig, false>;
 
-
+/**
+ * @category hidden
+ */
 export const libPresetConnectorEntrances = {
   [`~appear`]: {
+    /**
+     * 
+     * @returns 
+     */
     generateKeyframes() {
       return [[]];
     },
     config: {
       duration: 0
-    }
+    } as const
   },
 
   [`~fade-in`]: {
+    /**
+     * 
+     * @returns 
+     */
     generateKeyframes() {
       return [[
         {opacity: '0'},
@@ -445,6 +629,11 @@ export const libPresetConnectorEntrances = {
 
   // TODO: Fix new bugs surrounding animating custom variables
   [`~trace`]: {
+    /**
+     * 
+     * @param direction 
+     * @returns 
+     */
     generateKeyframes(direction: 'from-A' | 'from-B' | 'from-top' | 'from-bottom' | 'from-left' | 'from-right' = 'from-A') {
       // using CSS variables to control marker-end or marker-start opacity with easing step-end
       // makes it possible to instantly hide a marker and re-reveal it at the end
@@ -488,18 +677,28 @@ export const libPresetConnectorEntrances = {
   },
 } satisfies EffectGeneratorBank<ConnectorEntranceClip, ConnectorEntranceClipConfig, false>;
 
-
+/**
+ * @category hidden
+ */
 export const libPresetConnectorExits = {
   [`~disappear`]: {
+    /**
+     * 
+     * @returns 
+     */
     generateKeyframes() {
       return [[]];
     },
     config: {
       duration: 0
-    }
+    } as const
   },
 
   [`~fade-out`]: {
+    /**
+     * 
+     * @returns 
+     */
     generateKeyframes() {
       return [[
         {},
@@ -509,6 +708,10 @@ export const libPresetConnectorExits = {
   },
 
   [`~trace`]: {
+    /**
+     * 
+     * @returns 
+     */
     generateKeyframes(direction: 'from-A' | 'from-B' | 'from-top' | 'from-bottom' | 'from-left' | 'from-right' = 'from-A') {
       const fromStartFrames = [
         {['--a-marker-opacity']: 1, easing: 'step-start'},
@@ -550,7 +753,9 @@ export const libPresetConnectorExits = {
   },
 } satisfies EffectGeneratorBank<ConnectorExitClip, ConnectorExitClipConfig, false>;
 
-
+/**
+ * @category hidden
+ */
 export const libPresetScrolls = {
   // [`~scroll-self`]: {
   //   generateRafMutators(target: Element | null | undefined, scrollOptions: Partial<ScrollingOptions> = {}) {
@@ -591,6 +796,12 @@ export const libPresetScrolls = {
   // },
 
   [`~scroll-self`]: {
+    /**
+     * 
+     * @param target 
+     * @param scrollOptions 
+     * @returns 
+     */
     generateRafMutatorGenerators(target: Element | null | undefined, scrollOptions: Partial<ScrollingOptions> = {}) {
       if (!target) { throw new TypeError(`Target for ~scroll-self must not be null`); }
       const {
@@ -661,4 +872,4 @@ export const libPresetScrolls = {
       runGeneratorsNow: false,
     }
   },
-} satisfies EffectGeneratorBank<ScrollerClip, ScrollerClipConfig, false>;
+} as const satisfies EffectGeneratorBank<ScrollerClip, ScrollerClipConfig, false>;
