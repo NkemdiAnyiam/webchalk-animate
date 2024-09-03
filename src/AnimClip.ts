@@ -1030,6 +1030,13 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
                 ` To temporarily (instantly) override the hidden state, set the 'commitStylesForcefully' config option to true` +
                 ` (however, if the element's ancestor is unrendered, this will still fail).` +
                 `${errorTip(
+                  `Tip: Entrance() has a convenient config option called 'hideNowType', which is null by default.` +
+                  ` You may set the option to "display-none"` +
+                  ` (which unrenders the element) or "visibility-hidden" (which only turns the element invisible).` +
+                  ` Either one will cause the element to hide as soon as Entrance() is called.` +
+                  `\nExample: Entrance(elem, 'fade-in', [], {hideNowType: "visibility-hidden"})`
+                )}` +
+                `${errorTip(
                   `Tip: By default, Exit()'s config option for 'exitType' is set to "display-none", which unrenders the element.` +
                   ` To just make the element invisible, set 'exitType' to "visibility-hidden".` +
                   `\nExample: Exit(elem, 'fade-out', [], {exitType: "visibility-hidden"})`
