@@ -44,8 +44,8 @@ export type AnimSequenceConfig = {
 };
 
 /**
- * Contains timing-related details about the sequence. Returned by {@link AnimSequence.getTiming()}.
- * @see {@link AnimSequence.getTiming()}
+ * Contains timing-related details about the sequence. Returned by {@link AnimSequence.getTiming}.
+ * @see {@link AnimSequence.getTiming}
  * @category Interfaces
  * @interface
  */
@@ -64,7 +64,7 @@ export type AnimSequenceTiming = Pick<AnimSequenceConfig,
 };
 
 /**
- * Contains details about an sequence's current status. Returned by {@link AnimSequence.getStatus()}.
+ * Contains details about an sequence's current status. Returned by {@link AnimSequence.getStatus}.
  * @see {@link AnimSequence.getStatus}
  * @category Interfaces
  * @interface
