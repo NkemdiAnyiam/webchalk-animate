@@ -25,7 +25,6 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
   protected get defaultConfig(): Partial<EntranceClipConfig> {
     return {
       commitsStyles: false,
-      runGeneratorsNow: true,
       hideNowType: null,
     };
   }
@@ -123,7 +122,6 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
   protected get defaultConfig(): Partial<ExitClipConfig> {
     return {
       commitsStyles: false,
-      runGeneratorsNow: true,
       exitType: 'display-none',
     };
   }
