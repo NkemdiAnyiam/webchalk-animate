@@ -1,7 +1,7 @@
 import { AnimSequence } from "./AnimSequence";
 import { AnimTimeline } from "./AnimTimeline";
 import { EffectOptions, EffectGeneratorBank, EffectGenerator } from "./WebFlik";
-import { mergeArrays } from "./utils/helpers";
+import { call, mergeArrays } from "./utils/helpers";
 import { EasingString, useEasing } from "./utils/easing";
 import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "./utils/errors";
 import { EffectCategory, StripFrozenConfig } from "./utils/interfaces";
@@ -231,7 +231,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * @remarks
    * This static method is purely for convenience.
    */
-  public static createNoOpEffectGenerator() { return {generateKeyframes() { return [[], []]; }} as EffectGenerator; }
+  public static createNoOpEffectGenerator() { return {generateKeyframes() { return {forwardFrames: [], backwardFrames: []}; }} as EffectGenerator; }
   protected abstract get defaultConfig(): Partial<AnimClipConfig>;
 
   /*-:**************************************************************************************************************************/
@@ -568,12 +568,12 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       if (this.effectGenerator.generateKeyframes) {
         // if pregenerating, produce F and B frames now
         if (this.runGeneratorsNow) {
-          [forwardFrames, backwardFrames] = this.effectGenerator.generateKeyframes.call(this, ...effectOptions);
+          ({forwardFrames, backwardFrames} = call(this.effectGenerator.generateKeyframes, this, ...effectOptions));
         }
       }
       // generateKeyframeGenerators()
       else if (this.effectGenerator.generateKeyframeGenerators) {
-        const [forwardGenerator, backwardGenerator] = this.effectGenerator.generateKeyframeGenerators.call(this, ...effectOptions);
+        const {forwardGenerator, backwardGenerator} = call(this.effectGenerator.generateKeyframeGenerators, this, ...effectOptions);
         this.keyframesGenerators = {forwardGenerator, backwardGenerator};
         // if pregenerating, produce F and B frames now
         if (this.runGeneratorsNow) {
@@ -583,13 +583,13 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       // generateRafMutators()
       else if (this.effectGenerator.generateRafMutators) {
         if (this.runGeneratorsNow) {
-          const [forwardMutator, backwardMutator] = this.effectGenerator.generateRafMutators.call(this, ...effectOptions);
+          const {forwardMutator, backwardMutator} = call(this.effectGenerator.generateRafMutators, this, ...effectOptions);
           this.rafMutators = { forwardMutator, backwardMutator };
         }
       }
       // generateRafMutatorGenerators()
       else {
-        const [forwardGenerator, backwardGenerator] = this.effectGenerator.generateRafMutatorGenerators.call(this, ...effectOptions);
+        const {forwardGenerator, backwardGenerator} = call(this.effectGenerator.generateRafMutatorGenerators, this, ...effectOptions);
         this.rafMutatorGenerators = {forwardGenerator, backwardGenerator};
         if (this.runGeneratorsNow) {
           this.rafMutators = {forwardMutator: forwardGenerator(), backwardMutator: backwardGenerator()};
@@ -944,7 +944,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
               try {
                 // if generateKeyframes() is the method of generation, generate f-ward and b-ward frames
                 if (bankEntry.generateKeyframes) {
-                  let [forwardFrames, backwardFrames] = bankEntry.generateKeyframes.call(this, ...this.effectOptions);
+                  let {forwardFrames, backwardFrames} = call(bankEntry.generateKeyframes, this, ...this.effectOptions);
                   animation.setForwardAndBackwardFrames(forwardFrames, backwardFrames ?? [...forwardFrames], backwardFrames ? false : true);
                 }
                 // if generateKeyframeGenerators() is the method of generation, generate f-ward frames
@@ -953,7 +953,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
                 }
                 // if generateRafMutators() is the method of generation, generate f-ward and b-ward mutators
                 else if (bankEntry.generateRafMutators) {
-                  const [forwardMutator, backwardMutator] = bankEntry.generateRafMutators.call(this, ...this.effectOptions);
+                  const {forwardMutator, backwardMutator} = call(bankEntry.generateRafMutators, this, ...this.effectOptions);
                   this.rafMutators = { forwardMutator, backwardMutator };
                 }
                 // if generateRafMutatorGenerators() is the method of generation, generate f-ward mutator

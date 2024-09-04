@@ -39,6 +39,7 @@ type docsScriptRunner = {
    *      const h5List = [...member.querySelectorAll(':scope h5')];
    *      for (const h5 of h5List) { h5.classList.add('custom-color'); }
    *      member.querySelector('.tsd-returns-title')?.remove();
+   *      member.querySelector(':scope li.tsd-parameter ul.tsd-parameters:has(> li.tsd-parameter > h5')?.remove();
    *    }
    *  }
    * </script>
@@ -108,7 +109,7 @@ export const libPresetEntrances = {
      * @returns 
      */
     generateKeyframes() {
-      return [[]] as const;
+      return {forwardFrames: []} as const;
     },
     defaultConfig: {
       duration: 0,
@@ -121,10 +122,9 @@ export const libPresetEntrances = {
      * @returns 
      */
     generateKeyframes() {
-      return [[
-        {opacity: '0'},
-        {},
-      ]] as const;
+      return {
+        forwardFrames: [ {opacity: '0'}, {} ]
+      } as const;
     },
   },
 
@@ -163,10 +163,10 @@ export const libPresetEntrances = {
         }
       };
 
-      return [
-        () => [ {translate: computeTranslationStr()}, {translate: `0 0`} ],
-        // () => [ {translate: computeTranslationStr()} ]
-      ];
+      return {
+        forwardGenerator: () => [ {translate: computeTranslationStr()}, {translate: `0 0`} ],
+        // backwardGenerator () => [ {translate: computeTranslationStr()} ]
+      };
     },
     defaultConfig: {
       runGeneratorsNow: false,
@@ -182,14 +182,16 @@ export const libPresetEntrances = {
      * @returns 
      */
     generateKeyframes(numSpins: number = 2, direction: 'clockwise' | 'counterclockwise' = 'counterclockwise') {
-      return [[
-        {
-          rotate: `z ${360 * numSpins * (direction === 'clockwise' ? -1 : 1)}deg`,
-          scale: 0,
-          opacity: 0,
-        },
-        {},
-      ]] as const;
+      return {
+        forwardFrames: [
+          {
+            rotate: `z ${360 * numSpins * (direction === 'clockwise' ? -1 : 1)}deg`,
+            scale: 0,
+            opacity: 0,
+          },
+          {},
+        ]
+      } as const;
     },
   },
 
@@ -199,14 +201,14 @@ export const libPresetEntrances = {
      * @returns 
      */
     generateKeyframeGenerators() {
-      return [
-        () => [
+      return {
+        forwardGenerator: () => [
           {translate: `0 ${window.innerHeight - this.domElem.getBoundingClientRect().top}px`, opacity: 0, easing: useEasing('power2-out')},
           {translate: `0 -25px`, offset: 0.83333},
           {translate: `0 -25px`, offset: 0.86, easing: useEasing('power1-in')},
           {translate: `0 0`},
         ],
-      ];
+      };
     },
     defaultConfig: {
       composite: 'accumulate',
@@ -222,28 +224,36 @@ export const libPresetEntrances = {
     generateKeyframes(direction: 'from-bottom' | 'from-left' | 'from-top' | 'from-right' = 'from-bottom') {
       switch(direction) {
         case 'from-bottom':
-          return [[
-            {clipPath: 'polygon(0 100%, 100% 100%, 100% 100%, 0 100%)'},
-            {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
-          ]];
+          return {
+            forwardFrames: [
+              {clipPath: 'polygon(0 100%, 100% 100%, 100% 100%, 0 100%)'},
+              {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
+            ]
+          };
 
         case 'from-left':
-          return [[
-            {clipPath: 'polygon(0 0, 0 0, 0 100%, 0 100%)'},
-            {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
-          ]];
+          return {
+            forwardFrames: [
+              {clipPath: 'polygon(0 0, 0 0, 0 100%, 0 100%)'},
+              {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
+            ]
+          };
 
         case 'from-top':
-          return [[
-            {clipPath: 'polygon(0 0, 100% 0, 100% 0, 0 0)'},
-            {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
-          ]];
+          return {
+            forwardFrames: [
+              {clipPath: 'polygon(0 0, 100% 0, 100% 0, 0 0)'},
+              {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
+            ]
+          };
 
         case 'from-right':
-          return [[
-            {clipPath: 'polygon(100% 0, 100% 0, 100% 100%, 100% 100%)'},
-            {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
-          ]];
+          return {
+            forwardFrames: [
+              {clipPath: 'polygon(100% 0, 100% 0, 100% 100%, 100% 100%)'},
+              {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
+            ]
+          };
 
         default:
           throw new RangeError(`Invalid direction "${direction}". Must be "from-top", "from-right", "from-bottom", or "from-left"`);
@@ -267,7 +277,7 @@ export const libPresetExits = {
      * @returns 
      */
     generateKeyframes() {
-      return [[]];
+      return {forwardFrames: []};
     },
     defaultConfig: {
       duration: 0,
@@ -280,10 +290,9 @@ export const libPresetExits = {
      * @returns 
      */
     generateKeyframes() {
-      return [[
-        {},
-        {opacity: '0'},
-      ]] as const;
+      return {
+        forwardFrames: [{}, {opacity: '0'}]
+      } as const;
     },
   },
 
@@ -318,10 +327,10 @@ export const libPresetExits = {
         }
       };
 
-      return [
-        () => [ {translate: computeTranslationStr()} ],
-        // () => [ {translate: computeTranslationStr()}, {translate: `0 0`} ]
-      ];
+      return {
+        forwardGenerator: () => [ {translate: computeTranslationStr()} ],
+        // backwardGenerator: () => [ {translate: computeTranslationStr()}, {translate: `0 0`} ]
+      };
     },
     defaultConfig: {
       runGeneratorsNow: false,
@@ -337,14 +346,16 @@ export const libPresetExits = {
      * @returns 
      */
     generateKeyframes(numSpins: number = 2, direction: 'clockwise' | 'counterclockwise' = 'clockwise') {
-      return [[
-        {},
-        {
-          rotate: `z ${360 * numSpins * (direction === 'clockwise' ? 1 : -1)}deg`,
-          scale: 0,
-          opacity: 0,
-        },
-      ]] as const;
+      return {
+        forwardFrames: [
+          {},
+          {
+            rotate: `z ${360 * numSpins * (direction === 'clockwise' ? 1 : -1)}deg`,
+            scale: 0,
+            opacity: 0,
+          },
+        ]
+      } as const;
     },
   },
 
@@ -354,14 +365,14 @@ export const libPresetExits = {
      * @returns 
      */
     generateKeyframeGenerators() {
-      return [
-        () => [
+      return {
+        forwardGenerator: () => [
           {translate: `0 0`, easing: useEasing('power1-out')},
           {translate: `0 -25px`, offset: 0.14 },
           {translate: `0 -25px`, easing: useEasing('power2-in'), offset: 0.16666666},
           {translate: `0 ${window.innerHeight - this.domElem.getBoundingClientRect().top}px`, opacity: 0},
         ],
-      ];
+      };
     },
     defaultConfig: {
       composite: 'accumulate',
@@ -377,28 +388,36 @@ export const libPresetExits = {
     generateKeyframes(direction: 'from-bottom' | 'from-left' | 'from-top' | 'from-right' = 'from-bottom') {
       switch(direction) {
         case 'from-bottom':
-          return [[
-            {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
-            {clipPath: 'polygon(0 0, 100% 0, 100% 0, 0 0)'},
-          ]];
+          return {
+            forwardFrames: [
+              {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
+              {clipPath: 'polygon(0 0, 100% 0, 100% 0, 0 0)'},
+            ]
+          };
 
         case 'from-left':
-          return [[
-            {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
-            {clipPath: 'polygon(100% 0, 100% 0, 100% 100%, 100% 100%)'},
-          ]];
+          return {
+            forwardFrames: [
+              {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
+              {clipPath: 'polygon(100% 0, 100% 0, 100% 100%, 100% 100%)'},
+            ]
+          };
 
         case 'from-top':
-          return [[
-            {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
-            {clipPath: 'polygon(0 100%, 100% 100%, 100% 100%, 0 100%)'},
-          ]];
+          return {
+            forwardFrames: [
+              {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
+              {clipPath: 'polygon(0 100%, 100% 100%, 100% 100%, 0 100%)'},
+            ]
+          };
 
         case 'from-right':
-          return [[
-            {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
-            {clipPath: 'polygon(0 0, 0 0, 0 100%, 0 100%)'},
-          ]];
+          return {
+            forwardFrames: [
+              {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
+              {clipPath: 'polygon(0 0, 0 0, 0 100%, 0 100%)'},
+            ]
+          };
 
         default:
           throw new RangeError(`Invalid direction "${direction}". Must be "from-top", "from-right", "from-bottom", or "from-left"`);
@@ -433,22 +452,24 @@ export const libPresetEmphases = {
       const finalColor = color === 'default'
         ? getComputedStyle(document.documentElement).getPropertyValue('--wbfk-highlight-color')
         : color;
-      return [() => [
-        {['--wbfk-highlight-color']: prevColor, easing: 'step-start'}, // step-start -> steps(1, jump-start)
-        {backgroundPositionX: '100%', offset: 0},
-        {backgroundPositionX: '0%', offset: 1},
-        {['--wbfk-highlight-color']: finalColor}
-      ], () => [
-        {['--wbfk-highlight-color']: finalColor, easing: 'step-end'}, // step-end -> steps(1, jump-end)
-        {backgroundPositionX: '0%', offset: 0},
-        {backgroundPositionX: '100%', offset: 1},
-        {['--wbfk-highlight-color']: prevColor}
-      ]];
+      return {
+        forwardGenerator: () => [
+          {['--wbfk-highlight-color']: prevColor, easing: 'step-start'}, // step-start -> steps(1, jump-start)
+          {backgroundPositionX: '100%', offset: 0},
+          {backgroundPositionX: '0%', offset: 1},
+          {['--wbfk-highlight-color']: finalColor}
+        ],
+        backwardGenerator: () => [
+          {['--wbfk-highlight-color']: finalColor, easing: 'step-end'}, // step-end -> steps(1, jump-end)
+          {backgroundPositionX: '0%', offset: 0},
+          {backgroundPositionX: '100%', offset: 1},
+          {['--wbfk-highlight-color']: prevColor}
+        ]};
     },
     defaultConfig: {
       cssClasses: { toAddOnStart: [`wbfk-highlightable`] },
       // invalidProp: 4,
-    } as const,
+    } as const
   },
 
   [`~un-highlight`]: {
@@ -457,14 +478,13 @@ export const libPresetEmphases = {
      * @returns 
      */
     generateKeyframes() {
-      return [[
-        {backgroundPositionX: '0%'},
-        {backgroundPositionX: '100%'},
-      ]] as const;
+      return {
+        forwardFrames: [ {backgroundPositionX: '0%'}, {backgroundPositionX: '100%'}],
+      } as const;
     },
     defaultConfig: {
       cssClasses: { toRemoveOnFinish: [`wbfk-highlightable`] },
-    } as const,
+    } as const
   },
 } satisfies EffectGeneratorBank<EmphasisClip, EmphasisClipConfig, false>;
 
@@ -535,13 +555,14 @@ export const libPresetMotions = {
         if (unit === '%') { offsetTargetYTrans = `${(num/100) * rectTarget.height}px`; }
       }
       
-      return [
-        // forward
-        [{translate: `calc(${baseXTrans}px + ${offsetSelfX} + ${offsetTargetXTrans}) calc(${baseYTrans}px + ${offsetSelfY} + ${offsetTargetYTrans})`}],
-
-        // backward
-        [{translate: `calc(${-baseXTrans}px + ${negateNumString(offsetSelfX)} + ${negateNumString(offsetTargetXTrans)}) calc(${-baseYTrans}px + ${negateNumString(offsetSelfY)} + ${negateNumString(offsetTargetYTrans)})`}],
-      ];
+      return {
+        forwardFrames: [
+          {translate: `calc(${baseXTrans}px + ${offsetSelfX} + ${offsetTargetXTrans}) calc(${baseYTrans}px + ${offsetSelfY} + ${offsetTargetYTrans})`}
+        ],
+        backwardFrames: [
+          {translate: `calc(${-baseXTrans}px + ${negateNumString(offsetSelfX)} + ${negateNumString(offsetTargetXTrans)}) calc(${-baseYTrans}px + ${negateNumString(offsetSelfY)} + ${negateNumString(offsetTargetYTrans)})`}
+        ],
+      };
     },
   },
 
@@ -562,14 +583,11 @@ export const libPresetMotions = {
         offsetSelfY = offsetSelfComponents?.[1] ?? '0px',
       } = translationOptions;
       
-      return [
-        // forward
-        [{translate: `calc(${translateX} + ${offsetSelfX}) calc(${translateY} + ${offsetSelfY})`}],
-  
-        // backward
-        [{translate: `calc(${negateNumString(translateX)} + ${negateNumString(offsetSelfX)})`
-                   + ` calc(${negateNumString(translateY)} + ${negateNumString(offsetSelfY)})`}],
-      ];
+      return {
+        forwardFrames: [{translate: `calc(${translateX} + ${offsetSelfX}) calc(${translateY} + ${offsetSelfY})`}],
+        backwardFrames: [{translate: `calc(${negateNumString(translateX)} + ${negateNumString(offsetSelfX)})`
+                            + ` calc(${negateNumString(translateY)} + ${negateNumString(offsetSelfY)})`}],
+      };
     },
   },
 } satisfies EffectGeneratorBank<MotionClip, MotionClipConfig, false>;
@@ -588,7 +606,9 @@ export const libPresetTransitions = {
      * @returns 
      */
     generateKeyframes(keyframe: Keyframe) {
-      return [ [{...keyframe}, {}] ];
+      return {
+        forwardFrames: [{...keyframe}, {}]
+      };
     },
     defaultConfig: {
       commitsStyles: false,
@@ -625,7 +645,9 @@ export const libPresetTransitions = {
         
         return {...acc, ...longhandKeys.reduce((acc, key) => {return {...acc, [key]: computedStyles[key]}}, {})};
       }, {});
-      return [ [original, {...keyframe}] ];
+      return {
+        forwardFrames: [original, {...keyframe}]
+      };
     },
   },
 } satisfies EffectGeneratorBank<TransitionClip, TransitionClipConfig, false>;
@@ -643,7 +665,7 @@ export const libPresetConnectorEntrances = {
      * @returns 
      */
     generateKeyframes() {
-      return [[]] as const;
+      return {forwardFrames: []} as const;
     },
     defaultConfig: {
       duration: 0
@@ -656,10 +678,9 @@ export const libPresetConnectorEntrances = {
      * @returns 
      */
     generateKeyframes() {
-      return [[
-        {opacity: '0'},
-        {},
-      ]] as const;
+      return {
+        forwardFrames: [ {opacity: '0'}, {}],
+      } as const;
     },
   },
 
@@ -689,22 +710,22 @@ export const libPresetConnectorEntrances = {
 
       switch(direction) {
         case 'from-A':
-          return [fromAFrames];
+          return {forwardFrames: fromAFrames};
 
         case 'from-B':
-          return [fromBFrames];
+          return {forwardFrames: fromBFrames};
 
         case 'from-top':
-          return [this.domElem.ay <= this.domElem.by ? fromAFrames : fromBFrames];
+          return {forwardFrames: this.domElem.ay <= this.domElem.by ? fromAFrames : fromBFrames};
 
         case 'from-bottom':
-          return [this.domElem.ay >= this.domElem.by ? fromAFrames : fromBFrames];
+          return {forwardFrames: this.domElem.ay >= this.domElem.by ? fromAFrames : fromBFrames};
 
         case 'from-left':
-          return [this.domElem.ax <= this.domElem.bx ? fromAFrames : fromBFrames];
+          return {forwardFrames: this.domElem.ax <= this.domElem.bx ? fromAFrames : fromBFrames};
 
         case 'from-right':
-          return [this.domElem.ax >= this.domElem.bx ? fromAFrames : fromBFrames];
+          return {forwardFrames: this.domElem.ax >= this.domElem.bx ? fromAFrames : fromBFrames};
 
         default:
           throw new RangeError(`Invalid direction "${direction}". Must be "from-A", "from-B", "from-top", "from-bottom", "from-left", or "from-right"`);
@@ -726,7 +747,7 @@ export const libPresetConnectorExits = {
      * @returns 
      */
     generateKeyframes() {
-      return [[]] as const;
+      return {forwardFrames: []} as const;
     },
     defaultConfig: {
       duration: 0
@@ -739,10 +760,9 @@ export const libPresetConnectorExits = {
      * @returns 
      */
     generateKeyframes() {
-      return [[
-        {},
-        {opacity: '0'},
-      ]] as const;
+      return {
+        forwardFrames: [ {}, {opacity: '0'} ],
+      } as const;
     },
   },
 
@@ -768,22 +788,22 @@ export const libPresetConnectorExits = {
 
       switch(direction) {
         case 'from-A':
-          return [fromStartFrames];
+          return {forwardFrames: fromStartFrames};
 
         case 'from-B':
-          return [fromEndFrames];
+          return {forwardFrames: fromEndFrames};
 
         case 'from-top':
-          return [this.domElem.ay <= this.domElem.by ? fromStartFrames : fromEndFrames];
+          return {forwardFrames: this.domElem.ay <= this.domElem.by ? fromStartFrames : fromEndFrames};
 
         case 'from-bottom':
-          return [this.domElem.ay >= this.domElem.by ? fromStartFrames : fromEndFrames];
+          return {forwardFrames: this.domElem.ay >= this.domElem.by ? fromStartFrames : fromEndFrames};
 
         case 'from-left':
-          return [this.domElem.ax <= this.domElem.bx ? fromStartFrames : fromEndFrames];
+          return {forwardFrames: this.domElem.ax <= this.domElem.bx ? fromStartFrames : fromEndFrames};
 
         case 'from-right':
-          return [this.domElem.ax >= this.domElem.bx ? fromStartFrames : fromEndFrames];
+          return {forwardFrames: this.domElem.ax >= this.domElem.bx ? fromStartFrames : fromEndFrames};
 
         default:
           throw new RangeError(`Invalid direction "${direction}". Must be "from-A", "from-B", "from-top", "from-bottom", "from-left", or "from-right"`);
@@ -908,7 +928,7 @@ export const libPresetScrolls = {
         }
       };
 
-      return [forwardGenerator, backwardGenerator];
+      return {forwardGenerator, backwardGenerator};
     },
     defaultConfig: {
       runGeneratorsNow: false,

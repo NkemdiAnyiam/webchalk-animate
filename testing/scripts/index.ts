@@ -5,7 +5,7 @@ const {Motion, Entrance, Emphasis} = webflik.createAnimationFactories({
   customEntranceEffects: {
     hello: {
       generateKeyframes() {
-        return [[]]
+        return {forwardFrames: []}
       },
       defaultConfig: {
         

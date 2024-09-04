@@ -24,7 +24,7 @@ type KeyframesGenerator<TClipContext extends unknown> = {
   generateKeyframes(
     /**@ignore*/
     this: TClipContext,
-    ...effectOptions: unknown[]): [forward: Keyframe[], backward?: Keyframe[]];
+    ...effectOptions: unknown[]): {forwardFrames: Keyframe[], backwardFrames?: Keyframe[]};
   generateKeyframeGenerators?: never;
   generateRafMutators?: never;
   generateRafMutatorGenerators?: never;
@@ -34,7 +34,7 @@ type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
   generateKeyframeGenerators(
     /**@ignore*/
     this: TClipContext,
-    ...effectOptions: unknown[]): [forwardGenerator: () => Keyframe[], backwardGenerator?: () => Keyframe[]];
+    ...effectOptions: unknown[]): StripDuplicateMethodAutocompletion<{forwardGenerator: () => Keyframe[], backwardGenerator?: () => Keyframe[]}>;
   generateRafMutators?: never;
   generateRafMutatorGenerators?: never;
 };
@@ -44,7 +44,7 @@ type RafMutatorsGenerator<TClipContext extends unknown> = {
   generateRafMutators(
     /**@ignore*/
     this: TClipContext & ReadonlyPick<AnimClip, 'computeTween'>,
-    ...effectOptions: unknown[]): [forwardMutator: () => void, backwardMutator: () => void];
+    ...effectOptions: unknown[]): StripDuplicateMethodAutocompletion<{forwardMutator: () => void, backwardMutator: () => void}>;
   generateRafMutatorGenerators?: never;
 };
 type RafMutatorsGeneratorsGenerator<TClipContext extends unknown> = {
@@ -54,7 +54,7 @@ type RafMutatorsGeneratorsGenerator<TClipContext extends unknown> = {
   generateRafMutatorGenerators(
     /**@ignore*/
     this: TClipContext & ReadonlyPick<AnimClip, 'computeTween'>,
-    ...effectOptions: unknown[]): [forwardGenerator: () => () => void, backwardGenerator: () => () => void];
+    ...effectOptions: unknown[]): StripDuplicateMethodAutocompletion<{forwardGenerator: () => () => void, backwardGenerator: () => () => void}>;
 };
 
 export type EffectGenerator<TClipContext extends unknown = unknown, TConfig extends unknown = unknown, IncludeExtras extends boolean = true> = Readonly<
