@@ -12,13 +12,15 @@
 :root {
   --light-name: #666600;
   --dark-name: #ffff99;
-  --light-color-ts-parameter: #880088;
-  --dark-color-ts-parameter: #dd99dd;
+  --light-color-ts-parameter: #993300;
+  --dark-color-ts-parameter: #FFAA66;
   --dark-code-background: #222222;
   --dark-code-inline-background: #2f2f2f;
   --light-code-inline-background: #f3f3f3;
   --light-h5: #226666;
   --dark-h5: #99ffff;
+  --light-sub-param: #880088;
+  --dark-sub-param: #dd99dd;
   --font-sans: "Proxima Nova" !important;
   --font-mono: "Fira Code" !important;
 
@@ -27,12 +29,14 @@
     --code-inline-background: var(--light-code-inline-background);
     --color-ts-parameter: var(--light-color-ts-parameter) !important;
     --color-h5: var(--light-h5);
+    --color-sub-param: var(--light-sub-param);
   }
   @media (prefers-color-scheme: dark) {
     --color-member-name: var(--dark-name);
     --code-inline-background: var(--dark-code-inline-background);
     --color-ts-parameter: var(--dark-color-ts-parameter) !important;
     --color-h5: var(--dark-h5);
+    --color-sub-param: var(--dark-sub-param);
   }
 
   &[data-theme="light"] {
@@ -40,12 +44,14 @@
     --code-inline-background: var(--light-code-inline-background);
     --color-ts-parameter: var(--light-color-ts-parameter) !important;
     --color-h5: var(--light-h5);
+    --color-sub-param: var(--light-sub-param);
   }
   &[data-theme="dark"] {
     --color-member-name: var(--dark-name);
     --code-inline-background: var(--dark-code-inline-background);
     --color-ts-parameter: var(--dark-color-ts-parameter) !important;
     --color-h5: var(--dark-h5);
+    --color-sub-param: var(--dark-sub-param);
   }
 }
 
@@ -223,6 +229,12 @@ h3.tsd-anchor-link {
             margin-top: -0.6rem;
             background-color: var(--md-sys-color-surface-container-high);
             border-radius: 12px;
+          }
+        }
+
+        .tsd-parameters {
+          .tsd-kind-property {
+            color: var(--color-sub-param);
           }
         }
       }
