@@ -17,14 +17,15 @@ import {
   libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions
 } from "./libraryPresetBanks";
 import { useEasing } from "./utils/easing";
-import { MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./utils/interfaces";
+import { Keyframes, MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./utils/interfaces";
 import { ReadonlyPick, ReadonlyRecord, StripDuplicateMethodAutocompletion } from "./utils/utilityTypes";
+
 
 type KeyframesGenerator<TClipContext extends unknown> = {
   generateKeyframes(
     /**@ignore*/
     this: TClipContext,
-    ...effectOptions: unknown[]): {forwardFrames: Keyframe[], backwardFrames?: Keyframe[]};
+    ...effectOptions: unknown[]): {forwardFrames: Keyframes, backwardFrames?: Keyframes};
   generateKeyframeGenerators?: never;
   generateRafMutators?: never;
   generateRafMutatorGenerators?: never;
@@ -34,7 +35,7 @@ type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
   generateKeyframeGenerators(
     /**@ignore*/
     this: TClipContext,
-    ...effectOptions: unknown[]): StripDuplicateMethodAutocompletion<{forwardGenerator: () => Keyframe[], backwardGenerator?: () => Keyframe[]}>;
+    ...effectOptions: unknown[]): StripDuplicateMethodAutocompletion<{forwardGenerator: () => Keyframes, backwardGenerator?: () => Keyframes}>;
   generateRafMutators?: never;
   generateRafMutatorGenerators?: never;
 };

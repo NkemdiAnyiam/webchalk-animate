@@ -2,6 +2,7 @@ import { AnimClip } from "./AnimClip";
 import { AnimSequence } from "./AnimSequence";
 import { AnimTimeline } from "./AnimTimeline";
 import { CustomErrors, ClipErrorGenerator } from "./utils/errors";
+import { Keyframes } from "./utils/interfaces";
 
 type Segment = [
   endDelay: number,
@@ -57,7 +58,7 @@ export class WebFlikAnimation extends Animation {
     this.segmentsBackwardCache = [...this.segmentsBackward] as SegmentsCache;
   }
   
-  setForwardFrames(frames: Keyframe[]): void {
+  setForwardFrames(frames: Keyframes): void {
     this.forwardEffect.setKeyframes(frames);
     (super.effect as KeyframeEffect).setKeyframes(frames);
     if (this.inProgress) {
@@ -65,7 +66,7 @@ export class WebFlikAnimation extends Animation {
     }
   }
 
-  setBackwardFrames(frames: Keyframe[], backwardIsMirror?: boolean): void {
+  setBackwardFrames(frames: Keyframes, backwardIsMirror?: boolean): void {
     this.backwardEffect.setKeyframes(frames);
     (super.effect as KeyframeEffect).setKeyframes(frames);
     if (backwardIsMirror) {
@@ -77,7 +78,7 @@ export class WebFlikAnimation extends Animation {
     }
   }
 
-  setForwardAndBackwardFrames(forwardFrames: Keyframe[], backwardFrames: Keyframe[], backwardIsMirror?: boolean): void {
+  setForwardAndBackwardFrames(forwardFrames: Keyframes, backwardFrames: Keyframes, backwardIsMirror?: boolean): void {
     this.setBackwardFrames(backwardFrames, backwardIsMirror);
     this.setForwardFrames(forwardFrames);
   }

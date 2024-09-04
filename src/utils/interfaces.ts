@@ -81,3 +81,5 @@ export type EffectCategory =
   | 'Connector Setter'
   | 'Connector Entrance'
   | 'Connector Exit';
+
+export type Keyframes = PropertyIndexedKeyframes | Keyframe[];

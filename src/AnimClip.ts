@@ -4,10 +4,21 @@ import { EffectOptions, EffectGeneratorBank, EffectGenerator } from "./WebFlik";
 import { call, mergeArrays } from "./utils/helpers";
 import { EasingString, useEasing } from "./utils/easing";
 import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "./utils/errors";
-import { EffectCategory, StripFrozenConfig } from "./utils/interfaces";
+import { EffectCategory, Keyframes, StripFrozenConfig } from "./utils/interfaces";
 import { WbfkConnector } from "./WbfkConnector";
 import { WebFlikAnimation } from "./WebFlikAnimation";
 import { PickFromArray } from "./utils/utilityTypes";
+
+/**
+ * Spreads {@link objOrIterable} whether it is an array of keyframes
+ * or an object of property-indexed keyframes
+ * @param objOrIterable - an array of keyframes or property-indexed keyframes
+ * @returns the result of spreading {@link objOrIterable} into a new object or array.
+ */
+function spreadKeyframes(objOrIterable: Keyframes): Keyframes {
+  if (Symbol.iterator in objOrIterable) { return [...objOrIterable]; }
+  else { return {...objOrIterable}; }
+}
 
 /**
  * @category Subtypes
@@ -268,8 +279,8 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
  protected animation: WebFlikAnimation = {} as WebFlikAnimation;
   /**@internal*/
   keyframesGenerators?: {
-    forwardGenerator: () => Keyframe[];
-    backwardGenerator?: () => Keyframe[];
+    forwardGenerator: () => Keyframes;
+    backwardGenerator?: () => Keyframes;
   };
   /**@internal*/
   rafMutators?: {
@@ -561,7 +572,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     // styling of the element (for example, adding {['fake-field']: 'bla'} will not fix it), but I obviously do not want to
     // add anything that will actually affect the style of the element, so I decided to use fontFeatureSettings and set it to
     // the default value to make it as unlikely as possible that anything the user does is obstructed.
-    let [forwardFrames, backwardFrames]: [Keyframe[], Keyframe[] | undefined] = [[{fontFeatureSettings: 'normal'}], []];
+    let [forwardFrames, backwardFrames]: [Keyframes, Keyframes | undefined] = [[{fontFeatureSettings: 'normal'}], []];
 
     try {
       // generateKeyframes()
@@ -616,7 +627,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       ),
       new KeyframeEffect(
         this.domElem,
-        backwardFrames ?? [...forwardFrames],
+        backwardFrames ?? spreadKeyframes(forwardFrames),
         {
           ...keyframeOptions,
           // if no backward frames were specified, assume the reverse of the forward frames
@@ -945,7 +956,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
                 // if generateKeyframes() is the method of generation, generate f-ward and b-ward frames
                 if (bankEntry.generateKeyframes) {
                   let {forwardFrames, backwardFrames} = call(bankEntry.generateKeyframes, this, ...this.effectOptions);
-                  animation.setForwardAndBackwardFrames(forwardFrames, backwardFrames ?? [...forwardFrames], backwardFrames ? false : true);
+                  animation.setForwardAndBackwardFrames(forwardFrames, backwardFrames ?? spreadKeyframes(forwardFrames), backwardFrames ? false : true);
                 }
                 // if generateKeyframeGenerators() is the method of generation, generate f-ward frames
                 else if (bankEntry.generateKeyframeGenerators) {
