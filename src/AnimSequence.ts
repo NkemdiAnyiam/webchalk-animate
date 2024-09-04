@@ -222,7 +222,7 @@ export class AnimSequence implements AnimSequenceConfig {
   }
   
   // GROUP: Timing
-  protected get compoundedPlaybackRate() { return this.playbackRate * (this._parentTimeline?.playbackRate ?? 1); }
+  protected get compoundedPlaybackRate() { return this.playbackRate * (this._parentTimeline?.getTiming().playbackRate ?? 1); }
   /**@internal*/ autoplaysNextSequence: boolean = false; // decides whether the next AnimSequence should automatically play after this one
   /**@internal*/ autoplays: boolean = false;
   /**@internal*/ playbackRate: number = 1;

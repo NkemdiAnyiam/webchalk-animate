@@ -4,6 +4,7 @@ import { WbfkPlaybackButton } from "./WbfkPlaybackButton";
 
 // TYPE
 /**
+ * Contains configuration options used to define the details and behavior of the animation timeline.
  * @category Interfaces
  * @interface
  */
@@ -36,6 +37,8 @@ export type AnimTimelineConfig = {
 
 // TYPE
 /**
+ * Contains details about an timeline's current status. Returned by {@link AnimTimeline.getStatus}.
+ * @see {@link AnimTimeline.getStatus}
  * @category Interfaces
  * @interface
  */
@@ -84,6 +87,21 @@ export type AnimTimelineStatus = {
    */
   atEnd: boolean;
 };
+
+// TYPE
+/**
+ * Contains timing-related details about the timeline. Returned by {@link AnimTimeline.getTiming}.
+ * @see {@link AnimTimeline.getTiming}
+ * @category Interfaces
+ * @interface
+ */
+export type AnimTimelineTiming = {
+  /**
+   * The playback rate of the timeline.
+   * - Example: A value of `1` means 100% (the typical playback rate), and `0.5` means 50% speed.
+   */
+  playbackRate: number;
+}
 
 type SequenceOperation = (sequence: AnimSequence) => void;
 type AsyncSequenceOperation = (sequence: AnimSequence) => Promise<unknown>;
@@ -144,7 +162,6 @@ export class AnimTimeline {
    */
   get numSequences(): number { return this.animSequences.length; }
   /**@internal*/ loadedSeqIndex = 0; // index into animSequences
-  playbackRate = 1;
   config: AnimTimelineConfig;
   // CHANGE NOTE: AnimTimeline now stores references to in-progress sequences and also does not act directly on individual animations
   private inProgressSequences: Map<number, AnimSequence> = new Map();
@@ -160,8 +177,16 @@ export class AnimTimeline {
   private get atEnd(): boolean { return this.loadedSeqIndex === this.numSequences; }
 
   /**
-   * 
-   * @returns 
+   * Returns details about an timeline's current status.
+   * @returns an object containing
+   * - {@link AnimTimelineStatus.isAnimating|isAnimating},
+   * - {@link AnimTimelineStatus.isPaused|isPaused},
+   * - {@link AnimTimelineStatus.skippingOn|skippingOn},
+   * - {@link AnimTimelineStatus.currentDirection|currentDirection},
+   * - {@link AnimTimelineStatus.isJumping|isJumping},
+   * - {@link AnimTimelineStatus.stepNumber|stepNumber},
+   * - {@link AnimTimelineStatus.atBeginning|atBeginning},
+   * - {@link AnimTimelineStatus.atEnd|atEnd},
    * @group Property Getter Methods
    */
   getStatus(): AnimTimelineStatus {
@@ -174,6 +199,21 @@ export class AnimTimeline {
       stepNumber: this.stepNumber,
       atBeginning: this.atBeginning,
       atEnd: this.atEnd,
+    };
+  }
+
+  // GROUP: Timing
+  private playbackRate = 1;
+
+  /**
+   * Returns timing-related details about the timeline.
+   * @returns an object containing
+   * - {@link AnimTimelineStatus.playbackRate|playbackRate},
+   * @group Property Getter Methods
+   */
+  getTiming(): AnimTimelineTiming {
+    return {
+      playbackRate: this.playbackRate,
     };
   }
   
