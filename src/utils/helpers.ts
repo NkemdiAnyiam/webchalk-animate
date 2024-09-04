@@ -193,3 +193,19 @@ export const computeSelfScrollingBounds = (scrollable: Element, target: Element,
 
   return {fromXY, toXY};
 };
+
+/**
+ * Functional, type-safe version of
+ * {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call|Function.prototype.call}.
+ * @param callableFunction - function whose `call` method we want to invoke
+ * @param thisArg - value to use for the `thisArg` parameter for `callableFunction.call()`
+ * @param args - arguments to pass to the `args` parameter for `callableFunction.call()`
+ * @returns the result of `callableFunction.call(thisArg, ...args)`
+ */
+export function call<TFunction extends ([...args]: unknown[]) => unknown>(
+  callableFunction: TFunction,
+  thisArg: unknown,
+  ...args: Parameters<TFunction>
+): ReturnType<TFunction> {
+  return callableFunction.call(thisArg, ...args) as ReturnType<TFunction>;
+}
