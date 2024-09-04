@@ -1,13 +1,13 @@
 import { webflik } from 'webflik';
 import { WbfkClassTypes } from 'webflik/types'
 
-const {Motion, Entrance} = webflik.createAnimationFactories({
+const {Motion, Entrance, Emphasis} = webflik.createAnimationFactories({
   customEntranceEffects: {
     hello: {
       generateKeyframes() {
         return [[]]
       },
-      config: {
+      defaultConfig: {
         
       },
     },
@@ -33,8 +33,8 @@ const ent = Entrance(square, '~appear', []);
 
 console.log(ent.generateTimePromise === ent.generateTimePromise);
 
-const entrance = Entrance(square, '~fly-in', ['from-bottom'], {duration: 2000, hideNowType: 'display-none'});
-const motion = Motion(square, '~translate', [{translate: '200px, 200px'}], {duration: 2000});
+const entrance = Entrance(square, '~fly-in', ['from-bottom'], {duration: 1000, hideNowType: 'display-none'});
+const motion = Motion(square, '~translate', [{translate: '200px, 200px'}], {duration: 1000, easing: 'bounce-out'});
 
 entrance.getTiming()
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -76,11 +76,15 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   const seq = webflik.newSequence(
     entrance,
     motion,
+    Emphasis(square, '~highlight', [], {}),
+    Emphasis(square, '~un-highlight', [], {}),
+    Emphasis(square, '~highlight', ['purple'], {}),
+    Emphasis(square, '~un-highlight', [], {})
   );
   
 
-  motion.addRoadblocks('forward', 'activePhase', '25%', [() => wait(2000)]);
-  motion.addRoadblocks('backward', 'activePhase', '50%', [() => wait(2000)]);
+  // motion.addRoadblocks('forward', 'activePhase', '25%', [() => wait(2000)]);
+  // motion.addRoadblocks('backward', 'activePhase', '50%', [() => wait(2000)]);
   
   motion.getStatus().inProgress
 
@@ -97,6 +101,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   // });
 
   const timeline = webflik.newTimeline({timelineName: 'Basic', autoLinksButtons: false}).addSequences(seq);
+  timeline.linkPlaybackButtons();
 
   // timeline.step('forward');
   // timeline.toggleSkipping({forceState: 'on'}).then(() => {

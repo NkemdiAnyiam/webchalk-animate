@@ -416,14 +416,34 @@ export const libPresetExits = {
 export const libPresetEmphases = {
   [`~highlight`]: {
     /**
-     * 
+     * Highlights the element.
+     * @param color - the color to use for the highlight
      * @returns 
      */
-    generateKeyframes() {
-      return [[
-        {backgroundPositionX: '100%'},
-        {backgroundPositionX: '0%'},
-      ]] as const;
+    generateKeyframeGenerators(color: string = 'default') {
+      // (this.domElem as HTMLElement).style.setProperty(`--wbfk-highlight-color`, 'red');
+      // let prevVal = '';
+      // if ((this.domElem as HTMLElement).getAttribute('style')?.includes('--wbfk-highlight-color')) {
+      //   prevVal = getComputedStyle(this.domElem as HTMLElement).getPropertyValue('--wbfk-highlight-color');
+      // };
+
+      // get the previous highlight color of the element (if none, it naturally uses the value from :root)
+      const prevColor = getComputedStyle(this.domElem as HTMLElement).getPropertyValue('--wbfk-highlight-color');
+      // if color is 'default', use :root's highlight color
+      const finalColor = color === 'default'
+        ? getComputedStyle(document.documentElement).getPropertyValue('--wbfk-highlight-color')
+        : color;
+      return [() => [
+        {['--wbfk-highlight-color']: prevColor, easing: 'step-start'}, // step-start -> steps(1, jump-start)
+        {backgroundPositionX: '100%', offset: 0},
+        {backgroundPositionX: '0%', offset: 1},
+        {['--wbfk-highlight-color']: finalColor}
+      ], () => [
+        {['--wbfk-highlight-color']: finalColor, easing: 'step-end'}, // step-end -> steps(1, jump-end)
+        {backgroundPositionX: '0%', offset: 0},
+        {backgroundPositionX: '100%', offset: 1},
+        {['--wbfk-highlight-color']: prevColor}
+      ]];
     },
     defaultConfig: {
       cssClasses: { toAddOnStart: [`wbfk-highlightable`] },
