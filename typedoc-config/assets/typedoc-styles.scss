@@ -53,6 +53,10 @@ li:has(> details > summary[data-key$="$hidden"]) {
   display: none;
 }
 
+.tsd-filter-item:has(input[name="protected"]) {
+  display: none;
+}
+
 body {
 }
 
