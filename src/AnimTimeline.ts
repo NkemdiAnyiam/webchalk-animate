@@ -12,12 +12,14 @@ export type AnimTimelineConfig = {
    * String representing the name of the timeline.
    * This value is used to sync with `<wbfk-playback-button>` elements that share the same
    * value in their `timeline-name` attribute.
+   * @default ''
    */
   timelineName: string;
 
   /**
    * Controls whether information about the timeline is logged to the console
    * during playback.
+   * @default false
    */
   debugMode: boolean;
 
@@ -25,6 +27,7 @@ export type AnimTimelineConfig = {
    * If `true`, the timeline will instantly attempt to find `<wbfk-playback-button>` elements whose
    * `timeline-name` attributes are equivalent to the timeline's `timelineName` configuration option
    * using {@link AnimTimeline.linkPlaybackButtons|linkPlaybackButtons()}.
+   * @default true
    * @see {@link AnimTimelineConfig.timelineName|timelineName}
    * @see {@link AnimTimeline.linkPlaybackButtons|linkPlaybackButtons()}
    */
@@ -72,7 +75,7 @@ export type AnimTimelineStatus = {
   stepNumber: number;
 
   /**
-   * `true` only if the timeline is at the very beginning (i.e., {@link AnimTimeline.stepNumber|stepNumber} is `1`).
+   * `true` only if the timeline is at the very beginning (i.e., {@link AnimTimelineStatus.stepNumber | stepNumber} is `1`).
    */
   atBeginning: boolean;
 
@@ -136,6 +139,9 @@ export class AnimTimeline {
    */
   get root(): AnimTimeline { return this; }
   /**@internal*/ animSequences: AnimSequence[] = []; // array of every AnimSequence in this timeline
+  /**
+   * Number of sequences in this timeline.
+   */
   get numSequences(): number { return this.animSequences.length; }
   /**@internal*/ loadedSeqIndex = 0; // index into animSequences
   playbackRate = 1;
@@ -402,7 +408,7 @@ export class AnimTimeline {
 
   /**
    * Disables this timeline's connection to its playback buttons until re-enabled
-   * using {@link AnimTimelinePlaybackUI.enablePlaybackButtons|enablePlaybackButtons()}.
+   * using {@link AnimTimeline.enablePlaybackButtons|enablePlaybackButtons()}.
    * @group Playback UI
    */
   disablePlaybackButtons() {
@@ -412,7 +418,7 @@ export class AnimTimeline {
   /**
    * Allows this timeline's linked playback buttons to trigger (and be triggered by) this timeline's playback methods.
    * - This method is only useful if the buttons were previously
-   * disabled using {@link AnimTimelinePlaybackUI.disablePlaybackButtons|disablePlaybackButtons()}.
+   * disabled using {@link AnimTimeline.disablePlaybackButtons|disablePlaybackButtons()}.
    * @group Playback UI
    */
   enablePlaybackButtons() {
@@ -470,7 +476,7 @@ export class AnimTimeline {
    * Takes 1 step in the specified direction.
    * - If any sequences are set to autoplay, the timeline automatically continues stepping through them.
    * @param direction - the direction in which the timeline should step
-   * @returns a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise|Promise}
+   * @returns a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise | Promise}
    * that resolves when the timeline has finished stepping.
    * @group Playback Methods
    */
@@ -558,6 +564,76 @@ export class AnimTimeline {
     );
 
     return autorewindPrevious;
+  }
+
+  // pauses or unpauses playback
+  /**
+   * Pauses the animation timeline if it is unpaused or unpauses it if it is currently paused.
+   * @param options - options for the bevior of the toggle
+   * @returns 
+   * @group Playback Methods
+   */
+  togglePause(options: {
+    /**@internal */
+    viaButton?: boolean,
+    /**
+     * Explicitly instructs the method to either pause (equivalent to {@link AnimTimeline.pause | pause()})
+     * or unpause (equivalent to {@link AnimTimeline.unpause | unpause()})
+     */
+    forceState?: 'pause' | 'unpause'
+  } = {}): this {
+    if (options.forceState) {
+      const prevPauseState = this.isPaused;
+      switch(options.forceState) {
+        case 'pause': this.isPaused = true; break;
+        case 'unpause': this.isPaused = false; break;
+        default: {
+          throw this.generateError(RangeError, `Invalid force value ${options.forceState}. Use "pause" to pause or "unpause" to unpause.`);
+        }
+      }
+      // if toggling did nothing, just return
+      if (prevPauseState === this.isPaused) { return this; }
+    }
+    else {
+      this.isPaused = !this.isPaused;
+    }
+
+    const viaButton = options.viaButton ?? false;
+    this.isPaused ? this.pause({viaButton}) : this.unpause({viaButton});
+    
+    return this;
+  }
+
+  /**
+   * Pauses the animation timeline.
+   * - If the timeline is not already in progress, it will still be paused, preventing
+   * playback until unpaused.
+   * @group Playback Methods
+   */
+  pause(): this;
+  /**@internal*/
+  pause(options?: { viaButton: boolean }): this;
+  pause(options?: { viaButton: boolean }): this {
+    this.isPaused = true;
+    if (!options?.viaButton) { this.playbackButtons.pauseButton?.styleActivation(); }
+    this.doForInProgressSequences(sequence => sequence.pause());
+    return this;
+  }
+  
+  /**
+   * Unpauses the animation timeline.
+   * - If the timeline is not currently paused, this method does nothing.
+   * @group Playback Methods
+   */
+  unpause(): this;
+  /**@internal*/
+  unpause(options?: { viaButton: boolean }): this;
+  unpause(options?: { viaButton: boolean }): this {
+    this.isPaused = false;
+    if (!options?.viaButton) { this.playbackButtons.pauseButton?.styleDeactivation(); }
+    this.doForInProgressSequences(sequence => sequence.unpause());
+    if (this.skippingOn) { this.finishInProgressSequences(); }
+    return this;
   }
 
   /**
@@ -803,14 +879,20 @@ export class AnimTimeline {
   }
 
   /**
-   * 
-   * @param options 
+   * Turns on skipping if it is currently off or turns it off if it is currently on.
+   * @see {@link AnimTimeline.turnSkippingOn|turnSkippingOn()}
+   * @param options - options defining the behavior of the toggle
    * @returns 
    * @group Playback Methods
    */
   async toggleSkipping(options: {
     /**@internal */
     viaButton?: boolean,
+    /**
+     * Explicitly instructs the method to either turn skipping on
+     * (equivalent to {@link AnimTimeline.turnSkippingOn | turnSkippingOn()})
+     * or turn skipping off (equivalent to {@link AnimTimeline.turnSkippingOff | turnSkippingOff()})
+     */
     forceState?: 'on' | 'off'
   } = {}): Promise<this> {
     if (options.forceState) {
@@ -834,6 +916,8 @@ export class AnimTimeline {
   }
 
   /**
+   * Makes it so that any sequence that is played is finished instantly.
+   * - The timeline will still pause for any roadblocks generated by {@link AnimClip.addRoadblocks}.
    * @group Playback Methods
    */
   async turnSkippingOn(): Promise<this>;
@@ -848,6 +932,8 @@ export class AnimTimeline {
   }
 
   /**
+   * Turns off the skipping effect.
+   * @see {@link AnimTimeline.turnSkippingOff|turnSkippingOff()}
    * @group Playback Methods
    */
   turnSkippingOff(): this;
@@ -861,73 +947,14 @@ export class AnimTimeline {
 
   // tells the current AnimSequence(s) (really just 1 in this project iteration) to instantly finish its animations
   /**
-   * 
-   * @returns 
+   * Forces the animation sequences that are currently running within the timeline to instantly finish.
+   * - After the currently running animation sequences complete, the rest of the timeline runs normally.
+   * - The timeline will still pause for any roadblocks generated by {@link AnimClip.addRoadblocks}.
+   * - (Currently, only 1 sequence can play at a time in a timeline, so by "sequences", we just mean "sequence").
    * @group Playback Methods
    */
   async finishInProgressSequences(): Promise<this> {
     return this.doForInProgressSequences_async(sequence => sequence.finish());
-  }
-
-  // pauses or unpauses playback
-  /**
-   * 
-   * @param options 
-   * @returns 
-   * @group Playback Methods
-   */
-  togglePause(options: {
-    /**@internal */
-    viaButton?: boolean,
-    forceState?: 'pause' | 'unpause'
-  } = {}): this {
-    if (options.forceState) {
-      const prevPauseState = this.isPaused;
-      switch(options.forceState) {
-        case 'pause': this.isPaused = true; break;
-        case 'unpause': this.isPaused = false; break;
-        default: {
-          throw this.generateError(RangeError, `Invalid force value ${options.forceState}. Use "pause" to pause or "unpause" to unpause.`);
-        }
-      }
-      // if toggling did nothing, just return
-      if (prevPauseState === this.isPaused) { return this; }
-    }
-    else {
-      this.isPaused = !this.isPaused;
-    }
-
-    const viaButton = options.viaButton ?? false;
-    this.isPaused ? this.pause({viaButton}) : this.unpause({viaButton});
-    
-    return this;
-  }
-
-  /**
-   * @group Playback Methods
-   */
-  pause(): this;
-  /**@internal*/
-  pause(options?: { viaButton: boolean }): this;
-  pause(options?: { viaButton: boolean }): this {
-    this.isPaused = true;
-    if (!options?.viaButton) { this.playbackButtons.pauseButton?.styleActivation(); }
-    this.doForInProgressSequences(sequence => sequence.pause());
-    return this;
-  }
-  
-  /**
-   * @group Playback Methods
-   */
-  unpause(): this;
-  /**@internal*/
-  unpause(options?: { viaButton: boolean }): this;
-  unpause(options?: { viaButton: boolean }): this {
-    this.isPaused = false;
-    if (!options?.viaButton) { this.playbackButtons.pauseButton?.styleDeactivation(); }
-    this.doForInProgressSequences(sequence => sequence.unpause());
-    if (this.skippingOn) { this.finishInProgressSequences(); }
-    return this;
   }
 
   // get all currently running animations that belong to this timeline and perform operation() with them
