@@ -66,6 +66,16 @@ li:has(> details > summary[data-key$="$hidden"]) {
 body {
 }
 
+h4:has([id^="Default Value"]) {
+  & {
+    margin-top: 0;
+  }
+
+  & + pre {
+    border: none;
+  }
+}
+
 h5.custom-color {
   & > :first-child {
     &.tsd-kind-property,
