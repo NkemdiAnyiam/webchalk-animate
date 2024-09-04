@@ -13,14 +13,20 @@ export type AnimTimelineConfig = {
    * String representing the name of the timeline.
    * This value is used to sync with `<wbfk-playback-button>` elements that share the same
    * value in their `timeline-name` attribute.
-   * @default ''
+   * @defaultValue
+   * ```ts
+   * ''
+   * ```
    */
   timelineName: string;
 
   /**
    * Controls whether information about the timeline is logged to the console
    * during playback.
-   * @default false
+   * @defaultValue
+   * ```ts
+   * false
+   * ```
    */
   debugMode: boolean;
 
@@ -28,7 +34,10 @@ export type AnimTimelineConfig = {
    * If `true`, the timeline will instantly attempt to find `<wbfk-playback-button>` elements whose
    * `timeline-name` attributes are equivalent to the timeline's `timelineName` configuration option
    * using {@link AnimTimeline.linkPlaybackButtons|linkPlaybackButtons()}.
-   * @default true
+   * @defaultValue
+   * ```ts
+   * true
+   * ```
    * @see {@link AnimTimelineConfig.timelineName|timelineName}
    * @see {@link AnimTimeline.linkPlaybackButtons|linkPlaybackButtons()}
    */
@@ -689,7 +698,10 @@ export class AnimTimeline {
     options: {
       /**
        * the direction and/or the starting point of the search
-       * @defaultValue `'forward-from-beginning'`
+       * @defaultValue
+       * ```ts
+       * 'forward-from-beginning'
+       * ```
        */
       search?: 'forward-from-beginning' | 'backward-from-end' | 'forward' | 'backward';
       /** offset that changes the starting point of the search by the indicated amount */
@@ -703,7 +715,10 @@ export class AnimTimeline {
        * - if `'forward'`, the timeline will jump forward for as long as the next sequence is supposed to autoplay after the current sequence.
        * - if `'backward'`, the timeline will jump backward for as long as the previous sequence as long as the previous sequence is supposed to automatically
        * rewind after the current sequence is rewound (this is naturally only true when the current sequence is set to autoplay when the timeline steps forward).
-       * @defaultValue `'none'`
+       * @defaultValue
+       * ```ts
+       * 'none'
+       * ```
        */
       autoplayDetection?: 'forward' | 'backward' | 'none';
     } = {},
@@ -737,7 +752,10 @@ export class AnimTimeline {
        * - if `'forward'`, the timeline will jump forward for as long as the next sequence is supposed to autoplay after the current sequence.
        * - if `'backward'`, the timeline will jump backward for as long as the previous sequence as long as the previous sequence is supposed to automatically
        * rewind after the current sequence is rewound (this is naturally only true when the current sequence is set to autoplay when the timeline steps forward).
-       * @defaultValue `'none'`
+       * @defaultValue
+       * ```ts
+       * 'none'
+       * ```
        */
       autoplayDetection?: 'forward' | 'backward' | 'none';
     } = {},

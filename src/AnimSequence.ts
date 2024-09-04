@@ -1,6 +1,7 @@
 import { AnimClip } from "./AnimClip";
 import { AnimTimeline } from "./AnimTimeline";
 
+// TYPE
 /**
  * Contains configuration options used to define the timing and details of the animation sequence.
  * @category Interfaces
@@ -9,27 +10,39 @@ import { AnimTimeline } from "./AnimTimeline";
 export type AnimSequenceConfig = {
   /**
    * String that is logged when debugging mode is enabled.
-   * @defaultValue `'<blank sequence description>'`
+   * @defaultValue
+   * ```ts
+   * '<blank sequence description>'
+   * ```
    */
   description: string;
 
   /**
    * This string can be used as an argument to {@link AnimTimeline.jumpToSequenceTag()}.
-   * @defaultValue `''`
+   * @defaultValue
+   * ```ts
+   * ''
+   * ```
    */
   tag: string;
 
   /**
    * If `true`, the next sequence in the same timeline will automatically play after this sequence finishes.
    * - If this sequence is not part of a timeline or is at the end of a timeline, this option has no effect.
-   * @defaultValue `false`
+   * @defaultValue
+   * ```ts
+   * false
+   * ```
    */
   autoplaysNextSequence: boolean;
 
   /**
    * If `true`, this sequence will automatically play after the previous sequence in the same timeline finishes.
    * - If this sequence is not part of a timeline or is at the beginning of a timeline, this option has no effect.
-   * @defaultValue `false`
+   * @defaultValue
+   * ```ts
+   * false
+   * ```
    * 
    */
   autoplays: boolean;
@@ -43,6 +56,7 @@ export type AnimSequenceConfig = {
   playbackRate: number;
 };
 
+// TYPE
 /**
  * Contains timing-related details about the sequence. Returned by {@link AnimSequence.getTiming}.
  * @see {@link AnimSequence.getTiming}
@@ -63,6 +77,7 @@ export type AnimSequenceTiming = Pick<AnimSequenceConfig,
   compoundedPlaybackRate: AnimSequence['compoundedPlaybackRate'];
 };
 
+// TYPE
 /**
  * Contains details about an sequence's current status. Returned by {@link AnimSequence.getStatus}.
  * @see {@link AnimSequence.getStatus}
@@ -120,9 +135,12 @@ export type AnimSequenceStatus = {
   wasRewound: boolean;
 };
 
+// TYPE
 type AnimationOperation = (animation: AnimClip) => void;
+// TYPE
 type AsyncAnimationOperation = (animation: AnimClip) => Promise<unknown>;
 
+// TYPE
 type FullyFinishedPromise<T> = {
   promise: Promise<T>;
   resolve: (value: T | PromiseLike<T>) => void;
