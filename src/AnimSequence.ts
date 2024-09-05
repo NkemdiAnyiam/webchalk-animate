@@ -1,5 +1,6 @@
 import { AnimClip } from "./AnimClip";
 import { AnimTimeline } from "./AnimTimeline";
+import { generateError, SequenceErrorGenerator } from "./utils/errors";
 
 // TYPE
 /**
@@ -712,5 +713,15 @@ export class AnimSequence implements AnimSequenceConfig {
     this.onFinish.do = functions.do;
     this.onFinish.undo = functions.undo;
     return this;
+  }
+
+  /*-:**************************************************************************************************************************/
+  /*-:******************************************        ERRORS        **********************************************************/
+  /*-:**************************************************************************************************************************/
+  protected generateError: SequenceErrorGenerator = (ErrorClassOrInstance, msg = '<unspecified error>') => {
+    return generateError(ErrorClassOrInstance, msg as string, {
+      sequence: this,
+      timeline: this._parentTimeline
+    });
   }
 }

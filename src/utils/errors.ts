@@ -9,6 +9,11 @@ export type ClipErrorGenerator = {
   <TError extends Error>(ErrorClass: new (message: string) => TError, msg: string, elementOverride?: Element): TError;
 };
 
+export type SequenceErrorGenerator = {
+  <TError extends Error>(error: TError): TError;
+  <TError extends Error>(ErrorClass: new (message: string) => TError, msg: string): TError;
+};
+
 export type TimelineErrorGenerator = {
   <TError extends Error>(error: TError): TError;
   <TError extends Error>(ErrorClass: new (message: string) => TError, msg: string): TError;
