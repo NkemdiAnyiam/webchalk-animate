@@ -718,7 +718,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   async play(parentSequence: AnimSequence): Promise<this>;
   async play(parentSequence?: AnimSequence): Promise<this> {
     // both parentSequence vars should either be undefined or the same AnimSequence
-    if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('play'); }
+    if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError(this.play.name); }
     return this.animate('forward');
   }
 
@@ -731,7 +731,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**@internal*/
   async rewind(parentSequence: AnimSequence): Promise<this>;
   async rewind(parentSequence?: AnimSequence): Promise<this> {
-    if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('rewind'); }
+    if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError(this.rewind.name); }
     return this.animate('backward');
   }
 
@@ -744,7 +744,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**@internal*/
   pause(parentSequence: AnimSequence): this;
   pause(parentSequence?: AnimSequence): this {
-    if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('pause'); }
+    if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError(this.pause.name); }
     if (this.isRunning) {
       this.isPaused = true;
       this.isRunning = false;
@@ -762,7 +762,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**@internal*/
   unpause(parentSequence: AnimSequence): this;
   unpause(parentSequence?: AnimSequence): this {
-    if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('unpause'); }
+    if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError(this.unpause.name); }
     if (this.isPaused) {
       this.isPaused = false;
       this.isRunning = true;
@@ -782,7 +782,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**@internal*/
   async finish(parentSequence: AnimSequence): Promise<this>;
   async finish(parentSequence?: AnimSequence): Promise<this> {
-    if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError('finish'); }
+    if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError(this.finish.name); }
     // finish() is not allowed to execute if clip is paused
     // TODO: maybe throw an error instead of just returning
     if (this.isPaused) { return this; }
