@@ -38,7 +38,14 @@ class InvalidElementError extends TypeError {
 class InvalidEntranceAttempt extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'InvalidEntranceAttempt'
+    this.name = 'InvalidEntranceAttempt';
+  }
+}
+
+class InvalidExitAttempt extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'InvalidExitAttempt';
   }
 }
 
@@ -60,6 +67,7 @@ export const CustomErrors = {
   CommitStylesError,
   InvalidElementError,
   InvalidEntranceAttempt,
+  InvalidExitAttempt,
   InvalidPhasePositionError,
   ChildPlaybackError,
 };

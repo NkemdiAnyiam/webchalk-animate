@@ -340,7 +340,7 @@ export class AnimSequence implements AnimSequenceConfig {
     return this;
   }
 
-  // TODO: prevent play() and rewind() when sequence contains undefined entries
+  // TODO: prevent play() and rewind() when sequence contains undefined entries (I don't think this will ever happen?)
   /**
    * Adds one or more {@link AnimClip} objects to the specified index of the sequence.
    * @param index - the index at which the clips should be inserted
