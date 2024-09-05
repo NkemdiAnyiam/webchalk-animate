@@ -31,7 +31,7 @@ const square = document.querySelector('.square');
 
 const ent = Entrance(square, '~appear', []);
 
-console.log(ent.generateTimePromise === ent.generateTimePromise);
+// console.log(ent.generateTimePromise === ent.generateTimePromise);
 
 const entrance = Entrance(square, '~fly-in', ['from-bottom'], {duration: 1000, hideNowType: 'display-none'});
 const motion = Motion(square, '~translate', [{translate: '200px, 200px'}], {duration: 1000, easing: 'bounce-out'});
@@ -102,6 +102,8 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   const timeline = webflik.newTimeline({timelineName: 'Basic', autoLinksButtons: false}).addSequences(seq);
   timeline.linkPlaybackButtons();
+
+  // setTimeout(() => seq.removeClips(entrance), 3000);
 
   // timeline.step('forward');
   // timeline.toggleSkipping({forceState: 'on'}).then(() => {

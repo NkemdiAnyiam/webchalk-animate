@@ -362,6 +362,27 @@ export class AnimSequence implements AnimSequenceConfig {
   }
 
   /**
+   * Removes one or more {@link AnimClip} objects from the sequence.
+   * @param animClips - comma-separated list of animation clips
+   * @returns 
+   */
+  removeClips(...animClips: AnimClip[]): this {
+    if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeClips.name); }
+
+    for (const animClip of animClips) {
+      const index = this.findClipIndex(animClip);
+      if (index === -1) {
+        // TODO: improve warning
+        console.warn(`A clip being removed from this sequence was already not in the sequence.`);
+        return this;
+      }
+      this.animClips.splice(index, 1);
+      animClip.removeLineage();
+    }
+    return this;
+  }
+
+  /**
    * Finds the index of a given {@link AnimClip} object within the sequence
    * @param animClip - the animation clip to search for within the sequence
    * @returns the index of {@link animClip} within the sequence or `-1` if the clip is not part of the sequence.

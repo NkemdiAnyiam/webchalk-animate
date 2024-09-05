@@ -1196,7 +1196,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     if (this.domElem instanceof WbfkConnector) {
       throw this.generateError(CustomErrors.InvalidElementError,
         `Connectors cannot be animated using ${this.category}().` +
-        `${errorTip(`WbfkConnector elements cannot be animated using Entrance() or Exit() because many of the animations are not really applicable.` +
+        `${errorTip(`Tip: WbfkConnector elements cannot be animated using Entrance() or Exit() because many of the animations are not really applicable.` +
           ` Instead, any entrance or exit effects that make sense for connectors are defined in ConnectorEntrance() and ConnectorExit().`
         )}`,
         this.domElem
