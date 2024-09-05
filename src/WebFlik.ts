@@ -67,7 +67,7 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
     ? {
       /**
        * The effect name. E.g., 'fade-in', 'appear', etc.
-       * This is automatically set at at run-time. There is no need to set it manually (and trying to does nothing).
+       * This is automatically set at run-time. There is no need to set it manually (and trying to does nothing).
        */
       effectName?: string;
       /**
