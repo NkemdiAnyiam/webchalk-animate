@@ -2,8 +2,9 @@ import { AnimClip, AnimClipConfig } from "./AnimClip";
 import { EffectOptions, EffectGenerator, EffectGeneratorBank } from "./WebFlik";
 import { CustomErrors, errorTip } from "./utils/errors";
 import { parseMultiUnitPlacement } from "./utils/helpers";
-import { ParsedMultiUnitPlacement, MultiUnitPlacementX, MultiUnitPlacementY } from "./utils/interfaces";
+import { ParsedMultiUnitPlacement, MultiUnitPlacementX, MultiUnitPlacementY, Keyframes, StripFrozenConfig } from "./utils/interfaces";
 import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
+import { StripDuplicateMethodAutocompletion } from "./utils/utilityTypes";
 
 /*-:***************************************************************************************************************************/
 /*-:*******************************************        ENTRANCE        ********************************************************/
@@ -34,7 +35,8 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
     super.preventConnector();
   }
 
-  /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<EntranceClipConfig> = {}) {
+  /**@internal*/
+  initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<EntranceClipConfig> = {}) {
     super.initialize(effectOptions, effectConfig);
 
     const hideNow = effectConfig.hideNowType ?? this.effectGenerator.defaultConfig?.hideNowType ?? this.defaultConfig.hideNowType!;
@@ -61,6 +63,7 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
       this.backwardsHidingMethod = 'visibility-hidden';
       this.domElem.classList.remove('wbfk-invisible');
     }
+    // error case
     else {
       const { display, visibility } = getComputedStyle(this.domElem);
       let str = ``;
@@ -369,13 +372,13 @@ export class ConnectorSetterClip extends AnimClip {
  * @category Connector Entrance
  */
 export type ConnectorEntranceClipConfig = AnimClipConfig & {
-  
+  hideNowType: 'display-none' | null;
 };
 /**
  * @category Connector Entrance
  * @hideconstructor
  */
-export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimClip<TEffectGenerator> {
+export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<ConnectorEntranceClip, ConnectorEntranceClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator> {
   protected get category(): 'Connector Entrance' { return 'Connector Entrance'; }
   domElem: WbfkConnector;
 
@@ -383,6 +386,7 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator = Ef
     return {
       commitsStyles: false,
       // runGeneratorsNow: true,
+      hideNowType: null,
     };
   }
 
@@ -393,7 +397,50 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator = Ef
     this.domElem = connectorElem;
   }
 
+  /**@internal*/
+  initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<ConnectorEntranceClipConfig> = {}) {
+    super.initialize(effectOptions, effectConfig);
+
+    const hideNow = effectConfig.hideNowType ?? this.effectGenerator.defaultConfig?.hideNowType ?? this.defaultConfig.hideNowType!;
+    switch(hideNow) {
+      case "display-none":
+        this.domElem.classList.add('wbfk-hidden');
+        break;
+      default:
+        break;
+    }
+
+    return this;
+  }
+
   protected _onStartForward(): void {
+    if (!this.domElem.classList.contains('wbfk-hidden')) {
+      const { display } = getComputedStyle(this.domElem);
+      let str = ``;
+      if (display === 'none') {
+        str = `The element being entered is hidden with CSS 'display: none', but it was not using the class "wbfk-hidden".` +
+        ` A connector element needs to be unrendered using the class "wbfk-hidden" in order for ConnectorEntrance() to act on it.`;
+      }
+      else if (this.domElem.classList.contains('wbfk-invisible')) {
+        str = `The connector element being entered is hidden with the WebFlik CSS class "wbfk-invisible",` +
+        ` but connectors must only be hidden using the class "wbfk-hidden".`;
+      }
+      else {
+        str = `ConnectorEntrance() can only play on connectors that are already hidden, but this element was not hidden.` +
+        ` To hide a connector element, you can 1) use the 'hideNowType' config option to immediately hide the element from the very start,` +
+        ` 2) hide it with ConnectorExit() before the ConnectorEntrance() animation runs, or` +
+        ` 3) manually add "wbfk-hidden" to its CSS class list in the HTML.`;
+      }
+      throw this.generateError(CustomErrors.InvalidEntranceAttempt,
+        str +
+        `${errorTip(
+          `Tip: Adding "wbfk-hidden" to an element's CSS class list applies a 'display: none' CSS style, which completely unrenders an element.` +
+          ` When using 'hideNowType' with ConnectorEntrance(), you may set the config option to "display-none",` +
+          ` but behind the scenes, this just determines whether to adds the class "wbfk-hidden".`
+        )}`
+      );
+    }
+
     this.domElem.classList.remove('wbfk-hidden');
     this.domElem.updateEndpoints();
     if (this.domElem.pointTrackingEnabled) {
