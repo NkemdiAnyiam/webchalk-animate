@@ -1,6 +1,6 @@
 import { AnimClip } from "./AnimClip";
 import { AnimTimeline } from "./AnimTimeline";
-import { generateError, SequenceErrorGenerator } from "./utils/errors";
+import { CustomErrors, errorTip, generateError, SequenceErrorGenerator } from "./utils/errors";
 
 // TYPE
 /**
@@ -727,5 +727,16 @@ export class AnimSequence implements AnimSequenceConfig {
       sequence: this,
       timeline: this._parentTimeline
     });
+  }
+
+  protected generateLockedStructureError = (methodName: string) => {
+    return generateError(
+      CustomErrors.LockedOperationError,
+      `Cannot use ${methodName}() while the sequence is in progress or in a forward finished state.`
+      + errorTip(
+        `Tip: Generally, changes cannot be made to the structure of a sequence once it has left its starting point.`
+        + ` This is to preserve continuity (once a sequence moves forward, it is locked in history until it is completely rewound).`
+      )
+    );
   }
 }
