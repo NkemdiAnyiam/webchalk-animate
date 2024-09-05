@@ -18,7 +18,7 @@ export type AnimSequenceConfig = {
   description: string;
 
   /**
-   * This string can be used as an argument to {@link AnimTimeline.jumpToSequenceTag()}.
+   * This string can be used as an argument to {@link AnimTimeline.jumpToSequenceTag}.
    * @defaultValue
    * ```ts
    * ''
