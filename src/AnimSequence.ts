@@ -214,6 +214,10 @@ export class AnimSequence implements AnimSequenceConfig {
   /**@internal*/ wasPlayed = false;
   /**@internal*/ wasRewound = false;
   /**@internal*/ get skippingOn() { return this._parentTimeline?.skippingOn || this._parentTimeline?.isJumping || false }
+  /**@internal*/ get lockedStructure(): boolean {
+    if (this.inProgress || this.wasPlayed) { return true; }
+    return false;
+  }
   /**
    * Returns details about an sequence's current status.
    * @returns an object containing
