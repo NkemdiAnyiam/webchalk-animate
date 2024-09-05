@@ -479,7 +479,7 @@ export class AnimTimeline {
   /*-:**************************************************************************************************************************/
   /**
    * Adds one or more {@link AnimSequence} objects to the end of the timeline.
-   * @param animSequences - comma separated list of animation sequences
+   * @param animSequences - comma-separated list of animation sequences
    * @returns 
    * @group Structure Methods
    */

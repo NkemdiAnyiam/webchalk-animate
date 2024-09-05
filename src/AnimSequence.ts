@@ -328,7 +328,7 @@ export class AnimSequence implements AnimSequenceConfig {
 
   /**
    * Adds one or more {@link AnimClip} objects to the end of the sequence.
-   * @param animClips - comma separated list of animation clips
+   * @param animClips - comma-separated list of animation clips
    * @returns 
    * @group Structure Methods
    */
@@ -344,7 +344,7 @@ export class AnimSequence implements AnimSequenceConfig {
   /**
    * Adds one or more {@link AnimClip} objects to the specified index of the sequence.
    * @param index - the index at which the clips should be inserted
-   * @param animClips - comma separated list of animation clips
+   * @param animClips - comma-separated list of animation clips
    * @returns 
    * @group Structure Methods
    */
