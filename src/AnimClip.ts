@@ -531,12 +531,22 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /*-:**************************************************************************************************************************/
   /**
    * Used by a parent to set pointers to itself (the parent) within the clip.
-   * @return {void}
    * @internal
    */
-  setLineage(sequence: AnimSequence, timeline: AnimTimeline | undefined): void {
+  setLineage(sequence: AnimSequence, timeline: AnimTimeline | undefined): this {
     this._parentSequence = sequence;
     this._parentTimeline = timeline;
+    return this;
+  }
+
+  /**
+   * Used by a parent to remove pointers to itself (the parent) within the clip.
+   * @internal
+   */
+  removeLineage(): this {
+    this._parentSequence = undefined;
+    this._parentTimeline = undefined;
+    return this;
   }
 
   constructor(domElem: Element | null | undefined, effectName: string, bank: EffectGeneratorBank) {
