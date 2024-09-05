@@ -61,7 +61,14 @@ class InvalidPhasePositionError extends RangeError {
   }
 }
 
-class ChildPlaybackError extends Error {
+class LockedOperationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'LockedOperationError';
+  }
+}
+
+class ChildPlaybackError extends LockedOperationError {
   constructor(message: string) {
     super(message);
     this.name = 'ChildPlaybackError';
@@ -74,6 +81,7 @@ export const CustomErrors = {
   InvalidEntranceAttempt,
   InvalidExitAttempt,
   InvalidPhasePositionError,
+  LockedOperationError,
   ChildPlaybackError,
 };
 
