@@ -486,6 +486,25 @@ export class ConnectorExitClip<TEffectGenerator extends EffectGenerator = Effect
     this.domElem = connectorElem;
   }
 
+  protected _onStartForward(): void {
+    let hidingClassName = '';
+    if (this.domElem.classList.contains('wbfk-hidden')) { hidingClassName = 'wbfk-hidden'; }
+    if (this.domElem.classList.contains('wbfk-invisible')) { hidingClassName = 'wbfk-invisible'; }
+    const { display, visibility } = getComputedStyle(this.domElem);
+    const hiddenDisplay = display === 'none';
+    const hiddenVisibility = visibility === 'hidden';
+    const hidden = hiddenDisplay || hiddenVisibility;
+
+    if (!hidingClassName || !hidden) { return; }
+
+    throw this.generateError(CustomErrors.InvalidExitAttempt,
+      `ConnectorExit() can only play on elements that are not already hidden. The connector here is already hidden by the following:`
+      + (hidingClassName ? `\n - WebFlik's CSS hiding class "${hidingClassName}"` : '')
+      + ((hidingClassName !== 'wbfk-hidden' && hiddenDisplay) ? `\n - CSS property 'display: none'` : '')
+      + ((hidingClassName !== 'wbfk-invisible' && hiddenVisibility) ? `\n - CSS property 'visibility: hidden'` : '')
+    );
+  }
+
   protected _onStartBackward(): void {
     this.domElem.classList.remove('wbfk-hidden');
     this.domElem.updateEndpoints();
