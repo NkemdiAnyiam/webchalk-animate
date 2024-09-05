@@ -2,9 +2,8 @@ import { AnimClip, AnimClipConfig } from "./AnimClip";
 import { EffectOptions, EffectGenerator, EffectGeneratorBank } from "./WebFlik";
 import { CustomErrors, errorTip } from "./utils/errors";
 import { parseMultiUnitPlacement } from "./utils/helpers";
-import { ParsedMultiUnitPlacement, MultiUnitPlacementX, MultiUnitPlacementY, Keyframes, StripFrozenConfig } from "./utils/interfaces";
+import { ParsedMultiUnitPlacement, MultiUnitPlacementX, MultiUnitPlacementY, StripFrozenConfig } from "./utils/interfaces";
 import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
-import { StripDuplicateMethodAutocompletion } from "./utils/utilityTypes";
 
 /*-:***************************************************************************************************************************/
 /*-:*******************************************        ENTRANCE        ********************************************************/
@@ -192,7 +191,7 @@ export type EmphasisClipConfig = AnimClipConfig & {
  * @category Emphasis
  * @hideconstructor
  */
-export class EmphasisClip<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimClip<TEffectGenerator> {
+export class EmphasisClip<TEffectGenerator extends EffectGenerator<EmphasisClip, EmphasisClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator> {
   protected get category(): 'Emphasis' { return 'Emphasis'; }
   protected get defaultConfig(): Partial<EmphasisClipConfig> {
     return {};
@@ -212,7 +211,7 @@ export type MotionClipConfig = AnimClipConfig & {
  * @category Motion
  * @hideconstructor
  */
-export class MotionClip<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimClip<TEffectGenerator> {
+export class MotionClip<TEffectGenerator extends EffectGenerator<MotionClip, MotionClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator> {
   protected get category(): 'Motion' { return 'Motion'; }
   protected get defaultConfig(): Partial<MotionClipConfig> {
     return {
@@ -235,7 +234,7 @@ export type ScrollerClipConfig = AnimClipConfig & {
  * @hideconstructor
  */
 // TODO: implement rewindScrollBehavior: 'prior-user-position' | 'prior-scroll-target' = 'prior-scroll-target'
-export class ScrollerClip<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimClip<TEffectGenerator> {
+export class ScrollerClip<TEffectGenerator extends EffectGenerator<ScrollerClip, ScrollerClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator> {
   protected get category(): 'Scroller' { return 'Scroller'; }
   protected get defaultConfig(): Partial<ScrollerClipConfig> {
     return {
@@ -467,7 +466,7 @@ export type ConnectorExitClipConfig = AnimClipConfig & {
  * @category Connector Exit
  * @hideconstructor
  */
-export class ConnectorExitClip<TEffectGenerator extends EffectGenerator = EffectGenerator> extends AnimClip<TEffectGenerator> {
+export class ConnectorExitClip<TEffectGenerator extends EffectGenerator<ConnectorExitClip, ConnectorExitClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator> {
   protected get category(): 'Connector Exit' { return 'Connector Exit'; }
   domElem: WbfkConnector;
 
