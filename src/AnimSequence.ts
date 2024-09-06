@@ -321,6 +321,7 @@ export class AnimSequence implements AnimSequenceConfig {
   /*-:*************************************        STRUCTURE METHODS        ****************************************************/
   /*-:**************************************************************************************************************************/
   /**
+   * Used by a parent to set pointers to itself (the parent) within the sequence.
    * @internal
    * @group Structure Methods
    */
@@ -329,6 +330,15 @@ export class AnimSequence implements AnimSequenceConfig {
     for (const animClip of this.animClips) {
       animClip.setLineage(this, this._parentTimeline);
     }
+  }
+
+  /**
+   * Used by a parent to remove pointers to itself (the parent) within the sequence.
+   * @internal
+   */
+  removeLineage(): this {
+    this._parentTimeline = undefined;
+    return this;
   }
 
   /**
