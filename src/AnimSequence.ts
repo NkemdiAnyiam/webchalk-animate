@@ -381,6 +381,19 @@ export class AnimSequence implements AnimSequenceConfig {
     }
     return this;
   }
+  
+  /**
+   * Removes a number of {@link AnimClip} objects from the sequence based on the provided indices (0-based).
+   * @param startIndex - the starting index, inclusive
+   * @param endIndex - the ending index, exclusive
+   * @returns - an array containing the clips that were removed from the sequence.
+   */
+  removeClipsAt(startIndex: number, endIndex: number = startIndex + 1): AnimClip[] {
+    if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeClipsAt.name); }
+    const removalList = this.animClips.slice(startIndex, endIndex);
+    for (const clip of removalList) { clip.removeLineage(); }
+    return this.animClips.splice(startIndex, endIndex - startIndex);
+  }
 
   /**
    * Finds the index of a given {@link AnimClip} object within the sequence
