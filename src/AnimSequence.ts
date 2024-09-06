@@ -338,6 +338,8 @@ export class AnimSequence implements AnimSequenceConfig {
    * @group Structure Methods
    */
   addClips(...animClips: AnimClip[]): this {
+    if (this.lockedStructure) { throw this.generateLockedStructureError(this.addClips.name); }
+
     for (const animClip of animClips) {
       animClip.setLineage(this, this._parentTimeline);
     }
@@ -354,6 +356,8 @@ export class AnimSequence implements AnimSequenceConfig {
    * @group Structure Methods
    */
   addClipsAt(index: number, ...animClips: AnimClip[]): this {
+    if (this.lockedStructure) { throw this.generateLockedStructureError(this.addClipsAt.name); }
+
     for (const animClip of animClips) {
       animClip.setLineage(this, this._parentTimeline);
     }
@@ -390,6 +394,7 @@ export class AnimSequence implements AnimSequenceConfig {
    */
   removeClipsAt(startIndex: number, endIndex: number = startIndex + 1): AnimClip[] {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeClipsAt.name); }
+
     const removalList = this.animClips.slice(startIndex, endIndex);
     for (const clip of removalList) { clip.removeLineage(); }
     return this.animClips.splice(startIndex, endIndex - startIndex);
