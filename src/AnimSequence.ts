@@ -134,6 +134,16 @@ export type AnimSequenceStatus = {
    * (if played at all).
    */
   wasRewound: boolean;
+
+  /**
+   * Shows whether the sequence is currently allowed to accept changes to its structure.
+   * `true` only if the sequence is in progress or in a forward finished state.
+   * - Operations like {@link AnimSequence.addClips | addClips()}, {@link AnimSequence.removeClips | removeClips()},
+   * etc. check whether the structure is locked before proceeding.
+   * - Any time the sequence goes back to its starting point after fully rewinding, its structure is unlocked
+   * and allowed to accept changes (i.e., {@link AnimSequenceStatus.lockedStructure | lockedStructure} is `false`).
+   */
+  lockedStructure: boolean;
 };
 
 // TYPE
@@ -229,6 +239,7 @@ export class AnimSequence implements AnimSequenceConfig {
    * - {@link AnimSequenceStatus.usingFinish|usingFinish},
    * - {@link AnimSequenceStatus.wasPlayed|wasPlayed},
    * - {@link AnimSequenceStatus.wasRewound|wasRewound},
+   * - {@link AnimSequenceStatus.lockedStructure|lockedStructure},
    * @group Property Getter Methods
    */
   getStatus(): AnimSequenceStatus {
@@ -241,6 +252,7 @@ export class AnimSequence implements AnimSequenceConfig {
       isFinished: this.isFinished,
       wasPlayed: this.wasPlayed,
       wasRewound: this.wasRewound,
+      lockedStructure: this.lockedStructure,
     };
   }
   
