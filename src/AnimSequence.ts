@@ -377,6 +377,7 @@ export class AnimSequence implements AnimSequenceConfig {
    * Removes one or more {@link AnimClip} objects from the sequence.
    * @param animClips - comma-separated list of animation clips
    * @returns 
+   * @group Structure Methods
    */
   removeClips(...animClips: AnimClip[]): this {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeClips.name); }
@@ -398,7 +399,8 @@ export class AnimSequence implements AnimSequenceConfig {
    * Removes a number of {@link AnimClip} objects from the sequence based on the provided indices (0-based).
    * @param startIndex - the starting index, inclusive
    * @param endIndex - the ending index, exclusive
-   * @returns - an array containing the clips that were removed from the sequence.
+   * @returns an array containing the clips that were removed from the sequence.
+   * @group Structure Methods
    */
   removeClipsAt(startIndex: number, endIndex: number = startIndex + 1): AnimClip[] {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeClipsAt.name); }
