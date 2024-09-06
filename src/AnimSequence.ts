@@ -341,6 +341,10 @@ export class AnimSequence implements AnimSequenceConfig {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.addClips.name); }
 
     for (const animClip of animClips) {
+      if (animClip.parentSequence) {
+        // TODO: Improve error message
+        throw this.generateError(CustomErrors.InvalidChildError, `One of the clips being added is already part of some sequence.`)
+      }
       animClip.setLineage(this, this._parentTimeline);
     }
     this.animClips.push(...animClips);
@@ -359,6 +363,10 @@ export class AnimSequence implements AnimSequenceConfig {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.addClipsAt.name); }
 
     for (const animClip of animClips) {
+      if (animClip.parentSequence) {
+        // TODO: Improve error message
+        throw this.generateError(CustomErrors.InvalidChildError, `One of the clips being added is already part of some sequence.`)
+      }
       animClip.setLineage(this, this._parentTimeline);
     }
     this.animClips.splice(index, 0, ...animClips);
