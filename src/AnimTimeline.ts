@@ -1,5 +1,5 @@
 import { AnimSequence } from "./AnimSequence";
-import { errorTip, generateError, TimelineErrorGenerator } from "./utils/errors";
+import { CustomErrors, errorTip, generateError, TimelineErrorGenerator } from "./utils/errors";
 import { WbfkPlaybackButton } from "./WbfkPlaybackButton";
 
 // TYPE
@@ -485,6 +485,10 @@ export class AnimTimeline {
    */
   addSequences(...animSequences: AnimSequence[]): this {
     for(const animSequence of animSequences) {
+      if (animSequence.parentTimeline) {
+        // TODO: Improve error message
+        throw this.generateError(CustomErrors.InvalidChildError, `One of the sequences being added is already part of some timeline.`);
+      }
       animSequence.setLineage(this);
     };
     this.animSequences.push(...animSequences);

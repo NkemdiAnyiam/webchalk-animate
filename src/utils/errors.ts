@@ -75,6 +75,13 @@ class ChildPlaybackError extends LockedOperationError {
   }
 }
 
+class InvalidChildError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'InvalidChildError';
+  }
+}
+
 export const CustomErrors = {
   CommitStylesError,
   InvalidElementError,
@@ -83,6 +90,7 @@ export const CustomErrors = {
   InvalidPhasePositionError,
   LockedOperationError,
   ChildPlaybackError,
+  InvalidChildError,
 };
 
 export const errorTip = (tip: string) => {
