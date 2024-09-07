@@ -20,6 +20,7 @@ function spreadKeyframes(objOrIterable: Keyframes): Keyframes {
   else { return {...objOrIterable}; }
 }
 
+// TYPE
 /**
  * @category Subtypes
  */
@@ -45,6 +46,7 @@ export type CssClassOptions = {
   toRemoveOnStart: string[];
 };
 
+// TYPE
 type CustomKeyframeEffectOptions = {
   /**
    * If `true`, the next clip in the same sequence will play at the same time as this clip.
@@ -94,6 +96,7 @@ type CustomKeyframeEffectOptions = {
   runGeneratorsNow: boolean;
 };
 
+// TYPE
 type KeyframeTimingOptions = {
   /**
    * The number of milliseconds the active phase of the animation takes to complete.
@@ -130,6 +133,7 @@ type KeyframeTimingOptions = {
   endDelay: number;
 };
 
+// TYPE
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
  * @category Interfaces
@@ -137,6 +141,22 @@ type KeyframeTimingOptions = {
  */
 export type AnimClipConfig = KeyframeTimingOptions & CustomKeyframeEffectOptions;
 
+export type ImmutableAnimClipconfig = Pick<AnimClipConfig,
+  | 'commitStylesForcefully'
+  | 'commitsStyles'
+  | 'composite'
+  | 'cssClasses'
+  | 'delay'
+  | 'duration'
+  | 'easing'
+  | 'endDelay'
+  | 'playbackRate'
+  | 'runGeneratorsNow'
+  | 'startsNextClipToo'
+  | 'startsWithPrevious'
+>
+
+// TYPE
 /**
  * Contains timing-related details about an animation. Returned by {@link AnimClip.getTiming}.
  * @see {@link AnimClip.getTiming}
@@ -162,6 +182,7 @@ export type AnimClipTiming = Pick<AnimClipConfig,
   compoundedPlaybackRate: AnimClip['compoundedPlaybackRate'];
 };
 
+// TYPE
 /**
  * Contains specific details about an animation's effect. Returned by {@link AnimClip.getEffectDetails}.
  * @see {@link AnimClip.getEffectDetails}
@@ -191,6 +212,7 @@ export type AnimClipEffectDetails = {
   category: AnimClip['category'];
 };
 
+// TYPE
 /**
  * Contains details about how the DOM element is modified beyond just the effect of the animation. Returned by {@link AnimClip.getModifiers}.
  * @see {@link AnimClip.getModifiers}
@@ -199,6 +221,7 @@ export type AnimClipEffectDetails = {
  */
 export type AnimClipModifiers = Pick<AnimClipConfig, 'cssClasses' | 'composite' | 'commitsStyles' | 'commitStylesForcefully'>;
 
+// TYPE
 /**
  * Contains details about an animation's current status. Returned by {@link AnimClip.getStatus}.
  * @see {@link AnimClip.getStatus}
@@ -244,6 +267,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    */
   public static createNoOpEffectGenerator() { return {generateKeyframes() { return {forwardFrames: [], backwardFrames: []}; }} as EffectGenerator; }
   protected abstract get defaultConfig(): Partial<AnimClipConfig>;
+  protected abstract get immutableConfig(): Partial<ImmutableAnimClipconfig>;
 
   /*-:**************************************************************************************************************************/
   /*-:*************************************        FIELDS & ACCESSORS        ***************************************************/
@@ -564,7 +588,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   }
 
   /**@internal*/
-  initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<StripFrozenConfig<AnimClipConfig, TEffectGenerator>> = {}): this {
+  initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<AnimClipConfig> = {}): this {
     // Throw error if invalid effectName
     // Deferred until initialize() so that this.category has actually been initialized by derived class by now
     if (!this.effectGenerator) { throw this.generateError(RangeError, `Invalid effect name: "${this.effectName}" does not exists in the "${this.category}" category.`); }

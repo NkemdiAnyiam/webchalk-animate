@@ -7,6 +7,7 @@ import {
   ScrollerClip,          ScrollerClipConfig,
   ConnectorEntranceClip, ConnectorEntranceClipConfig,
   ConnectorExitClip,     ConnectorExitClipConfig,
+  // ImmutableLayer2EntranceClipConfig,
 } from "./categoricalClips";
 import { EffectGeneratorBank, webflik } from "./WebFlik";
 import { computeSelfScrollingBounds, negateNumString, overrideHidden, splitXYAlignmentString, splitXYTupleString, unOverrideHidden } from "./utils/helpers";
@@ -112,8 +113,11 @@ export const libPresetEntrances = {
       return {forwardFrames: []} as const;
     },
     defaultConfig: {
+
+    } as const,
+    immutableConfig: {
       duration: 0,
-    } as const
+    } as const,
   },
 
   [`~fade-in`]: {
@@ -258,11 +262,14 @@ export const libPresetEntrances = {
         default:
           throw new RangeError(`Invalid direction "${direction}". Must be "from-top", "from-right", "from-bottom", or "from-left"`);
       }
+    },
+    defaultConfig: {
+
     }
   },
 
   // invalidProperty: 5,
-} satisfies EffectGeneratorBank<EntranceClip, EntranceClipConfig, false>;
+} satisfies EffectGeneratorBank<EntranceClip, EntranceClip['defaultConfig'], false>;
 
 /*-:**************************************************************************************************************************/
 /*-:******************************************        EXITS        ***********************************************************/
@@ -424,7 +431,7 @@ export const libPresetExits = {
       }
     }
   },
-} satisfies EffectGeneratorBank<ExitClip, ExitClipConfig, false>;
+} satisfies EffectGeneratorBank<ExitClip, ExitClip['defaultConfig'], false>;
 
 /*-:**************************************************************************************************************************/
 /*-:*****************************************        EMPHASES        *********************************************************/
@@ -486,7 +493,7 @@ export const libPresetEmphases = {
       cssClasses: { toRemoveOnFinish: [`wbfk-highlightable`] },
     } as const
   },
-} satisfies EffectGeneratorBank<EmphasisClip, EmphasisClipConfig, false>;
+} satisfies EffectGeneratorBank<EmphasisClip, EmphasisClip['defaultConfig'], false>;
 
 /*-:**************************************************************************************************************************/
 /*-:*****************************************        MOTIONS        **********************************************************/
@@ -590,7 +597,7 @@ export const libPresetMotions = {
       };
     },
   },
-} satisfies EffectGeneratorBank<MotionClip, MotionClipConfig, false>;
+} satisfies EffectGeneratorBank<MotionClip, MotionClip['defaultConfig'], false>;
 
 /*-:**************************************************************************************************************************/
 /*-:***************************************        TRANSITIONS        ********************************************************/
@@ -650,7 +657,7 @@ export const libPresetTransitions = {
       };
     },
   },
-} satisfies EffectGeneratorBank<TransitionClip, TransitionClipConfig, false>;
+} satisfies EffectGeneratorBank<TransitionClip, TransitionClip['defaultConfig'], false>;
 
 /*-:**************************************************************************************************************************/
 /*-:***********************************        CONNECTOR ENTRANCES      ******************************************************/
@@ -732,7 +739,7 @@ export const libPresetConnectorEntrances = {
       }
     },
   },
-} satisfies EffectGeneratorBank<ConnectorEntranceClip, ConnectorEntranceClipConfig, false>;
+} satisfies EffectGeneratorBank<ConnectorEntranceClip, ConnectorEntranceClip['defaultConfig'], false>;
 
 /*-:**************************************************************************************************************************/
 /*-:*************************************        CONNECTOR EXITS        ******************************************************/
@@ -810,7 +817,7 @@ export const libPresetConnectorExits = {
       }
     },
   },
-} satisfies EffectGeneratorBank<ConnectorExitClip, ConnectorExitClipConfig, false>;
+} satisfies EffectGeneratorBank<ConnectorExitClip, ConnectorExitClip['defaultConfig'], false>;
 
 /*-:**************************************************************************************************************************/
 /*-:*****************************************        SCROLLS        **********************************************************/
@@ -934,4 +941,4 @@ export const libPresetScrolls = {
       runGeneratorsNow: false,
     } as const
   },
-} satisfies EffectGeneratorBank<ScrollerClip, ScrollerClipConfig, false>;
+} satisfies EffectGeneratorBank<ScrollerClip, ScrollerClip['defaultConfig'], false>;
