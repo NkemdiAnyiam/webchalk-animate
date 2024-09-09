@@ -260,14 +260,39 @@ export type AnimClipStatus = {
  */
 export abstract class AnimClip<TEffectGenerator extends EffectGenerator = EffectGenerator> implements AnimClipConfig {
   private static id: number = 0;
+
+  static get baseDefaultConfig() {
+    return {
+      commitsStyles: true,
+      commitStylesForcefully: false,
+      composite: 'replace',
+      cssClasses: {},
+      delay: 0,
+      duration: 500,
+      easing: 'linear',
+      endDelay: 0,
+      playbackRate: 1,
+      runGeneratorsNow: false,
+      startsNextClipToo: false,
+      startsWithPrevious: false,
+    } as const satisfies AnimClipConfig;
+  }
+
+  // static get immutableConfig() {
+  //   return {
+
+  //   } as const satisfies Partial<AnimClipConfig>;
+  // }
+
   /**
    * @returns an effect generator with a function that returns empty arrays (so no actual keyframes).
    * @remarks
    * This static method is purely for convenience.
    */
   public static createNoOpEffectGenerator() { return {generateKeyframes() { return {forwardFrames: [], backwardFrames: []}; }} as EffectGenerator; }
-  protected abstract get defaultConfig(): Partial<AnimClipConfig>;
-  protected abstract get immutableConfig(): Partial<ImmutableAnimClipconfig>;
+  abstract get categoryDefaultConfig(): Partial<AnimClipConfig>;
+  abstract get categoryImmutableConfig(): Partial<ImmutableAnimClipconfig>;
+  config: AnimClipConfig = {} as AnimClipConfig;
 
   /*-:**************************************************************************************************************************/
   /*-:*************************************        FIELDS & ACCESSORS        ***************************************************/
@@ -597,6 +622,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
     const mergedConfig = this.mergeConfigs(effectConfig, this.effectGenerator.defaultConfig ?? {});
     Object.assign(this, mergedConfig);
+    this.config = mergedConfig;
     // cannot be exactly 0 because that causes some Animation-related bugs that can't be easily worked around
     this.duration = Math.max(this.duration as number, 0.01);
 
@@ -689,41 +715,43 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     return this;
   }
 
-  private mergeConfigs(layer4Config: Partial<AnimClipConfig>, effectGeneratorConfig: Partial<AnimClipConfig>): Partial<AnimClipConfig> {
+  protected mergeConfigs(usageConfig: Partial<AnimClipConfig>, effectGeneratorConfig: Partial<AnimClipConfig>): AnimClipConfig {
     return {
-      // subclass defaults takes priority
-      ...this.defaultConfig,
+      ...AnimClip.baseDefaultConfig,
 
-      // config defined in effect generator takes priority over default
+      // layer 2 subclass defaults take priority
+      ...this.categoryDefaultConfig,
+
+      // layer 3 config defined in effect generator takes priority over default
       ...effectGeneratorConfig,
 
       // layer 4 config (person using WebFlik) takes priority over generator
-      ...layer4Config,
+      ...usageConfig,
 
       // mergeable properties
       cssClasses: {
         toAddOnStart: mergeArrays(
-          this.defaultConfig.cssClasses?.toAddOnStart,
+          this.categoryDefaultConfig.cssClasses?.toAddOnStart,
           effectGeneratorConfig.cssClasses?.toAddOnStart,
-          layer4Config.cssClasses?.toAddOnStart,
+          usageConfig.cssClasses?.toAddOnStart,
         ),
   
         toRemoveOnStart: mergeArrays(
-          this.defaultConfig.cssClasses?.toRemoveOnStart,
+          this.categoryDefaultConfig.cssClasses?.toRemoveOnStart,
           effectGeneratorConfig.cssClasses?.toRemoveOnStart,
-          layer4Config.cssClasses?.toRemoveOnStart,
+          usageConfig.cssClasses?.toRemoveOnStart,
         ),
   
         toAddOnFinish: mergeArrays(
-          this.defaultConfig.cssClasses?.toAddOnFinish,
+          this.categoryDefaultConfig.cssClasses?.toAddOnFinish,
           effectGeneratorConfig.cssClasses?.toAddOnFinish,
-          layer4Config.cssClasses?.toAddOnFinish,
+          usageConfig.cssClasses?.toAddOnFinish,
         ),
   
         toRemoveOnFinish: mergeArrays(
-          this.defaultConfig.cssClasses?.toRemoveOnFinish,
+          this.categoryDefaultConfig.cssClasses?.toRemoveOnFinish,
           effectGeneratorConfig.cssClasses?.toRemoveOnFinish,
-          layer4Config.cssClasses?.toRemoveOnFinish,
+          usageConfig.cssClasses?.toRemoveOnFinish,
         ),
       }
     };

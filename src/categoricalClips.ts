@@ -6,6 +6,8 @@ import { ParsedMultiUnitPlacement, MultiUnitPlacementX, MultiUnitPlacementY, Str
 import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
 
 type PartialOmit<T, U> = Partial<Omit<T, keyof U>>;
+export type Layer3MutableClipConfig<TClipClass extends AnimClip, TClipConfig extends AnimClipConfig> = Omit<TClipConfig, keyof TClipClass['categoryImmutableConfig']>;
+type Layer4MutableConfig<TClipClass extends AnimClip, TClipConfig extends AnimClipConfig, TEffectGenerator extends EffectGenerator> = Omit<Layer3MutableClipConfig<TClipClass, TClipConfig>, keyof TEffectGenerator['immutableConfig']>;
 
 /*-:***************************************************************************************************************************/
 /*-:*******************************************        ENTRANCE        ********************************************************/
@@ -13,11 +15,9 @@ type PartialOmit<T, U> = Partial<Omit<T, keyof U>>;
 /**
  * @category Entrance
  */
-export type EntranceClipConfig = AnimClipConfig & {
+export interface EntranceClipConfig extends AnimClipConfig {
   hideNowType: 'display-none' | 'visibility-hidden' | null;
-};
-type ImmutableEntranceClipConfig = EntranceClipConfig & {
-};
+}
 
 /**
  * @category Entrance
@@ -27,17 +27,22 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
   protected get category(): 'Entrance' { return 'Entrance'; }
   private backwardsHidingMethod: ExitClipConfig['exitType'] = '' as ExitClipConfig['exitType'];
 
-  protected get defaultConfig(): PartialOmit<EntranceClipConfig, typeof this.immutableConfig> {
-    return {
-      hideNowType: null,
-    };
-  }
-
-  protected get immutableConfig() {
+  get categoryImmutableConfig() {
     return {
       commitsStyles: false,
-    } as const satisfies Partial<ImmutableEntranceClipConfig>;
+      commitStylesForcefully: false,
+    } satisfies Partial<EntranceClipConfig>;
   }
+
+  get categoryDefaultConfig() {
+    return {
+      ...AnimClip.baseDefaultConfig,
+      hideNowType: null,
+      ...this.categoryImmutableConfig,
+    } satisfies EntranceClipConfig;
+  }
+
+  config: EntranceClipConfig = {} as EntranceClipConfig;
 
   constructor(domElem: Element | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
     super(domElem, effectName, effectGeneratorBank);
@@ -45,10 +50,10 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
   }
 
   /**@internal*/
-  initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: PartialOmit<typeof this.defaultConfig, TEffectGenerator['immutableConfig']> = {}) {
+  initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<Layer4MutableConfig<EntranceClip, EntranceClipConfig, TEffectGenerator>> = {}) {
     super.initialize(effectOptions, effectConfig);
 
-    const hideNow = (effectConfig as Partial<EntranceClipConfig>).hideNowType ?? this.effectGenerator.defaultConfig?.hideNowType ?? this.defaultConfig.hideNowType!;
+    const hideNow = (effectConfig as Partial<EntranceClipConfig>).hideNowType ?? this.effectGenerator.defaultConfig?.hideNowType ?? this.categoryDefaultConfig.hideNowType!;
     switch(hideNow) {
       case "display-none":
         this.domElem.classList.add('wbfk-hidden');
@@ -122,8 +127,7 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
 export type ExitClipConfig = AnimClipConfig & {
   exitType: 'display-none' | 'visibility-hidden';
 };
-type ImmutableExitClipConfig = ExitClipConfig & {
-};
+
 /**
  * @category Exit
  * @hideconstructor
@@ -132,16 +136,19 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
   protected get category(): 'Exit' { return 'Exit'; }
   private exitType: ExitClipConfig['exitType'] = '' as ExitClipConfig['exitType'];
 
-  protected get defaultConfig(): PartialOmit<ExitClipConfig, typeof this.immutableConfig> {
-    return {
-      exitType: 'display-none',
-    };
-  }
-
-  protected get immutableConfig() {
+  get categoryImmutableConfig() {
     return {
       commitsStyles: false,
-    } as const satisfies Partial<ImmutableExitClipConfig>;
+      commitStylesForcefully: false,
+    } satisfies Partial<ExitClipConfig>;
+  }
+
+  get categoryDefaultConfig() {
+    return {
+      ...AnimClip.baseDefaultConfig,
+      exitType: 'display-none',
+      ...this.categoryImmutableConfig,
+    } satisfies ExitClipConfig;
   }
 
   constructor(domElem: Element | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
@@ -149,16 +156,22 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
     super.preventConnector();
   }
 
-  /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: PartialOmit<typeof this.defaultConfig, TEffectGenerator['immutableConfig']> = {}) {
+  /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<Layer4MutableConfig<ExitClip, ExitClipConfig, TEffectGenerator>> = {}) {
     super.initialize(effectOptions, effectConfig);
 
-    const exitType = (effectConfig as ExitClipConfig).exitType ?? this.effectGenerator.defaultConfig?.exitType ?? this.defaultConfig.exitType!;
+    const exitType = (effectConfig as ExitClipConfig).exitType ?? this.effectGenerator.defaultConfig?.exitType ?? this.categoryDefaultConfig.exitType!;
     if (exitType !== 'display-none' && exitType !== 'visibility-hidden') {
       throw this.generateError(RangeError, `Invalid 'exitType' config value "${exitType}". Must be "display-none" or "visibility-hidden".`);
     }
     this.exitType = exitType;
 
     return this;
+  }
+
+  protected mergeConfigs(layer4Config: Partial<ExitClipConfig>, effectGeneratorConfig: Partial<ExitClipConfig>): ExitClipConfig {
+    return {
+      ...super.mergeConfigs(layer4Config, effectGeneratorConfig),
+    } as ExitClipConfig;
   }
 
   protected _onStartForward(): void {
@@ -204,21 +217,23 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
 export type EmphasisClipConfig = AnimClipConfig & {
   
 };
-type ImmutableEmphasisClipConfig = EmphasisClipConfig & {
-};
+
 /**
  * @category Emphasis
  * @hideconstructor
  */
 export class EmphasisClip<TEffectGenerator extends EffectGenerator<EmphasisClip, EmphasisClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator> {
   protected get category(): 'Emphasis' { return 'Emphasis'; }
-  protected get defaultConfig(): PartialOmit<EmphasisClipConfig, typeof this.immutableConfig> {
-    return {};
-  }
-  protected get immutableConfig() {
+  get categoryImmutableConfig() {
     return {
+    } satisfies Partial<EmphasisClipConfig>;
+  }
 
-    } as const satisfies Partial<ImmutableEmphasisClipConfig>;
+  get categoryDefaultConfig() {
+    return {
+      ...AnimClip.baseDefaultConfig,
+      ...this.categoryImmutableConfig,
+    } satisfies EmphasisClipConfig;
   }
 }
 
@@ -231,23 +246,24 @@ export class EmphasisClip<TEffectGenerator extends EffectGenerator<EmphasisClip,
 export type MotionClipConfig = AnimClipConfig & {
   
 };
-type ImmutableMotionClipConfig = MotionClipConfig & {
-};
+
 /**
  * @category Motion
  * @hideconstructor
  */
 export class MotionClip<TEffectGenerator extends EffectGenerator<MotionClip, MotionClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator> {
   protected get category(): 'Motion' { return 'Motion'; }
-  protected get defaultConfig(): PartialOmit<MotionClipConfig, typeof this.immutableConfig> {
+  get categoryImmutableConfig() {
     return {
-      composite: 'accumulate',
-    };
+    } satisfies Partial<MotionClipConfig>;
   }
-  protected get immutableConfig() {
+
+  get categoryDefaultConfig() {
     return {
-      
-    } as const satisfies Partial<ImmutableMotionClipConfig>
+      ...AnimClip.baseDefaultConfig,
+      composite: 'accumulate',
+      ...this.categoryImmutableConfig,
+    } satisfies MotionClipConfig;
   }
 }
 
@@ -260,8 +276,7 @@ export class MotionClip<TEffectGenerator extends EffectGenerator<MotionClip, Mot
 export type ScrollerClipConfig = AnimClipConfig & {
   
 };
-type ImmutableScrollerClipConfig = ScrollerClipConfig & {
-};
+
 /**
  * @category Scroller
  * @hideconstructor
@@ -269,15 +284,17 @@ type ImmutableScrollerClipConfig = ScrollerClipConfig & {
 // TODO: implement rewindScrollBehavior: 'prior-user-position' | 'prior-scroll-target' = 'prior-scroll-target'
 export class ScrollerClip<TEffectGenerator extends EffectGenerator<ScrollerClip, ScrollerClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator> {
   protected get category(): 'Scroller' { return 'Scroller'; }
-  protected get defaultConfig(): PartialOmit<ScrollerClipConfig, typeof this.immutableConfig> {
+  get categoryImmutableConfig() {
     return {
-      commitsStyles: false,
-    };
+    } satisfies Partial<ScrollerClipConfig>;
   }
-  protected get immutableConfig() {
-    return {
 
-    } as const satisfies Partial<ImmutableScrollerClipConfig>;
+  get categoryDefaultConfig() {
+    return {
+      ...AnimClip.baseDefaultConfig,
+      commitsStyles: false,
+      ...this.categoryImmutableConfig,
+    } satisfies ScrollerClipConfig;
   }
 }
 
@@ -290,8 +307,7 @@ export class ScrollerClip<TEffectGenerator extends EffectGenerator<ScrollerClip,
 export type TransitionClipConfig = AnimClipConfig & {
   removeInlineStylesOnFinish: boolean;
 }
-type ImmutableTransitionClipConfig = TransitionClipConfig & {
-};
+
 /**
  * @category Transition
  * @hideconstructor
@@ -301,19 +317,23 @@ export class TransitionClip<TEffectGenerator extends EffectGenerator<TransitionC
   // determines whether properties affected by this transition should be removed from inline style upon finishing animation
   private removeInlineStyleOnFinish: boolean = false;
 
-  protected get defaultConfig(): Partial<TransitionClipConfig> {
-    return {};
-  }
-
-  protected get immutableConfig() {
+  get categoryImmutableConfig() {
     return {
-
-    } as const satisfies Partial<ImmutableTransitionClipConfig>
+      
+    } satisfies Partial<TransitionClipConfig>;
   }
 
-  /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: PartialOmit<typeof this.defaultConfig, TEffectGenerator['immutableConfig']> = {}) {
+  get categoryDefaultConfig() {
+    return {
+      ...AnimClip.baseDefaultConfig,
+      removeInlineStylesOnFinish: false,
+      ...this.categoryImmutableConfig,
+    } satisfies TransitionClipConfig;
+  }
+
+  /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<Layer4MutableConfig<TransitionClip, TransitionClipConfig, TEffectGenerator>> = {}) {
     super.initialize(effectOptions, effectConfig);
-    this.removeInlineStyleOnFinish = (effectConfig as TransitionClipConfig).removeInlineStylesOnFinish ?? this.effectGenerator.defaultConfig?.removeInlineStylesOnFinish ?? this.defaultConfig.removeInlineStylesOnFinish!;
+    this.removeInlineStyleOnFinish = (effectConfig as TransitionClipConfig).removeInlineStylesOnFinish ?? this.effectGenerator.defaultConfig?.removeInlineStylesOnFinish ?? this.categoryDefaultConfig.removeInlineStylesOnFinish!;
     return this;
   }
 
@@ -336,8 +356,7 @@ export class TransitionClip<TEffectGenerator extends EffectGenerator<TransitionC
 export type ConnectorSetterClipConfig = AnimClipConfig & {
   
 };
-type ImmutableConnectorSetterClipConfig = ConnectorSetterClipConfig & {
-};
+
 /**
  * @category Connector Setter
  * @hideconstructor
@@ -352,18 +371,22 @@ export class ConnectorSetterClip extends AnimClip {
 
   connectorConfig: WbfkConnectorConfig = {} as WbfkConnectorConfig;
   previousConnectorConfig: WbfkConnectorConfig = {} as WbfkConnectorConfig;
-  protected get defaultConfig(): PartialOmit<ConnectorSetterClipConfig, typeof this.immutableConfig> {
+
+  get categoryImmutableConfig() {
     return {
       duration: 0,
       commitsStyles: false,
+      commitStylesForcefully: false,
       runGeneratorsNow: true,
       startsNextClipToo: true,
-    };
+    } satisfies Partial<ConnectorSetterClipConfig>;
   }
-  protected get immutableConfig() {
-    return {
 
-    } as const satisfies Partial<ImmutableConnectorSetterClipConfig>;
+  get categoryDefaultConfig() {
+    return {
+      ...AnimClip.baseDefaultConfig,
+      ...this.categoryImmutableConfig,
+    } satisfies ConnectorSetterClipConfig;
   }
   
   constructor(
@@ -426,8 +449,7 @@ export class ConnectorSetterClip extends AnimClip {
 export type ConnectorEntranceClipConfig = AnimClipConfig & {
   hideNowType: 'display-none' | null;
 };
-type ImmutableConnectorEntranceClipConfig = ConnectorEntranceClipConfig & {
-};
+
 /**
  * @category Connector Entrance
  * @hideconstructor
@@ -436,18 +458,19 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
   protected get category(): 'Connector Entrance' { return 'Connector Entrance'; }
   domElem: WbfkConnector;
 
-  protected get defaultConfig(): PartialOmit<ConnectorEntranceClipConfig, typeof this.immutableConfig> {
+  get categoryImmutableConfig() {
     return {
       commitsStyles: false,
-      // runGeneratorsNow: true,
-      hideNowType: null,
-    };
+      commitStylesForcefully: false,
+    } satisfies Partial<ConnectorEntranceClipConfig>;
   }
 
-  protected get immutableConfig() {
+  get categoryDefaultConfig() {
     return {
-
-    } as const satisfies Partial<ImmutableConnectorEntranceClipConfig>;
+      ...AnimClip.baseDefaultConfig,
+      hideNowType: null,
+      ...this.categoryImmutableConfig,
+    } satisfies ConnectorEntranceClipConfig;
   }
 
   constructor(connectorElem: WbfkConnector | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
@@ -458,10 +481,10 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
   }
 
   /**@internal*/
-  initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: PartialOmit<typeof this.defaultConfig, TEffectGenerator['immutableConfig']> = {}) {
+  initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<Layer4MutableConfig<ConnectorEntranceClip, ConnectorEntranceClipConfig, TEffectGenerator>> = {}) {
     super.initialize(effectOptions, effectConfig);
 
-    const hideNow = (effectConfig as ConnectorEntranceClipConfig).hideNowType ?? this.effectGenerator.defaultConfig?.hideNowType ?? this.defaultConfig.hideNowType!;
+    const hideNow = (effectConfig as ConnectorEntranceClipConfig).hideNowType ?? this.effectGenerator.defaultConfig?.hideNowType ?? this.categoryDefaultConfig.hideNowType!;
     switch(hideNow) {
       case "display-none":
         this.domElem.classList.add('wbfk-hidden');
@@ -523,8 +546,7 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
 export type ConnectorExitClipConfig = AnimClipConfig & {
   
 };
-type ImmutableConnectorExitClipConfig = ConnectorExitClipConfig & {
-};
+
 /**
  * @category Connector Exit
  * @hideconstructor
@@ -533,16 +555,18 @@ export class ConnectorExitClip<TEffectGenerator extends EffectGenerator<Connecto
   protected get category(): 'Connector Exit' { return 'Connector Exit'; }
   domElem: WbfkConnector;
 
-  protected get defaultConfig(): PartialOmit<ConnectorExitClipConfig, typeof this.immutableConfig> {
-    return {
-      // runGeneratorsNow: true,
-    };
-  }
-
-  protected get immutableConfig() {
+  get categoryImmutableConfig() {
     return {
       commitsStyles: false,
-    } as const satisfies Partial<ImmutableConnectorExitClipConfig>;
+      commitStylesForcefully: false,
+    } satisfies Partial<ConnectorExitClipConfig>;
+  }
+
+  get categoryDefaultConfig() {
+    return {
+      ...AnimClip.baseDefaultConfig,
+      ...this.categoryImmutableConfig,
+    } satisfies ConnectorExitClipConfig;
   }
 
   constructor(connectorElem: WbfkConnector | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {

@@ -8,6 +8,7 @@ import {
   ConnectorExitClipConfig,
   ConnectorEntranceClipConfig,
   TransitionClipConfig,
+  Layer3MutableClipConfig,
   // ImmutableLayer2EntranceClipConfig
 } from "./categoricalClips";
 import { AnimSequence, AnimSequenceConfig } from "./AnimSequence";
@@ -128,30 +129,30 @@ export class WebFlik {
   <
    // default = {} ensures intellisense for a given bank still works
    // without specifying the field (why? not sure)
-    CustomEntranceBank extends EffectGeneratorBank<EntranceClip, EntranceClip['defaultConfig'], false> = {},
-    CustomExitBank extends EffectGeneratorBank<ExitClip, ExitClip['defaultConfig'], false> = {},
-    CustomEmphasisBank extends EffectGeneratorBank<EmphasisClip, EmphasisClip['defaultConfig'], false> = {},
-    CustomMotionBank extends EffectGeneratorBank<MotionClip, MotionClip['defaultConfig'], false> = {},
-    _EmptyTransitionBank extends EffectGeneratorBank<TransitionClip, TransitionClip['defaultConfig']> = {},
-    _EmptyConnectorEntranceBank extends EffectGeneratorBank<ConnectorEntranceClip, ConnectorEntranceClip['defaultConfig']> = {},
-    _EmptyConnectorExitBank extends EffectGeneratorBank<ConnectorExitClip, ConnectorExitClip['defaultConfig']> = {},
-    _EmptyScrollerBank extends EffectGeneratorBank<ScrollerClip, ScrollerClip['defaultConfig']> = {},
+    CustomEntranceBank extends EffectGeneratorBank<EntranceClip, Layer3MutableClipConfig<EntranceClip, EntranceClipConfig>, false> = {},
+    CustomExitBank extends EffectGeneratorBank<ExitClip, Layer3MutableClipConfig<ExitClip, ExitClipConfig>, false> = {},
+    CustomEmphasisBank extends EffectGeneratorBank<EmphasisClip, Layer3MutableClipConfig<EmphasisClip, EmphasisClipConfig>, false> = {},
+    CustomMotionBank extends EffectGeneratorBank<MotionClip, Layer3MutableClipConfig<MotionClip, MotionClipConfig>, false> = {},
+    _EmptyTransitionBank extends EffectGeneratorBank<TransitionClip, Layer3MutableClipConfig<TransitionClip, TransitionClipConfig>> = {},
+    _EmptyConnectorEntranceBank extends EffectGeneratorBank<ConnectorEntranceClip, Layer3MutableClipConfig<ConnectorEntranceClip, ConnectorEntranceClipConfig>> = {},
+    _EmptyConnectorExitBank extends EffectGeneratorBank<ConnectorExitClip, Layer3MutableClipConfig<ConnectorExitClip, ConnectorExitClipConfig>> = {},
+    _EmptyScrollerBank extends EffectGeneratorBank<ScrollerClip, Layer3MutableClipConfig<ScrollerClip, ScrollerClipConfig>> = {},
     IncludeLibPresets extends boolean = true
   >
   (
     customPresetEffectBanks: {
-      customEntranceEffects?: CustomEntranceBank & EffectGeneratorBank<EntranceClip, EntranceClip['defaultConfig'], false>;
-      customExitEffects?: CustomExitBank & EffectGeneratorBank<ExitClip, ExitClip['defaultConfig'], false>;
-      customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisClip, EmphasisClip['defaultConfig'], false>;
-      customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionClip, MotionClip['defaultConfig'], false>;
+      customEntranceEffects?: CustomEntranceBank & EffectGeneratorBank<EntranceClip, Layer3MutableClipConfig<EntranceClip, EntranceClipConfig>, false>;
+      customExitEffects?: CustomExitBank & EffectGeneratorBank<ExitClip, Layer3MutableClipConfig<ExitClip, ExitClipConfig>, false>;
+      customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisClip, Layer3MutableClipConfig<EmphasisClip, EmphasisClipConfig>, false>;
+      customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionClip, Layer3MutableClipConfig<MotionClip, MotionClipConfig>, false>;
     } = {},
     includeLibraryPresets: IncludeLibPresets | void = true as IncludeLibPresets
   ) {
     const {customEntranceEffects, customExitEffects, customEmphasisEffects, customMotionEffects} = customPresetEffectBanks as {
-      customEntranceEffects?: CustomEntranceBank & EffectGeneratorBank<EntranceClip, EntranceClip['defaultConfig']>;
-      customExitEffects?: CustomExitBank & EffectGeneratorBank<ExitClip, ExitClip['defaultConfig']>;
-      customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisClip, EmphasisClip['defaultConfig']>;
-      customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionClip, MotionClip['defaultConfig']>;
+      customEntranceEffects?: CustomEntranceBank & EffectGeneratorBank<EntranceClip, Layer3MutableClipConfig<EntranceClip, EntranceClipConfig>>;
+      customExitEffects?: CustomExitBank & EffectGeneratorBank<ExitClip, Layer3MutableClipConfig<ExitClip, ExitClipConfig>>;
+      customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisClip, Layer3MutableClipConfig<EmphasisClip, EmphasisClipConfig>>;
+      customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionClip, Layer3MutableClipConfig<MotionClip, MotionClipConfig>>;
     };
     WebFlik.checkBanksFormatting(customEntranceEffects, customExitEffects, customEmphasisEffects, customMotionEffects);
 
