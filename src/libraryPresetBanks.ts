@@ -794,9 +794,10 @@ export const libPresetConnectorExits = {
       return {forwardFrames: []} as const;
     },
     defaultConfig: {
-      duration: 0
     } as const,
-    immutableConfig: {},
+    immutableConfig: {
+      duration: 0,
+    },
   },
 
   [`~fade-out`]: {
