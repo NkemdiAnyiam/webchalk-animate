@@ -622,7 +622,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
     this.effectOptions = effectOptions;
 
-    const mergedConfig = this.mergeConfigs(effectConfig, this.effectGenerator.defaultConfig ?? {});
+    const mergedConfig = this.mergeConfigs(effectConfig, this.effectGenerator.defaultConfig ?? {}, this.effectGenerator.immutableConfig ?? {});
     Object.assign(this, mergedConfig);
     this.config = mergedConfig;
     // cannot be exactly 0 because that causes some Animation-related bugs that can't be easily worked around
@@ -726,7 +726,11 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     };
   }
 
-  protected mergeConfigs(usageConfig: Partial<TClipConfig>, effectGeneratorConfig: Partial<TClipConfig>): TClipConfig {
+  protected mergeConfigs(
+    usageConfig: Partial<TClipConfig>,
+    effectGeneratorDefaultConfig: Partial<TClipConfig>,
+    effectGeneratorImmutableConfig: Partial<TClipConfig>,
+  ): TClipConfig {
     return {
       ...AnimClip.baseDefaultConfig,
 
@@ -734,7 +738,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       ...this.categoryDefaultConfig,
 
       // layer 3 config defined in effect generator takes priority over default
-      ...effectGeneratorConfig,
+      ...effectGeneratorDefaultConfig,
 
       // layer 4 config (person using WebFlik) takes priority over generator
       ...usageConfig,
@@ -743,9 +747,15 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       cssClasses: AnimClip.mergeCssClassesConfig<PartialPick<AnimClipConfig, 'cssClasses'>>(
         AnimClip.baseDefaultConfig,
         this.categoryDefaultConfig,
-        effectGeneratorConfig,
+        effectGeneratorDefaultConfig,
         usageConfig,
       ),
+
+      // layer 3 immutable config take priority over layer 4 config
+      ...effectGeneratorImmutableConfig,
+
+      // layer 2 subclass immutable config takes priority over layer 3 immutable config
+      ...this.categoryImmutableConfig,
     };
   }
 

@@ -300,18 +300,18 @@ export class WebFlik {
  */
 export const webflik = new WebFlik();
 
-const thing =  webflik.createAnimationFactories({
-  customEntranceEffects: {
-    hello: {
-      generateKeyframes() { return {
-        forwardFrames: []
-      } },
-      defaultConfig: {
+// const thing =  webflik.createAnimationFactories({
+//   customEntranceEffects: {
+//     hello: {
+//       generateKeyframes() { return {
+//         forwardFrames: []
+//       } },
+//       defaultConfig: {
         
-      },
-      immutableConfig: {
-        duration: 0
-      }
-    }
-  }
-}).Entrance(new HTMLElement(), '~appear', [], {});
+//       },
+//       immutableConfig: {
+//         duration: 0
+//       }
+//     }
+//   }
+// }).Entrance(new HTMLElement(), '~appear', [], {});
