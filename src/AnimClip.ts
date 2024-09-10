@@ -251,7 +251,12 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       commitsStyles: true,
       commitStylesForcefully: false,
       composite: 'replace',
-      cssClasses: {},
+      cssClasses: {
+        toAddOnFinish: [],
+        toAddOnStart: [],
+        toRemoveOnFinish: [],
+        toRemoveOnStart: [],
+      },
       delay: 0,
       duration: 500,
       easing: 'linear',
@@ -728,24 +733,28 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       // mergeable properties
       cssClasses: {
         toAddOnStart: mergeArrays(
+          AnimClip.baseDefaultConfig.cssClasses?.toAddOnStart,
           this.categoryDefaultConfig.cssClasses?.toAddOnStart,
           effectGeneratorConfig.cssClasses?.toAddOnStart,
           usageConfig.cssClasses?.toAddOnStart,
         ),
   
         toRemoveOnStart: mergeArrays(
+          AnimClip.baseDefaultConfig.cssClasses?.toRemoveOnStart,
           this.categoryDefaultConfig.cssClasses?.toRemoveOnStart,
           effectGeneratorConfig.cssClasses?.toRemoveOnStart,
           usageConfig.cssClasses?.toRemoveOnStart,
         ),
   
         toAddOnFinish: mergeArrays(
+          AnimClip.baseDefaultConfig.cssClasses?.toAddOnFinish,
           this.categoryDefaultConfig.cssClasses?.toAddOnFinish,
           effectGeneratorConfig.cssClasses?.toAddOnFinish,
           usageConfig.cssClasses?.toAddOnFinish,
         ),
   
         toRemoveOnFinish: mergeArrays(
+          AnimClip.baseDefaultConfig.cssClasses?.toRemoveOnFinish,
           this.categoryDefaultConfig.cssClasses?.toRemoveOnFinish,
           effectGeneratorConfig.cssClasses?.toRemoveOnFinish,
           usageConfig.cssClasses?.toRemoveOnFinish,
