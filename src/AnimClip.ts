@@ -141,21 +141,6 @@ type KeyframeTimingOptions = {
  */
 export type AnimClipConfig = KeyframeTimingOptions & CustomKeyframeEffectOptions;
 
-export type ImmutableAnimClipconfig = Pick<AnimClipConfig,
-  | 'commitStylesForcefully'
-  | 'commitsStyles'
-  | 'composite'
-  | 'cssClasses'
-  | 'delay'
-  | 'duration'
-  | 'easing'
-  | 'endDelay'
-  | 'playbackRate'
-  | 'runGeneratorsNow'
-  | 'startsNextClipToo'
-  | 'startsWithPrevious'
->
-
 // TYPE
 /**
  * Contains timing-related details about an animation. Returned by {@link AnimClip.getTiming}.
@@ -258,7 +243,7 @@ export type AnimClipStatus = {
  * @groupDescription Timing Event Methods
  * Methods that involve listening to the progress of the animation clip to perform tasks at specific times.
  */
-export abstract class AnimClip<TEffectGenerator extends EffectGenerator = EffectGenerator> implements AnimClipConfig {
+export abstract class AnimClip<TEffectGenerator extends EffectGenerator = EffectGenerator, TClipConfig extends AnimClipConfig = AnimClipConfig> implements AnimClipConfig {
   private static id: number = 0;
 
   static get baseDefaultConfig() {
@@ -278,21 +263,33 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     } as const satisfies AnimClipConfig;
   }
 
-  // static get immutableConfig() {
-  //   return {
-
-  //   } as const satisfies Partial<AnimClipConfig>;
-  // }
-
   /**
    * @returns an effect generator with a function that returns empty arrays (so no actual keyframes).
    * @remarks
    * This static method is purely for convenience.
    */
   public static createNoOpEffectGenerator() { return {generateKeyframes() { return {forwardFrames: [], backwardFrames: []}; }} as EffectGenerator; }
-  abstract get categoryDefaultConfig(): Partial<AnimClipConfig>;
-  abstract get categoryImmutableConfig(): Partial<ImmutableAnimClipconfig>;
-  config: AnimClipConfig = {} as AnimClipConfig;
+
+  abstract get categoryDefaultConfig(): TClipConfig;
+  abstract get categoryImmutableConfig(): Partial<TClipConfig>;
+  protected config = {} as TClipConfig;
+  /**
+   * Returns an object containing the configuration options used to define both the timing and effects of the animation clip.
+   * @returns an object containing
+   * - {@link AnimClipConfig.commitsStyles|commitsStyles},
+   * - {@link AnimClipConfig.commitStylesForcefully|commitStylesForcefully},
+   * - {@link AnimClipConfig.composite|composite},
+   * - {@link AnimClipConfig.cssClasses|cssClasses},
+   * - {@link AnimClipConfig.delay|delay},
+   * - {@link AnimClipConfig.duration|duration},
+   * - {@link AnimClipConfig.easing|easing},
+   * - {@link AnimClipConfig.endDelay|endDelay},
+   * - {@link AnimClipConfig.playbackRate|playbackRate},
+   * - {@link AnimClipConfig.runGeneratorsNow|runGeneratorsNow},
+   * - {@link AnimClipConfig.startsWithPrevious|startsWithPrevious},
+   * - {@link AnimClipConfig.startsNextClipToo|startsNextClipToo},
+   */
+  getConfig() { return this.config; }
 
   /*-:**************************************************************************************************************************/
   /*-:*************************************        FIELDS & ACCESSORS        ***************************************************/
@@ -613,7 +610,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   }
 
   /**@internal*/
-  initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<AnimClipConfig> = {}): this {
+  initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<TClipConfig> = {}): this {
     // Throw error if invalid effectName
     // Deferred until initialize() so that this.category has actually been initialized by derived class by now
     if (!this.effectGenerator) { throw this.generateError(RangeError, `Invalid effect name: "${this.effectName}" does not exists in the "${this.category}" category.`); }
@@ -715,7 +712,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     return this;
   }
 
-  protected mergeConfigs(usageConfig: Partial<AnimClipConfig>, effectGeneratorConfig: Partial<AnimClipConfig>): AnimClipConfig {
+  protected mergeConfigs(usageConfig: Partial<TClipConfig>, effectGeneratorConfig: Partial<TClipConfig>): TClipConfig {
     return {
       ...AnimClip.baseDefaultConfig,
 
