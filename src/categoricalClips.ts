@@ -184,12 +184,6 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
     return this;
   }
 
-  protected mergeConfigs(layer4Config: Partial<ExitClipConfig>, effectGeneratorConfig: Partial<ExitClipConfig>): ExitClipConfig {
-    return {
-      ...super.mergeConfigs(layer4Config, effectGeneratorConfig),
-    } as ExitClipConfig;
-  }
-
   protected _onStartForward(): void {
     let hidingClassName = '';
     if (this.domElem.classList.contains('wbfk-hidden')) { hidingClassName = 'wbfk-hidden'; }
