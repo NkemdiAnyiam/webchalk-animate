@@ -277,6 +277,12 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
   abstract get categoryDefaultConfig(): TClipConfig;
   abstract get categoryImmutableConfig(): Partial<TClipConfig>;
+  get immutableConfig(): this['categoryImmutableConfig'] & TEffectGenerator['immutableConfig'] {
+    return {
+      ...this.effectGenerator.immutableConfig,
+      ...this.categoryImmutableConfig,
+    };
+  }
   protected config = {} as TClipConfig;
   /**
    * Returns an object containing the configuration options used to define both the timing and effects of the animation clip.
