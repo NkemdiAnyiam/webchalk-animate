@@ -29,18 +29,26 @@ type docsScriptRunner = {
   /**
    * <script>
    *  window.onload = () => {
+   *    // remove property sections and navigation links associated with doscScriptRunner
    *    document.querySelector('a#______').closest('.tsd-panel.tsd-member').remove();
    *    [...document.querySelectorAll('a[href$="#______"]')].forEach((elem) => elem.remove());
    * 
+   *    // remove interface signature and GitHub source
    *    document.querySelector('.col-content > .tsd-signature').remove();
    *    document.querySelector('.col-content > .tsd-sources').remove();
+   * 
+   *    // for each member
    *    const members = [...document.querySelectorAll('.tsd-panel.tsd-member')];
    *    for (const member of members) {
+   *      // remove member signature
    *      member.querySelector(':scope > .tsd-signature').remove();
+   *      // remove signatures of objects returned by generator functions
    *      member.querySelector(':scope h5 + ul.tsd-parameters')?.remove();
    *      const h5List = [...member.querySelectorAll(':scope h5')];
    *      for (const h5 of h5List) { h5.classList.add('custom-color'); }
+   *      // remove return title for objects returned by generator functions
    *      member.querySelector('.tsd-returns-title')?.remove();
+   *      // remove duplicate list of config objects' properties
    *      member.querySelector(':scope li.tsd-parameter ul.tsd-parameters:has(> li.tsd-parameter > h5')?.remove();
    *    }
    *  }
@@ -131,6 +139,8 @@ export const libPresetEntrances = {
         forwardFrames: [ {opacity: '0'}, {} ]
       } as const;
     },
+    defaultConfig: {},
+    immutableConfig: {},
   },
 
   /**
@@ -176,7 +186,8 @@ export const libPresetEntrances = {
     defaultConfig: {
       runGeneratorsNow: false,
       composite: 'accumulate',
-    } as const
+    } as const,
+    immutableConfig: {},
   },
 
   [`~pinwheel`]: {
@@ -198,6 +209,8 @@ export const libPresetEntrances = {
         ]
       } as const;
     },
+    defaultConfig: {},
+    immutableConfig: {},
   },
 
   [`~rise-up`]: {
@@ -217,7 +230,8 @@ export const libPresetEntrances = {
     },
     defaultConfig: {
       composite: 'accumulate',
-    } as const
+    } as const,
+    immutableConfig: {},
   },
 
   [`~wipe`]: {
@@ -264,9 +278,8 @@ export const libPresetEntrances = {
           throw new RangeError(`Invalid direction "${direction}". Must be "from-top", "from-right", "from-bottom", or "from-left"`);
       }
     },
-    defaultConfig: {
-
-    }
+    defaultConfig: {},
+    immutableConfig: {},
   },
 
   // invalidProperty: 5,
@@ -287,9 +300,10 @@ export const libPresetExits = {
     generateKeyframes() {
       return {forwardFrames: []};
     },
-    defaultConfig: {
+    defaultConfig: {},
+    immutableConfig: {
       duration: 0,
-    } as const
+    } as const,
   },
 
   [`~fade-out`]: {
@@ -302,6 +316,8 @@ export const libPresetExits = {
         forwardFrames: [{}, {opacity: '0'}]
       } as const;
     },
+    defaultConfig: {},
+    immutableConfig: {},
   },
 
   [`~fly-out`]: {
@@ -343,7 +359,8 @@ export const libPresetExits = {
     defaultConfig: {
       runGeneratorsNow: false,
       composite: 'accumulate',
-    } as const
+    } as const,
+    immutableConfig: {},
   },
 
   [`~pinwheel`]: {
@@ -365,6 +382,8 @@ export const libPresetExits = {
         ]
       } as const;
     },
+     defaultConfig: {},
+     immutableConfig: {},
   },
 
   [`~sink-down`]: {
@@ -384,7 +403,8 @@ export const libPresetExits = {
     },
     defaultConfig: {
       composite: 'accumulate',
-    } as const
+    } as const,
+    immutableConfig: {},
   },
   
   [`~wipe`]: {
@@ -430,7 +450,9 @@ export const libPresetExits = {
         default:
           throw new RangeError(`Invalid direction "${direction}". Must be "from-top", "from-right", "from-bottom", or "from-left"`);
       }
-    }
+    },
+    defaultConfig: {},
+    immutableConfig: {},
   },
 } satisfies EffectGeneratorBank<ExitClip, Layer3MutableClipConfig<ExitClip>, false>;
 
@@ -477,7 +499,8 @@ export const libPresetEmphases = {
     defaultConfig: {
       cssClasses: { toAddOnStart: [`wbfk-highlightable`] },
       // invalidProp: 4,
-    } as const
+    } as const,
+    immutableConfig: {},
   },
 
   [`~un-highlight`]: {
@@ -492,7 +515,8 @@ export const libPresetEmphases = {
     },
     defaultConfig: {
       cssClasses: { toRemoveOnFinish: [`wbfk-highlightable`] },
-    } as const
+    } as const,
+    immutableConfig: {},
   },
 } satisfies EffectGeneratorBank<EmphasisClip, Layer3MutableClipConfig<EmphasisClip>, false>;
 
@@ -572,6 +596,8 @@ export const libPresetMotions = {
         ],
       };
     },
+    defaultConfig: {},
+    immutableConfig: {},
   },
 
   ['~translate']: {
@@ -597,6 +623,8 @@ export const libPresetMotions = {
                             + ` calc(${negateNumString(translateY)} + ${negateNumString(offsetSelfY)})`}],
       };
     },
+    defaultConfig: {},
+    immutableConfig: {},
   },
 } satisfies EffectGeneratorBank<MotionClip, Layer3MutableClipConfig<MotionClip>, false>;
 
@@ -620,7 +648,8 @@ export const libPresetTransitions = {
     },
     defaultConfig: {
       commitsStyles: false,
-    } as const
+    } as const,
+    immutableConfig: {},
   },
 
   ['~to']: {
@@ -657,6 +686,8 @@ export const libPresetTransitions = {
         forwardFrames: [original, {...keyframe}]
       };
     },
+    defaultConfig: {},
+    immutableConfig: {},
   },
 } satisfies EffectGeneratorBank<TransitionClip, Layer3MutableClipConfig<TransitionClip>, false>;
 
@@ -677,7 +708,8 @@ export const libPresetConnectorEntrances = {
     },
     defaultConfig: {
       duration: 0
-    } as const
+    } as const,
+    immutableConfig: {},
   },
 
   [`~fade-in`]: {
@@ -690,6 +722,8 @@ export const libPresetConnectorEntrances = {
         forwardFrames: [ {opacity: '0'}, {}],
       } as const;
     },
+    defaultConfig: {},
+    immutableConfig: {},
   },
 
   // TODO: Fix new bugs surrounding animating custom variables
@@ -739,6 +773,8 @@ export const libPresetConnectorEntrances = {
           throw new RangeError(`Invalid direction "${direction}". Must be "from-A", "from-B", "from-top", "from-bottom", "from-left", or "from-right"`);
       }
     },
+    defaultConfig: {},
+    immutableConfig: {},
   },
 } satisfies EffectGeneratorBank<ConnectorEntranceClip, Layer3MutableClipConfig<ConnectorEntranceClip>, false>;
 
@@ -759,7 +795,8 @@ export const libPresetConnectorExits = {
     },
     defaultConfig: {
       duration: 0
-    } as const
+    } as const,
+    immutableConfig: {},
   },
 
   [`~fade-out`]: {
@@ -772,6 +809,8 @@ export const libPresetConnectorExits = {
         forwardFrames: [ {}, {opacity: '0'} ],
       } as const;
     },
+    defaultConfig: {},
+    immutableConfig: {},
   },
 
   [`~trace`]: {
@@ -817,6 +856,8 @@ export const libPresetConnectorExits = {
           throw new RangeError(`Invalid direction "${direction}". Must be "from-A", "from-B", "from-top", "from-bottom", "from-left", or "from-right"`);
       }
     },
+    defaultConfig: {},
+    immutableConfig: {},
   },
 } satisfies EffectGeneratorBank<ConnectorExitClip, Layer3MutableClipConfig<ConnectorExitClip>, false>;
 
@@ -940,6 +981,7 @@ export const libPresetScrolls = {
     },
     defaultConfig: {
       runGeneratorsNow: false,
-    } as const
+    } as const,
+    immutableConfig: {},
   },
 } satisfies EffectGeneratorBank<ScrollerClip, Layer3MutableClipConfig<ScrollerClip>, false>;
