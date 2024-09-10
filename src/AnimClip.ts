@@ -7,7 +7,7 @@ import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "./uti
 import { EffectCategory, Keyframes, StripFrozenConfig } from "./utils/interfaces";
 import { WbfkConnector } from "./WbfkConnector";
 import { WebFlikAnimation } from "./WebFlikAnimation";
-import { PickFromArray } from "./utils/utilityTypes";
+import { PartialPick, PickFromArray } from "./utils/utilityTypes";
 
 /**
  * Spreads {@link objOrIterable} whether it is an array of keyframes
@@ -717,6 +717,15 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     return this;
   }
 
+  private static mergeCssClassesConfig<T extends {cssClasses?: Partial<CssClassOptions>}>(...configObjects: T[]): CssClassOptions {
+    return {
+      toAddOnFinish: mergeArrays(...configObjects.map(obj => obj['cssClasses']?.['toAddOnFinish'])),
+      toAddOnStart: mergeArrays(...configObjects.map(obj => obj['cssClasses']?.['toAddOnStart'])),
+      toRemoveOnFinish: mergeArrays(...configObjects.map(obj => obj['cssClasses']?.['toRemoveOnFinish'])),
+      toRemoveOnStart: mergeArrays(...configObjects.map(obj => obj['cssClasses']?.['toRemoveOnStart'])),
+    };
+  }
+
   protected mergeConfigs(usageConfig: Partial<TClipConfig>, effectGeneratorConfig: Partial<TClipConfig>): TClipConfig {
     return {
       ...AnimClip.baseDefaultConfig,
@@ -731,35 +740,12 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       ...usageConfig,
 
       // mergeable properties
-      cssClasses: {
-        toAddOnStart: mergeArrays(
-          AnimClip.baseDefaultConfig.cssClasses?.toAddOnStart,
-          this.categoryDefaultConfig.cssClasses?.toAddOnStart,
-          effectGeneratorConfig.cssClasses?.toAddOnStart,
-          usageConfig.cssClasses?.toAddOnStart,
-        ),
-  
-        toRemoveOnStart: mergeArrays(
-          AnimClip.baseDefaultConfig.cssClasses?.toRemoveOnStart,
-          this.categoryDefaultConfig.cssClasses?.toRemoveOnStart,
-          effectGeneratorConfig.cssClasses?.toRemoveOnStart,
-          usageConfig.cssClasses?.toRemoveOnStart,
-        ),
-  
-        toAddOnFinish: mergeArrays(
-          AnimClip.baseDefaultConfig.cssClasses?.toAddOnFinish,
-          this.categoryDefaultConfig.cssClasses?.toAddOnFinish,
-          effectGeneratorConfig.cssClasses?.toAddOnFinish,
-          usageConfig.cssClasses?.toAddOnFinish,
-        ),
-  
-        toRemoveOnFinish: mergeArrays(
-          AnimClip.baseDefaultConfig.cssClasses?.toRemoveOnFinish,
-          this.categoryDefaultConfig.cssClasses?.toRemoveOnFinish,
-          effectGeneratorConfig.cssClasses?.toRemoveOnFinish,
-          usageConfig.cssClasses?.toRemoveOnFinish,
-        ),
-      }
+      cssClasses: AnimClip.mergeCssClassesConfig<PartialPick<AnimClipConfig, 'cssClasses'>>(
+        AnimClip.baseDefaultConfig,
+        this.categoryDefaultConfig,
+        effectGeneratorConfig,
+        usageConfig,
+      ),
     };
   }
 
