@@ -793,11 +793,10 @@ export const libPresetConnectorExits = {
     generateKeyframes() {
       return {forwardFrames: []} as const;
     },
-    defaultConfig: {
-    } as const,
+    defaultConfig: {} as const,
     immutableConfig: {
       duration: 0,
-    },
+    } as const,
   },
 
   [`~fade-out`]: {
