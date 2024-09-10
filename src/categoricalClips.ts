@@ -131,7 +131,7 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
 /**
  * @category Exit
  */
-export type ExitClipConfig = AnimClipConfig & {
+export interface ExitClipConfig extends AnimClipConfig {
   exitType: 'display-none' | 'visibility-hidden';
 };
 
@@ -230,7 +230,7 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
 /**
  * @category Emphasis
  */
-export type EmphasisClipConfig = AnimClipConfig & {
+export interface EmphasisClipConfig extends AnimClipConfig {
   
 };
 
@@ -263,7 +263,7 @@ export class EmphasisClip<TEffectGenerator extends EffectGenerator<EmphasisClip,
 /**
  * @category Motion
  */
-export type MotionClipConfig = AnimClipConfig & {
+export interface MotionClipConfig extends AnimClipConfig {
   
 };
 
@@ -298,7 +298,7 @@ export class MotionClip<TEffectGenerator extends EffectGenerator<MotionClip, Mot
 /**
  * @category Scroller
  */
-export type ScrollerClipConfig = AnimClipConfig & {
+export interface ScrollerClipConfig extends AnimClipConfig {
   
 };
 
@@ -333,7 +333,7 @@ export class ScrollerClip<TEffectGenerator extends EffectGenerator<ScrollerClip,
 /**
  * @category Transition
  */
-export type TransitionClipConfig = AnimClipConfig & {
+export interface TransitionClipConfig extends AnimClipConfig {
   removeInlineStylesOnFinish: boolean;
 }
 
@@ -391,7 +391,7 @@ export class TransitionClip<TEffectGenerator extends EffectGenerator<TransitionC
 /**
  * @category Connector Setter
  */
-export type ConnectorSetterClipConfig = AnimClipConfig & {
+export interface ConnectorSetterClipConfig extends AnimClipConfig {
   
 };
 
@@ -488,7 +488,7 @@ export class ConnectorSetterClip extends AnimClip<EffectGenerator, ConnectorSett
 /**
  * @category Connector Entrance
  */
-export type ConnectorEntranceClipConfig = AnimClipConfig & {
+export interface ConnectorEntranceClipConfig extends AnimClipConfig {
   hideNowType: 'display-none' | null;
 };
 
@@ -594,7 +594,7 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
 /**
  * @category Connector Exit
  */
-export type ConnectorExitClipConfig = AnimClipConfig & {
+export interface ConnectorExitClipConfig extends AnimClipConfig {
   
 };
 
