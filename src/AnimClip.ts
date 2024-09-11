@@ -416,7 +416,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   }
 
   // GROUP: Timing
-  private get compoundedPlaybackRate(): number { return this.getTiming().playbackRate * (this._parentSequence?.getTiming().compoundedPlaybackRate ?? 1); }
+  private get compoundedPlaybackRate(): number { return this.config.playbackRate * (this._parentSequence?.getTiming().compoundedPlaybackRate ?? 1); }
   /**
    * Returns timing-related details about the animation.
    * @returns an object containing
