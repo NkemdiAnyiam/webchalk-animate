@@ -7,7 +7,7 @@ import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "./uti
 import { EffectCategory, Keyframes, StripFrozenConfig } from "./utils/interfaces";
 import { WbfkConnector } from "./WbfkConnector";
 import { WebFlikAnimation } from "./WebFlikAnimation";
-import { PartialPick, PickFromArray } from "./utils/utilityTypes";
+import { KeyOf, PartialPick, PickFromArray } from "./utils/utilityTypes";
 
 /**
  * Spreads {@link objOrIterable} whether it is an array of keyframes
@@ -148,7 +148,7 @@ export type AnimClipConfig = KeyframeTimingOptions & CustomKeyframeEffectOptions
  * @category Interfaces
  * @interface
  */
-export type AnimClipTiming = Pick<AnimClipConfig, 
+export type AnimClipTiming = Pick<AnimClip['config'], 
   | 'startsNextClipToo'
   | 'startsWithPrevious'
   | 'duration'
@@ -243,7 +243,7 @@ export type AnimClipStatus = {
  * @groupDescription Timing Event Methods
  * Methods that involve listening to the progress of the animation clip to perform tasks at specific times.
  */
-export abstract class AnimClip<TEffectGenerator extends EffectGenerator = EffectGenerator, TClipConfig extends AnimClipConfig = AnimClipConfig> implements AnimClipConfig {
+export abstract class AnimClip<TEffectGenerator extends EffectGenerator = EffectGenerator, TClipConfig extends AnimClipConfig = AnimClipConfig> {
   private static id: number = 0;
 
   static get baseDefaultConfig() {
@@ -357,13 +357,16 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   }
 
   /**@internal*/ fullStartTime = NaN;
-  /**@internal*/ get activeStartTime() { return (this.fullStartTime + this.delay) / this.playbackRate; }
-  /**@internal*/ get activeFinishTime() { return( this.fullStartTime + this.delay + this.duration) / this.playbackRate; }
-  /**@internal*/ get fullFinishTime() { return (this.fullStartTime + this.delay + this.duration + this.endDelay) / this.playbackRate; }
+  /**@internal*/ get activeStartTime() { return (this.fullStartTime + this.getTiming('delay')) / this.getTiming('playbackRate'); }
+  /**@internal*/ get activeFinishTime() { return( this.fullStartTime + this.getTiming('delay') + this.getTiming('duration')) / this.getTiming('playbackRate'); }
+  /**@internal*/ get fullFinishTime() { return (this.fullStartTime + this.getTiming('delay') + this.getTiming('duration') + this.getTiming('endDelay')) / this.getTiming('playbackRate'); }
 
-  private getPartial<Source, T extends (keyof Source)[] = (keyof Source)[]>(propNames: (keyof Source)[] | T): PickFromArray<Source, T> {
+  protected getPartial<Source extends object, T extends (keyof Source)[] = (keyof Source)[]>(source: Source, propNames: (keyof Source)[] | T | KeyOf<Source>): PickFromArray<Source, T> | Source[keyof Source] {
+    if (typeof propNames === 'string') {
+      return source[propNames];
+    }
     return Object.fromEntries(
-      Object.entries(this)
+      Object.entries(source)
         .filter(([key, _]) => propNames.includes(key as keyof Source))
     ) as Pick<Source, keyof Source>;
   }
@@ -402,31 +405,18 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     | AnimClipEffectDetails[keyof AnimClipEffectDetails]
     | Partial<Pick<AnimClipEffectDetails, keyof AnimClipEffectDetails>>
   {
-    if (typeof specifics === 'string') {
-      return this[specifics];
-    }
-    if (specifics instanceof Array) {
-      return this.getPartial<AnimClipEffectDetails>(specifics);
-    }
-
-    return {
+    const result: AnimClipEffectDetails = {
       category: this.category,
       effectName: this.effectName,
       effectGenerator: this.effectGenerator,
-      effectOptions: this.effectOptions,
-    }
+      effectOptions: this.effectOptions
+    };
+
+    return specifics ? this.getPartial(result, specifics) : result;
   }
 
   // GROUP: Timing
-  /**@internal*/ runGeneratorsNow: boolean = false;
-  /**@internal*/ startsNextClipToo: boolean = false;
-  /**@internal*/ startsWithPrevious: boolean = false;
-  /**@internal*/ duration: number = 500;
-  /**@internal*/ delay: number = 0;
-  /**@internal*/ endDelay: number = 0;
-  /**@internal*/ easing: EasingString = 'linear';
-  /**@internal*/ playbackRate: number = 1; // actually base playback rate
-  protected get compoundedPlaybackRate(): number { return this.playbackRate * (this._parentSequence?.getTiming().compoundedPlaybackRate ?? 1); }
+  private get compoundedPlaybackRate(): number { return this.getTiming().playbackRate * (this._parentSequence?.getTiming().compoundedPlaybackRate ?? 1); }
   /**
    * Returns timing-related details about the animation.
    * @returns an object containing
@@ -461,35 +451,23 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     | AnimClipTiming[keyof AnimClipTiming]
     | Partial<Pick<AnimClipTiming, keyof AnimClipTiming>>
   {
-    if (typeof specifics === 'string') {
-      return this[specifics];
-    }
-    if (specifics instanceof Array) {
-      this.getPartial<AnimClipTiming>(specifics);
-    }
-    return {
-      startsWithPrevious: this.startsWithPrevious,
-      startsNextClipToo: this.startsNextClipToo,
-      duration: this.duration,
-      delay: this.delay,
-      endDelay: this.endDelay,
-      easing: this.easing,
-      playbackRate: this.playbackRate,
+    const config = this.config;
+    const result: AnimClipTiming = {
+      startsWithPrevious: config.startsWithPrevious,
+      startsNextClipToo: config.startsNextClipToo,
+      duration: config.duration,
+      delay: config.delay,
+      endDelay: config.endDelay,
+      easing: config.easing,
+      playbackRate: config.playbackRate,
       compoundedPlaybackRate: this.compoundedPlaybackRate,
-      runGeneratorsNow: this.runGeneratorsNow,
+      runGeneratorsNow: config.runGeneratorsNow,
     };
+
+    return specifics ? this.getPartial(result, specifics) : result;
   }
 
   // GROUP: Modifiers
-  /**@internal*/ commitsStyles: boolean = true;
-  /**@internal*/ commitStylesForcefully: boolean = false; // attempt to unhide, commit, then re-hide
-  /**@internal*/ composite: CompositeOperation = 'replace';
-  /**@internal*/ cssClasses: CssClassOptions = {
-    toAddOnStart: [],
-    toAddOnFinish: [],
-    toRemoveOnStart: [],
-    toRemoveOnFinish: [],
-  };
   /**
    * Returns details about how the DOM element is modified beyond just the effect of the animation.
    * @returns an object containing
@@ -514,34 +492,27 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**
    * @group Property Getter Methods
    */
-  getModifiers(specifics?: keyof AnimClipModifiers | (keyof AnimClipModifiers)[]):
-    | AnimClipModifiers
-    | AnimClipModifiers[keyof AnimClipModifiers]
-    | Partial<Pick<AnimClipModifiers, keyof AnimClipModifiers>>
-  {
-    if (typeof specifics === 'string') {
-      return this[specifics];
-    }
-    if (specifics instanceof Array) {
-      this.getPartial<AnimClipModifiers>(specifics);
-    }
-    return {
+  getModifiers(specifics?: keyof AnimClipModifiers | (keyof AnimClipModifiers)[]) {
+    const config = this.config;
+    const result: AnimClipModifiers = {
       cssClasses: {
-        toAddOnStart: [...(this.cssClasses.toAddOnStart ?? [])],
-        toAddOnFinish: [...(this.cssClasses.toAddOnFinish ?? [])],
-        toRemoveOnStart: [...(this.cssClasses.toRemoveOnStart ?? [])],
-        toRemoveOnFinish: [...(this.cssClasses.toRemoveOnFinish ?? [])],
+        toAddOnStart: [...(config.cssClasses.toAddOnStart ?? [])],
+        toAddOnFinish: [...(config.cssClasses.toAddOnFinish ?? [])],
+        toRemoveOnStart: [...(config.cssClasses.toRemoveOnStart ?? [])],
+        toRemoveOnFinish: [...(config.cssClasses.toRemoveOnFinish ?? [])],
       },
-      composite: this.composite,
-      commitsStyles: this.commitsStyles,
-      commitStylesForcefully: this.commitStylesForcefully,
+      composite: config.composite,
+      commitsStyles: config.commitsStyles,
+      commitStylesForcefully: config.commitStylesForcefully,
     };
+
+    return specifics ? this.getPartial(result, specifics) : result;
   }
 
   // GROUP: Status
-  /**@internal*/ inProgress = false; // true only during animate() (regardless of pause state)
-  /**@internal*/ isRunning = false; // true only when inProgress and !isPaused
-  /**@internal*/ isPaused = false;
+  protected inProgress: AnimClipStatus['inProgress'] = false; // true only during animate() (regardless of pause state)
+  protected isRunning: AnimClipStatus['isRunning'] = false; // true only when inProgress and !isPaused
+  protected isPaused: AnimClipStatus['isPaused'] = false;
   /**
    * Returns details about the animation's current status.
    * @returns an object containing
@@ -570,17 +541,13 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     | AnimClipStatus[keyof AnimClipStatus]
     | Partial<Pick<AnimClipStatus, keyof AnimClipStatus>>
   {
-    if (typeof specifics === 'string') {
-      return this[specifics];
-    }
-    if (specifics instanceof Array) {
-      this.getPartial<AnimClipStatus>(specifics);
-    }
-    return {
+    const result: AnimClipStatus = {
       inProgress: this.inProgress,
       isRunning: this.isRunning,
       isPaused: this.isPaused,
     };
+
+    return specifics ? this.getPartial(result, specifics) : result;
   }
 
   /*-:**************************************************************************************************************************/
@@ -632,7 +599,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     Object.assign(this, mergedConfig);
     this.config = mergedConfig;
     // cannot be exactly 0 because that causes some Animation-related bugs that can't be easily worked around
-    this.duration = Math.max(this.duration as number, 0.01);
+    this.config.duration = Math.max(this.getTiming('duration') as number, 0.01);
 
     // The fontFeatureSettings part handles a very strange Firefox bug that causes animations to run without any visual changes
     // when the animation is finished, setKeyframes() is called, and the animation continues after extending the runtime using
@@ -646,7 +613,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       // generateKeyframes()
       if (this.effectGenerator.generateKeyframes) {
         // if pregenerating, produce F and B frames now
-        if (this.runGeneratorsNow) {
+        if (this.getTiming('runGeneratorsNow')) {
           ({forwardFrames, backwardFrames} = call(this.effectGenerator.generateKeyframes, this, ...effectOptions));
         }
       }
@@ -655,13 +622,13 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
         const {forwardGenerator, backwardGenerator} = call(this.effectGenerator.generateKeyframeGenerators, this, ...effectOptions);
         this.keyframesGenerators = {forwardGenerator, backwardGenerator};
         // if pregenerating, produce F and B frames now
-        if (this.runGeneratorsNow) {
+        if (this.getTiming('runGeneratorsNow')) {
           [forwardFrames, backwardFrames] = [forwardGenerator(), backwardGenerator?.()];
         }
       }
       // generateRafMutators()
       else if (this.effectGenerator.generateRafMutators) {
-        if (this.runGeneratorsNow) {
+        if (this.getTiming('runGeneratorsNow')) {
           const {forwardMutator, backwardMutator} = call(this.effectGenerator.generateRafMutators, this, ...effectOptions);
           this.rafMutators = { forwardMutator, backwardMutator };
         }
@@ -670,7 +637,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       else {
         const {forwardGenerator, backwardGenerator} = call(this.effectGenerator.generateRafMutatorGenerators, this, ...effectOptions);
         this.rafMutatorGenerators = {forwardGenerator, backwardGenerator};
-        if (this.runGeneratorsNow) {
+        if (this.getTiming('runGeneratorsNow')) {
           this.rafMutators = {forwardMutator: forwardGenerator(), backwardMutator: backwardGenerator()};
         }
       }
@@ -678,13 +645,14 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     catch (err: unknown) { throw this.generateError(err as Error); }
 
     // playbackRate is not included because it is computed at the time of animating
+    const { delay, duration, endDelay, easing, composite  } = this.config;
     const keyframeOptions: KeyframeEffectOptions = {
-      delay: this.delay,
-      duration: this.duration,
-      endDelay: this.endDelay,
+      delay,
+      duration,
+      endDelay,
       fill: 'forwards',
-      easing: useEasing(this.easing),
-      composite: this.composite,
+      easing: useEasing(easing),
+      composite: composite,
     };
 
     this.animation = new WebFlikAnimation(
@@ -701,7 +669,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
           // if no backward frames were specified, assume the reverse of the forward frames
           ...(backwardFrames ? {} : {direction: 'reverse'}),
           // if backward frames were specified, easing needs to be inverted
-          ...(backwardFrames ? {easing: useEasing(this.easing, {inverted: true})} : {}),
+          ...(backwardFrames ? {easing: useEasing(easing, {inverted: true})} : {}),
           // delay & endDelay are of course swapped when we want to play in "reverse"
           delay: keyframeOptions.endDelay,
           endDelay: keyframeOptions.delay,
@@ -985,11 +953,12 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
   protected async animate(direction: 'forward' | 'backward'): Promise<this> {
     if (this.inProgress) { return this; }
+    const config = this.config;
 
     const animation = this.animation;
     animation.setDirection(direction);
     // If keyframes are generated here, clear the current frames to prevent interference with generators
-    if (!this.runGeneratorsNow && direction === 'forward') {
+    if (!config.runGeneratorsNow && direction === 'forward') {
       animation.setForwardAndBackwardFrames([{fontFeatureSettings: 'normal'}], []);
     }
     this.useCompoundedPlaybackRate();
@@ -1014,14 +983,14 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
         switch(direction) {
           case 'forward':
-            this.domElem.classList.add(...this.cssClasses.toAddOnStart);
-            this.domElem.classList.remove(...this.cssClasses.toRemoveOnStart);
+            this.domElem.classList.add(...config.cssClasses.toAddOnStart ?? []);
+            this.domElem.classList.remove(...config.cssClasses.toRemoveOnStart ?? []);
             this._onStartForward();
             
             // If keyframes were not pregenerated, generate them now
             // Keyframe generation is done here so that generations operations that rely on the side effects of class modifications and _onStartForward()...
             // ...can function properly.
-            if (!this.runGeneratorsNow) {
+            if (!config.runGeneratorsNow) {
               try {
                 // if generateKeyframes() is the method of generation, generate f-ward and b-ward frames
                 if (bankEntry.generateKeyframes) {
@@ -1056,10 +1025,10 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     
           case 'backward':
             this._onStartBackward();
-            this.domElem.classList.add(...this.cssClasses.toRemoveOnFinish);
-            this.domElem.classList.remove(...this.cssClasses.toAddOnFinish);
+            this.domElem.classList.add(...config.cssClasses.toRemoveOnFinish ?? []);
+            this.domElem.classList.remove(...config.cssClasses.toAddOnFinish ?? []);
 
-            if (!this.runGeneratorsNow) {
+            if (!config.runGeneratorsNow) {
               try {
                 if (bankEntry.generateKeyframes) {
                   // do nothing (backward keyframes would have already been set during forward direction)
@@ -1095,7 +1064,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     animation.onActiveFinish = () => {
       // CHANGE NOTE: Move hidden class stuff here
       try {
-        if (this.commitsStyles || this.commitStylesForcefully) {
+        if (config.commitsStyles || config.commitStylesForcefully) {
           // Attempt to apply the styles to the element.
           try {
             animation.commitStyles();
@@ -1105,7 +1074,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
           // If commitStyles() fails, it's because the element is not rendered.
           catch (_) {
             // If forced commit is disabled, do not re-attempt to commit the styles; throw error instead.
-            if (!this.commitStylesForcefully) {
+            if (!config.commitStylesForcefully) {
               throw this.generateError(CustomErrors.CommitStylesError,
                 `Cannot commit animation styles while element is not rendered.` +
                 ` To temporarily (instantly) override the hidden state, set the 'commitStylesForcefully' config option to true` +
@@ -1144,14 +1113,14 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   
         switch(direction) {
           case 'forward':
-            this.domElem.classList.add(...this.cssClasses.toAddOnFinish);
-            this.domElem.classList.remove(...this.cssClasses.toRemoveOnFinish);
+            this.domElem.classList.add(...config.cssClasses.toAddOnFinish ?? []);
+            this.domElem.classList.remove(...config.cssClasses.toRemoveOnFinish ?? []);
             this._onFinishForward();
             break;
           case 'backward':
             this._onFinishBackward();
-            this.domElem.classList.add(...this.cssClasses.toRemoveOnStart);
-            this.domElem.classList.remove(...this.cssClasses.toAddOnStart);
+            this.domElem.classList.add(...config.cssClasses.toRemoveOnStart ?? []);
+            this.domElem.classList.remove(...config.cssClasses.toAddOnStart ?? []);
             break;
         }
       }

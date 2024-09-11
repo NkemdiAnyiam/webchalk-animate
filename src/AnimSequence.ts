@@ -702,7 +702,7 @@ export class AnimSequence implements AnimSequenceConfig {
     for (let i = 0; i < numClips; ++i) {
       const currAnimClip = animClips[i];
       const prevClip = animClips[i-1];
-      const startsWithPrev = currAnimClip.startsWithPrevious || prevClip?.startsNextClipToo;
+      const startsWithPrev = currAnimClip.getTiming('startsWithPrevious') || prevClip?.getTiming('startsNextClipToo');
       let currStartTime: number;
 
       if (startsWithPrev || i === 0) {

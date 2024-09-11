@@ -14,6 +14,7 @@ export type PrePostfixProps<T extends {}, Pre extends string, Post extends strin
  */
 export type StripDuplicateMethodAutocompletion<T> = { [K in keyof T]: T[K] extends Function ? T[K] & Function : T[K] }
 
+export type KeyOf<T extends object> = Extract<keyof T, string>;
 export type KeysOf<T extends object> = (Extract<keyof T, string>)[];
 export type ReadonlyPick<T, K extends keyof T> = Readonly<Pick<T, K>>;
 export type ReadonlyRecord<K extends keyof any, T> = Readonly<Record<K, T>>;
