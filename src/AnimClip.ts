@@ -346,7 +346,12 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * @group Property Getter Methods
    * @group Configuration
    */
-  getConfig() { return this.config; }
+  getConfig(): TClipConfig {
+    return {
+      ...this.config,
+      cssClasses: this.getModifiers('cssClasses'),
+    };
+  }
 
   /*-:**************************************************************************************************************************/
   /*-:*************************************        FIELDS & ACCESSORS        ***************************************************/

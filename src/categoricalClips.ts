@@ -63,7 +63,7 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
    * @inheritdoc *
    */
   getConfig(): EntranceClipConfig {
-    return this.config;
+    return super.getConfig();
   }
 
   /**
@@ -223,7 +223,7 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
    * @inheritdoc *
    */
   getConfig() {
-    return this.config;
+    return super.getConfig();
   }
 
   /**
@@ -340,7 +340,7 @@ export class EmphasisClip<TEffectGenerator extends EffectGenerator<EmphasisClip,
   }
 
   getConfig() {
-    return this.config;
+    return super.getConfig();
   }
 }
 
@@ -375,7 +375,7 @@ export class MotionClip<TEffectGenerator extends EffectGenerator<MotionClip, Mot
   }
 
   getConfig() {
-    return this.config;
+    return super.getConfig();
   }
 }
 
@@ -410,7 +410,7 @@ export class ScrollerClip<TEffectGenerator extends EffectGenerator<ScrollerClip,
   }
 
   getConfig() {
-    return this.config;
+    return super.getConfig();
   }
 }
 
@@ -462,7 +462,7 @@ export class TransitionClip<TEffectGenerator extends EffectGenerator<TransitionC
    * @inheritdoc *
    */
   getConfig() {
-    return this.config;
+    return super.getConfig();
   }
 
   /**
@@ -557,7 +557,7 @@ export class ConnectorSetterClip extends AnimClip<EffectGenerator, ConnectorSett
   }
 
   getConfig() {
-    return this.config;
+    return super.getConfig();
   }
   
   constructor(
@@ -654,7 +654,7 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
    * @inheritdoc *
    */
   getConfig() {
-    return this.config;
+    return super.getConfig();
   }
 
   /**
@@ -787,7 +787,7 @@ export class ConnectorExitClip<TEffectGenerator extends EffectGenerator<Connecto
   }
 
   getConfig() {
-    return this.config;
+    return super.getConfig();
   }
 
   constructor(connectorElem: WbfkConnector | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
