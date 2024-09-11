@@ -241,10 +241,27 @@ export type AnimClipStatus = {
  * 
  * @groupDescription Timing Event Methods
  * Methods that involve listening to the progress of the animation clip to perform tasks at specific times.
+ * 
+ * @groupDescription Structure
+ * Methods and/or fields related to the stucture of the clip, including the element it targets
+ * and any parent structures it belongs to.
+ * 
+ * @groupDescription Configuration
+ * Methods and/or fields related to the configuration settings of the clip,
+ * including configuration settings specific to the effect category of the clip.
+ * 
+ * @groupDescription Helper Methods
+ * Methods to help with the functionality of clip operations.
  */
 export abstract class AnimClip<TEffectGenerator extends EffectGenerator = EffectGenerator, TClipConfig extends AnimClipConfig = AnimClipConfig> {
   private static id: number = 0;
 
+  /**
+   * The base default configuration for any animation clip before any cateogory-specific
+   * configuration, effect generator configuration, or configuration passed in through
+   * clip factory functions are applied.
+   * @group Configuration
+   */
   static get baseDefaultConfig() {
     return {
       commitsStyles: true,
@@ -270,18 +287,48 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * @returns an effect generator with a function that returns empty arrays (so no actual keyframes).
    * @remarks
    * This static method is purely for convenience.
+   * @group Helper Methods
    */
   public static createNoOpEffectGenerator() { return {generateKeyframes() { return {forwardFrames: [], backwardFrames: []}; }} as EffectGenerator; }
 
+  /**
+   * The default configuration for clips in a specific effect category, which includes
+   * any additional configuration options that are specific to the effect category.
+   * - This never changes, and it available mostly just for reference. Consider it a
+   * static property.
+   * - This does NOT include any default configuration from effect generators or
+   * configurations passed in from clip factory functions.
+   * @group Configuration
+   */
   abstract get categoryDefaultConfig(): TClipConfig;
+
+  /**
+   * The unchangeable default configuration for clips in a specific effect category.
+   * - This never changes, and it is available mostly just for reference. Consider it a static
+   * property.
+   * - This does NOT include any immutable configuration from effect generators.
+   * @group Configuration
+   */
   abstract get categoryImmutableConfig(): Partial<TClipConfig>;
+
+  /**
+   * All the unchangeable default configuration settings for the clip (both category-specific
+   * immutable configurations and immutable configurations that come from the specific
+   * effect generator).
+   * @group Configuration
+   */
   get immutableConfig(): this['categoryImmutableConfig'] & TEffectGenerator['immutableConfig'] {
     return {
       ...this.effectGenerator.immutableConfig,
       ...this.categoryImmutableConfig,
     };
   }
+
+  /**
+   * @group Configuration
+   */
   protected config = {} as TClipConfig;
+
   /**
    * Returns an object containing the configuration options used to define both the timing and effects of the animation clip.
    * @returns an object containing
@@ -296,6 +343,8 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * - {@link AnimClipConfig.runGeneratorsNow|runGeneratorsNow},
    * - {@link AnimClipConfig.startsWithPrevious|startsWithPrevious},
    * - {@link AnimClipConfig.startsNextClipToo|startsNextClipToo},
+   * @group Property Getter Methods
+   * @group Configuration
    */
   getConfig() { return this.config; }
 
@@ -312,10 +361,12 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**
    * The parent {@link AnimSequence} that contains this clip
    * (`undefined` if the clip is not part of a sequence).
+   * @group Structure
    */
   get parentSequence() { return this._parentSequence; }
   /**
    * The parent {@link AnimTimeline} that contains the {@link AnimSequence} that contains this clip (may be `undefined`).
+   * @group Structure
    */
   get parentTimeline() { return this._parentTimeline; }
   /**
@@ -323,40 +374,22 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * - If the clip is nested within an {@link AnimTimeline}: that timeline,
    * - Else, if the clip is within an {@link AnimSequence}: that sequence,
    * - Else: the clip itself
+   * @group Structure
    */
   get root(): AnimTimeline | AnimSequence | AnimClip { return this.parentTimeline ?? this.parentSequence ?? this; }
   /**
    * The DOM element that is to be animated.
-  */
+   * @group Structure
+   */
  readonly domElem: Element;
 
  protected animation: WebFlikAnimation = {} as WebFlikAnimation;
-  /**@internal*/
-  keyframesGenerators?: {
-    forwardGenerator: () => Keyframes;
-    backwardGenerator?: () => Keyframes;
-  };
-  /**@internal*/
-  rafMutators?: {
-    forwardMutator: () => void;
-    backwardMutator: () => void;
-  };
-  /**@internal*/
-  rafMutatorGenerators?: {
-    forwardGenerator: () => () => void;
-    backwardGenerator: () => () => void;
-  }
   /**@internal*/
   get rafLoopsProgress(): number {
     const { progress, direction } = this.animation.effect!.getComputedTiming();
     // ?? 1 because during the active phase (the only time when raf runs), null progress means finished
     return direction === 'normal' ? (progress ?? 1) : 1 - (progress ?? 1);
   }
-
-  /**@internal*/ fullStartTime = NaN;
-  /**@internal*/ get activeStartTime() { return (this.fullStartTime + this.getTiming('delay')) / this.getTiming('playbackRate'); }
-  /**@internal*/ get activeFinishTime() { return( this.fullStartTime + this.getTiming('delay') + this.getTiming('duration')) / this.getTiming('playbackRate'); }
-  /**@internal*/ get fullFinishTime() { return (this.fullStartTime + this.getTiming('delay') + this.getTiming('duration') + this.getTiming('endDelay')) / this.getTiming('playbackRate'); }
 
   protected getPartial<Source extends object, T extends (keyof Source)[] = (keyof Source)[]>(source: Source, propNames: (keyof Source)[] | T | KeyOf<Source>): PickFromArray<Source, T> | Source[keyof Source] {
     if (typeof propNames === 'string') {
@@ -373,6 +406,23 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   protected effectName: string;
   protected effectGenerator: TEffectGenerator;
   protected effectOptions: EffectOptions<TEffectGenerator> = {} as EffectOptions<TEffectGenerator>;
+  
+  /**@internal*/
+  keyframesGenerators?: {
+    forwardGenerator: () => Keyframes;
+    backwardGenerator?: () => Keyframes;
+  };
+  /**@internal*/
+  rafMutators?: {
+    forwardMutator: () => void;
+    backwardMutator: () => void;
+  };
+  /**@internal*/
+  rafMutatorGenerators?: {
+    forwardGenerator: () => () => void;
+    backwardGenerator: () => () => void;
+  }
+
   /**
    * Returns specific details about the animation's effect.
    * @returns an object containing
@@ -414,6 +464,12 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
   // GROUP: Timing
   private get compoundedPlaybackRate(): number { return this.config.playbackRate * (this._parentSequence?.getTiming().compoundedPlaybackRate ?? 1); }
+  
+  /**@internal*/ fullStartTime = NaN;
+  /**@internal*/ get activeStartTime() { return (this.fullStartTime + this.getTiming('delay')) / this.getTiming('playbackRate'); }
+  /**@internal*/ get activeFinishTime() { return( this.fullStartTime + this.getTiming('delay') + this.getTiming('duration')) / this.getTiming('playbackRate'); }
+  /**@internal*/ get fullFinishTime() { return (this.fullStartTime + this.getTiming('delay') + this.getTiming('duration') + this.getTiming('endDelay')) / this.getTiming('playbackRate'); }
+
   /**
    * Returns timing-related details about the animation.
    * @returns an object containing
@@ -1195,6 +1251,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     // return the value 25% of the way between 360 and 0 (= 270).
     // Therefore, at 0.5 seconds of rewinding, someElement's rotation is set to "270deg".
    * ```
+    @group Helper Methods
    */
   computeTween(initialVal: number, finalVal: number): number {
     return initialVal + (finalVal - initialVal) * this.rafLoopsProgress;

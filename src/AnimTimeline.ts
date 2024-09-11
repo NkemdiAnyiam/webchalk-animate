@@ -145,7 +145,7 @@ type PlaybackButtonPurpose = `Step ${'Forward' | 'Backward'}` | 'Pause' | 'Fast 
  * @groupDescription Playback UI Methods
  * Methods that control the connection between the timeline and HTML buttons.
  * 
- * @groupDescription Structure Methods
+ * @groupDescription Structure
  * Methods that relate to building the timeline or locating sequences within it.
  */
 export class AnimTimeline {
@@ -475,13 +475,13 @@ export class AnimTimeline {
   }
 
   /*-:**************************************************************************************************************************/
-  /*-:*************************************        STRUCTURE METHODS        ****************************************************/
+  /*-:*************************************        Structure        ****************************************************/
   /*-:**************************************************************************************************************************/
   /**
    * Adds one or more {@link AnimSequence} objects to the end of the timeline.
    * @param animSequences - comma-separated list of animation sequences
    * @returns 
-   * @group Structure Methods
+   * @group Structure
    */
   addSequences(...animSequences: AnimSequence[]): this {
     for(const animSequence of animSequences) {
@@ -500,7 +500,7 @@ export class AnimTimeline {
    * Finds the index of a given {@link AnimSequence} object within the timeline
    * @param animSequence - the animation sequence to search for within the timeline
    * @returns the index of {@link animSequence} within the timeline or `-1` if the sequence is not part of the timeline.
-   * @group Structure Methods
+   * @group Structure
    */
   findSequenceIndex(animSequence: AnimSequence): number {
     return this.animSequences.findIndex((_animSequence) => _animSequence === animSequence);
