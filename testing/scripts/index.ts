@@ -35,6 +35,9 @@ const ent = Entrance(square, '~appear', []);
 
 const entrance = Entrance(square, '~fly-in', ['from-bottom'], {duration: 1000, hideNowType: 'display-none'});
 const motion = Motion(square, '~translate', [{translate: '200px, 200px'}], {duration: 1000, easing: 'bounce-out'});
+console.log(entrance.getModifiers());
+console.log(entrance.getModifiers('hideNowType'));
+console.log(entrance.getModifiers(['cssClasses', 'composite']));
 
 entrance.getTiming()
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));

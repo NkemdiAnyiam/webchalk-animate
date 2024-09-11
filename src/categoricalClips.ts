@@ -1,11 +1,13 @@
-import { AnimClip, AnimClipConfig } from "./AnimClip";
+import { AnimClip, AnimClipConfig, AnimClipModifiers } from "./AnimClip";
 import { EffectOptions, EffectGenerator, EffectGeneratorBank } from "./WebFlik";
 import { CustomErrors, errorTip } from "./utils/errors";
 import { parseMultiUnitPlacement } from "./utils/helpers";
-import { ParsedMultiUnitPlacement, MultiUnitPlacementX, MultiUnitPlacementY, StripFrozenConfig } from "./utils/interfaces";
+import { ParsedMultiUnitPlacement, MultiUnitPlacementX, MultiUnitPlacementY } from "./utils/interfaces";
 import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
+import { PickFromArray } from "./utils/utilityTypes";
 
 // type PartialOmit<T, U> = Partial<Omit<T, keyof U>>;
+/** @ignore */
 export type Layer3MutableClipConfig<TClipClass extends AnimClip> = Omit<ReturnType<TClipClass['getConfig']>, keyof TClipClass['categoryImmutableConfig']>;
 type Layer4MutableConfig<TClipClass extends AnimClip, TEffectGenerator extends EffectGenerator> = Omit<Layer3MutableClipConfig<TClipClass>, keyof TEffectGenerator['immutableConfig']>;
 
@@ -18,6 +20,11 @@ type Layer4MutableConfig<TClipClass extends AnimClip, TEffectGenerator extends E
 export interface EntranceClipConfig extends AnimClipConfig {
   hideNowType: 'display-none' | 'visibility-hidden' | null;
 }
+
+/**
+ * @category Entrance
+ */
+export interface EntranceClipModifiers extends AnimClipModifiers, Pick<EntranceClipConfig, 'hideNowType'> {}
 
 /**
  * @category Entrance
@@ -49,6 +56,41 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
    */
   getConfig(): EntranceClipConfig {
     return this.config;
+  }
+
+  /**
+   * Returns details about how the DOM element is modified beyond just the effect of the animation.
+   * @returns an object containing
+   * - {@link AnimClipModifiers.cssClasses|cssClasses},
+   * - {@link AnimClipModifiers.commitsStyles|commitsStyles},
+   * - {@link AnimClipModifiers.commitStylesForcefully|commitStylesForcefully},
+   * - {@link AnimClipModifiers.composite|composite},
+   * - {@link EntranceClipModifiers.hideNowType|hideNowType},
+   */
+  getModifiers(): EntranceClipModifiers;
+  /**
+   * Returns the value of a single specific property.
+   * @param propName - name of the desired property
+   * @ignore
+   */
+  getModifiers<T extends keyof EntranceClipModifiers>(propName: T): EntranceClipModifiers[T];
+  /**
+   * Returns an object containing a subset of the object that would normally be returned.
+   * @param propNames - array of strings specifying which properties should be included.
+   * @ignore
+   */
+  getModifiers<T extends (keyof EntranceClipModifiers)[]>(propNames: (keyof EntranceClipModifiers)[] | T): PickFromArray<EntranceClipModifiers, T>;
+  /**
+   * @group Property Getter Methods
+   */
+  getModifiers(specifics?: keyof EntranceClipModifiers | (keyof EntranceClipModifiers)[]) {
+    const config = this.config;
+    const result: EntranceClipModifiers = {
+      ...super.getModifiers(),
+      hideNowType: config.hideNowType,
+    };
+    
+    return specifics ? this.getPartial(result, specifics) : result;
   }
 
   constructor(domElem: Element | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
@@ -137,6 +179,11 @@ export interface ExitClipConfig extends AnimClipConfig {
 
 /**
  * @category Exit
+ */
+interface ExitClipModifiers extends AnimClipModifiers, Pick<ExitClipConfig, 'exitType'> {}
+
+/**
+ * @category Exit
  * @hideconstructor
  */
 export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator, ExitClipConfig> {
@@ -165,6 +212,41 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
    */
   getConfig() {
     return this.config;
+  }
+
+  /**
+   * Returns details about how the DOM element is modified beyond just the effect of the animation.
+   * @returns an object containing
+   * - {@link AnimClipModifiers.cssClasses|cssClasses},
+   * - {@link AnimClipModifiers.commitsStyles|commitsStyles},
+   * - {@link AnimClipModifiers.commitStylesForcefully|commitStylesForcefully},
+   * - {@link AnimClipModifiers.composite|composite},
+   * - {@link ExitClipModifiers.exitType|exitType},
+   */
+  getModifiers(): ExitClipModifiers;
+  /**
+   * Returns the value of a single specific property.
+   * @param propName - name of the desired property
+   * @ignore
+   */
+  getModifiers<T extends keyof ExitClipModifiers>(propName: T): ExitClipModifiers[T];
+  /**
+   * Returns an object containing a subset of the object that would normally be returned.
+   * @param propNames - array of strings specifying which properties should be included.
+   * @ignore
+   */
+  getModifiers<T extends (keyof ExitClipModifiers)[]>(propNames: (keyof ExitClipModifiers)[] | T): PickFromArray<ExitClipModifiers, T>;
+  /**
+   * @group Property Getter Methods
+   */
+  getModifiers(specifics?: keyof ExitClipModifiers | (keyof ExitClipModifiers)[]) {
+    const config = this.config;
+    const result: ExitClipModifiers = {
+      ...super.getModifiers(),
+      exitType: config.exitType,
+    };
+    
+    return specifics ? this.getPartial(result, specifics) : result;
   }
 
   constructor(domElem: Element | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
@@ -333,6 +415,11 @@ export interface TransitionClipConfig extends AnimClipConfig {
 
 /**
  * @category Transition
+ */
+export interface TransitionClipModifiers extends AnimClipModifiers, Pick<TransitionClipConfig, 'removeInlineStylesOnFinish'> {}
+
+/**
+ * @category Transition
  * @hideconstructor
  */
 export class TransitionClip<TEffectGenerator extends EffectGenerator<TransitionClip, TransitionClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator, TransitionClipConfig> {
@@ -361,6 +448,41 @@ export class TransitionClip<TEffectGenerator extends EffectGenerator<TransitionC
    */
   getConfig() {
     return this.config;
+  }
+
+  /**
+   * Returns details about how the DOM element is modified beyond just the effect of the animation.
+   * @returns an object containing
+   * - {@link AnimClipModifiers.cssClasses|cssClasses},
+   * - {@link AnimClipModifiers.commitsStyles|commitsStyles},
+   * - {@link AnimClipModifiers.commitStylesForcefully|commitStylesForcefully},
+   * - {@link AnimClipModifiers.composite|composite},
+   * - {@link TransitionClipModifiers.removeInlineStylesOnFinish|removeInlineStylesOnFinish},
+   */
+  getModifiers(): TransitionClipModifiers;
+  /**
+   * Returns the value of a single specific property.
+   * @param propName - name of the desired property
+   * @ignore
+   */
+  getModifiers<T extends keyof TransitionClipModifiers>(propName: T): TransitionClipModifiers[T];
+  /**
+   * Returns an object containing a subset of the object that would normally be returned.
+   * @param propNames - array of strings specifying which properties should be included.
+   * @ignore
+   */
+  getModifiers<T extends (keyof TransitionClipModifiers)[]>(propNames: (keyof TransitionClipModifiers)[] | T): PickFromArray<TransitionClipModifiers, T>;
+  /**
+   * @group Property Getter Methods
+   */
+  getModifiers(specifics?: keyof TransitionClipModifiers | (keyof TransitionClipModifiers)[]) {
+    const config = this.config;
+    const result: TransitionClipModifiers = {
+      ...super.getModifiers(),
+      removeInlineStylesOnFinish: config.removeInlineStylesOnFinish,
+    };
+    
+    return specifics ? this.getPartial(result, specifics) : result;
   }
 
   /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<Layer4MutableConfig<TransitionClip, TEffectGenerator>> = {}) {
@@ -488,6 +610,11 @@ export interface ConnectorEntranceClipConfig extends AnimClipConfig {
 
 /**
  * @category Connector Entrance
+ */
+export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<ConnectorEntranceClipConfig, 'hideNowType'> {}
+
+/**
+ * @category Connector Entrance
  * @hideconstructor
  */
 export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<ConnectorEntranceClip, ConnectorEntranceClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator, ConnectorEntranceClipConfig> {
@@ -516,6 +643,41 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
    */
   getConfig() {
     return this.config;
+  }
+
+  /**
+   * Returns details about how the DOM element is modified beyond just the effect of the animation.
+   * @returns an object containing
+   * - {@link AnimClipModifiers.cssClasses|cssClasses},
+   * - {@link AnimClipModifiers.commitsStyles|commitsStyles},
+   * - {@link AnimClipModifiers.commitStylesForcefully|commitStylesForcefully},
+   * - {@link AnimClipModifiers.composite|composite},
+   * - {@link ConnectorEntranceClipModifiers.hideNowType|hideNowType},
+   */
+  getModifiers(): ConnectorEntranceClipModifiers;
+  /**
+   * Returns the value of a single specific property.
+   * @param propName - name of the desired property
+   * @ignore
+   */
+  getModifiers<T extends keyof ConnectorEntranceClipModifiers>(propName: T): ConnectorEntranceClipModifiers[T];
+  /**
+   * Returns an object containing a subset of the object that would normally be returned.
+   * @param propNames - array of strings specifying which properties should be included.
+   * @ignore
+   */
+  getModifiers<T extends (keyof ConnectorEntranceClipModifiers)[]>(propNames: (keyof ConnectorEntranceClipModifiers)[] | T): PickFromArray<ConnectorEntranceClipModifiers, T>;
+  /**
+   * @group Property Getter Methods
+   */
+  getModifiers(specifics?: keyof ConnectorEntranceClipModifiers | (keyof ConnectorEntranceClipModifiers)[]) {
+    const config = this.config;
+    const result: ConnectorEntranceClipModifiers = {
+      ...super.getModifiers(),
+      hideNowType: config.hideNowType,
+    };
+    
+    return specifics ? this.getPartial(result, specifics) : result;
   }
 
   constructor(connectorElem: WbfkConnector | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {

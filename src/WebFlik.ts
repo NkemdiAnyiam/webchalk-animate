@@ -314,4 +314,4 @@ export const webflik = new WebFlik();
 //       }
 //     }
 //   }
-// }).Entrance(new HTMLElement(), '~appear', [], {});
+// }).Entrance(new HTMLElement(), '~appear', [], {}).getModifiers();
