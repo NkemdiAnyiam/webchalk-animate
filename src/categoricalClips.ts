@@ -1,7 +1,7 @@
 import { AnimClip, AnimClipConfig, AnimClipModifiers } from "./AnimClip";
 import { EffectOptions, EffectGenerator, EffectGeneratorBank } from "./WebFlik";
 import { CustomErrors, errorTip } from "./utils/errors";
-import { parseMultiUnitPlacement } from "./utils/helpers";
+import { getPartial, parseMultiUnitPlacement } from "./utils/helpers";
 import { ParsedMultiUnitPlacement, MultiUnitPlacementX, MultiUnitPlacementY } from "./utils/interfaces";
 import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
 import { PickFromArray } from "./utils/utilityTypes";
@@ -97,7 +97,7 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
       hideNowType: config.hideNowType,
     };
     
-    return specifics ? this.getPartial(result, specifics) : result;
+    return specifics ? getPartial(result, specifics) : result;
   }
 
   constructor(domElem: Element | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
@@ -257,7 +257,7 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
       exitType: config.exitType,
     };
     
-    return specifics ? this.getPartial(result, specifics) : result;
+    return specifics ? getPartial(result, specifics) : result;
   }
 
   constructor(domElem: Element | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
@@ -496,7 +496,7 @@ export class TransitionClip<TEffectGenerator extends EffectGenerator<TransitionC
       removeInlineStylesOnFinish: config.removeInlineStylesOnFinish,
     };
     
-    return specifics ? this.getPartial(result, specifics) : result;
+    return specifics ? getPartial(result, specifics) : result;
   }
 
   /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<Layer4MutableConfig<TransitionClip, TEffectGenerator>> = {}) {
@@ -688,7 +688,7 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
       hideNowType: config.hideNowType,
     };
     
-    return specifics ? this.getPartial(result, specifics) : result;
+    return specifics ? getPartial(result, specifics) : result;
   }
 
   constructor(connectorElem: WbfkConnector | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {

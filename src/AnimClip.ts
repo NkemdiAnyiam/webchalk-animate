@@ -1,7 +1,7 @@
 import { AnimSequence } from "./AnimSequence";
 import { AnimTimeline } from "./AnimTimeline";
 import { EffectOptions, EffectGeneratorBank, EffectGenerator } from "./WebFlik";
-import { call, mergeArrays } from "./utils/helpers";
+import { call, getPartial, mergeArrays } from "./utils/helpers";
 import { EasingString, useEasing } from "./utils/easing";
 import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "./utils/errors";
 import { EffectCategory, Keyframes, StripFrozenConfig } from "./utils/interfaces";
@@ -391,16 +391,6 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     return direction === 'normal' ? (progress ?? 1) : 1 - (progress ?? 1);
   }
 
-  protected getPartial<Source extends object, T extends (keyof Source)[] = (keyof Source)[]>(source: Source, propNames: (keyof Source)[] | T | KeyOf<Source>): PickFromArray<Source, T> | Source[keyof Source] {
-    if (typeof propNames === 'string') {
-      return source[propNames];
-    }
-    return Object.fromEntries(
-      Object.entries(source)
-        .filter(([key, _]) => propNames.includes(key as keyof Source))
-    ) as Pick<Source, keyof Source>;
-  }
-
   // GROUP: Effect Details
   protected abstract get category(): EffectCategory;
   protected effectName: string;
@@ -459,7 +449,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       effectOptions: this.effectOptions
     };
 
-    return specifics ? this.getPartial(result, specifics) : result;
+    return specifics ? getPartial(result, specifics) : result;
   }
 
   // GROUP: Timing
@@ -517,7 +507,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       runGeneratorsNow: config.runGeneratorsNow,
     };
 
-    return specifics ? this.getPartial(result, specifics) : result;
+    return specifics ? getPartial(result, specifics) : result;
   }
 
   // GROUP: Modifiers
@@ -557,7 +547,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       commitsStyles: config.commitsStyles,
     };
 
-    return specifics ? this.getPartial(result, specifics) : result;
+    return specifics ? getPartial(result, specifics) : result;
   }
 
   // GROUP: Status
@@ -598,7 +588,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       isPaused: this.isPaused,
     };
 
-    return specifics ? this.getPartial(result, specifics) : result;
+    return specifics ? getPartial(result, specifics) : result;
   }
 
   /*-:**************************************************************************************************************************/

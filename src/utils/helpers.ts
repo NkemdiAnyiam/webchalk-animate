@@ -1,4 +1,5 @@
 import { CssLength, CssXAlignment, CssYAlignment, ScrollingOptions, ParsedMultiUnitPlacement, MultiUnitPlacementX, MultiUnitPlacementY } from "./interfaces";
+import { KeyOf, PickFromArray } from "./utilityTypes";
 
 export const equalWithinTol = (numA: number, numB: number): boolean => Math.abs(numA - numB) < 0.001;
 export const mergeArrays = <T>(...arrays: (Array<T> | undefined)[]): Array<T> => Array.from(new Set(new Array<T>().concat(...arrays.filter(arr => arr !== undefined))));
@@ -208,4 +209,22 @@ export function call<TFunction extends ([...args]: unknown[]) => unknown>(
   ...args: Parameters<TFunction>
 ): ReturnType<TFunction> {
   return callableFunction.call(thisArg, ...args) as ReturnType<TFunction>;
+}
+
+/**
+ * Returns either an object containing a subset of properties of the specified source object
+ * or the value of a singluar property of the source object.
+ * @param source - the object whose properties should be targeted
+ * @param props - a singular property name or an array of property names
+ * @returns a singular value if {@link props} is a string or an object containing a subset of properties if
+ * {@link props} is an array of strings.
+ */
+export function getPartial<Source extends object, T extends (keyof Source)[] = (keyof Source)[]>(source: Source, props: (keyof Source)[] | T | KeyOf<Source>): PickFromArray<Source, T> | Source[keyof Source] {
+  if (typeof props === 'string') {
+    return source[props];
+  }
+  return Object.fromEntries(
+    Object.entries(source)
+      .filter(([key, _]) => props.includes(key as keyof Source))
+  ) as Pick<Source, keyof Source>;
 }
