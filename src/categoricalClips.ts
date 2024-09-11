@@ -18,6 +18,14 @@ type Layer4MutableConfig<TClipClass extends AnimClip, TEffectGenerator extends E
  * @category Entrance
  */
 export interface EntranceClipConfig extends AnimClipConfig {
+  /**
+   * Determines whether/how the element should be hidden as soon as the clip is instantiated
+   * (i.e., right when Entrance() is called). This can be convenient because it ensures that the
+   * element will be hidden before the entrance clip is played.
+   * - if `null`, the clip does not attempt to hide the element upon instantiation
+   * - if `'display-none'`, the element is hidden by setting the CSS `display` to `none`
+   * - if `'visibility-hidden'`, the element is hidden by setting the CSS `visibility` to `hidden`
+   */
   hideNowType: 'display-none' | 'visibility-hidden' | null;
 }
 
