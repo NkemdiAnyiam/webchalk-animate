@@ -61,18 +61,17 @@ type CustomKeyframeEffectOptions = {
   startsWithPrevious: boolean;
 
   /**
-   * If `true`, the effects of the animation will persist after the clip finishes.
-   * - If the element is not rendered by the time the clip finishes, an error will be thrown.
+   * Determines whether the effects of the animation will persist after the clip finishes.
+   * - if `false`, the effects of the animation will not persist after the clip finishes.
+   * - if `true`, the effects will attempt to be committed, but if the element is not rendered by the
+   * time the clip finishes, an error will be thrown because styles cannot be committed to unrendered
+   * elements.
+   * - if `'forcefully'`, the effects will attempt to be committed, and if the element is not rendered by the
+   * time the clip finishes, we attempt to forcefully unhide the element, apply the styles, then re-hide it instantaneously.
+   * - - If this fails (likely because the element's parent is not rendered, meaning the element cannot be
+   * unhidden unless the parent is unhidden), an error will be thrown.
    */
-  commitsStyles: boolean;
-
-  /**
-   * If `true`, the effects of the animation will persist after the clip finishes.
-   * If the element is not rendered by the time the clip finishes, we attempt to forcefully unhide the element,
-   * apply the styles, then re-hide it.
-   * - If this fails (likely because the element's parent is not rendered, meaning our element cannot be unhidden), an error will be thrown.
-   */
-  commitStylesForcefully: boolean; // attempt to unhide, commit, then re-hide
+  commitsStyles: false | true | 'forcefully';
 
   /**
    * Resolves how an element's animation impacts the element's underlying property values.
@@ -204,7 +203,7 @@ export type AnimClipEffectDetails = {
  * @category Interfaces
  * @interface
  */
-export type AnimClipModifiers = Pick<AnimClipConfig, 'cssClasses' | 'composite' | 'commitsStyles' | 'commitStylesForcefully'>;
+export type AnimClipModifiers = Pick<AnimClipConfig, 'cssClasses' | 'composite' | 'commitsStyles'>;
 
 // TYPE
 /**
@@ -249,7 +248,6 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   static get baseDefaultConfig() {
     return {
       commitsStyles: true,
-      commitStylesForcefully: false,
       composite: 'replace',
       cssClasses: {
         toAddOnFinish: [],
@@ -288,7 +286,6 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * Returns an object containing the configuration options used to define both the timing and effects of the animation clip.
    * @returns an object containing
    * - {@link AnimClipConfig.commitsStyles|commitsStyles},
-   * - {@link AnimClipConfig.commitStylesForcefully|commitStylesForcefully},
    * - {@link AnimClipConfig.composite|composite},
    * - {@link AnimClipConfig.cssClasses|cssClasses},
    * - {@link AnimClipConfig.delay|delay},
@@ -473,7 +470,6 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * @returns an object containing
    * - {@link AnimClipModifiers.cssClasses|cssClasses},
    * - {@link AnimClipModifiers.commitsStyles|commitsStyles},
-   * - {@link AnimClipModifiers.commitStylesForcefully|commitStylesForcefully},
    * - {@link AnimClipModifiers.composite|composite},
    */
   getModifiers(): AnimClipModifiers;
@@ -503,7 +499,6 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       },
       composite: config.composite,
       commitsStyles: config.commitsStyles,
-      commitStylesForcefully: config.commitStylesForcefully,
     };
 
     return specifics ? this.getPartial(result, specifics) : result;
@@ -1064,7 +1059,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     animation.onActiveFinish = () => {
       // CHANGE NOTE: Move hidden class stuff here
       try {
-        if (config.commitsStyles || config.commitStylesForcefully) {
+        if (config.commitsStyles) {
           // Attempt to apply the styles to the element.
           try {
             animation.commitStyles();
@@ -1073,11 +1068,11 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
           }
           // If commitStyles() fails, it's because the element is not rendered.
           catch (_) {
-            // If forced commit is disabled, do not re-attempt to commit the styles; throw error instead.
-            if (!config.commitStylesForcefully) {
+            // If forced commit is disabled, do not re-attempt to commit the styles. Throw error instead.
+            if (config.commitsStyles !== 'forcefully') {
               throw this.generateError(CustomErrors.CommitStylesError,
                 `Cannot commit animation styles while element is not rendered.` +
-                ` To temporarily (instantly) override the hidden state, set the 'commitStylesForcefully' config option to true` +
+                ` To temporarily (instantly) override the hidden state, set the 'commitsStyles' config option to 'forcefully'` +
                 ` (however, if the element's ancestor is unrendered, this will still fail).` +
                 `${errorTip(
                   `Tip: Entrance() has a convenient config option called 'hideNowType', which is null by default.` +

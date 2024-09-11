@@ -46,7 +46,6 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
   get categoryImmutableConfig() {
     return {
       commitsStyles: false,
-      commitStylesForcefully: false,
     } satisfies Partial<EntranceClipConfig>;
   }
 
@@ -72,7 +71,6 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
    * @returns an object containing
    * - {@link AnimClipModifiers.cssClasses|cssClasses},
    * - {@link AnimClipModifiers.commitsStyles|commitsStyles},
-   * - {@link AnimClipModifiers.commitStylesForcefully|commitStylesForcefully},
    * - {@link AnimClipModifiers.composite|composite},
    * - {@link EntranceClipModifiers.hideNowType|hideNowType},
    */
@@ -208,7 +206,6 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
   get categoryImmutableConfig() {
     return {
       commitsStyles: false,
-      commitStylesForcefully: false,
     } satisfies Partial<ExitClipConfig>;
   }
 
@@ -234,7 +231,6 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
    * @returns an object containing
    * - {@link AnimClipModifiers.cssClasses|cssClasses},
    * - {@link AnimClipModifiers.commitsStyles|commitsStyles},
-   * - {@link AnimClipModifiers.commitStylesForcefully|commitStylesForcefully},
    * - {@link AnimClipModifiers.composite|composite},
    * - {@link ExitClipModifiers.exitType|exitType},
    */
@@ -474,7 +470,6 @@ export class TransitionClip<TEffectGenerator extends EffectGenerator<TransitionC
    * @returns an object containing
    * - {@link AnimClipModifiers.cssClasses|cssClasses},
    * - {@link AnimClipModifiers.commitsStyles|commitsStyles},
-   * - {@link AnimClipModifiers.commitStylesForcefully|commitStylesForcefully},
    * - {@link AnimClipModifiers.composite|composite},
    * - {@link TransitionClipModifiers.removeInlineStylesOnFinish|removeInlineStylesOnFinish},
    */
@@ -549,7 +544,6 @@ export class ConnectorSetterClip extends AnimClip<EffectGenerator, ConnectorSett
     return {
       duration: 0,
       commitsStyles: false,
-      commitStylesForcefully: false,
       runGeneratorsNow: true,
       startsNextClipToo: true,
     } satisfies Partial<ConnectorSetterClipConfig>;
@@ -643,7 +637,6 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
   get categoryImmutableConfig() {
     return {
       commitsStyles: false,
-      commitStylesForcefully: false,
     } satisfies Partial<ConnectorEntranceClipConfig>;
   }
 
@@ -669,7 +662,6 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
    * @returns an object containing
    * - {@link AnimClipModifiers.cssClasses|cssClasses},
    * - {@link AnimClipModifiers.commitsStyles|commitsStyles},
-   * - {@link AnimClipModifiers.commitStylesForcefully|commitStylesForcefully},
    * - {@link AnimClipModifiers.composite|composite},
    * - {@link ConnectorEntranceClipModifiers.hideNowType|hideNowType},
    */
@@ -784,7 +776,6 @@ export class ConnectorExitClip<TEffectGenerator extends EffectGenerator<Connecto
   get categoryImmutableConfig() {
     return {
       commitsStyles: false,
-      commitStylesForcefully: false,
     } satisfies Partial<ConnectorExitClipConfig>;
   }
 
