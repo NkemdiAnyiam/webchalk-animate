@@ -22,9 +22,10 @@ export interface EntranceClipConfig extends AnimClipConfig {
    * Determines whether/how the element should be hidden as soon as the clip is instantiated
    * (i.e., right when Entrance() is called). This can be convenient because it ensures that the
    * element will be hidden before the entrance clip is played.
-   * - if `null`, the clip does not attempt to hide the element upon instantiation
-   * - if `'display-none'`, the element is hidden by setting the CSS `display` to `none`
-   * - if `'visibility-hidden'`, the element is hidden by setting the CSS `visibility` to `hidden`
+   * - if `null`, the clip does not attempt to hide the element upon the clip's instantiation
+   * - if `'display-none'`, the element is unrendered by setting the CSS `display` to `none`
+   * - if `'visibility-hidden'`, the element is turned invisible by setting the CSS `visibility` to `hidden`
+   * @see [display: none & visibility: hidden](https://www.freecodecamp.org/news/css-display-none-and-visibility-hidden-the-difference/)
    */
   hideNowType: 'display-none' | 'visibility-hidden' | null;
 }
@@ -182,6 +183,12 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
  * @category Exit
  */
 export interface ExitClipConfig extends AnimClipConfig {
+  /**
+   * Determineshow the element should be hidden when the clip has finished playing.
+   * - if `'display-none'`, the element is unrendered by setting the CSS `display` to `none`
+   * - if `'visibility-hidden'`, the element is turned invisible by setting the CSS `visibility` to `hidden`
+   * @see [display: none & visibility: hidden](https://www.freecodecamp.org/news/css-display-none-and-visibility-hidden-the-difference/)
+   */
   exitType: 'display-none' | 'visibility-hidden';
 };
 
