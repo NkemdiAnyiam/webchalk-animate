@@ -425,6 +425,10 @@ export class ScrollerClip<TEffectGenerator extends EffectGenerator<ScrollerClip,
  * @category Transition
  */
 export interface TransitionClipConfig extends AnimClipConfig {
+  /**
+   * If `true`, any CSS property that this clip's effect targeted will be removed from the
+   * element's inline style after the clip finishes playing.
+   */
   removeInlineStylesOnFinish: boolean;
 }
 
