@@ -7,7 +7,7 @@ import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "./uti
 import { EffectCategory, Keyframes, StripFrozenConfig } from "./utils/interfaces";
 import { WbfkConnector } from "./WbfkConnector";
 import { WebFlikAnimation } from "./WebFlikAnimation";
-import { KeyOf, PartialPick, PickFromArray } from "./utils/utilityTypes";
+import { PartialPick, PickFromArray } from "./utils/utilityTypes";
 
 /**
  * Spreads {@link objOrIterable} whether it is an array of keyframes
@@ -1013,11 +1013,11 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     this.inProgress = true;
     this.isRunning = true;
 
-    if (this._parentSequence?.skippingOn || this._parentSequence?.usingFinish)
+    if (this._parentSequence?.getStatus('skippingOn') || this._parentSequence?.getStatus('usingFinish'))
       { animation.finish(); }
     else
       { animation.play(); }
-    if (this._parentSequence?.isPaused) { animation.pause(); }
+    if (this._parentSequence?.getStatus('isPaused')) { animation.pause(); }
     
     // After delay phase, then apply class modifications and call onStart functions.
     // Additionally, generate keyframes on 'forward' if keyframe pregeneration is disabled.

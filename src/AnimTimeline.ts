@@ -586,8 +586,8 @@ export class AnimTimeline {
 
     ++this.loadedSeqIndex;
     const autoplayNext = !this.atEnd && (
-      sequences[this.loadedSeqIndex - 1].autoplaysNextSequence // sequence that was just played
-      || sequences[this.loadedSeqIndex].autoplays // new next sequence
+      sequences[this.loadedSeqIndex - 1].getTiming('autoplaysNextSequence') // sequence that was just played
+      || sequences[this.loadedSeqIndex].getTiming('autoplays') // new next sequence
     );
 
     return autoplayNext;
@@ -612,8 +612,8 @@ export class AnimTimeline {
     this.inProgressSequences.delete(toRewind.id);
     
     const autorewindPrevious = !this.atBeginning && (
-      sequences[prevSeqIndex - 1].autoplaysNextSequence // new prev sequence
-      || sequences[prevSeqIndex].autoplays // sequence that was just rewound
+      sequences[prevSeqIndex - 1].getTiming('autoplaysNextSequence') // new prev sequence
+      || sequences[prevSeqIndex].getTiming('autoplays') // sequence that was just rewound
     );
 
     return autorewindPrevious;
@@ -886,13 +886,13 @@ export class AnimTimeline {
     const continueAutoplayForward = async () => {
       while (
         !this.atEnd
-        && (this.animSequences[this.loadedSeqIndex - 1]?.autoplaysNextSequence || this.animSequences[this.loadedSeqIndex]?.autoplays)
+        && (this.animSequences[this.loadedSeqIndex - 1]?.getTiming('autoplaysNextSequence') || this.animSequences[this.loadedSeqIndex]?.getTiming('autoplays'))
       ) { await this.stepForward(); }
     }
     const continueAutoplayBackward = async () => {
       while (
         !this.atBeginning
-        && (this.animSequences[this.loadedSeqIndex - 1]?.autoplaysNextSequence || this.animSequences[this.loadedSeqIndex]?.autoplays)
+        && (this.animSequences[this.loadedSeqIndex - 1]?.getTiming('autoplaysNextSequence') || this.animSequences[this.loadedSeqIndex]?.getTiming('autoplays'))
       ) { await this.stepBackward(); }
     }
 

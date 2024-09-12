@@ -1,6 +1,8 @@
 import { AnimClip } from "./AnimClip";
 import { AnimTimeline } from "./AnimTimeline";
 import { CustomErrors, errorTip, generateError, SequenceErrorGenerator } from "./utils/errors";
+import { getPartial } from "./utils/helpers";
+import { PickFromArray } from "./utils/utilityTypes";
 
 // TYPE
 /**
@@ -164,14 +166,48 @@ type FullyFinishedPromise<T> = {
  * Methods that return objects that contain various internal fields of the sequence (such as `autoplays` from `getTiming()`,
  * `inProgress` from `getStatus()`, etc.
  * 
+ * @groupDescription Property Setter Methods
+ * Methods that allow the modification of various internal fields of the sequence.
+ * 
  * @groupDescription Playback Methods
  * Methods that control the playback of the animation sequence.
  * 
  * @groupDescription Timing Event Methods
  * Methods that involve listening to the progress of the animation sequence to perform tasks at specific times.
+ * 
+ * @groupDescription Structure
+ * Methods and/or fields related to the stucture of the sequence, including methods related to the clips that make up
+ * the sequence and what timeline the sequence belongs to (if any).
+ * 
+ * @groupDescription Configuration
+ * Methods and/or fields related to the configuration settings of the sequence.
  */
-export class AnimSequence implements AnimSequenceConfig {
+export class AnimSequence {
   private static id = 0;
+
+  private config: AnimSequenceConfig = {
+    autoplays: false,
+    autoplaysNextSequence: false,
+    description: '<blank sequence description>',
+    playbackRate: 1,
+    tag: '',
+  };
+
+  /**
+   * Returns an object containing the configuration options used to
+   * define the timing, tag, and description of the animation sequence.
+   * @returns an object containing
+   * - {@link AnimSequenceConfig.autoplays|autoplays},
+   * - {@link AnimSequenceConfig.autoplaysNextSequence|autoplaysNextSequence},
+   * - {@link AnimSequenceConfig.description|description},
+   * - {@link AnimSequenceConfig.playbackRate|playbackRate},
+   * - {@link AnimSequenceConfig.tag|tag},
+   * @group Property Getter Methods
+   * @group Configuration
+   */
+  getConfig(): AnimSequenceConfig {
+    return { ...this.config };
+  }
   
   /*-:**************************************************************************************************************************/
   /*-:*************************************        FIELDS & ACCESSORS        ***************************************************/
@@ -181,16 +217,21 @@ export class AnimSequence implements AnimSequenceConfig {
    * Automatically generated.
    */
   readonly id: number;
+  /**
+   * @group Structure
+   */
   /**@internal*/ _parentTimeline?: AnimTimeline; // pointer to parent AnimTimeline
   /**
    * The highest level of this sequence's lineage.
    * - If the sequence is nested within an {@link AnimTimeline}: that timeline,
    * - Else: the sequence itself
+   * @group Structure
    */
   get root(): AnimTimeline | AnimSequence { return this.parentTimeline ?? this; }
   /**
    * The parent {@link AnimTimeline} that contains this sequence
    * (`undefined` if the sequence is not part of a timeline).
+   * @group Structure
    */
   get parentTimeline() { return this._parentTimeline; }
   private animClips: AnimClip[] = []; // array of animClips
@@ -216,15 +257,15 @@ export class AnimSequence implements AnimSequenceConfig {
   };
 
   // GROUP: Status
-  /**@internal*/ isPaused = false;
-  /**@internal*/ isRunning = false;
-  /**@internal*/ usingFinish = false;
-  /**@internal*/ inProgress = false;
-  /**@internal*/ isFinished: boolean = false;
-  /**@internal*/ wasPlayed = false;
-  /**@internal*/ wasRewound = false;
-  /**@internal*/ get skippingOn() { return this._parentTimeline?.skippingOn || this._parentTimeline?.isJumping || false }
-  /**@internal*/ get lockedStructure(): boolean {
+  private isPaused = false;
+  private isRunning = false;
+  private usingFinish = false;
+  private inProgress = false;
+  private isFinished: boolean = false;
+  private wasPlayed = false;
+  private wasRewound = false;
+  private get skippingOn() { return this._parentTimeline?.skippingOn || this._parentTimeline?.isJumping || false }
+  private get lockedStructure(): boolean {
     if (this.inProgress || this.wasPlayed) { return true; }
     return false;
   }
@@ -242,8 +283,28 @@ export class AnimSequence implements AnimSequenceConfig {
    * - {@link AnimSequenceStatus.lockedStructure|lockedStructure},
    * @group Property Getter Methods
    */
-  getStatus(): AnimSequenceStatus {
-    return {
+  getStatus(): AnimSequenceStatus;
+  /**
+   * Returns the value of a single specific property.
+   * @param propName - name of the desired property
+   * @ignore
+   */
+  getStatus<T extends keyof AnimSequenceStatus>(propName: T): AnimSequenceStatus[T];
+  /**
+   * Returns an object containing a subset of the object that would normally be returned.
+   * @param propNames - array of strings specifying which properties should be included.
+   * @ignore
+   */
+  getStatus<T extends (keyof AnimSequenceStatus)[]>(propNames: (keyof AnimSequenceStatus)[] | T): PickFromArray<AnimSequenceStatus, T>;
+  /**
+   * @group Property Getter Methods
+   */
+  getStatus(specifics?: keyof AnimSequenceStatus | (keyof AnimSequenceStatus)[]):
+    | AnimSequenceStatus
+    | AnimSequenceStatus[keyof AnimSequenceStatus]
+    | Partial<Pick<AnimSequenceStatus, keyof AnimSequenceStatus>>
+  {
+    const result: AnimSequenceStatus = {
       inProgress: this.inProgress,
       isPaused: this.isPaused,
       isRunning: this.isRunning,
@@ -254,13 +315,12 @@ export class AnimSequence implements AnimSequenceConfig {
       wasRewound: this.wasRewound,
       lockedStructure: this.lockedStructure,
     };
+
+    return specifics ? getPartial(result, specifics) : result;
   }
   
   // GROUP: Timing
-  protected get compoundedPlaybackRate() { return this.playbackRate * (this._parentTimeline?.getTiming().playbackRate ?? 1); }
-  /**@internal*/ autoplaysNextSequence: boolean = false; // decides whether the next AnimSequence should automatically play after this one
-  /**@internal*/ autoplays: boolean = false;
-  /**@internal*/ playbackRate: number = 1;
+  protected get compoundedPlaybackRate() { return this.config.playbackRate * (this._parentTimeline?.getTiming().playbackRate ?? 1); }
   /**
    * Returns timing-related details about the sequence.
    * @returns an object containing
@@ -270,31 +330,52 @@ export class AnimSequence implements AnimSequenceConfig {
    * - {@link AnimSequenceTiming.playbackRate|playbackRate},
    * @group Property Getter Methods
    */
-  getTiming(): AnimSequenceTiming {
-    return {
-      autoplays: this.autoplays,
-      autoplaysNextSequence: this.autoplaysNextSequence,
+  getTiming(): AnimSequenceTiming;
+  /**
+   * Returns the value of a single specific property.
+   * @param propName - name of the desired property
+   * @ignore
+   */
+  getTiming<T extends keyof AnimSequenceTiming>(propName: T): AnimSequenceTiming[T];
+  /**
+   * Returns an object containing a subset of the object that would normally be returned.
+   * @param propNames - array of strings specifying which properties should be included.
+   * @ignore
+   */
+  getTiming<T extends (keyof AnimSequenceTiming)[]>(propNames: (keyof AnimSequenceTiming)[] | T): PickFromArray<AnimSequenceTiming, T>;
+  /**
+   * @group Property Getter Methods
+   */
+  getTiming(specifics?: keyof AnimSequenceTiming | (keyof AnimSequenceTiming)[]):
+    | AnimSequenceTiming
+    | AnimSequenceTiming[keyof AnimSequenceTiming]
+    | Partial<Pick<AnimSequenceTiming, keyof AnimSequenceTiming>>
+  {
+    const config = this.config;
+    const result: AnimSequenceTiming = {
+      autoplays: config.autoplays,
+      autoplaysNextSequence: config.autoplaysNextSequence,
       compoundedPlaybackRate: this.compoundedPlaybackRate,
-      playbackRate: this.playbackRate,
+      playbackRate: config.playbackRate,
     };
+
+    return specifics ? getPartial(result, specifics) : result;
   }
 
   // GROUP: Description and Tag
-  /**@internal*/ description: string = '<blank sequence description>';
   /**
    * @returns the {@link AnimSequenceConfig.description|description} for this sequence.
    * @see {@link AnimSequenceConfig.description}
    * @group Property Getter Methods
    */
-  getDescription() { return this.description; }
+  getDescription() { return this.config.description; }
 
-  /**@internal*/ tag: string = ''; // helps idenfity current AnimSequence for using AnimTimeline's jumpToSequenceTag()
   /**
    * @returns the {@link AnimSequenceConfig.tag|tag} for this sequence.
    * @see {@link AnimSequenceConfig.tag|tag}
    * @group Property Getter Methods
    */
-  getTag() { return this.tag; }
+  getTag() { return this.config.tag; }
   
   /**
    * Sets the {@link AnimSequenceConfig.description|description} for this sequence.
@@ -302,7 +383,7 @@ export class AnimSequence implements AnimSequenceConfig {
    * @see {@link AnimSequenceConfig.description}
    * @group Property Setter Methods
    */
-  setDescription(description: string): this { this.description = description; return this; }
+  setDescription(description: string): this { this.config.description = description; return this; }
 
   /**
    * Sets the {@link AnimSequenceConfig.tag|tag} for this sequence.
@@ -310,7 +391,7 @@ export class AnimSequence implements AnimSequenceConfig {
    * @see {@link AnimSequenceConfig.tag}
    * @group Property Setter Methods
    */
-  setTag(tag: string): this { this.tag = tag; return this; }
+  setTag(tag: string): this { this.config.tag = tag; return this; }
 
   /*-:**************************************************************************************************************************/
   /*-:*********************************        CONSTRUCTOR & INITIALIZERS        ***********************************************/
@@ -325,7 +406,7 @@ export class AnimSequence implements AnimSequenceConfig {
   constructor(config: Partial<AnimSequenceConfig> | AnimClip = {}, ...animClips: AnimClip[]) {
     this.id = AnimSequence.id++;
 
-    Object.assign(this, config instanceof AnimClip ? {} : config);
+    Object.assign(this.config, config instanceof AnimClip ? {} : config);
     this.addClips(...(config instanceof AnimClip ? [config, ...animClips] : animClips));
   }
   
@@ -347,6 +428,7 @@ export class AnimSequence implements AnimSequenceConfig {
   /**
    * Used by a parent to remove pointers to itself (the parent) within the sequence.
    * @internal
+   * @group Structure
    */
   removeLineage(): this {
     this._parentTimeline = undefined;
@@ -660,7 +742,7 @@ export class AnimSequence implements AnimSequenceConfig {
    * @group Playback Methods
    */
   updatePlaybackRate(newRate: number): this {
-    this.playbackRate = newRate;
+    this.config.playbackRate = newRate;
     this.useCompoundedPlaybackRate();
     return this;
   }
@@ -680,8 +762,7 @@ export class AnimSequence implements AnimSequenceConfig {
   private static endDelayFinishComparator = (clipA: AnimClip, clipB: AnimClip) => clipA.fullFinishTime - clipB.fullFinishTime;
 
   // TODO: Complete this method
-  /**@internal*/
-  commit(): this {
+  private commit(): this {
     const {
       activeBackwardFinishComparator,
       activeFinishComparator,
@@ -766,13 +847,14 @@ export class AnimSequence implements AnimSequenceConfig {
   /*-:**************************************************************************************************************************/
   /*-:************************************        TIMING EVENT METHODS        **************************************************/
   /*-:**************************************************************************************************************************/
+  // TODO: Write documentation
   /**
    * 
    * @param functions 
    * @returns 
    * @group Timing Event Methods
    */
-  setOnStart(functions: {do: Function, undo: Function}): this { 
+  setOnStart(functions: {do: Function, undo: Function}): this {
     this.onStart.do = functions.do;
     this.onStart.undo = functions.undo;
     return this;
