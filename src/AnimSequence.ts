@@ -412,7 +412,7 @@ export class AnimSequence {
   }
   
   /*-:**************************************************************************************************************************/
-  /*-:*************************************        Structure        ****************************************************/
+  /*-:*************************************        STRUCTURE        ****************************************************/
   /*-:**************************************************************************************************************************/
   /**
    * Used by a parent to set pointers to itself (the parent) within the sequence.
@@ -448,7 +448,7 @@ export class AnimSequence {
     for (const animClip of animClips) {
       if (animClip.parentSequence) {
         // TODO: Improve error message
-        throw this.generateError(CustomErrors.InvalidChildError, `One of the clips being added is already part of some sequence.`)
+        throw this.generateError(CustomErrors.InvalidChildError, `At least one of the clips being added is already part of some sequence.`);
       }
       animClip.setLineage(this, this._parentTimeline);
     }
@@ -470,7 +470,7 @@ export class AnimSequence {
     for (const animClip of animClips) {
       if (animClip.parentSequence) {
         // TODO: Improve error message
-        throw this.generateError(CustomErrors.InvalidChildError, `One of the clips being added is already part of some sequence.`)
+        throw this.generateError(CustomErrors.InvalidChildError, `At least one of the clips being added is already part of some sequence.`);
       }
       animClip.setLineage(this, this._parentTimeline);
     }
@@ -491,7 +491,7 @@ export class AnimSequence {
       const index = this.findClipIndex(animClip);
       if (index === -1) {
         // TODO: improve warning
-        console.warn(`A clip being removed from this sequence was already not in the sequence.`);
+        console.warn(`At least one of the clips being removed from this sequence was already not in the sequence.`);
         return this;
       }
       this.animClips.splice(index, 1);

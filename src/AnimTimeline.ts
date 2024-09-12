@@ -541,7 +541,7 @@ export class AnimTimeline {
   }
 
   /*-:**************************************************************************************************************************/
-  /*-:*************************************        Structure        ****************************************************/
+  /*-:*************************************        STRUCTURE        ****************************************************/
   /*-:**************************************************************************************************************************/
   /**
    * Adds one or more {@link AnimSequence} objects to the end of the timeline.
@@ -550,15 +550,55 @@ export class AnimTimeline {
    * @group Structure
    */
   addSequences(...animSequences: AnimSequence[]): this {
+    if (this.lockedStructure) { throw this.generateLockedStructureError(this.addSequences.name); }
+
     for(const animSequence of animSequences) {
       if (animSequence.parentTimeline) {
         // TODO: Improve error message
-        throw this.generateError(CustomErrors.InvalidChildError, `One of the sequences being added is already part of some timeline.`);
+        throw this.generateError(CustomErrors.InvalidChildError, `At least one of the sequences being added is already part of some timeline.`);
+      }
+      if (animSequence.getStatus('lockedStructure')) {
+        throw this.generateError(CustomErrors.InvalidChildError, `At least one of the sequences being added is in progress or in a forward finished state.`);
       }
       animSequence.setLineage(this);
     };
     this.animSequences.push(...animSequences);
 
+    return this;
+  }
+
+  /**
+   * Adds one or more {@link AnimSequence} objects to the specified index of the sequence.
+   * @param index - the index at which the sequences should be inserted
+   * @param animSequences - comma-separated list of animation sequences
+   * @returns 
+   * @group Structure
+   */
+  addSequencesAt(index: number, ...animSequences: AnimSequence[]): this {
+    if (this.lockedStructure) { throw this.generateLockedStructureError(this.addSequencesAt.name); }
+    if (index <= this.loadedSeqIndex - 1) {
+      throw this.generateError(
+        CustomErrors.TimeParadoxError,
+        `Adding new sequences behind sequences that have already been played is prohibited.` +
+        errorTip(
+          `Tip: Just as changing the past is not possible, changing parts of the timeline that have already passed is not allowed.` +
+          ` In order to add sequences to a part of the timeline that has already been played, the timeline must be rewound to before that point` +
+          ` (conceptually, it is always possible to change the future but never the past).`
+        ),
+      );
+    }
+
+    for (const animSequence of animSequences) {
+      if (animSequence.parentTimeline) {
+        // TODO: Improve error message
+        throw this.generateError(CustomErrors.InvalidChildError, `At least one of the sequences being added is already part of some timeline.`);
+      }
+      if (animSequence.getStatus('lockedStructure')) {
+        throw this.generateError(CustomErrors.InvalidChildError, `At least one of the sequences being added is in progress or in a forward finished state.`);
+      }
+      animSequence.setLineage(this);
+    }
+    this.animSequences.splice(index, 0, ...animSequences);
     return this;
   }
 
@@ -591,6 +631,7 @@ export class AnimTimeline {
   }
 
   // steps forward or backward and does error-checking
+  // TODO: potentially move setting of this.isAniamting to stepForward() and stepBackward()
   /**
    * Takes 1 step in the specified direction.
    * - If any sequences are set to autoplay, the timeline automatically continues stepping through them.

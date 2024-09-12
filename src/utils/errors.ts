@@ -68,6 +68,13 @@ class LockedOperationError extends Error {
   }
 }
 
+class TimeParadoxError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'LockedOperationError';
+  }
+}
+
 class ChildPlaybackError extends LockedOperationError {
   constructor(message: string) {
     super(message);
@@ -89,6 +96,7 @@ export const CustomErrors = {
   InvalidExitAttempt,
   InvalidPhasePositionError,
   LockedOperationError,
+  TimeParadoxError,
   ChildPlaybackError,
   InvalidChildError,
 };
