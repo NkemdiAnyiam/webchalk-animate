@@ -264,7 +264,7 @@ export class AnimSequence {
   private isFinished: boolean = false;
   private wasPlayed = false;
   private wasRewound = false;
-  private get skippingOn() { return this._parentTimeline?.skippingOn || this._parentTimeline?.isJumping || false }
+  private get skippingOn() { return this._parentTimeline?.getStatus('skippingOn') || this._parentTimeline?.getStatus('isJumping') || false; }
   private get lockedStructure(): boolean {
     if (this.inProgress || this.wasPlayed) { return true; }
     return false;
@@ -403,11 +403,12 @@ export class AnimSequence {
 
   // constructor(config: Partial<AnimSequenceConfig>, ...animClips: AnimClip[]);
   // constructor(...animClips: AnimClip[]);
-  constructor(config: Partial<AnimSequenceConfig> | AnimClip = {}, ...animClips: AnimClip[]) {
+  constructor(configOrClips: Partial<AnimSequenceConfig> | AnimClip = {}, ...animClips: AnimClip[]) {
     this.id = AnimSequence.id++;
 
-    Object.assign(this.config, config instanceof AnimClip ? {} : config);
-    this.addClips(...(config instanceof AnimClip ? [config, ...animClips] : animClips));
+    Object.assign(this.config, configOrClips instanceof AnimClip ? {} : configOrClips);
+    
+    this.addClips(...(configOrClips instanceof AnimClip ? [configOrClips, ...animClips] : animClips));
   }
   
   /*-:**************************************************************************************************************************/

@@ -1,5 +1,7 @@
 import { AnimSequence } from "./AnimSequence";
 import { CustomErrors, errorTip, generateError, TimelineErrorGenerator } from "./utils/errors";
+import { getPartial } from "./utils/helpers";
+import { PickFromArray } from "./utils/utilityTypes";
 import { WbfkPlaybackButton } from "./WbfkPlaybackButton";
 
 // TYPE
@@ -151,6 +153,26 @@ type PlaybackButtonPurpose = `Step ${'Forward' | 'Backward'}` | 'Pause' | 'Fast 
 export class AnimTimeline {
   private static id = 0;
 
+  private config: AnimTimelineConfig = {
+    autoLinksButtons: true,
+    debugMode: false,
+    timelineName: '',
+  };
+
+  /**
+   * Returns an object containing the configuration options used to
+   * define the name, debugging behavior, and button-linking behavior of the timeline.
+   * @returns an object containing
+   * - {@link AnimTimelineConfig.autoLinksButtons|autoLinksButtons},
+   * - {@link AnimTimelineConfig.debugMode|debugMode},
+   * - {@link AnimTimelineConfig.timelineName|timelineName},
+   * @group Property Getter Methods
+   * @group Configuration
+   */
+  getConfig(): AnimTimelineConfig {
+    return {...this.config};
+  }
+
   /*-:**************************************************************************************************************************/
   /*-:*************************************        FIELDS & ACCESSORS        ***************************************************/
   /*-:**************************************************************************************************************************/
@@ -163,24 +185,25 @@ export class AnimTimeline {
   /**
    * The highest level of this timeline's lineage.
    * - The timeline itself (there is currently no higher possible level)
+   * @group Structure
    */
   get root(): AnimTimeline { return this; }
-  /**@internal*/ animSequences: AnimSequence[] = []; // array of every AnimSequence in this timeline
+  private animSequences: AnimSequence[] = []; // array of every AnimSequence in this timeline
   /**
    * Number of sequences in this timeline.
+   * @group Structure
    */
   get numSequences(): number { return this.animSequences.length; }
-  /**@internal*/ loadedSeqIndex = 0; // index into animSequences
-  config: AnimTimelineConfig;
+  private loadedSeqIndex = 0; // index into animSequences
   // CHANGE NOTE: AnimTimeline now stores references to in-progress sequences and also does not act directly on individual animations
   private inProgressSequences: Map<number, AnimSequence> = new Map();
 
   // GROUP: Status
-  /**@internal*/ isAnimating = false; // true if currently in the middle of executing animations; false otherwise
-  /**@internal*/ skippingOn = false; // used to determine whether or not all animations should be instantaneous
-  /**@internal*/ isPaused = false;
-  /**@internal*/ currentDirection: 'forward' | 'backward' = 'forward'; // set to 'forward' after stepForward() or 'backward' after stepBackward()
-  /**@internal*/ isJumping = false; // true if currently using jumpTo()
+  private isAnimating = false; // true if currently in the middle of executing animations; false otherwise
+  private skippingOn = false; // used to determine whether or not all animations should be instantaneous
+  private isPaused = false;
+  private currentDirection: 'forward' | 'backward' = 'forward'; // set to 'forward' after stepForward() or 'backward' after stepBackward()
+  private isJumping = false; // true if currently using jumpTo()
   private get stepNumber(): number { return this.loadedSeqIndex + 1; }
   private get atBeginning(): boolean { return this.loadedSeqIndex === 0; }
   private get atEnd(): boolean { return this.loadedSeqIndex === this.numSequences; }
@@ -198,8 +221,28 @@ export class AnimTimeline {
    * - {@link AnimTimelineStatus.atEnd|atEnd},
    * @group Property Getter Methods
    */
-  getStatus(): AnimTimelineStatus {
-    return {
+  getStatus(): AnimTimelineStatus;
+  /**
+   * Returns the value of a single specific property.
+   * @param propName - name of the desired property
+   * @ignore
+   */
+  getStatus<T extends keyof AnimTimelineStatus>(propName: T): AnimTimelineStatus[T];
+  /**
+   * Returns an object containing a subset of the object that would normally be returned.
+   * @param propNames - array of strings specifying which properties should be included.
+   * @ignore
+   */
+  getStatus<T extends (keyof AnimTimelineStatus)[]>(propNames: (keyof AnimTimelineStatus)[] | T): PickFromArray<AnimTimelineStatus, T>;
+  /**
+   * @group Property Getter Methods
+   */
+  getStatus(specifics?: keyof AnimTimelineStatus | (keyof AnimTimelineStatus)[]):
+    | AnimTimelineStatus
+    | AnimTimelineStatus[keyof AnimTimelineStatus]
+    | Partial<Pick<AnimTimelineStatus, keyof AnimTimelineStatus>>
+  {
+    const result: AnimTimelineStatus = {
       isAnimating: this.isAnimating,
       skippingOn: this.skippingOn,
       isPaused: this.isPaused,
@@ -209,6 +252,8 @@ export class AnimTimeline {
       atBeginning: this.atBeginning,
       atEnd: this.atEnd,
     };
+
+    return specifics ? getPartial(result, specifics) : result;
   }
 
   // GROUP: Timing
@@ -220,10 +265,32 @@ export class AnimTimeline {
    * - {@link AnimTimelineStatus.playbackRate|playbackRate},
    * @group Property Getter Methods
    */
-  getTiming(): AnimTimelineTiming {
-    return {
+  getTiming(): AnimTimelineTiming;
+  /**
+   * Returns the value of a single specific property.
+   * @param propName - name of the desired property
+   * @ignore
+   */
+  getTiming<T extends keyof AnimTimelineTiming>(propName: T): AnimTimelineTiming[T];
+  /**
+   * Returns an object containing a subset of the object that would normally be returned.
+   * @param propNames - array of strings specifying which properties should be included.
+   * @ignore
+   */
+  getTiming<T extends (keyof AnimTimelineTiming)[]>(propNames: (keyof AnimTimelineTiming)[] | T): PickFromArray<AnimTimelineTiming, T>;
+  /**
+   * @group Property Getter Methods
+   */
+  getTiming(specifics?: keyof AnimTimelineTiming | (keyof AnimTimelineTiming)[]):
+    | AnimTimelineTiming
+    | AnimTimelineTiming[keyof AnimTimelineTiming]
+    | Partial<Pick<AnimTimelineTiming, keyof AnimTimelineTiming>>
+  {
+    const result: AnimTimelineTiming = {
       playbackRate: this.playbackRate,
     };
+
+    return specifics ? getPartial(result, specifics) : result;
   }
   
   /*-:**************************************************************************************************************************/
@@ -237,12 +304,7 @@ export class AnimTimeline {
   constructor(configOrSequence: Partial<AnimTimelineConfig>| AnimSequence = {}, ...animSequence: AnimSequence[]) {
     this.id = AnimTimeline.id++;
 
-    this.config = {
-      debugMode: false,
-      timelineName: '',
-      autoLinksButtons: true,
-      ...(configOrSequence instanceof AnimSequence ? {} : configOrSequence),
-    };
+    Object.assign(this.config, configOrSequence instanceof AnimSequence ? {} : configOrSequence);
 
     this.addSequences(...(configOrSequence instanceof AnimSequence ? [configOrSequence, ...animSequence] : animSequence));
 
