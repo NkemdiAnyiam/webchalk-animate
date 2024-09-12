@@ -684,11 +684,12 @@ export class AnimSequence {
    * - If the sequence is not already in progress, this method does nothing.
    * @group Playback Methods
    */
-  pause(): void {
-    if (!this.isRunning) { return; }
+  pause(): this {
+    if (!this.isRunning) { return this; }
     this.isRunning = false;
     this.isPaused = true;
     this.doForInProgressClips(animClip => animClip.pause(this));
+    return this;
   }
 
   /**
@@ -696,11 +697,12 @@ export class AnimSequence {
    * - If the sequence is not currently paused, this method does nothing.
    * @group Playback Methods
    */
-  unpause(): void {
-    if (!this.isPaused) { return; }
+  unpause(): this {
+    if (!this.isPaused) { return this; }
     this.isRunning = true;
     this.isPaused = false;
     this.doForInProgressClips(animClip => animClip.unpause(this));
+    return this;
   }
 
   // TODO: check to see if it's necessary to prevent direct finish() calls if sequence has a parent timeline
