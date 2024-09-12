@@ -207,6 +207,10 @@ export class AnimTimeline {
   private get stepNumber(): number { return this.loadedSeqIndex + 1; }
   private get atBeginning(): boolean { return this.loadedSeqIndex === 0; }
   private get atEnd(): boolean { return this.loadedSeqIndex === this.numSequences; }
+  private get lockedStructure(): boolean {
+    if (this.isAnimating || this.isJumping) { return true; }
+    return false;
+  }
 
   /**
    * Returns details about an timeline's current status.
@@ -1105,5 +1109,12 @@ export class AnimTimeline {
     return generateError(ErrorClassOrInstance, msg as string, {
       timeline: this
     });
+  }
+
+  protected generateLockedStructureError = (methodName: string) => {
+    return generateError(
+      CustomErrors.LockedOperationError,
+      `Cannot use ${methodName}() while the timeline is in progress.`
+    );
   }
 }
