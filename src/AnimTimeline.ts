@@ -602,6 +602,40 @@ export class AnimTimeline {
     return this;
   }
 
+  // NEXT REMINDER: button changes in response to structure changes
+  /**
+   * Removes one or more {@link AnimSequence} objects from the timeline.
+   * @param animSequences - comma-separated list of animation sequences
+   * @returns 
+   * @group Structure
+   */
+  removeSequences(...animSequences: AnimSequence[]): this {
+    if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeSequences.name); }
+
+    for (const animSequence of animSequences) {
+      const index = this.findSequenceIndex(animSequence);
+      if (index === -1) {
+        // TODO: improve warning
+        console.warn(`At least one of the sequences being removed from this timeline was already not in the timeline.`);
+        return this;
+      }
+      if (index <= this.loadedSeqIndex - 1) {
+        throw this.generateError(
+          CustomErrors.TimeParadoxError,
+          `Removing new sequences behind sequences that have already been played is prohibited.` +
+          errorTip(
+            `Tip: Just as changing the past is not possible, changing parts of the timeline that have already passed is not allowed.` +
+            ` In order to remove sequences from a part of the timeline that has already been played, the timeline must be rewound to before that point` +
+            ` (conceptually, it is always possible to change the future but never the past).`
+          ),
+        );
+      }
+      this.animSequences.splice(index, 1);
+      animSequence.removeLineage();
+    }
+    return this;
+  }
+
   /**
    * Finds the index of a given {@link AnimSequence} object within the timeline
    * @param animSequence - the animation sequence to search for within the timeline
