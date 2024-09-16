@@ -392,6 +392,10 @@ export class AnimTimeline {
         backwardButton?.classList.remove(DISABLED_FROM_STEPPING);
         if (this.atEnd) { forwardButton.classList.add(DISABLED_FROM_EDGE); }
       };
+
+      if (this.atEnd) {
+        forwardButton.classList.add(DISABLED_FROM_EDGE);
+      }
     }
 
     if (backwardButton) {
@@ -417,7 +421,9 @@ export class AnimTimeline {
         if (this.atBeginning) { backwardButton.classList.add(DISABLED_FROM_EDGE); }
       };
 
-      backwardButton.classList.add(DISABLED_FROM_EDGE);
+      if (this.atBeginning) {
+        backwardButton.classList.add(DISABLED_FROM_EDGE);
+      }
     }
 
     if (pauseButton) {
@@ -611,7 +617,6 @@ export class AnimTimeline {
     return this;
   }
 
-  // NEXT REMINDER: button changes in response to structure changes
   /**
    * Removes one or more {@link AnimSequence} objects from the timeline.
    * @param animSequences - comma-separated list of animation sequences

@@ -103,8 +103,14 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   //   console.log('WE BACK')
   // });
 
-  const timeline = webflik.newTimeline({timelineName: 'Basic', autoLinksButtons: false}).addSequences(seq);
+  const timeline = webflik.newTimeline({timelineName: 'Basic', autoLinksButtons: false});
   timeline.linkPlaybackButtons();
+  await wait(1000);
+  timeline.addSequences(seq);
+  await timeline.step('forward');
+  await timeline.step('backward');
+  timeline.removeSequences(seq);
+  timeline.addSequences(seq);
 
   // setTimeout(() => seq.removeClips(entrance), 3000);
 
