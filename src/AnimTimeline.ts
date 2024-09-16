@@ -679,7 +679,7 @@ export class AnimTimeline {
       );
     }
 
-    const removalList = this.animSequences.slice(startIndex, endIndex);
+    const removalList = this.animSequences.splice(startIndex, endIndex - startIndex);
     for (const sequence of removalList) {
       sequence.removeLineage();
     }
@@ -688,7 +688,7 @@ export class AnimTimeline {
       this.playbackButtons.forwardButton?.classList.add(DISABLED_FROM_EDGE);
     }
 
-    return this.animSequences.splice(startIndex, endIndex - startIndex);
+    return removalList;
   }
 
   /**

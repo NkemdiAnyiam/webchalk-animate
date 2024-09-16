@@ -510,9 +510,9 @@ export class AnimSequence {
   removeClipsAt(startIndex: number, endIndex: number = startIndex + 1): AnimClip[] {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeClipsAt.name); }
 
-    const removalList = this.animClips.slice(startIndex, endIndex);
+    const removalList = this.animClips.splice(startIndex, endIndex - startIndex);
     for (const clip of removalList) { clip.removeLineage(); }
-    return this.animClips.splice(startIndex, endIndex - startIndex);
+    return removalList;
   }
 
   /**
