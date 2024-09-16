@@ -886,7 +886,7 @@ export class AnimTimeline {
   }
 
   /**
-   * 
+   * Jumps to the sequence whose {@link AnimSequence.getTag|AnimSequence.getTag()} value matches the {@link tag} argument.
    * @param tag - string that is used to search for the target sequence with the matching {@link AnimSequence.getTag|AnimSequence.getTag()} value
    * @param options - set of options defining the behavior of the search, the offset of the jump, and whether to consider autoplay
    * @returns a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise | Promise} that
@@ -933,7 +933,7 @@ export class AnimTimeline {
   }
 
   /**
-   * 
+   * Jumps to the position within the timeline based on the {@link position} argument.
    * @param position - the target position within the timeline
    * @param options - set of options defining the offset of the jump and whether to consider autoplay
    * @returns a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise | Promise} that
