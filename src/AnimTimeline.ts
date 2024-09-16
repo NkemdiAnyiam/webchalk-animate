@@ -564,6 +564,9 @@ export class AnimTimeline {
     };
     this.animSequences.push(...animSequences);
 
+    // no need to worry about backward button because it's impossible to reach or leave index 0 by adding sequences
+    this.playbackButtons.forwardButton?.classList.remove(DISABLED_FROM_EDGE);
+
     return this;
   }
 
@@ -599,6 +602,12 @@ export class AnimTimeline {
       animSequence.setLineage(this);
     }
     this.animSequences.splice(index, 0, ...animSequences);
+
+    // no need to worry about atBeginning because it's impossible to reach or leave index 0 by adding sequences
+    if (!this.atEnd) {
+      this.playbackButtons.forwardButton?.classList.remove(DISABLED_FROM_EDGE);
+    }
+
     return this;
   }
 
@@ -633,6 +642,13 @@ export class AnimTimeline {
       this.animSequences.splice(index, 1);
       animSequence.removeLineage();
     }
+
+    // if the last sequences were removed, must account for forward button style.
+    // no need to worry about atBeginning because it's impossible to reach index = 0 by removing sequences
+    if (this.atEnd) {
+      this.playbackButtons.forwardButton?.classList.add(DISABLED_FROM_EDGE);
+    }
+
     return this;
   }
 
