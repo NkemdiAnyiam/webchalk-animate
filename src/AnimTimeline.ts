@@ -631,7 +631,7 @@ export class AnimTimeline {
       if (index <= this.loadedSeqIndex - 1) {
         throw this.generateError(
           CustomErrors.TimeParadoxError,
-          `Removing new sequences behind sequences that have already been played is prohibited.` +
+          `Removing sequences that have already been played is prohibited.` +
           errorTip(
             `Tip: Just as changing the past is not possible, changing parts of the timeline that have already passed is not allowed.` +
             ` In order to remove sequences from a part of the timeline that has already been played, the timeline must be rewound to before that point` +
