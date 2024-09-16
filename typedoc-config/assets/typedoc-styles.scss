@@ -9,6 +9,32 @@
   font-weight: 500;
 }
 
+@font-face {
+  font-family: 'Fira Code';
+  src: url('./fonts/Fira Code Light.woff2');
+  font-weight: 300;
+}
+@font-face {
+  font-family: 'Fira Code';
+  src: url('./fonts/Fira Code Regular.woff2');
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'Fira Code';
+  src: url('./fonts/Fira Code Medium.woff2');
+  font-weight: 500;
+}
+@font-face {
+  font-family: 'Fira Code';
+  src: url('./fonts/Fira Code SemiBold.woff2');
+  font-weight: 600;
+}
+@font-face {
+  font-family: 'Fira Code';
+  src: url('./fonts/Fira Code Bold.woff2');
+  font-weight: 700;
+}
+
 :root {
   --light-name: #666600;
   --dark-name: #ffff99;
