@@ -658,6 +658,40 @@ export class AnimTimeline {
   }
 
   /**
+   * Removes a number of {@link AnimSequence} objects from the timeline based on the provided indices range (0-based).
+   * @param startIndex - the starting index, inclusive
+   * @param endIndex - the ending index, exclusive
+   * @returns an array containing the sequences that were removed from the timeline.
+   * @group Structure
+   */
+  removeSequencesAt(startIndex: number, endIndex: number = startIndex + 1): AnimSequence[] {
+    if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeSequencesAt.name); }
+    if (startIndex <= this.loadedSeqIndex - 1) {
+      throw this.generateError(
+        CustomErrors.TimeParadoxError,
+        `startIndex '${startIndex}' is falls within the range of sequences that have already been played,` +
+        ` but removing sequences that have already been played is prohibited.` +
+        errorTip(
+          `Tip: Just as changing the past is not possible, changing parts of the timeline that have already passed is not allowed.` +
+          ` In order to remove sequences from a part of the timeline that has already been played, the timeline must be rewound to before that point` +
+          ` (conceptually, it is always possible to change the future but never the past).`
+        ),
+      );
+    }
+
+    const removalList = this.animSequences.slice(startIndex, endIndex);
+    for (const sequence of removalList) {
+      sequence.removeLineage();
+    }
+
+    if (this.atEnd) {
+      this.playbackButtons.forwardButton?.classList.add(DISABLED_FROM_EDGE);
+    }
+
+    return this.animSequences.splice(startIndex, endIndex - startIndex);
+  }
+
+  /**
    * Finds the index of a given {@link AnimSequence} object within the timeline
    * @param animSequence - the animation sequence to search for within the timeline
    * @returns the index of {@link animSequence} within the timeline or `-1` if the sequence is not part of the timeline.

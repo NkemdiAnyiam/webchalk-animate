@@ -501,7 +501,7 @@ export class AnimSequence {
   }
   
   /**
-   * Removes a number of {@link AnimClip} objects from the sequence based on the provided indices (0-based).
+   * Removes a number of {@link AnimClip} objects from the sequence based on the provided indices range (0-based).
    * @param startIndex - the starting index, inclusive
    * @param endIndex - the ending index, exclusive
    * @returns an array containing the clips that were removed from the sequence.
