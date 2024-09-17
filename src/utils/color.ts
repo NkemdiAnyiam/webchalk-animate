@@ -1,6 +1,6 @@
 // unused
 
-import { Union } from "./utilityTypes";
+// import { Union } from "./utilityTypes";
 
 export type CssNamedColor = |
   'aliceblue' |

@@ -4,7 +4,7 @@ import { EffectOptions, EffectGeneratorBank, EffectGenerator } from "./WebFlik";
 import { call, getPartial, mergeArrays } from "./utils/helpers";
 import { EasingString, useEasing } from "./utils/easing";
 import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "./utils/errors";
-import { EffectCategory, Keyframes, StripFrozenConfig } from "./utils/interfaces";
+import { EffectCategory, Keyframes } from "./utils/interfaces";
 import { WbfkConnector } from "./WbfkConnector";
 import { WebFlikAnimation } from "./WebFlikAnimation";
 import { PartialPick, PickFromArray } from "./utils/utilityTypes";
