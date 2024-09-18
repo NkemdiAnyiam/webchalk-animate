@@ -5,9 +5,7 @@ export type WbfkConnectorConfig = {
   pointTrackingEnabled: boolean;
 };
 
-/* @ts-ignore */
 if (window.CSS.registerProperty) {
-  /* @ts-ignore */
   window.CSS.registerProperty({
     name: "--b-marker-opacity",
     syntax: "<number>",
@@ -15,7 +13,6 @@ if (window.CSS.registerProperty) {
     initialValue: '1',
   });
 
-  /* @ts-ignore */
   window.CSS.registerProperty({
     name: "--a-marker-opacity",
     syntax: "<number>",
