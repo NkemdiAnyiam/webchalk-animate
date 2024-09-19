@@ -100,6 +100,7 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
     return specifics ? getPartial(result, specifics) : result;
   }
 
+  /**@internal*/
   constructor(domElem: Element | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
     super(domElem, effectName, effectGeneratorBank);
     super.preventConnector();
@@ -260,6 +261,7 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
     return specifics ? getPartial(result, specifics) : result;
   }
 
+  /**@internal*/
   constructor(domElem: Element | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
     super(domElem, effectName, effectGeneratorBank);
     super.preventConnector();
@@ -560,6 +562,7 @@ export class ConnectorSetterClip extends AnimClip<EffectGenerator, ConnectorSett
     return super.getConfig();
   }
   
+  /**@internal*/
   constructor(
     connectorElem: WbfkConnector | null | undefined,
     pointA: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
@@ -691,6 +694,7 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
     return specifics ? getPartial(result, specifics) : result;
   }
 
+  /**@internal*/
   constructor(connectorElem: WbfkConnector | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
     super(connectorElem, effectName, effectGeneratorBank);
 
@@ -790,6 +794,7 @@ export class ConnectorExitClip<TEffectGenerator extends EffectGenerator<Connecto
     return super.getConfig();
   }
 
+  /**@internal*/
   constructor(connectorElem: WbfkConnector | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
     super(connectorElem, effectName, effectGeneratorBank);
 

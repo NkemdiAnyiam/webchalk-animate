@@ -1,6 +1,6 @@
 import { AnimSequence } from "./AnimSequence";
 import { AnimTimeline } from "./AnimTimeline";
-import { EffectOptions, EffectGeneratorBank, EffectGenerator } from "./WebFlik";
+import { EffectOptions, EffectGeneratorBank, EffectGenerator, webflik } from "./WebFlik";
 import { call, getPartial, mergeArrays } from "./utils/helpers";
 import { EasingString, useEasing } from "./utils/easing";
 import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "./utils/errors";
@@ -620,6 +620,19 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   }
 
   constructor(domElem: Element | null | undefined, effectName: string, bank: EffectGeneratorBank) {
+    if (webflik.clipCreatorLock) {
+      throw this.generateError(
+        TypeError,
+        `Illegal constructor. Clips can only be instantiated using clip factory functions.` +
+        errorTip(
+          `Tip: Clip factory functions are created by webflik.createAnimationFactories(),` +
+          ` a method that returns an object containing factory functions like Entrance(), Motion(), etc.` +
+          ` (A factory function is just a function that returns an instance of a class without using 'new').`
+        )
+      );
+    }
+    webflik.clipCreatorLock = true;
+
     this.id = AnimClip.id++;
     
     if (!domElem) {

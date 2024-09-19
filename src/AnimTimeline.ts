@@ -3,6 +3,7 @@ import { CustomErrors, errorTip, generateError, TimelineErrorGenerator } from ".
 import { getPartial } from "./utils/helpers";
 import { PickFromArray } from "./utils/utilityTypes";
 import { WbfkPlaybackButton } from "./WbfkPlaybackButton";
+import { webflik, WebFlik } from "./WebFlik";
 
 // TYPE
 /**
@@ -305,7 +306,13 @@ export class AnimTimeline {
     return new AnimTimeline(config, ...animSequences);
   }
 
+  /**@internal*/
   constructor(configOrSequence: Partial<AnimTimelineConfig>| AnimSequence = {}, ...animSequence: AnimSequence[]) {
+    if (webflik.timelineCreatorLock) {
+      throw this.generateError(TypeError, `Illegal constructor. Timelines can only be instantiated using webflik.newTimeline().`);
+    }
+    webflik.timelineCreatorLock = true;
+    
     this.id = AnimTimeline.id++;
 
     Object.assign(this.config, configOrSequence instanceof AnimSequence ? {} : configOrSequence);

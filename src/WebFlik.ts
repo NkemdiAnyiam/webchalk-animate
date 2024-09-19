@@ -114,15 +114,25 @@ export type EffectNameIn<TGeneratorBank extends EffectGeneratorBank> = Exclude<k
  * @hideconstructor
  */
 export class WebFlik {
+  // used to prevent direct calls to playback structures' constructors
+  /**@internal*/ sequenceCreatorLock = true;
+  /**@internal*/ timelineCreatorLock = true;
+  /**@internal*/ clipCreatorLock = true;
+
   newSequence(config: Partial<AnimSequenceConfig>, ...animClips: AnimClip[]): AnimSequence;
   newSequence(...animClips: AnimClip[]): AnimSequence;
   newSequence(config: Partial<AnimSequenceConfig> | AnimClip = {}, ...animClips: AnimClip[]): AnimSequence {
-    return new AnimSequence(config, ...animClips);
+    this.sequenceCreatorLock = false;
+    const sequence = new AnimSequence(config, ...animClips);
+    return sequence;
   }
+  
   newTimeline(config: Partial<AnimTimelineConfig>, ...animSequences: AnimSequence[]): AnimTimeline;
   newTimeline(...animSequences: AnimSequence[]): AnimTimeline;
   newTimeline(config: Partial<AnimTimelineConfig> | AnimSequence = {}, ...animSequences: AnimSequence[]): AnimTimeline {
-    return new AnimTimeline(config, ...animSequences);
+    this.timelineCreatorLock = false;
+    const timeline = new AnimTimeline(config, ...animSequences);
+    return timeline;
   }
 
   createAnimationFactories
@@ -179,6 +189,7 @@ export class WebFlik {
     const combinedConnectorExitBank = mergeBanks(libPresetConnectorExits, {} as _EmptyConnectorExitBank);
     const combinedScrollerBank = mergeBanks(libPresetScrolls, {} as _EmptyScrollerBank);
 
+    const self = this;
     // return functions that can be used to instantiate AnimClips with intellisense for the combined banks
     return {
       Entrance: function<TGeneratorBank extends typeof combinedEntranceBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
@@ -186,6 +197,7 @@ export class WebFlik {
         effectName: TEffectName,
         ...initializationParams: Parameters<EntranceClip<TEffectGenerator>['initialize']>
       ) {
+        self.clipCreatorLock = false;
         return new EntranceClip<TEffectGenerator>(domElem, effectName, combinedEntranceBank).initialize(...initializationParams);
       },
 
@@ -194,6 +206,7 @@ export class WebFlik {
         effectName: TEffectName,
         ...initializationParams: Parameters<ExitClip<TEffectGenerator>['initialize']>
       ) {
+        self.clipCreatorLock = false;
         return new ExitClip<TEffectGenerator>(domElem, effectName, combinedExitBank).initialize(...initializationParams);
       },
 
@@ -202,6 +215,7 @@ export class WebFlik {
         effectName: TEffectName,
         ...initializationParams: Parameters<EmphasisClip<TEffectGenerator>['initialize']>
       ) {
+        self.clipCreatorLock = false;
         return new EmphasisClip<TEffectGenerator>(domElem, effectName, combinedEmphasisBank).initialize(...initializationParams);
       },
 
@@ -210,6 +224,7 @@ export class WebFlik {
         effectName: TEffectName,
         ...initializationParams: Parameters<MotionClip<TEffectGenerator>['initialize']>
       ) {
+        self.clipCreatorLock = false;
         return new MotionClip<TEffectGenerator>(domElem, effectName, combinedMotionBank).initialize(...initializationParams);
       },
 
@@ -218,6 +233,7 @@ export class WebFlik {
         effectName: TEffectName,
         ...initializationParams: Parameters<TransitionClip<TEffectGenerator>['initialize']>
       ) {
+        self.clipCreatorLock = false;
         return new TransitionClip<TEffectGenerator>(domElem, effectName, combinedTransitionBank).initialize(...initializationParams);
       },
 
@@ -227,6 +243,7 @@ export class WebFlik {
         pointB: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
         connectorConfig: WbfkConnectorConfig = {} as WbfkConnectorConfig
       ) {
+        self.clipCreatorLock = false;
         const effectName = `~set-line-points`;
         return new ConnectorSetterClip(
           connectorElem, pointA, pointB, effectName, {[effectName]: {...AnimClip.createNoOpEffectGenerator(), effectName}}, connectorConfig
@@ -240,6 +257,7 @@ export class WebFlik {
         effectName: TEffectName,
         ...initializationParams: Parameters<ConnectorEntranceClip<TEffectGenerator>['initialize']>
       ) {
+        self.clipCreatorLock = false;
         return new ConnectorEntranceClip<TEffectGenerator>(connectorElem, effectName, combinedConnectorEntranceBank).initialize(...initializationParams);
       },
 
@@ -248,6 +266,7 @@ export class WebFlik {
         effectName: TEffectName,
         ...initializationParams: Parameters<ConnectorExitClip<TEffectGenerator>['initialize']>
       ) { 
+        self.clipCreatorLock = false;
         return new ConnectorExitClip<TEffectGenerator>(connectorElem, effectName, combinedConnectorExitBank).initialize(...initializationParams);
       },
       
@@ -257,6 +276,7 @@ export class WebFlik {
         effectName: TEffectName,
         ...initializationParams: Parameters<ScrollerClip<TEffectGenerator>['initialize']>
       ) {
+        self.clipCreatorLock = false;
         return new ScrollerClip<TEffectGenerator>(domElem, effectName, combinedScrollerBank).initialize(...initializationParams);
       },
     };

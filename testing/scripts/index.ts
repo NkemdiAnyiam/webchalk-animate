@@ -1,5 +1,5 @@
 import { webflik } from 'webflik';
-import { WbfkClassTypes } from 'webflik/types'
+import { WbfkClassTypes } from 'webflik/types';
 
 const {Motion, Entrance, Emphasis, Exit} = webflik.createAnimationFactories({
   customEntranceEffects: {

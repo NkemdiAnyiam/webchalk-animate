@@ -3,6 +3,7 @@ import { AnimTimeline } from "./AnimTimeline";
 import { CustomErrors, errorTip, generateError, SequenceErrorGenerator } from "./utils/errors";
 import { getPartial } from "./utils/helpers";
 import { PickFromArray } from "./utils/utilityTypes";
+import { webflik, WebFlik } from "./WebFlik";
 
 // TYPE
 /**
@@ -404,6 +405,11 @@ export class AnimSequence {
   // constructor(config: Partial<AnimSequenceConfig>, ...animClips: AnimClip[]);
   // constructor(...animClips: AnimClip[]);
   constructor(configOrClips: Partial<AnimSequenceConfig> | AnimClip = {}, ...animClips: AnimClip[]) {
+    if (webflik.sequenceCreatorLock) {
+      throw this.generateError(TypeError, `Illegal constructor. Sequences can only be instantiated using webflik.newSequence().`);
+    }
+    webflik.sequenceCreatorLock = true;
+    
     this.id = AnimSequence.id++;
 
     Object.assign(this.config, configOrClips instanceof AnimClip ? {} : configOrClips);
