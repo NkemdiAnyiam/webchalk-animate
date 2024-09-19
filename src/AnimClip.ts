@@ -257,7 +257,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   private static id: number = 0;
 
   /**
-   * The base default configuration for any animation clip before any cateogory-specific
+   * The base default configuration for any animation clip before any category-specific
    * configuration, effect generator configuration, or configuration passed in through
    * clip factory functions are applied.
    * @group Configuration
