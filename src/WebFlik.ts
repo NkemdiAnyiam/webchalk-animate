@@ -1,15 +1,8 @@
 import { AnimClip, AnimClipConfig} from "./AnimClip";
 import {
-  EntranceClip, ExitClip, EmphasisClip, MotionClip, ScrollerClip, TransitionClip, ExitClipConfig, EntranceClipConfig,
+  EntranceClip, ExitClip, EmphasisClip, MotionClip, ScrollerClip, TransitionClip,
   ConnectorEntranceClip, ConnectorExitClip, ConnectorSetterClip,
-  EmphasisClipConfig,
-  MotionClipConfig,
-  ScrollerClipConfig,
-  ConnectorExitClipConfig,
-  ConnectorEntranceClipConfig,
-  TransitionClipConfig,
   Layer3MutableClipConfig,
-  // ImmutableLayer2EntranceClipConfig
 } from "./categoricalClips";
 import { AnimSequence, AnimSequenceConfig } from "./AnimSequence";
 import { AnimTimeline, AnimTimelineConfig } from "./AnimTimeline";

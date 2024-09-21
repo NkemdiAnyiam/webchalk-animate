@@ -3,7 +3,7 @@ import { CustomErrors, errorTip, generateError, TimelineErrorGenerator } from ".
 import { getPartial } from "./utils/helpers";
 import { PickFromArray } from "./utils/utilityTypes";
 import { WbfkPlaybackButton } from "./WbfkPlaybackButton";
-import { webflik, WebFlik } from "./WebFlik";
+import { webflik } from "./WebFlik";
 
 // TYPE
 /**
