@@ -14,6 +14,7 @@ import {
 import { useEasing } from "./utils/easing";
 import { Keyframes, MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./utils/interfaces";
 import { ReadonlyPick, ReadonlyRecord, StripDuplicateMethodAutocompletion } from "./utils/utilityTypes";
+import { WbfkPlaybackButton } from "./WbfkPlaybackButton";
 
 
 type KeyframesGenerator<TClipContext extends unknown> = {
@@ -119,7 +120,7 @@ export class WebFlik {
     const sequence = new AnimSequence(config, ...animClips);
     return sequence;
   }
-  
+
   newTimeline(config: Partial<AnimTimelineConfig>, ...animSequences: AnimSequence[]): AnimTimeline;
   newTimeline(...animSequences: AnimSequence[]): AnimTimeline;
   newTimeline(config: Partial<AnimTimelineConfig> | AnimSequence = {}, ...animSequences: AnimSequence[]): AnimTimeline {
@@ -127,6 +128,21 @@ export class WebFlik {
     const timeline = new AnimTimeline(config, ...animSequences);
     return timeline;
   }
+  
+  readonly classes = Object.freeze({
+    AnimClip,
+    EntranceClip,
+    ExitClip,
+    EmphasisClip,
+    MotionClip,
+    TransitionClip,
+    ScrollerClip,
+    ConnectorSetterClip,
+    ConnectorEntranceClip,
+    ConnectorExitClip,
+    WbfkConnector,
+    WbfkPlaybackButton,
+  });
 
   createAnimationFactories
   <
