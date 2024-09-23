@@ -130,6 +130,8 @@ export class WebFlik {
   }
   
   readonly classes = Object.freeze({
+    AnimTimeline,
+    AnimSequence,
     AnimClip,
     EntranceClip,
     ExitClip,
