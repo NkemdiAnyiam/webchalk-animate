@@ -1,5 +1,5 @@
 import { webflik } from 'webflik';
-import { WbfkClassTypes } from 'webflik/types';
+import * as WbfkTypes from 'webflik/types';
 
 const {Motion, Entrance, Emphasis, Exit} = webflik.createAnimationFactories({
   customEntranceEffects: {
@@ -15,16 +15,16 @@ const {Motion, Entrance, Emphasis, Exit} = webflik.createAnimationFactories({
 });
 
 {
-  const thing: WbfkClassTypes['AnimSequence'] = webflik.newSequence();
+  const thing: WbfkTypes.AnimSequence = webflik.newSequence();
 
-  const func = function(sequence: WbfkClassTypes['AnimSequence']) {
+  const func = function(sequence: WbfkTypes.AnimSequence) {
 
   }
 
   func(webflik.newSequence())
 
 
-  const connector = document.querySelector<WbfkClassTypes['WbfkConnector']>('.connector--red');
+  const connector = document.querySelector<WbfkTypes.WbfkConnector>('.connector--red');
 }
 
 const square = document.querySelector('.square');
@@ -33,7 +33,7 @@ const ent = Entrance(square, '~appear', []);
 
 // console.log(ent.generateTimePromise === ent.generateTimePromise);
 
-const entrance = Entrance(square, '~fly-in', ['from-bottom'], {duration: 1000, hideNowType: 'display-none'});
+const entrance: WbfkTypes.EntranceClip = Entrance(square, '~fly-in', ['from-bottom'], {duration: 1000, hideNowType: 'display-none'});
 const motion = Motion(square, '~translate', [{translate: '200px, 200px'}], {duration: 1000, easing: 'bounce-out'});
 console.log(entrance.getModifiers());
 console.log(entrance.getModifiers('hideNowType'));

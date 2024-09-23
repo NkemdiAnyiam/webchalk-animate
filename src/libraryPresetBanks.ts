@@ -9,7 +9,7 @@ import {
   ConnectorExitClip,     ConnectorExitClipConfig,
   Layer3MutableClipConfig,
   // ImmutableLayer2EntranceClipConfig,
-} from "./categoricalClips";
+} from "./AnimClip";
 import { EffectGeneratorBank, webflik } from "./WebFlik";
 import { computeSelfScrollingBounds, negateNumString, overrideHidden, splitXYAlignmentString, splitXYTupleString, unOverrideHidden } from "./utils/helpers";
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "./utils/interfaces";
