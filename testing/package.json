@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean-up": "rm -rf ./.parcel-cache ./.cache",
     "out": "npm run clean-up && rm -rf node_modules",
-    "start": "npm run clean-up && npx parcel@2.7.0 index.html --no-cache"
+    "start": "npm run clean-up && npx parcel@2.9.0 index.html --no-cache"
   },
   "author": "",
   "license": "ISC",
@@ -16,5 +16,8 @@
   },
   "dependencies": {
     "webflik": "file:../tarballs/webflik-0.13.0.tgz"
+  },
+  "@parcel/resolver-default": {
+     "packageExports": true
   }
 }
