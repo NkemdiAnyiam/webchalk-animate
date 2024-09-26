@@ -1,6 +1,4 @@
 import { AnimClip } from "./AnimClip";
-import { AnimSequence } from "./AnimSequence";
-import { AnimTimeline } from "./AnimTimeline";
 import { CustomErrors, ClipErrorGenerator } from "./utils/errors";
 import { Keyframes } from "./utils/interfaces";
 
