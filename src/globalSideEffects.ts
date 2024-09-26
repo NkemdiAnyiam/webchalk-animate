@@ -5,6 +5,23 @@ import { WbfkPlaybackButton } from "./WbfkPlaybackButton";
 export function injectGlobals() {
   WbfkConnector.addToCustomElementRegistry();
   WbfkPlaybackButton.addToCustomElementRegistry();
+
+  // opacity of connector markers
+  if (window.CSS.registerProperty) {
+    window.CSS.registerProperty({
+      name: "--b-marker-opacity",
+      syntax: "<number>",
+      inherits: true,
+      initialValue: '1',
+    });
+  
+    window.CSS.registerProperty({
+      name: "--a-marker-opacity",
+      syntax: "<number>",
+      inherits: true,
+      initialValue: '1',
+    });
+  }
   
   createStyles(/*css*/`
     /* Using :where makes it possible for developer to easily override the default color */

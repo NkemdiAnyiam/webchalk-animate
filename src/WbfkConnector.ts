@@ -5,22 +5,6 @@ export type WbfkConnectorConfig = {
   pointTrackingEnabled: boolean;
 };
 
-if (window.CSS.registerProperty) {
-  window.CSS.registerProperty({
-    name: "--b-marker-opacity",
-    syntax: "<number>",
-    inherits: true,
-    initialValue: '1',
-  });
-
-  window.CSS.registerProperty({
-    name: "--a-marker-opacity",
-    syntax: "<number>",
-    inherits: true,
-    initialValue: '1',
-  });
-}
-
 // CHANGE NOTE: Completely get rid of obsolete AnimClipLineUpdater
 export class WbfkConnector extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('wbfk-connector', WbfkConnector); }
@@ -85,6 +69,7 @@ export class WbfkConnector extends HTMLElement {
     const htmlString = /*html*/`
       <style>
         :host {
+          /* marker opacity property registered in injectGlobals() */
           --a-marker-opacity: 1;
           --b-marker-opacity: 1;
           position: absolute !important;
