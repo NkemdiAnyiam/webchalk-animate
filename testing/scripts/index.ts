@@ -25,6 +25,8 @@ const {Motion, Entrance, Emphasis, Exit} = webflik.createAnimationFactories({
 
 
   const connector = document.querySelector<WbfkTypes.WbfkConnector>('.connector--red');
+
+  console.log(webflik.newSequence() instanceof WbfkTypes.AnimSequence);
 }
 
 const square = document.querySelector('.square');

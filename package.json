@@ -13,7 +13,7 @@
     "./types": "./dist/exports/types.js"
   },
   "scripts": {
-    "build": "tsup src/index.ts src/exports/types.ts --format cjs,esm --dts",
+    "build": "tsup",
     "pack-up": "npm run build && npm pack --pack-destination=\"./tarballs\"",
     "in": "npm i && npm run pack-up",
     "out": "rm -rf ./dist ./node_modules",
@@ -31,6 +31,7 @@
   "author": "Nkemdi Anyiam",
   "license": "ISC",
   "devDependencies": {
+    "@types/node": "^22.7.2",
     "tsup": "^8.0.1",
     "typedoc": "^0.26.7",
     "typedoc-material-theme": "^1.1.0",
