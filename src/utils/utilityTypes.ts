@@ -1,10 +1,10 @@
 interface Nothing {};
 export type Union<T, U> = T | (U & Nothing);
-export type PrefixProps<T extends {}, P extends string> = { [key in Extract<keyof T, string> as `${P}${key}`]: T[key] };
-export type PostfixProps<T extends {}, P extends string> = { [key in Extract<keyof T, string> as `${key}${P}`]: T[key] };
-export type PrePostfixProps<T extends {}, Pre extends string, Post extends string = Pre> = {
-  [key in Extract<keyof T, string> as `${Pre}${key}${Post}`]: T[key]
-};
+// export type PrefixProps<T extends {}, P extends string> = { [key in Extract<keyof T, string> as `${P}${key}`]: T[key] };
+// export type PostfixProps<T extends {}, P extends string> = { [key in Extract<keyof T, string> as `${key}${P}`]: T[key] };
+// export type PrePostfixProps<T extends {}, Pre extends string, Post extends string = Pre> = {
+//   [key in Extract<keyof T, string> as `${Pre}${key}${Post}`]: T[key]
+// };
 
 /**
  * Prevents issue where "XOR"-like union of properties results in duplicated method names showing up in autocompletion.
