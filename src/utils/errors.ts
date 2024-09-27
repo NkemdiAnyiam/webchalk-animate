@@ -157,8 +157,6 @@ class InvalidChildError extends Error {
 }
 
 /**
- * Object containing WebFlik's custom Error classes.
- * 
  * @category hidden
  */
 export const CustomErrors = {
@@ -174,6 +172,8 @@ export const CustomErrors = {
 };
 
 /**
+ * Object containing WebFlik's custom Error classes.
+ * 
  * @interface
  */
 export type CustomErrors = typeof CustomErrors;
