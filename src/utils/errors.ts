@@ -178,6 +178,11 @@ export const CustomErrors = {
  */
 export type CustomErrors = typeof CustomErrors;
 
+/**
+ * Wraps the specified string in newlines and asterisks.
+ * @param tip - string containing extra information related to the error
+ * @returns A string decorated with asterisks to make it stand out.
+ */
 export const errorTip = (tip: string) => {
   return `\n\n${'*'.repeat(10)}\n${tip}\n${'*'.repeat(10)}`;
 };
