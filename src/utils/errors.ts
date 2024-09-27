@@ -89,6 +89,9 @@ class InvalidChildError extends Error {
   }
 }
 
+/**
+ * @category hidden
+ */
 export const CustomErrors = {
   CommitStylesError,
   InvalidElementError,
@@ -100,6 +103,11 @@ export const CustomErrors = {
   ChildPlaybackError,
   InvalidChildError,
 };
+
+/**
+ * @interface
+ */
+export type CustomErrors = typeof CustomErrors;
 
 export const errorTip = (tip: string) => {
   return `\n\n${'*'.repeat(10)}\n${tip}\n${'*'.repeat(10)}`;
