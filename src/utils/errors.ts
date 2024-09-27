@@ -3,27 +3,94 @@ import { AnimSequence } from "../AnimSequence";
 import { AnimTimeline } from "../AnimTimeline";
 import { getOpeningTag, indexToOrdinal } from "./helpers";
 
+/**
+ * Function that throws detailed error using additional location information based on
+ * {@link AnimClip}, its target DOM element, its parent {@link AnimSequence}, and its parent {@link AnimTimeline}.
+ */
 export type ClipErrorGenerator = {
-  <TError extends Error>(error: TError): TError;
-  // elementOverride is used only in the constructor where this.domElem is not yet defined
-  <TError extends Error>(ErrorClass: new (message: string) => TError, msg: string, elementOverride?: Element): TError;
+  /** If an Error instance is passed, the location is appended to it. */
+  <TError extends Error>(
+    /** The Error instance to attach the location information to */
+    error: TError
+  ): TError;
+  /**
+   * If an Error class function is passed, it is used to create an Error instance with the `msg` parameter as the error message.
+   */
+  <TError extends Error>(
+    /** The Error class that will be instantiated */
+    ErrorClass: new (message: string) => TError,
+    /** The error message that will appear before the location information */
+    msg: string,
+    /**
+     * Used to explicitly set the DOM elem in the edgecase where the error occurs in the clip's constructor
+     * (where the field containing the DOM element is not yet set)
+     */
+    elementOverride?: Element
+  ): TError;
 };
 
+/**
+ * Function that throws detailed error using additional location information based on
+ * {@link AnimSequence} and its parent {@link AnimTimeline}.
+ */
 export type SequenceErrorGenerator = {
-  <TError extends Error>(error: TError): TError;
-  <TError extends Error>(ErrorClass: new (message: string) => TError, msg: string): TError;
+  /** If an Error instance is passed, the location is appended to it. */
+  <TError extends Error>(
+    /** The Error instance to attach the location information to */
+    error: TError
+  ): TError;
+  /**
+   * If an Error class function is passed, it is used to create an Error instance with the `msg` parameter as the error message.
+   */
+  <TError extends Error>(
+    /** The Error class that will be instantiated */
+    ErrorClass: new (message: string) => TError,
+    /** The error message that will appear before the location information */
+    msg: string
+  ): TError;
 };
 
+/**
+ * Function that throws a detailed error using additional location information based on the {@link AnimTimeline}.
+ */
 export type TimelineErrorGenerator = {
-  <TError extends Error>(error: TError): TError;
-  <TError extends Error>(ErrorClass: new (message: string) => TError, msg: string): TError;
+  /** If an Error instance is passed, the location is appended to it. */
+  <TError extends Error>(
+    /** The Error instance to attach the location information to */
+    error: TError
+  ): TError;
+  /**
+   * If an Error class function is passed, it is used to create an Error instance with the `msg` parameter as the error message.
+   */
+  <TError extends Error>(
+    /** The Error class that will be instantiated */
+    ErrorClass: new (message: string) => TError,
+    /** The error message that will appear before the location information */
+    msg: string
+  ): TError;
 };
 
+/**
+ * Function that throws an error with additional optional location information based on
+ * {@link AnimTimeline}, {@link AnimSequence}, {@link AnimClip}, or the DOM element being animated.
+ */
 export type GeneralErrorGenerator = {
   <TError extends Error>(
+    /** The Error instance (or Error class to be instantiated) to be thrown. */
     ErrorClassOrInstance: TError | (new (message: string) => TError),
+    /** Error message describing the issue */
     msg: string,
-    components?: {timeline?: AnimTimeline, sequence?: AnimSequence, clip?: AnimClip, element?: Element}): TError,
+    components?: {
+      /** The {@link AnimTimeline} involved in the error */
+      timeline?: AnimTimeline,
+      /** The {@link AnimSequence} involved in the error */
+      sequence?: AnimSequence,
+      /** The {@link AnimClip} involved in the error */
+      clip?: AnimClip,
+      /** The DOM element involved in the error */
+      element?: Element
+    }
+  ): TError,
 };
 
 class CommitStylesError extends Error {
@@ -90,6 +157,8 @@ class InvalidChildError extends Error {
 }
 
 /**
+ * Object containing WebFlik's custom Error classes.
+ * 
  * @category hidden
  */
 export const CustomErrors = {
@@ -113,6 +182,18 @@ export const errorTip = (tip: string) => {
   return `\n\n${'*'.repeat(10)}\n${tip}\n${'*'.repeat(10)}`;
 };
 
+/**
+ * Creates a detailed Error containing information about the structures involved in the error along with the error message.
+ * @param ErrorClassOrInstance - The Error instance (or Error class to be instantiated) to be thrown.
+ * @param msg - Error message describing the issue
+ * @param components - The structures whose details should be appended to {@link msg}
+ * @param components.timeline - The {@link AnimTimeline} involved in the error
+ * @param components.sequence - The {@link AnimSequence} involved in the error
+ * @param components.clip - The {@link AnimClip} involved in the error
+ * @param components.element - The DOM element involved in the error
+ * 
+ * @returns An Error containing details about where exactly in the timeline and/or sequence and/or clip the error occured.
+ */
 export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg = '<unspecified error>', components = {}) => {
   const {timeline, sequence, clip, element} = components;
   const locationPostfix = (

@@ -356,7 +356,7 @@ export class AnimTimeline {
   linkPlaybackButtons(options: {
     /** The HTML element from which to begin searching for the buttons */
     searchRoot?: HTMLElement,
-    /** Array of strings indicating which specific buttons we want to link. By default, all buttons are searched for. */
+    /** Array of strings indicating which specific buttons we want to link. By default, all buttons are searched for */
     buttonsSubset?: PlaybackButtonPurpose[]
   } = {}): this {
     const {
