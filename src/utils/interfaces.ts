@@ -91,16 +91,36 @@ export interface ScrollingOptions {
   preserveY?: boolean;
 };
 
+/**
+ * A few common options for units in CSS.
+ * - `"px"` refers to pixels
+ * - `"rem"` refers to root em
+ * - `"%"` refers to a percentage
+ * @see [CSS values and units](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Values_and_units)
+ */
 export type CssLengthUnit = | 'px' | 'rem' | '%';
 /** String in the form of a number and a CSS length unit, such as `"12px"`. */
 export type CssLength = `${number}${CssLengthUnit}`;
+/**
+ * Keywords for common alignments along the y-axis.
+ * - `"top"` indicates a distance of 0% from the top of an element
+ * - `"center"` indicates a distance of 50% from the top of an element
+ * - `"bottom"` indicates a distance of 100% from the top of an element
+ */
 export type CssYAlignment = | 'top' | 'bottom' | 'center';
+/**
+ * Keywords for common alignments along the x-axis.
+ * - `"left"` indicates a distance of 0% from the left of an element
+ * - `"center"` indicates a distance of 50% from the left of an element
+ * - `"right"` indicates a distance of 100% from the left of an element
+ */
 export type CssXAlignment = | 'left' | 'right' | 'center';
 
 /** String in the form of a number and the '%' sign, such as `"50%"`. */
 export type percentage = `${number}%`;
 /** String in the form of a number and 'px', such as `"12px"`. */
 export type pixels = `${number}px`
+/** Simply the plus sign `"+"` or the minus sign `"-"`. */
 export type operator = '+' | '-';
 
 /**
