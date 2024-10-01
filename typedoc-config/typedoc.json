@@ -2,7 +2,7 @@
   "plugin": ["typedoc-material-theme", "typedoc-plugin-mdn-links"],
   "themeColor": "#99ffff",
   "customCss": "./assets/typedoc-styles.scss",
-  "exclude": ["**/WebimatorAnimation.ts", "**/index.ts", "**/globalSideEffects.ts", "**/exports/types.ts"],
+  "exclude": ["**/WebimatorAnimation.ts", "**/index.ts", "**/globalSideEffects.ts"],
   "entryPoints": ["../src"],
   "entryPointStrategy": "expand",
   "out": "../docs",
