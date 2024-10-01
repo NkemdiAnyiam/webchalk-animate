@@ -35,7 +35,7 @@ export function indexToOrdinal(value: number | `${number}`) {
 
 export const createStyles = (rules: string = ''): void => {
   const sheet = document.createElement('style');
-  sheet.id = `wbfk-global-styles`;
+  sheet.id = `wbmtr-global-styles`;
   sheet.innerHTML = rules;
   document.body.appendChild(sheet);
 };
@@ -48,8 +48,8 @@ export const getOpeningTag = (element: Element | null | undefined): string => {
   return htmlText.substring(start, end + 1);
 };
 
-export const overrideHidden = (...elements: Element[]): void => { for (const element of elements) {element.classList.value += ` wbfk-override-hidden`} };
-export const unOverrideHidden = (...elements: Element[]): void => { for (const element of elements) {element.classList.value = element.classList.value.replace(` wbfk-override-hidden`, '')} };
+export const overrideHidden = (...elements: Element[]): void => { for (const element of elements) {element.classList.value += ` wbmtr-override-hidden`} };
+export const unOverrideHidden = (...elements: Element[]): void => { for (const element of elements) {element.classList.value = element.classList.value.replace(` wbmtr-override-hidden`, '')} };
 
 export const splitXYTupleString = (tupleStr: `${CssLength}, ${CssLength}` | undefined): [x: CssLength, y: CssLength] | undefined => {
   return tupleStr?.split(', ') as [x: CssLength, y: CssLength] | undefined;

@@ -1,9 +1,9 @@
-import { webflik } from 'webflik';
-import * as WbfkTypes from 'webflik/types-and-interfaces';
-import * as WbfkErrors from "webflik/error-handling";
-import * as WbfkEasing from "webflik/easing";
+import { webimator } from 'webimator';
+import * as WebimatorTypes from 'webimator/types-and-interfaces';
+import * as WebimatorErrors from "webimator/error-handling";
+import * as WebimatorEasing from "webimator/easing";
 
-const {Motion, Entrance, Emphasis, Exit} = webflik.createAnimationFactories({
+const {Motion, Entrance, Emphasis, Exit} = webimator.createAnimationFactories({
   customEntranceEffects: {
     hello: {
       generateKeyframes() {
@@ -17,18 +17,18 @@ const {Motion, Entrance, Emphasis, Exit} = webflik.createAnimationFactories({
 });
 
 {
-  const thing: WbfkTypes.AnimSequence = webflik.newSequence();
+  const thing: WebimatorTypes.AnimSequence = webimator.newSequence();
 
-  const func = function(sequence: WbfkTypes.AnimSequence) {
+  const func = function(sequence: WebimatorTypes.AnimSequence) {
 
   }
 
-  func(webflik.newSequence())
+  func(webimator.newSequence())
 
 
-  const connector = document.querySelector<WbfkTypes.WbfkConnector>('.connector--red');
+  const connector = document.querySelector<WebimatorTypes.WbmtrConnector>('.connector--red');
 
-  console.log(webflik.newSequence() instanceof WbfkTypes.AnimSequence);
+  console.log(webimator.newSequence() instanceof WebimatorTypes.AnimSequence);
 }
 
 const square = document.querySelector('.square');
@@ -37,7 +37,7 @@ const ent = Entrance(square, '~appear', []);
 
 // console.log(ent.generateTimePromise === ent.generateTimePromise);
 
-const entrance: WbfkTypes.EntranceClip = Entrance(square, '~fly-in', ['from-bottom'], {duration: 1000, hideNowType: 'display-none'});
+const entrance: WebimatorTypes.EntranceClip = Entrance(square, '~fly-in', ['from-bottom'], {duration: 1000, hideNowType: 'display-none'});
 const motion = Motion(square, '~translate', [{translate: '200px, 200px'}], {duration: 1000, easing: 'bounce-out'});
 console.log(entrance.getModifiers());
 console.log(entrance.getModifiers('hideNowType'));
@@ -80,7 +80,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   // });
   // console.log('HELLO WORLD')
 
-  const seq = webflik.newSequence(
+  const seq = webimator.newSequence(
     entrance,
     motion,
     Emphasis(square, '~highlight', [], {}),
@@ -107,7 +107,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   //   console.log('WE BACK')
   // });
 
-  const timeline = webflik.newTimeline({timelineName: 'Basic', autoLinksButtons: false});
+  const timeline = webimator.newTimeline({timelineName: 'Basic', autoLinksButtons: false});
   timeline.linkPlaybackButtons();
   await wait(1000);
   timeline.addSequences(seq);

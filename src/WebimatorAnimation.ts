@@ -18,11 +18,11 @@ type Segment = [
 type SegmentsCache = [delayPhaseEnd: Segment, activePhaseEnd: Segment, endDelayPhaseEnd: Segment];
 
 type FullyFinishedPromise = {
-  promise: Promise<WebFlikAnimation>;
-  resolve: (value: WebFlikAnimation | PromiseLike<WebFlikAnimation>) => void;
+  promise: Promise<WebimatorAnimation>;
+  resolve: (value: WebimatorAnimation | PromiseLike<WebimatorAnimation>) => void;
 };
 
-export class WebFlikAnimation extends Animation {
+export class WebimatorAnimation extends Animation {
   direction: 'forward' | 'backward' = 'forward';
   private getEffect(direction: 'forward' | 'backward'): KeyframeEffect { return direction === 'forward' ? this.forwardEffect : this.backwardEffect; }
   private inProgress = false;
@@ -101,7 +101,7 @@ export class WebFlikAnimation extends Animation {
   }
 
   private getNewFullyFinished(): FullyFinishedPromise {
-    const {resolve, promise} = Promise.withResolvers<WebFlikAnimation>();
+    const {resolve, promise} = Promise.withResolvers<WebimatorAnimation>();
     return {resolve, promise};
   }
   
@@ -242,7 +242,7 @@ export class WebFlikAnimation extends Animation {
       // if the animation is already finished in the given direction, resolve immediately
       if (this.isFinished && this.direction === direction) { resolve(); return; }
 
-      const [segments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition] = WebFlikAnimation.computePhaseEmplacement(this, direction, phase, timePosition);
+      const [segments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition] = WebimatorAnimation.computePhaseEmplacement(this, direction, phase, timePosition);
 
       // check for out of bounds time positions
       if (phaseTimePosition < 0) {
@@ -318,7 +318,7 @@ export class WebFlikAnimation extends Animation {
       return;
     }
     
-    const [segments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition] = WebFlikAnimation.computePhaseEmplacement(this, direction, phase, timePosition);
+    const [segments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition] = WebimatorAnimation.computePhaseEmplacement(this, direction, phase, timePosition);
 
     // check for out of bounds time positions
     if (phaseTimePosition < 0) {
@@ -376,7 +376,7 @@ export class WebFlikAnimation extends Animation {
   }
 
   private static computePhaseEmplacement(
-    anim: WebFlikAnimation,
+    anim: WebimatorAnimation,
     direction: 'forward' | 'backward',
     phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
     timePosition: number | 'beginning' | 'end' | `${number}%`,

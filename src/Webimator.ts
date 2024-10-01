@@ -6,7 +6,7 @@ import {
 } from "./AnimClip";
 import { AnimSequence, AnimSequenceConfig } from "./AnimSequence";
 import { AnimTimeline, AnimTimelineConfig } from "./AnimTimeline";
-import { WbfkConnector, WbfkConnectorConfig } from "./WbfkConnector";
+import { WbmtrConnector, WbmtrConnectorConfig } from "./WbmtrConnector";
 import {
   libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions,
   libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions
@@ -14,7 +14,7 @@ import {
 import { useEasing } from "./utils/easing";
 import { Keyframes, MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./utils/interfaces";
 import { ReadonlyPick, ReadonlyRecord, StripDuplicateMethodAutocompletion } from "./utils/utilityTypes";
-import { WbfkPlaybackButton } from "./WbfkPlaybackButton";
+import { WbmtrPlaybackButton } from "./WbmtrPlaybackButton";
 
 
 type KeyframesGenerator<TClipContext extends unknown> = {
@@ -107,7 +107,7 @@ export type EffectNameIn<TGeneratorBank extends EffectGeneratorBank> = Exclude<k
 /**
  * @hideconstructor
  */
-export class WebFlik {
+export class Webimator {
   // used to prevent direct calls to playback structures' constructors
   /**@internal*/ sequenceCreatorLock = true;
   /**@internal*/ timelineCreatorLock = true;
@@ -142,8 +142,8 @@ export class WebFlik {
     ConnectorSetterClip,
     ConnectorEntranceClip,
     ConnectorExitClip,
-    WbfkConnector,
-    WbfkPlaybackButton,
+    WbmtrConnector,
+    WbmtrPlaybackButton,
   });
 
   createAnimationFactories
@@ -175,7 +175,7 @@ export class WebFlik {
       customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisClip, Layer3MutableClipConfig<EmphasisClip>>;
       customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionClip, Layer3MutableClipConfig<MotionClip>>;
     };
-    WebFlik.checkBanksFormatting(customEntranceEffects, customExitEffects, customEmphasisEffects, customMotionEffects);
+    Webimator.checkBanksFormatting(customEntranceEffects, customExitEffects, customEmphasisEffects, customMotionEffects);
 
     type TogglePresets<TLibBank, TCustomBank> = Readonly<(IncludeLibPresets extends true ? TLibBank : {}) & TCustomBank>;
 
@@ -249,10 +249,10 @@ export class WebFlik {
       },
 
       ConnectorSetter: function(
-        connectorElem: WbfkConnector | null | undefined,
+        connectorElem: WbmtrConnector | null | undefined,
         pointA: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
         pointB: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
-        connectorConfig: WbfkConnectorConfig = {} as WbfkConnectorConfig
+        connectorConfig: WbmtrConnectorConfig = {} as WbmtrConnectorConfig
       ) {
         self.clipCreatorLock = false;
         const effectName = `~set-line-points`;
@@ -264,7 +264,7 @@ export class WebFlik {
       ConnectorEntrance: function<
         TGeneratorBank extends typeof combinedConnectorEntranceBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]
       >(
-        connectorElem: WbfkConnector | null | undefined,
+        connectorElem: WbmtrConnector | null | undefined,
         effectName: TEffectName,
         ...initializationParams: Parameters<ConnectorEntranceClip<TEffectGenerator>['initialize']>
       ) {
@@ -273,7 +273,7 @@ export class WebFlik {
       },
 
       ConnectorExit: function<TGeneratorBank extends typeof combinedConnectorExitBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
-        connectorElem: WbfkConnector | null | undefined,
+        connectorElem: WbmtrConnector | null | undefined,
         effectName: TEffectName,
         ...initializationParams: Parameters<ConnectorExitClip<TEffectGenerator>['initialize']>
       ) { 
@@ -329,9 +329,9 @@ export class WebFlik {
 /**
  * @ignore
  */
-export const webflik = new WebFlik();
+export const webimator = new Webimator();
 
-// const thing =  webflik.createAnimationFactories({
+// const thing =  webimator.createAnimationFactories({
 //   customEntranceEffects: {
 //     hello: {
 //       generateKeyframes() { return {

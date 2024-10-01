@@ -1,13 +1,13 @@
 import { equalWithinTol, overrideHidden, unOverrideHidden } from "./utils/helpers";
 import { ParsedMultiUnitPlacement } from "./utils/interfaces";
 
-export type WbfkConnectorConfig = {
+export type WbmtrConnectorConfig = {
   pointTrackingEnabled: boolean;
 };
 
 // CHANGE NOTE: Completely get rid of obsolete AnimClipLineUpdater
-export class WbfkConnector extends HTMLElement {
-  /**@internal*/ static addToCustomElementRegistry() { customElements.define('wbfk-connector', WbfkConnector); }
+export class WbmtrConnector extends HTMLElement {
+  /**@internal*/ static addToCustomElementRegistry() { customElements.define('wbmtr-connector', WbmtrConnector); }
   private static staticId: number = 0;
 
   private connectorId: number = 0;
@@ -53,7 +53,7 @@ export class WbfkConnector extends HTMLElement {
   
   constructor() {
     super();
-    this.connectorId = WbfkConnector.staticId++;
+    this.connectorId = WbmtrConnector.staticId++;
     const shadow = this.attachShadow({mode: 'open'});
 
     const markerIdPrefix = `markerArrow--${this.connectorId}`;
@@ -235,7 +235,7 @@ export class WbfkConnector extends HTMLElement {
     // CHANGE NOTE: elements are unhidden using override to allow access to bounding box
     // the override class is appended without classList.add() so that multiple applications...
     // of the class do not interfere with each other upon removal
-    const [aHidden, bHidden] = [pointA[0].classList.value.includes('wbfk-hidden'), pointB[0].classList.value.includes('wbfk-hidden')];
+    const [aHidden, bHidden] = [pointA[0].classList.value.includes('wbmtr-hidden'), pointB[0].classList.value.includes('wbmtr-hidden')];
     if (aHidden) overrideHidden(pointA[0]);
     if (bHidden) overrideHidden(pointB[0]);
     const {left: aLeft, right: aRight, top: aTop, bottom: aBottom} = pointA[0].getBoundingClientRect();

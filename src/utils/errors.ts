@@ -172,7 +172,7 @@ export const CustomErrors = {
 };
 
 /**
- * Object containing WebFlik's custom Error classes.
+ * Object containing Webimator's custom Error classes.
  * 
  * @interface
  */

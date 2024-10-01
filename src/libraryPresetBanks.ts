@@ -10,7 +10,7 @@ import {
   Layer3MutableClipConfig,
   // ImmutableLayer2EntranceClipConfig,
 } from "./AnimClip";
-import { EffectGeneratorBank, webflik } from "./WebFlik";
+import { EffectGeneratorBank, webimator } from "./Webimator";
 import { computeSelfScrollingBounds, negateNumString, overrideHidden, splitXYAlignmentString, splitXYTupleString, unOverrideHidden } from "./utils/helpers";
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "./utils/interfaces";
 import { useEasing } from "./utils/easing";
@@ -470,34 +470,34 @@ export const libPresetEmphases = {
      * @returns 
      */
     generateKeyframeGenerators(color: string = 'default') {
-      // (this.domElem as HTMLElement).style.setProperty(`--wbfk-highlight-color`, 'red');
+      // (this.domElem as HTMLElement).style.setProperty(`--wbmtr-highlight-color`, 'red');
       // let prevVal = '';
-      // if ((this.domElem as HTMLElement).getAttribute('style')?.includes('--wbfk-highlight-color')) {
-      //   prevVal = getComputedStyle(this.domElem as HTMLElement).getPropertyValue('--wbfk-highlight-color');
+      // if ((this.domElem as HTMLElement).getAttribute('style')?.includes('--wbmtr-highlight-color')) {
+      //   prevVal = getComputedStyle(this.domElem as HTMLElement).getPropertyValue('--wbmtr-highlight-color');
       // };
 
       // get the previous highlight color of the element (if none, it naturally uses the value from :root)
-      const prevColor = getComputedStyle(this.domElem as HTMLElement).getPropertyValue('--wbfk-highlight-color');
+      const prevColor = getComputedStyle(this.domElem as HTMLElement).getPropertyValue('--wbmtr-highlight-color');
       // if color is 'default', use :root's highlight color
       const finalColor = color === 'default'
-        ? getComputedStyle(document.documentElement).getPropertyValue('--wbfk-highlight-color')
+        ? getComputedStyle(document.documentElement).getPropertyValue('--wbmtr-highlight-color')
         : color;
       return {
         forwardGenerator: () => [
-          {['--wbfk-highlight-color']: prevColor, easing: 'step-start'}, // step-start -> steps(1, jump-start)
+          {['--wbmtr-highlight-color']: prevColor, easing: 'step-start'}, // step-start -> steps(1, jump-start)
           {backgroundPositionX: '100%', offset: 0},
           {backgroundPositionX: '0%', offset: 1},
-          {['--wbfk-highlight-color']: finalColor}
+          {['--wbmtr-highlight-color']: finalColor}
         ],
         backwardGenerator: () => [
-          {['--wbfk-highlight-color']: finalColor, easing: 'step-end'}, // step-end -> steps(1, jump-end)
+          {['--wbmtr-highlight-color']: finalColor, easing: 'step-end'}, // step-end -> steps(1, jump-end)
           {backgroundPositionX: '0%', offset: 0},
           {backgroundPositionX: '100%', offset: 1},
-          {['--wbfk-highlight-color']: prevColor}
+          {['--wbmtr-highlight-color']: prevColor}
         ]};
     },
     defaultConfig: {
-      cssClasses: { toAddOnStart: [`wbfk-highlightable`] },
+      cssClasses: { toAddOnStart: [`wbmtr-highlightable`] },
       // invalidProp: 4,
     } as const,
     immutableConfig: {},
@@ -514,7 +514,7 @@ export const libPresetEmphases = {
       } as const;
     },
     defaultConfig: {
-      cssClasses: { toRemoveOnFinish: [`wbfk-highlightable`] },
+      cssClasses: { toRemoveOnFinish: [`wbmtr-highlightable`] },
     } as const,
     immutableConfig: {},
   },
@@ -929,7 +929,7 @@ export const libPresetScrolls = {
         } = computeSelfScrollingBounds(this.domElem, target, scrollOptions);
         [x_from, y_from] = fromXY;
         [x_to, y_to] = toXY;
-        webflik.scrollAnchorsStack.push([target, scrollOptions]);
+        webimator.scrollAnchorsStack.push([target, scrollOptions]);
 
         if (getComputedStyle(target).display === 'none') {
           // TODO: improve warning
@@ -947,9 +947,9 @@ export const libPresetScrolls = {
       };
 
       const backwardGenerator = () => {
-        webflik.scrollAnchorsStack.pop();
-        if (webflik.scrollAnchorsStack.length > 0) {
-          const [anchor, anchorOptions] = webflik.scrollAnchorsStack[webflik.scrollAnchorsStack.length - 1];
+        webimator.scrollAnchorsStack.pop();
+        if (webimator.scrollAnchorsStack.length > 0) {
+          const [anchor, anchorOptions] = webimator.scrollAnchorsStack[webimator.scrollAnchorsStack.length - 1];
 
           const {
             fromXY: [x_from, y_from],

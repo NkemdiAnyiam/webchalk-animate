@@ -1,7 +1,7 @@
 {
-  "name": "webflik",
+  "name": "webimator",
   "version": "0.14.0",
-  "description": "Description of WebFlik will go here.",
+  "description": "Description of Webimator will go here.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -26,9 +26,10 @@
     "lint": "tsc"
   },
   "keywords": [
-    "webflik",
+    "webimator",
     "animation",
-    "typescript"
+    "typescript",
+    "javascript"
   ],
   "author": "Nkemdi Anyiam",
   "license": "ISC",

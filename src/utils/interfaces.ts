@@ -1,5 +1,5 @@
 // import { AnimClipConfig } from "../AnimClip";
-// import { EffectGenerator } from "../WebFlik";
+// import { EffectGenerator } from "../Webimator";
 // import { PrefixProps } from "./utilityTypes";
 
 // type FrozenPrefix = '__';

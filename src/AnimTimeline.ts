@@ -2,8 +2,8 @@ import { AnimSequence } from "./AnimSequence";
 import { CustomErrors, errorTip, generateError, TimelineErrorGenerator } from "./utils/errors";
 import { getPartial } from "./utils/helpers";
 import { PickFromArray } from "./utils/utilityTypes";
-import { WbfkPlaybackButton } from "./WbfkPlaybackButton";
-import { webflik } from "./WebFlik";
+import { WbmtrPlaybackButton } from "./WbmtrPlaybackButton";
+import { webimator } from "./Webimator";
 
 // TYPE
 /**
@@ -14,7 +14,7 @@ import { webflik } from "./WebFlik";
 export type AnimTimelineConfig = {
   /**
    * String representing the name of the timeline.
-   * This value is used to sync with `<wbfk-playback-button>` elements that share the same
+   * This value is used to sync with `<wbmtr-playback-button>` elements that share the same
    * value in their `timeline-name` attribute.
    * @defaultValue
    * ```ts
@@ -34,7 +34,7 @@ export type AnimTimelineConfig = {
   debugMode: boolean;
 
   /**
-   * If `true`, the timeline will instantly attempt to find `<wbfk-playback-button>` elements whose
+   * If `true`, the timeline will instantly attempt to find `<wbmtr-playback-button>` elements whose
    * `timeline-name` attributes are equivalent to the timeline's `timelineName` configuration option
    * using {@link AnimTimeline.linkPlaybackButtons|linkPlaybackButtons()}.
    * @defaultValue
@@ -128,7 +128,7 @@ const DISABLED_FROM_PAUSE = 'playback-button--disabledFromPause';
 
 // TYPE
 type PlaybackButtons = {
-  [key in `${'forward' | 'backward' | 'pause' | 'toggleSkipping' | 'fastForward'}Button`]: WbfkPlaybackButton | null | undefined;
+  [key in `${'forward' | 'backward' | 'pause' | 'toggleSkipping' | 'fastForward'}Button`]: WbmtrPlaybackButton | null | undefined;
 };
 // TYPE
 type PlaybackButtonPurpose = `Step ${'Forward' | 'Backward'}` | 'Pause' | 'Fast Forward' | 'Toggle Skipping';
@@ -308,10 +308,10 @@ export class AnimTimeline {
 
   /**@internal*/
   constructor(configOrSequence: Partial<AnimTimelineConfig>| AnimSequence = {}, ...animSequence: AnimSequence[]) {
-    if (webflik.timelineCreatorLock) {
-      throw this.generateError(TypeError, `Illegal constructor. Timelines can only be instantiated using webflik.newTimeline().`);
+    if (webimator.timelineCreatorLock) {
+      throw this.generateError(TypeError, `Illegal constructor. Timelines can only be instantiated using webimator.newTimeline().`);
     }
-    webflik.timelineCreatorLock = true;
+    webimator.timelineCreatorLock = true;
     
     this.id = AnimTimeline.id++;
 
@@ -336,14 +336,14 @@ export class AnimTimeline {
   };
 
   /**
-   * Object containing properties that are either references to `<wbfk-playback-button>` elements that are connected to this timeline or `null`.
+   * Object containing properties that are either references to `<wbmtr-playback-button>` elements that are connected to this timeline or `null`.
    * - A property being `null` indicates that there is currently no corresponding button on the page that is linked to this timeline.
    * @group Playback UI
    */
   get playbackButtons(): Readonly<PlaybackButtons> { return {...this._playbackButtons}; }
 
   /**
-   * Searches the page for `<wbfk-playback-button>` elements whose
+   * Searches the page for `<wbmtr-playback-button>` elements whose
    * `timeline-name` attributes are equivalent to this timeline's `timelineName` configuration option,
    * then links those buttons to this timeline.
    * - By default, all button types are searched for.
@@ -366,11 +366,11 @@ export class AnimTimeline {
     const potentialButtonsContainer = (searchRoot ?? document).querySelector(`[timeline-name="${this.config.timelineName}"]`);
 
     // find the button if it has the correct timeline-name directly on it
-    const getButtonDirect = (action: WbfkPlaybackButton['action']) => (searchRoot ?? document).querySelector<WbfkPlaybackButton>(`wbfk-playback-button[action="${action}"][timeline-name="${this.config.timelineName}"]`);
+    const getButtonDirect = (action: WbmtrPlaybackButton['action']) => (searchRoot ?? document).querySelector<WbmtrPlaybackButton>(`wbmtr-playback-button[action="${action}"][timeline-name="${this.config.timelineName}"]`);
     // find the button if it is nested in a container with the correct timeline-name and does not have a timeline-name of its own
-    const getButtonGroupChild = (action: WbfkPlaybackButton['action']) => potentialButtonsContainer?.querySelector<WbfkPlaybackButton>(`wbfk-playback-button[action="${action}"]:not([timeline-name])`);
+    const getButtonGroupChild = (action: WbmtrPlaybackButton['action']) => potentialButtonsContainer?.querySelector<WbmtrPlaybackButton>(`wbmtr-playback-button[action="${action}"]:not([timeline-name])`);
     // search for button directly, then search for child of button group
-    const getButton = (action: WbfkPlaybackButton['action']) => getButtonDirect(action) ?? getButtonGroupChild(action);
+    const getButton = (action: WbmtrPlaybackButton['action']) => getButtonDirect(action) ?? getButtonGroupChild(action);
 
     const forwardButton = buttonsSubset.includes('Step Forward') ? getButton("step-forward") : undefined;
     const backwardButton = buttonsSubset.includes('Step Backward') ? getButton("step-backward") : undefined;
@@ -503,7 +503,7 @@ export class AnimTimeline {
     let wasWarned = false;
     const warnedList: string[] = [];
 
-    const warnButton = (button: WbfkPlaybackButton | null | undefined, purpose: PlaybackButtonPurpose) => {
+    const warnButton = (button: WbmtrPlaybackButton | null | undefined, purpose: PlaybackButtonPurpose) => {
       if (!button && buttonsSubset.includes(purpose)) {
         warnedList.push(purpose);
         wasWarned = true;
@@ -520,7 +520,7 @@ export class AnimTimeline {
         `Some buttons for timeline named "${this.config.timelineName}" not found.`
         + ` Missing buttons: ${warnedList.join(', ')}.`
         + errorTip(
-          `For <wbfk-playback-button> tags to be detected, their 'timeline-name' attribute (or the 'timeline-name' attribute of`
+          `For <wbmtr-playback-button> tags to be detected, their 'timeline-name' attribute (or the 'timeline-name' attribute of`
           + ` their parent container) must match this timeline's 'timelineName' configuration option.`
           + ` If this timeline does not need to detect any buttons, you may set its 'autoLinkButtons' config option to false`
         + ` to prevent this warning.`)

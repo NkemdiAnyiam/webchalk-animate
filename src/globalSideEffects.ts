@@ -1,10 +1,10 @@
 import { createStyles } from "./utils/helpers";
-import { WbfkConnector } from "./WbfkConnector";
-import { WbfkPlaybackButton } from "./WbfkPlaybackButton";
+import { WbmtrConnector } from "./WbmtrConnector";
+import { WbmtrPlaybackButton } from "./WbmtrPlaybackButton";
 
 export function injectGlobals() {
-  WbfkConnector.addToCustomElementRegistry();
-  WbfkPlaybackButton.addToCustomElementRegistry();
+  WbmtrConnector.addToCustomElementRegistry();
+  WbmtrPlaybackButton.addToCustomElementRegistry();
 
   // opacity of connector markers
   if (window.CSS.registerProperty) {
@@ -26,24 +26,24 @@ export function injectGlobals() {
   createStyles(/*css*/`
     /* Using :where makes it possible for developer to easily override the default color */
     :where(:root) {
-      --wbfk-highlight-color: #F9F278;
-      --wbfk-playback-button-press-color: #db0000;
-      --wbfk-playback-button-hold-color: #62B720;
-      --wbfk-playback-button-disabled-color: gray;
-      --wbfk-playback-button-background-color: #444;
-      --wbfk-playback-button-symbol-color: white;
+      --wbmtr-highlight-color: #F9F278;
+      --wbmtr-playback-button-press-color: #db0000;
+      --wbmtr-playback-button-hold-color: #62B720;
+      --wbmtr-playback-button-disabled-color: gray;
+      --wbmtr-playback-button-background-color: #444;
+      --wbmtr-playback-button-symbol-color: white;
     }
     
-    .wbfk-hidden:not(.wbfk-override-hidden) {
+    .wbmtr-hidden:not(.wbmtr-override-hidden) {
       display: none !important;
     }
     
-    .wbfk-invisible:not(.wbfk-override-hidden) {
+    .wbmtr-invisible:not(.wbmtr-override-hidden) {
       visibility: hidden !important;
     }
     
-    .wbfk-highlightable {
-      background-image: linear-gradient(to right, var(--wbfk-highlight-color) 50%, transparent 50%);
+    .wbmtr-highlightable {
+      background-image: linear-gradient(to right, var(--wbmtr-highlight-color) 50%, transparent 50%);
       background-size: 202%;
       background-position-x: 100%;
     }`

@@ -1,5 +1,5 @@
-export class WbfkPlaybackButton extends HTMLElement {
-  /**@internal*/ static addToCustomElementRegistry() { customElements.define('wbfk-playback-button', WbfkPlaybackButton); }
+export class WbmtrPlaybackButton extends HTMLElement {
+  /**@internal*/ static addToCustomElementRegistry() { customElements.define('wbmtr-playback-button', WbmtrPlaybackButton); }
 
   action: `step-${'forward' | 'backward'}` | 'pause' | 'fast-forward' | 'toggle-skipping';
   shortcutKey: KeyboardEvent['key'] | null;
@@ -28,7 +28,7 @@ export class WbfkPlaybackButton extends HTMLElement {
     switch(triggerMode) {
       case "press": break;
       case "hold": break;
-      default: throw new RangeError(`Invalid 'trigger' attribute value "${triggerMode}" for WebFlik playback button. Must be "press" or "hold".`)
+      default: throw new RangeError(`Invalid 'trigger' attribute value "${triggerMode}" for Webimator playback button. Must be "press" or "hold".`)
     }
     this.setAttribute('trigger', triggerMode);
     this.triggerMode = triggerMode;
@@ -51,7 +51,7 @@ export class WbfkPlaybackButton extends HTMLElement {
       case "toggle-skipping":
         buttonShapeHtmlStr = /*html*/`<path d="M0,0,23.866,17.34,0,34.681ZM28.982,34.681,52.848,17.34,28.982,0Zm28.982,0L81.83,17.34,57.964,0ZM81.83,47.149,57.964,64.489,81.83,81.83Zm-28.982,0L28.982,64.489,52.848,81.83Zm-28.982,0L0,64.489,23.866,81.83Z"/>`;
         break;
-      default: throw new RangeError(`Invalid 'action' attribute value "${action}" for WebFlik playback button. Must be "step-forward", "step-backward", "pause", "fast-forward", or "toggle-skipping".`);
+      default: throw new RangeError(`Invalid 'action' attribute value "${action}" for Webimator playback button. Must be "step-forward", "step-backward", "pause", "fast-forward", or "toggle-skipping".`);
     }
     this.action = action;
 
@@ -61,7 +61,7 @@ export class WbfkPlaybackButton extends HTMLElement {
           width: 25.6px;
           height: 25.6px;
           display: inline-block;
-          background-color: var(--wbfk-playback-button-background-color);
+          background-color: var(--wbmtr-playback-button-background-color);
           padding: 1.6px !important;
         
           box-shadow: -3.2px 3.2px 3.2px rgba(0, 0, 0, 0.4);
@@ -79,7 +79,7 @@ export class WbfkPlaybackButton extends HTMLElement {
         :host(.playback-button--disabledFromTimelineEdge),
         :host(.playback-button--disabledFromPause),
         :host(.playback-button--disabledFromStepping) {
-          background-color: var(--wbfk-playback-button-disabled-color);
+          background-color: var(--wbmtr-playback-button-disabled-color);
           cursor: not-allowed;
         }
         
@@ -89,17 +89,17 @@ export class WbfkPlaybackButton extends HTMLElement {
         }
         
         :host(.playback-button--pressed[trigger="press"]) {
-          background-color: var(--wbfk-playback-button-press-color);
+          background-color: var(--wbmtr-playback-button-press-color);
         }
         
         :host(.playback-button--pressed[trigger="hold"]) {
-          background-color: var(--wbfk-playback-button-hold-color);
+          background-color: var(--wbmtr-playback-button-hold-color);
         }
         
         .playback-button__symbol {
           width: 100%;
           height: auto;
-          fill: var(--wbfk-playback-button-symbol-color);
+          fill: var(--wbmtr-playback-button-symbol-color);
         }
       </style>
 
