@@ -10,7 +10,8 @@ import {
   Layer3MutableClipConfig,
   // ImmutableLayer2EntranceClipConfig,
 } from "../1_playbackStructures/AnimClipCategories";
-import { EffectGeneratorBank, webimator } from "../Webimator";
+import { webimator } from "../Webimator";
+import { EffectGeneratorBank } from "./generationTypes";
 import { computeSelfScrollingBounds, negateNumString, overrideHidden, splitXYAlignmentString, splitXYTupleString, unOverrideHidden } from "../4_utils/helpers";
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "../4_utils/interfaces";
 import { useEasing } from "../4_utils/easing";

@@ -1,6 +1,7 @@
 import { AnimSequence } from "./AnimSequence";
 import { AnimTimeline } from "./AnimTimeline";
-import { EffectOptions, EffectGeneratorBank, EffectGenerator, webimator } from "../Webimator";
+import { webimator } from "../Webimator";
+import { EffectOptions, EffectGeneratorBank, EffectGenerator } from "../2_animationEffects/generationTypes";
 import { call, getPartial, mergeArrays, parseMultiUnitPlacement } from "../4_utils/helpers";
 import { EasingString, useEasing } from "../4_utils/easing";
 import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "../4_utils/errors";

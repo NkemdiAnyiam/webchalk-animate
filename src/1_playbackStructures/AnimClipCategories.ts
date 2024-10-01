@@ -4,7 +4,7 @@ import { getPartial, parseMultiUnitPlacement } from "../4_utils/helpers";
 import { MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { WbmtrConnector, WbmtrConnectorConfig } from "../3_components/WbmtrConnector";
-import { EffectGenerator, EffectGeneratorBank, EffectOptions } from "../Webimator";
+import { EffectGenerator, EffectGeneratorBank, EffectOptions } from "../2_animationEffects/generationTypes";
 
 /** @ignore */
 export type Layer3MutableClipConfig<TClipClass extends AnimClip> = Omit<ReturnType<TClipClass['getConfig']>, keyof TClipClass['categoryImmutableConfig']>;
