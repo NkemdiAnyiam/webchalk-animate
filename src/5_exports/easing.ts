@@ -3,4 +3,4 @@ export {
   EasingString,
   easingMap,
   useEasing,
-} from "../utils/easing";
+} from "../4_utils/easing";

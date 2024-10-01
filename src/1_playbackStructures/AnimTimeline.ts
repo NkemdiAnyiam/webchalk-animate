@@ -1,9 +1,9 @@
 import { AnimSequence } from "./AnimSequence";
-import { CustomErrors, errorTip, generateError, TimelineErrorGenerator } from "./utils/errors";
-import { getPartial } from "./utils/helpers";
-import { PickFromArray } from "./utils/utilityTypes";
-import { WbmtrPlaybackButton } from "./WbmtrPlaybackButton";
-import { webimator } from "./Webimator";
+import { CustomErrors, errorTip, generateError, TimelineErrorGenerator } from "../4_utils/errors";
+import { getPartial } from "../4_utils/helpers";
+import { PickFromArray } from "../4_utils/utilityTypes";
+import { WbmtrPlaybackButton } from "../3_components/WbmtrPlaybackButton";
+import { webimator } from "../Webimator";
 
 // TYPE
 /**

@@ -1,6 +1,6 @@
 import { AnimClip } from "./AnimClip";
-import { CustomErrors, ClipErrorGenerator } from "./utils/errors";
-import { Keyframes } from "./utils/interfaces";
+import { CustomErrors, ClipErrorGenerator } from "../4_utils/errors";
+import { Keyframes } from "../4_utils/interfaces";
 
 type Segment = [
   endDelay: number,

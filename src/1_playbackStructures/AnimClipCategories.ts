@@ -1,10 +1,10 @@
 import { AnimClip, AnimClipConfig, AnimClipModifiers } from "./AnimClip";
-import { CustomErrors, errorTip } from "./utils/errors";
-import { getPartial, parseMultiUnitPlacement } from "./utils/helpers";
-import { MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement } from "./utils/interfaces";
-import { PickFromArray } from "./utils/utilityTypes";
-import { WbmtrConnector, WbmtrConnectorConfig } from "./WbmtrConnector";
-import { EffectGenerator, EffectGeneratorBank, EffectOptions } from "./Webimator";
+import { CustomErrors, errorTip } from "../4_utils/errors";
+import { getPartial, parseMultiUnitPlacement } from "../4_utils/helpers";
+import { MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
+import { PickFromArray } from "../4_utils/utilityTypes";
+import { WbmtrConnector, WbmtrConnectorConfig } from "../3_components/WbmtrConnector";
+import { EffectGenerator, EffectGeneratorBank, EffectOptions } from "../Webimator";
 
 /** @ignore */
 export type Layer3MutableClipConfig<TClipClass extends AnimClip> = Omit<ReturnType<TClipClass['getConfig']>, keyof TClipClass['categoryImmutableConfig']>;

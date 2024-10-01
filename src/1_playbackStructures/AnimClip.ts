@@ -1,13 +1,13 @@
 import { AnimSequence } from "./AnimSequence";
 import { AnimTimeline } from "./AnimTimeline";
-import { EffectOptions, EffectGeneratorBank, EffectGenerator, webimator } from "./Webimator";
-import { call, getPartial, mergeArrays, parseMultiUnitPlacement } from "./utils/helpers";
-import { EasingString, useEasing } from "./utils/easing";
-import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "./utils/errors";
-import { EffectCategory, Keyframes, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement } from "./utils/interfaces";
-import { WbmtrConnector, WbmtrConnectorConfig } from "./WbmtrConnector";
+import { EffectOptions, EffectGeneratorBank, EffectGenerator, webimator } from "../Webimator";
+import { call, getPartial, mergeArrays, parseMultiUnitPlacement } from "../4_utils/helpers";
+import { EasingString, useEasing } from "../4_utils/easing";
+import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "../4_utils/errors";
+import { EffectCategory, Keyframes, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
+import { WbmtrConnector, WbmtrConnectorConfig } from "../3_components/WbmtrConnector";
 import { WebimatorAnimation } from "./WebimatorAnimation";
-import { PartialPick, PickFromArray } from "./utils/utilityTypes";
+import { PartialPick, PickFromArray } from "../4_utils/utilityTypes";
 
 /**
  * Spreads {@link objOrIterable} whether it is an array of keyframes

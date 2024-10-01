@@ -1,6 +1,6 @@
-import { createStyles } from "./utils/helpers";
-import { WbmtrConnector } from "./WbmtrConnector";
-import { WbmtrPlaybackButton } from "./WbmtrPlaybackButton";
+import { createStyles } from "./4_utils/helpers";
+import { WbmtrConnector } from "./3_components/WbmtrConnector";
+import { WbmtrPlaybackButton } from "./3_components/WbmtrPlaybackButton";
 
 export function injectGlobals() {
   WbmtrConnector.addToCustomElementRegistry();

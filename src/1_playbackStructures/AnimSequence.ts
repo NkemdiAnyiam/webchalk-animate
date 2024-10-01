@@ -1,9 +1,9 @@
 import { AnimClip } from "./AnimClip";
 import { AnimTimeline } from "./AnimTimeline";
-import { CustomErrors, errorTip, generateError, SequenceErrorGenerator } from "./utils/errors";
-import { getPartial } from "./utils/helpers";
-import { PickFromArray } from "./utils/utilityTypes";
-import { webimator } from "./Webimator";
+import { CustomErrors, errorTip, generateError, SequenceErrorGenerator } from "../4_utils/errors";
+import { getPartial } from "../4_utils/helpers";
+import { PickFromArray } from "../4_utils/utilityTypes";
+import { webimator } from "../Webimator";
 
 // TYPE
 /**

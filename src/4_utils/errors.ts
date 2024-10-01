@@ -1,6 +1,6 @@
-import { AnimClip } from "../AnimClip";
-import { AnimSequence } from "../AnimSequence";
-import { AnimTimeline } from "../AnimTimeline";
+import { AnimClip } from "../1_playbackStructures/AnimClip";
+import { AnimSequence } from "../1_playbackStructures/AnimSequence";
+import { AnimTimeline } from "../1_playbackStructures/AnimTimeline";
 import { getOpeningTag, indexToOrdinal } from "./helpers";
 
 /**

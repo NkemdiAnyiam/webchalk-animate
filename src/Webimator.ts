@@ -1,20 +1,20 @@
-import { AnimClip, AnimClipConfig} from "./AnimClip";
+import { AnimClip, AnimClipConfig} from "./1_playbackStructures/AnimClip";
 import {
   EntranceClip, ExitClip, EmphasisClip, MotionClip, ScrollerClip, TransitionClip,
   ConnectorEntranceClip, ConnectorExitClip, ConnectorSetterClip,
   Layer3MutableClipConfig,
-} from "./AnimClipCategories";
-import { AnimSequence, AnimSequenceConfig } from "./AnimSequence";
-import { AnimTimeline, AnimTimelineConfig } from "./AnimTimeline";
-import { WbmtrConnector, WbmtrConnectorConfig } from "./WbmtrConnector";
+} from "./1_playbackStructures/AnimClipCategories";
+import { AnimSequence, AnimSequenceConfig } from "./1_playbackStructures/AnimSequence";
+import { AnimTimeline, AnimTimelineConfig } from "./1_playbackStructures/AnimTimeline";
+import { WbmtrConnector, WbmtrConnectorConfig } from "./3_components/WbmtrConnector";
 import {
   libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions,
   libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions
-} from "./libraryPresetBanks";
-import { useEasing } from "./utils/easing";
-import { Keyframes, MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./utils/interfaces";
-import { ReadonlyPick, ReadonlyRecord, StripDuplicateMethodAutocompletion } from "./utils/utilityTypes";
-import { WbmtrPlaybackButton } from "./WbmtrPlaybackButton";
+} from "./2_animationEffects/libraryPresetBanks";
+import { useEasing } from "./4_utils/easing";
+import { Keyframes, MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./4_utils/interfaces";
+import { ReadonlyPick, ReadonlyRecord, StripDuplicateMethodAutocompletion } from "./4_utils/utilityTypes";
+import { WbmtrPlaybackButton } from "./3_components/WbmtrPlaybackButton";
 
 
 type KeyframesGenerator<TClipContext extends unknown> = {

@@ -1,5 +1,5 @@
-import { equalWithinTol, overrideHidden, unOverrideHidden } from "./utils/helpers";
-import { ParsedMultiUnitPlacement } from "./utils/interfaces";
+import { equalWithinTol, overrideHidden, unOverrideHidden } from "../4_utils/helpers";
+import { ParsedMultiUnitPlacement } from "../4_utils/interfaces";
 
 export type WbmtrConnectorConfig = {
   pointTrackingEnabled: boolean;

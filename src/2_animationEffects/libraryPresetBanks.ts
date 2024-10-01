@@ -9,11 +9,11 @@ import {
   ConnectorExitClip,     ConnectorExitClipConfig,
   Layer3MutableClipConfig,
   // ImmutableLayer2EntranceClipConfig,
-} from "./AnimClipCategories";
-import { EffectGeneratorBank, webimator } from "./Webimator";
-import { computeSelfScrollingBounds, negateNumString, overrideHidden, splitXYAlignmentString, splitXYTupleString, unOverrideHidden } from "./utils/helpers";
-import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "./utils/interfaces";
-import { useEasing } from "./utils/easing";
+} from "../1_playbackStructures/AnimClipCategories";
+import { EffectGeneratorBank, webimator } from "../Webimator";
+import { computeSelfScrollingBounds, negateNumString, overrideHidden, splitXYAlignmentString, splitXYTupleString, unOverrideHidden } from "../4_utils/helpers";
+import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "../4_utils/interfaces";
+import { useEasing } from "../4_utils/easing";
 
 // type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }
 

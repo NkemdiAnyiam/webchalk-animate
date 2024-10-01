@@ -10,9 +10,9 @@
   ],
   "exports": {
     ".": "./dist/index.js",
-    "./types-and-interfaces": "./dist/exports/types.js",
-    "./error-handling": "./dist/exports/errorHandling.js",
-    "./easing": "./dist/exports/easing.js"
+    "./types-and-interfaces": "./dist/5_exports/types.js",
+    "./error-handling": "./dist/5_exports/errorHandling.js",
+    "./easing": "./dist/5_exports/easing.js"
   },
   "scripts": {
     "build": "tsup",
