@@ -1,4 +1,5 @@
 export * from "../AnimClip";
+export * from "../AnimClipCategories";
 export * from "../AnimSequence";
 export * from "../AnimTimeline";
 export * from "../WbmtrConnector";

@@ -3,7 +3,7 @@ import {
   EntranceClip, ExitClip, EmphasisClip, MotionClip, ScrollerClip, TransitionClip,
   ConnectorEntranceClip, ConnectorExitClip, ConnectorSetterClip,
   Layer3MutableClipConfig,
-} from "./AnimClip";
+} from "./AnimClipCategories";
 import { AnimSequence, AnimSequenceConfig } from "./AnimSequence";
 import { AnimTimeline, AnimTimelineConfig } from "./AnimTimeline";
 import { WbmtrConnector, WbmtrConnectorConfig } from "./WbmtrConnector";
