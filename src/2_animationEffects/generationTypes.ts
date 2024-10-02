@@ -4,50 +4,104 @@ import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord } from
 
 /**
  * @category Generator Types
+ * @interface
  */
 export type KeyframesGenerator<TClipContext extends unknown> = {
+  /**
+   * Runs every time the clip is played, returning up to 2 new sets of {@link Keyframes} each time.
+   * @param effectOptions - parameters used to set the behavior for the specific animation effect
+   * @returns An object containing 2 possible sets of {@link Keyframes}.
+   * - `forwardKeyframes` is used for the clip's animation when the clip is played
+   * - `backwardKeyframes` (optional) is used for the clip's animation when the clip is rewound
+   * - - If `backwardKeyframes` is omitted, the reversal of `forwardKeyframes` is used instead
+   */
   generateKeyframes(
     /**@ignore*/
     this: TClipContext,
     ...effectOptions: unknown[]): { forwardFrames: Keyframes; backwardFrames?: Keyframes; };
+  /** @ignore */
   generateKeyframeGenerators?: never;
+  /** @ignore */
   generateRafMutators?: never;
+  /** @ignore */
   generateRafMutatorGenerators?: never;
 };
 
 /**
  * @category Generator Types
+ * @interface
  */
 export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
+  /** @ignore */
   generateKeyframes?: never;
+  /**
+   * Runs itself exactly once (creating a closure) and returns up to 2 callback functions that each return one set of {@link Keyframes}.
+   * @param effectOptions - parameters used to set the behavior for the specific animation effect
+   * @returns An object containing 2 possible callback functions that each generate (return) one set of {@link Keyframes}.
+   * - `forwardGenerator` will run every time the clip is played
+   * - `backwardGenerator` (optional) will run every time the clip is rewound
+   * - - If `backwardGenerator` is omitted, `forwardGenerator` will be used, and the resulting keyframes will be reversed
+   */
   generateKeyframeGenerators(
     /**@ignore*/
     this: TClipContext,
     ...effectOptions: unknown[]): StripDuplicateMethodAutocompletion<{ forwardGenerator: () => Keyframes; backwardGenerator?: () => Keyframes; }>;
+  /** @ignore */
   generateRafMutators?: never;
+  /** @ignore */
   generateRafMutatorGenerators?: never;
 };
 
 /**
  * @category Generator Types
+ * @interface
  */
 export type RafMutatorsGenerator<TClipContext extends unknown> = {
+  /** @ignore */
   generateKeyframes?: never;
+  /** @ignore */
   generateKeyframeGenerators?: never;
+  /**
+   * Runs every time the clip is played, returning 2 functions each time.
+   * These functions are run every frame (using {@link requestAnimationFrame} behind the scenes),
+   * so if a property of the animated element is changed using
+   * {@link AnimClip.computeTween}, it will look like a smooth animation.
+   * @param effectOptions - parameters used to set the behavior for the specific animation effect
+   * @returns An object containing 2 functions.
+   * - `forwardMutator` is used for the clip's animation when the clip is played
+   * - `backwardKeyframes` is used for the clip's animation when the clip is rewound
+   * 
+   * @see {@link AnimClip.computeTween}
+   */
   generateRafMutators(
     /**@ignore*/
     this: TClipContext & ReadonlyPick<AnimClip, 'computeTween'>,
     ...effectOptions: unknown[]): StripDuplicateMethodAutocompletion<{ forwardMutator: () => void; backwardMutator: () => void; }>;
+  /** @ignore */
   generateRafMutatorGenerators?: never;
 };
 
 /**
  * @category Generator Types
+ * @interface
  */
 export type RafMutatorsGeneratorsGenerator<TClipContext extends unknown> = {
+  /** @ignore */
   generateKeyframes?: never;
+  /** @ignore */
   generateKeyframeGenerators?: never;
+  /** @ignore */
   generateRafMutators?: never;
+  /**
+   * Runs itself exactly once (creating a closure) and returns 2 function that each return one function.
+   * Those final returned functions are run every frame (using {@link requestAnimationFrame} behind the scenes),
+   * so if a property of the animated element is changed using
+   * {@link AnimClip.computeTween}, it will look like a smooth animation.
+   * @param effectOptions - parameters used to set the behavior for the specific animation effect
+   * @returns An object containing 2 callback functions that each generate (return) one function.
+   * - `forwardGenerator` will run every time the clip is played
+   * - `backwardGenerator` will run every time the clip is rewound
+   */
   generateRafMutatorGenerators(
     /**@ignore*/
     this: TClipContext & ReadonlyPick<AnimClip, 'computeTween'>,
@@ -55,7 +109,7 @@ export type RafMutatorsGeneratorsGenerator<TClipContext extends unknown> = {
 };
 
 /**
- * Object representing an entry in an {@link EffectGeneratorBank}. It consists of 3 properties.
+ * Object representing an entry in an {@link EffectGeneratorBank}. It consists of 3 properties:
  * - {@link EffectGenerator.defaultConfig | defaultConfig} contains default configuration options that are appropriate for the effect
  * - {@link EffectGenerator.immutableConfig | immutableConfig} contains default configuration options for the effect that cannot be changed
  * - a generator function that creates the animation effect. There are 4 possible functions:
@@ -87,16 +141,33 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
 >;
 // represents an object where every string key is paired with a EffectGenerator value
 
+/**
+ * Object containing {@link EffectGenerator} entries for a specific category of animation effect.
+ * For example, there is an effect generator bank containing effect generators for entrance animation effects.
+ */
 export type EffectGeneratorBank<TClip extends AnimClip = AnimClip, TClipConfig extends {} = AnimClipConfig, IncludeGeneratorExtras extends boolean = true> = ReadonlyRecord<
   string, EffectGenerator<ReadonlyPick<TClip, 'domElem' | 'getEffectDetails'>, TClipConfig, IncludeGeneratorExtras>
 >;
 
+/**
+ * The parameters for a specific {@link EffectGenerator}'s generator function.
+ */
 export type EffectOptions<TEffectGenerator extends EffectGenerator> = Parameters<
-  TEffectGenerator extends KeyframesGenerator<unknown> ? TEffectGenerator['generateKeyframes'] : (TEffectGenerator extends KeyframesGeneratorsGenerator<unknown> ? TEffectGenerator['generateKeyframeGenerators'] : (TEffectGenerator extends RafMutatorsGenerator<unknown> ? TEffectGenerator['generateRafMutators'] : (TEffectGenerator extends RafMutatorsGeneratorsGenerator<unknown> ? TEffectGenerator['generateRafMutatorGenerators'] : (never))))
+  TEffectGenerator extends KeyframesGenerator<unknown> ? TEffectGenerator['generateKeyframes']
+  : (TEffectGenerator extends KeyframesGeneratorsGenerator<unknown> ? TEffectGenerator['generateKeyframeGenerators']
+    : (TEffectGenerator extends RafMutatorsGenerator<unknown> ? TEffectGenerator['generateRafMutators']
+      : (TEffectGenerator extends RafMutatorsGeneratorsGenerator<unknown> ? TEffectGenerator['generateRafMutatorGenerators']
+        : (never)
+      )
+    )
+  )
 >;
+
 // CHANGE NOTE: EffectNameIn now handles keyof and Extract
 // extracts only those strings in an object whose paired value is an EffectGenerator
-
+/**
+ * Detects the keys corresponding only to {@link EffectGenerator} entries within an {@link EffectGeneratorBank}. 
+ */
 export type EffectNameIn<TGeneratorBank extends EffectGeneratorBank> = Exclude<keyof {
   [key in keyof TGeneratorBank as TGeneratorBank[key] extends EffectGenerator ? key : never]: TGeneratorBank[key];
 }, number | symbol>;
