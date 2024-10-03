@@ -1,6 +1,31 @@
 import { AnimClip, AnimClipConfig } from "../1_playbackStructures/AnimClip";
 import { Keyframes } from "../4_utils/interfaces";
 import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord } from "../4_utils/utilityTypes";
+import { webimator } from "../Webimator";
+
+{
+  const factories = webimator.createAnimationFactories({
+    customEntranceEffects: {
+      zoomIn: {
+        generateKeyframes(initialScale: number) {
+          return {
+            forwardFrames: [
+              {scale: initialScale, opacity: 0},
+              {scale: 1, opacity: 1}
+            ],
+            backwardFrames: [
+              {scale: 1, opacity: 1},
+              {scale: initialScale, opacity: 0}
+            ]
+          };
+        }
+      }
+    },
+  });
+  
+  const element = document.querySelector('.some-element');
+  const ent = factories.Entrance(element, 'zoomIn', [0.2]);
+}
 
 /**
  * @category Generator Types
@@ -14,6 +39,34 @@ export type KeyframesGenerator<TClipContext extends unknown> = {
    * - `forwardKeyframes` is used for the clip's animation when the clip is played
    * - `backwardKeyframes` (optional) is used for the clip's animation when the clip is rewound
    * - - If `backwardKeyframes` is omitted, the reversal of `forwardKeyframes` is used instead
+   * 
+   * @example
+   * ```ts
+   * const animFactories = webimator.createAnimationFactories({
+   *   customEntranceEffects: {
+   *     // a custom 'zoomIn' entrance animation that you might make
+   *     zoomIn: {
+   *       generateKeyframes(initialScale: number) {
+   *         return {
+   *           forwardFrames: [
+   *             {scale: initialScale, opacity: 0},
+   *             {scale: 1, opacity: 1}
+   *           ],
+   *           // (backwardFrames could have been omitted in this case because
+   *           // the reversal of forwardFrames is exactly equivalent)
+   *           backwardFrames: [
+   *             {scale: 1, opacity: 1},
+   *             {scale: initialScale, opacity: 0}
+   *           ]
+   *         };
+   *       }
+   *     }
+   *   },
+   * });
+
+   * const element = document.querySelector('.some-element');
+   * const ent = animFactories.Entrance(element, 'zoomIn', [0.2]);
+   * ```
    */
   generateKeyframes(
     /**@ignore*/
