@@ -1,4 +1,4 @@
-import { AnimClip, AnimClipConfig } from "../1_playbackStructures/AnimClip";
+import { AnimClip, AnimClipConfig } from "../1_playbackStructures/AnimationClip";
 import { Keyframes } from "../4_utils/interfaces";
 import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord } from "../4_utils/utilityTypes";
 import { webimator } from "../Webimator";

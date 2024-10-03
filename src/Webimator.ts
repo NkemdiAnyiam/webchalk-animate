@@ -1,11 +1,11 @@
-import { AnimClip} from "./1_playbackStructures/AnimClip";
+import { AnimClip} from "./1_playbackStructures/AnimationClip";
 import {
   EntranceClip, ExitClip, EmphasisClip, MotionClip, ScrollerClip, TransitionClip,
   ConnectorEntranceClip, ConnectorExitClip, ConnectorSetterClip,
   Layer3MutableClipConfig,
-} from "./1_playbackStructures/AnimClipCategories";
-import { AnimSequence, AnimSequenceConfig } from "./1_playbackStructures/AnimSequence";
-import { AnimTimeline, AnimTimelineConfig } from "./1_playbackStructures/AnimTimeline";
+} from "./1_playbackStructures/AnimationClipCategories";
+import { AnimSequence, AnimSequenceConfig } from "./1_playbackStructures/AnimationSequence";
+import { AnimTimeline, AnimTimelineConfig } from "./1_playbackStructures/AnimationTimeline";
 import { WbmtrConnector, WbmtrConnectorConfig } from "./3_components/WbmtrConnector";
 import {
   libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions,

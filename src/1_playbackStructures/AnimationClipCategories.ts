@@ -1,4 +1,4 @@
-import { AnimClip, AnimClipConfig, AnimClipModifiers } from "./AnimClip";
+import { AnimClip, AnimClipConfig, AnimClipModifiers } from "./AnimationClip";
 import { CustomErrors, errorTip } from "../4_utils/errors";
 import { getPartial, parseMultiUnitPlacement } from "../4_utils/helpers";
 import { MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement } from "../4_utils/interfaces";

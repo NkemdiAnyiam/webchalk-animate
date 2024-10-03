@@ -1,4 +1,4 @@
-import { AnimClip } from "./AnimClip";
+import { AnimClip } from "./AnimationClip";
 import { CustomErrors, ClipErrorGenerator } from "../4_utils/errors";
 import { Keyframes } from "../4_utils/interfaces";
 

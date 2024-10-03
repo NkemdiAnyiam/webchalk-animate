@@ -9,7 +9,7 @@ import {
   ConnectorExitClip,     ConnectorExitClipConfig,
   Layer3MutableClipConfig,
   // ImmutableLayer2EntranceClipConfig,
-} from "../1_playbackStructures/AnimClipCategories";
+} from "../1_playbackStructures/AnimationClipCategories";
 import { webimator } from "../Webimator";
 import { EffectGeneratorBank } from "./generationTypes";
 import { computeSelfScrollingBounds, negateNumString, overrideHidden, splitXYAlignmentString, splitXYTupleString, unOverrideHidden } from "../4_utils/helpers";

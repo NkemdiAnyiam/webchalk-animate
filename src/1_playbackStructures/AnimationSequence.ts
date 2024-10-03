@@ -1,5 +1,5 @@
-import { AnimClip } from "./AnimClip";
-import { AnimTimeline } from "./AnimTimeline";
+import { AnimClip } from "./AnimationClip";
+import { AnimTimeline } from "./AnimationTimeline";
 import { CustomErrors, errorTip, generateError, SequenceErrorGenerator } from "../4_utils/errors";
 import { getPartial } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";

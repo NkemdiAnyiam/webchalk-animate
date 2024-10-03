@@ -1,5 +1,5 @@
-import { AnimSequence } from "./AnimSequence";
-import { AnimTimeline } from "./AnimTimeline";
+import { AnimSequence } from "./AnimationSequence";
+import { AnimTimeline } from "./AnimationTimeline";
 import { webimator } from "../Webimator";
 import { EffectOptions, EffectGeneratorBank, EffectGenerator } from "../2_animationEffects/generationTypes";
 import { call, getPartial, mergeArrays, parseMultiUnitPlacement } from "../4_utils/helpers";

@@ -1,4 +1,4 @@
-import { AnimSequence } from "./AnimSequence";
+import { AnimSequence } from "./AnimationSequence";
 import { CustomErrors, errorTip, generateError, TimelineErrorGenerator } from "../4_utils/errors";
 import { getPartial } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
