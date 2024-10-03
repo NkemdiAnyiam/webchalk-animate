@@ -4,8 +4,9 @@ import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord } from
 import { webimator } from "../Webimator";
 
 {
-  const factories = webimator.createAnimationClipFactories({
+  const clipFactories = webimator.createAnimationClipFactories({
     customEntranceEffects: {
+      // a custom 'zoomIn' entrance animation effect that you might make
       zoomIn: {
         generateKeyframes(initialScale: number) {
           return {
@@ -13,6 +14,8 @@ import { webimator } from "../Webimator";
               {scale: initialScale, opacity: 0},
               {scale: 1, opacity: 1}
             ],
+            // (backwardFrames could have been omitted in this case because
+            // the reversal of forwardFrames is exactly equivalent)
             backwardFrames: [
               {scale: 1, opacity: 1},
               {scale: initialScale, opacity: 0}
@@ -22,9 +25,34 @@ import { webimator } from "../Webimator";
       }
     },
   });
-  
+
   const element = document.querySelector('.some-element');
-  const ent = factories.Entrance(element, 'zoomIn', [0.2]);
+  const ent = clipFactories.Entrance(element, 'zoomIn', [0.2]);
+}
+
+{
+  const clipFactories = webimator.createAnimationClipFactories({
+    customExitEffects: {
+      [`fly-out-left`]: {
+        generateKeyframeGenerators() {
+          const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
+          const translationString = `${orthogonalDistance}px 0px`;
+    
+          return {
+            forwardGenerator: () => [ {translate: translationString} ],
+            // backwardGenerator is omitted because the result of running forwardGenerator()
+            // again and reversing the keyframes produces the desired rewinding effect in this case
+          };
+        },
+        immutableConfig: {
+          composite: 'accumulate',
+        }
+      },
+    }
+  });
+
+  const element = document.querySelector('.some-element');
+  const ext = clipFactories.Exit(element, 'fly-out-left', []);
 }
 
 /**
@@ -42,7 +70,7 @@ export type KeyframesGenerator<TClipContext extends unknown> = {
    * 
    * @example
    * ```ts
-   * const animFactories = webimator.createAnimationClipFactories({
+   * const clipFactories = webimator.createAnimationClipFactories({
    *   customEntranceEffects: {
    *     // a custom 'zoomIn' entrance animation effect that you might make
    *     zoomIn: {
@@ -65,7 +93,8 @@ export type KeyframesGenerator<TClipContext extends unknown> = {
    * });
 
    * const element = document.querySelector('.some-element');
-   * const ent = animFactories.Entrance(element, 'zoomIn', [0.2]);
+   * const ent = clipFactories.Entrance(element, 'zoomIn', [0.2]);
+   * ent.play();
    * ```
    */
   generateKeyframes(
@@ -94,6 +123,34 @@ export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
    * - `forwardGenerator` will run every time the clip is played
    * - `backwardGenerator` (optional) will run every time the clip is rewound
    * - - If `backwardGenerator` is omitted, `forwardGenerator` will be used, and the resulting keyframes will be reversed
+   * 
+   * @example
+   * ```ts
+   * const clipFactories = webimator.createAnimationClipFactories({
+   *   customExitEffects: {
+   *     // a custom animation for flying out to the left side of the screen
+   *     flyOutLeft: {
+   *       generateKeyframeGenerators() {
+   *         const distance = -(this.domElem.getBoundingClientRect().right);
+   *         const translationString = `${distance}px 0px`;
+   *   
+   *         return {
+   *           forwardGenerator: () => [ {translate: translationString} ],
+   *           // backwardGenerator is omitted because the result of running forwardGenerator()
+   *           // again and reversing the keyframes produces the desired rewinding effect in this case
+   *         };
+   *       },
+   *       immutableConfig: {
+   *         composite: 'accumulate',
+   *       }
+   *     },
+   *   }
+   * });
+   * 
+   * const element = document.querySelector('.some-element');
+   * const ext = clipFactories.Exit(element, 'flyOutLeft', []);
+   * ext.play();
+   * ```
    */
   generateKeyframeGenerators(
     /**@ignore*/
