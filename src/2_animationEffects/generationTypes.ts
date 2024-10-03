@@ -33,18 +33,34 @@ import { webimator } from "../Webimator";
 {
   const clipFactories = webimator.createAnimationClipFactories({
     customExitEffects: {
-      [`fly-out-left`]: {
+      // a custom animation effect for flying out to the left side of the screen
+      flyOutLeft: {
         generateKeyframeGenerators() {
-          const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
-          const translationString = `${orthogonalDistance}px 0px`;
+          const computeTranslationStr = () => {
+            const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
+            const translationString = `${orthogonalDistance}px 0px`;
+            return translationString;
+          }
     
           return {
-            forwardGenerator: () => [ {translate: translationString} ],
-            // backwardGenerator is omitted because the result of running forwardGenerator()
-            // again and reversing the keyframes produces the desired rewinding effect in this case
+            forwardGenerator: () => {
+              return [
+                {translate: computeTranslationStr()}
+              ];
+            },
+            // backwardGenerator could have been omitted because the result of running forwardGenerator()
+            // again and reversing the keyframes produces the same desired rewinding effect in this case
+            backwardGenerator: () => {
+              return [
+                {translate: computeTranslationStr()},
+                {translate: `0 0`}
+              ];
+            }
           };
         },
+        
         immutableConfig: {
+          // this means that the translation is added onto the element's position instead of replacing it
           composite: 'accumulate',
         }
       },
@@ -52,7 +68,40 @@ import { webimator } from "../Webimator";
   });
 
   const element = document.querySelector('.some-element');
-  const ext = clipFactories.Exit(element, 'fly-out-left', []);
+  const ext = clipFactories.Exit(element, 'flyOutLeft', []);
+  ext.play().then(ext.rewind);
+}
+
+{
+  const clipFactories = webimator.createAnimationClipFactories({
+    customMotionEffects: {
+      // a custom animation effect for flying out to the left side of the screen
+      scrollBy: {
+        generateRafMutators(numPixels: number) {
+          const initialPosition = this.domElem.scrollTop;
+    
+          return {
+            forwardMutator: () => {
+              this.domElem.scrollTo({
+                top: initialPosition + this.computeTween(0, numPixels),
+                behavior: 'instant'
+              });
+            },
+            backwardMutator: () => {
+              this.domElem.scrollTo({
+                top: initialPosition + this.computeTween(numPixels, 0),
+                behavior: 'instant'
+              });
+            }
+          };
+        }
+      },
+    }
+  });
+
+  const element = document.querySelector('.some-element');
+  const mot = clipFactories.Motion(element, 'scrollBy', [124]);
+  mot.play().then(mot.rewind);
 }
 
 /**
@@ -94,7 +143,7 @@ export type KeyframesGenerator<TClipContext extends unknown> = {
 
    * const element = document.querySelector('.some-element');
    * const ent = clipFactories.Entrance(element, 'zoomIn', [0.2]);
-   * ent.play();
+   * ent.play().then(ent.rewind);
    * ```
    */
   generateKeyframes(
@@ -128,19 +177,34 @@ export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
    * ```ts
    * const clipFactories = webimator.createAnimationClipFactories({
    *   customExitEffects: {
-   *     // a custom animation for flying out to the left side of the screen
+   *     // a custom animation effect for flying out to the left side of the screen
    *     flyOutLeft: {
    *       generateKeyframeGenerators() {
-   *         const distance = -(this.domElem.getBoundingClientRect().right);
-   *         const translationString = `${distance}px 0px`;
+   *         const computeTranslationStr = () => {
+   *           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
+   *           const translationString = `${orthogonalDistance}px 0px`;
+   *           return translationString;
+   *         }
    *   
    *         return {
-   *           forwardGenerator: () => [ {translate: translationString} ],
-   *           // backwardGenerator is omitted because the result of running forwardGenerator()
-   *           // again and reversing the keyframes produces the desired rewinding effect in this case
+   *           forwardGenerator: () => {
+   *             return [
+   *               {translate: computeTranslationStr()}
+   *             ];
+   *           },
+   *           // backwardGenerator could have been omitted because the result of running forwardGenerator()
+   *           // again and reversing the keyframes produces the same desired rewinding effect in this case
+   *           backwardGenerator: () => {
+   *             return [
+   *               {translate: computeTranslationStr()},
+   *               {translate: `0 0`}
+   *             ];
+   *           }
    *         };
    *       },
+   *       
    *       immutableConfig: {
+   *         // this means that the translation is added onto the element's position instead of replacing it
    *         composite: 'accumulate',
    *       }
    *     },
@@ -149,7 +213,7 @@ export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
    * 
    * const element = document.querySelector('.some-element');
    * const ext = clipFactories.Exit(element, 'flyOutLeft', []);
-   * ext.play();
+   * ext.play().then(ext.rewind);
    * ```
    */
   generateKeyframeGenerators(
@@ -182,6 +246,39 @@ export type RafMutatorsGenerator<TClipContext extends unknown> = {
    * - `backwardKeyframes` is used for the clip's animation when the clip is rewound
    * 
    * @see {@link AnimClip.computeTween}
+   * 
+   * @example
+   * ```ts
+   * const clipFactories = webimator.createAnimationClipFactories({
+   *   customMotionEffects: {
+   *     // a custom animation effect for flying out to the left side of the screen
+   *     scrollBy: {
+   *       generateRafMutators(numPixels: number) {
+   *         const initialPosition = this.domElem.scrollTop;
+   *   
+   *         return {
+   *           forwardMutator: () => {
+   *             this.domElem.scrollTo({
+   *               top: initialPosition + this.computeTween(0, numPixels),
+   *               behavior: 'instant'
+   *             });
+   *           },
+   *           backwardMutator: () => {
+   *             this.domElem.scrollTo({
+   *               top: initialPosition + this.computeTween(numPixels, 0),
+   *               behavior: 'instant'
+   *             });
+   *           }
+   *         };
+   *       }
+   *     },
+   *   }
+   * });
+   * 
+   * const element = document.querySelector('.some-element');
+   * const mot = clipFactories.Motion(element, 'scrollBy', [124]);
+   * mot.play().then(mot.rewind);
+   * ```
    */
   generateRafMutators(
     /**@ignore*/
