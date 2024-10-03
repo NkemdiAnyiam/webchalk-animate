@@ -62,10 +62,10 @@ export class Webimator {
   <
    // default = {} ensures intellisense for a given bank still works
    // without specifying the field (why? not sure)
-    CustomEntranceBank extends EffectGeneratorBank<EntranceClip, Layer3MutableClipConfig<EntranceClip>, false> = {},
-    CustomExitBank extends EffectGeneratorBank<ExitClip, Layer3MutableClipConfig<ExitClip>, false> = {},
-    CustomEmphasisBank extends EffectGeneratorBank<EmphasisClip, Layer3MutableClipConfig<EmphasisClip>, false> = {},
-    CustomMotionBank extends EffectGeneratorBank<MotionClip, Layer3MutableClipConfig<MotionClip>, false> = {},
+    CustomEntranceBank extends EffectGeneratorBank<EntranceClip, Layer3MutableClipConfig<EntranceClip>> = {},
+    CustomExitBank extends EffectGeneratorBank<ExitClip, Layer3MutableClipConfig<ExitClip>> = {},
+    CustomEmphasisBank extends EffectGeneratorBank<EmphasisClip, Layer3MutableClipConfig<EmphasisClip>> = {},
+    CustomMotionBank extends EffectGeneratorBank<MotionClip, Layer3MutableClipConfig<MotionClip>> = {},
     _EmptyTransitionBank extends EffectGeneratorBank<TransitionClip, Layer3MutableClipConfig<TransitionClip>> = {},
     _EmptyConnectorEntranceBank extends EffectGeneratorBank<ConnectorEntranceClip, Layer3MutableClipConfig<ConnectorEntranceClip>> = {},
     _EmptyConnectorExitBank extends EffectGeneratorBank<ConnectorExitClip, Layer3MutableClipConfig<ConnectorExitClip>> = {},
@@ -74,10 +74,10 @@ export class Webimator {
   >
   (
     customPresetEffectBanks: {
-      customEntranceEffects?: CustomEntranceBank & EffectGeneratorBank<EntranceClip, Layer3MutableClipConfig<EntranceClip>, false>;
-      customExitEffects?: CustomExitBank & EffectGeneratorBank<ExitClip, Layer3MutableClipConfig<ExitClip>, false>;
-      customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisClip, Layer3MutableClipConfig<EmphasisClip>, false>;
-      customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionClip, Layer3MutableClipConfig<MotionClip>, false>;
+      customEntranceEffects?: CustomEntranceBank & EffectGeneratorBank<EntranceClip, Layer3MutableClipConfig<EntranceClip>>;
+      customExitEffects?: CustomExitBank & EffectGeneratorBank<ExitClip, Layer3MutableClipConfig<ExitClip>>;
+      customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisClip, Layer3MutableClipConfig<EmphasisClip>>;
+      customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionClip, Layer3MutableClipConfig<MotionClip>>;
     } = {},
     includeLibraryPresets: IncludeLibPresets | void = true as IncludeLibPresets
   ) {
@@ -93,12 +93,12 @@ export class Webimator {
 
     const mergeBanks = <L, U>(libraryBank: L, customBank: U) => {
       const combinedBank = {...(includeLibraryPresets ? libraryBank : {}), ...(customBank ?? {})} as EffectGeneratorBank;
-      // set effectName and sourceBank properties of each generator to thier obviously corresponding values
-      // Object.assign circumvents the Readonly<>, preventing a TS error
-      for (const key in combinedBank) {
-        const extras = { effectName: key, sourceBank: combinedBank } satisfies Partial<EffectGenerator>;
-        Object.assign(combinedBank[key], extras);
-      }
+      // // set effectName and sourceBank properties of each generator to thier obviously corresponding values
+      // // Object.assign circumvents the Readonly<>, preventing a TS error
+      // for (const key in combinedBank) {
+      //   const extras = { effectName: key, sourceBank: combinedBank } satisfies Partial<EffectGenerator>;
+      //   Object.assign(combinedBank[key], extras);
+      // }
       return combinedBank as TogglePresets<L, U>;
     }
     
@@ -169,7 +169,7 @@ export class Webimator {
         self.clipCreatorLock = false;
         const effectName = `~set-line-points`;
         return new ConnectorSetterClip(
-          connectorElem, pointA, pointB, effectName, {[effectName]: {...AnimClip.createNoOpEffectGenerator(), effectName}}, connectorConfig
+          connectorElem, pointA, pointB, effectName, {[effectName]: {...AnimClip.createNoOpEffectGenerator(), /*effectName*/}}, connectorConfig
         ).initialize([]);
       },
 

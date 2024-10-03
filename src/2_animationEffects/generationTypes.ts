@@ -110,8 +110,8 @@ export type RafMutatorsGeneratorsGenerator<TClipContext extends unknown> = {
 
 /**
  * Object representing an entry in an {@link EffectGeneratorBank}. It consists of 3 properties:
- * - {@link EffectGenerator.defaultConfig | defaultConfig} contains default configuration options that are appropriate for the effect
- * - {@link EffectGenerator.immutableConfig | immutableConfig} contains default configuration options for the effect that cannot be changed
+ * - {@link EffectGenerator.defaultConfig | defaultConfig} - default configuration options that are appropriate for the effect (and can be overwritten)
+ * - {@link EffectGenerator.immutableConfig | immutableConfig} - default configuration options for the effect (but cannot be overwritten)
  * - a generator function that creates the animation effect. There are 4 possible functions:
  * - - {@link KeyframesGenerator.generateKeyframes | generateKeyframes}
  * - - {@link KeyframesGeneratorsGenerator.generateKeyframeGenerators | generateKeyframeGenerators}
@@ -119,34 +119,34 @@ export type RafMutatorsGeneratorsGenerator<TClipContext extends unknown> = {
  * - - {@link RafMutatorsGeneratorsGenerator.generateRafMutatorGenerators | generateRafMutatorGenerators}
  * @interface
  */
-export type EffectGenerator<TClipContext extends unknown = unknown, TConfig extends unknown = unknown, IncludeExtras extends boolean = true> = Readonly<
+export type EffectGenerator<TClipContext extends unknown = unknown, TConfig extends unknown = unknown> = Readonly<
   {
+    /** Default configuration options that are appropriate for the effect (and can be overwritten). */
     defaultConfig?: Partial<TConfig>;
+    /** default configuration options for the effect that cannot be overwritten (but cannot be overwritten). */
     immutableConfig?: Partial<TConfig>;
+    // /**
+    //  * The effect name. E.g., 'fade-in', 'appear', etc.
+    //  * This is automatically set at run-time. There is no need to set it manually (and trying to does nothing).
+    //  */
+    // effectName?: string;
+    // /**
+    //  * Reference to the full effect generator bank this effect generator belongs to.
+    //  * This is set automatically at run-time. There is no need to set it manually (and trying to does nothing).
+    //  */
+    // sourceBank?: EffectGeneratorBank<any>;
   } &
-  (IncludeExtras extends true ? {
-    /**
-     * The effect name. E.g., 'fade-in', 'appear', etc.
-     * This is automatically set at run-time. There is no need to set it manually (and trying to does nothing).
-     */
-    effectName?: string;
-    /**
-     * Reference to the full effect generator bank this effect generator belongs to.
-     * This is set automatically at run-time. There is no need to set it manually (and trying to does nothing).
-     */
-    sourceBank?: EffectGeneratorBank<any>;
-  } : {}) &
   StripDuplicateMethodAutocompletion<(
     KeyframesGenerator<TClipContext> | KeyframesGeneratorsGenerator<TClipContext> | RafMutatorsGenerator<TClipContext> | RafMutatorsGeneratorsGenerator<TClipContext>)>
 >;
-// represents an object where every string key is paired with a EffectGenerator value
 
+// represents an object where every string key is paired with a EffectGenerator value
 /**
  * Object containing {@link EffectGenerator} entries for a specific category of animation effect.
  * For example, there is an effect generator bank containing effect generators for entrance animation effects.
  */
-export type EffectGeneratorBank<TClip extends AnimClip = AnimClip, TClipConfig extends {} = AnimClipConfig, IncludeGeneratorExtras extends boolean = true> = ReadonlyRecord<
-  string, EffectGenerator<ReadonlyPick<TClip, 'domElem' | 'getEffectDetails'>, TClipConfig, IncludeGeneratorExtras>
+export type EffectGeneratorBank<TClip extends AnimClip = AnimClip, TClipConfig extends {} = AnimClipConfig> = ReadonlyRecord<
+  string, EffectGenerator<ReadonlyPick<TClip, 'domElem' | 'getEffectDetails'>, TClipConfig>
 >;
 
 /**
