@@ -58,7 +58,7 @@ export class Webimator {
     WbmtrPlaybackButton,
   });
 
-  createAnimationFactories
+  createAnimationClipFactories
   <
    // default = {} ensures intellisense for a given bank still works
    // without specifying the field (why? not sure)
@@ -243,7 +243,7 @@ export class Webimator {
  */
 export const webimator = new Webimator();
 
-// const thing =  webimator.createAnimationFactories({
+// const thing =  webimator.createAnimationClipFactories({
 //   customEntranceEffects: {
 //     hello: {
 //       generateKeyframes() { return {

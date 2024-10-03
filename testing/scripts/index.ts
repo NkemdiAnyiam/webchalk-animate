@@ -3,7 +3,7 @@ import * as WebimatorTypes from 'webimator/types-and-interfaces';
 import * as WebimatorErrors from "webimator/error-handling";
 import * as WebimatorEasing from "webimator/easing";
 
-const {Motion, Entrance, Emphasis, Exit} = webimator.createAnimationFactories({
+const {Motion, Entrance, Emphasis, Exit} = webimator.createAnimationClipFactories({
   customEntranceEffects: {
     hello: {
       generateKeyframes() {

@@ -626,7 +626,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
         TypeError,
         `Illegal constructor. Clips can only be instantiated using clip factory functions.` +
         errorTip(
-          `Tip: Clip factory functions are created by webimator.createAnimationFactories(),` +
+          `Tip: Clip factory functions are created by webimator.createAnimationClipFactories(),` +
           ` a method that returns an object containing factory functions like Entrance(), Motion(), etc.` +
           ` (A factory function is just a function that returns an instance of a class without using 'new').`
         )
@@ -1231,7 +1231,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * 
    * @example
    * ```ts
-    const {Entrance} = Webimator.createAnimationFactories({
+    const {Entrance} = Webimator.createAnimationClipFactories({
       customEntranceEffects: {
         rotate: {
           generateRafMutators(degrees: number) {

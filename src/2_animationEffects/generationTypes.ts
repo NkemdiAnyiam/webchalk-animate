@@ -4,7 +4,7 @@ import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord } from
 import { webimator } from "../Webimator";
 
 {
-  const factories = webimator.createAnimationFactories({
+  const factories = webimator.createAnimationClipFactories({
     customEntranceEffects: {
       zoomIn: {
         generateKeyframes(initialScale: number) {
@@ -42,9 +42,9 @@ export type KeyframesGenerator<TClipContext extends unknown> = {
    * 
    * @example
    * ```ts
-   * const animFactories = webimator.createAnimationFactories({
+   * const animFactories = webimator.createAnimationClipFactories({
    *   customEntranceEffects: {
-   *     // a custom 'zoomIn' entrance animation that you might make
+   *     // a custom 'zoomIn' entrance animation effect that you might make
    *     zoomIn: {
    *       generateKeyframes(initialScale: number) {
    *         return {
