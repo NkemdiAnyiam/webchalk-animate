@@ -20,3 +20,4 @@ export type ReadonlyPick<T, K extends keyof T> = Readonly<Pick<T, K>>;
 export type ReadonlyRecord<K extends keyof any, T> = Readonly<Record<K, T>>;
 export type PartialPick<T, K extends keyof T> = Partial<Pick<T, K>>;
 export type PickFromArray<T, K extends (keyof T)[]> = {[key in K[number]]: T[key]};
+export type OmitStrict<T, K extends keyof T> = Omit<T, K>;
