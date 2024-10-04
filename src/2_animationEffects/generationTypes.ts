@@ -75,21 +75,23 @@ import { webimator } from "../Webimator";
 {
   const clipFactories = webimator.createAnimationClipFactories({
     customMotionEffects: {
-      // a custom animation effect for flying out to the left side of the screen
-      scrollBy: {
-        generateRafMutators(numPixels: number) {
+      // a custom animation for scrolling to a specific position (but when
+      // rewinding, it will snap to yPosition before scrolling to the initial position, which
+      // may feel janky. This could be solved with generateRafMutatorGenerators())
+      scrollTo: {
+        generateRafMutators(yPosition: number) {
           const initialPosition = this.domElem.scrollTop;
     
           return {
             forwardMutator: () => {
               this.domElem.scrollTo({
-                top: initialPosition + this.computeTween(0, numPixels),
+                top: this.computeTween(initialPosition, yPosition),
                 behavior: 'instant'
               });
             },
             backwardMutator: () => {
               this.domElem.scrollTo({
-                top: initialPosition + this.computeTween(numPixels, 0),
+                top: this.computeTween(yPosition, initialPosition),
                 behavior: 'instant'
               });
             }
@@ -100,7 +102,49 @@ import { webimator } from "../Webimator";
   });
 
   const element = document.querySelector('.some-element');
-  const mot = clipFactories.Motion(element, 'scrollBy', [124]);
+  const mot = clipFactories.Motion(element, 'scrollTo', [1020]);
+  mot.play().then(mot.rewind);
+}
+
+{
+  const clipFactories = webimator.createAnimationClipFactories({
+    customMotionEffects: {
+      // a custom animation for scrolling to a specific point on the page.
+      // when rewinding, the current scroll position is computed on the spot so that
+      // it can smoothly scroll from THERE to the initial position.
+      scrollToImproved: {
+        generateRafMutatorGenerators(yPosition: number) {
+          const initialPosition = this.domElem.scrollTop;
+    
+          return {
+            forwardGenerator: () => {
+              const forwardMutator = () => {
+                this.domElem.scrollTo({
+                  top: this.computeTween(initialPosition, yPosition),
+                  behavior: 'instant'
+                });
+              };
+              return forwardMutator;
+            },
+
+            backwardGenerator: () => {
+              const backwardMutator = () => {
+                const currentPosition = this.domElem.scrollTop;
+                this.domElem.scrollTo({
+                  top: this.computeTween(currentPosition, initialPosition),
+                  behavior: 'instant'
+                });
+              };
+              return backwardMutator;
+            }
+          };
+        }
+      },
+    }
+  });
+
+  const element = document.querySelector('.some-element');
+  const mot = clipFactories.Motion(element, 'scrollToImproved', [1020]);
   mot.play().then(mot.rewind);
 }
 
@@ -249,35 +293,37 @@ export type RafMutatorsGenerator<TClipContext extends unknown> = {
    * 
    * @example
    * ```ts
-   * const clipFactories = webimator.createAnimationClipFactories({
-   *   customMotionEffects: {
-   *     // a custom animation effect for flying out to the left side of the screen
-   *     scrollBy: {
-   *       generateRafMutators(numPixels: number) {
-   *         const initialPosition = this.domElem.scrollTop;
-   *   
-   *         return {
-   *           forwardMutator: () => {
-   *             this.domElem.scrollTo({
-   *               top: initialPosition + this.computeTween(0, numPixels),
-   *               behavior: 'instant'
-   *             });
-   *           },
-   *           backwardMutator: () => {
-   *             this.domElem.scrollTo({
-   *               top: initialPosition + this.computeTween(numPixels, 0),
-   *               behavior: 'instant'
-   *             });
-   *           }
-   *         };
-   *       }
-   *     },
-   *   }
-   * });
-   * 
-   * const element = document.querySelector('.some-element');
-   * const mot = clipFactories.Motion(element, 'scrollBy', [124]);
-   * mot.play().then(mot.rewind);
+    const clipFactories = webimator.createAnimationClipFactories({
+      customMotionEffects: {
+        // a custom animation for scrolling to a specific position (but when
+        // rewinding, it will snap to yPosition before scrolling to the initial position, which
+        // may feel janky. This could be solved with generateRafMutatorGenerators())
+        scrollTo: {
+          generateRafMutators(yPosition: number) {
+            const initialPosition = this.domElem.scrollTop;
+      
+            return {
+              forwardMutator: () => {
+                this.domElem.scrollTo({
+                  top: this.computeTween(initialPosition, yPosition),
+                  behavior: 'instant'
+                });
+              },
+              backwardMutator: () => {
+                this.domElem.scrollTo({
+                  top: this.computeTween(yPosition, initialPosition),
+                  behavior: 'instant'
+                });
+              }
+            };
+          }
+        },
+      }
+    });
+
+    const element = document.querySelector('.some-element');
+    const mot = clipFactories.Motion(element, 'scrollTo', [1020]);
+    mot.play().then(mot.rewind);
    * ```
    */
   generateRafMutators(
@@ -306,8 +352,53 @@ export type RafMutatorsGeneratorsGenerator<TClipContext extends unknown> = {
    * {@link AnimClip.computeTween}, it will look like a smooth animation.
    * @param effectOptions - parameters used to set the behavior for the specific animation effect
    * @returns An object containing 2 callback functions that each generate (return) one function.
-   * - `forwardGenerator` will run every time the clip is played
-   * - `backwardGenerator` will run every time the clip is rewound
+   * - `forwardGenerator` will run every time the clip is played, producing a function that will be used in a loop
+   * - `backwardGenerator` will run every time the clip is rewound, producing a function that will be used in a loop
+   * 
+   * @see {@link AnimClip.computeTween}
+   * 
+   * @example
+   * ```ts
+    const clipFactories = webimator.createAnimationClipFactories({
+      customMotionEffects: {
+        // a custom animation for scrolling to a specific point on the page.
+        // when rewinding, the current scroll position is computed on the spot so that
+        // it can smoothly scroll from THERE to the initial position.
+        scrollToImproved: {
+          generateRafMutatorGenerators(yPosition: number) {
+            const initialPosition = this.domElem.scrollTop;
+      
+            return {
+              forwardGenerator: () => {
+                const forwardMutator = () => {
+                  this.domElem.scrollTo({
+                    top: this.computeTween(initialPosition, yPosition),
+                    behavior: 'instant'
+                  });
+                };
+                return forwardMutator;
+              },
+
+              backwardGenerator: () => {
+                const backwardMutator = () => {
+                  const currentPosition = this.domElem.scrollTop;
+                  this.domElem.scrollTo({
+                    top: this.computeTween(currentPosition, initialPosition),
+                    behavior: 'instant'
+                  });
+                };
+                return backwardMutator;
+              }
+            };
+          }
+        },
+      }
+    });
+
+    const element = document.querySelector('.some-element');
+    const mot = clipFactories.Motion(element, 'scrollToImproved', [1020]);
+    mot.play().then(mot.rewind);
+   * ```
    */
   generateRafMutatorGenerators(
     /**@ignore*/
