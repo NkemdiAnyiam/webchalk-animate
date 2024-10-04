@@ -299,7 +299,7 @@ export const libPresetExits = {
      * @returns 
      */
     generateKeyframes() {
-      return {forwardFrames: []};
+      return {forwardFrames: []} as const;
     },
     defaultConfig: {},
     immutableConfig: {
