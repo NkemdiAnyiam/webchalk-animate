@@ -1,6 +1,7 @@
 export {
   PresetLinearEasingKey,
+  TrivialCssEasingFunction,
   EasingString,
   easingMap,
   useEasing,
-} from "../4_utils/easing";
+} from "../2_animationEffects/easing";

@@ -11,10 +11,10 @@ import {
   libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions,
   libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions
 } from "./2_animationEffects/libraryPresetBanks";
-import { useEasing } from "./4_utils/easing";
+import { useEasing } from "./2_animationEffects/easing";
 import { MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./4_utils/interfaces";
 import { WbmtrPlaybackButton } from "./3_components/WbmtrPlaybackButton";
-import { EffectGeneratorBank, EffectGenerator, EffectNameIn } from "./2_animationEffects/generationTypes";
+import { EffectGeneratorBank, EffectNameIn } from "./2_animationEffects/generationTypes";
 
 /**
  * @hideconstructor

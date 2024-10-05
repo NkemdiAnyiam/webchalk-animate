@@ -5,7 +5,7 @@ export * from "../1_playbackStructures/AnimationTimeline";
 export * from "../3_components/WbmtrConnector";
 export * from "../3_components/WbmtrPlaybackButton";
 export * from "../4_utils/interfaces";
-export { PresetLinearEasingKey, EasingString } from "../4_utils/easing";
+export { PresetLinearEasingKey, EasingString, TrivialCssEasingFunction } from "../2_animationEffects/easing";
 export {
   ClipErrorGenerator,
   SequenceErrorGenerator,

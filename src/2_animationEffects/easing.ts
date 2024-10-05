@@ -1,17 +1,40 @@
-import { Union } from "./utilityTypes";
+import { Union } from "../4_utils/utilityTypes";
 
 /**
  * Custom preset easing strings.
+ * @example
+ * ```ts
+ * const str1: PresetLinearEasingKey = 'power2-in';
+ * const str2: PresetLinearEasingKey = 'expo-in-out';
+ * const str3: PresetLinearEasingKey = 'expo'; // INVALID
+ * ```
  */
 export type PresetLinearEasingKey = `${`power${'1' | '2' | '3' | '4'}` | `quad` | `expo` | `circ` | `sine` | `back` | `elastic` | `bounce`}-${'in' | 'out' | 'in-out'}`;
 // type EasingFunction<funcName extends string> = `${funcName}(${string})`;
 
 /**
- * Autocompleted custom preset easing strings and trivial <easing-function>s
- * (but still allowing any `string` to account for non-trivial <easing-function>s such as cubier-bezier functions).
+ * Trivial CSS `<easing-function>`s.
+ * 
+ * @see [\<easing-function\>](https://developer.mozilla.org/en-US/docs/Web/CSS/easing-function)
+ */
+export type TrivialCssEasingFunction = `linear` | 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out' | 'step-start' | 'step-end';
+
+/**
+ * Autocompleted custom preset easing strings and trivial `<easing-function>`s
+ * (but still allowing any `string` to account for non-trivial `<easing-function>`s such as cubier-bezier functions).
+ * @example
+ * ```ts
+ * const str1: EasingString = 'power2-in'; // valid (matches PresetLinearEasingKey)
+ * const str2: EasingString = 'expo-in-out'; // valid (matches PresetLinearEasingKey)
+ * const str5: EasingString = 'cubic-bezier(0.25, 0.1, 0.25, 1)'; // valid (matches string and is also a valid <easing-function>)
+ * const str4: EasingString = 'ease-in'; // valid (matches TrivialCssEasingFunction)
+ * 
+ * const str3: EasingString = 'expo'; // valid (matches string) but will lead to a runtime error
+ * const str5: EasingString = 'cubic-bezier(0.25, 0.1, 0.25)'; // valid (matches string) but will lead to a runtime error
+ * ```
  */
 export type EasingString = Union<
-  | `linear` | 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out' | 'step-start' | 'step-end'
+  | TrivialCssEasingFunction
   | PresetLinearEasingKey,
   // | EasingFunction<'cubic-bezier'> | EasingFunction<'linear'> | EasingFunction<'steps'>,
   string
@@ -19,6 +42,7 @@ export type EasingString = Union<
 
 /**
  * Map mapping custom preset easing strings to linear easing functions.
+ * Keys are one-to-one with {@link PresetLinearEasingKey}.
  */
 export const easingMap = Object.freeze(new Map<PresetLinearEasingKey, string>([
   // CREDITS:
@@ -59,14 +83,23 @@ export const easingMap = Object.freeze(new Map<PresetLinearEasingKey, string>([
   [`bounce-in-out`, `linear(0, 0.0078, 0, 0.0235, 0.0313, 0.0235, 0.0001 13.63%, 0.0549 15.92%, 0.0938, 0.1172, 0.125, 0.1172, 0.0939 27.26%, 0.0554 29.51%, 0.0003 31.82%, 0.2192, 0.3751 40.91%, 0.4332, 0.4734 45.8%, 0.4947 48.12%, 0.5027 51.35%, 0.5153 53.19%, 0.5437, 0.5868 57.58%, 0.6579, 0.7504 62.87%, 0.9999 68.19%, 0.9453, 0.9061, 0.8828, 0.875, 0.8828, 0.9063, 0.9451 84.08%, 0.9999 86.37%, 0.9765, 0.9688, 0.9765, 1, 0.9922, 1)`],
 ]));
 
+/**
+ * Easing string keys that are within {@link easingMap}.
+ * - Equivalent to ${@link PresetLinearEasingKey}
+ * @ignore
+ */
 export type KeyInEasingMap = typeof easingMap extends Map<infer I, any> ? I : never;
 
 /**
  * Accepts either a preset easing string or a CSS `<easing-function>` string and returns an `<easing-function>` that inverts the easing.
- * @param easingString - preset easing string or a CSS <easing-function> string
- * @returns - The inverted form of {@link easingString}.
+ * - identical to using {@link useEasing | useEasing()} with the option `{inverted: true}`
+ * @param easingString - preset easing string or a CSS `<easing-function>` string
+ * @returns The inverted form of {@link easingString}.
  * 
  * @see [\<easing-function\>](https://developer.mozilla.org/en-US/docs/Web/CSS/easing-function)
+ * @see {@link useEasing}
+ * 
+ * @ignore
  */
 export function invertEasing(easingString: EasingString): string {
   try {

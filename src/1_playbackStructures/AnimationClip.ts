@@ -3,7 +3,7 @@ import { AnimTimeline } from "./AnimationTimeline";
 import { webimator } from "../Webimator";
 import { EffectOptions, EffectGeneratorBank, EffectGenerator } from "../2_animationEffects/generationTypes";
 import { call, getPartial, mergeArrays, parseMultiUnitPlacement } from "../4_utils/helpers";
-import { EasingString, useEasing } from "../4_utils/easing";
+import { EasingString, useEasing } from "../2_animationEffects/easing";
 import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "../4_utils/errors";
 import { EffectCategory, Keyframes, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
 import { WbmtrConnector, WbmtrConnectorConfig } from "../3_components/WbmtrConnector";
