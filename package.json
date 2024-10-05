@@ -20,9 +20,11 @@
     "in": "npm i && npm run pack-up",
     "out": "rm -rf ./dist ./node_modules",
     "in-and-out": "npm run in && npm run out",
+    
     "open-docs": "bash -c \"start ./docs/index.html\"",
     "copy-doc-assets": "cp -r ./typedoc-config/assets/fonts ./docs/assets",
-    "gen-docs": "cd ./typedoc-config && typedoc && cd .. && npm run copy-doc-assets && npm run open-docs",
+    "build-typedoc-plugins": "tsc --project ./typedoc-config/scripts",
+    "gen-docs": "npm run build-typedoc-plugins && cd ./typedoc-config && typedoc && cd .. && npm run copy-doc-assets && npm run open-docs",
     "lint": "tsc"
   },
   "keywords": [

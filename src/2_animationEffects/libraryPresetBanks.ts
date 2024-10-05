@@ -1,14 +1,13 @@
 import {
-  EntranceClip,          EntranceClipConfig,
-  ExitClip,              ExitClipConfig,
-  EmphasisClip,          EmphasisClipConfig,
-  MotionClip,            MotionClipConfig,
-  TransitionClip,        TransitionClipConfig,
-  ScrollerClip,          ScrollerClipConfig,
-  ConnectorEntranceClip, ConnectorEntranceClipConfig,
-  ConnectorExitClip,     ConnectorExitClipConfig,
+  EntranceClip,
+  ExitClip,
+  EmphasisClip,
+  MotionClip,
+  TransitionClip,
+  ScrollerClip,
+  ConnectorEntranceClip,
+  ConnectorExitClip,
   Layer3MutableClipConfig,
-  // ImmutableLayer2EntranceClipConfig,
 } from "../1_playbackStructures/AnimationClipCategories";
 import { webimator } from "../Webimator";
 import { EffectGeneratorBank } from "./generationTypes";
@@ -23,88 +22,52 @@ type DiagDirection = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 type Direction = OrthoDirection | DiagDirection;
 
 /**
- * @ignore
- * @internal
+ * 
+ * @interface
  */
-type docsScriptRunner = {
-  /**
-   * <script>
-   *  window.onload = () => {
-   *    // remove property sections and navigation links associated with doscScriptRunner
-   *    document.querySelector('a#______').closest('.tsd-panel.tsd-member').remove();
-   *    [...document.querySelectorAll('a[href$="#______"]')].forEach((elem) => elem.remove());
-   * 
-   *    // remove interface signature and GitHub source
-   *    document.querySelector('.col-content > .tsd-signature').remove();
-   *    document.querySelector('.col-content > .tsd-sources').remove();
-   * 
-   *    // for each member
-   *    const members = [...document.querySelectorAll('.tsd-panel.tsd-member')];
-   *    for (const member of members) {
-   *      // remove member signature
-   *      member.querySelector(':scope > .tsd-signature').remove();
-   *      // remove signatures of objects returned by generator functions
-   *      member.querySelector(':scope h5 + ul.tsd-parameters')?.remove();
-   *      const h5List = [...member.querySelectorAll(':scope h5')];
-   *      for (const h5 of h5List) { h5.classList.add('custom-color'); }
-   *      // remove return title for objects returned by generator functions
-   *      member.querySelector('.tsd-returns-title')?.remove();
-   *      // remove duplicate list of config objects' properties
-   *      member.querySelector(':scope li.tsd-parameter ul.tsd-parameters:has(> li.tsd-parameter > h5')?.remove();
-   *    }
-   *  }
-   * </script>
-   */
-  ______: any
-}
+export type LibraryEntrances = typeof libPresetEntrances;
 
 /**
  * 
  * @interface
  */
-export type LibraryEntrances = typeof libPresetEntrances & docsScriptRunner;
+export type LibraryExits = typeof libPresetExits;
 
 /**
  * 
  * @interface
  */
-export type LibraryExits = typeof libPresetExits & docsScriptRunner;
+export type LibraryEmphases = typeof libPresetEmphases;
 
 /**
  * 
  * @interface
  */
-export type LibraryEmphases = typeof libPresetEmphases & docsScriptRunner;
+export type LibraryMotions = typeof libPresetMotions;
 
 /**
  * 
  * @interface
  */
-export type LibraryMotions = typeof libPresetMotions & docsScriptRunner;
+export type LibraryConnectorEntrances = typeof libPresetConnectorEntrances;
 
 /**
  * 
  * @interface
  */
-export type LibraryConnectorEntrances = typeof libPresetConnectorEntrances & docsScriptRunner;
+export type LibraryConnectorExits = typeof libPresetConnectorExits;
 
 /**
  * 
  * @interface
  */
-export type LibraryConnectorExits = typeof libPresetConnectorExits & docsScriptRunner;
+export type LibraryTransitions = typeof libPresetTransitions;
 
 /**
  * 
  * @interface
  */
-export type LibraryTransitions = typeof libPresetTransitions & docsScriptRunner;
-
-/**
- * 
- * @interface
- */
-export type LibraryScrolls = typeof libPresetScrolls & docsScriptRunner;
+export type LibraryScrolls = typeof libPresetScrolls;
 
 /*-:**************************************************************************************************************************/
 /*-:****************************************        ENTRANCES        *********************************************************/

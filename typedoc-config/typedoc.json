@@ -1,5 +1,8 @@
 {
-  "plugin": ["typedoc-material-theme", "typedoc-plugin-mdn-links"],
+  "plugin": [
+    "typedoc-material-theme", "typedoc-plugin-mdn-links",
+    "./assets/plugins/handleLibraries.js", "./assets/plugins/specialCategories.js"
+  ],
   "themeColor": "#99ffff",
   "customCss": "./assets/typedoc-styles.scss",
   "exclude": ["**/WebimatorAnimation.ts", "**/index.ts", "**/globalSideEffects.ts", "**/oneUseTypes.ts"],
