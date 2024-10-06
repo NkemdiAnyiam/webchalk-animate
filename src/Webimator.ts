@@ -14,7 +14,7 @@ import {
 import { useEasing } from "./2_animationEffects/easing";
 import { MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./4_utils/interfaces";
 import { WbmtrPlaybackButton } from "./3_components/WbmtrPlaybackButton";
-import { EffectGeneratorBank, EffectNameIn } from "./2_animationEffects/generationTypes";
+import { EffectGeneratorBank, EffectNameIn, EffectGenerator } from "./2_animationEffects/generationTypes";
 
 /**
  * @hideconstructor
@@ -58,6 +58,118 @@ export class Webimator {
     WbmtrPlaybackButton,
   });
 
+  /**
+   * Creates functions that return {@link AnimClip}s for specific effect categories. A clip for a given category can use
+   *  a single preset animation effect from the effects bank of the same category. For example,
+   * `createAnimationClipFactories().Entrance(someElement, '~appear', [])` will use the "\~appear" animation effect from the
+   * bank of entrance animation effects, but the "\~appear" animation will obviously not be found in the bank of exit animation
+   * effects, so `createAnimationClipFactories().Exit(someElement, '~appear', [])` will throw an error.
+   * - Developers may add their own custom animations to the Entrance, Exit, Emphasis, and Motion categories by using the
+   * {@link customPresetEffectBanks} parameter.
+   * @param customPresetEffectBanks - optional object containing additional banks that the developer can use to add their own custom preset effects
+   * @param customPresetEffectBanks.customEntranceEffects - objects of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with the `Entrance()` clip factory function
+   * @param customPresetEffectBanks.customExitEffects - objects of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with the `Exit()` clip factory function
+   * @param customPresetEffectBanks.customEmphasisEffects - objects of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with the `Emphasis()` clip factory function
+   * @param customPresetEffectBanks.customMotionEffects - objects of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with the `Motion()` clip factory function
+   * @returns Factory functions that return category-specific {@link AnimClip}s, each with intellisense for their category-specific effects banks.
+   * 
+   * @example
+    ```ts
+    // Using the method and using one of the `Entrance()` factory function
+    const clipFactories = webimator.createAnimationClipFactories();
+    const ent = clipFactories.Entrance(someElement, '~fly-in', ['from-top'], {duration: 2000});
+    ent.play();
+    ```
+   * 
+   * @example
+    ```ts
+    // Using destructuring assignment to conveniently extract the `Entrance()` and `Motion()` factory functions
+    const {Entrance, Motion} = webimator.createAnimationClipFactories();
+    const ent = Entrance(someElement, '~fly-in', ['from-top'], {duration: 2000});
+    const mot1 = Motion(someElement, '~translate', [{translateX: '500px'}], {duration: 1000});
+    const mot2 = Motion(someElement, '~translate', [{translateY: '500px'}], {duration: 500});
+    // clips are added to a sequence
+    const seq = webimator.newSequence(ent, mot1, mot2);
+    seq.play();
+   * ```
+   * 
+   * @example
+   * ```ts
+   * // Extending the preset entrances and motions banks with custom effects
+    const clipFactories = webimator.createAnimationClipFactories({
+      // CUSTOM ENTRANCES
+      customEntranceEffects: {
+        coolZoomIn: {
+          generateKeyframes(initialScale: number) {
+            return {
+              forwardFrames: [
+                {scale: initialScale, opacity: 0},
+                {scale: 1, opacity: 1}
+              ],
+              // (backwardFrames could have been omitted in this case because
+              // the reversal of forwardFrames is exactly equivalent)
+              backwardFrames: [
+                {scale: 1, opacity: 1},
+                {scale: initialScale, opacity: 0}
+              ]
+            };
+          }
+        },
+
+        blinkIn: {
+          generateKeyframes() {
+            return {
+              forwardFrames: [
+                {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}
+              ],
+              // (backwardFrames omitted because the reversal of forwardFrames is exactly equivalent)
+            };
+          }
+        }
+      },
+
+      // CUSTOM EXITS
+      customExitEffects: {
+        // a custom animation effect for flying out to the left side of the screen
+        flyOutLeft: {
+          generateKeyframeGenerators() {
+            const computeTranslationStr = () => {
+              const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
+              const translationString = `${orthogonalDistance}px 0px`;
+              return translationString;
+            }
+      
+            return {
+              forwardGenerator: () => {
+                return [
+                  {translate: computeTranslationStr()}
+                ];
+              },
+              // backwardGenerator could have been omitted because the result of running forwardGenerator()
+              // again and reversing the keyframes produces the same desired rewinding effect in this case
+              backwardGenerator: () => {
+                return [
+                  {translate: computeTranslationStr()},
+                  {translate: `0 0`}
+                ];
+              }
+            };
+          },
+          
+          immutableConfig: {
+            // this means that the translation is added onto the element's position instead of replacing it
+            composite: 'accumulate',
+          }
+        },
+      }
+    });
+
+    // the custom animations you created are now valid as well as detected by TypeScript
+    const ent1 = clipFactories.Entrance(someElement, 'coolZoomIn', [0.2]);
+    const ent2 = clipFactories.Entrance(someElement, 'blinkIn', []);
+    const ext = clipFactories.Exit(someElement, 'flyOutLeft', []);
+   * ```
+   */
   createAnimationClipFactories
   <
    // default = {} ensures intellisense for a given bank still works
@@ -74,11 +186,22 @@ export class Webimator {
   >
   (
     customPresetEffectBanks: {
+      /** object of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with `Entrance()` clip factory function */
       customEntranceEffects?: CustomEntranceBank & EffectGeneratorBank<EntranceClip, Layer3MutableClipConfig<EntranceClip>>;
+      /** object of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with the `Exit()` clip factory function */
       customExitEffects?: CustomExitBank & EffectGeneratorBank<ExitClip, Layer3MutableClipConfig<ExitClip>>;
+      /** object of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with the `Emphasis()` clip factory function */
       customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisClip, Layer3MutableClipConfig<EmphasisClip>>;
+      /** object of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with the `Motion()` clip factory function */
       customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionClip, Layer3MutableClipConfig<MotionClip>>;
     } = {},
+    /**
+     * if `false`, the preset effects that normally come with the framework will be excluded
+     * @defaultValue
+     * ```ts
+     * true
+     * ```
+     */
     includeLibraryPresets: IncludeLibPresets | void = true as IncludeLibPresets
   ) {
     const {customEntranceEffects, customExitEffects, customEmphasisEffects, customMotionEffects} = customPresetEffectBanks as {
