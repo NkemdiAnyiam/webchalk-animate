@@ -35,7 +35,6 @@ export function load(app: Application) {
         <script>
           ${hider}
           window.addEventListener('load', hider);
-          hider();
         </script>
         `});
     })

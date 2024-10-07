@@ -36,7 +36,6 @@ function load(app) {
         <script>
           ${hider}
           window.addEventListener('load', hider);
-          hider();
         </script>
         ` });
     });

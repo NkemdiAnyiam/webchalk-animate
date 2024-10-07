@@ -1,7 +1,9 @@
 {
   "plugin": [
     "typedoc-material-theme", "typedoc-plugin-mdn-links",
-    "./assets/plugins/handleLibraries.js", "./assets/plugins/specialCategories.js"
+    "./assets/plugins/handleLibraries.js",
+    "./assets/plugins/specialCategories.js",
+    "./assets/plugins/hideNeverGenerators.js"
   ],
   "themeColor": "#99ffff",
   "customCss": "./assets/typedoc-styles.scss",
