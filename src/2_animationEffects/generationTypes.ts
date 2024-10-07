@@ -2,7 +2,6 @@ import { AnimClip } from "../1_playbackStructures/AnimationClip";
 import { ExitClip } from "../1_playbackStructures/AnimationClipCategories";
 import { Keyframes } from "../4_utils/interfaces";
 import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord } from "../4_utils/utilityTypes";
-// import { webimator } from "../Webimator";
 
 // {
 //   const clipFactories = webimator.createAnimationClipFactories({
@@ -195,11 +194,8 @@ export type KeyframesGenerator<TClipContext extends unknown> = {
     /**@ignore*/
     this: TClipContext,
     ...effectOptions: unknown[]): { forwardFrames: Keyframes; backwardFrames?: Keyframes; };
-  /** @ignore */
   generateKeyframeGenerators?: never;
-  /** @ignore */
   generateRafMutators?: never;
-  /** @ignore */
   generateRafMutatorGenerators?: never;
 };
 
@@ -208,7 +204,6 @@ export type KeyframesGenerator<TClipContext extends unknown> = {
  * @interface
  */
 export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
-  /** @ignore */
   generateKeyframes?: never;
   /**
    * Runs itself exactly once (creating a closure) and returns up to 2 callback functions that each return one set of {@link Keyframes}.
@@ -265,9 +260,7 @@ export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
     /**@ignore*/
     this: TClipContext,
     ...effectOptions: unknown[]): StripDuplicateMethodAutocompletion<{ forwardGenerator: () => Keyframes; backwardGenerator?: () => Keyframes; }>;
-  /** @ignore */
   generateRafMutators?: never;
-  /** @ignore */
   generateRafMutatorGenerators?: never;
 };
 
@@ -276,9 +269,7 @@ export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
  * @interface
  */
 export type RafMutatorsGenerator<TClipContext extends unknown> = {
-  /** @ignore */
   generateKeyframes?: never;
-  /** @ignore */
   generateKeyframeGenerators?: never;
   /**
    * Runs every time the clip is played, returning 2 functions each time.
@@ -331,7 +322,6 @@ export type RafMutatorsGenerator<TClipContext extends unknown> = {
     /**@ignore*/
     this: TClipContext & ReadonlyPick<AnimClip, 'computeTween'>,
     ...effectOptions: unknown[]): StripDuplicateMethodAutocompletion<{ forwardMutator: () => void; backwardMutator: () => void; }>;
-  /** @ignore */
   generateRafMutatorGenerators?: never;
 };
 
@@ -340,11 +330,8 @@ export type RafMutatorsGenerator<TClipContext extends unknown> = {
  * @interface
  */
 export type RafMutatorsGeneratorsGenerator<TClipContext extends unknown> = {
-  /** @ignore */
   generateKeyframes?: never;
-  /** @ignore */
   generateKeyframeGenerators?: never;
-  /** @ignore */
   generateRafMutators?: never;
   /**
    * Runs itself exactly once (creating a closure) and returns 2 function that each return one function.
