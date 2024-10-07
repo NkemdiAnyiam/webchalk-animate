@@ -147,6 +147,10 @@ a.tsd-kind-accessor {
   color: var(--color-link);
 }
 
+a.tsd-signature-type.external {
+  color: var(--color-ts-interface);
+}
+
 code:not(.ts) {
   background-color: var(--code-inline-background);
 }
