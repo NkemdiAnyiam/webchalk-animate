@@ -185,7 +185,8 @@ code:not(.ts) {
   color: var(--color-text-aside);
 }
 
-.tsd-comment {
+.tsd-comment ul,
+.tsd-description > ul {
   li {
     margin: 0.3rem 0;
 
