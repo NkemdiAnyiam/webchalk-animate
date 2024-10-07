@@ -47,6 +47,8 @@
   --dark-h5: #99ffff;
   --light-sub-param: #880088;
   --dark-sub-param: #dd99dd;
+  --dark-scroll-bar: hsl(from var(--color-icon-background) h s calc(l + 12)) var(--color-icon-background);
+  --light-scroll-bar: hsl(from var(--color-accent) h s calc(l - 10)) var(--color-icon-background);
   --font-sans: "Proxima Nova" !important;
   --font-mono: "Fira Code" !important;
 
@@ -56,6 +58,7 @@
     --color-ts-parameter: var(--light-color-ts-parameter) !important;
     --color-h5: var(--light-h5);
     --color-sub-param: var(--light-sub-param);
+    --color-scroll-bar: var(--light-scroll-bar);
   }
   @media (prefers-color-scheme: dark) {
     --color-member-name: var(--dark-name);
@@ -63,6 +66,7 @@
     --color-ts-parameter: var(--dark-color-ts-parameter) !important;
     --color-h5: var(--dark-h5);
     --color-sub-param: var(--dark-sub-param);
+    --color-scroll-bar: var(--dark-scroll-bar);
   }
 
   &[data-theme="light"] {
@@ -71,6 +75,7 @@
     --color-ts-parameter: var(--light-color-ts-parameter) !important;
     --color-h5: var(--light-h5);
     --color-sub-param: var(--light-sub-param);
+    --color-scroll-bar: var(--light-scroll-bar);
   }
   &[data-theme="dark"] {
     --color-member-name: var(--dark-name);
@@ -78,6 +83,7 @@
     --color-ts-parameter: var(--dark-color-ts-parameter) !important;
     --color-h5: var(--dark-h5);
     --color-sub-param: var(--dark-sub-param);
+    --color-scroll-bar: var(--dark-scroll-bar);
   }
 }
 
@@ -179,15 +185,8 @@ code:not(.ts) {
   color: var(--color-text-aside);
 }
 
-[data-theme="dark"] {
-  &, * {
-    scrollbar-color: hsl(from var(--color-icon-background) h s calc(l + 12)) var(--color-icon-background);
-  }
-}
-[data-theme="light"] {
-  &, * {
-    scrollbar-color: hsl(from var(--color-accent) h s calc(l - 10)) var(--color-icon-background);
-  }
+&, * {
+  scrollbar-color: var(--color-scroll-bar);
 }
 
 .tsd-panel-group {
