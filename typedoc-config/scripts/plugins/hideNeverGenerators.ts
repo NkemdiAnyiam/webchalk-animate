@@ -28,7 +28,7 @@ export function load(app: Application) {
   app.renderer.hooks.on("body.end", () => {
     return JSX.createElement(JSX.Raw, {
       html: /* html */ `
-        <script>
+        <script type="module" defer>
           const regex = new RegExp('\.(Keyframes(Generator|GeneratorsGenerator)|RafMutators(Generator|GeneratorsGenerator))\.html');
           if (regex.test(window.location.pathname)) {
             ${hider}

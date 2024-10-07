@@ -32,7 +32,7 @@ export function load(app: Application) {
     // this function may be async
     app.renderer.hooks.on('body.end', () => {
       return JSX.createElement(JSX.Raw, {html: /* html */`
-        <script>
+        <script type="module" defer>
           ${hider}
           window.addEventListener('load', hider);
         </script>
