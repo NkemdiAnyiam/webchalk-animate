@@ -1,6 +1,19 @@
 import td, { JSX, Application } from "typedoc";
 
 const hider = function hider() {
+  // remove Properties section from Index section since it will only contain the never-typed generator functions
+  const indexHeadings = [...document.querySelectorAll('.tsd-index-heading')];
+  for (const heading of indexHeadings) {
+    if (heading.textContent === 'Properties') {
+      heading.closest('.tsd-index-section')?.remove();
+    }
+  }
+
+  // remove all Properties <details>
+  document.querySelector('summary[data-key="section-Properties"]')?.closest('.tsd-accordion')?.remove();
+  document.querySelector('summary[data-key="tsd-otp-Properties"]')?.closest('.tsd-accordion')?.remove();
+
+  // remove never-typed generator properties from signature
   const signature = document.querySelector(".tsd-signature")!;
   while (true) {
     const prop = signature.querySelector("a.tsd-kind-property");
