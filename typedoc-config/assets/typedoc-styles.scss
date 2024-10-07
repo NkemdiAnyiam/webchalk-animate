@@ -245,6 +245,8 @@ h3.tsd-anchor-link {
   & + .tsd-signature {
     border-color: var(--color-member-name);
     border-width: 1px !important;
+    max-height: 20rem;
+    overscroll-behavior: contain;
   }
 }
 
