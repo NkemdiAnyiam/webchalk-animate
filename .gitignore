@@ -3,4 +3,5 @@ dist
 **/tarballs
 docs
 typedoc-config/assets/plugins
+typedoc-config/assets/**/typedoc-styles.css
 .vscode
