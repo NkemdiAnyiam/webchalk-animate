@@ -185,6 +185,21 @@ code:not(.ts) {
   color: var(--color-text-aside);
 }
 
+.tsd-comment {
+  li {
+    margin: 0.3rem 0;
+
+    &:has(ul) {
+      list-style: none;
+
+      ul {
+        list-style: outside;
+        margin: unset;
+      }
+    }
+  }
+}
+
 &, * {
   scrollbar-color: var(--color-scroll-bar);
 }
