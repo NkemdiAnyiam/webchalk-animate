@@ -40,23 +40,6 @@ export class Webimator {
     const timeline = new AnimTimeline(config, ...animSequences);
     return timeline;
   }
-  
-  readonly classes = Object.freeze({
-    AnimTimeline,
-    AnimSequence,
-    AnimClip,
-    EntranceClip,
-    ExitClip,
-    EmphasisClip,
-    MotionClip,
-    TransitionClip,
-    ScrollerClip,
-    ConnectorSetterClip,
-    ConnectorEntranceClip,
-    ConnectorExitClip,
-    WbmtrConnector,
-    WbmtrPlaybackButton,
-  });
 
   /**
    * Creates functions that return {@link AnimClip}s for specific effect categories. A clip for a given category can use
@@ -330,12 +313,6 @@ export class Webimator {
 
   /**@internal*/
   scrollAnchorsStack: [target: Element, scrollOptions: ScrollingOptions][] = [];
-
-  get utils() {
-    return {
-      useEasing,
-    };
-  }
 
   private static checkBanksFormatting(...banks: (EffectGeneratorBank | undefined)[]) {
     const errors: string[] = [];
