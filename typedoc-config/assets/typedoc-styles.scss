@@ -35,6 +35,14 @@
   font-weight: 700;
 }
 
+@mixin resizable-vert {
+  height: 15rem;
+  max-height: max-content;
+  overflow: auto;
+  overscroll-behavior: contain;
+  resize: vertical;
+}
+
 :root {
   --light-name: #666600;
   --dark-name: #ffff99;
@@ -245,8 +253,7 @@ h3.tsd-anchor-link {
   & + .tsd-signature {
     border-color: var(--color-member-name);
     border-width: 1px !important;
-    max-height: 20rem;
-    overscroll-behavior: contain;
+    @include resizable-vert;
   }
 }
 
@@ -298,8 +305,18 @@ h3.tsd-anchor-link {
       }
     }
 
+    .tsd-returns-content {
+      @include resizable-vert;
+    }
+
     .tsd-returns-title +p {
       margin-top: -0.8rem;
+    }
+
+    h4:has(a[id^="Example"]) {
+      & + pre {
+        @include resizable-vert;
+      }
     }
   }
 }
