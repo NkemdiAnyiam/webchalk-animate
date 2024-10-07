@@ -7,8 +7,8 @@ import {
   ScrollerClip,
   ConnectorEntranceClip,
   ConnectorExitClip,
-  Layer3MutableClipConfig,
 } from "../1_playbackStructures/AnimationClipCategories";
+import { Layer3MutableClipConfig } from "./generationTypes";
 import { webimator } from "../Webimator";
 import { EffectGeneratorBank } from "./generationTypes";
 import { computeSelfScrollingBounds, negateNumString, overrideHidden, splitXYAlignmentString, splitXYTupleString, unOverrideHidden } from "../4_utils/helpers";
@@ -247,7 +247,7 @@ export const libPresetEntrances = {
   },
 
   // invalidProperty: 5,
-} satisfies EffectGeneratorBank<EntranceClip, Layer3MutableClipConfig<EntranceClip>>;
+} satisfies EffectGeneratorBank<EntranceClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:******************************************        EXITS        ***********************************************************/
@@ -418,7 +418,7 @@ export const libPresetExits = {
     defaultConfig: {},
     immutableConfig: {},
   },
-} satisfies EffectGeneratorBank<ExitClip, Layer3MutableClipConfig<ExitClip>>;
+} satisfies EffectGeneratorBank<ExitClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:*****************************************        EMPHASES        *********************************************************/
@@ -482,7 +482,7 @@ export const libPresetEmphases = {
     } as const,
     immutableConfig: {},
   },
-} satisfies EffectGeneratorBank<EmphasisClip, Layer3MutableClipConfig<EmphasisClip>>;
+} satisfies EffectGeneratorBank<EmphasisClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:*****************************************        MOTIONS        **********************************************************/
@@ -590,7 +590,7 @@ export const libPresetMotions = {
     defaultConfig: {},
     immutableConfig: {},
   },
-} satisfies EffectGeneratorBank<MotionClip, Layer3MutableClipConfig<MotionClip>>;
+} satisfies EffectGeneratorBank<MotionClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:***************************************        TRANSITIONS        ********************************************************/
@@ -653,7 +653,7 @@ export const libPresetTransitions = {
     defaultConfig: {},
     immutableConfig: {},
   },
-} satisfies EffectGeneratorBank<TransitionClip, Layer3MutableClipConfig<TransitionClip>>;
+} satisfies EffectGeneratorBank<TransitionClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:***********************************        CONNECTOR ENTRANCES      ******************************************************/
@@ -740,7 +740,7 @@ export const libPresetConnectorEntrances = {
     defaultConfig: {},
     immutableConfig: {},
   },
-} satisfies EffectGeneratorBank<ConnectorEntranceClip, Layer3MutableClipConfig<ConnectorEntranceClip>>;
+} satisfies EffectGeneratorBank<ConnectorEntranceClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:*************************************        CONNECTOR EXITS        ******************************************************/
@@ -823,7 +823,7 @@ export const libPresetConnectorExits = {
     defaultConfig: {},
     immutableConfig: {},
   },
-} satisfies EffectGeneratorBank<ConnectorExitClip, Layer3MutableClipConfig<ConnectorExitClip>>;
+} satisfies EffectGeneratorBank<ConnectorExitClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:*****************************************        SCROLLS        **********************************************************/
@@ -948,4 +948,4 @@ export const libPresetScrolls = {
     } as const,
     immutableConfig: {},
   },
-} satisfies EffectGeneratorBank<ScrollerClip, Layer3MutableClipConfig<ScrollerClip>>;
+} satisfies EffectGeneratorBank<ScrollerClip>;

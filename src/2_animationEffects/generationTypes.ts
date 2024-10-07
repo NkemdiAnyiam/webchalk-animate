@@ -1,4 +1,5 @@
-import { AnimClip, AnimClipConfig } from "../1_playbackStructures/AnimationClip";
+import { AnimClip } from "../1_playbackStructures/AnimationClip";
+import { ExitClip } from "../1_playbackStructures/AnimationClipCategories";
 import { Keyframes } from "../4_utils/interfaces";
 import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord } from "../4_utils/utilityTypes";
 // import { webimator } from "../Webimator";
@@ -415,6 +416,13 @@ export type RafMutatorsGeneratorsGenerator<TClipContext extends unknown> = {
  * - - {@link KeyframesGeneratorsGenerator.generateKeyframeGenerators | generateKeyframeGenerators}
  * - - {@link RafMutatorsGenerator.generateRafMutators | generateRafMutators}
  * - - {@link RafMutatorsGeneratorsGenerator.generateRafMutatorGenerators | generateRafMutatorGenerators}
+ * 
+ * The configuration options that are allowed to be set in {@link EffectGenerator.defaultConfig | defaultConfig} or 
+ * {@link EffectGenerator.immutableConfig | immutableConfig} depend on {@link AnimClip.categoryImmutableConfig}. For example,
+ * {@link ExitClip.categoryImmutableConfig} contains `commitStyles: false`, so the `commitStyles` option is unavailable in
+ * {@link EffectGenerator.defaultConfig | defaultConfig} and {@link EffectGenerator.immutableConfig | immutableConfig} for
+ * any entries in the exit effects bank.
+ * 
  * @interface
  */
 export type EffectGenerator<TClipContext extends unknown = unknown, TConfig extends unknown = unknown> = Readonly<
@@ -435,16 +443,23 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
     // sourceBank?: EffectGeneratorBank<any>;
   } &
   StripDuplicateMethodAutocompletion<(
-    KeyframesGenerator<TClipContext> | KeyframesGeneratorsGenerator<TClipContext> | RafMutatorsGenerator<TClipContext> | RafMutatorsGeneratorsGenerator<TClipContext>)>
+    | KeyframesGenerator<TClipContext>
+    | KeyframesGeneratorsGenerator<TClipContext>
+    | RafMutatorsGenerator<TClipContext>
+    | RafMutatorsGeneratorsGenerator<TClipContext>
+  )>
 >;
+
+/** @ignore */
+export type Layer3MutableClipConfig<TClipClass extends AnimClip> = Omit<ReturnType<TClipClass['getConfig']>, keyof TClipClass['categoryImmutableConfig']>;
 
 // represents an object where every string key is paired with a EffectGenerator value
 /**
  * Object containing {@link EffectGenerator} entries for a specific category of animation effect.
  * For example, there is an effect generator bank containing effect generators for entrance animation effects.
  */
-export type EffectGeneratorBank<TClip extends AnimClip = AnimClip, TClipConfig extends {} = AnimClipConfig> = ReadonlyRecord<
-  string, EffectGenerator<ReadonlyPick<TClip, 'domElem' | 'getEffectDetails'>, TClipConfig>
+export type EffectGeneratorBank<TClip extends AnimClip = AnimClip> = ReadonlyRecord<
+  string, EffectGenerator<ReadonlyPick<TClip, 'domElem' | 'getEffectDetails'>, Layer3MutableClipConfig<TClip>>
 >;
 
 /**
@@ -468,4 +483,5 @@ export type EffectOptions<TEffectGenerator extends EffectGenerator> = Parameters
  */
 export type EffectNameIn<TGeneratorBank extends EffectGeneratorBank> = Exclude<keyof {
   [key in keyof TGeneratorBank as TGeneratorBank[key] extends EffectGenerator ? key : never]: TGeneratorBank[key];
-}, number | symbol>;
+}, number | symbol>;/** @ignore */
+

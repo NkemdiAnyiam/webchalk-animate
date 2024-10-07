@@ -2,8 +2,8 @@ import { AnimClip} from "./1_playbackStructures/AnimationClip";
 import {
   EntranceClip, ExitClip, EmphasisClip, MotionClip, ScrollerClip, TransitionClip,
   ConnectorEntranceClip, ConnectorExitClip, ConnectorSetterClip,
-  Layer3MutableClipConfig,
 } from "./1_playbackStructures/AnimationClipCategories";
+import { Layer3MutableClipConfig } from "./2_animationEffects/generationTypes";
 import { AnimSequence, AnimSequenceConfig } from "./1_playbackStructures/AnimationSequence";
 import { AnimTimeline, AnimTimelineConfig } from "./1_playbackStructures/AnimationTimeline";
 import { WbmtrConnector, WbmtrConnectorConfig } from "./3_components/WbmtrConnector";
@@ -174,26 +174,26 @@ export class Webimator {
   <
    // default = {} ensures intellisense for a given bank still works
    // without specifying the field (why? not sure)
-    CustomEntranceBank extends EffectGeneratorBank<EntranceClip, Layer3MutableClipConfig<EntranceClip>> = {},
-    CustomExitBank extends EffectGeneratorBank<ExitClip, Layer3MutableClipConfig<ExitClip>> = {},
-    CustomEmphasisBank extends EffectGeneratorBank<EmphasisClip, Layer3MutableClipConfig<EmphasisClip>> = {},
-    CustomMotionBank extends EffectGeneratorBank<MotionClip, Layer3MutableClipConfig<MotionClip>> = {},
-    _EmptyTransitionBank extends EffectGeneratorBank<TransitionClip, Layer3MutableClipConfig<TransitionClip>> = {},
-    _EmptyConnectorEntranceBank extends EffectGeneratorBank<ConnectorEntranceClip, Layer3MutableClipConfig<ConnectorEntranceClip>> = {},
-    _EmptyConnectorExitBank extends EffectGeneratorBank<ConnectorExitClip, Layer3MutableClipConfig<ConnectorExitClip>> = {},
-    _EmptyScrollerBank extends EffectGeneratorBank<ScrollerClip, Layer3MutableClipConfig<ScrollerClip>> = {},
+    CustomEntranceBank extends EffectGeneratorBank<EntranceClip> = {},
+    CustomExitBank extends EffectGeneratorBank<ExitClip> = {},
+    CustomEmphasisBank extends EffectGeneratorBank<EmphasisClip> = {},
+    CustomMotionBank extends EffectGeneratorBank<MotionClip> = {},
+    _EmptyTransitionBank extends EffectGeneratorBank<TransitionClip> = {},
+    _EmptyConnectorEntranceBank extends EffectGeneratorBank<ConnectorEntranceClip> = {},
+    _EmptyConnectorExitBank extends EffectGeneratorBank<ConnectorExitClip> = {},
+    _EmptyScrollerBank extends EffectGeneratorBank<ScrollerClip> = {},
     IncludeLibPresets extends boolean = true
   >
   (
     customPresetEffectBanks: {
       /** object of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with `Entrance()` clip factory function */
-      customEntranceEffects?: CustomEntranceBank & EffectGeneratorBank<EntranceClip, Layer3MutableClipConfig<EntranceClip>>;
+      customEntranceEffects?: CustomEntranceBank & EffectGeneratorBank<EntranceClip>;
       /** object of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with the `Exit()` clip factory function */
-      customExitEffects?: CustomExitBank & EffectGeneratorBank<ExitClip, Layer3MutableClipConfig<ExitClip>>;
+      customExitEffects?: CustomExitBank & EffectGeneratorBank<ExitClip>;
       /** object of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with the `Emphasis()` clip factory function */
-      customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisClip, Layer3MutableClipConfig<EmphasisClip>>;
+      customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisClip>;
       /** object of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with the `Motion()` clip factory function */
-      customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionClip, Layer3MutableClipConfig<MotionClip>>;
+      customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionClip>;
     } = {},
     /**
      * if `false`, the preset effects that normally come with the framework will be excluded
@@ -205,10 +205,10 @@ export class Webimator {
     includeLibraryPresets: IncludeLibPresets | void = true as IncludeLibPresets
   ) {
     const {customEntranceEffects, customExitEffects, customEmphasisEffects, customMotionEffects} = customPresetEffectBanks as {
-      customEntranceEffects?: CustomEntranceBank & EffectGeneratorBank<EntranceClip, Layer3MutableClipConfig<EntranceClip>>;
-      customExitEffects?: CustomExitBank & EffectGeneratorBank<ExitClip, Layer3MutableClipConfig<ExitClip>>;
-      customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisClip, Layer3MutableClipConfig<EmphasisClip>>;
-      customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionClip, Layer3MutableClipConfig<MotionClip>>;
+      customEntranceEffects?: CustomEntranceBank & EffectGeneratorBank<EntranceClip>;
+      customExitEffects?: CustomExitBank & EffectGeneratorBank<ExitClip>;
+      customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisClip>;
+      customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionClip>;
     };
     Webimator.checkBanksFormatting(customEntranceEffects, customExitEffects, customEmphasisEffects, customMotionEffects);
 
