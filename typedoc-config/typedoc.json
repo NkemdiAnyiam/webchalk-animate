@@ -6,7 +6,7 @@
     "./assets/plugins/hideNeverGenerators.js"
   ],
   "themeColor": "#99ffff",
-  "customCss": "./assets/typedoc-styles.scss",
+  "customCss": "./assets/typedoc-styles.css",
   "exclude": ["**/WebimatorAnimation.ts", "**/index.ts", "**/globalSideEffects.ts", "**/oneUseTypes.ts"],
   "entryPoints": ["../src"],
   "entryPointStrategy": "expand",

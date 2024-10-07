@@ -20,11 +20,10 @@
     "in": "npm i && npm run pack-up",
     "out": "rm -rf ./dist ./node_modules",
     "in-and-out": "npm run in && npm run out",
-    
     "open-docs": "bash -c \"start ./docs/index.html\"",
     "copy-doc-assets": "cp -r ./typedoc-config/assets/fonts ./docs/assets",
     "build-typedoc-plugins": "tsc --project ./typedoc-config/scripts",
-    "gen-docs": "npm run build-typedoc-plugins && cd ./typedoc-config && typedoc && cd .. && npm run copy-doc-assets && npm run open-docs",
+    "gen-docs": "npm run build-typedoc-plugins && cd ./typedoc-config && node-sass ./assets/typedoc-styles.scss ./assets/typedoc-styles.css && typedoc && cd .. && npm run copy-doc-assets && npm run open-docs",
     "lint": "tsc"
   },
   "keywords": [
@@ -37,6 +36,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^22.7.2",
+    "node-sass": "^9.0.0",
     "tsup": "^8.0.1",
     "typedoc": "^0.26.7",
     "typedoc-material-theme": "^1.1.0",
