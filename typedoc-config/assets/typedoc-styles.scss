@@ -257,6 +257,10 @@ h3.tsd-anchor-link {
   }
 }
 
+.tsd-signature {
+  @include resizable-vert;
+}
+
 .tsd-signatures {
   margin-bottom: 0;
 
