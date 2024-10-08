@@ -3,14 +3,15 @@ import td, { JSX, Application } from "typedoc";
 const reduceClutter = function reduceClutter() {
   const members = [...document.querySelectorAll('.tsd-panel.tsd-member')];
   for (const member of members) {
-    // wrap code portion of return statement in a scrollable div
-    const h4 = member.querySelector('h4.tsd-returns-title');
-    if (!h4) { continue; }
-    const returnTextNode = h4.firstChild!; // text node that literally says "Returns "
-    returnTextNode.textContent = (returnTextNode.textContent ?? '').trim();
-    returnTextNode.remove();
-    h4.innerHTML = /* html */ `<pre class="tsd-returns-content">${h4.innerHTML}</pre>`;
-    h4.insertBefore(returnTextNode, h4.firstChild);
+    // wrap code portion of return statement(s) (plural if overloads present) in a scrollable div
+    const h4s = [...member.querySelectorAll('.tsd-returns-title')];
+    for (const h4 of h4s) {
+      const returnTextNode = h4.firstChild!; // text node that literally says "Returns "
+      returnTextNode.textContent = (returnTextNode.textContent ?? '').trim();
+      returnTextNode.remove();
+      h4.innerHTML = /* html */ `<pre class="tsd-returns-content">${h4.innerHTML}</pre>`;
+      h4.insertBefore(returnTextNode, h4.firstChild);
+    }
 
     // remove duplicated code portion of return statement that appears after the return description
     // (it can be used to display TSDoc, but it can take up too much space and looks unappealing, so it
