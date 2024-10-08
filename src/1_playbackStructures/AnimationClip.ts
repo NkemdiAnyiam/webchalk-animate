@@ -2,11 +2,11 @@ import { AnimSequence } from "./AnimationSequence";
 import { AnimTimeline } from "./AnimationTimeline";
 import { webimator } from "../Webimator";
 import { EffectOptions, EffectGeneratorBank, EffectGenerator } from "../2_animationEffects/generationTypes";
-import { call, getPartial, mergeArrays, parseMultiUnitPlacement } from "../4_utils/helpers";
+import { call, getPartial, mergeArrays } from "../4_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
 import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "../4_utils/errors";
-import { EffectCategory, Keyframes, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
-import { WbmtrConnector, WbmtrConnectorConfig } from "../3_components/WbmtrConnector";
+import { EffectCategory, Keyframes } from "../4_utils/interfaces";
+import { WbmtrConnector } from "../3_components/WbmtrConnector";
 import { WebimatorAnimation } from "./WebimatorAnimation";
 import { PartialPick, PickFromArray } from "../4_utils/utilityTypes";
 
