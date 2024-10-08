@@ -82,7 +82,7 @@ type CustomKeyframeEffectOptions = {
 
   /**
    * Contains arrays of CSS classes that should be added to or removed from the element.
-   * - The list of classes to add is added first, and then the list of classes to remove is removed.
+   * - The array of classes to add is added first, and then the array of classes to remove is removed.
    * - Changes are automatically undone in the appropriate order when the clip is rewound.
    */
   cssClasses: Partial<CssClassOptions>;

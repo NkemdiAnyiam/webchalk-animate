@@ -25,7 +25,6 @@ const hider = (function hider() {
       member.querySelector('li.tsd-parameter ul.tsd-parameters:has(> li.tsd-parameter > h5')?.remove();
     }
   }
-
 }).toString();
 
 export function load(app: Application) {
