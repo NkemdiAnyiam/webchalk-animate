@@ -184,7 +184,7 @@ export type KeyframesGenerator<TClipContext extends unknown> = {
    *     }
    *   },
    * });
-
+   *
    * const element = document.querySelector('.some-element');
    * const ent = clipFactories.Entrance(element, 'zoomIn', [0.2]);
    * ent.play().then(ent.rewind);
@@ -285,37 +285,37 @@ export type RafMutatorsGenerator<TClipContext extends unknown> = {
    * 
    * @example
    * ```ts
-    const clipFactories = webimator.createAnimationClipFactories({
-      customMotionEffects: {
-        // a custom animation for scrolling to a specific position (but when
-        // rewinding, it will snap to yPosition before scrolling to the initial position, which
-        // may feel janky. This could be solved with generateRafMutatorGenerators())
-        scrollTo: {
-          generateRafMutators(yPosition: number) {
-            const initialPosition = this.domElem.scrollTop;
-      
-            return {
-              forwardMutator: () => {
-                this.domElem.scrollTo({
-                  top: this.computeTween(initialPosition, yPosition),
-                  behavior: 'instant'
-                });
-              },
-              backwardMutator: () => {
-                this.domElem.scrollTo({
-                  top: this.computeTween(yPosition, initialPosition),
-                  behavior: 'instant'
-                });
-              }
-            };
-          }
-        },
-      }
-    });
-
-    const element = document.querySelector('.some-element');
-    const mot = clipFactories.Motion(element, 'scrollTo', [1020]);
-    mot.play().then(mot.rewind);
+   * const clipFactories = webimator.createAnimationClipFactories({
+   *   customMotionEffects: {
+   *     // a custom animation for scrolling to a specific position (but when
+   *     // rewinding, it will snap to yPosition before scrolling to the initial position, which
+   *     // may feel janky. This could be solved with generateRafMutatorGenerators())
+   *     scrollTo: {
+   *       generateRafMutators(yPosition: number) {
+   *         const initialPosition = this.domElem.scrollTop;
+   *   
+   *         return {
+   *           forwardMutator: () => {
+   *             this.domElem.scrollTo({
+   *               top: this.computeTween(initialPosition, yPosition),
+   *               behavior: 'instant'
+   *             });
+   *           },
+   *           backwardMutator: () => {
+   *             this.domElem.scrollTo({
+   *               top: this.computeTween(yPosition, initialPosition),
+   *               behavior: 'instant'
+   *             });
+   *           }
+   *         };
+   *       }
+   *     },
+   *   }
+   * });
+   *
+   * const element = document.querySelector('.some-element');
+   * const mot = clipFactories.Motion(element, 'scrollTo', [1020]);
+   * mot.play().then(mot.rewind);
    * ```
    */
   generateRafMutators(
@@ -347,45 +347,45 @@ export type RafMutatorsGeneratorsGenerator<TClipContext extends unknown> = {
    * 
    * @example
    * ```ts
-    const clipFactories = webimator.createAnimationClipFactories({
-      customMotionEffects: {
-        // a custom animation for scrolling to a specific point on the page.
-        // when rewinding, the current scroll position is computed on the spot so that
-        // it can smoothly scroll from THERE to the initial position.
-        scrollToImproved: {
-          generateRafMutatorGenerators(yPosition: number) {
-            const initialPosition = this.domElem.scrollTop;
-      
-            return {
-              forwardGenerator: () => {
-                const forwardMutator = () => {
-                  this.domElem.scrollTo({
-                    top: this.computeTween(initialPosition, yPosition),
-                    behavior: 'instant'
-                  });
-                };
-                return forwardMutator;
-              },
-
-              backwardGenerator: () => {
-                const backwardMutator = () => {
-                  const currentPosition = this.domElem.scrollTop;
-                  this.domElem.scrollTo({
-                    top: this.computeTween(currentPosition, initialPosition),
-                    behavior: 'instant'
-                  });
-                };
-                return backwardMutator;
-              }
-            };
-          }
-        },
-      }
-    });
-
-    const element = document.querySelector('.some-element');
-    const mot = clipFactories.Motion(element, 'scrollToImproved', [1020]);
-    mot.play().then(mot.rewind);
+   * const clipFactories = webimator.createAnimationClipFactories({
+   *   customMotionEffects: {
+   *     // a custom animation for scrolling to a specific point on the page.
+   *     // when rewinding, the current scroll position is computed on the spot so that
+   *     // it can smoothly scroll from THERE to the initial position.
+   *     scrollToImproved: {
+   *       generateRafMutatorGenerators(yPosition: number) {
+   *         const initialPosition = this.domElem.scrollTop;
+   *   
+   *         return {
+   *           forwardGenerator: () => {
+   *             const forwardMutator = () => {
+   *               this.domElem.scrollTo({
+   *                 top: this.computeTween(initialPosition, yPosition),
+   *                 behavior: 'instant'
+   *               });
+   *             };
+   *             return forwardMutator;
+   *           },
+   *
+   *           backwardGenerator: () => {
+   *             const backwardMutator = () => {
+   *               const currentPosition = this.domElem.scrollTop;
+   *               this.domElem.scrollTo({
+   *                 top: this.computeTween(currentPosition, initialPosition),
+   *                 behavior: 'instant'
+   *               });
+   *             };
+   *             return backwardMutator;
+   *           }
+   *         };
+   *       }
+   *     },
+   *   }
+   * });
+   *
+   * const element = document.querySelector('.some-element');
+   * const mot = clipFactories.Motion(element, 'scrollToImproved', [1020]);
+   * mot.play().then(mot.rewind);
    * ```
    */
   generateRafMutatorGenerators(
