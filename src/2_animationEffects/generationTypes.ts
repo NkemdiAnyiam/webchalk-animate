@@ -149,7 +149,7 @@ import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord } from
 // }
 
 /**
- * @category Generator Types
+ * @category Effect Generator Functions
  * @interface
  */
 export type KeyframesGenerator<TClipContext extends unknown> = {
@@ -200,7 +200,7 @@ export type KeyframesGenerator<TClipContext extends unknown> = {
 };
 
 /**
- * @category Generator Types
+ * @category Effect Generator Functions
  * @interface
  */
 export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
@@ -265,7 +265,7 @@ export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
 };
 
 /**
- * @category Generator Types
+ * @category Effect Generator Functions
  * @interface
  */
 export type RafMutatorsGenerator<TClipContext extends unknown> = {
@@ -326,7 +326,7 @@ export type RafMutatorsGenerator<TClipContext extends unknown> = {
 };
 
 /**
- * @category Generator Types
+ * @category Effect Generator Functions
  * @interface
  */
 export type RafMutatorsGeneratorsGenerator<TClipContext extends unknown> = {
