@@ -224,7 +224,7 @@ code:not(.ts) {
       padding-bottom: 32px;
 
       &:not(:last-child) {
-        border-bottom: 2px solid var(--color-text);
+        border-bottom: 5px solid var(--color-text);
       }
 
       & > .tsd-signature {
@@ -233,7 +233,6 @@ code:not(.ts) {
       }
     }
   }
-
 }
 
 h3.tsd-anchor-link {
