@@ -8,7 +8,7 @@
   ],
   "themeColor": "#99ffff",
   "customCss": "./assets/typedoc-styles.css",
-  "exclude": ["**/WebimatorAnimation.ts", "**/index.ts", "**/globalSideEffects.ts", "**/oneUseTypes.ts"],
+  "exclude": ["**/WebimatorAnimation.ts", "**/index.ts", "**/globalSideEffects.ts"],
   "entryPoints": ["../src"],
   "entryPointStrategy": "expand",
   "out": "../docs",
