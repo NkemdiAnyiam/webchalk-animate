@@ -197,7 +197,7 @@ export const computeSelfScrollingBounds = (scrollable: Element, target: Element,
 
 /**
  * Functional, type-safe version of
- * {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call|Function.prototype.call}.
+ * {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call | Function.prototype.call}.
  * @param callableFunction - function whose `call` method we want to invoke
  * @param thisArg - value to use for the `thisArg` parameter for `callableFunction.call()`
  * @param args - arguments to pass to the `args` parameter for `callableFunction.call()`
