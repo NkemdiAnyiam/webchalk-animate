@@ -275,7 +275,7 @@ h3.tsd-anchor-link {
   .tsd-description {
     &:not(:last-child) {
       margin-bottom: 16px;
-      border-bottom: 1px dashed var(--color-text);
+      border-bottom: 2px dashed var(--color-text);
     }
 
     .tsd-parameters {
