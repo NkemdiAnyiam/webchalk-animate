@@ -8,5 +8,5 @@
     "esModuleInterop": true,
   },
   "include": ["plugins"],
-  "exclude": ["node_modules", "**/__tests__/*"]
+  "exclude": ["node_modules", "**/__tests__/*", "styles"]
 }

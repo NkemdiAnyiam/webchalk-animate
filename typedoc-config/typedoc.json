@@ -7,7 +7,7 @@
     "./assets/plugins/reduceClutter.js"
   ],
   "themeColor": "#99ffff",
-  "customCss": "./assets/typedoc-styles.css",
+  "customCss": "./assets/styles/typedoc-styles.css",
   "exclude": ["**/WebimatorAnimation.ts", "**/index.ts", "**/globalSideEffects.ts"],
   "entryPoints": ["../src"],
   "entryPointStrategy": "expand",
