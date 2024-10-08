@@ -25,7 +25,72 @@ export class Webimator {
   /**@internal*/ timelineCreatorLock = true;
   /**@internal*/ clipCreatorLock = true;
 
+  /**
+   * Creates a new {@link AnimSequence} with configuration options specified in the {@link config} parameter.
+   * @param config - configuration options for the sequence
+   * @param animClips - optional comma-separated list of {@link AnimClip}s to add to the sequence
+   * @returns A new {@link AnimSequence} instance.
+   * 
+   * @example
+   * ```ts
+    const clipFactories = webimator.createAnimationClipFactories();
+    const squareEl = document.querySelector('.square');
+    const seq = webimator.newSequence(
+      {description: 'Fade in square, move it, and fade out', playbackRate: 2},
+      clipFactories.Entrance(squareEl, '~fade-in', []),
+      clipFactories.Motion(squareEl, '~translate', [{translate: '200px, 500px'}]),
+      clipFactories.Exit(squareEl, '~fade-out', []),
+    );
+    seq.play();
+    ```
+
+   * @example
+    ```ts
+    // SAME EXAMPLE BUT WITH DESTRUCTURING ASSIGNMENT FOR THE CLIP FACTORY FUNCTIONS
+
+    const {Entrance, Exit, Motion} = webimator.createAnimationClipFactories();
+    const squareEl = document.querySelector('.square');
+    const seq = webimator.newSequence(
+      {description: 'Fade in square, move it, and fade out', playbackRate: 2},
+      Entrance(squareEl, '~fade-in', []),
+      Motion(squareEl, '~translate', [{translate: '200px, 500px'}]),
+      Exit(squareEl, '~fade-out', []),
+    );
+    seq.play();
+   * ```
+   */
   newSequence(config: Partial<AnimSequenceConfig>, ...animClips: AnimClip[]): AnimSequence;
+  /**
+   * Creates a new {@link AnimSequence} instance.
+   * @param animClips - optional comma-separated list of {@link AnimClip}s to add to the sequence
+   * @returns A new {@link AnimSequence} instance.
+   * 
+   * @example
+   * ```ts
+    const clipFactories = webimator.createAnimationClipFactories();
+    const squareEl = document.querySelector('.square');
+    const seq = webimator.newSequence(
+      clipFactories.Entrance(squareEl, '~fade-in', []),
+      clipFactories.Motion(squareEl, '~translate', [{translate: '200px, 500px'}]),
+      clipFactories.Exit(squareEl, '~fade-out', []),
+    );
+    seq.play();
+    ```
+    
+   * @example
+    ```ts
+    // SAME EXAMPLE BUT WITH DESTRUCTURING ASSIGNMENT FOR THE CLIP FACTORY FUNCTIONS
+
+    const {Entrance, Exit, Motion} = webimator.createAnimationClipFactories();
+    const squareEl = document.querySelector('.square');
+    const seq = webimator.newSequence(
+      Entrance(squareEl, '~fade-in', []),
+      Motion(squareEl, '~translate', [{translate: '200px, 500px'}]),
+      Exit(squareEl, '~fade-out', []),
+    );
+    seq.play();
+   * ```
+   */
   newSequence(...animClips: AnimClip[]): AnimSequence;
   newSequence(config: Partial<AnimSequenceConfig> | AnimClip = {}, ...animClips: AnimClip[]): AnimSequence {
     this.sequenceCreatorLock = false;
