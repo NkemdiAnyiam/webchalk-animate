@@ -5,7 +5,7 @@ const hider = (function hider() {
   // document.querySelector('a#______')?.closest('.tsd-panel.tsd-member')?.remove();
   // [...document.querySelectorAll('a[href$="#______"]')].forEach((elem) => elem.remove());
 
-  if (window.location.pathname.includes(`2_animationEffects_libraryPresetBanks`)) {
+  if (window.location.pathname.includes(`2_animationEffects_libraryPresetEffectBanks`)) {
     // remove interface signature and GitHub source
     document.querySelector('.col-content > .tsd-signature')?.remove();
     document.querySelector('.col-content > .tsd-sources')?.remove();

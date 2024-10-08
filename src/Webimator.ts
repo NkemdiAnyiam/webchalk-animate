@@ -9,7 +9,7 @@ import { WbmtrConnector, WbmtrConnectorConfig } from "./3_components/WbmtrConnec
 import {
   libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions,
   libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions
-} from "./2_animationEffects/libraryPresetBanks";
+} from "./2_animationEffects/libraryPresetEffectBanks";
 import { MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./4_utils/interfaces";
 import { EffectGeneratorBank, EffectNameIn, EffectGenerator } from "./2_animationEffects/generationTypes";
 
