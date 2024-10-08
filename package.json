@@ -22,7 +22,7 @@
     "in-and-out": "npm run in && npm run out",
     "open-docs": "bash -c \"start ./docs/index.html\"",
     "copy-doc-assets": "cp -r ./typedoc-config/assets/fonts ./docs/assets",
-    "build-typedoc-plugins": "tsc --project ./typedoc-config/scripts",
+    "build-typedoc-plugins": "rm -r ./typedoc-config/assets/plugins && tsc --project ./typedoc-config/scripts",
     "gen-docs": "npm run build-typedoc-plugins && cd ./typedoc-config && node-sass ./assets/typedoc-styles.scss ./assets/typedoc-styles.css && typedoc && cd .. && npm run copy-doc-assets && npm run open-docs",
     "lint": "tsc"
   },
