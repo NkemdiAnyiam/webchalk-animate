@@ -73,7 +73,7 @@ export class Webimator {
    * ```ts
    * // retrieve clip factory functions
    * const clipFactories = webimator.createAnimationClipFactories();
-  * // select a (presumable) square-shaped element from the DOM
+   * // select a (presumable) square-shaped element from the DOM
    * const squareEl = document.querySelector('.square');
    * 
    * // create sequence with some animation clips
