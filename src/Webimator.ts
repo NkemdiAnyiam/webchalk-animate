@@ -3,7 +3,6 @@ import {
   EntranceClip, ExitClip, EmphasisClip, MotionClip, ScrollerClip, TransitionClip,
   ConnectorEntranceClip, ConnectorExitClip, ConnectorSetterClip,
 } from "./1_playbackStructures/AnimationClipCategories";
-import { Layer3MutableClipConfig } from "./2_animationEffects/generationTypes";
 import { AnimSequence, AnimSequenceConfig } from "./1_playbackStructures/AnimationSequence";
 import { AnimTimeline, AnimTimelineConfig } from "./1_playbackStructures/AnimationTimeline";
 import { WbmtrConnector, WbmtrConnectorConfig } from "./3_components/WbmtrConnector";
@@ -11,9 +10,7 @@ import {
   libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions,
   libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions
 } from "./2_animationEffects/libraryPresetBanks";
-import { useEasing } from "./2_animationEffects/easing";
 import { MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./4_utils/interfaces";
-import { WbmtrPlaybackButton } from "./3_components/WbmtrPlaybackButton";
 import { EffectGeneratorBank, EffectNameIn, EffectGenerator } from "./2_animationEffects/generationTypes";
 
 /**
