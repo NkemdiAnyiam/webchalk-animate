@@ -76,7 +76,7 @@ export type LibraryScrolls = typeof libPresetScrolls;
  * @category hidden
  */
 export const libPresetEntrances = {
-  /** Makes the element appear instantaneously. */
+  /** Element appears instantaneously. */
   [`~appear`]: {
     /**
      * 
@@ -93,6 +93,7 @@ export const libPresetEntrances = {
     } as const,
   },
 
+  /** Element fades in, starting from 0 opacity. */
   [`~fade-in`]: {
     /**
      * 
@@ -108,12 +109,12 @@ export const libPresetEntrances = {
   },
 
   /**
-   * Makes thing fly in from offscreen from the specified direction.
+   * Element flies in from offscreen from the specified direction.
    */
   [`~fly-in`]: {
     /**
      * 
-     * @param direction - geee
+     * @param direction - direction from which the element should enter
      * @returns 
      */
     generateKeyframeGenerators(direction: `from-${Direction}` = 'from-bottom') {
@@ -154,11 +155,14 @@ export const libPresetEntrances = {
     immutableConfig: {},
   },
 
+  /**
+   * Element spins and zooms into view while fading in.
+   */
   [`~pinwheel`]: {
     /**
      * 
-     * @param numSpins 
-     * @param direction 
+     * @param numSpins - number of times the element will spin
+     * @param direction - direction of the rotation
      * @returns 
      */
     generateKeyframes(numSpins: number = 2, direction: 'clockwise' | 'counterclockwise' = 'counterclockwise') {
@@ -177,6 +181,10 @@ export const libPresetEntrances = {
     immutableConfig: {},
   },
 
+  /**
+   * Element flies in from the bottom of the screen and ends up
+   * slightly too high, then settles down to its final position.
+   */
   [`~rise-up`]: {
     /**
      * 
@@ -198,10 +206,13 @@ export const libPresetEntrances = {
     immutableConfig: {},
   },
 
+  /**
+   * Element is wiped on, starting from the specified direction.
+   */
   [`~wipe`]: {
     /**
      * 
-     * @param direction 
+     * @param direction - direction from which to begin the wipe
      * @returns 
      */
     generateKeyframes(direction: 'from-bottom' | 'from-left' | 'from-top' | 'from-right' = 'from-bottom') {
@@ -256,6 +267,7 @@ export const libPresetEntrances = {
  * @category hidden
  */
 export const libPresetExits = {
+  /** Element disappears instantaneously. */
   [`~disappear`]: {
     /**
      * 
@@ -270,6 +282,7 @@ export const libPresetExits = {
     } as const,
   },
 
+  /** Element fades out to 0 opacity. */
   [`~fade-out`]: {
     /**
      * 
@@ -284,10 +297,11 @@ export const libPresetExits = {
     immutableConfig: {},
   },
 
+  /** Element flies offscreen towards the specified direction */
   [`~fly-out`]: {
     /**
      * 
-     * @param direction 
+     * @param direction - direction to which the element should exit
      * @returns 
      */
     generateKeyframeGenerators(direction: `to-${OrthoDirection | DiagDirection}` = 'to-bottom') {
@@ -327,11 +341,12 @@ export const libPresetExits = {
     immutableConfig: {},
   },
 
+  /** Element spins and shrinks while fading out. */
   [`~pinwheel`]: {
     /**
      * 
-     * @param numSpins 
-     * @param direction 
+     * @param numSpins - number of times the element will spin
+     * @param direction - direction of the spin
      * @returns 
      */
     generateKeyframes(numSpins: number = 2, direction: 'clockwise' | 'counterclockwise' = 'clockwise') {
@@ -350,6 +365,9 @@ export const libPresetExits = {
      immutableConfig: {},
   },
 
+  /**
+   * Element floats up slightly and then accelerates to the bottom of the screen.
+   */
   [`~sink-down`]: {
     /**
      * 
@@ -371,6 +389,7 @@ export const libPresetExits = {
     immutableConfig: {},
   },
   
+  /** Element is wiped off, starting from the specified direction. */
   [`~wipe`]: {
     /**
      * 
@@ -427,10 +446,13 @@ export const libPresetExits = {
  * @category hidden
  */
 export const libPresetEmphases = {
+  /**
+   * Element is highlighted in the specified color.
+   */
   [`~highlight`]: {
     /**
-     * Highlights the element.
-     * @param color - the color to use for the highlight
+     * 
+     * @param color - color to use for the highlight
      * @returns 
      */
     generateKeyframeGenerators(color: string = 'default') {
@@ -467,6 +489,7 @@ export const libPresetEmphases = {
     immutableConfig: {},
   },
 
+  /** Element is unhighlighted. */
   [`~un-highlight`]: {
     /**
      * 
@@ -491,11 +514,12 @@ export const libPresetEmphases = {
  * @category hidden
  */
 export const libPresetMotions = {
+  /** Element is moved with respect to another element. */
   ['~move-to']: {
     /**
      * 
-     * @param targetElem 
-     * @param translationOptions 
+     * @param targetElem - element to which our element should move
+     * @param translationOptions - options defining the behavior of the motion
      * @returns 
      */
     generateKeyframes(targetElem: Element | null | undefined, translationOptions: Partial<MoveToOptions> = {}) {
@@ -564,10 +588,11 @@ export const libPresetMotions = {
     immutableConfig: {},
   },
 
+  /** Element moves based on the specified translation options. */
   ['~translate']: {
     /**
      * 
-     * @param translationOptions 
+     * @param translationOptions - options defining the behavior of the motion
      * @returns 
      */
     generateKeyframes(translationOptions: Partial<TranslateOptions> = {}) {
@@ -599,6 +624,7 @@ export const libPresetMotions = {
  * @category hidden
  */
 export const libPresetTransitions = {
+  /** Element transitions from the specified keyframe to its current state.  */
   ['~from']: {
     /**
      * 
@@ -616,6 +642,7 @@ export const libPresetTransitions = {
     immutableConfig: {},
   },
 
+  /** Element transitions from its current state to the specified keyframe. */
   ['~to']: {
     /**
      * 
@@ -662,6 +689,7 @@ export const libPresetTransitions = {
  * @category hidden
  */
 export const libPresetConnectorEntrances = {
+  /** Connector appears instantaneously. */
   [`~appear`]: {
     /**
      * 
@@ -676,6 +704,7 @@ export const libPresetConnectorEntrances = {
     immutableConfig: {},
   },
 
+  /** Connector fades in, starting from 0 opacity. */
   [`~fade-in`]: {
     /**
      * 
@@ -691,10 +720,11 @@ export const libPresetConnectorEntrances = {
   },
 
   // TODO: Fix new bugs surrounding animating custom variables
+  /** Connector is wiped on from the specified direction as if being drawn. */
   [`~trace`]: {
     /**
      * 
-     * @param direction 
+     * @param direction - direction from which the connector should be traced
      * @returns 
      */
     generateKeyframes(direction: 'from-A' | 'from-B' | 'from-top' | 'from-bottom' | 'from-left' | 'from-right' = 'from-A') {
@@ -749,6 +779,7 @@ export const libPresetConnectorEntrances = {
  * @category hidden
  */
 export const libPresetConnectorExits = {
+  /** Connector disappears instantaneously. */
   [`~disappear`]: {
     /**
      * 
@@ -763,6 +794,7 @@ export const libPresetConnectorExits = {
     } as const,
   },
 
+  /** Connector fades out to 0 opacity. */
   [`~fade-out`]: {
     /**
      * 
@@ -777,9 +809,11 @@ export const libPresetConnectorExits = {
     immutableConfig: {},
   },
 
+  /** Connector is wiped off from the specified direction as if being erased. */
   [`~trace`]: {
     /**
      * 
+     * @param direction - direction from which the connector should be traced
      * @returns 
      */
     generateKeyframes(direction: 'from-A' | 'from-B' | 'from-top' | 'from-bottom' | 'from-left' | 'from-right' = 'from-A') {
@@ -870,11 +904,12 @@ export const libPresetScrolls = {
   //   }
   // },
 
+  /** Element is scrolled with respect to a child element. */
   [`~scroll-self`]: {
     /**
      * 
-     * @param target 
-     * @param scrollOptions 
+     * @param target - child element to which our element should scroll
+     * @param scrollOptions - options defining the behavior of the scroll
      * @returns 
      */
     generateRafMutatorGenerators(target: Element | null | undefined, scrollOptions: Partial<ScrollingOptions> = {}) {
