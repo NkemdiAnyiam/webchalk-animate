@@ -6,7 +6,8 @@ import { PickFromArray } from "../4_utils/utilityTypes";
 import { WbmtrConnector, WbmtrConnectorConfig } from "../3_components/WbmtrConnector";
 import { EffectGenerator, EffectGeneratorBank, EffectOptions, Layer3MutableClipConfig } from "../2_animationEffects/generationTypes";
 
-type Layer4MutableConfig<TClipClass extends AnimClip, TEffectGenerator extends EffectGenerator> = Omit<Layer3MutableClipConfig<TClipClass>, keyof TEffectGenerator['immutableConfig']>;
+/** @ignore */
+export type Layer4MutableConfig<TClipClass extends AnimClip, TEffectGenerator extends EffectGenerator> = Omit<Layer3MutableClipConfig<TClipClass>, keyof TEffectGenerator['immutableConfig']>;
 
 /*-:***************************************************************************************************************************/
 /*-:*******************************************        ENTRANCE        ********************************************************/
