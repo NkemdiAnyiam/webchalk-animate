@@ -29,6 +29,7 @@ export class Webimator {
    * @param animClips - optional comma-separated list of {@link AnimClip}s to add to the sequence
    * @returns A new {@link AnimSequence} instance.
    * 
+   * <span id="example--newSequence">
    * @example
    * ```ts
    * // retrieve clip factory functions
@@ -46,6 +47,7 @@ export class Webimator {
    * // play sequence
    * seq.play();
    * ```
+   * </span>
    *
    * @example
    * ```ts
