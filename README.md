@@ -12,7 +12,7 @@ npm install webimator
 <details>
   <summary>Expand/Collapse Section</summary>
   
-A "package" is essentially a downloadable library of code that you can use alongside your _own_ code. For example, the animation framework Webimator is a package that can be downloaded using the commands above, and you can use it with your code to help create your own animated visualizations.
+A "package" is essentially a downloadable library of code that you can use alongside your _own_ code. For example, the animation framework Webimator is a package that can be downloaded using the command above, and you can use it with your code to help create your own animated visualizations.
 
 Managing packages manually would be tedious since they are constantly being updated with new versions, deprecations, conflicts, etc. That is why it is common to install packages using a "package manager".
 
