@@ -5,7 +5,7 @@ import { EffectOptions, EffectGeneratorBank, EffectGenerator } from "../2_animat
 import { call, getPartial, mergeArrays } from "../4_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
 import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "../4_utils/errors";
-import { EffectCategory, Keyframes } from "../4_utils/interfaces";
+import { DOMElement, EffectCategory, Keyframes } from "../4_utils/interfaces";
 import { WbmtrConnector } from "../3_components/WbmtrConnector";
 import { WebimatorAnimation } from "./WebimatorAnimation";
 import { PartialPick, PickFromArray } from "../4_utils/utilityTypes";
@@ -387,7 +387,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * The DOM element that is to be animated.
    * @group Structure
    */
- readonly domElem: Element;
+ readonly domElem: DOMElement;
 
  protected animation: WebimatorAnimation = {} as WebimatorAnimation;
   /**@internal*/
@@ -620,7 +620,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     return this;
   }
 
-  constructor(domElem: Element | null | undefined, effectName: string, bank: EffectGeneratorBank) {
+  constructor(domElem: DOMElement | null | undefined, effectName: string, bank: EffectGeneratorBank) {
     if (webimator.clipCreatorLock) {
       throw this.generateError(
         TypeError,
@@ -1290,7 +1290,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /*-:**************************************************************************************************************************/
   /*-:*****************************************         ERRORS         *********************************************************/
   /*-:**************************************************************************************************************************/
-  protected generateError: ClipErrorGenerator = (ErrorClassOrInstance, msg = '<unspecified error>', elementOverride?: Element) => {
+  protected generateError: ClipErrorGenerator = (ErrorClassOrInstance, msg = '<unspecified error>', elementOverride?: DOMElement) => {
     return generateError(ErrorClassOrInstance, msg as string, {
       timeline: this._parentTimeline,
       sequence: this._parentSequence,

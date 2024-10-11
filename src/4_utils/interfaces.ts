@@ -21,6 +21,7 @@
 //   TEffectGenerator extends EffectGenerator
 // > = Omit<TClipConfig, FromFrozenKeys<TEffectGenerator['defaultConfig']>>;
 
+export type DOMElement = HTMLElement | SVGElement | MathMLElement;
 
 /**
  * Options for determing the offset to add to an element's translation.

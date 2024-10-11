@@ -2,6 +2,7 @@ import { AnimClip } from "../1_playbackStructures/AnimationClip";
 import { AnimSequence } from "../1_playbackStructures/AnimationSequence";
 import { AnimTimeline } from "../1_playbackStructures/AnimationTimeline";
 import { getOpeningTag, indexToOrdinal } from "./helpers";
+import { DOMElement } from "./interfaces";
 
 /**
  * Function that throws detailed error using additional location information based on
@@ -25,7 +26,7 @@ export type ClipErrorGenerator = {
      * Used to explicitly set the DOM elem in the edgecase where the error occurs in the clip's constructor
      * (where the field containing the DOM element is not yet set)
      */
-    elementOverride?: Element
+    elementOverride?: DOMElement
   ): TError;
 };
 
@@ -88,7 +89,7 @@ export type GeneralErrorGenerator = {
       /** The {@link AnimClip} involved in the error */
       clip?: AnimClip,
       /** The DOM element involved in the error */
-      element?: Element
+      element?: DOMElement
     }
   ): TError,
 };

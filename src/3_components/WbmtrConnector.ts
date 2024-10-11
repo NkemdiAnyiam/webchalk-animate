@@ -1,5 +1,5 @@
 import { equalWithinTol, overrideHidden, unOverrideHidden } from "../4_utils/helpers";
-import { ParsedMultiUnitPlacement } from "../4_utils/interfaces";
+import { DOMElement, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
 
 export type WbmtrConnectorConfig = {
   pointTrackingEnabled: boolean;
@@ -20,8 +20,8 @@ export class WbmtrConnector extends HTMLElement {
   private mask: SVGMaskElement;
   get lineElement(): Readonly<SVGLineElement> { return this.lineLayer; }
 
-  pointA: [elemA: Element, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] = [document.body, [0,0], [0,0]];
-  pointB: [elemB: Element, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] = [document.body, [0,100], [0,100]];
+  pointA: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] = [document.body, [0,0], [0,0]];
+  pointB: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] = [document.body, [0,100], [0,100]];
   pointTrackingEnabled: boolean = true;
   private continuousTrackingReqId: number = NaN;
 

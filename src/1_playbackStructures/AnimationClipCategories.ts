@@ -1,7 +1,7 @@
 import { AnimClip, AnimClipConfig, AnimClipModifiers } from "./AnimationClip";
 import { CustomErrors, errorTip } from "../4_utils/errors";
 import { getPartial, parseMultiUnitPlacement } from "../4_utils/helpers";
-import { MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
+import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { WbmtrConnector, WbmtrConnectorConfig } from "../3_components/WbmtrConnector";
 import { EffectGenerator, EffectGeneratorBank, EffectOptions, Layer3MutableClipConfig } from "../2_animationEffects/generationTypes";
@@ -99,7 +99,7 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
   }
 
   /**@internal*/
-  constructor(domElem: Element | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
+  constructor(domElem: DOMElement | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
     super(domElem, effectName, effectGeneratorBank);
     super.preventConnector();
   }
@@ -260,7 +260,7 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
   }
 
   /**@internal*/
-  constructor(domElem: Element | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
+  constructor(domElem: DOMElement | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
     super(domElem, effectName, effectGeneratorBank);
     super.preventConnector();
   }
@@ -532,10 +532,10 @@ export interface ConnectorSetterClipConfig extends AnimClipConfig {
 export class ConnectorSetterClip extends AnimClip<EffectGenerator, ConnectorSetterClipConfig> {
   protected get category(): 'Connector Setter' { return 'Connector Setter'; }
   domElem: WbmtrConnector;
-  previousPointA?: [elemA: Element, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
-  previousPointB?: [elemB: Element, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
-  pointA: [elemA: Element, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | 'use-preserved';
-  pointB: [elemB: Element, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | 'use-preserved';
+  previousPointA?: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
+  previousPointB?: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
+  pointA: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | 'use-preserved';
+  pointB: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | 'use-preserved';
 
   connectorConfig: WbmtrConnectorConfig = {} as WbmtrConnectorConfig;
   previousConnectorConfig: WbmtrConnectorConfig = {} as WbmtrConnectorConfig;
@@ -583,8 +583,8 @@ export class ConnectorSetterClip extends AnimClip<EffectGenerator, ConnectorSett
     }
 
     this.domElem = connectorElem;
-    this.pointA = pointA[0] === 'preserve' ? 'use-preserved' : [pointAElement, parseMultiUnitPlacement(pointA[1], 'horizontal'), parseMultiUnitPlacement(pointA[2], 'vertical')];
-    this.pointB = pointB[0] === 'preserve' ? 'use-preserved' : [pointBElement, parseMultiUnitPlacement(pointB[1], 'horizontal'), parseMultiUnitPlacement(pointB[2], 'vertical')];
+    this.pointA = pointA[0] === 'preserve' ? 'use-preserved' : [pointAElement as DOMElement, parseMultiUnitPlacement(pointA[1], 'horizontal'), parseMultiUnitPlacement(pointA[2], 'vertical')];
+    this.pointB = pointB[0] === 'preserve' ? 'use-preserved' : [pointBElement as DOMElement, parseMultiUnitPlacement(pointB[1], 'horizontal'), parseMultiUnitPlacement(pointB[2], 'vertical')];
 
     this.connectorConfig = this.applyLineConfig(connectorConfig);
   }

@@ -12,7 +12,7 @@ import { Layer3MutableClipConfig } from "./generationTypes";
 import { webimator } from "../Webimator";
 import { EffectGeneratorBank } from "./generationTypes";
 import { computeSelfScrollingBounds, negateNumString, overrideHidden, splitXYAlignmentString, splitXYTupleString, unOverrideHidden } from "../4_utils/helpers";
-import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "../4_utils/interfaces";
+import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions, DOMElement } from "../4_utils/interfaces";
 import { useEasing } from "./easing";
 
 // type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }
@@ -456,14 +456,14 @@ export const libPresetEmphases = {
      * @returns 
      */
     generateKeyframeGenerators(color: string = 'default') {
-      // (this.domElem as HTMLElement).style.setProperty(`--wbmtr-highlight-color`, 'red');
+      // this.domElem.style.setProperty(`--wbmtr-highlight-color`, 'red');
       // let prevVal = '';
-      // if ((this.domElem as HTMLElement).getAttribute('style')?.includes('--wbmtr-highlight-color')) {
-      //   prevVal = getComputedStyle(this.domElem as HTMLElement).getPropertyValue('--wbmtr-highlight-color');
+      // if (this.domElem.getAttribute('style')?.includes('--wbmtr-highlight-color')) {
+      //   prevVal = getComputedStyle(this.domElem).getPropertyValue('--wbmtr-highlight-color');
       // };
 
       // get the previous highlight color of the element (if none, it naturally uses the value from :root)
-      const prevColor = getComputedStyle(this.domElem as HTMLElement).getPropertyValue('--wbmtr-highlight-color');
+      const prevColor = getComputedStyle(this.domElem).getPropertyValue('--wbmtr-highlight-color');
       // if color is 'default', use :root's highlight color
       const finalColor = color === 'default'
         ? getComputedStyle(document.documentElement).getPropertyValue('--wbmtr-highlight-color')
@@ -522,7 +522,7 @@ export const libPresetMotions = {
      * @param translationOptions - options defining the behavior of the motion
      * @returns 
      */
-    generateKeyframes(targetElem: Element | null | undefined, translationOptions: Partial<MoveToOptions> = {}) {
+    generateKeyframes(targetElem: DOMElement | null | undefined, translationOptions: Partial<MoveToOptions> = {}) {
       if (!targetElem) {
         throw new TypeError(`Target for ~move-to must not be null`);
       }
@@ -912,7 +912,7 @@ export const libPresetScrolls = {
      * @param scrollOptions - options defining the behavior of the scroll
      * @returns 
      */
-    generateRafMutatorGenerators(target: Element | null | undefined, scrollOptions: Partial<ScrollingOptions> = {}) {
+    generateRafMutatorGenerators(target: DOMElement | null | undefined, scrollOptions: Partial<ScrollingOptions> = {}) {
       if (!target) { throw new TypeError(`Target for ~scroll-self must not be null`); }
       const {
         preserveX = false,

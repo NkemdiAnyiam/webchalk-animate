@@ -10,7 +10,7 @@ import {
   libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions,
   libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions
 } from "./2_animationEffects/libraryPresetEffectBanks";
-import { MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./4_utils/interfaces";
+import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./4_utils/interfaces";
 import { EffectGeneratorBank, EffectNameIn, EffectGenerator } from "./2_animationEffects/generationTypes";
 
 /**
@@ -400,7 +400,7 @@ export class Webimator {
         ...initializationParams: Parameters<EntranceClip<TEffectGenerator>['initialize']>
       ) {
         self.clipCreatorLock = false;
-        return new EntranceClip<TEffectGenerator>(domElem, effectName, combinedEntranceBank).initialize(...initializationParams);
+        return new EntranceClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedEntranceBank).initialize(...initializationParams);
       },
 
       Exit: function<TGeneratorBank extends typeof combinedExitBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
@@ -409,7 +409,7 @@ export class Webimator {
         ...initializationParams: Parameters<ExitClip<TEffectGenerator>['initialize']>
       ) {
         self.clipCreatorLock = false;
-        return new ExitClip<TEffectGenerator>(domElem, effectName, combinedExitBank).initialize(...initializationParams);
+        return new ExitClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedExitBank).initialize(...initializationParams);
       },
 
       Emphasis: function<TGeneratorBank extends typeof combinedEmphasisBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
@@ -418,7 +418,7 @@ export class Webimator {
         ...initializationParams: Parameters<EmphasisClip<TEffectGenerator>['initialize']>
       ) {
         self.clipCreatorLock = false;
-        return new EmphasisClip<TEffectGenerator>(domElem, effectName, combinedEmphasisBank).initialize(...initializationParams);
+        return new EmphasisClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedEmphasisBank).initialize(...initializationParams);
       },
 
       Motion: function<TGeneratorBank extends typeof combinedMotionBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
@@ -427,7 +427,7 @@ export class Webimator {
         ...initializationParams: Parameters<MotionClip<TEffectGenerator>['initialize']>
       ) {
         self.clipCreatorLock = false;
-        return new MotionClip<TEffectGenerator>(domElem, effectName, combinedMotionBank).initialize(...initializationParams);
+        return new MotionClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedMotionBank).initialize(...initializationParams);
       },
 
       Transition: function<TGeneratorBank extends typeof combinedTransitionBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
@@ -436,7 +436,7 @@ export class Webimator {
         ...initializationParams: Parameters<TransitionClip<TEffectGenerator>['initialize']>
       ) {
         self.clipCreatorLock = false;
-        return new TransitionClip<TEffectGenerator>(domElem, effectName, combinedTransitionBank).initialize(...initializationParams);
+        return new TransitionClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedTransitionBank).initialize(...initializationParams);
       },
 
       ConnectorSetter: function(
@@ -479,13 +479,13 @@ export class Webimator {
         ...initializationParams: Parameters<ScrollerClip<TEffectGenerator>['initialize']>
       ) {
         self.clipCreatorLock = false;
-        return new ScrollerClip<TEffectGenerator>(domElem, effectName, combinedScrollerBank).initialize(...initializationParams);
+        return new ScrollerClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedScrollerBank).initialize(...initializationParams);
       },
     };
   }
 
   /**@internal*/
-  scrollAnchorsStack: [target: Element, scrollOptions: ScrollingOptions][] = [];
+  scrollAnchorsStack: [target: DOMElement, scrollOptions: ScrollingOptions][] = [];
 
   private static checkBanksFormatting(...banks: (EffectGeneratorBank | undefined)[]) {
     const errors: string[] = [];
