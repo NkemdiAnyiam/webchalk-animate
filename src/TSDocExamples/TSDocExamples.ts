@@ -314,7 +314,7 @@ ent.play();
 }
 
 {
-/**** example--computeTween-1 */
+/**** example--AnimClip.computeTween-1 */
 const {Entrance} = webimator.createAnimationClipFactories({
   customEntranceEffects: {
     rotate: {
@@ -385,7 +385,7 @@ const str5: EasingString = 'cubic-bezier(0.25, 0.1, 0.25)'; // valid (matches st
 
 
 {
-/**** example--KeyframesGenerator.generateKeyframes */
+/**** example--KeyframesGenerator.generateKeyframes-1 */
 const clipFactories = webimator.createAnimationClipFactories({
   customEntranceEffects: {
     // a custom 'zoomIn' entrance animation effect that you might make
@@ -415,7 +415,7 @@ ent.play().then(ent.rewind);
 }
 
 {
-/**** example--KeyframesGeneratorsGenerator.generateKeyframeGenerators */
+/**** example--KeyframesGeneratorsGenerator.generateKeyframeGenerators-1 */
 const clipFactories = webimator.createAnimationClipFactories({
   customExitEffects: {
     // a custom animation effect for flying out to the left side of the screen
@@ -459,7 +459,7 @@ ext.play().then(ext.rewind);
 }
 
 {
-/**** example--RafMutatorsGenerator.generateRafMutators */
+/**** example--RafMutatorsGenerator.generateRafMutators-1 */
 const clipFactories = webimator.createAnimationClipFactories({
   customMotionEffects: {
     // a custom animation for scrolling to a specific position (but when
@@ -495,7 +495,7 @@ mot.play().then(mot.rewind);
 }
 
 {
-/**** example--RafMutatorsGeneratorsGenerator.generateRafMutatorGenerators */
+/**** example--RafMutatorsGeneratorsGenerator.generateRafMutatorGenerators-1 */
 const clipFactories = webimator.createAnimationClipFactories({
   customMotionEffects: {
     // a custom animation for scrolling to a specific point on the page.

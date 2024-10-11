@@ -1246,6 +1246,39 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * percentage of completion of the animation (playing or rewinding).
    * 
    * <div id="example--AnimClip.computeTween-1">
+   * @example
+   * ```ts
+   * const {Entrance} = webimator.createAnimationClipFactories({
+   *   customEntranceEffects: {
+   *     rotate: {
+   *       generateRafMutators(degrees: number) {
+   *         return {
+   *           // when playing, keep computing the value between 0 and 'degrees'
+   *           forwardMutator: () => { this.domElem.style.rotate = this.computeTween(0, degrees)+'deg'; },
+   *           // when rewinding, keep computing the value between 'degrees' and 0
+   *           backwardMutator: () => { this.domElem.style.rotate = this.computeTween(degrees, 0)+'deg'; }
+   *         };
+   *       }
+   *     }
+   *   },
+   * });
+   * 
+   * const someElement = document.querySelector('.some-element');
+   * 
+   * (async () => {
+   *   await Entrance(someElement, 'rotate', [360], {duration: 2000}).play();
+   *   // ↑ At 1.5 seconds (or 1500ms), the animation is 1.5/2 = 75% done playing.
+   *   // Thus, computeTween(0, 360) at that exactly moment would...
+   *   // return the value 75% of the way between 0 and 360 (= 270).
+   *   // Therefore, at 1.5 seconds of playing, someElement's rotation is set to "270deg".
+   *   
+   *   await Entrance(someElement, 'rotate', [360], {duration: 2000}).rewind();
+   *   // ↑ At 0.5 seconds (or 500ms), the animation is 0.5/2 = 25% done rewinding.
+   *   // Thus, computeTween(360, 0) at that exactly moment would...
+   *   // return the value 25% of the way between 360 and 0 (= 270).
+   *   // Therefore, at 0.5 seconds of rewinding, someElement's rotation is set to "270deg".
+   * })();
+   * ```
    * </div>
    * 
    * @group Helper Methods

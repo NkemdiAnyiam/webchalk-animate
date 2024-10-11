@@ -162,6 +162,34 @@ export type KeyframesGenerator<TClipContext extends unknown> = {
    * - - If `backwardKeyframes` is omitted, the reversal of `forwardKeyframes` is used instead
    * 
    * <div id="example--KeyframesGenerator.generateKeyframes-1">
+   * @example
+   * ```ts
+   * const clipFactories = webimator.createAnimationClipFactories({
+   *   customEntranceEffects: {
+   *     // a custom 'zoomIn' entrance animation effect that you might make
+   *     zoomIn: {
+   *       generateKeyframes(initialScale: number) {
+   *         return {
+   *           forwardFrames: [
+   *             {scale: initialScale, opacity: 0},
+   *             {scale: 1, opacity: 1}
+   *           ],
+   *           // (backwardFrames could have been omitted in this case because
+   *           // the reversal of forwardFrames is exactly equivalent)
+   *           backwardFrames: [
+   *             {scale: 1, opacity: 1},
+   *             {scale: initialScale, opacity: 0}
+   *           ]
+   *         };
+   *       }
+   *     }
+   *   },
+   * });
+   * 
+   * const element = document.querySelector('.some-element');
+   * const ent = clipFactories.Entrance(element, 'zoomIn', [0.2]);
+   * ent.play().then(ent.rewind);
+   * ```
    * </div>
    */
   generateKeyframes(
@@ -187,7 +215,7 @@ export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
    * - `backwardGenerator` (optional) will run every time the clip is rewound
    * - - If `backwardGenerator` is omitted, `forwardGenerator` will be used, and the resulting keyframes will be reversed
    * 
-   * <div id="example--KeyframesGeneratorsGenerator.generateKeyframeGenerators">
+   * <div id="example--KeyframesGeneratorsGenerator.generateKeyframeGenerators-1">
    * @example
    * ```ts
    * const clipFactories = webimator.createAnimationClipFactories({
@@ -259,7 +287,7 @@ export type RafMutatorsGenerator<TClipContext extends unknown> = {
    * 
    * @see {@link AnimClip.computeTween}
    * 
-   * <div id="RafMutatorsGenerator.generateRafMutators">
+   * <div id="RafMutatorsGenerator.generateRafMutators-1">
    * </div>
    */
   generateRafMutators(
@@ -289,7 +317,7 @@ export type RafMutatorsGeneratorsGenerator<TClipContext extends unknown> = {
    * 
    * @see {@link AnimClip.computeTween}
    * 
-   * <div id="RafMutatorsGeneratorsGenerator.generateRafMutatorGenerators">
+   * <div id="RafMutatorsGeneratorsGenerator.generateRafMutatorGenerators-1">
    * </div>
    */
   generateRafMutatorGenerators(

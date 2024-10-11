@@ -105,15 +105,18 @@ async function overwrite() {
   
     // search for the special div's id within whichever source file contains the real code
     for (const {targetDivId, spaceLength} of targetMatches) {
+      let foundCode = false;
       for (const sourcePath of sources.filePaths) {
         let exampleCode = readTextBetween(sourcePath, `${sources.startMarker}${targetDivId} */`, sources.endMarker, 0)?.trim();
         if (!exampleCode) { continue; }
     
         // if the id was found, then we also have the text for the source code.
         // now inject the code into the target file, replacing/updating whatever was there before
+        foundCode = true;
         await writeBetweenText(targetPath, `${targets.startMarker}${targetDivId}">`, targets.endMarker, wrapCodeText(`${exampleCode}`, spaceLength));
         break;
       }
+      if (!foundCode) { throw new Error(`Example code for "${targetDivId}" not found.`); }
     }
   }
 }
