@@ -904,29 +904,12 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * @param timePosition - the time position within the phase when the Promise will be resolved
    * @returns a Promise that is resolved at the specific time point of the animation.
    * 
-   * @example
-   * ```ts
-   * async function testFunc() {
-   *    const ent = Entrance(<...>);
-   *    // wait until ent is played and gets 1/5 of the way through the active phase of the animation
-   *    await ent.generateTimePromise('forward', 'activePhase', '20%');
-   *    console.log('1/5 done playing!');
-   * }
+   * <div id="example--AnimClip.generateTimePromise-1">
+   * </div>
    * 
-   * testFunc();
-   * ```
+   * <div id="example--AnimClip.generateTimePromise-2">
+   * </div>
    * 
-   * @example
-   * ```ts
-   * async function testFunc() {
-   *    const ent = Entrance(<...>);
-   *    // wait until ent is eventually rewound and gets 4/5 of the way through rewinding the active phase of the animation
-   *    await ent.generateTimePromise('backward', 'activePhase', '20%');
-   *    console.log('4/5 done rewinding!');
-   * }
-   * 
-   * testFunc();
-   * ```
    * @group Timing Event Methods
    */
   generateTimePromise(
@@ -960,29 +943,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * @param promises - an array of promises or functions that return promises that block the clip's playback until resolved
    * @returns {void}
    * 
-   * @example
-   * ```ts
-   * async function wait(milliseconds: number) { // Promise-based timer
-   *    return new Promise(resolve => setTimeout(resolve, milliseconds));
-   * }
+   * <div id="example--AnimClip.addRoadblocks-1">
+   * </div>
    * 
-   * const ent = Entrance(<...>);
-   * // adds 1 roadblock that will pause the clip once the clip is 15% through the delay phase
-   * ent.addRoadblocks('forward', 'activePhase', '15%', [function() { return wait(2000); }]);
-   * // adds 2 more roadblocks at the same point.
-   * ent.addRoadblocks('forward', 'activePhase', '15%', [function() { return wait(3000); }, someOtherPromise]);
-   * // adds 1 roadblock at 40% into the endDelay phase
-   * ent.addRoadblocks('forward', 'endDelayPhase', '40%', [new Promise()]);
-   * 
-   * ent.play();
-   * // ↑ Once ent is 15% through the active phase, it will pause and handle its roadblocks.
-   * // "wait(2000)" resolves after 2 seconds.
-   * // "wait(3000)" resolves after 3 seconds.
-   * // someOtherPromise blocks the clip's playback. Presumably, its resolver is eventually called from somewhere outside.
-   * // Once someOtherPromise is resolved, there are no more roadblocks at this point, so playback is resumed.
-   * // Once ent is 40% through the endDelay phase, it will pause and handle its roadblocks
-   * // The newly created promise obviously has no way to be resolved, so the clip is unfortunately stuck.
-   * ```
    * @group Timing Event Methods
    */
   addRoadblocks(
@@ -1229,35 +1192,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * @returns the number that is a percentage of the way between `initialVal` and `finalVal` based on the
    * percentage of completion of the animation (playing or rewinding).
    * 
-   * @example
-   * ```ts
-   * const {Entrance} = Webimator.createAnimationClipFactories({
-   *   customEntranceEffects: {
-   *     rotate: {
-   *       generateRafMutators(degrees: number) {
-   *         return [
-   *           // when playing, keep computing the value between 0 and 'degrees'
-   *           () => { this.domElem.style.rotate = this.computeTween(0, degrees)+'deg'; },
-   *           // when rewinding, keep computing the value between 'degrees' and 0
-   *           () => { this.domElem.style.rotate = this.computeTween(degrees, 0)+'deg'; }
-   *         ];
-   *       }
-   *     }
-   *   },
-   * });
-   *
-   * await Entrance(someElement, 'rotate', [360], {duration: 2000}).play();
-   * // ↑ At 1.5 seconds (or 1500ms), the animation is 1.5/2 = 75% done playing.
-   * // Thus, computeTween(0, 360) at that exactly moment would...
-   * // return the value 75% of the way between 0 and 360 (= 270).
-   * // Therefore, at 1.5 seconds of playing, someElement's rotation is set to "270deg".
-   *
-   * await Entrance(someElement, 'rotate', [360], {duration: 2000}).rewind();
-   * // ↑ At 0.5 seconds (or 500ms), the animation is 0.5/2 = 25% done rewinding.
-   * // Thus, computeTween(360, 0) at that exactly moment would...
-   * // return the value 25% of the way between 360 and 0 (= 270).
-   * // Therefore, at 0.5 seconds of rewinding, someElement's rotation is set to "270deg".
-   * ```
+   * <div id="example--AnimClip.computeTween-1">
+   * </div>
+   * 
    * @group Helper Methods
    */
   computeTween(initialVal: number, finalVal: number): number {
