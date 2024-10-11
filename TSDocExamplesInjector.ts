@@ -80,6 +80,8 @@ async function writeBetweenText(filePath: string, startText: string, endText: st
       newContent +
       fileContent.substring(endIndex);
 
+    if (fileContent === modifiedContent) { return; }
+
     await fs.promises.writeFile(filePath, modifiedContent, 'utf-8');
   } catch (err) {
     console.error('Error:', err);
