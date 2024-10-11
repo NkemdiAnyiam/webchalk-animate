@@ -321,8 +321,10 @@ const {Entrance} = webimator.createAnimationClipFactories({
       generateRafMutators(degrees: number) {
         return {
           // when playing, keep computing the value between 0 and 'degrees'
+          /** @ts-ignore */
           forwardMutator: () => { this.domElem.style.rotate = this.computeTween(0, degrees)+'deg'; },
           // when rewinding, keep computing the value between 'degrees' and 0
+          /** @ts-ignore */
           backwardMutator: () => { this.domElem.style.rotate = this.computeTween(degrees, 0)+'deg'; }
         };
       }

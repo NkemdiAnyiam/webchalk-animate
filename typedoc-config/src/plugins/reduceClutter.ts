@@ -16,7 +16,27 @@ const reduceClutter = function reduceClutter() {
     // remove duplicated code portion of return statement that appears after the return description
     // (it can be used to display TSDoc, but it can take up too much space and looks unappealing, so it
     // is being removed)
-    member.querySelector(':scope > .tsd-signatures > .tsd-description > h4.tsd-returns-title ~ ul.tsd-parameters')?.remove();    
+    member.querySelector(':scope > .tsd-signatures > .tsd-description > h4.tsd-returns-title ~ ul.tsd-parameters')?.remove();
+
+    // address strange output from wrapping examples in <div>s
+    const exampleDiv = member.querySelector('[id^="example--"]');
+    if (exampleDiv) {
+      // remove duplicated portion
+      exampleDiv.querySelector('ul.tsd-parameters')?.remove();
+      // place actual example-related elements at the root of the example div
+      const unnecessaryWrapper = exampleDiv.querySelector('.tsd-comment.tsd-typography');
+      if (unnecessaryWrapper) {
+        for (const exampleComponent of [...unnecessaryWrapper.children]) {
+          exampleDiv.insertAdjacentElement('beforeend', exampleComponent);
+        }
+        unnecessaryWrapper.remove();
+      }
+
+      // move the nested example divs outside of this example div
+      for (const weirdlyNestedExample of [...exampleDiv.querySelectorAll('[id^="example--"]')]) {
+        exampleDiv.insertAdjacentElement('afterend', weirdlyNestedExample);
+      }
+    }  
   }
 
   const h3 = document.querySelector(`h3:has(> a[href="#createAnimationClipFactories"])`);
