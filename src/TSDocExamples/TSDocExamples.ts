@@ -265,8 +265,8 @@ async function testFunc() {
 }
 
 testFunc();
-}
 /**** end example */
+}
 
 {
 /**** example--AnimClip.generateTimePromise-2 */

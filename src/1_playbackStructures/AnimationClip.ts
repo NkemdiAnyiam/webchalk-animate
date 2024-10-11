@@ -905,9 +905,35 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * @returns a Promise that is resolved at the specific time point of the animation.
    * 
    * <div id="example--AnimClip.generateTimePromise-1">
+   * @example
+   * ```ts
+   * async function testFunc() {
+   *   const { Entrance } = webimator.createAnimationClipFactories();
+   *   const square = document.querySelector('.square');
+   *   const ent = Entrance(square, '~fade-in', []);
+   *   // wait until ent is played and gets 1/5 of the way through the active phase of the animation
+   *   await ent.generateTimePromise('forward', 'activePhase', '20%');
+   *   console.log('1/5 done playing!');
+   * }
+   * 
+   * testFunc();
+   * ```
    * </div>
    * 
    * <div id="example--AnimClip.generateTimePromise-2">
+   * @example
+   * ```ts
+   * async function testFunc() {
+   *   const { Entrance } = webimator.createAnimationClipFactories();
+   *   const square = document.querySelector('.square');
+   *   const ent = Entrance(square, '~fade-in', []);
+   *    // wait until ent is eventually rewound and gets 4/5 of the way through rewinding the active phase of the animation
+   *    await ent.generateTimePromise('backward', 'activePhase', '20%');
+   *    console.log('4/5 done rewinding!');
+   * }
+   * 
+   * testFunc();
+   * ```
    * </div>
    * 
    * @group Timing Event Methods
@@ -944,6 +970,33 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * @returns {void}
    * 
    * <div id="example--AnimClip.addRoadblocks-1">
+   * @example
+   * ```ts
+   * async function wait(milliseconds: number) { // Promise-based timer
+   *    return new Promise(resolve => setTimeout(resolve, milliseconds));
+   * }
+   * 
+   * const square = document.querySelector('.square');
+   * const { Entrance } = webimator.createAnimationClipFactories();
+   * const ent = Entrance(square, '~fade-in', []);
+   * 
+   * // adds 1 roadblock that will pause the clip once the clip is 15% through the delay phase
+   * ent.addRoadblocks('forward', 'activePhase', '15%', [function(){ return wait(2000); }]);
+   * // adds 2 more roadblocks at the same point.
+   * const someOtherPromise = Promise.resolve(); // instantly resolved promise
+   * ent.addRoadblocks('forward', 'activePhase', '15%', [function(){ return wait(3000); }, someOtherPromise]);
+   * // adds 1 roadblock at 40% into the endDelay phase
+   * ent.addRoadblocks('forward', 'endDelayPhase', '40%', [new Promise(resolve => {})]);
+   * 
+   * ent.play();
+   * // ↑ Once ent is 15% through the active phase, it will pause and handle its roadblocks.
+   * // "wait(2000)" resolves after 2 seconds.
+   * // "wait(3000)" resolves after 3 seconds.
+   * // someOtherPromise blocks the clip's playback. Presumably, its resolver is eventually called from somewhere outside.
+   * // Once someOtherPromise is resolved, there are no more roadblocks at this point, so playback is resumed.
+   * // Once ent is 40% through the endDelay phase, it will pause and handle its roadblocks
+   * // The newly created promise obviously has no way to be resolved, so the clip is unfortunately stuck.
+   * ```
    * </div>
    * 
    * @group Timing Event Methods

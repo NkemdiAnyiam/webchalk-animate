@@ -42,9 +42,39 @@ export class Webimator {
    * @returns A new {@link AnimSequence} instance.
    * 
    * <div id="example--Webimator.newSequence-2.1">
+   * @example
+   * ```ts
+   * // retrieve clip factory functions
+   * const clipFactories = webimator.createAnimationClipFactories();
+   * // select a (presumable) square-shaped element from the DOM
+   * const squareEl = document.querySelector('.square');
+   * 
+   * // create sequence with some animation clips
+   * const seq = webimator.newSequence(
+   *    clipFactories.Entrance(squareEl, '~fade-in', []),
+   *    clipFactories.Motion(squareEl, '~translate', [{translate: '200px, 500px'}]),
+   *    clipFactories.Exit(squareEl, '~fade-out', []),
+   * );
+   * // play sequence
+   * seq.play();
+   * ```
    * </div>
    *
    * <div id="example--Webimator.newSequence-2.2">
+   * @example
+   * ```ts
+   * // SAME EXAMPLE BUT WITH DESTRUCTURING ASSIGNMENT FOR THE CLIP FACTORY FUNCTIONS
+   * 
+   * const {Entrance, Exit, Motion} = webimator.createAnimationClipFactories();
+   * const squareEl = document.querySelector('.square');
+   * 
+   * const seq = webimator.newSequence(
+   *    Entrance(squareEl, '~fade-in', []),
+   *    Motion(squareEl, '~translate', [{translate: '200px, 500px'}]),
+   *    Exit(squareEl, '~fade-out', []),
+   * );
+   * seq.play();
+   * ```
    * </div>
    */
   newSequence(...animClips: AnimClip[]): AnimSequence;
@@ -62,6 +92,40 @@ export class Webimator {
    * @returns A new {@link AnimTimeline} instance.
    * 
    * <div id="example--Webimator.newTimeline-1">
+   * @example
+   * ```ts
+   * // retrieve some clip factory functions
+   * const {Entrance, Exit, Motion} = webimator.createAnimationClipFactories();
+   * // select presumably a square element and a circle element from the DOM
+   * const squareEl = document.querySelector('.square');
+   * const circleEl = document.querySelector('.circle');
+   * 
+   * // create first sequence
+   * const seq1 = webimator.newSequence(
+   *    {description: 'Fade in square, move it, and fade out', playbackRate: 2},
+   *    Entrance(squareEl, '~fade-in', []),
+   *    Motion(squareEl, '~translate', [{translate: '200px, 500px'}]),
+   *    Exit(squareEl, '~fade-out', []),
+   * );
+   * 
+   * // create second sequence
+   * const seq2 = webimator.newSequence(
+   *    {description: 'Fade in circle and move it'},
+   *    Entrance(circleEl, '~fly-in', ['from-left']),
+   *    Motion(circleEl, '~translate', [{translateX: '250px'}]),
+   * );
+   * 
+   * // create timeline with some configuration and both sequences
+   * const timeline = webimator.newTimeline(
+   *    {timelineName: 'Moving Shapes', autoLinksButtons: true},
+   *    seq1,
+   *    seq2,
+   * );
+   * 
+   * // step forward twice, playing both sequences
+   * timeline.step('forward')
+   *   .then(() => timeline.step('forward'));
+   * ```
    * </div>
    */
   newTimeline(config: Partial<AnimTimelineConfig>, ...animSequences: AnimSequence[]): AnimTimeline;
@@ -71,6 +135,35 @@ export class Webimator {
    * @returns A new {@link AnimTimeline} instance.
    * 
    * <div id="example--Webimator.newTimeline-2">
+   * @example
+   * ```ts
+   * // retrieve some clip factory functions
+   * const {Entrance, Exit, Motion} = webimator.createAnimationClipFactories();
+   * // select presumably a square element and a circle element from the DOM
+   * const squareEl = document.querySelector('.square');
+   * const circleEl = document.querySelector('.circle');
+   * 
+   * // create first sequence
+   * const seq1 = webimator.newSequence(
+   *   {description: 'Fade in square, move it, and fade out', playbackRate: 2},
+   *   Entrance(squareEl, '~fade-in', []),
+   *   Motion(squareEl, '~translate', [{translate: '200px, 500px'}]),
+   *   Exit(squareEl, '~fade-out', []),
+   * );
+   * 
+   * // create second sequence
+   * const seq2 = webimator.newSequence(
+   *   {description: 'Fade in circle and move it'},
+   *   Entrance(circleEl, '~fly-in', ['from-left']),
+   *   Motion(circleEl, '~translate', [{translateX: '250px'}]),
+   * );
+   * 
+   * // create timeline with both sequences
+   * const timeline = webimator.newTimeline(
+   *    seq1,
+   *    seq2,
+   * );
+   * ```
    * </div>
    */
   newTimeline(...animSequences: AnimSequence[]): AnimTimeline;
@@ -96,12 +189,109 @@ export class Webimator {
    * @returns Factory functions that return category-specific {@link AnimClip}s, each with intellisense for their category-specific effects banks.
    * 
    * <div id="example--Webimator.createAnimationClipFactories-1.1">
+   * @example
+   * ```ts
+   * const square = document.querySelector('.square');
+   * // Using the method and using one of the `Entrance()` factory function
+   * const clipFactories = webimator.createAnimationClipFactories();
+   * const ent = clipFactories.Entrance(square, '~fly-in', ['from-top'], {duration: 2000});
+   * ent.play();
+   * ```
    * </div>
    * 
    * <div id="example--Webimator.createAnimationClipFactories-1.2">
+   * @example
+   * ```ts
+   * const square = document.querySelector('.square');
+   * // Using destructuring assignment to conveniently extract the `Entrance()` and `Motion()` factory functions
+   * const {Entrance, Motion} = webimator.createAnimationClipFactories();
+   * const ent = Entrance(square, '~fly-in', ['from-top'], {duration: 2000});
+   * const mot1 = Motion(square, '~translate', [{translateX: '500px'}], {duration: 1000});
+   * const mot2 = Motion(square, '~translate', [{translateY: '500px'}], {duration: 500});
+   * // clips are added to a sequence
+   * const seq = webimator.newSequence(ent, mot1, mot2);
+   * seq.play();
+   * ```
    * </div>
    * 
    * <div id="example--Webimator.createAnimationClipFactories-1.3">
+   * @example
+   * ```ts
+   * // Extending the preset entrances and motions banks with custom effects
+   * const clipFactories = webimator.createAnimationClipFactories({
+   *   // CUSTOM ENTRANCES
+   *   customEntranceEffects: {
+   *     coolZoomIn: {
+   *       generateKeyframes(initialScale: number) {
+   *         return {
+   *           forwardFrames: [
+   *             {scale: initialScale, opacity: 0},
+   *             {scale: 1, opacity: 1}
+   *           ],
+   *           // (backwardFrames could have been omitted in this case because
+   *           // the reversal of forwardFrames is exactly equivalent)
+   *           backwardFrames: [
+   *             {scale: 1, opacity: 1},
+   *             {scale: initialScale, opacity: 0}
+   *           ]
+   *         };
+   *       }
+   *     },
+   * 
+   *     blinkIn: {
+   *       generateKeyframes() {
+   *         return {
+   *           forwardFrames: [
+   *             {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}
+   *           ],
+   *           // (backwardFrames omitted because the reversal of forwardFrames is exactly equivalent)
+   *         };
+   *       }
+   *     }
+   *   },
+   * 
+   *   // CUSTOM EXITS
+   *   customExitEffects: {
+   *     // a custom animation effect for flying out to the left side of the screen
+   *     flyOutLeft: {
+   *       generateKeyframeGenerators() {
+   *         const computeTranslationStr = () => {
+   *           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
+   *           const translationString = `${orthogonalDistance}px 0px`;
+   *           return translationString;
+   *         }
+   *   
+   *         return {
+   *           forwardGenerator: () => {
+   *             return [
+   *               {translate: computeTranslationStr()}
+   *             ];
+   *           },
+   *           // backwardGenerator could have been omitted because the result of running forwardGenerator()
+   *           // again and reversing the keyframes produces the same desired rewinding effect in this case
+   *           backwardGenerator: () => {
+   *             return [
+   *               {translate: computeTranslationStr()},
+   *               {translate: `0 0`}
+   *             ];
+   *           }
+   *         };
+   *       },
+   *       
+   *       immutableConfig: {
+   *         // this means that the translation is added onto the element's position instead of replacing it
+   *         composite: 'accumulate',
+   *       }
+   *     },
+   *   }
+   * });
+   * 
+   * const square = document.querySelector('.square');
+   * // the custom animations you created are now valid as well as detected by TypeScript
+   * const ent1 = clipFactories.Entrance(square, 'coolZoomIn', [0.2]);
+   * const ent2 = clipFactories.Entrance(square, 'blinkIn', []);
+   * const ext = clipFactories.Exit(square, 'flyOutLeft', []);
+   * ```
    * </div>
    */
   createAnimationClipFactories

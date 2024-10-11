@@ -188,6 +188,48 @@ export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
    * - - If `backwardGenerator` is omitted, `forwardGenerator` will be used, and the resulting keyframes will be reversed
    * 
    * <div id="example--KeyframesGeneratorsGenerator.generateKeyframeGenerators">
+   * @example
+   * ```ts
+   * const clipFactories = webimator.createAnimationClipFactories({
+   *   customExitEffects: {
+   *     // a custom animation effect for flying out to the left side of the screen
+   *     flyOutLeft: {
+   *       generateKeyframeGenerators() {
+   *         const computeTranslationStr = () => {
+   *           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
+   *           const translationString = `${orthogonalDistance}px 0px`;
+   *           return translationString;
+   *         }
+   *   
+   *         return {
+   *           forwardGenerator: () => {
+   *             return [
+   *               {translate: computeTranslationStr()}
+   *             ];
+   *           },
+   *           // backwardGenerator could have been omitted because the result of running forwardGenerator()
+   *           // again and reversing the keyframes produces the same desired rewinding effect in this case
+   *           backwardGenerator: () => {
+   *             return [
+   *               {translate: computeTranslationStr()},
+   *               {translate: `0 0`}
+   *             ];
+   *           }
+   *         };
+   *       },
+   *       
+   *       immutableConfig: {
+   *         // this means that the translation is added onto the element's position instead of replacing it
+   *         composite: 'accumulate',
+   *       }
+   *     },
+   *   }
+   * });
+   * 
+   * const element = document.querySelector('.some-element');
+   * const ext = clipFactories.Exit(element, 'flyOutLeft', []);
+   * ext.play().then(ext.rewind);
+   * ```
    * </div>
    */
   generateKeyframeGenerators(
