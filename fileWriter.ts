@@ -22,6 +22,7 @@ const targets = {
 function wrapCodeText(text: string, spaceLength: number): string {
   const spaces = ' '.repeat(spaceLength);
   const content = text
+    .replaceAll(/\s*\/\*\* @ts-ignore \*\//g, '')
     .split('\n')
     .join(`\n${spaces}* `);
 
