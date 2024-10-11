@@ -36,7 +36,7 @@ const reduceClutter = function reduceClutter() {
       for (const weirdlyNestedExample of [...exampleDiv.querySelectorAll('[id^="example--"]')]) {
         exampleDiv.insertAdjacentElement('afterend', weirdlyNestedExample);
       }
-    }  
+    }
   }
 
   const h3 = document.querySelector(`h3:has(> a[href="#createAnimationClipFactories"])`);
