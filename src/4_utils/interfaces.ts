@@ -21,6 +21,11 @@
 //   TEffectGenerator extends EffectGenerator
 // > = Omit<TClipConfig, FromFrozenKeys<TEffectGenerator['defaultConfig']>>;
 
+/**
+ * Practical union of the 3 subclasses of {@link Element}.
+ * Mostly useful for autocompletions. For example, the `style` property does
+ * not exist on {@link Element}, but it does exist on its subclasses. 
+ */
 export type DOMElement = HTMLElement | SVGElement | MathMLElement;
 
 /**
