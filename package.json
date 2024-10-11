@@ -16,7 +16,8 @@
   },
   "scripts": {
     "build": "tsup",
-    "pack-up": "npm run build && npm pack --pack-destination=\"./tarballs\"",
+    "inject-tsdoc-examples": "npx ts-node ./TSDocExamplesInjector.ts",
+    "pack-up": "npm run inject-tsdoc-examples && npm run build && npm pack --pack-destination=\"./tarballs\"",
     "in": "npm i && npm run pack-up",
     "out": "rm -rf ./dist ./node_modules",
     "in-and-out": "npm run in && npm run out",

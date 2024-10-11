@@ -29,11 +29,11 @@ export type TrivialCssEasingFunction = `linear` | 'ease' | 'ease-in' | 'ease-out
  * ```ts
  * const str1: EasingString = 'power2-in'; // valid (matches PresetLinearEasingKey)
  * const str2: EasingString = 'expo-in-out'; // valid (matches PresetLinearEasingKey)
- * const str5: EasingString = 'cubic-bezier(0.25, 0.1, 0.25, 1)'; // valid (matches string and is also a valid <easing-function>)
+ * const str3: EasingString = 'cubic-bezier(0.25, 0.1, 0.25, 1)'; // valid (matches string and is also a valid <easing-function>)
  * const str4: EasingString = 'ease-in'; // valid (matches TrivialCssEasingFunction)
  * 
- * const str3: EasingString = 'expo'; // valid (matches string) but will lead to a runtime error
- * const str5: EasingString = 'cubic-bezier(0.25, 0.1, 0.25)'; // valid (matches string) but will lead to a runtime error
+ * const str5: EasingString = 'expo'; // valid (matches string) but will lead to a runtime error
+ * const str6: EasingString = 'cubic-bezier(0.25, 0.1, 0.25)'; // valid (matches string) but will lead to a runtime error
  * ```
  * </div>
  */
