@@ -25,3 +25,10 @@ export function readTextBetween(filePath: string, startMarker: string, endMarker
 
   return textBetween;
 }
+
+export function readLines(filePath: string, start: number, end?: number) {
+  const fileContent = fs.readFileSync(filePath, 'utf-8');
+
+  const lines = fileContent.split(/\r\n|\n/);
+  return lines.slice(start - 1, end ?? lines.length).join('\n');
+}
