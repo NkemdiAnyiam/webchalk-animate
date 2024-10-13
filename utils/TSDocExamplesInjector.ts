@@ -1,7 +1,7 @@
-import { readTextBetween } from "./utils/fileReaders";
-import { writeBetweenText } from "./utils/fileWriters";
+import { readTextBetween } from "./fileReaders";
+import { writeBetweenText } from "./fileWriters";
 
-const directoryPrefix = `${__dirname}/src`;
+const directoryPrefix = `${__dirname}/../src`;
 
 const sources = {
   filePaths: [`${directoryPrefix}/TSDocExamples/TSDocExamples.ts`],
