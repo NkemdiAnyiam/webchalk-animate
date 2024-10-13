@@ -1,4 +1,5 @@
-import * as fs from "fs";
+import { readTextBetween } from "./utils/readBetweenText";
+import { writeBetweenText } from "./utils/writeBetweenText";
 
 const directoryPrefix = `${__dirname}/src`;
 
@@ -34,59 +35,59 @@ function wrapCodeText(text: string, spaceLength: number): string {
 
 
 
-function readTextBetween(filePath: string, startMarker: string, endMarker: string, searchIndex: number = 0, searchResultMeta?: {endIndex: number, spaceLength?: number}): string | null {
-  const fileContent = fs.readFileSync(filePath, 'utf-8');
+// function readTextBetween(filePath: string, startMarker: string, endMarker: string, searchIndex: number = 0, searchResultMeta?: {endIndex: number, spaceLength?: number}): string | null {
+//   const fileContent = fs.readFileSync(filePath, 'utf-8');
 
-  const startIndex = fileContent.indexOf(startMarker, searchIndex);
-  if (startIndex === -1) {
-    return null; // Start marker not found
-  }
+//   const startIndex = fileContent.indexOf(startMarker, searchIndex);
+//   if (startIndex === -1) {
+//     return null; // Start marker not found
+//   }
 
-  const endIndex = fileContent.indexOf(endMarker, startIndex + startMarker.length);
-  if (searchResultMeta) { searchResultMeta.endIndex = endIndex; }
-  if (endIndex === -1) {
-    return null; // End marker not found
-  }
+//   const endIndex = fileContent.indexOf(endMarker, startIndex + startMarker.length);
+//   if (searchResultMeta) { searchResultMeta.endIndex = endIndex; }
+//   if (endIndex === -1) {
+//     return null; // End marker not found
+//   }
 
-  const textBetween = fileContent.substring(startIndex + startMarker.length, endIndex);
+//   const textBetween = fileContent.substring(startIndex + startMarker.length, endIndex);
   
-  if (searchResultMeta) {
-    const divId = textBetween.match(/^(.*)">/)?.[1] ?? '';
-    const reg = new RegExp(`.*${divId}`);
-    const startingLine = fileContent.match(reg)![0];
-    searchResultMeta.spaceLength = startingLine.match(/^\s*/)?.[0].length ?? 0;
-  }
+//   if (searchResultMeta) {
+//     const divId = textBetween.match(/^(.*)">/)?.[1] ?? '';
+//     const reg = new RegExp(`.*${divId}`);
+//     const startingLine = fileContent.match(reg)![0];
+//     searchResultMeta.spaceLength = startingLine.match(/^\s*/)?.[0].length ?? 0;
+//   }
 
-  return textBetween;
-}
-
-
+//   return textBetween;
+// }
 
 
 
 
-async function writeBetweenText(filePath: string, startText: string, endText: string, newContent: string, searchIndex: number = 0): Promise<void> {
-  try {
-    const fileContent = await fs.promises.readFile(filePath, 'utf-8');
 
-    const startIndex = fileContent.indexOf(startText, searchIndex);
-    const endIndex = fileContent.indexOf(endText, startIndex + startText.length + searchIndex);
 
-    if (startIndex === -1 || endIndex === -1) {
-      throw new Error('Start or end text not found in the file.');
-    }
+// async function writeBetweenText(filePath: string, startText: string, endText: string, newContent: string, searchIndex: number = 0): Promise<void> {
+//   try {
+//     const fileContent = await fs.promises.readFile(filePath, 'utf-8');
 
-    const modifiedContent = fileContent.substring(0, startIndex + startText.length) +
-      newContent +
-      fileContent.substring(endIndex);
+//     const startIndex = fileContent.indexOf(startText, searchIndex);
+//     const endIndex = fileContent.indexOf(endText, startIndex + startText.length + searchIndex);
 
-    if (fileContent === modifiedContent) { return; }
+//     if (startIndex === -1 || endIndex === -1) {
+//       throw new Error('Start or end text not found in the file.');
+//     }
 
-    await fs.promises.writeFile(filePath, modifiedContent, 'utf-8');
-  } catch (err) {
-    console.error('Error:', err);
-  }
-}
+//     const modifiedContent = fileContent.substring(0, startIndex + startText.length) +
+//       newContent +
+//       fileContent.substring(endIndex);
+
+//     if (fileContent === modifiedContent) { return; }
+
+//     await fs.promises.writeFile(filePath, modifiedContent, 'utf-8');
+//   } catch (err) {
+//     console.error('Error:', err);
+//   }
+// }
 
 
 
