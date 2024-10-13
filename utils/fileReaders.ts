@@ -1,10 +1,24 @@
 import * as fs from "fs";
 import { dedent } from "./dedent";
 
-export function readTextBetween(filePath: string, startMarker: string, endMarker: string, searchIndex: number = 0, searchResultMeta?: {endIndex: number, spaceLength?: number}): string | null {
+interface ReadTextBetweenOptions {
+  startMarker: string;
+  endMarker: string;
+  searchStart?: number;
+  searchResultMeta?: { endIndex: number; spaceLength: number };
+}
+
+export function readTextBetween(filePath: string, options: ReadTextBetweenOptions): string | null {
+  const {
+    startMarker,
+    endMarker,
+    searchStart = 0,
+    searchResultMeta,
+  } = options;
+
   const fileContent = fs.readFileSync(filePath, 'utf-8');
 
-  const startIndex = fileContent.indexOf(startMarker, searchIndex);
+  const startIndex = fileContent.indexOf(startMarker, searchStart);
   if (startIndex === -1) {
     return null; // Start marker not found
   }
@@ -37,9 +51,9 @@ export function readLines(filePath: string, options: ReadLinesOptions) {
   const {
     start = 0,
     end = undefined,
-    shouldDedent = false
+    shouldDedent = false,
   } = options;
-  
+
   const fileContent = fs.readFileSync(filePath, 'utf-8');
 
   const lines = fileContent.split(/\r\n|\n/);

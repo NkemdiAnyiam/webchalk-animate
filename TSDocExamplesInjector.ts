@@ -37,7 +37,16 @@ async function overwrite() {
     let foundTargetText: string | null;
     const targetMatches: {targetDivId: string, spaceLength: number}[] = [];
     // for each special <div> in the given file, store the found target text an the target div id
-    while (foundTargetText = readTextBetween(targetPath, targets.startMarker, targets.endMarker, searchResultMeta.endIndex, searchResultMeta)) {
+    while (foundTargetText = readTextBetween(
+        targetPath,
+        {
+          startMarker: targets.startMarker,
+          endMarker: targets.endMarker,
+          searchStart: searchResultMeta.endIndex,
+          searchResultMeta: searchResultMeta,
+        }
+      )
+    ) {
       const targetDivId = foundTargetText.match(/^(.*)">/)?.[1] ?? '';
       targetMatches.push({targetDivId, spaceLength: searchResultMeta.spaceLength ?? 0});
     }
@@ -45,14 +54,31 @@ async function overwrite() {
     // search for the special div's id within whichever source file contains the real code
     for (const {targetDivId, spaceLength} of targetMatches) {
       let foundCode = false;
+      // search each source path until the one containing the id is found
       for (const sourcePath of sources.filePaths) {
-        let exampleCode = readTextBetween(sourcePath, `${sources.startMarker}${targetDivId} */`, sources.endMarker, 0)?.trim();
+        // read the source path to see if it contains the id (and thus the example code)
+        let exampleCode = readTextBetween(
+          sourcePath,
+          {
+            startMarker: `${sources.startMarker}${targetDivId} */`,
+            endMarker: sources.endMarker
+          }
+        )?.trim();
+
+        // if not found, continue, checking then next source path
         if (!exampleCode) { continue; }
     
         // if the id was found, then we also have the text for the source code.
         // now inject the code into the target file, replacing/updating whatever was there before
         foundCode = true;
-        await writeBetweenText(targetPath, `${targets.startMarker}${targetDivId}">`, targets.endMarker, wrapCodeText(`${exampleCode}`, spaceLength));
+        await writeBetweenText(
+          targetPath,
+          {
+            startText: `${targets.startMarker}${targetDivId}">`,
+            endText: targets.endMarker,
+            newContent: wrapCodeText(`${exampleCode}`, spaceLength)
+          }
+        );
         break;
       }
       if (!foundCode) { throw new Error(`Example code for "${targetDivId}" not found.`); }
