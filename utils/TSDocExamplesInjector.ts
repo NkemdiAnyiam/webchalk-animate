@@ -67,8 +67,6 @@ async function overwrite() {
           }
         )?.trim();
 
-        console.log(exampleCode);
-
         // if not found, continue, checking the next source path
         if (!exampleCode) { continue; }
     
