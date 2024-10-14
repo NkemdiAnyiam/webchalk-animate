@@ -45,6 +45,7 @@ async function overwrite() {
           searchStart: searchResultMeta.endIndex,
           searchResultMeta: searchResultMeta,
           readId: true,
+          granularity: 'char',
         }
       )
     ) {
@@ -60,10 +61,13 @@ async function overwrite() {
         let exampleCode = readTextBetween(
           sourcePath,
           {
-            startMarker: `${sources.startMarker} id="${targetDivId}" */`,
-            endMarker: `${sources.endMarker} id="${targetDivId}" */`
+            startMarker: `${sources.startMarker} id="${targetDivId}"`,
+            endMarker: `${sources.endMarker} id="${targetDivId}"`,
+            granularity: 'line',
           }
         )?.trim();
+
+        console.log(exampleCode);
 
         // if not found, continue, checking the next source path
         if (!exampleCode) { continue; }
@@ -74,9 +78,10 @@ async function overwrite() {
         await writeBetweenText(
           targetPath,
           {
-            startText: `${targets.startMarker} id="${targetDivId}" -->`,
-            endText: `${targets.endMarker} id="${targetDivId}" -->`,
-            newContent: wrapCodeText(`${exampleCode}`, spaceLength)
+            startText: `${targets.startMarker} id="${targetDivId}"`,
+            endText: `${targets.endMarker} id="${targetDivId}"`,
+            newContent: wrapCodeText(`${exampleCode}`, spaceLength),
+            granularity: 'line',
           }
         );
         break;

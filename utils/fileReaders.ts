@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import { dedent } from "./dedent";
+import { escapeRegex, regexIndexAfter, regexIndexOf } from "./stringTools";
 
 interface ReadTextBetweenOptions {
   startMarker: string;
@@ -7,6 +8,7 @@ interface ReadTextBetweenOptions {
   searchStart?: number;
   searchResultMeta?: { endIndex: number; spaceLength: number, id: string };
   readId?: boolean;
+  granularity: 'char' | 'line';
 }
 
 export function readTextBetween(filePath: string, options: ReadTextBetweenOptions): string | null {
@@ -16,17 +18,16 @@ export function readTextBetween(filePath: string, options: ReadTextBetweenOption
     searchStart = 0,
     searchResultMeta,
     readId = false,
+    granularity = 'char',
   } = options;
 
   const fileContent = fs.readFileSync(filePath, 'utf-8');
 
-  const startIndex = fileContent.indexOf(startMarker, searchStart);
+  const startIndex = granularity === 'char'
+    ? fileContent.indexOf(startMarker, searchStart)
+    : regexIndexAfter(fileContent, new RegExp(escapeRegex(startMarker)), searchStart);
   if (startIndex === -1) {
     return null; // Start marker not found
-  }
-
-  function escapeRegex(string: string) {
-    return string.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
   }
   
   if (readId) {
@@ -36,13 +37,15 @@ export function readTextBetween(filePath: string, options: ReadTextBetweenOption
     else { throw new Error(`No meta object to insert id into`); }
   }
 
-  const endIndex = fileContent.indexOf(endMarker, startIndex + startMarker.length);
+  const endIndex = granularity === 'char'
+    ? fileContent.indexOf(endMarker, startIndex + startMarker.length)
+    : regexIndexOf(fileContent, new RegExp(escapeRegex(endMarker)), startIndex);
   if (searchResultMeta) { searchResultMeta.endIndex = endIndex; }
   if (endIndex === -1) {
     return null; // End marker not found
   }
 
-  const textBetween = fileContent.substring(startIndex + startMarker.length, endIndex);
+  const textBetween = fileContent.substring(startIndex + (granularity === 'char' ? startMarker.length : 0), endIndex);
   
   if (searchResultMeta && readId) {
     const reg = new RegExp(`.*${escapeRegex(searchResultMeta.id)}`);
