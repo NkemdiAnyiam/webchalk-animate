@@ -45,7 +45,6 @@ async function overwrite() {
           searchStart: searchResultMeta.indexCache,
           searchResultMeta: searchResultMeta,
           readId: true,
-          // granularity: 'char',
         }
       )
     ) {
@@ -61,12 +60,9 @@ async function overwrite() {
         let exampleCode = readTextBetween(
           sourcePath,
           {
-            // startMarker: `${sources.startMarker} id="${targetDivId}"`,
             startMarker: sources.startMarker,
-            // endMarker: `${sources.endMarker} id="${targetDivId}"`,
             endMarker: sources.endMarker,
             searchId: targetDivId,
-            // granularity: 'line',
           }
         )?.trim();
 
@@ -79,13 +75,10 @@ async function overwrite() {
         await writeBetweenText(
           targetPath,
           {
-            // startText: `${targets.startMarker} id="${targetDivId}"`,
-            // endText: `${targets.endMarker} id="${targetDivId}"`,
             startMarker: targets.startMarker,
             endMarker: targets.endMarker,
             searchId: targetDivId,
             newContent: wrapCodeText(`${exampleCode}`, spaceLength),
-            // granularity: 'line',
           }
         );
         break;
