@@ -30,19 +30,23 @@ export function readTextBetween(filePath: string, options: ReadTextBetweenOption
     return null; // Start marker not found
   }
   
+  let id = '';
   if (readId) {
-    const id = fileContent.substring(startIndex).match(new RegExp(`${escapeRegex(`${startMarker}`)} id="(.*)"`))?.[1];
+    id = fileContent.substring(startIndex).match(new RegExp(`${escapeRegex(`${startMarker}`)} id="(.*)"`))?.[1] ?? '';
     if (!id) { throw new Error(`id not found`); }
     if (searchResultMeta) { searchResultMeta.id = id; }
     else { throw new Error(`No meta object to insert id into`); }
   }
+  else {
+    id = startMarker.match(new RegExp(`${escapeRegex(`${startMarker}`)} id="(.*)"`))?.[1] ?? '';
+  }
 
   const endIndex = granularity === 'char'
-    ? fileContent.indexOf(endMarker, startIndex + startMarker.length)
-    : regexIndexOf(fileContent, new RegExp(escapeRegex(endMarker)), startIndex);
+    ? fileContent.indexOf(`${endMarker}${readId ? ` id="${id}"` : ''}`, startIndex + startMarker.length)
+    : regexIndexOf(fileContent, new RegExp(escapeRegex(`${endMarker}${readId ? ` id="${id}"` : ''}`)), startIndex);
   if (searchResultMeta) { searchResultMeta.endIndex = endIndex; }
   if (endIndex === -1) {
-    return null; // End marker not found
+    throw new Error(`End marker corresponding to start marker "${startMarker}" and id "${id}" not found`); // End marker not found
   }
 
   const textBetween = fileContent.substring(startIndex + (granularity === 'char' ? startMarker.length : 0), endIndex);
