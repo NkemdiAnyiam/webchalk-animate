@@ -44,9 +44,8 @@ export function readTextBetween(filePath: string, options: ReadTextBetweenOption
 
   const textBetween = fileContent.substring(startIndex + startMarker.length, endIndex);
   
-  if (searchResultMeta) {
-    const divId = textBetween.match(/^(.*)">/)?.[1] ?? '';
-    const reg = new RegExp(`.*${divId}`);
+  if (searchResultMeta && readId) {
+    const reg = new RegExp(`.*${escapeRegex(searchResultMeta.id)}`);
     const startingLine = fileContent.match(reg)![0];
     searchResultMeta.spaceLength = startingLine.match(/^\s*/)?.[0].length ?? 0;
   }

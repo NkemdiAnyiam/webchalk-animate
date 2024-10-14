@@ -16,8 +16,8 @@ const targets = {
     `${directoryPrefix}/2_animationEffects/easing.ts`,
     `${directoryPrefix}/2_animationEffects/generationTypes.ts`,
   ],
-  startMarker: `* <div data-docs`,
-  endMarker: `* </div>`,
+  startMarker: `* <!-- EX:S`,
+  endMarker: `* <!-- EX:E`,
 };
 
 function wrapCodeText(text: string, spaceLength: number): string {
@@ -74,8 +74,8 @@ async function overwrite() {
         await writeBetweenText(
           targetPath,
           {
-            startText: `${targets.startMarker} id="${targetDivId}">`,
-            endText: targets.endMarker,
+            startText: `${targets.startMarker} id="${targetDivId}" -->`,
+            endText: `${targets.endMarker} id="${targetDivId}" -->`,
             newContent: wrapCodeText(`${exampleCode}`, spaceLength)
           }
         );

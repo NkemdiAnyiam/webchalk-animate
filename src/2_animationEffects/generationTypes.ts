@@ -16,7 +16,7 @@ export type KeyframesGenerator<TClipContext extends unknown> = {
    * - `backwardKeyframes` (optional) is used for the clip's animation when the clip is rewound
    * - - If `backwardKeyframes` is omitted, the reversal of `forwardKeyframes` is used instead
    * 
-   * <div data-docs id="KeyframesGenerator.generateKeyframes-1">
+   * <!-- EX:S id="KeyframesGenerator.generateKeyframes-1" -->
    * @example
    * ```ts
    * const clipFactories = webimator.createAnimationClipFactories({
@@ -45,7 +45,7 @@ export type KeyframesGenerator<TClipContext extends unknown> = {
    * const ent = clipFactories.Entrance(element, 'zoomIn', [0.2]);
    * ent.play().then(ent.rewind);
    * ```
-   * </div>
+   * <!-- EX:E id="KeyframesGenerator.generateKeyframes-1" -->
    */
   generateKeyframes(
     /**@ignore*/
@@ -70,7 +70,7 @@ export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
    * - `backwardGenerator` (optional) will run every time the clip is rewound
    * - - If `backwardGenerator` is omitted, `forwardGenerator` will be used, and the resulting keyframes will be reversed
    * 
-   * <div data-docs id="KeyframesGeneratorsGenerator.generateKeyframeGenerators-1">
+   * <!-- EX:S id="KeyframesGeneratorsGenerator.generateKeyframeGenerators-1" -->
    * @example
    * ```ts
    * const clipFactories = webimator.createAnimationClipFactories({
@@ -113,7 +113,7 @@ export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
    * const ext = clipFactories.Exit(element, 'flyOutLeft', []);
    * ext.play().then(ext.rewind);
    * ```
-   * </div>
+   * <!-- EX:E id="KeyframesGeneratorsGenerator.generateKeyframeGenerators-1" -->
    */
   generateKeyframeGenerators(
     /**@ignore*/
@@ -142,8 +142,42 @@ export type RafMutatorsGenerator<TClipContext extends unknown> = {
    * 
    * @see {@link AnimClip.computeTween}
    * 
-   * <div id="RafMutatorsGenerator.generateRafMutators-1">
-   * </div>
+   * <!-- EX:S id="RafMutatorsGenerator.generateRafMutators-1" -->
+   * @example
+   * ```ts
+   * const clipFactories = webimator.createAnimationClipFactories({
+   *   customMotionEffects: {
+   *     // a custom animation for scrolling to a specific position (but when
+   *     // rewinding, it will snap to yPosition before scrolling to the initial position, which
+   *     // may feel janky. This could be solved with generateRafMutatorGenerators())
+   *     scrollTo: {
+   *       generateRafMutators(yPosition: number) {
+   *         const initialPosition = this.domElem.scrollTop;
+   *   
+   *         return {
+   *           forwardMutator: () => {
+   *             this.domElem.scrollTo({
+   *               top: this.computeTween(initialPosition, yPosition),
+   *               behavior: 'instant'
+   *             });
+   *           },
+   *           backwardMutator: () => {
+   *             this.domElem.scrollTo({
+   *               top: this.computeTween(yPosition, initialPosition),
+   *               behavior: 'instant'
+   *             });
+   *           }
+   *         };
+   *       }
+   *     },
+   *   }
+   * });
+   * 
+   * const element = document.querySelector('.some-element');
+   * const mot = clipFactories.Motion(element, 'scrollTo', [1020]);
+   * mot.play().then(mot.rewind);
+   * ```
+   * <!-- EX:E id="RafMutatorsGenerator.generateRafMutators-1" -->
    */
   generateRafMutators(
     /**@ignore*/
@@ -172,8 +206,50 @@ export type RafMutatorsGeneratorsGenerator<TClipContext extends unknown> = {
    * 
    * @see {@link AnimClip.computeTween}
    * 
-   * <div id="RafMutatorsGeneratorsGenerator.generateRafMutatorGenerators-1">
-   * </div>
+   * <!-- EX:S id="RafMutatorsGeneratorsGenerator.generateRafMutatorGenerators-1" -->
+   * @example
+   * ```ts
+   * const clipFactories = webimator.createAnimationClipFactories({
+   *   customMotionEffects: {
+   *     // a custom animation for scrolling to a specific point on the page.
+   *     // when rewinding, the current scroll position is computed on the spot so that
+   *     // it can smoothly scroll from THERE to the initial position.
+   *     scrollToImproved: {
+   *       generateRafMutatorGenerators(yPosition: number) {
+   *         const initialPosition = this.domElem.scrollTop;
+   *   
+   *         return {
+   *           forwardGenerator: () => {
+   *             const forwardMutator = () => {
+   *               this.domElem.scrollTo({
+   *                 top: this.computeTween(initialPosition, yPosition),
+   *                 behavior: 'instant'
+   *               });
+   *             };
+   *             return forwardMutator;
+   *           },
+   * 
+   *           backwardGenerator: () => {
+   *             const backwardMutator = () => {
+   *               const currentPosition = this.domElem.scrollTop;
+   *               this.domElem.scrollTo({
+   *                 top: this.computeTween(currentPosition, initialPosition),
+   *                 behavior: 'instant'
+   *               });
+   *             };
+   *             return backwardMutator;
+   *           }
+   *         };
+   *       }
+   *     },
+   *   }
+   * });
+   * 
+   * const element = document.querySelector('.some-element');
+   * const mot = clipFactories.Motion(element, 'scrollToImproved', [1020]);
+   * mot.play().then(mot.rewind);
+   * ```
+   * <!-- EX:E id="RafMutatorsGeneratorsGenerator.generateRafMutatorGenerators-1" -->
    */
   generateRafMutatorGenerators(
     /**@ignore*/

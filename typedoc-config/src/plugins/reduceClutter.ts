@@ -18,25 +18,25 @@ const reduceClutter = function reduceClutter() {
     // is being removed)
     member.querySelector(':scope > .tsd-signatures > .tsd-description > h4.tsd-returns-title ~ ul.tsd-parameters')?.remove();
 
-    // address strange output from wrapping examples in <div>s
-    const exampleDiv = member.querySelector('[data-docs]');
-    if (exampleDiv) {
-      // remove duplicated portion
-      exampleDiv.querySelector('ul.tsd-parameters')?.remove();
-      // place actual example-related elements at the root of the example div
-      const unnecessaryWrapper = exampleDiv.querySelector('.tsd-comment.tsd-typography');
-      if (unnecessaryWrapper) {
-        for (const exampleComponent of [...unnecessaryWrapper.children]) {
-          exampleDiv.insertAdjacentElement('beforeend', exampleComponent);
-        }
-        unnecessaryWrapper.remove();
-      }
+    // // address strange output from wrapping examples in <div>s
+    // const exampleDiv = member.querySelector('[data-docs]');
+    // if (exampleDiv) {
+    //   // remove duplicated portion
+    //   exampleDiv.querySelector('ul.tsd-parameters')?.remove();
+    //   // place actual example-related elements at the root of the example div
+    //   const unnecessaryWrapper = exampleDiv.querySelector('.tsd-comment.tsd-typography');
+    //   if (unnecessaryWrapper) {
+    //     for (const exampleComponent of [...unnecessaryWrapper.children]) {
+    //       exampleDiv.insertAdjacentElement('beforeend', exampleComponent);
+    //     }
+    //     unnecessaryWrapper.remove();
+    //   }
 
-      // move the nested example divs outside of this example div
-      for (const weirdlyNestedExample of [...exampleDiv.querySelectorAll('[data-docs]')]) {
-        exampleDiv.insertAdjacentElement('afterend', weirdlyNestedExample);
-      }
-    }
+    //   // move the nested example divs outside of this example div
+    //   for (const weirdlyNestedExample of [...exampleDiv.querySelectorAll('[data-docs]')]) {
+    //     exampleDiv.insertAdjacentElement('afterend', weirdlyNestedExample);
+    //   }
+    // }
   }
 
   const h3 = document.querySelector(`h3:has(> a[href="#createAnimationClipFactories"])`);

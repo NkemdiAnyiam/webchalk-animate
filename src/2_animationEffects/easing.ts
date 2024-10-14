@@ -2,14 +2,14 @@ import { Union } from "../4_utils/utilityTypes";
 
 /**
  * Custom preset easing strings.
- * <div data-docs id="PresetLinearEasingKey-1">
+ * <!-- EX:S id="PresetLinearEasingKey-1" -->
  * @example
  * ```ts
  * const str1: PresetLinearEasingKey = 'power2-in';
  * const str2: PresetLinearEasingKey = 'expo-in-out';
  * const str3: PresetLinearEasingKey = 'expo'; // INVALID
  * ```
- * </div>
+ * <!-- EX:E id="PresetLinearEasingKey-1" -->
  */
 export type PresetLinearEasingKey = `${`power${'1' | '2' | '3' | '4'}` | `quad` | `expo` | `circ` | `sine` | `back` | `elastic` | `bounce`}-${'in' | 'out' | 'in-out'}`;
 // type EasingFunction<funcName extends string> = `${funcName}(${string})`;
@@ -24,7 +24,7 @@ export type TrivialCssEasingFunction = `linear` | 'ease' | 'ease-in' | 'ease-out
 /**
  * Autocompleted custom preset easing strings and trivial `<easing-function>`s
  * (but still allowing any `string` to account for non-trivial `<easing-function>`s such as cubier-bezier functions).
- * <div data-docs id="EasingString-1">
+ * <!-- EX:S id="EasingString-1" -->
  * @example
  * ```ts
  * const str1: EasingString = 'power2-in'; // valid (matches PresetLinearEasingKey)
@@ -35,7 +35,7 @@ export type TrivialCssEasingFunction = `linear` | 'ease' | 'ease-in' | 'ease-out
  * const str5: EasingString = 'expo'; // valid (matches string) but will lead to a runtime error
  * const str6: EasingString = 'cubic-bezier(0.25, 0.1, 0.25)'; // valid (matches string) but will lead to a runtime error
  * ```
- * </div>
+ * <!-- EX:E id="EasingString-1" -->
  */
 export type EasingString = Union<
   | TrivialCssEasingFunction
