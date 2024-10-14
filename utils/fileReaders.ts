@@ -49,11 +49,9 @@ export function readTextBetween(filePath: string, options: ReadTextBetweenOption
     else { throw new Error(`No meta object to insert id into`); }
   }
 
-  const endTag = searchId
-    ? getTagMatches(fileContent.substring(startReadIndex), endMarker).find(tag => tag.includes(searchId))
-    : getTagMatch(fileContent.substring(startReadIndex), endMarker);
+  const endTag = getTagMatches(fileContent.substring(startReadIndex), endMarker).find(tag => tag.includes(id));
   if (!endTag) {
-    throw new Error(`End tag for given start tag ${startTag} could not be found.`)
+    throw new Error(`End tag for given end marker "${endMarker}" and id "${id}" could not be found.`)
   }
   const endReadIndex = fileContent.indexOf(endTag, startReadIndex);
   if (endReadIndex === -1) {
