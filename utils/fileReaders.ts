@@ -5,7 +5,8 @@ interface ReadTextBetweenOptions {
   startMarker: string;
   endMarker: string;
   searchStart?: number;
-  searchResultMeta?: { endIndex: number; spaceLength: number };
+  searchResultMeta?: { endIndex: number; spaceLength: number, id: string };
+  readId?: boolean;
 }
 
 export function readTextBetween(filePath: string, options: ReadTextBetweenOptions): string | null {
@@ -14,6 +15,7 @@ export function readTextBetween(filePath: string, options: ReadTextBetweenOption
     endMarker,
     searchStart = 0,
     searchResultMeta,
+    readId = false,
   } = options;
 
   const fileContent = fs.readFileSync(filePath, 'utf-8');
@@ -21,6 +23,17 @@ export function readTextBetween(filePath: string, options: ReadTextBetweenOption
   const startIndex = fileContent.indexOf(startMarker, searchStart);
   if (startIndex === -1) {
     return null; // Start marker not found
+  }
+
+  function escapeRegex(string: string) {
+    return string.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
+  }
+  
+  if (readId) {
+    const id = fileContent.substring(startIndex).match(new RegExp(`${escapeRegex(`${startMarker}`)} id="(.*)"`))?.[1];
+    if (!id) { throw new Error(`id not found`); }
+    if (searchResultMeta) { searchResultMeta.id = id; }
+    else { throw new Error(`No meta object to insert id into`); }
   }
 
   const endIndex = fileContent.indexOf(endMarker, startIndex + startMarker.length);

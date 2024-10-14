@@ -16,7 +16,7 @@ export type KeyframesGenerator<TClipContext extends unknown> = {
    * - `backwardKeyframes` (optional) is used for the clip's animation when the clip is rewound
    * - - If `backwardKeyframes` is omitted, the reversal of `forwardKeyframes` is used instead
    * 
-   * <div id="example--KeyframesGenerator.generateKeyframes-1">
+   * <div data-docs id="KeyframesGenerator.generateKeyframes-1">
    * @example
    * ```ts
    * const clipFactories = webimator.createAnimationClipFactories({
@@ -70,7 +70,7 @@ export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
    * - `backwardGenerator` (optional) will run every time the clip is rewound
    * - - If `backwardGenerator` is omitted, `forwardGenerator` will be used, and the resulting keyframes will be reversed
    * 
-   * <div id="example--KeyframesGeneratorsGenerator.generateKeyframeGenerators-1">
+   * <div data-docs id="KeyframesGeneratorsGenerator.generateKeyframeGenerators-1">
    * @example
    * ```ts
    * const clipFactories = webimator.createAnimationClipFactories({

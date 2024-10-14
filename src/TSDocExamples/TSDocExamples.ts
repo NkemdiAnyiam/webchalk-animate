@@ -2,7 +2,7 @@ import { EasingString, PresetLinearEasingKey } from "../2_animationEffects/easin
 import { webimator } from "../Webimator";
 
 {
-/**** example--Webimator.newSequence-1.1 */
+/**** EX:S id="Webimator.newSequence-1.1" */
 // retrieve clip factory functions
 const clipFactories = webimator.createAnimationClipFactories();
 // select a (presumable) square-shaped element from the DOM
@@ -17,11 +17,11 @@ const seq = webimator.newSequence(
 );
 // play sequence
 seq.play();
-/**** end example */
+/**** EX:E id="Webimator.newSequence-1.1" */
 }
 
 {
-/**** example--Webimator.newSequence-1.2 */
+/**** EX:S id="Webimator.newSequence-1.2" */
 // SAME EXAMPLE BUT WITH DESTRUCTURING ASSIGNMENT FOR THE CLIP FACTORY FUNCTIONS
 
 const {Entrance, Exit, Motion} = webimator.createAnimationClipFactories();
@@ -34,11 +34,11 @@ const seq = webimator.newSequence(
   Exit(squareEl, '~fade-out', []),
 );
 seq.play();
-/**** end example */
+/**** EX:E id="Webimator.newSequence-1.2" */
 }
 
 {
-/**** example--Webimator.newSequence-2.1 */
+/**** EX:S id="Webimator.newSequence-2.1" */
 // retrieve clip factory functions
 const clipFactories = webimator.createAnimationClipFactories();
 // select a (presumable) square-shaped element from the DOM
@@ -52,11 +52,11 @@ const seq = webimator.newSequence(
 );
 // play sequence
 seq.play();
-/**** end example */
+/**** EX:E id="Webimator.newSequence-2.1" */
 }
 
 {
-/**** example--Webimator.newSequence-2.2 */
+/**** EX:S id="Webimator.newSequence-2.2" */
 // SAME EXAMPLE BUT WITH DESTRUCTURING ASSIGNMENT FOR THE CLIP FACTORY FUNCTIONS
 
 const {Entrance, Exit, Motion} = webimator.createAnimationClipFactories();
@@ -68,11 +68,11 @@ const seq = webimator.newSequence(
    Exit(squareEl, '~fade-out', []),
 );
 seq.play();
-/**** end example */
+/**** EX:E id="Webimator.newSequence-2.2" */
 }
 
 {
-/**** example--Webimator.newTimeline-1 */
+/**** EX:S id="Webimator.newTimeline-1" */
 // retrieve some clip factory functions
 const {Entrance, Exit, Motion} = webimator.createAnimationClipFactories();
 // select presumably a square element and a circle element from the DOM
@@ -104,11 +104,11 @@ const timeline = webimator.newTimeline(
 // step forward twice, playing both sequences
 timeline.step('forward')
   .then(() => timeline.step('forward'));
-/**** end example */
+/**** EX:E id="Webimator.newTimeline-1" */
 }
 
 {
-/**** example--Webimator.newTimeline-2 */
+/**** EX:S id="Webimator.newTimeline-2" */
 // retrieve some clip factory functions
 const {Entrance, Exit, Motion} = webimator.createAnimationClipFactories();
 // select presumably a square element and a circle element from the DOM
@@ -135,21 +135,21 @@ const timeline = webimator.newTimeline(
    seq1,
    seq2,
 );
-/**** end example */
+/**** EX:E id="Webimator.newTimeline-2" */
 }
 
 {
-/**** example--Webimator.createAnimationClipFactories-1.1 */
+/**** EX:S id="Webimator.createAnimationClipFactories-1.1" */
 const square = document.querySelector('.square');
 // Using the method and using one of the `Entrance()` factory function
 const clipFactories = webimator.createAnimationClipFactories();
 const ent = clipFactories.Entrance(square, '~fly-in', ['from-top'], {duration: 2000});
 ent.play();
-/**** end example */
+/**** EX:E id="Webimator.createAnimationClipFactories-1.1" */
 }
 
 {
-/**** example--Webimator.createAnimationClipFactories-1.2 */
+/**** EX:S id="Webimator.createAnimationClipFactories-1.2" */
 const square = document.querySelector('.square');
 // Using destructuring assignment to conveniently extract the `Entrance()` and `Motion()` factory functions
 const {Entrance, Motion} = webimator.createAnimationClipFactories();
@@ -159,11 +159,11 @@ const mot2 = Motion(square, '~translate', [{translateY: '500px'}], {duration: 50
 // clips are added to a sequence
 const seq = webimator.newSequence(ent, mot1, mot2);
 seq.play();
-/**** end example */
+/**** EX:E id="Webimator.createAnimationClipFactories-1.2" */
 }
 
 {
-/**** example--Webimator.createAnimationClipFactories-1.3 */
+/**** EX:S id="Webimator.createAnimationClipFactories-1.3" */
 // Extending the preset entrances and motions banks with custom effects
 const clipFactories = webimator.createAnimationClipFactories({
   // CUSTOM ENTRANCES
@@ -238,7 +238,7 @@ const square = document.querySelector('.square');
 const ent1 = clipFactories.Entrance(square, 'coolZoomIn', [0.2]);
 const ent2 = clipFactories.Entrance(square, 'blinkIn', []);
 const ext = clipFactories.Exit(square, 'flyOutLeft', []);
-/**** end example */
+/**** EX:E id="Webimator.createAnimationClipFactories-1.3" */
 }
 
 
@@ -254,7 +254,7 @@ const ext = clipFactories.Exit(square, 'flyOutLeft', []);
 
 
 {
-/**** example--AnimClip.generateTimePromise-1 */
+/**** EX:S id="AnimClip.generateTimePromise-1" */
 async function testFunc() {
   const { Entrance } = webimator.createAnimationClipFactories();
   const square = document.querySelector('.square');
@@ -265,11 +265,11 @@ async function testFunc() {
 }
 
 testFunc();
-/**** end example */
+/**** EX:E id="AnimClip.generateTimePromise-1" */
 }
 
 {
-/**** example--AnimClip.generateTimePromise-2 */
+/**** EX:S id="AnimClip.generateTimePromise-2" */
 
 async function testFunc() {
   const { Entrance } = webimator.createAnimationClipFactories();
@@ -281,11 +281,11 @@ async function testFunc() {
 }
 
 testFunc();
-/**** end example */
+/**** EX:E id="AnimClip.generateTimePromise-2" */
 }
 
 {
-/**** example--AnimClip.addRoadblocks-1 */
+/**** EX:S id="AnimClip.addRoadblocks-1" */
 async function wait(milliseconds: number) { // Promise-based timer
    return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
@@ -310,11 +310,11 @@ ent.play();
 // Once someOtherPromise is resolved, there are no more roadblocks at this point, so playback is resumed.
 // Once ent is 40% through the endDelay phase, it will pause and handle its roadblocks
 // The newly created promise obviously has no way to be resolved, so the clip is unfortunately stuck.
-/**** end example */
+/**** EX:E id="AnimClip.addRoadblocks-1" */
 }
 
 {
-/**** example--AnimClip.computeTween-1 */
+/**** EX:S id="AnimClip.computeTween-1" */
 const {Entrance} = webimator.createAnimationClipFactories({
   customEntranceEffects: {
     rotate: {
@@ -345,7 +345,7 @@ const someElement = document.querySelector('.some-element');
   // return the value 25% of the way between 360 and 0 (= 270).
   // Therefore, at 0.5 seconds of rewinding, someElement's rotation is set to "270deg".
 })();
-/**** end example */
+/**** EX:E id="AnimClip.computeTween-1" */
 }
 
 
@@ -355,16 +355,16 @@ const someElement = document.querySelector('.some-element');
 
 
 {
-/**** example--PresetLinearEasingKey-1 */
+/**** EX:S id="PresetLinearEasingKey-1" */
 const str1: PresetLinearEasingKey = 'power2-in';
 const str2: PresetLinearEasingKey = 'expo-in-out';
 /** @ts-ignore */
 const str3: PresetLinearEasingKey = 'expo'; // INVALID
-/**** end example */
+/**** EX:E id="PresetLinearEasingKey-1" */
 }
 
 {
-/**** example--EasingString-1 */
+/**** EX:S id="EasingString-1" */
 const str1: EasingString = 'power2-in'; // valid (matches PresetLinearEasingKey)
 const str2: EasingString = 'expo-in-out'; // valid (matches PresetLinearEasingKey)
 /** @ts-ignore */
@@ -374,7 +374,7 @@ const str4: EasingString = 'ease-in'; // valid (matches TrivialCssEasingFunction
 const str5: EasingString = 'expo'; // valid (matches string) but will lead to a runtime error
 /** @ts-ignore */
 const str6: EasingString = 'cubic-bezier(0.25, 0.1, 0.25)'; // valid (matches string) but will lead to a runtime error
-/**** end example */
+/**** EX:E id="EasingString-1" */
 }
 
 
@@ -385,7 +385,7 @@ const str6: EasingString = 'cubic-bezier(0.25, 0.1, 0.25)'; // valid (matches st
 
 
 {
-/**** example--KeyframesGenerator.generateKeyframes-1 */
+/**** EX:S id="KeyframesGenerator.generateKeyframes-1" */
 const clipFactories = webimator.createAnimationClipFactories({
   customEntranceEffects: {
     // a custom 'zoomIn' entrance animation effect that you might make
@@ -411,11 +411,11 @@ const clipFactories = webimator.createAnimationClipFactories({
 const element = document.querySelector('.some-element');
 const ent = clipFactories.Entrance(element, 'zoomIn', [0.2]);
 ent.play().then(ent.rewind);
-/**** end example */
+/**** EX:E id="KeyframesGenerator.generateKeyframes-1" */
 }
 
 {
-/**** example--KeyframesGeneratorsGenerator.generateKeyframeGenerators-1 */
+/**** EX:S id="KeyframesGeneratorsGenerator.generateKeyframeGenerators-1" */
 const clipFactories = webimator.createAnimationClipFactories({
   customExitEffects: {
     // a custom animation effect for flying out to the left side of the screen
@@ -455,11 +455,11 @@ const clipFactories = webimator.createAnimationClipFactories({
 const element = document.querySelector('.some-element');
 const ext = clipFactories.Exit(element, 'flyOutLeft', []);
 ext.play().then(ext.rewind);
-/**** end example */
+/**** EX:E id="KeyframesGeneratorsGenerator.generateKeyframeGenerators-1" */
 }
 
 {
-/**** example--RafMutatorsGenerator.generateRafMutators-1 */
+/**** EX:S id="RafMutatorsGenerator.generateRafMutators-1" */
 const clipFactories = webimator.createAnimationClipFactories({
   customMotionEffects: {
     // a custom animation for scrolling to a specific position (but when
@@ -491,11 +491,11 @@ const clipFactories = webimator.createAnimationClipFactories({
 const element = document.querySelector('.some-element');
 const mot = clipFactories.Motion(element, 'scrollTo', [1020]);
 mot.play().then(mot.rewind);
-/**** end example */
+/**** EX:E id="RafMutatorsGenerator.generateRafMutators-1" */
 }
 
 {
-/**** example--RafMutatorsGeneratorsGenerator.generateRafMutatorGenerators-1 */
+/**** EX:S id="RafMutatorsGeneratorsGenerator.generateRafMutatorGenerators-1" */
 const clipFactories = webimator.createAnimationClipFactories({
   customMotionEffects: {
     // a custom animation for scrolling to a specific point on the page.
@@ -535,5 +535,5 @@ const clipFactories = webimator.createAnimationClipFactories({
 const element = document.querySelector('.some-element');
 const mot = clipFactories.Motion(element, 'scrollToImproved', [1020]);
 mot.play().then(mot.rewind);
-/**** end example */
+/**** EX:E id="RafMutatorsGeneratorsGenerator.generateRafMutatorGenerators-1" */
 }

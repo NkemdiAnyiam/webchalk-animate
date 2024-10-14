@@ -904,7 +904,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * @param timePosition - the time position within the phase when the Promise will be resolved
    * @returns a Promise that is resolved at the specific time point of the animation.
    * 
-   * <div id="example--AnimClip.generateTimePromise-1">
+   * <div data-docs id="AnimClip.generateTimePromise-1">
    * @example
    * ```ts
    * async function testFunc() {
@@ -920,7 +920,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * ```
    * </div>
    * 
-   * <div id="example--AnimClip.generateTimePromise-2">
+   * <div data-docs id="AnimClip.generateTimePromise-2">
    * @example
    * ```ts
    * async function testFunc() {
@@ -969,7 +969,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * @param promises - an array of promises or functions that return promises that block the clip's playback until resolved
    * @returns {void}
    * 
-   * <div id="example--AnimClip.addRoadblocks-1">
+   * <div data-docs id="AnimClip.addRoadblocks-1">
    * @example
    * ```ts
    * async function wait(milliseconds: number) { // Promise-based timer
@@ -1245,7 +1245,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * @returns the number that is a percentage of the way between `initialVal` and `finalVal` based on the
    * percentage of completion of the animation (playing or rewinding).
    * 
-   * <div id="example--AnimClip.computeTween-1">
+   * <div data-docs id="AnimClip.computeTween-1">
    * @example
    * ```ts
    * const {Entrance} = webimator.createAnimationClipFactories({

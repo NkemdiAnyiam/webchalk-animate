@@ -5,8 +5,8 @@ const directoryPrefix = `${__dirname}/../src`;
 
 const sources = {
   filePaths: [`${directoryPrefix}/TSDocExamples/TSDocExamples.ts`],
-  startMarker: `/**** example--`,
-  endMarker: `/**** end example */`,
+  startMarker: `/**** EX:S`,
+  endMarker: `/**** EX:E`,
 };
 
 const targets = {
@@ -16,7 +16,7 @@ const targets = {
     `${directoryPrefix}/2_animationEffects/easing.ts`,
     `${directoryPrefix}/2_animationEffects/generationTypes.ts`,
   ],
-  startMarker: `* <div id="example--`,
+  startMarker: `* <div data-docs`,
   endMarker: `* </div>`,
 };
 
@@ -33,7 +33,7 @@ function wrapCodeText(text: string, spaceLength: number): string {
 async function overwrite() {
   // for every file that contains @example tags we want to fill (indicated by a specific <div>)...
   for (const targetPath of targets.filePaths) {
-    const searchResultMeta = {endIndex: -1, spaceLength: 0};
+    const searchResultMeta = {endIndex: -1, spaceLength: 0, id: ''};
     let foundTargetText: string | null;
     const targetMatches: {targetDivId: string, spaceLength: number}[] = [];
     // for each special <div> in the given file, store the found target text an the target div id
@@ -44,11 +44,11 @@ async function overwrite() {
           endMarker: targets.endMarker,
           searchStart: searchResultMeta.endIndex,
           searchResultMeta: searchResultMeta,
+          readId: true,
         }
       )
     ) {
-      const targetDivId = foundTargetText.match(/^(.*)">/)?.[1] ?? '';
-      targetMatches.push({targetDivId, spaceLength: searchResultMeta.spaceLength ?? 0});
+      targetMatches.push({targetDivId: searchResultMeta.id, spaceLength: searchResultMeta.spaceLength ?? 0});
     }
   
     // search for the special div's id within whichever source file contains the real code
@@ -60,12 +60,12 @@ async function overwrite() {
         let exampleCode = readTextBetween(
           sourcePath,
           {
-            startMarker: `${sources.startMarker}${targetDivId} */`,
-            endMarker: sources.endMarker
+            startMarker: `${sources.startMarker} id="${targetDivId}" */`,
+            endMarker: `${sources.endMarker} id="${targetDivId}" */`
           }
         )?.trim();
 
-        // if not found, continue, checking then next source path
+        // if not found, continue, checking the next source path
         if (!exampleCode) { continue; }
     
         // if the id was found, then we also have the text for the source code.
@@ -74,7 +74,7 @@ async function overwrite() {
         await writeBetweenText(
           targetPath,
           {
-            startText: `${targets.startMarker}${targetDivId}">`,
+            startText: `${targets.startMarker} id="${targetDivId}">`,
             endText: targets.endMarker,
             newContent: wrapCodeText(`${exampleCode}`, spaceLength)
           }

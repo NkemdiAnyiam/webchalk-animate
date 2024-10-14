@@ -19,7 +19,7 @@ const reduceClutter = function reduceClutter() {
     member.querySelector(':scope > .tsd-signatures > .tsd-description > h4.tsd-returns-title ~ ul.tsd-parameters')?.remove();
 
     // address strange output from wrapping examples in <div>s
-    const exampleDiv = member.querySelector('[id^="example--"]');
+    const exampleDiv = member.querySelector('[data-docs]');
     if (exampleDiv) {
       // remove duplicated portion
       exampleDiv.querySelector('ul.tsd-parameters')?.remove();
@@ -33,7 +33,7 @@ const reduceClutter = function reduceClutter() {
       }
 
       // move the nested example divs outside of this example div
-      for (const weirdlyNestedExample of [...exampleDiv.querySelectorAll('[id^="example--"]')]) {
+      for (const weirdlyNestedExample of [...exampleDiv.querySelectorAll('[data-docs]')]) {
         exampleDiv.insertAdjacentElement('afterend', weirdlyNestedExample);
       }
     }
