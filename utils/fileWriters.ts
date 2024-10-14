@@ -1,38 +1,38 @@
 import * as fs from "fs";
-import { escapeRegex, regexIndexAfter, regexIndexOf } from "./stringTools";
+import { getTagMatches } from "./stringTools";
 
 interface WriteBetweenTextOptions {
-  startText: string;
-  endText: string;
+  startMarker: RegExp;
+  endMarker: RegExp;
   newContent: string;
   searchStart?: number;
-  granularity: 'char' | 'line';
+  searchId: string;
 }
 
 export async function writeBetweenText(filePath: string, options: WriteBetweenTextOptions): Promise<void> {
   const {
-    startText,
-    endText,
+    startMarker,
+    endMarker,
     newContent,
     searchStart = 0,
-    granularity,
+    searchId,
   } = options;
 
   try {
     const fileContent = await fs.promises.readFile(filePath, 'utf-8');
 
-    const startIndex = granularity === 'char'
-      ? fileContent.indexOf(startText, searchStart)
-      : regexIndexAfter(fileContent, new RegExp(escapeRegex(startText)), searchStart);
-    const endIndex = granularity === 'char'
-      ? fileContent.indexOf(endText, startIndex + startText.length + searchStart)
-      : regexIndexOf(fileContent, new RegExp(escapeRegex(endText)), startIndex);
-
-    if (startIndex === -1 || endIndex === -1) {
-      throw new Error('Start or end text not found in the file.');
+    const startTag = getTagMatches(fileContent.substring(searchStart), startMarker).find(tag => tag.includes(searchId));
+    if (!startTag) {
+      throw new Error(`Start text "${startMarker}" not found in the file.`);
     }
+    const startIndex = fileContent.indexOf(startTag, searchStart) + startTag.length;
+    const endTag = getTagMatches(fileContent.substring(startIndex), endMarker).find(tag => tag.includes(searchId));
+    if (!endTag) {
+      throw new Error(`End text "${endMarker}" not found in the file.`);
+    }
+    const endIndex = fileContent.indexOf(endTag, startIndex);
 
-    const modifiedContent = fileContent.substring(0, startIndex + (granularity === 'char' ? startText.length : 0)) +
+    const modifiedContent = fileContent.substring(0, startIndex) +
       newContent +
       fileContent.substring(endIndex);
 

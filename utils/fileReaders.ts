@@ -1,14 +1,20 @@
 import * as fs from "fs";
 import { dedent } from "./dedent";
-import { escapeRegex, regexIndexAfter, regexIndexOf } from "./stringTools";
+import { escapeRegex, getTagMatch, getTagMatches } from "./stringTools";
+
+export interface SearchResultMeta {
+  indexCache: number;
+  spaceLength: number,
+  id: string;
+}
 
 interface ReadTextBetweenOptions {
-  startMarker: string;
-  endMarker: string;
+  startMarker: RegExp;
+  endMarker: RegExp;
   searchStart?: number;
-  searchResultMeta?: { endIndex: number; spaceLength: number, id: string };
+  searchResultMeta?: SearchResultMeta;
   readId?: boolean;
-  granularity: 'char' | 'line';
+  searchId?: string;
 }
 
 export function readTextBetween(filePath: string, options: ReadTextBetweenOptions): string | null {
@@ -18,39 +24,48 @@ export function readTextBetween(filePath: string, options: ReadTextBetweenOption
     searchStart = 0,
     searchResultMeta,
     readId = false,
-    granularity = 'char',
+    searchId,
   } = options;
 
   const fileContent = fs.readFileSync(filePath, 'utf-8');
 
-  const startIndex = granularity === 'char'
-    ? fileContent.indexOf(startMarker, searchStart)
-    : regexIndexAfter(fileContent, new RegExp(escapeRegex(startMarker)), searchStart);
-  if (startIndex === -1) {
-    return null; // Start marker not found
+  const startTag = searchId
+    // if searchId is provided, find the general start tag that contains it
+    ? getTagMatches(fileContent.substring(searchStart), startMarker).find(tag => tag.includes(searchId))
+    // otherwise, just find the first matching start tag (given searchStart)
+    : getTagMatch(fileContent.substring(searchStart), startMarker);
+  if (!startTag) { return null; }
+  const startReadIndex = fileContent.indexOf(startTag, searchStart) + startTag.length;
+  if (startReadIndex === -1) {
+    throw new Error(`Somehow, startReadIndex could not be computed.`); // Start marker not found
   }
   
-  let id = '';
+  // id is either searchId (if provided) or the id from the found startTag
+  const id = searchId ?? startTag.match(/id="(.*?)"/)?.[1];
+  if (!id) { throw new Error(`id not found in startTag "${startTag}"`); }
+  // if readId, read the id into searchResultMeta
   if (readId) {
-    id = fileContent.substring(startIndex).match(new RegExp(`${escapeRegex(`${startMarker}`)} id="(.*)"`))?.[1] ?? '';
-    if (!id) { throw new Error(`id not found`); }
     if (searchResultMeta) { searchResultMeta.id = id; }
     else { throw new Error(`No meta object to insert id into`); }
   }
-  else {
-    id = startMarker.match(new RegExp(`${escapeRegex(`${startMarker}`)} id="(.*)"`))?.[1] ?? '';
-  }
 
-  const endIndex = granularity === 'char'
-    ? fileContent.indexOf(`${endMarker}${readId ? ` id="${id}"` : ''}`, startIndex + startMarker.length)
-    : regexIndexOf(fileContent, new RegExp(escapeRegex(`${endMarker}${readId ? ` id="${id}"` : ''}`)), startIndex);
-  if (searchResultMeta) { searchResultMeta.endIndex = endIndex; }
-  if (endIndex === -1) {
-    throw new Error(`End marker corresponding to start marker "${startMarker}" and id "${id}" not found`); // End marker not found
+  const endTag = searchId
+    ? getTagMatches(fileContent.substring(startReadIndex), endMarker).find(tag => tag.includes(searchId))
+    : getTagMatch(fileContent.substring(startReadIndex), endMarker);
+  if (!endTag) {
+    throw new Error(`End tag for given start tag ${startTag} could not be found.`)
   }
+  const endReadIndex = fileContent.indexOf(endTag, startReadIndex);
+  if (endReadIndex === -1) {
+    throw new Error(`End marker corresponding to\n\tstart marker "${startMarker}", \n\tid "${id}"\nnot found`); // End marker not found
+  }
+  if (searchResultMeta) { searchResultMeta.indexCache = endReadIndex; }
 
-  const textBetween = fileContent.substring(startIndex + (granularity === 'char' ? startMarker.length : 0), endIndex);
+  // compute the text between the startTag and endTag
+  const textBetween = fileContent.substring(startReadIndex, endReadIndex);
   
+  // if the id was read into a search result meta object,
+  // compute the amount of space at the beginning of the line containing the id
   if (searchResultMeta && readId) {
     const reg = new RegExp(`.*${escapeRegex(searchResultMeta.id)}`);
     const startingLine = fileContent.match(reg)![0];

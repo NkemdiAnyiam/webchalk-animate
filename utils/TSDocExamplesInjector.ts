@@ -1,12 +1,12 @@
-import { readTextBetween } from "./fileReaders";
+import { readTextBetween, SearchResultMeta } from "./fileReaders";
 import { writeBetweenText } from "./fileWriters";
 
 const directoryPrefix = `${__dirname}/../src`;
 
 const sources = {
   filePaths: [`${directoryPrefix}/TSDocExamples/TSDocExamples.ts`],
-  startMarker: `/**** EX:S`,
-  endMarker: `/**** EX:E`,
+  startMarker: /\/\*\*\*\* EX:S .*? *\//,
+  endMarker: /\/\*\*\*\* EX:E .*? *\//,
 };
 
 const targets = {
@@ -16,8 +16,8 @@ const targets = {
     `${directoryPrefix}/2_animationEffects/easing.ts`,
     `${directoryPrefix}/2_animationEffects/generationTypes.ts`,
   ],
-  startMarker: `* <!-- EX:S`,
-  endMarker: `* <!-- EX:E`,
+  startMarker: /\* \<\!-- EX:S .*? --\>/,
+  endMarker: /\* \<\!-- EX:E .*? --\>/,
 };
 
 function wrapCodeText(text: string, spaceLength: number): string {
@@ -33,7 +33,7 @@ function wrapCodeText(text: string, spaceLength: number): string {
 async function overwrite() {
   // for every file that contains @example tags we want to fill (indicated by a specific <div>)...
   for (const targetPath of targets.filePaths) {
-    const searchResultMeta = {endIndex: -1, spaceLength: 0, id: ''};
+    const searchResultMeta: SearchResultMeta = {indexCache: -1, spaceLength: 0, id: ''};
     let foundTargetText: string | null;
     const targetMatches: {targetDivId: string, spaceLength: number}[] = [];
     // for each special <div> in the given file, store the found target text an the target div id
@@ -42,10 +42,10 @@ async function overwrite() {
         {
           startMarker: targets.startMarker,
           endMarker: targets.endMarker,
-          searchStart: searchResultMeta.endIndex,
+          searchStart: searchResultMeta.indexCache,
           searchResultMeta: searchResultMeta,
           readId: true,
-          granularity: 'char',
+          // granularity: 'char',
         }
       )
     ) {
@@ -61,9 +61,12 @@ async function overwrite() {
         let exampleCode = readTextBetween(
           sourcePath,
           {
-            startMarker: `${sources.startMarker} id="${targetDivId}"`,
-            endMarker: `${sources.endMarker} id="${targetDivId}"`,
-            granularity: 'line',
+            // startMarker: `${sources.startMarker} id="${targetDivId}"`,
+            startMarker: sources.startMarker,
+            // endMarker: `${sources.endMarker} id="${targetDivId}"`,
+            endMarker: sources.endMarker,
+            searchId: targetDivId,
+            // granularity: 'line',
           }
         )?.trim();
 
@@ -76,10 +79,13 @@ async function overwrite() {
         await writeBetweenText(
           targetPath,
           {
-            startText: `${targets.startMarker} id="${targetDivId}"`,
-            endText: `${targets.endMarker} id="${targetDivId}"`,
+            // startText: `${targets.startMarker} id="${targetDivId}"`,
+            // endText: `${targets.endMarker} id="${targetDivId}"`,
+            startMarker: targets.startMarker,
+            endMarker: targets.endMarker,
+            searchId: targetDivId,
             newContent: wrapCodeText(`${exampleCode}`, spaceLength),
-            granularity: 'line',
+            // granularity: 'line',
           }
         );
         break;
