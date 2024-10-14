@@ -3,8 +3,9 @@ import { writeBetweenText } from "./fileWriters";
 
 const readmeDir = `${__dirname}/../README.md`;
 
-const searchResultMeta: SearchResultMeta = {indexCache: -1, spaceLength: 0, id: ''}
+const searchResultMeta: SearchResultMeta = {indexCache: 0, spaceLength: 0, id: ''}
 
+// TESTING
 const res = readTextBetween(
   readmeDir,
   {

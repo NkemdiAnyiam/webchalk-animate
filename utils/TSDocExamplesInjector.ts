@@ -33,7 +33,7 @@ function wrapCodeText(text: string, spaceLength: number): string {
 async function overwrite() {
   // for every file that contains @example tags we want to fill (indicated by a specific <div>)...
   for (const targetPath of targets.filePaths) {
-    const searchResultMeta: SearchResultMeta = {indexCache: -1, spaceLength: 0, id: ''};
+    const searchResultMeta: SearchResultMeta = {indexCache: 0, spaceLength: 0, id: ''};
     let foundTargetText: string | null;
     const targetMatches: {targetDivId: string, spaceLength: number}[] = [];
     // for each special <div> in the given file, store the found target text an the target div id
