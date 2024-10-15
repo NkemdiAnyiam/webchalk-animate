@@ -5,8 +5,8 @@ const directoryPrefix = `${__dirname}/../src`;
 
 const sources = {
   filePaths: [`${directoryPrefix}/TSDocExamples/TSDocExamples.ts`],
-  startMarker: /\/\*\*\*\* EX:S .*? *\//,
-  endMarker: /\/\*\*\*\* EX:E .*? *\//,
+  startMarker: /\/\*\*\*\* EX:S .*? \*\//,
+  endMarker: /\/\*\*\*\* EX:E .*? \*\//,
 };
 
 const targets = {
