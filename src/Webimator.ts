@@ -29,8 +29,8 @@ export class Webimator {
    * @param animClips - optional comma-separated list of {@link AnimClip}s to add to the sequence
    * @returns A new {@link AnimSequence} instance.
    * 
-   * <!-- EX:S id="Webimator.newSequence-1.1" -->
    * @example
+   * <!-- EX:S id="Webimator.newSequence-1.1" -->
    * ```ts
    * // retrieve clip factory functions
    * const clipFactories = webimator.createAnimationClipFactories();
@@ -49,8 +49,8 @@ export class Webimator {
    * ```
    * <!-- EX:E id="Webimator.newSequence-1.1" -->
    *
-   * <!-- EX:S id="Webimator.newSequence-1.2" -->
    * @example
+   * <!-- EX:S id="Webimator.newSequence-1.2" -->
    * ```ts
    * // SAME EXAMPLE BUT WITH DESTRUCTURING ASSIGNMENT FOR THE CLIP FACTORY FUNCTIONS
    * 
@@ -73,8 +73,8 @@ export class Webimator {
    * @param animClips - optional comma-separated list of {@link AnimClip}s to add to the sequence
    * @returns A new {@link AnimSequence} instance.
    * 
-   * <!-- EX:S id="Webimator.newSequence-2.1" -->
    * @example
+   * <!-- EX:S id="Webimator.newSequence-2.1" -->
    * ```ts
    * // retrieve clip factory functions
    * const clipFactories = webimator.createAnimationClipFactories();
@@ -92,8 +92,8 @@ export class Webimator {
    * ```
    * <!-- EX:E id="Webimator.newSequence-2.1" -->
    *
-   * <!-- EX:S id="Webimator.newSequence-2.2" -->
    * @example
+   * <!-- EX:S id="Webimator.newSequence-2.2" -->
    * ```ts
    * // SAME EXAMPLE BUT WITH DESTRUCTURING ASSIGNMENT FOR THE CLIP FACTORY FUNCTIONS
    * 
@@ -123,8 +123,8 @@ export class Webimator {
    * @param animSequences - optional comma-separated list of {@link AnimSequence}s to add to the timeline
    * @returns A new {@link AnimTimeline} instance.
    * 
-   * <!-- EX:S id="Webimator.newTimeline-1" -->
    * @example
+   * <!-- EX:S id="Webimator.newTimeline-1" -->
    * ```ts
    * // retrieve some clip factory functions
    * const {Entrance, Exit, Motion} = webimator.createAnimationClipFactories();
@@ -166,8 +166,8 @@ export class Webimator {
    * @param animSequences - optional comma-separated list of {@link AnimSequence}s to add to the timeline
    * @returns A new {@link AnimTimeline} instance.
    * 
-   * <!-- EX:S id="Webimator.newTimeline-2" -->
    * @example
+   * <!-- EX:S id="Webimator.newTimeline-2" -->
    * ```ts
    * // retrieve some clip factory functions
    * const {Entrance, Exit, Motion} = webimator.createAnimationClipFactories();
@@ -220,8 +220,8 @@ export class Webimator {
    * @param customPresetEffectBanks.customMotionEffects - objects of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with the `Motion()` clip factory function
    * @returns Factory functions that return category-specific {@link AnimClip}s, each with intellisense for their category-specific effects banks.
    * 
-   * <!-- EX:S id="Webimator.createAnimationClipFactories-1.1" -->
    * @example
+   * <!-- EX:S id="Webimator.createAnimationClipFactories-1.1" -->
    * ```ts
    * const square = document.querySelector('.square');
    * // Using the method and using one of the `Entrance()` factory function
@@ -231,8 +231,8 @@ export class Webimator {
    * ```
    * <!-- EX:E id="Webimator.createAnimationClipFactories-1.1" -->
    * 
-   * <!-- EX:S id="Webimator.createAnimationClipFactories-1.2" -->
    * @example
+   * <!-- EX:S id="Webimator.createAnimationClipFactories-1.2" -->
    * ```ts
    * const square = document.querySelector('.square');
    * // Using destructuring assignment to conveniently extract the `Entrance()` and `Motion()` factory functions
@@ -246,8 +246,8 @@ export class Webimator {
    * ```
    * <!-- EX:E id="Webimator.createAnimationClipFactories-1.2" -->
    * 
-   * <!-- EX:S id="Webimator.createAnimationClipFactories-1.3" -->
    * @example
+   * <!-- EX:S id="Webimator.createAnimationClipFactories-1.3" -->
    * ```ts
    * // Extending the preset entrances and motions banks with custom effects
    * const clipFactories = webimator.createAnimationClipFactories({
