@@ -1,5 +1,5 @@
 import { readTextBetween, SearchResultMeta } from "./fileReaders";
-import { writeBetweenText } from "./fileWriters";
+import { CodeType, writeBetweenText } from "./fileWriters";
 
 const directoryPrefix = `${__dirname}/../src`;
 
@@ -20,23 +20,17 @@ const targets = {
   endMarker: /\* \<\!-- EX:E .*? --\>/,
 };
 
-function wrapCodeText(text: string, spaceLength: number): string {
-  const spaces = ' '.repeat(spaceLength);
-  const content = text
-    .replaceAll(/\s*\/\*\* @ts-ignore \*\//g, '')
-    .split('\n')
-    .join(`\n${spaces}* `);
-
-  return `\n${spaces}* @example\n${spaces}* \`\`\`ts\n${spaces}* ${content}\n${spaces}* \`\`\`\n${spaces}`;
+function removeTsIgnore(text: string): string {
+  return text.replaceAll(/\s*\/\*\* @ts-ignore \*\//g, '');
 }
 
 async function overwrite() {
-  // for every file that contains @example tags we want to fill (indicated by a specific <div>)...
+  // for every file that contains @example tags we want to fill (indicated by a special tag)...
   for (const targetPath of targets.filePaths) {
-    const searchResultMeta: SearchResultMeta = {indexCache: 0, spaceLength: 0, id: ''};
+    const searchResultMeta: SearchResultMeta = {indexCache: 0, spaceLength: 0, id: '', codeType: 'standard'};
     let foundTargetText: string | null;
-    const targetMatches: {targetDivId: string, spaceLength: number}[] = [];
-    // for each special <div> in the given file, store the found target text an the target div id
+    const targetMatches: {targetId: string, spaceLength: number, codeType: CodeType}[] = [];
+    // for each special tag in the given file, store the found target text an the target tag id
     while (foundTargetText = readTextBetween(
         targetPath,
         {
@@ -48,11 +42,15 @@ async function overwrite() {
         }
       )
     ) {
-      targetMatches.push({targetDivId: searchResultMeta.id, spaceLength: searchResultMeta.spaceLength ?? 0});
+      targetMatches.push({
+        targetId: searchResultMeta.id,
+        spaceLength: searchResultMeta.spaceLength ?? 0,
+        codeType: searchResultMeta.codeType
+      });
     }
   
-    // search for the special div's id within whichever source file contains the real code
-    for (const {targetDivId, spaceLength} of targetMatches) {
+    // search for the target tag's id within whichever source file contains the real code
+    for (const {targetId, spaceLength, codeType} of targetMatches) {
       let foundCode = false;
       // search each source path until the one containing the id is found
       for (const sourcePath of sources.filePaths) {
@@ -62,7 +60,7 @@ async function overwrite() {
           {
             startMarker: sources.startMarker,
             endMarker: sources.endMarker,
-            searchId: targetDivId,
+            searchId: targetId,
           }
         )?.trim();
 
@@ -77,13 +75,16 @@ async function overwrite() {
           {
             startMarker: targets.startMarker,
             endMarker: targets.endMarker,
-            searchId: targetDivId,
-            newContent: wrapCodeText(`${exampleCode}`, spaceLength),
+            searchId: targetId,
+            newContent: removeTsIgnore(`${exampleCode}`),
+            codeType: 'ts',
+            prependLines: `${' '.repeat(spaceLength)}* `,
+            beforeend: `${' '.repeat(spaceLength)}`,
           }
         );
         break;
       }
-      if (!foundCode) { throw new Error(`Example code for "${targetDivId}" not found.`); }
+      if (!foundCode) { throw new Error(`Example code for id "${targetId}" not found.`); }
     }
   }
 }

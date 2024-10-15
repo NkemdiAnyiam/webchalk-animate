@@ -1,11 +1,13 @@
 import * as fs from "fs";
 import { dedent } from "./dedent";
 import { escapeRegex, getTagMatch, getTagMatches } from "./stringTools";
+import { CodeType } from "./fileWriters";
 
 export interface SearchResultMeta {
   indexCache: number;
   spaceLength: number,
   id: string;
+  codeType: CodeType;
 }
 
 interface ReadTextBetweenOptions {
@@ -15,6 +17,7 @@ interface ReadTextBetweenOptions {
   searchResultMeta?: SearchResultMeta;
   readId?: boolean;
   searchId?: string;
+  codeType?: CodeType;
 }
 
 export function readTextBetween(filePath: string, options: ReadTextBetweenOptions): string | null {
@@ -25,6 +28,7 @@ export function readTextBetween(filePath: string, options: ReadTextBetweenOption
     searchResultMeta,
     readId = false,
     searchId,
+    codeType = 'standard',
   } = options;
 
   const fileContent = fs.readFileSync(filePath, 'utf-8');
@@ -38,6 +42,10 @@ export function readTextBetween(filePath: string, options: ReadTextBetweenOption
   const startReadIndex = fileContent.indexOf(startTag, searchStart) + startTag.length;
   if (startReadIndex === -1) {
     throw new Error(`Somehow, startReadIndex could not be computed.`); // Start marker not found
+  }
+
+  if (searchResultMeta) {
+    searchResultMeta.codeType = startTag.match(/code-type="(.*?)"/)?.[1] as CodeType ?? codeType;
   }
   
   // id is either searchId (if provided) or the id from the found startTag

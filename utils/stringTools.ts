@@ -20,6 +20,6 @@ export function escapeRegex(string: string): string {
   return string.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
-export function getLine(text: string, index: number): string {
-  return text.substring(index).split(/\r\n|\n/)[0];
+export function getLine(text: string, searchText: string, searchStart: number = 0): string {
+  return text.substring(searchStart).split(/\r\n|\n/).find(str => str.includes(searchText)) ?? '';
 }
