@@ -17,7 +17,7 @@ export type KeyframesGenerator<TClipContext extends unknown> = {
    * - - If `backwardKeyframes` is omitted, the reversal of `forwardKeyframes` is used instead
    * 
    * @example
-   * <!-- EX:S id="KeyframesGenerator.generateKeyframes-1" -->
+   * <!-- EX:S id="KeyframesGenerator.generateKeyframes-1" code-type="ts" -->
    * ```ts
    * const clipFactories = webimator.createAnimationClipFactories({
    *   customEntranceEffects: {
@@ -71,7 +71,7 @@ export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
    * - - If `backwardGenerator` is omitted, `forwardGenerator` will be used, and the resulting keyframes will be reversed
    * 
    * @example
-   * <!-- EX:S id="KeyframesGeneratorsGenerator.generateKeyframeGenerators-1" -->
+   * <!-- EX:S id="KeyframesGeneratorsGenerator.generateKeyframeGenerators-1" code-type="ts" -->
    * ```ts
    * const clipFactories = webimator.createAnimationClipFactories({
    *   customExitEffects: {
@@ -143,7 +143,7 @@ export type RafMutatorsGenerator<TClipContext extends unknown> = {
    * @see {@link AnimClip.computeTween}
    * 
    * @example
-   * <!-- EX:S id="RafMutatorsGenerator.generateRafMutators-1" -->
+   * <!-- EX:S id="RafMutatorsGenerator.generateRafMutators-1" code-type="ts" -->
    * ```ts
    * const clipFactories = webimator.createAnimationClipFactories({
    *   customMotionEffects: {
@@ -207,7 +207,7 @@ export type RafMutatorsGeneratorsGenerator<TClipContext extends unknown> = {
    * @see {@link AnimClip.computeTween}
    * 
    * @example
-   * <!-- EX:S id="RafMutatorsGeneratorsGenerator.generateRafMutatorGenerators-1" -->
+   * <!-- EX:S id="RafMutatorsGeneratorsGenerator.generateRafMutatorGenerators-1" code-type="ts" -->
    * ```ts
    * const clipFactories = webimator.createAnimationClipFactories({
    *   customMotionEffects: {

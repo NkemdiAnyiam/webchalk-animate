@@ -77,7 +77,6 @@ async function overwrite() {
             endMarker: targets.endMarker,
             searchId: targetId,
             newContent: removeTsIgnore(`${exampleCode}`),
-            codeType: 'ts',
             prependLines: `${' '.repeat(spaceLength)}* `,
             beforeend: `${' '.repeat(spaceLength)}`,
           }

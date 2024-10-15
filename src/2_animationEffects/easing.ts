@@ -3,7 +3,7 @@ import { Union } from "../4_utils/utilityTypes";
 /**
  * Custom preset easing strings.
  * @example
- * <!-- EX:S id="PresetLinearEasingKey-1" -->
+ * <!-- EX:S id="PresetLinearEasingKey-1" code-type="ts" -->
  * ```ts
  * const str1: PresetLinearEasingKey = 'power2-in';
  * const str2: PresetLinearEasingKey = 'expo-in-out';
@@ -25,7 +25,7 @@ export type TrivialCssEasingFunction = `linear` | 'ease' | 'ease-in' | 'ease-out
  * Autocompleted custom preset easing strings and trivial `<easing-function>`s
  * (but still allowing any `string` to account for non-trivial `<easing-function>`s such as cubier-bezier functions).
  * @example
- * <!-- EX:S id="EasingString-1" -->
+ * <!-- EX:S id="EasingString-1" code-type="ts" -->
  * ```ts
  * const str1: EasingString = 'power2-in'; // valid (matches PresetLinearEasingKey)
  * const str2: EasingString = 'expo-in-out'; // valid (matches PresetLinearEasingKey)

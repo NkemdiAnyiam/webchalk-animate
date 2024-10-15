@@ -45,7 +45,7 @@ export function readTextBetween(filePath: string, options: ReadTextBetweenOption
   }
 
   if (searchResultMeta) {
-    searchResultMeta.codeType = startTag.match(/code-type="(.*?)"/)?.[1] as CodeType ?? codeType;
+    searchResultMeta.codeType = codeType ?? startTag.match(/code-type="(.*?)"/)?.[1] as CodeType;
   }
   
   // id is either searchId (if provided) or the id from the found startTag
