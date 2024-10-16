@@ -1,0 +1,244 @@
+@font-face {
+  font-family: 'Proxima Nova';
+  /* Name your font family */
+  src: url("./fonts/Proxima Nova Regular.woff2");
+  /* Locate the .woff2 file within your directory*/
+  font-weight: 400; }
+
+@font-face {
+  font-family: 'Proxima Nova';
+  /* Name your font family */
+  src: url("./fonts/Proxima Nova Medium.woff2");
+  font-weight: 500; }
+
+@font-face {
+  font-family: 'Fira Code';
+  src: url("./fonts/Fira Code Light.woff2");
+  font-weight: 300; }
+
+@font-face {
+  font-family: 'Fira Code';
+  src: url("./fonts/Fira Code Regular.woff2");
+  font-weight: 400; }
+
+@font-face {
+  font-family: 'Fira Code';
+  src: url("./fonts/Fira Code Medium.woff2");
+  font-weight: 500; }
+
+@font-face {
+  font-family: 'Fira Code';
+  src: url("./fonts/Fira Code SemiBold.woff2");
+  font-weight: 600; }
+
+@font-face {
+  font-family: 'Fira Code';
+  src: url("./fonts/Fira Code Bold.woff2");
+  font-weight: 700; }
+
+:root {
+  --light-name: #666600;
+  --dark-name: #ffff99;
+  --light-color-ts-parameter: #993300;
+  --dark-color-ts-parameter: #FFAA66;
+  --dark-code-background: #222222;
+  --dark-code-inline-background: #2f2f2f;
+  --light-code-inline-background: #f3f3f3;
+  --light-h5: #226666;
+  --dark-h5: #99ffff;
+  --light-sub-param: #880088;
+  --dark-sub-param: #dd99dd;
+  --dark-scroll-bar: hsl(from var(--color-icon-background) h s calc(l + 12)) var(--color-icon-background);
+  --light-scroll-bar: hsl(from var(--color-accent) h s calc(l - 10)) var(--color-icon-background);
+  --font-sans: "Proxima Nova" !important;
+  --font-mono: "Fira Code" !important; }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --color-member-name: var(--light-name);
+      --code-inline-background: var(--light-code-inline-background);
+      --color-ts-parameter: var(--light-color-ts-parameter) !important;
+      --color-h5: var(--light-h5);
+      --color-sub-param: var(--light-sub-param);
+      --color-scroll-bar: var(--light-scroll-bar); } }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-member-name: var(--dark-name);
+      --code-inline-background: var(--dark-code-inline-background);
+      --color-ts-parameter: var(--dark-color-ts-parameter) !important;
+      --color-h5: var(--dark-h5);
+      --color-sub-param: var(--dark-sub-param);
+      --color-scroll-bar: var(--dark-scroll-bar); } }
+  :root[data-theme="light"] {
+    --color-member-name: var(--light-name);
+    --code-inline-background: var(--light-code-inline-background);
+    --color-ts-parameter: var(--light-color-ts-parameter) !important;
+    --color-h5: var(--light-h5);
+    --color-sub-param: var(--light-sub-param);
+    --color-scroll-bar: var(--light-scroll-bar); }
+  :root[data-theme="dark"] {
+    --color-member-name: var(--dark-name);
+    --code-inline-background: var(--dark-code-inline-background);
+    --color-ts-parameter: var(--dark-color-ts-parameter) !important;
+    --color-h5: var(--dark-h5);
+    --color-sub-param: var(--dark-sub-param);
+    --color-scroll-bar: var(--dark-scroll-bar); }
+
+li:has(> details > summary[data-key$="$hidden"]) {
+  display: none; }
+
+.tsd-filter-item:has(input[name="protected"]) {
+  display: none; }
+
+h4:has([id^="Default Value"]) {
+  margin-top: 0; }
+
+h4:has([id^="Default Value"]) + pre {
+  border: none; }
+
+h5.custom-color > :first-child.tsd-kind-property, h5.custom-color > :first-child.tsd-kind-method {
+  color: var(--color-h5); }
+
+.tsd-page-toolbar .title {
+  display: inline-block; }
+
+.tsd-nested-navigation {
+  margin-left: 2rem !important; }
+  .tsd-nested-navigation > li > details {
+    margin-left: unset; }
+
+.tsd-signature,
+.tsd-signature-symbol,
+.tsd-kind-property,
+.tsd-kind-method,
+.tsd-kind-type {
+  font-family: var(--font-mono); }
+
+.tsd-signature-type,
+.tsd-kind-parameter,
+.tsd-signature-symbol {
+  font-family: var(--font-mono); }
+
+a.tsd-kind-property,
+a.tsd-kind-method,
+a.tsd-kind-accessor {
+  color: var(--color-link); }
+
+a.tsd-signature-type.external {
+  color: var(--color-ts-interface); }
+
+:not(pre) > code:not(.ts) {
+  background-color: var(--code-inline-background); }
+
+.tsd-accordion-summary:has(h2) {
+  color: var(--code-background);
+  background-color: var(--color-member-name);
+  border-radius: 12px;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 0.4rem; }
+  .tsd-accordion-summary:has(h2) h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem; }
+  .tsd-accordion-summary:has(h2) svg {
+    --color-text: currentColor; }
+
+.tsd-comment,
+.tsd-returns-title + p {
+  color: var(--color-text-aside); }
+
+.tsd-comment ul li,
+.tsd-description > ul li {
+  margin: 0.3rem 0; }
+  .tsd-comment ul li:has(ul),
+  .tsd-description > ul li:has(ul) {
+    list-style: none; }
+    .tsd-comment ul li:has(ul) ul,
+    .tsd-description > ul li:has(ul) ul {
+      list-style: outside;
+      margin: unset; }
+
+* {
+  scrollbar-color: var(--color-scroll-bar); }
+
+.tsd-panel-group > section {
+  display: flex;
+  flex-direction: column; }
+  .tsd-panel-group > section .tsd-panel.tsd-member {
+    margin-bottom: 0;
+    padding-top: 32px;
+    padding-bottom: 32px; }
+    .tsd-panel-group > section .tsd-panel.tsd-member:not(:last-child) {
+      border-bottom: 5px solid var(--color-text); }
+    .tsd-panel-group > section .tsd-panel.tsd-member > .tsd-signature {
+      background-color: var(--md-sys-color-surface-container-high);
+      border-width: 2px; }
+
+h3.tsd-anchor-link {
+  color: var(--color-member-name); }
+
+h4.tsd-anchor-link:has(+ *) {
+  margin-bottom: unset; }
+  h4.tsd-anchor-link:has(+ *) + * {
+    margin-top: unset; }
+
+h3.tsd-anchor-link + .tsd-signatures .tsd-signature,
+h3.tsd-anchor-link + .tsd-signature {
+  border-color: var(--color-member-name);
+  border-width: 1px !important;
+  height: 15rem;
+  max-height: max-content;
+  overflow: auto;
+  overscroll-behavior: contain;
+  resize: vertical; }
+
+.tsd-signature {
+  height: 15rem;
+  max-height: max-content;
+  overflow: auto;
+  overscroll-behavior: contain;
+  resize: vertical; }
+
+.tsd-signatures {
+  margin-bottom: 0; }
+  .tsd-signatures .tsd-signature {
+    background-color: var(--md-sys-color-surface-container-high);
+    border-width: 2px; }
+    .tsd-signatures .tsd-signature:not(:first-child) {
+      margin-top: 16px; }
+  .tsd-signatures .tsd-description:not(:last-child) {
+    margin-bottom: 16px;
+    border-bottom: 2px dashed var(--color-text); }
+  .tsd-signatures .tsd-description .tsd-parameters .tsd-parameter-list {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.8rem; }
+    .tsd-signatures .tsd-description .tsd-parameters .tsd-parameter-list li > span + .tsd-comment:has(> p) {
+      margin-top: -0.8rem; }
+    .tsd-signatures .tsd-description .tsd-parameters .tsd-parameter-list li > span:first-of-type {
+      display: inline-block;
+      vertical-align: top;
+      padding: 0.6rem;
+      margin-top: -0.6rem;
+      background-color: var(--md-sys-color-surface-container-high);
+      border-radius: 12px; }
+    .tsd-signatures .tsd-description .tsd-parameters .tsd-parameter-list .tsd-parameters .tsd-kind-property {
+      color: var(--color-sub-param); }
+  .tsd-signatures .tsd-description .tsd-returns-content {
+    height: 15rem;
+    max-height: max-content;
+    overflow: auto;
+    overscroll-behavior: contain;
+    resize: vertical; }
+  .tsd-signatures .tsd-description .tsd-returns-title + p {
+    margin-top: -0.8rem; }
+  .tsd-signatures .tsd-description h4:has(a[id^="Example"]) + pre {
+    height: 15rem;
+    max-height: max-content;
+    overflow: auto;
+    overscroll-behavior: contain;
+    resize: vertical; }
+
+footer {
+  padding-top: 0;
+  padding-bottom: 0; }
