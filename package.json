@@ -1,7 +1,7 @@
 {
   "name": "webimator",
   "version": "0.17.2",
-  "description": "Web animation framework build for creating interactive animated visualizations.",
+  "description": "Web animation framework built for creating interactive animated visualizations.",
   "repository": {
     "type": "git",
     "url": "https://github.com/NkemdiAnyiam/webimator.git"
