@@ -1,6 +1,6 @@
 {
   "name": "webimator",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "description": "Web animation framework build for creating interactive animated visualizations.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
