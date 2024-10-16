@@ -46,13 +46,14 @@ NPM will install the specified package (in this case, `webimator`) as a "depende
 </details>
 
 ## Usage
-Once Webimator is installed, import it with the following in your JavaScript code:
+### Imports
+Once Webimator is installed, import it with the following statements in your JavaScript code:
 <!-- MD-S id="import webimator" code-type="ts" -->
 ```ts
 import { webimator } from 'webimator';
 ```
 <!-- MD-E id="import webimator" -->
-For convenience (and clarity), the package also exposes a majority of its internal types and objects using other import paths (but none of them are required to make full usage of Webimator):
+For convenience (and clarity), the package also exposes a majority of its internal types and objects using other import paths (but none of them are required to make full usage of Webimator's functionalities):
 <!-- MD-S id="import paths" code-type="ts" -->
 ```ts
 import * as WebimatorTypes from 'webimator/types-and-interfaces';
