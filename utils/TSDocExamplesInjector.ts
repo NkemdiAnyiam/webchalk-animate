@@ -31,7 +31,8 @@ async function overwrite() {
     let foundTargetText: string | null;
     const targetMatches: {targetId: string, spaceLength: number, codeType: CodeType}[] = [];
     // for each special tag in the given file, store the found target text an the target tag id
-    while (foundTargetText = readTextBetween(
+    while (true) {
+      foundTargetText = readTextBetween(
         targetPath,
         {
           startMarker: targets.startMarker,
@@ -41,7 +42,9 @@ async function overwrite() {
           readId: true,
         }
       )
-    ) {
+
+      if (foundTargetText === null) { break; }
+
       targetMatches.push({
         targetId: searchResultMeta.id,
         spaceLength: searchResultMeta.spaceLength ?? 0,
