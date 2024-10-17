@@ -8,7 +8,6 @@ import {
   ConnectorEntranceClip,
   ConnectorExitClip,
 } from "../1_playbackStructures/AnimationClipCategories";
-import { Layer3MutableClipConfig } from "./generationTypes";
 import { webimator } from "../Webimator";
 import { EffectGeneratorBank } from "./generationTypes";
 import { computeSelfScrollingBounds, negateNumString, overrideHidden, splitXYAlignmentString, splitXYTupleString, unOverrideHidden } from "../4_utils/helpers";
@@ -522,7 +521,7 @@ export const libPresetMotions = {
      * @param translationOptions - options defining the behavior of the motion
      * @returns 
      */
-    generateKeyframes(targetElem: DOMElement | null | undefined, translationOptions: Partial<MoveToOptions> = {}) {
+    generateKeyframes(targetElem: Element | null | undefined, translationOptions: Partial<MoveToOptions> = {}) {
       if (!targetElem) {
         throw new TypeError(`Target for ~move-to must not be null`);
       }
@@ -912,7 +911,7 @@ export const libPresetScrolls = {
      * @param scrollOptions - options defining the behavior of the scroll
      * @returns 
      */
-    generateRafMutatorGenerators(target: DOMElement | null | undefined, scrollOptions: Partial<ScrollingOptions> = {}) {
+    generateRafMutatorGenerators(target: Element | null | undefined, scrollOptions: Partial<ScrollingOptions> = {}) {
       if (!target) { throw new TypeError(`Target for ~scroll-self must not be null`); }
       const {
         preserveX = false,

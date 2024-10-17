@@ -40,7 +40,7 @@ export const createStyles = (rules: string = ''): void => {
   document.body.appendChild(sheet);
 };
 
-export const getOpeningTag = (element: DOMElement | null | undefined): string => {
+export const getOpeningTag = (element: Element | null | undefined): string => {
   if (!element) { return String(element); }
   const htmlText = element.outerHTML;
   const start  = htmlText.search(/</);
@@ -48,8 +48,8 @@ export const getOpeningTag = (element: DOMElement | null | undefined): string =>
   return htmlText.substring(start, end + 1);
 };
 
-export const overrideHidden = (...elements: DOMElement[]): void => { for (const element of elements) {element.classList.value += ` wbmtr-override-hidden`} };
-export const unOverrideHidden = (...elements: DOMElement[]): void => { for (const element of elements) {element.classList.value = element.classList.value.replace(` wbmtr-override-hidden`, '')} };
+export const overrideHidden = (...elements: Element[]): void => { for (const element of elements) {element.classList.value += ` wbmtr-override-hidden`} };
+export const unOverrideHidden = (...elements: Element[]): void => { for (const element of elements) {element.classList.value = element.classList.value.replace(` wbmtr-override-hidden`, '')} };
 
 export const splitXYTupleString = (tupleStr: `${CssLength}, ${CssLength}` | undefined): [x: CssLength, y: CssLength] | undefined => {
   return tupleStr?.split(', ') as [x: CssLength, y: CssLength] | undefined;
@@ -126,7 +126,7 @@ export function parseMultiUnitPlacement(offset: number | MultiUnitPlacementX | M
   }
 }
 
-export const computeSelfScrollingBounds = (scrollable: DOMElement, target: DOMElement, scrollOptions: ScrollingOptions): {fromXY: [number, number], toXY: [number, number]} => {
+export const computeSelfScrollingBounds = (scrollable: Element, target: Element, scrollOptions: ScrollingOptions): {fromXY: [number, number], toXY: [number, number]} => {
   // determines the intersection point of the target
   const [offsetPercX, offsetPixelsX] = parseMultiUnitPlacement(scrollOptions.targetOffsetX ?? scrollOptions.targetOffset?.[0] ?? '0px', 'horizontal');
   const [offsetPercY, offsetPixelsY] = parseMultiUnitPlacement(scrollOptions.targetOffsetY ?? scrollOptions.targetOffset?.[1] ?? '0px', 'vertical');

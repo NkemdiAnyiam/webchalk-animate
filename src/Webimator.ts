@@ -485,7 +485,7 @@ export class Webimator {
   }
 
   /**@internal*/
-  scrollAnchorsStack: [target: DOMElement, scrollOptions: ScrollingOptions][] = [];
+  scrollAnchorsStack: [target: Element, scrollOptions: ScrollingOptions][] = [];
 
   private static checkBanksFormatting(...banks: (EffectGeneratorBank | undefined)[]) {
     const errors: string[] = [];
