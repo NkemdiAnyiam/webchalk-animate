@@ -65,7 +65,7 @@ export function readTextBetween(filePath: string, options: ReadTextBetweenOption
   if (endReadIndex === -1) {
     throw new Error(`End marker corresponding to\n\tstart marker "${startMarker}", \n\tid "${id}"\nnot found`); // End marker not found
   }
-  if (searchResultMeta) { searchResultMeta.indexCache = endReadIndex; }
+  if (searchResultMeta) { searchResultMeta.indexCache = endReadIndex + endTag.length; }
 
   // compute the text between the startTag and endTag
   const textBetween = fileContent.substring(startReadIndex, endReadIndex);
