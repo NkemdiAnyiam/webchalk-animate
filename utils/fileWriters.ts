@@ -49,6 +49,8 @@ export async function writeBetweenText(filePath: string, options: WriteBetweenTe
           return `\`\`\`ts\n${content}\n\`\`\``
         case "standard":
           return content;
+        case "inline-code":
+          return `\`${content.trim()}\``;
         default: throw new Error(`Invalid codeType "${codeType}"`);
       }
     }
