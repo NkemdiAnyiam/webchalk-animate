@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import { getLine, getTagMatches } from "./stringTools";
 
-export type CodeType = 'ts' | 'standard';
+export type CodeType = 'ts' | 'standard' | 'inline-code';
 
 interface WriteBetweenTextOptions {
   startMarker: RegExp;
