@@ -14,8 +14,8 @@ const clipFactories = webimator.createAnimationClipFactories();
 /**** MD-E id="usage__webimator.createAnimationClipFactories()" */
 
 if (false) {
-  webimator./**** MD-S id="clip-factories-method" */createAnimationClipFactories()/**** MD-E id="clip-factories-method" */;
-  /**** MD-S id="webimator-clip-factories-method" */webimator.createAnimationClipFactories();/**** MD-E id="webimator-clip-factories-method" */
+  webimator./**** MD-S id="clip-factories-method" MD-G */createAnimationClipFactories()/**** MD-E */;
+  /**** MD-S id="webimator-clip-factories-method" MD-G */webimator.createAnimationClipFactories();/**** MD-E */
 
   /**** MD-S id="usage__create-sequence" */
   webimator.newSequence()

@@ -36,7 +36,11 @@ export async function writeBetweenText(filePath: string, options: WriteBetweenTe
       throw new Error(`Start text "${startMarker}" with id "${searchId}" not found in the file.`);
     }
     const startIndex = fileContent.indexOf(startTag, searchStart) + startTag.length;
-    const endTag = getTagMatches(fileContent.substring(startIndex), endMarker).find(tag => tag.includes(searchId));
+    
+    const possibleEndTags = getTagMatches(fileContent.substring(startIndex), endMarker);
+    const endTag = startTag.includes('MD-G')
+      ? possibleEndTags[0] // greedy
+      : possibleEndTags.find(tag => tag.includes(searchId)); // matching id
     if (!endTag) {
       throw new Error(`End text "${endMarker}" with id "${searchId}" not found in the file.`);
     }

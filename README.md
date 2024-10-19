@@ -167,7 +167,8 @@ However, this would become unwieldly if there were dozens of animations, not to 
 
 An **"animation sequence"** is a number of animations that occur one after another in a particular order. In Webimator, animation clips can be placed into sequences, which are their _own_ fully-fledged playback structures.
 
-To create an animation sequence, use <!-- MD-S id="usage__create-sequence" code-type="inline-code" -->`webimator.newSequence()`<!-- MD-E id="usage__create-sequence" -->. Without any arguments, the method just creates an empty sequence without any animation clips. You can add clips to the sequence upon its creation by passing a list of clips as arguments, or you can use <!-- MD-S id="usage__add-clips" code-type="inline-code" -->`AnimSequence.prototype.addClips()`<!-- MD-E id="usage__add-clips" -->:
+To create an animation sequence, use <!-- MD-S id="usage__create-sequence" code-type="inline-code" MD-G -->`webimator.newSequence()`<!-- MD-E -->. Without any arguments, the method just creates an empty sequence without any animation clips. You can add clips to the sequence upon its creation by passing a list of clips as arguments, or you can use <!-- MD-S id="usage__add-clips" code-type="inline-code" MD-G -->`AnimSequence.prototype.addClips()`<!-- MD-E -->:
+
 <!-- MD-S id="usage__create-sequence-clips" code-type="ts" -->
 ```ts
 // get clip factory functions
@@ -199,11 +200,11 @@ seq.addClips(
   Exit(sqrEl, '~fade-out', [])
 );
 
-// play and then rewind the sequence
 seq.play().then(() => seq.rewind());
 ```
 <!-- MD-E id="usage__create-sequence-clips" -->
-In the example above, a new sequence is created with <!-- MD-S id="usage__create-sequence" code-type="inline-code" -->`webimator.newSequence()`<!-- MD-E id="usage__create-sequence" -->. However, the first object passed to it is not an animation clip. You are actually allowed to pass a set of configuration options as the first argument to <!-- MD-S id="usage__create-sequence" code-type="inline-code" -->`webimator.newSequence()`<!-- MD-E id="usage__create-sequence" --> and _then_ a list of clips (but if you do not want to set any configuration, you can just pass the list of clips only). Either way, the sequence contains four animation clips. Afterwards, two more clips are added to the sequence (for a total of six) using <!-- MD-S id="usage__add-clips" code-type="inline-code" -->`AnimSequence.prototype.addClips()`<!-- MD-E id="usage__add-clips" -->. Finally, the sequence is played and rewound. When playing, the animation clips will be played in order, each one starting _only_ after the previous one has finished. When rewinding, the clips are rewound in reverse order.
+
+In the example above, a new sequence is created with <!-- MD-S id="usage__create-sequence" code-type="inline-code" MD-G -->`webimator.newSequence()`<!-- MD-E  -->. However, the first object passed to it is not an animation clip. You are actually allowed to pass a set of configuration options as the first argument to <!-- MD-S id="usage__create-sequence" code-type="inline-code" MD-G -->`webimator.newSequence()`<!-- MD-E --> and _then_ a list of clips (but if you do not want to set any configuration, you can just pass the list of clips only). Either way, the sequence contains four animation clips. Afterwards, two more clips are added to the sequence (for a total of six) using <!-- MD-S id="usage__add-clips" code-type="inline-code" MD-G -->`AnimSequence.prototype.addClips()`<!-- MD-E -->. Finally, the sequence is played and rewound. When playing, the animation clips will be played in order, each one starting _only_ after the previous one has finished. When rewinding, the clips are rewound in reverse order.
 
 #### Changing Sequential Timing of Clips
 

@@ -57,7 +57,13 @@ export function readTextBetween(filePath: string, options: ReadTextBetweenOption
     else { throw new Error(`No meta object to insert id into`); }
   }
 
-  const endTag = getTagMatches(fileContent.substring(startReadIndex), endMarker).find(tag => tag.includes(id));
+  // get all end tags that appear after the start tag
+  const possibleEndTags = getTagMatches(fileContent.substring(startReadIndex), endMarker);
+
+  // find actual matching end tag
+  const endTag = startTag.includes('MD-G')
+    ? possibleEndTags[0] // greedy
+    : possibleEndTags.find(tag => tag.includes(id)); // matching id
   if (!endTag) {
     throw new Error(`End tag for given end marker "${endMarker}" and id "${id}" could not be found.`)
   }
