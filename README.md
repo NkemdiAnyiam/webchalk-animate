@@ -118,7 +118,7 @@ The properties of the object returned by `createAnimationClipFactories()` are th
 ```ts
 const sqrEl = document.querySelector('.square');
 const ent = clipFactories.Entrance(sqrEl, '~pinwheel', [2, 'clockwise']);
-const mot = clipFactories.Exit(sqrEl, '~fade-out', [], {duration: 1500});
+const ext = clipFactories.Exit(sqrEl, '~fade-out', [], {duration: 1500});
 ```
 <!-- MD-E id="usage__create-basic-clips" -->
 An element with the CSS class "square" is selected from the page, and it is targeted by two animation clips—an entrance clip and a motion clip. Generally, the effect name will always be followed by a tuple containing effect options. Evidently, the pinwheel effect accepts two effect options—the number spins and the direction of the spin—while the fade out effect takes no effect options. After the effect options, you may specify a configuration object to set things like the duration, delay, end delay, CSS classes, playback rate, and other configuration settings.
@@ -127,8 +127,8 @@ These animation clips are fully-fledged playback structures, and they can be pla
 <!-- MD-S id="usage__badly-play-basic-clips" code-type="ts" -->
 ```ts
 ent.play();
-mot.play();
-mot.rewind();
+ext.play();
+ext.rewind();
 ent.rewind();
 // ↑ AnimClip.prototype.play() and rewind() are asynchronous,
 // so these will actually attempt to run all at the same time,
@@ -143,8 +143,8 @@ One way to manually control the timing of clips yourself is to use Promise-based
 // motion clip plays, and THEN the motion clip rewinds, and THEN the
 // entrance clip rewinds
 ent.play().then(() => {
-  mot.play().then(() => {
-    mot.rewind().then(() => {
+  ext.play().then(() => {
+    ext.rewind().then(() => {
       ent.rewind();
     })
   });
@@ -153,12 +153,58 @@ ent.play().then(() => {
 // exact same thing but using async/await syntax
 (async function() {
   await ent.play();
-  await mot.play();
-  await mot.rewind();
+  await ext.play();
+  await ext.rewind();
   ent.rewind();
 })();
 ```
 <!-- MD-E id="usage__play-basic-clips" -->
-However, this would become unwieldly if there were dozens of animations, not to mention coordinating pauses, compensating for tiny error's in JavaScript's timing.
+However, this would become unwieldly if there were dozens of animations, not to mention coordinating pauses, compensating for tiny error's in JavaScript's timing. This is where the next playback structure—`AnimSequence`—comes in.
+
+### Creating Animation Sequences
+
+#### Creating Sequence and Adding Clips
+
+An **"animation sequence"** is a number of animations that occur one after another in a particular order. In Webimator, animation clips can be placed into sequences, which are their _own_ fully-fledged playback structures.
+
+To create an animation sequence, use <!-- MD-S id="usage__create-sequence" code-type="inline-code" -->`webimator.newSequence()`<!-- MD-E id="usage__create-sequence" -->. Without any arguments, the method just creates an empty sequence without any animation clips. You can add clips to the sequence upon its creation by passing a list of clips as arguments, or you can use <!-- MD-S id="usage__add-clips" code-type="inline-code" -->`AnimSequence.prototype.addClips()`<!-- MD-E id="usage__add-clips" -->:
+<!-- MD-S id="usage__create-sequence-clips" code-type="ts" -->
+```ts
+// get clip factory functions
+const { Entrance, Exit, Motion } = webimator.createAnimationClipFactories();
+
+// select elements from page
+const sqrEl = document.querySelector('.square');
+const circEl = document.querySelector('.circle');
+const triEl = document.querySelector('.triangle');
+
+// create animation clips
+const enterSquare = Entrance(sqrEl, '~pinwheel', [2, 'clockwise']);
+const enterCircle = Entrance(circEl, '~fade-in', []);
+
+// create sequence with configuration options and animation clips
+const seq = webimator.newSequence(
+  // optional configuration object
+  {playbackRate: 2, description: 'Enter all the shapes'},
+  // 4 animation clips
+  enterSquare,
+  enterCircle,
+  Entrance(triEl, '~fly-in', ['from-bottom-left']),
+  Entrance(document.querySelector('.pentagon'), '~appear', [])
+);
+
+// add more clips to the sequence
+seq.addClips(
+  Motion(circEl, '~move-to', [sqrEl]),
+  Exit(sqrEl, '~fade-out', [])
+);
+
+// play and then rewind the sequence
+seq.play().then(() => seq.rewind());
+```
+<!-- MD-E id="usage__create-sequence-clips" -->
+In the example above, a new sequence is created with <!-- MD-S id="usage__create-sequence" code-type="inline-code" -->`webimator.newSequence()`<!-- MD-E id="usage__create-sequence" -->. However, the first object passed to it is not an animation clip. You are actually allowed to pass a set of configuration options as the first argument to <!-- MD-S id="usage__create-sequence" code-type="inline-code" -->`webimator.newSequence()`<!-- MD-E id="usage__create-sequence" --> and _then_ a list of clips (but if you do not want to set any configuration, you can just pass the list of clips only). Either way, the sequence contains four animation clips. Afterwards, two more clips are added to the sequence (for a total of six) using <!-- MD-S id="usage__add-clips" code-type="inline-code" -->`AnimSequence.prototype.addClips()`<!-- MD-E id="usage__add-clips" -->. Finally, the sequence is played and rewound. When playing, the animation clips will be played in order, each one starting _only_ after the previous one has finished. When rewinding, the clips are rewound in reverse order.
+
+#### Changing Sequential Timing of Clips
 
 (Work in progress)
