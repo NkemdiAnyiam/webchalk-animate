@@ -55,19 +55,19 @@ NPM will install the specified package (in this case, `webimator`) as a "depende
 ### Imports
 
 Once Webimator is installed, import it with the following statements in your JavaScript code:
-<!-- MD-S id="import webimator" code-type="ts" -->
+<!--MD-S id="import webimator" code-type="ts"-->
 ```ts
 import { webimator } from 'webimator';
 ```
-<!-- MD-E id="import webimator" -->
+<!--MD-E id="import webimator"-->
 For convenience (and clarity), the package also exposes a majority of its internal types and objects using other import paths (but none of them are required to make full usage of Webimator's functionalities):
-<!-- MD-S id="import paths" code-type="ts" -->
+<!--MD-S id="import paths" code-type="ts"-->
 ```ts
 import * as WebimatorTypes from 'webimator/types-and-interfaces';
 import * as WebimatorErrors from "webimator/error-handling";
 import * as WebimatorEasing from "webimator/easing";
 ```
-<!-- MD-E id="import paths" -->
+<!--MD-E id="import paths"-->
 
 ### Creating Animation Clips
 
@@ -108,23 +108,23 @@ To actually see an effect in action, you must play an **"animation clip"**. In t
 Webimator provides several factory functions that you can use to create animation clips (the smallest building block of a timeline, represented by the abstract `AnimClip` class). There is one factory function for each of the categories of clips (e.g., the `Entrance()` factory function returns `EntranceClip`, the `Motion()` factory function returns `MotionClip`, etc.). They are called "factory" functions because they create instances of clips without you having to deal with the more complex details of the constructors and setup.
 
 To access the factory functions, use the `webimator` object's `createAnimationClipFactories()` method:
-<!-- MD-S id="usage__webimator.createAnimationClipFactories()" code-type="ts" -->
+<!--MD-S id="usage__webimator.createAnimationClipFactories()" code-type="ts"-->
 ```ts
 const clipFactories = webimator.createAnimationClipFactories();
 ```
-<!-- MD-E id="usage__webimator.createAnimationClipFactories()" -->
+<!--MD-E id="usage__webimator.createAnimationClipFactories()"-->
 The properties of the object returned by `createAnimationClipFactories()` are the clip factory functions. You can now use them to create animation clips like in the following example.
-<!-- MD-S id="usage__create-basic-clips" code-type="ts" -->
+<!--MD-S id="usage__create-basic-clips" code-type="ts"-->
 ```ts
 const sqrEl = document.querySelector('.square');
 const ent = clipFactories.Entrance(sqrEl, '~pinwheel', [2, 'clockwise']);
 const ext = clipFactories.Exit(sqrEl, '~fade-out', [], {duration: 1500});
 ```
-<!-- MD-E id="usage__create-basic-clips" -->
+<!--MD-E id="usage__create-basic-clips"-->
 An element with the CSS class "square" is selected from the page, and it is targeted by two animation clips—an entrance clip and a motion clip. Generally, the effect name will always be followed by a tuple containing effect options. Evidently, the pinwheel effect accepts two effect options—the number spins and the direction of the spin—while the fade out effect takes no effect options. After the effect options, you may specify a configuration object to set things like the duration, delay, end delay, CSS classes, playback rate, and other configuration settings.
 
 These animation clips are fully-fledged playback structures, and they can be played, rewound, paused, and more. However, as with normal JavaScript animations, outright playing multiple animation clips will run everything at the same time, which is likely not what you want.
-<!-- MD-S id="usage__badly-play-basic-clips" code-type="ts" -->
+<!--MD-S id="usage__badly-play-basic-clips" code-type="ts"-->
 ```ts
 ent.play();
 ext.play();
@@ -134,10 +134,10 @@ ent.rewind();
 // so these will actually attempt to run all at the same time,
 // ultimately causing an error
 ```
-<!-- MD-E id="usage__badly-play-basic-clips" -->
+<!--MD-E id="usage__badly-play-basic-clips"-->
 
 One way to manually control the timing of clips yourself is to use Promise-based syntax as in the code below.
-<!-- MD-S id="usage__play-basic-clips" code-type="ts" -->
+<!--MD-S id="usage__play-basic-clips" code-type="ts"-->
 ```ts
 // the entrance clip plays, and THEN the motion clip plays, and THEN the
 // motion clip plays, and THEN the motion clip rewinds, and THEN the
@@ -158,7 +158,7 @@ ent.play().then(() => {
   ent.rewind();
 })();
 ```
-<!-- MD-E id="usage__play-basic-clips" -->
+<!--MD-E id="usage__play-basic-clips"-->
 However, this would become unwieldly if there were dozens of animations, not to mention coordinating pauses, compensating for tiny error's in JavaScript's timing. This is where the next playback structure—`AnimSequence`—comes in.
 
 ### Creating Animation Sequences
@@ -167,9 +167,9 @@ However, this would become unwieldly if there were dozens of animations, not to 
 
 An **"animation sequence"** is a number of animations that occur one after another in a particular order. In Webimator, animation clips can be placed into sequences, which are their _own_ fully-fledged playback structures.
 
-To create an animation sequence, use <!-- MD-S id="usage__create-sequence" code-type="inline-code" MD-G -->`webimator.newSequence()`<!-- MD-E -->. Without any arguments, the method just creates an empty sequence without any animation clips. You can add clips to the sequence upon its creation by passing a list of clips as arguments, or you can use <!-- MD-S id="usage__add-clips" code-type="inline-code" MD-G -->`AnimSequence.prototype.addClips()`<!-- MD-E -->:
+To create an animation sequence, use <!--MD-S id="usage__create-sequence" code-type="inline-code" MD-G-->`webimator.newSequence()`<!--MD-E-->. Without any arguments, the method just creates an empty sequence without any animation clips. You can add clips to the sequence upon its creation by passing a list of clips as arguments, or you can use <!--MD-S id="usage__add-clips" code-type="inline-code" MD-G-->`AnimSequence.prototype.addClips()`<!--MD-E-->:
 
-<!-- MD-S id="usage__create-sequence-clips" code-type="ts" -->
+<!--MD-S id="usage__create-sequence-clips" code-type="ts"-->
 ```ts
 // get clip factory functions
 const { Entrance, Exit, Motion } = webimator.createAnimationClipFactories();
@@ -202,9 +202,9 @@ seq.addClips(
 
 seq.play().then(() => seq.rewind());
 ```
-<!-- MD-E id="usage__create-sequence-clips" -->
+<!--MD-E id="usage__create-sequence-clips"-->
 
-In the example above, a new sequence is created with <!-- MD-S id="usage__create-sequence" code-type="inline-code" MD-G -->`webimator.newSequence()`<!-- MD-E  -->. However, the first object passed to it is not an animation clip. You are actually allowed to pass a set of configuration options as the first argument to <!-- MD-S id="usage__create-sequence" code-type="inline-code" MD-G -->`webimator.newSequence()`<!-- MD-E --> and _then_ a list of clips (but if you do not want to set any configuration, you can just pass the list of clips only). Either way, the sequence contains four animation clips. Afterwards, two more clips are added to the sequence (for a total of six) using <!-- MD-S id="usage__add-clips" code-type="inline-code" MD-G -->`AnimSequence.prototype.addClips()`<!-- MD-E -->. Finally, the sequence is played and rewound. When playing, the animation clips will be played in order, each one starting _only_ after the previous one has finished. When rewinding, the clips are rewound in reverse order.
+In the example above, a new sequence is created with <!--MD-S id="usage__create-sequence" code-type="inline-code" MD-G-->`webimator.newSequence()`<!--MD-E -->. However, the first object passed to it is not an animation clip. You are actually allowed to pass a set of configuration options as the first argument to <!--MD-S id="usage__create-sequence" code-type="inline-code" MD-G-->`webimator.newSequence()`<!--MD-E--> and _then_ a list of clips (but if you do not want to set any configuration, you can just pass the list of clips only). Either way, the sequence contains four animation clips. Afterwards, two more clips are added to the sequence (for a total of six) using <!--MD-S id="usage__add-clips" code-type="inline-code" MD-G-->`AnimSequence.prototype.addClips()`<!--MD-E-->. Finally, the sequence is played and rewound. When playing, the animation clips will be played in order, each one starting _only_ after the previous one has finished. When rewinding, the clips are rewound in reverse order.
 
 #### Changing Sequential Timing of Clips
 

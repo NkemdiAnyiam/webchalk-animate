@@ -44,16 +44,16 @@ const readmeDir = `${__dirname}/../README.md`;
 
 const sources = {
   filePaths: [`${sourcesDirectoryPrefix}/usage.ts`],
-  startMarker: /\/\*\*\*\* MD-S .*? \*\//,
-  endMarker: /\/\*\*\*\* MD-E .*? \*\//,
+  startMarker: /\/\*\*\*\*\s*MD-S(?:\s.*?\s*)?\*\//,
+  endMarker: /\/\*\*\*\*\s*MD-E(?:\s.*?\s*)?\*\//,
 };
 
 const targets = {
   filePaths: [
     readmeDir,
   ],
-  startMarker: /\<\!-- MD-S .*? --\>/,
-  endMarker: /\<\!-- MD-E .*? --\>/,
+  startMarker: /\<\!--\s*MD-S(?:\s.*?\s*)?--\>/,
+  endMarker: /\<\!--\s*MD-E(?:\s.*?\s*)?--\>/,
 };
 
 function removeTsIgnore(text: string): string {
