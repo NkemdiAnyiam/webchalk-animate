@@ -208,4 +208,6 @@ In the example above, a new sequence is created with <!--MD-S id="usage__create-
 
 #### Changing Sequential Timing of Clips
 
+Oftentimes, we actually _do_ want animation clips to play at the same time. To control this, there are two `AnimClip` configuration options that can be used to tell clips to play in parallel: <!--MD-S id="usage__starts-with-clip" code-type="inline-code" MD-G-->`startsWithPrevious`<!--MD-E--> and <!--MD-S id="usage__starts-next-clip" code-type="inline-code" MD-G-->`startsNextClipToo`<!--MD-E-->.
+
 (Work in progress)

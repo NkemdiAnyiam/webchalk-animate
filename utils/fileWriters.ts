@@ -59,10 +59,11 @@ export async function writeBetweenText(filePath: string, options: WriteBetweenTe
       }
     }
     
+    const codeType = options.codeType ?? startTag.match(/code-type="(.*?)"/)?.[1] as CodeType ?? 'standard';
     const arrange: typeof options.arrange =
       options.arrange
+      ?? (codeType === 'inline-code' ? 'inline' : null)
       ?? (getLine(fileContent, startTag, searchStart) === getLine(fileContent, endTag, searchStart) ? 'inline' : 'block');
-    const codeType = options.codeType ?? startTag.match(/code-type="(.*?)"/)?.[1] as CodeType ?? 'standard';
 
     const modifiedContent =
       fileContent.substring(0, startIndex)

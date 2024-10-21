@@ -7,7 +7,7 @@ import * as WebimatorErrors from "webimator/error-handling";
 import * as WebimatorEasing from "webimator/easing";
 /**** MD-E id="import paths" */
 
-const { AnimSequence } = WebimatorTypes;
+const { AnimSequence, AnimClip } = WebimatorTypes;
 
 /**** MD-S id="usage__webimator.createAnimationClipFactories()" */
 const clipFactories = webimator.createAnimationClipFactories();
@@ -15,7 +15,9 @@ const clipFactories = webimator.createAnimationClipFactories();
 
 if (false) {
   webimator./**** MD-S id="clip-factories-method" MD-G */createAnimationClipFactories()/**** MD-E */;
-  /**** MD-S id="webimator-clip-factories-method" MD-G */webimator.createAnimationClipFactories();/**** MD-E */
+  /**** MD-S id="webimator-clip-factories-method" MD-G */
+  webimator.createAnimationClipFactories();
+  /**** MD-E */
 
   /**** MD-S id="usage__create-sequence" */
   webimator.newSequence()
@@ -95,4 +97,12 @@ seq.addClips(
 
 seq.play().then(() => seq.rewind());
 /**** MD-E id="usage__create-sequence-clips" --> */
+}
+
+
+if (false) {
+AnimClip.prototype.getTiming().
+  /**** MD-S id="usage__starts-with-clip" MD-G */startsWithPrevious/**** MD-E */
+AnimClip.prototype.getTiming().
+  /**** MD-S id="usage__starts-next-clip" MD-G */startsNextClipToo/**** MD-E */
 }
