@@ -8,6 +8,7 @@ Webimator is a web animation framework that supports the development of interact
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [Installation](#installation)
+  - [Basic NPM installation](#basic-npm-installation)
   - [First Time Installing a Package?](#first-time-installing-a-package)
     - [1. Install Node.js](#1-install-nodejs)
     - [2. Initialize a Project](#2-initialize-a-project)
@@ -25,6 +26,8 @@ Webimator is a web animation framework that supports the development of interact
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Installation
+
+### Basic NPM Installation
 
 ```bash
 npm install webimator
@@ -135,7 +138,7 @@ To access the factory functions, use the `webimator` object's `createAnimationCl
 const clipFactories = webimator.createAnimationClipFactories();
 ```
 <!--MD-E id="usage__webimator.createAnimationClipFactories()"-->
-The properties of the object returned by `createAnimationClipFactories()` are the clip factory functions. You can now use them to create animation clips like in the following example.
+The properties of the object returned by `createAnimationClipFactories()` are the clip factory functions. You can now use them to create animation clips like in the following example:
 <!--MD-S id="usage__create-basic-clips" code-type="ts"-->
 ```ts
 const sqrEl = document.querySelector('.square');
@@ -143,7 +146,7 @@ const ent = clipFactories.Entrance(sqrEl, '~pinwheel', [2, 'clockwise']);
 const ext = clipFactories.Exit(sqrEl, '~fade-out', [], {duration: 1500});
 ```
 <!--MD-E id="usage__create-basic-clips"-->
-An element with the CSS class "square" is selected from the page, and it is targeted by two animation clips—an entrance clip and a motion clip. Generally, the effect name will always be followed by a tuple containing effect options. Evidently, the pinwheel effect accepts two effect options—the number spins and the direction of the spin—while the fade out effect takes no effect options. After the effect options, you may specify a configuration object to set things like the duration, delay, end delay, CSS classes, playback rate, and other configuration settings.
+In the example above, an element with the CSS class "square" is selected from the page, and it is targeted by two animation clips—an entrance clip and a motion clip. Generally, the effect name will always be followed by a tuple containing effect options. Evidently, the pinwheel effect accepts two effect options—the number of spins and the direction of the spin—while the fade out effect takes no effect options. After the effect options, you may specify a configuration object to set things like the duration, delay, end delay, CSS classes, playback rate, and other settings.
 
 These animation clips are fully-fledged playback structures, and they can be played, rewound, paused, and more. However, as with normal JavaScript animations, outright playing multiple animation clips will run everything at the same time, which is likely not what you want.
 <!--MD-S id="usage__badly-play-basic-clips" code-type="ts"-->
@@ -185,7 +188,7 @@ However, this would become unwieldly if there were dozens of animations, not to 
 
 ### Creating Animation Sequences
 
-#### Creating Sequence and Adding Clips
+#### Creating a Sequence and Adding Clips
 
 An **"animation sequence"** is a number of animations that occur one after another in a particular order. In Webimator, animation clips can be placed into sequences, which are their _own_ fully-fledged playback structures.
 
@@ -230,7 +233,7 @@ In the example above, a new sequence is created with <!--MD-S id="usage__create-
 
 #### Changing Sequential Timing of Clips
 
-Oftentimes, we actually _do_ want animation clips to play at the same time (in other words, play "in parallel"). To control this, there are two `AnimClip` configuration options that can be used to tell clips to play in parallel: <!--MD-S id="usage__starts-with-clip" code-type="inline-code" MD-G-->`startsWithPrevious`<!--MD-E--> and <!--MD-S id="usage__starts-next-clip" code-type="inline-code" MD-G-->`startsNextClipToo`<!--MD-E-->. Outside of a sequence, those options have absolutely no effect, but if the clips are part of a sequence, those options impact the timing of other clips. Take a look at the example below.
+Oftentimes, we actually _do_ want animation clips to play at the same time (in other words, play "in parallel"). To control this, there are two `AnimClip` configuration options that can be used to tell clips to play in parallel: <!--MD-S id="usage__starts-with-clip" code-type="inline-code" MD-G-->`startsWithPrevious`<!--MD-E--> and <!--MD-S id="usage__starts-next-clip" code-type="inline-code" MD-G-->`startsNextClipToo`<!--MD-E-->. Outside of a sequence, those options have absolutely no effect, but if the clips are part of a sequence, those options impact the timing of clips with respect to each other. Take a look at the example below.
 
 <!--MD-S id="usage__sequencing-clips" code-type="ts"-->
 ```ts
@@ -264,5 +267,7 @@ seq.play().then(() => seq.rewind());
    - However, because there are some `delay`s set, their starts are staggered. The comments describing the start times in milliseconds demonstrate how delays are stacked for clips playing in parallel.
 
 ### Creating Animation Timelines
+
+
 
 (Work in progress)
