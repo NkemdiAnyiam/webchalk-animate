@@ -159,7 +159,7 @@ ent.play().then(() => {
 })();
 ```
 <!--MD-E id="usage__play-basic-clips"-->
-However, this would become unwieldly if there were dozens of animations, not to mention coordinating pauses, compensating for tiny error's in JavaScript's timing. This is where the next playback structure—`AnimSequence`—comes in.
+However, this would become unwieldly if there were dozens of animations, not to mention coordinating pauses, compensating for tiny errors in JavaScript's timing, etc. This is where the next playback structure—`AnimSequence`—comes in.
 
 ### Creating Animation Sequences
 
@@ -191,13 +191,13 @@ const seq = webimator.newSequence(
   enterSquare,
   enterCircle,
   Entrance(triEl, '~fly-in', ['from-bottom-left']),
-  Entrance(document.querySelector('.pentagon'), '~appear', [])
+  Entrance(document.querySelector('.pentagon'), '~appear', []),
 );
 
 // add more clips to the sequence
 seq.addClips(
   Motion(circEl, '~move-to', [sqrEl]),
-  Exit(sqrEl, '~fade-out', [])
+  Exit(sqrEl, '~fade-out', []),
 );
 
 seq.play().then(() => seq.rewind());
@@ -208,6 +208,39 @@ In the example above, a new sequence is created with <!--MD-S id="usage__create-
 
 #### Changing Sequential Timing of Clips
 
-Oftentimes, we actually _do_ want animation clips to play at the same time. To control this, there are two `AnimClip` configuration options that can be used to tell clips to play in parallel: <!--MD-S id="usage__starts-with-clip" code-type="inline-code" MD-G-->`startsWithPrevious`<!--MD-E--> and <!--MD-S id="usage__starts-next-clip" code-type="inline-code" MD-G-->`startsNextClipToo`<!--MD-E-->.
+Oftentimes, we actually _do_ want animation clips to play at the same time (in other words, play "in parallel"). To control this, there are two `AnimClip` configuration options that can be used to tell clips to play in parallel: <!--MD-S id="usage__starts-with-clip" code-type="inline-code" MD-G-->`startsWithPrevious`<!--MD-E--> and <!--MD-S id="usage__starts-next-clip" code-type="inline-code" MD-G-->`startsNextClipToo`<!--MD-E-->. Outside of a sequence, those options have absolutely no effect, but if the clips are part of a sequence, those options impact the timing of other clips. Take a look at the example below.
+
+<!--MD-S id="usage__sequencing-clips" code-type="ts"-->
+```ts
+// create sequence
+const seq = webimator.newSequence(
+  // optional configuration object
+  {description: 'No one likes Pentagon!'},
+  // 6 animation clips
+  /** A */
+  Entrance(sqrEl, '~fade-in', []), // A + 0ms
+  Entrance(circEl, '~fade-in', [], {startsWithPrevious: true}), // A + 0ms
+  Entrance(triEl, '~fade-in', [], {startsWithPrevious: true}), // A + 0ms
+  /** B */
+  Entrance(pentaEl, '~fly-in', ['from-left']), // B + 0ms
+  /** C */
+  Exit(circEl, '~fade-out', [], {startsNextClipToo: true}), // C + 0ms
+  Exit(sqrEl, '~fade-out', [], {delay: 150, endDelay: 2}), // C + 150ms
+  Exit(triEl, '~fade-out', [], {delay: 300, startsWithPrevious: true}), // C + 450ms (NOT C + 300ms!!!)
+);
+
+seq.play().then(() => seq.rewind());
+```
+<!--MD-E id="usage__sequencing-clips"-->
+
+1. The first three entrance animation clips (labelled 'A') will play at the same time.
+   - The second clip starts with the first, and the third clip starts with the second—therefore, all three play at the same time.
+2. _After_ the third clip finishes, the fourth entrance clip (labelled 'B') plays on its own.
+   - It has neither <!--MD-S id="usage__starts-with-clip" code-type="inline-code" MD-G-->`startsWithPrevious`<!--MD-E--> nor <!--MD-S id="usage__starts-next-clip" code-type="inline-code" MD-G-->`startsNextClipToo`<!--MD-E--> specified, and the clips adjacent to it (directly previous and directly next) do not have options that impact its timing either.
+3. _After_ the fourth clip finishes, the three exit animation clips at the end (labelled C) begin at the same time.
+   - The first exit tells the second exit to start and the third exit starts with the second exit.
+   - However, because there are some `delay`s set, their starts are staggered. The comments describing the start times in milliseconds demonstrate how delays are stacked for clips playing in parallel.
+
+### Creating Animation Timelines
 
 (Work in progress)
