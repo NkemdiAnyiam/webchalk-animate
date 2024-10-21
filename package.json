@@ -22,7 +22,7 @@
   "scripts": {
     "build": "tsup",
     "inject-tsdoc": "npx ts-node ./utils/TSDocExamplesInjector.ts",
-    "inject-markdown": "npx ts-node ./utils/readmeInjector.ts",
+    "inject-markdown": "npx ts-node ./utils/readmeInjector.ts && doctoc README.md --notitle",
     "pack-up": "npm run inject-tsdoc && npm run build && npm pack --pack-destination=\"./tarballs\"",
     "in": "npm i && npm run pack-up",
     "out": "rm -rf ./dist ./node_modules",
@@ -44,6 +44,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^22.7.2",
+    "doctoc": "^2.2.1",
     "node-sass": "^9.0.0",
     "tsup": "^8.0.1",
     "typedoc": "^0.26.7",

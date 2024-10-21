@@ -2,6 +2,28 @@
 
 Webimator is a web animation framework that supports the development of interactive algorithm visualizations, providing a library of preset animations and  beginner-friendly API that can be used to animate DOM elements (i.e., the contents on a webpage which are produced by HTML code).
 
+## Table of Contents
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Installation](#installation)
+  - [First Time Installing a Package?](#first-time-installing-a-package)
+    - [1. Install Node.js](#1-install-nodejs)
+    - [2. Initialize a Project](#2-initialize-a-project)
+    - [3. Install Webimator](#3-install-webimator)
+- [Usage](#usage)
+  - [Imports](#imports)
+  - [Creating Animation Clips](#creating-animation-clips)
+    - [Background](#background)
+    - [Creation](#creation)
+  - [Creating Animation Sequences](#creating-animation-sequences)
+    - [Creating Sequence and Adding Clips](#creating-sequence-and-adding-clips)
+    - [Changing Sequential Timing of Clips](#changing-sequential-timing-of-clips)
+  - [Creating Animation Timelines](#creating-animation-timelines)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## Installation
 
 ```bash
@@ -226,7 +248,7 @@ const seq = webimator.newSequence(
   /** C */
   Exit(circEl, '~fade-out', [], {startsNextClipToo: true}), // C + 0ms
   Exit(sqrEl, '~fade-out', [], {delay: 150, endDelay: 2}), // C + 150ms
-  Exit(triEl, '~fade-out', [], {delay: 300, startsWithPrevious: true}), // C + 450ms (NOT C + 300ms!!!)
+  Exit(triEl, '~fade-out', [], {delay: 300, startsWithPrevious: true}), // C + 452ms (NOT C + 300ms!!!)
 );
 
 seq.play().then(() => seq.rewind());
