@@ -22,6 +22,8 @@ Webimator is a web animation framework that supports the development of interact
     - [Creating a Sequence and Adding Clips](#creating-a-sequence-and-adding-clips)
     - [Changing Sequential Timing of Clips](#changing-sequential-timing-of-clips)
   - [Creating Animation Timelines](#creating-animation-timelines)
+    - [Creating a Timeline and Adding Sequences](#creating-a-timeline-and-adding-sequences)
+    - [Adding Playback Buttons](#adding-playback-buttons)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -268,6 +270,8 @@ seq.play().then(() => seq.rewind());
 
 ### Creating Animation Timelines
 
+#### Creating a Timeline and Adding Sequences
+
 Visualizations are typically structured like slideshow presentations, where you must click or press some button to advance to the next step. That means that there needs to be a way to allow viewers to step forward and backward through your sequences in their browser. Suppose you have dozens of sequences that you want to coordinate. Just as `AnimSequence` serves as a container for `AnimClip`s, the timeline structure `AnimTimeline` serves as a container for `AnimSequence`s. Creating a timeline and adding sequences to it is straightforward.
 <!--MD-S id="create-timeline" code-type="ts"-->
 ```ts
@@ -314,7 +318,9 @@ tLine.step('forward')
 ```
 <!--MD-E id="create-timeline"-->
 
-However, viewers will still need a way to step back and forth themselves in their browsers. For this, Webimator provides fully styled, out-of-the-box playback buttons that are automatically detected by a timeline. In the example above, notice how <!--MD-S id="usage__timeline" code-type="inline-code" MD-G-->`tLine`<!--MD-E-->'s `timelineName` config is set to <!--MD-S id="usage__timeline-name" code-type="inline-code" MD-G-->`'Basics'`  <!--MD-E-->. In your HTML, you can use Webimator's custom playback button elements as shown below (the comments explain the process).
+#### Adding Playback Buttons
+
+However, viewers will still need a way to step back and forth themselves in their browsers. For this, Webimator provides fully styled, out-of-the-box playback buttons that are automatically detected by a timeline. In the example above, notice how <!--MD-S id="usage__timeline" code-type="inline-code" MD-G-->`tLine`<!--MD-E-->'s `timelineName` config is set to <!--MD-S id="usage__timeline-name" code-type="inline-code" MD-G-->`'Basics'`<!--MD-E-->. In your HTML, you can use Webimator's custom playback button elements as shown below (the comments explain the process).
 
 **HTML**
 <!-- MD-S id="usage__body" code-type="html"-->
