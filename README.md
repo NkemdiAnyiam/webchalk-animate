@@ -320,7 +320,7 @@ tLine.step('forward')
 
 #### Adding Playback Buttons
 
-However, viewers will still need a way to step back and forth themselves in their browsers. For this, Webimator provides fully styled, out-of-the-box playback buttons that are automatically detected by a timeline. In the example above, notice how <!--MD-S id="usage__timeline" code-type="inline-code" MD-G-->`tLine`<!--MD-E-->'s `timelineName` config is set to <!--MD-S id="usage__timeline-name" code-type="inline-code" MD-G-->`'Basics'`<!--MD-E-->. In your HTML, you can use Webimator's custom playback button elements as shown below (the comments explain the process).
+Viewers will still need a way to step back and forth themselves in their browsers. For this, Webimator provides fully styled, out-of-the-box playback buttons that are automatically detected by a timeline. In the example above, notice how <!--MD-S id="usage__timeline" code-type="inline-code" MD-G-->`tLine`<!--MD-E-->'s `timelineName` config is set to <!--MD-S id="usage__timeline-name" code-type="inline-code" MD-G-->`'Basics'`<!--MD-E-->. In your HTML, you can use Webimator's custom playback button elements as shown below (the comments explain the process).
 
 **HTML**
 <!-- MD-S id="usage__body" code-type="html"-->
@@ -335,12 +335,16 @@ However, viewers will still need a way to step back and forth themselves in thei
   <!-- The timeline-name attribute must match the timeline object's timelineName config value. -->
   <div class="buttons" timeline-name="Basics">
     <!-- Webimator playback button components will be automatically linked to timeline. -->
-    <!-- action attribute controls what button it is. Optional shortcut option increases accessibility. -->
+    <!-- action attribute controls what button it is. Optional shortcut attribute increases accessibility. -->
     <wbmtr-playback-button action="step-backward" shortcut="ArrowLeft"></wbmtr-playback-button>
     <wbmtr-playback-button action="pause" shortcut="Space"></wbmtr-playback-button>
     <wbmtr-playback-button action="step-forward" shortcut="ArrowRight"></wbmtr-playback-button>
     <wbmtr-playback-button action="fast-forward" shortcut="F" trigger="hold"></wbmtr-playback-button>
     <wbmtr-playback-button action="toggle-skipping" shortcut="S"></wbmtr-playback-button>
+    <!--
+     Note: If the element containing the buttons does not specify timeline-name, each button must specify timeline-name,
+     so it is best to just specify it on the parent element like in this example to avoid repetition and mistakes)
+    -->
   </div>
 </body>
 ```
