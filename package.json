@@ -1,6 +1,6 @@
 {
   "name": "webimator",
-  "version": "0.17.3",
+  "version": "0.17.4",
   "description": "Web animation framework built for creating interactive animated visualizations.",
   "repository": {
     "type": "git",
