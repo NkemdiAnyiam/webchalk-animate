@@ -122,6 +122,7 @@ async function overwrite() {
             beforeend: `${' '.repeat(spaceLength)}`,
             writeMeta,
             searchStart: writeMeta.lastIndex,
+            nestedTagRemoval: [sources.startMarker, sources.endMarker],
           }
         );
         break;

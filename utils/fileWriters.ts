@@ -19,6 +19,7 @@ interface WriteBetweenTextOptions {
   afterbegin?: string;
   arrange?: 'inline' | 'block';
   writeMeta?: WriteMeta;
+  nestedTagRemoval?: RegExp[];
 }
 
 
@@ -33,6 +34,7 @@ export async function writeBetweenText(filePath: string, options: WriteBetweenTe
     beforeend = '',
     afterbegin = '',
     writeMeta,
+    nestedTagRemoval = [],
   } = options;
 
   try {
@@ -73,6 +75,10 @@ export async function writeBetweenText(filePath: string, options: WriteBetweenTe
         default: throw new Error(`Invalid codeType "${codeType}"`);
       }
     }
+
+    const removeNestedTags = (text: string, nestedTagRemoval: RegExp[]): string => {
+      return nestedTagRemoval.reduce((txt, removalRegex) => txt.replaceAll(new RegExp(removalRegex, 'g'), ''), text);
+    }
     
     const codeType = options.codeType ?? startTag.match(/code-type="(.*?)"/)?.[1] as CodeType ?? 'standard';
     const arrange: typeof options.arrange =
@@ -85,7 +91,7 @@ export async function writeBetweenText(filePath: string, options: WriteBetweenTe
       + afterbegin
       + (arrange === 'block' ? '\n' : '')
       + prependLines
-      + wrapper(newContent.replaceAll(/(^\n*)|(\n*$)/g, ''), codeType)
+      + removeNestedTags(wrapper(newContent.replaceAll(/(^\n*)|(\n*$)/g, ''), codeType), nestedTagRemoval)
         .split(`\n`).join(`\n${prependLines}`)
       + (arrange === 'block' ? '\n' : '')
       + beforeend
