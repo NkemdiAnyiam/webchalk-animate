@@ -21,9 +21,9 @@
   },
   "scripts": {
     "build": "tsup",
-    "inject-tsdoc-examples": "npx ts-node ./utils/TSDocExamplesInjector.ts",
+    "inject-tsdoc": "npx ts-node ./utils/TSDocExamplesInjector.ts",
     "inject-markdown": "npx ts-node ./utils/readmeInjector.ts",
-    "pack-up": "npm run inject-tsdoc-examples && npm run build && npm pack --pack-destination=\"./tarballs\"",
+    "pack-up": "npm run inject-tsdoc && npm run build && npm pack --pack-destination=\"./tarballs\"",
     "in": "npm i && npm run pack-up",
     "out": "rm -rf ./dist ./node_modules",
     "in-and-out": "npm run in && npm run out",
