@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import { getLine, getTagMatches } from "./stringTools";
 
-export type CodeType = 'ts' | 'standard' | 'inline-code';
+export type CodeType = 'ts' | 'standard' | 'inline-code' | 'html' | 'css';
 
 export interface WriteMeta {
   lastIndex: number;
@@ -60,8 +60,12 @@ export async function writeBetweenText(filePath: string, options: WriteBetweenTe
 
     const wrapper = (content: string, codeType: CodeType) => {
       switch(codeType) {
+        case "html":
+          return `\`\`\`html\n${content}\n\`\`\``;
+        case "css":
+          return `\`\`\`css\n${content}\n\`\`\``;
         case "ts":
-          return `\`\`\`ts\n${content}\n\`\`\``
+          return `\`\`\`ts\n${content}\n\`\`\``;
         case "standard":
           return content;
         case "inline-code":
