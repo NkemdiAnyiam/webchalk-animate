@@ -18,5 +18,8 @@
     "includeCategories": true,
     "compactFolders": false,
   },
+  "projectDocuments": [
+    "../markdown-code/public/images"
+  ],
   "groupOrder": ["Structure", "Properties", "Property Getter Methods", "Property Setter Methods", "Accessors", "Playback Methods", "Timing Event Methods"],
 }
