@@ -1,5 +1,5 @@
 import { readTextBetween, SearchResultMeta } from "./fileReaders";
-import { CodeType, writeBetweenText } from "./fileWriters";
+import { CodeType, writeBetweenText, WriteMeta } from "./fileWriters";
 
 const sourcesDirectoryPrefix = `${__dirname}/../markdown-code/src`;
 const readmeDir = `${__dirname}/../README.md`;
@@ -89,6 +89,9 @@ async function overwrite() {
     }
   
     // search for the target tag's id within whichever source file contains the real code
+    const writeMeta: WriteMeta = {
+      lastIndex: 0,
+    }
     for (const {targetId, spaceLength, codeType} of targetMatches) {
       let foundCode = false;
       // search each source path until the one containing the id is found
@@ -117,6 +120,8 @@ async function overwrite() {
             searchId: targetId,
             newContent: removeTsIgnore(`${exampleCode}`),
             beforeend: `${' '.repeat(spaceLength)}`,
+            writeMeta,
+            searchStart: writeMeta.lastIndex,
           }
         );
         break;

@@ -3,6 +3,10 @@ import { getLine, getTagMatches } from "./stringTools";
 
 export type CodeType = 'ts' | 'standard' | 'inline-code';
 
+export interface WriteMeta {
+  lastIndex: number;
+}
+
 interface WriteBetweenTextOptions {
   startMarker: RegExp;
   endMarker: RegExp;
@@ -13,8 +17,10 @@ interface WriteBetweenTextOptions {
   prependLines?: string;
   beforeend?: string;
   afterbegin?: string;
-  arrange?: 'inline' | 'block'
+  arrange?: 'inline' | 'block';
+  writeMeta?: WriteMeta;
 }
+
 
 export async function writeBetweenText(filePath: string, options: WriteBetweenTextOptions): Promise<void> {
   const {
@@ -26,6 +32,7 @@ export async function writeBetweenText(filePath: string, options: WriteBetweenTe
     prependLines = '',
     beforeend = '',
     afterbegin = '',
+    writeMeta,
   } = options;
 
   try {
@@ -45,6 +52,10 @@ export async function writeBetweenText(filePath: string, options: WriteBetweenTe
       throw new Error(`End text "${endMarker}" with id "${searchId}" not found in the file.`);
     }
     const endIndex = fileContent.indexOf(endTag, startIndex);
+
+    if (writeMeta) {
+      writeMeta.lastIndex = startIndex;
+    }
 
 
     const wrapper = (content: string, codeType: CodeType) => {
