@@ -8,7 +8,7 @@ Webimator is a web animation framework that supports the development of interact
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [Installation](#installation)
-  - [Basic NPM installation](#basic-npm-installation)
+  - [Basic NPM Installation](#basic-npm-installation)
   - [First Time Installing a Package?](#first-time-installing-a-package)
     - [1. Install Node.js](#1-install-nodejs)
     - [2. Initialize a Project](#2-initialize-a-project)
@@ -19,7 +19,7 @@ Webimator is a web animation framework that supports the development of interact
     - [Background](#background)
     - [Creation](#creation)
   - [Creating Animation Sequences](#creating-animation-sequences)
-    - [Creating Sequence and Adding Clips](#creating-sequence-and-adding-clips)
+    - [Creating a Sequence and Adding Clips](#creating-a-sequence-and-adding-clips)
     - [Changing Sequential Timing of Clips](#changing-sequential-timing-of-clips)
   - [Creating Animation Timelines](#creating-animation-timelines)
 
@@ -268,6 +268,92 @@ seq.play().then(() => seq.rewind());
 
 ### Creating Animation Timelines
 
+Visualizations are typically structured like slideshow presentations, where you must click or press some button to advance to the next step. That means that there needs to be a way to allow viewers to step forward and backward through your sequences in their browser. Suppose you have dozens of sequences that you want to coordinate. Just as `AnimSequence` serves as a container for `AnimClip`s, the timeline structure `AnimTimeline` serves as a container for `AnimSequence`s. Creating a timeline and adding sequences to it is straightforward.
+<!--MD-S id="create-timeline" code-type="ts"-->
+```ts
+// get clip factory functions
+const { Entrance, Exit, Motion } = webimator.createAnimationClipFactories();
 
+// select elements from page
+const sqrEl = document.querySelector('.square');
+const circEl = document.querySelector('.circle');
+
+// create sequences
+const seq1 = webimator.newSequence(
+  {tag: 'ABC'},
+  Entrance(sqrEl, '~fade-in', []),
+  Entrance(circEl, '~fade-in', []),
+);
+
+const seq2 = webimator.newSequence(
+  Motion(sqrEl, '~move-to', [circEl]),
+  Exit(circEl, '~sink-down', [], {startsWithPrevious: true}),
+);
+
+const seq3 = webimator.newSequence(
+  {autoplays: true},
+  Exit(circEl, '~fade-out', []),
+);
+
+// create new timeline
+const tLine = webimator.newTimeline(
+  // optional config object
+  {debugMode: true, timelineName: 'Basics'},
+  // 3 sequences
+  seq1,
+  seq2,
+  seq3,
+);
+
+// first step() plays seq1
+tLine.step('forward')
+  // second step() plays seq2, and then seq3 plays afterwards because seq3 has autoplay set
+  .then(() => tLine.step('forward'))
+  // instantly jumps back to right before seq1 (which has the 'tag' config set to "ABC")
+  .then(() => tLine.jumpToSequenceTag('ABC'));
+```
+<!--MD-E id="create-timeline"-->
+
+However, viewers will still need a way to step back and forth themselves in their browsers. For this, Webimator provides fully styled, out-of-the-box playback buttons that are automatically detected by a timeline. In the example above, notice how <!--MD-S id="usage__timeline" code-type="inline-code" MD-G-->`tLine`<!--MD-E-->'s `timelineName` config is set to <!--MD-S id="usage__timeline-name" code-type="inline-code" MD-G-->`'Basics'`  <!--MD-E-->. In your HTML, you can use Webimator's custom playback button elements as shown below (the comments explain the process).
+
+**HTML**
+<!-- MD-S id="usage__body" code-type="html"-->
+```html
+<body>
+  <main>
+    <div class="square"></div>
+    <div class="circle"></div>
+    <div class="triangle"></div>
+    <div class="pentagon"></div>
+  </main>
+  <!-- The timeline-name attribute must match the timeline object's timelineName config value. -->
+  <div class="buttons" timeline-name="Basics">
+    <!-- Webimator playback button components will be automatically linked to timeline. -->
+    <!-- action attribute controls what button it is. Optional shortcut option increases accessibility. -->
+    <wbmtr-playback-button action="step-backward" shortcut="ArrowLeft"></wbmtr-playback-button>
+    <wbmtr-playback-button action="pause" shortcut="Space"></wbmtr-playback-button>
+    <wbmtr-playback-button action="step-forward" shortcut="ArrowRight"></wbmtr-playback-button>
+    <wbmtr-playback-button action="fast-forward" shortcut="F" trigger="hold"></wbmtr-playback-button>
+    <wbmtr-playback-button action="toggle-skipping" shortcut="S"></wbmtr-playback-button>
+  </div>
+</body>
+```
+<!-- MD-E id="usage__body"-->
+**CSS**
+<!-- MD-S id="buttons-container-style" code-type="css"-->
+```css
+/** We recommend fixing the container holding the buttons to some corner of the screen */
+.buttons {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  background-color: #dddddd;
+  padding: 2rem 1rem;
+  transform-origin: bottom left;
+}
+```
+<!-- MD-E id="buttons-container-style"-->
+With just that code (which you can feel free to copy and paste—just change the `timeline-name` attribute to match your timeline), your visualization will display playback buttons that look like the ones shown in the image below. Creating your _own_ buttons from scratch that attempt to interface with `AnimTimeline` is _not_ recommended.
+![Webimator playback buttons UI](markdown-code/public/images/timeline-buttons-ui.jpg?raw=true)
 
 (Work in progress)

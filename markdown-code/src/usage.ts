@@ -139,3 +139,48 @@ const seq = webimator.newSequence(
 seq.play().then(() => seq.rewind());
 /**** MD-E id="usage__sequencing-clips" */
 }
+
+if (false) {
+/****MD-S id="create-timeline"*/
+// get clip factory functions
+const { Entrance, Exit, Motion } = webimator.createAnimationClipFactories();
+
+// select elements from page
+const sqrEl = document.querySelector('.square');
+const circEl = document.querySelector('.circle');
+
+// create sequences
+const seq1 = webimator.newSequence(
+  {tag: 'ABC'},
+  Entrance(sqrEl, '~fade-in', []),
+  Entrance(circEl, '~fade-in', []),
+);
+
+const seq2 = webimator.newSequence(
+  Motion(sqrEl, '~move-to', [circEl]),
+  Exit(circEl, '~sink-down', [], {startsWithPrevious: true}),
+);
+
+const seq3 = webimator.newSequence(
+  {autoplays: true},
+  Exit(circEl, '~fade-out', []),
+);
+
+// create new timeline
+const /****MD-S id="usage__timeline" MD-G*/tLine/****MD-E*/ = webimator.newTimeline(
+  // optional config object
+  {debugMode: true, timelineName: /****MD-S id="usage__timeline-name" MD-G*/'Basics'/****MD-E*/},
+  // 3 sequences
+  seq1,
+  seq2,
+  seq3,
+);
+
+// first step() plays seq1
+tLine.step('forward')
+  // second step() plays seq2, and then seq3 plays afterwards because seq3 has autoplay set
+  .then(() => tLine.step('forward'))
+  // instantly jumps back to right before seq1 (which has the 'tag' config set to "ABC")
+  .then(() => tLine.jumpToSequenceTag('ABC'));
+/****MD-E id="create-timeline"*/
+}

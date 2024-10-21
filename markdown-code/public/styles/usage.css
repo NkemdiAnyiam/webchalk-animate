@@ -1,0 +1,11 @@
+/**** MD-S id="buttons-container-style" */
+/** We recommend fixing the container holding the buttons to some corner of the screen */
+.buttons {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  background-color: #dddddd;
+  padding: 2rem 1rem;
+  transform-origin: bottom left;
+}
+/**** MD-E id="buttons-container-style" */

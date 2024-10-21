@@ -1,7 +1,7 @@
 import { readTextBetween, SearchResultMeta } from "./fileReaders";
 import { CodeType, writeBetweenText, WriteMeta } from "./fileWriters";
 
-const sourcesDirectoryPrefix = `${__dirname}/../markdown-code/src`;
+const sourcesDirectoryPrefix = `${__dirname}/../markdown-code`;
 const readmeDir = `${__dirname}/../README.md`;
 
 // const searchResultMeta: SearchResultMeta = {indexCache: 0, spaceLength: 0, id: '', codeType: 'standard'}
@@ -43,9 +43,13 @@ const readmeDir = `${__dirname}/../README.md`;
 
 
 const sources = {
-  filePaths: [`${sourcesDirectoryPrefix}/usage.ts`],
-  startMarker: /\/\*\*\*\*\s*MD-S(?:\s.*?\s*)?\*\//,
-  endMarker: /\/\*\*\*\*\s*MD-E(?:\s.*?\s*)?\*\//,
+  filePaths: [
+    `${sourcesDirectoryPrefix}/src/usage.ts`,
+    `${sourcesDirectoryPrefix}/public/usage.html`,
+    `${sourcesDirectoryPrefix}/public/styles/usage.css`,
+  ],
+  startMarker: /(?:\/\*\*\*\*\s*MD-S(?:\s.*?\s*)?\*\/)|(?:\<\!--\s*MD-S(?:\s.*?\s*)?--\>)/,
+  endMarker: /(?:\/\*\*\*\*\s*MD-E(?:\s.*?\s*)?\*\/)|(?:\<\!--\s*MD-E(?:\s.*?\s*)?--\>)/,
 };
 
 const targets = {

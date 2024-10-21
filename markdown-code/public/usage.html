@@ -4,9 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script type="module" src="../src/usage.ts"></script>
+  <link rel="stylesheet" href="./styles/usage.css">
   <title>Document</title>
 </head>
+<!--MD-S id="usage__body"-->
 <body>
-  <div>usage</div>
+  <main>
+    <div class="square"></div>
+    <div class="circle"></div>
+    <div class="triangle"></div>
+    <div class="pentagon"></div>
+  </main>
+  <!-- The timeline-name attribute must match the timeline object's timelineName config value. -->
+  <div class="buttons" timeline-name="Basics">
+    <!-- Webimator playback button components will be automatically linked to timeline. -->
+    <!-- action attribute controls what button it is. Optional shortcut option increases accessibility. -->
+    <wbmtr-playback-button action="step-backward" shortcut="ArrowLeft"></wbmtr-playback-button>
+    <wbmtr-playback-button action="pause" shortcut="Space"></wbmtr-playback-button>
+    <wbmtr-playback-button action="step-forward" shortcut="ArrowRight"></wbmtr-playback-button>
+    <wbmtr-playback-button action="fast-forward" shortcut="F" trigger="hold"></wbmtr-playback-button>
+    <wbmtr-playback-button action="toggle-skipping" shortcut="S"></wbmtr-playback-button>
+  </div>
 </body>
+<!--MD-E id="usage__body"-->
 </html>
