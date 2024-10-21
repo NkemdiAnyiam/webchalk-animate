@@ -163,7 +163,7 @@ ent.rewind();
 ```
 <!--MD-E id="usage__badly-play-basic-clips"-->
 
-One way to manually control the timing of clips yourself is to use Promise-based syntax as in the code below.
+One way to manually control the timing of clips yourself is to use Promise-based syntax as in the code below. However, this would become unwieldly if there were dozens of animations, not to mention coordinating pauses, compensating for tiny errors in JavaScript's timing, etc.
 <!--MD-S id="usage__play-basic-clips" code-type="ts"-->
 ```ts
 // the entrance clip plays, and THEN the motion clip plays, and THEN the
@@ -186,7 +186,7 @@ ent.play().then(() => {
 })();
 ```
 <!--MD-E id="usage__play-basic-clips"-->
-However, this would become unwieldly if there were dozens of animations, not to mention coordinating pauses, compensating for tiny errors in JavaScript's timing, etc. This is where the next playback structure—`AnimSequence`—comes in.
+This is where the next playback structure—`AnimSequence`—comes in.
 
 ### Creating Animation Sequences
 
