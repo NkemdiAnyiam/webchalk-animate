@@ -566,6 +566,9 @@ export class AnimTimeline {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.addSequences.name); }
 
     for(const animSequence of animSequences) {
+      if (!(animSequence instanceof AnimSequence)) {
+        throw this.generateError(CustomErrors.InvalidChildError, `At least one of the objects being added is not an AnimSequence.`);
+      }
       if (animSequence.parentTimeline) {
         // TODO: Improve error message
         throw this.generateError(CustomErrors.InvalidChildError, `At least one of the sequences being added is already part of some timeline.`);
@@ -605,6 +608,9 @@ export class AnimTimeline {
     }
 
     for (const animSequence of animSequences) {
+      if (!(animSequence instanceof AnimSequence)) {
+        throw this.generateError(CustomErrors.InvalidChildError, `At least one of the objects being added is not an AnimSequence.`);
+      }
       if (animSequence.parentTimeline) {
         // TODO: Improve error message
         throw this.generateError(CustomErrors.InvalidChildError, `At least one of the sequences being added is already part of some timeline.`);

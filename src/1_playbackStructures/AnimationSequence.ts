@@ -452,6 +452,9 @@ export class AnimSequence {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.addClips.name); }
 
     for (const animClip of animClips) {
+      if (!(animClip instanceof AnimClip)) {
+        throw this.generateError(CustomErrors.InvalidChildError, `At least one of the objects being added is not an AnimClip.`);
+      }
       if (animClip.parentSequence) {
         // TODO: Improve error message
         throw this.generateError(CustomErrors.InvalidChildError, `At least one of the clips being added is already part of some sequence.`);
@@ -474,6 +477,9 @@ export class AnimSequence {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.addClipsAt.name); }
 
     for (const animClip of animClips) {
+      if (!(animClip instanceof AnimClip)) {
+        throw this.generateError(CustomErrors.InvalidChildError, `At least one of the objects being added is not an AnimClip.`);
+      }
       if (animClip.parentSequence) {
         // TODO: Improve error message
         throw this.generateError(CustomErrors.InvalidChildError, `At least one of the clips being added is already part of some sequence.`);
