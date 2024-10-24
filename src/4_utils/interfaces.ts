@@ -28,11 +28,20 @@
  */
 export type DOMElement = HTMLElement | SVGElement | MathMLElement;
 
+// TODO: maybe move CssLength-based examples to be injected
+
 /**
  * Options for determing the offset to add to an element's translation.
  */
 interface TranslationOffset {
-  /** determines offsets to apply to both X and Y positional properties */
+  /**
+   * determines offsets to apply to both X and Y positional properties
+   * - string in the form "{@link CssLength}, {@link CssLength}"
+   * @example
+   * ```ts
+   * {offsetSelf: "12px, 50%"}
+   * ```
+   */
   offsetSelf: `${CssLength}, ${CssLength}`;
   /** determines additional horizontal offset */
   offsetSelfX: CssLength;
@@ -45,7 +54,14 @@ interface TranslationOffset {
  * Options for the translate animation.
  */
 export interface TranslateOptions extends TranslationOffset {
-  /** distances to travel in the X and Y directions */
+  /**
+   * distances to travel in the X and Y directions
+   * - string in the form "{@link CssLength}, {@link CssLength}"
+   * @example
+   * ```ts
+   * {translate: "12px, 50%"}
+   * ```
+   */
   translate: `${CssLength}, ${CssLength}`;
   /** distance to travel in the X direction */
   translateX: CssLength;
@@ -63,7 +79,14 @@ export interface MoveToOptions extends TranslationOffset {
   alignmentY: CssYAlignment;
   /** determines horizontal alignment with target element */
   alignmentX: CssXAlignment;
-  /** offset with respect to target's left and top bound */
+  /**
+   * offset with respect to target's left and top bound
+   * - string in the form "{@link CssLength}, {@link CssLength}"
+   * @example
+   * ```ts
+   * {offsetTarget: "12px, 50%"}
+   * ```
+   */
   offsetTarget: `${CssLength}, ${CssLength}`;
   /** offset based on target's left bound or width (50% pushes us 50% of the target element's width rightward) */
   offsetTargetX: CssLength;
