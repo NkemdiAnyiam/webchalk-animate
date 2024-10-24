@@ -366,4 +366,8 @@ Viewers will still need a way to step back and forth themselves in their browser
 With just that code (which you can feel free to copy and paste—just change the `timeline-name` attribute to match your timeline), your visualization will display playback buttons that look like the ones shown in the image below. Creating your _own_ buttons from scratch that attempt to interface with `AnimTimeline` is _not_ recommended.
 ![Webimator playback buttons UI](./images/timeline-buttons-ui.jpg)
 
+<!-- ### Creating Custom Preset Animation Effects
+
+Sometimes, you will need an animation effect that Webimator does not exactly have. -->
+
 (Work in progress)

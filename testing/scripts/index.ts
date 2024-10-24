@@ -3,7 +3,7 @@ import * as WebimatorTypes from 'webimator/types-and-interfaces';
 import * as WebimatorErrors from "webimator/error-handling";
 import * as WebimatorEasing from "webimator/easing";
 
-const {Motion, Entrance, Emphasis, Exit} = webimator.createAnimationClipFactories({
+const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance} = webimator.createAnimationClipFactories({
   customEntranceEffects: {
     hello: {
       generateKeyframes() {
@@ -26,7 +26,7 @@ const {Motion, Entrance, Emphasis, Exit} = webimator.createAnimationClipFactorie
   func(webimator.newSequence())
 
 
-  const connector = document.querySelector<WebimatorTypes.WbmtrConnector>('.connector--red');
+  const connector = document.querySelector('.connector--red');
 
   console.log(webimator.newSequence() instanceof WebimatorTypes.AnimSequence);
 }
@@ -86,7 +86,9 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     Emphasis(square, '~highlight', [], {}),
     Emphasis(square, '~un-highlight', [], {}),
     Emphasis(square, '~highlight', ['purple'], {}),
-    Emphasis(square, '~un-highlight', [], {})
+    Emphasis(square, '~un-highlight', [], {}),
+    ConnectorSetter(document.querySelector('.connector--2'), [square, 'left', 'top'], [square, 'right', 'bottom']),
+    ConnectorEntrance(document.querySelector('.square'), '~trace', ['from-A']),
   );
   
 

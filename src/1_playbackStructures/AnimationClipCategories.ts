@@ -571,7 +571,7 @@ export class ConnectorSetterClip extends AnimClip<EffectGenerator, ConnectorSett
     ) {
     super(connectorElem, effectName, effectGeneratorBank);
 
-    if (!(connectorElem instanceof WbmtrConnector)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WbmtrConnector.name} element.`); }
+    if (!(connectorElem instanceof WbmtrConnector)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass WbmtrConnector element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
 
     const pointAElement = pointA[0] === 'preserve' ? connectorElem!.pointA?.[0] : pointA?.[0];
     if (!(pointAElement instanceof Element)) {
@@ -696,7 +696,7 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
   constructor(connectorElem: WbmtrConnector | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
     super(connectorElem, effectName, effectGeneratorBank);
 
-    if (!(connectorElem instanceof WbmtrConnector)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WbmtrConnector.name} element.`); }
+    if (!(connectorElem instanceof WbmtrConnector)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WbmtrConnector.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
     this.domElem = connectorElem;
   }
 
@@ -796,7 +796,7 @@ export class ConnectorExitClip<TEffectGenerator extends EffectGenerator<Connecto
   constructor(connectorElem: WbmtrConnector | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
     super(connectorElem, effectName, effectGeneratorBank);
 
-    if (!(connectorElem instanceof WbmtrConnector)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WbmtrConnector.name} element.`); }
+    if (!(connectorElem instanceof WbmtrConnector)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WbmtrConnector.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
 
     this.domElem = connectorElem;
   }

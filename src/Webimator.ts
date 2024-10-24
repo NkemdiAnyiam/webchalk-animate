@@ -440,7 +440,7 @@ export class Webimator {
       },
 
       ConnectorSetter: function(
-        connectorElem: WbmtrConnector | null | undefined,
+        connectorElem: WbmtrConnector | Element | null | undefined,
         pointA: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
         pointB: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
         connectorConfig: WbmtrConnectorConfig = {} as WbmtrConnectorConfig
@@ -448,28 +448,28 @@ export class Webimator {
         self.clipCreatorLock = false;
         const effectName = `~set-line-points`;
         return new ConnectorSetterClip(
-          connectorElem, pointA, pointB, effectName, {[effectName]: {...AnimClip.createNoOpEffectGenerator(), /*effectName*/}}, connectorConfig
+          connectorElem as Exclude<typeof connectorElem, Element>, pointA, pointB, effectName, {[effectName]: {...AnimClip.createNoOpEffectGenerator(), /*effectName*/}}, connectorConfig
         ).initialize([]);
       },
 
       ConnectorEntrance: function<
         TGeneratorBank extends typeof combinedConnectorEntranceBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]
       >(
-        connectorElem: WbmtrConnector | null | undefined,
+        connectorElem: WbmtrConnector | Element | null | undefined,
         effectName: TEffectName,
         ...initializationParams: Parameters<ConnectorEntranceClip<TEffectGenerator>['initialize']>
       ) {
         self.clipCreatorLock = false;
-        return new ConnectorEntranceClip<TEffectGenerator>(connectorElem, effectName, combinedConnectorEntranceBank).initialize(...initializationParams);
+        return new ConnectorEntranceClip<TEffectGenerator>(connectorElem as Exclude<typeof connectorElem, Element>, effectName, combinedConnectorEntranceBank).initialize(...initializationParams);
       },
 
       ConnectorExit: function<TGeneratorBank extends typeof combinedConnectorExitBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
-        connectorElem: WbmtrConnector | null | undefined,
+        connectorElem: WbmtrConnector | Element | null | undefined,
         effectName: TEffectName,
         ...initializationParams: Parameters<ConnectorExitClip<TEffectGenerator>['initialize']>
       ) { 
         self.clipCreatorLock = false;
-        return new ConnectorExitClip<TEffectGenerator>(connectorElem, effectName, combinedConnectorExitBank).initialize(...initializationParams);
+        return new ConnectorExitClip<TEffectGenerator>(connectorElem as Exclude<typeof connectorElem, Element>, effectName, combinedConnectorExitBank).initialize(...initializationParams);
       },
       
       Scroller: function<TGeneratorBank extends typeof combinedScrollerBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>
