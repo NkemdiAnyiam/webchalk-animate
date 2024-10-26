@@ -937,18 +937,29 @@ export class AnimTimeline {
    *   )
    * );
    * 
+   * // Promise-based timer
+   * async function wait(milliseconds: number) {
+   *   return new Promise(resolve => setTimeout(resolve, milliseconds));
+   * }
+   * 
    * (async () => {
    *   // jump straight to sequence with tag "move around"
    *   await tLine.jumpToSequenceTag('move around');
+   * 
+   *   await wait (1000); // wait 1 second
    * 
    *   // jump to sequence whose tag contains "flick"
    *   // (so now we're back at the beginning of the timeline)
    *   await tLine.jumpToSequenceTag(/flick/);
    * 
+   *   await wait (1000); // wait 1 second
+   * 
    *   // jump to sequence with tag "move around"
    *   // then look forward to see if any sequences have {autoplays: true}
    *   // the next one does, so it continues, skipping to the third sequence
    *   await tLine.jumpToSequenceTag('move around', {autoplayDetection: 'forward'});
+   * 
+   *   await wait (1000); // wait 1 second
    * 
    *   // play the last sequence
    *   await tLine.step('forward');
