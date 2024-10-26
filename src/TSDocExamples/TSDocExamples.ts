@@ -353,6 +353,60 @@ const someElement = document.querySelector('.some-element');
 
 
 
+{
+/**** EX:S id="AnimTimeline.jumpToSequenceTag" */
+const {Entrance, Motion, Exit} = webimator.createAnimationClipFactories();
+const square = document.querySelector('.square');
+
+const tLine = webimator.newTimeline(
+  webimator.newSequence(
+    {tag: 'flickering'},
+    Entrance(square, '~appear', [], {endDelay: 500}),
+    Exit(square, '~disappear', [], {endDelay: 500}),
+    Entrance(square, '~appear', [], {endDelay: 500}),
+    Exit(square, '~disappear', [], {endDelay: 500}),
+    Entrance(square, '~appear', [], {endDelay: 500}),
+    Exit(square, '~disappear', [], {endDelay: 500}),
+  ),
+
+  webimator.newSequence(
+    {tag: 'move around'},
+    Motion(square, '~translate', [{translateX: '200px'}]),
+    Motion(square, '~translate', [{translateY: '200px'}]),
+    Motion(square, '~translate', [{translateX: '-200px'}]),
+    Motion(square, '~translate', [{translateY: '-200px'}]),
+  ),
+
+  webimator.newSequence(
+    {tag: 'go away', autoplays: true},
+    Exit(square, '~pinwheel', []),
+  )
+);
+
+(async () => {
+  // jump straight to sequence with tag "move around"
+  await tLine.jumpToSequenceTag('move around');
+
+  // jump to sequence whose tag contains "flick"
+  // (so now we're back at the beginning of the timeline)
+  await tLine.jumpToSequenceTag(/flick/);
+
+  // jump to sequence with tag "move around"
+  // then look forward to see if any sequences have {autoplays: true}
+  // the next one does, so it continues, skipping to the third sequence
+  await tLine.jumpToSequenceTag('move around', {autoplayDetection: 'forward'});
+
+  // play the last sequence
+  await tLine.step('forward');
+})();
+/**** EX:E id="AnimTimeline.jumpToSequenceTag" */
+}
+
+
+
+
+
+
 
 {
 /**** EX:S id="PresetLinearEasingKey-1" */

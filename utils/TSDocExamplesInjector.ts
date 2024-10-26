@@ -13,6 +13,7 @@ const targets = {
   filePaths: [
     `${directoryPrefix}/Webimator.ts`,
     `${directoryPrefix}/1_playbackStructures/AnimationClip.ts`,
+    `${directoryPrefix}/1_playbackStructures/AnimationTimeline.ts`,
     `${directoryPrefix}/2_animationEffects/easing.ts`,
     `${directoryPrefix}/2_animationEffects/generationTypes.ts`,
   ],

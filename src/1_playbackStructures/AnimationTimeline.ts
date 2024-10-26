@@ -899,11 +899,63 @@ export class AnimTimeline {
   }
 
   /**
-   * Jumps to the sequence whose {@link AnimSequence.getTag|AnimSequence.getTag()} value matches the {@link tag} argument.
+   * Jumps instantly to the sequence whose {@link AnimSequence.getTag|AnimSequence.getTag()} value matches the {@link tag} argument.
    * @param tag - string that is used to search for the target sequence with the matching {@link AnimSequence.getTag|AnimSequence.getTag()} value
    * @param options - set of options defining the behavior of the search, the offset of the jump, and whether to consider autoplay
    * @returns a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise | Promise} that
    * resolves when the timeline has finished jumping.
+   * 
+   * 
+   * @example
+   * <!-- EX:S id="AnimTimeline.jumpToSequenceTag" code-type="ts" -->
+   * ```ts
+   * const {Entrance, Motion, Exit} = webimator.createAnimationClipFactories();
+   * const square = document.querySelector('.square');
+   * 
+   * const tLine = webimator.newTimeline(
+   *   webimator.newSequence(
+   *     {tag: 'flickering'},
+   *     Entrance(square, '~appear', [], {endDelay: 500}),
+   *     Exit(square, '~disappear', [], {endDelay: 500}),
+   *     Entrance(square, '~appear', [], {endDelay: 500}),
+   *     Exit(square, '~disappear', [], {endDelay: 500}),
+   *     Entrance(square, '~appear', [], {endDelay: 500}),
+   *     Exit(square, '~disappear', [], {endDelay: 500}),
+   *   ),
+   * 
+   *   webimator.newSequence(
+   *     {tag: 'move around'},
+   *     Motion(square, '~translate', [{translateX: '200px'}]),
+   *     Motion(square, '~translate', [{translateY: '200px'}]),
+   *     Motion(square, '~translate', [{translateX: '-200px'}]),
+   *     Motion(square, '~translate', [{translateY: '-200px'}]),
+   *   ),
+   * 
+   *   webimator.newSequence(
+   *     {tag: 'go away', autoplays: true},
+   *     Exit(square, '~pinwheel', []),
+   *   )
+   * );
+   * 
+   * (async () => {
+   *   // jump straight to sequence with tag "move around"
+   *   await tLine.jumpToSequenceTag('move around');
+   * 
+   *   // jump to sequence whose tag contains "flick"
+   *   // (so now we're back at the beginning of the timeline)
+   *   await tLine.jumpToSequenceTag(/flick/);
+   * 
+   *   // jump to sequence with tag "move around"
+   *   // then look forward to see if any sequences have {autoplays: true}
+   *   // the next one does, so it continues, skipping to the third sequence
+   *   await tLine.jumpToSequenceTag('move around', {autoplayDetection: 'forward'});
+   * 
+   *   // play the last sequence
+   *   await tLine.step('forward');
+   * })();
+   * ```
+   * <!-- EX:E id="AnimTimeline.jumpToSequenceTag" -->
+   * 
    * @group Playback Methods
    */
   jumpToSequenceTag(
@@ -926,7 +978,7 @@ export class AnimTimeline {
        * jump destination (after considering {@link options.targetOffset}) has been reached
        * - if `'none`', the timeline stays at the final landing position after the initial jumping operation.
        * - if `'forward'`, the timeline will jump forward for as long as the next sequence is supposed to autoplay after the current sequence.
-       * - if `'backward'`, the timeline will jump backward for as long as the previous sequence as long as the previous sequence is supposed to automatically
+       * - if `'backward'`, the timeline will jump backward for as long as the previous sequence is supposed to automatically
        * rewind after the current sequence is rewound (this is naturally only true when the current sequence is set to autoplay when the timeline steps forward).
        * @defaultValue
        * ```ts
@@ -946,7 +998,7 @@ export class AnimTimeline {
   }
 
   /**
-   * Jumps to the position within the timeline based on the {@link position} argument.
+   * Jumps instantly to the position within the timeline based on the {@link position} argument.
    * @param position - the target position within the timeline
    * @param options - set of options defining the offset of the jump and whether to consider autoplay
    * @returns a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise | Promise} that
