@@ -88,7 +88,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     Emphasis(square, '~highlight', ['purple'], {}),
     Emphasis(square, '~un-highlight', [], {}),
     ConnectorSetter(document.querySelector('.connector--2'), [square, 'left', 'top'], [square, 'right', 'bottom']),
-    ConnectorEntrance(document.querySelector('.square'), '~trace', ['from-A']),
+    ConnectorEntrance(document.querySelector('.connector--2'), '~trace', ['from-A']),
   );
   
 
@@ -109,14 +109,14 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   //   console.log('WE BACK')
   // });
 
-  const timeline = webimator.newTimeline({timelineName: 'Basic', autoLinksButtons: false});
+  const timeline = webimator.newTimeline({timelineName: 'Basic', autoLinksButtons: false, debugMode: true});
   timeline.linkPlaybackButtons();
-  await wait(1000);
+  // await wait(1000);
   timeline.addSequences(seq);
-  await timeline.step('forward');
-  await timeline.step('backward');
-  timeline.removeSequences(seq);
-  timeline.addSequences(seq);
+  // await timeline.step('forward');
+  // await timeline.step('backward');
+  // timeline.removeSequences(seq);
+  // timeline.addSequences(seq);
 
   // setTimeout(() => seq.removeClips(entrance), 3000);
 

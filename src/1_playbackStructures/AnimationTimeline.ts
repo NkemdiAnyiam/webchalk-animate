@@ -786,7 +786,7 @@ export class AnimTimeline {
     this.currentDirection = 'forward';
     const sequences = this.animSequences;
 
-    if (this.config.debugMode) { console.log(`-->> ${this.loadedSeqIndex}: ${sequences[this.loadedSeqIndex].getDescription()}`); }
+    if (this.config.debugMode) { console.log(`${this.stepNumber} -->>: ${sequences[this.loadedSeqIndex].getDescription()}`); }
 
     const toPlay = sequences[this.loadedSeqIndex];
     this.inProgressSequences.set(toPlay.id, toPlay);
@@ -813,7 +813,7 @@ export class AnimTimeline {
     const prevSeqIndex = --this.loadedSeqIndex;
     const sequences = this.animSequences;
 
-    if (this.config.debugMode) { console.log(`<<-- ${prevSeqIndex}: ${sequences[prevSeqIndex].getDescription()}`); }
+    if (this.config.debugMode) { console.log(`<<-- ${this.stepNumber}: ${sequences[prevSeqIndex].getDescription()}`); }
 
     const toRewind = sequences[prevSeqIndex];
     this.inProgressSequences.set(toRewind.id, toRewind);
