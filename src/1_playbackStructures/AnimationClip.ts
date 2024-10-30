@@ -2,7 +2,7 @@ import { AnimSequence } from "./AnimationSequence";
 import { AnimTimeline } from "./AnimationTimeline";
 import { webimator } from "../Webimator";
 import { EffectOptions, EffectGeneratorBank, EffectGenerator } from "../2_animationEffects/generationTypes";
-import { call, getPartial, mergeArrays } from "../4_utils/helpers";
+import { call, detab, getPartial, mergeArrays } from "../4_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
 import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "../4_utils/errors";
 import { DOMElement, EffectCategory, Keyframes } from "../4_utils/interfaces";
@@ -64,15 +64,14 @@ type CustomKeyframeEffectOptions = {
   /**
    * Determines whether the effects of the animation will persist after the clip finishes.
    * - if `false`, the effects of the animation will not persist after the clip finishes.
-   * - if `true`, the effects will attempt to be committed, but if the element is not rendered by the
-   * time the clip finishes, an error will be thrown because styles cannot be committed to unrendered
-   * elements.
-   * - if `'forcefully'`, the effects will attempt to be committed, and if the element is not rendered by the
-   * time the clip finishes, we attempt to forcefully unhide the element, apply the styles, then re-hide it instantaneously.
-   * - - If this fails (likely because the element's parent is not rendered, meaning the element cannot be
-   * unhidden unless the parent is unhidden), an error will be thrown.
+   * - if `true`, the effects will attempt to be committed. If the element is not rendered by the
+   * time the clip finishes because of the CSS class "wbmtr-hidden", the clip will try to forcefully apply the styles by
+   * instantly unhiding the element, committing the animation styles, then re-hiding the element (necessary because JavaScript
+   * does not allow animation results to be saved to unrendered elements).
+   * - - If the element is unrendered for any reason other than having the "wbmtr-hidden" class by the time the clip finishes,
+   * then this will fail, and an error will be thrown.
    */
-  commitsStyles: false | true | 'forcefully';
+  commitsStyles: false | true;
 
   /**
    * Resolves how an element's animation impacts the element's underlying property values.
@@ -1147,28 +1146,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
           }
           // If commitStyles() fails, it's because the element is not rendered.
           catch (_) {
-            // If forced commit is disabled, do not re-attempt to commit the styles. Throw error instead.
-            if (config.commitsStyles !== 'forcefully') {
-              throw this.generateError(CustomErrors.CommitStylesError,
-                `Cannot commit animation styles while element is not rendered.` +
-                ` To temporarily (instantly) override the hidden state, set the 'commitsStyles' config option to 'forcefully'` +
-                ` (however, if the element's ancestor is unrendered, this will still fail).` +
-                `${errorTip(
-                  `Tip: Entrance() has a convenient config option called 'hideNowType', which is null by default.` +
-                  ` You may set the option to "display-none"` +
-                  ` (which unrenders the element) or "visibility-hidden" (which only turns the element invisible).` +
-                  ` Either one will cause the element to hide as soon as Entrance() is called.` +
-                  `\nExample: Entrance(elem, 'fade-in', [], {hideNowType: "visibility-hidden"})`
-                )}` +
-                `${errorTip(
-                  `Tip: By default, Exit()'s config option for 'exitType' is set to "display-none", which unrenders the element.` +
-                  ` To just make the element invisible, set 'exitType' to "visibility-hidden".` +
-                  `\nExample: Exit(elem, 'fade-out', [], {exitType: "visibility-hidden"})`
-                )}`
-              );
-            }
-  
-            // If forced commit is enabled, attempt to override the hidden state and apply the style.
+            // attempt to override the hidden state and apply the style.
             try {
               this.domElem.classList.add('wbmtr-override-hidden'); // CHANGE NOTE: Use new hidden classes
               animation.commitStyles();
@@ -1177,9 +1155,24 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
             }
             // If this fails, then the element's parent is hidden. Do not attempt to remedy; throw error instead.
             catch (err: unknown) {
+              let reasons = [];
+              if (getComputedStyle(this.domElem).display === 'none') {
+                reasons.push(detab`Something is causing the CSS style {display: hidden} to be applied besides the class "wbmtr-hidden".`);
+              }
+              let ancestor = this.domElem;
+              while (ancestor = ancestor.parentElement as DOMElement) {
+                if (!ancestor) { break; }
+                if (getComputedStyle(ancestor).display === 'none') {
+                  reasons.push(detab`One of the parent elements of the element is unrendered.`);
+                }
+              }
               throw this.generateError(CustomErrors.CommitStylesError,
-                `Failed to commit styles by overriding element's hidden state with 'commitStylesAttemptForcefully'.` +
-                ` Cannot commit styles if element is unrendered because of an unrendered ancestor.`
+                detab`Failed to commit styles on the element while it was unrendered.\
+                Animation styles normally cannot be saved on unrendered elements in JavaScript, but Webimator allows it ONLY IF\
+                the element is unrendered due to having the CSS class "wbmtr-hidden". If there is ANY other reason\
+                for the element not being rendered, the styles cannot be committed.
+                Detected reasons:\n`
+                + reasons.map((reason, index) => `    ${index + 1}) ${reason}`).join('\n')
               );
             }
           }

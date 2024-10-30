@@ -228,3 +228,32 @@ export function getPartial<Source extends object, T extends (keyof Source)[] = (
       .filter(([key, _]) => props.includes(key as keyof Source))
   ) as Pick<Source, keyof Source>;
 }
+
+export function dedent(text: string, tabLength: number = 2): string {
+  // split lines by carriage return + newline or newline
+  // then replace all leading tabs (or leading tabs mixed with leading spaces) with spaces
+  const lines = text
+    .split(/\r\n|\n/)
+    .map(line => {
+      const leadSpacesAndTabs = line.match(/^\s*/)?.[0] ?? '';
+      return `${leadSpacesAndTabs.replaceAll(/\t/g, ' '.repeat(tabLength))}${line.trimStart()}`;
+    });
+
+  // find the minimum amount of leading spaces across the lines (not including empty lines)
+  let minIndent = Infinity;
+  for (const line of lines) {
+    if (line === '') { continue; }
+    const leadSpaces = line.match(/^\s*/)?.[0] ?? '';
+    minIndent = Math.min(minIndent, leadSpaces.length);
+  }
+
+  // return the joined lines with the beginnings trimmed by the minimum amount of leading spaces
+  return lines
+    .map(line => line !== '' ? line.substring(minIndent) : '')
+    .join('\n');
+}
+
+export function detab(text: TemplateStringsArray | string): string {
+  if (typeof text === 'string') { return text.replace(/\n +/g, '\n').replace(/ +/g, ' '); /*return text.replaceAll(/(\t|\s)/g, ' ');*/ }
+  return text.map(str => str.replace(/\n +/g, '\n').replace(/ +/g, ' ')).join(' ');
+}

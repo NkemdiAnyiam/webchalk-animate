@@ -134,6 +134,8 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
     }
     // error case
     else {
+      // Note: the render state of the parent element has no effect on the display and visibility values from
+      // getComputedStyle() for a child element
       const { display, visibility } = getComputedStyle(this.domElem);
       let str = ``;
       if (display === 'none') {
