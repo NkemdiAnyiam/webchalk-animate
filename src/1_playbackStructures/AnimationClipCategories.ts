@@ -111,10 +111,10 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
     const hideNow = (effectConfig as Partial<EntranceClipConfig>).hideNowType ?? this.effectGenerator.defaultConfig?.hideNowType ?? this.categoryDefaultConfig.hideNowType!;
     switch(hideNow) {
       case "display-none":
-        this.domElem.classList.add('wbmtr-hidden');
+        this.domElem.classList.add('wbmtr-display-none');
         break;
       case "visibility-hidden":
-        this.domElem.classList.add('wbmtr-invisible');
+        this.domElem.classList.add('wbmtr-visibility-hidden');
         break;
       default:
         break;
@@ -124,13 +124,13 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
   }
 
   protected _onStartForward(): void {
-    if (this.domElem.classList.contains('wbmtr-hidden')) {
+    if (this.domElem.classList.contains('wbmtr-display-none')) {
       this.backwardsHidingMethod = 'display-none';
-      this.domElem.classList.remove('wbmtr-hidden');
+      this.domElem.classList.remove('wbmtr-display-none');
     }
-    else if (this.domElem.classList.contains('wbmtr-invisible')) {
+    else if (this.domElem.classList.contains('wbmtr-visibility-hidden')) {
       this.backwardsHidingMethod = 'visibility-hidden';
-      this.domElem.classList.remove('wbmtr-invisible');
+      this.domElem.classList.remove('wbmtr-visibility-hidden');
     }
     // error case
     else {
@@ -139,27 +139,27 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
       const { display, visibility } = getComputedStyle(this.domElem);
       let str = ``;
       if (display === 'none') {
-        str = `The element being entered is hidden with CSS 'display: none', but it was not using the class "wbmtr-hidden".` +
-        ` An element needs to be unrendered using the class "wbmtr-hidden" in order for Entrance() to act on it.`;
+        str = `The element being entered is hidden with CSS 'display: none', but it was not using the class "wbmtr-display-none".` +
+        ` An element needs to be unrendered using the class "wbmtr-display-none" in order for Entrance() to act on it.`;
       }
       else if (visibility === 'hidden') {
-        str = `The element being entered is hidden with CSS 'visibility: hidden', but it was not using the class "wbmtr-invisible".` +
-        ` An element needs to be unrendered using the class "wbmtr-invisible" in order for Entrance() to act on it.`;
+        str = `The element being entered is hidden with CSS 'visibility: hidden', but it was not using the class "wbmtr-visibility-hidden".` +
+        ` An element needs to be unrendered using the class "wbmtr-visibility-hidden" in order for Entrance() to act on it.`;
       }
       else {
         str = `Entrance() can only play on elements that are already hidden, but this element was not hidden.` +
         ` To hide an element, you can 1) use the 'hideNowType' config option to immediately hide the element from the very start,` +
         ` 2) hide it with Exit() before the Entrance() animation runs, or` +
-        ` 3) manually add either "wbmtr-hidden" or "wbmtr-invisible" to its CSS class list in the HTML.`;
+        ` 3) manually add either "wbmtr-display-none" or "wbmtr-visibility-hidden" to its CSS class list in the HTML.`;
       }
       throw this.generateError(CustomErrors.InvalidEntranceAttempt,
         str +
         `${errorTip(
-          `Tip: Adding "wbmtr-hidden" to an element's CSS class list applies a 'display: none' CSS style, which completely unrenders an element.` +
-          ` "wbmtr-invisible" applies a 'visibility: hidden' CSS style, which just makes the element invisible while still taking up space.` +
+          `Tip: Adding "wbmtr-display-none" to an element's CSS class list applies a 'display: none' CSS style, which completely unrenders an element.` +
+          ` "wbmtr-visibility-hidden" applies a 'visibility: hidden' CSS style, which just makes the element invisible while still taking up space.` +
           ` When using 'exitType' with Exit() or 'hideNowType' with Entrance(), you may set the config options to "display-none" (the default for exitType)` +
           ` or "visibility-hidden", but behind the scenes, this just determines whether to add` +
-          ` the class "wbmtr-hidden" or the class "wbmtr-invisible".`
+          ` the class "wbmtr-display-none" or the class "wbmtr-visibility-hidden".`
         )}`
       );
     }
@@ -167,8 +167,8 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
 
   protected _onFinishBackward(): void {
     switch(this.backwardsHidingMethod) {
-      case "display-none": this.domElem.classList.add('wbmtr-hidden'); break;
-      case "visibility-hidden": this.domElem.classList.add('wbmtr-invisible'); break;
+      case "display-none": this.domElem.classList.add('wbmtr-display-none'); break;
+      case "visibility-hidden": this.domElem.classList.add('wbmtr-visibility-hidden'); break;
       default: throw this.generateError(Error, `This error should NEVER be reached.`);
     }
   }
@@ -281,8 +281,8 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
 
   protected _onStartForward(): void {
     let hidingClassName = '';
-    if (this.domElem.classList.contains('wbmtr-hidden')) { hidingClassName = 'wbmtr-hidden'; }
-    if (this.domElem.classList.contains('wbmtr-invisible')) { hidingClassName = 'wbmtr-invisible'; }
+    if (this.domElem.classList.contains('wbmtr-display-none')) { hidingClassName = 'wbmtr-display-none'; }
+    if (this.domElem.classList.contains('wbmtr-visibility-hidden')) { hidingClassName = 'wbmtr-visibility-hidden'; }
     const { display, visibility } = getComputedStyle(this.domElem);
     const hiddenDisplay = display === 'none';
     const hiddenVisibility = visibility === 'hidden';
@@ -293,22 +293,22 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
     throw this.generateError(CustomErrors.InvalidExitAttempt,
       `Exit() can only play on elements that are not already hidden. The element here is already hidden by the following:`
       + (hidingClassName ? `\n - Webimator's CSS hiding class "${hidingClassName}"` : '')
-      + ((hidingClassName !== 'wbmtr-hidden' && hiddenDisplay) ? `\n - CSS property 'display: none'` : '')
-      + ((hidingClassName !== 'wbmtr-invisible' && hiddenVisibility) ? `\n - CSS property 'visibility: hidden'` : '')
+      + ((hidingClassName !== 'wbmtr-display-none' && hiddenDisplay) ? `\n - CSS property 'display: none'` : '')
+      + ((hidingClassName !== 'wbmtr-visibility-hidden' && hiddenVisibility) ? `\n - CSS property 'visibility: hidden'` : '')
     );
   }
 
   protected _onFinishForward(): void {
     switch(this.exitType) {
-      case "display-none": this.domElem.classList.add('wbmtr-hidden'); break;
-      case "visibility-hidden": this.domElem.classList.add('wbmtr-invisible'); break;
+      case "display-none": this.domElem.classList.add('wbmtr-display-none'); break;
+      case "visibility-hidden": this.domElem.classList.add('wbmtr-visibility-hidden'); break;
     }
   }
 
   protected _onStartBackward(): void {
     switch(this.exitType) {
-      case "display-none": this.domElem.classList.remove('wbmtr-hidden'); break;
-      case "visibility-hidden": this.domElem.classList.remove('wbmtr-invisible'); break;
+      case "display-none": this.domElem.classList.remove('wbmtr-display-none'); break;
+      case "visibility-hidden": this.domElem.classList.remove('wbmtr-visibility-hidden'); break;
     }
   }
 }
@@ -709,7 +709,7 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
     const hideNow = (effectConfig as ConnectorEntranceClipConfig).hideNowType ?? this.effectGenerator.defaultConfig?.hideNowType ?? this.categoryDefaultConfig.hideNowType!;
     switch(hideNow) {
       case "display-none":
-        this.domElem.classList.add('wbmtr-hidden');
+        this.domElem.classList.add('wbmtr-display-none');
         break;
       default:
         break;
@@ -719,34 +719,34 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
   }
 
   protected _onStartForward(): void {
-    if (!this.domElem.classList.contains('wbmtr-hidden')) {
+    if (!this.domElem.classList.contains('wbmtr-display-none')) {
       const { display } = getComputedStyle(this.domElem);
       let str = ``;
       if (display === 'none') {
-        str = `The element being entered is hidden with CSS 'display: none', but it was not using the class "wbmtr-hidden".` +
-        ` A connector element needs to be unrendered using the class "wbmtr-hidden" in order for ConnectorEntrance() to act on it.`;
+        str = `The element being entered is hidden with CSS 'display: none', but it was not using the class "wbmtr-display-none".` +
+        ` A connector element needs to be unrendered using the class "wbmtr-display-none" in order for ConnectorEntrance() to act on it.`;
       }
-      else if (this.domElem.classList.contains('wbmtr-invisible')) {
-        str = `The connector element being entered is hidden with the Webimator CSS class "wbmtr-invisible",` +
-        ` but connectors must only be hidden using the class "wbmtr-hidden".`;
+      else if (this.domElem.classList.contains('wbmtr-visibility-hidden')) {
+        str = `The connector element being entered is hidden with the Webimator CSS class "wbmtr-visibility-hidden",` +
+        ` but connectors must only be hidden using the class "wbmtr-display-none".`;
       }
       else {
         str = `ConnectorEntrance() can only play on connectors that are already hidden, but this element was not hidden.` +
         ` To hide a connector element, you can 1) use the 'hideNowType' config option to immediately hide the element from the very start,` +
         ` 2) hide it with ConnectorExit() before the ConnectorEntrance() animation runs, or` +
-        ` 3) manually add "wbmtr-hidden" to its CSS class list in the HTML.`;
+        ` 3) manually add "wbmtr-display-none" to its CSS class list in the HTML.`;
       }
       throw this.generateError(CustomErrors.InvalidEntranceAttempt,
         str +
         `${errorTip(
-          `Tip: Adding "wbmtr-hidden" to an element's CSS class list applies a 'display: none' CSS style, which completely unrenders an element.` +
+          `Tip: Adding "wbmtr-display-none" to an element's CSS class list applies a 'display: none' CSS style, which completely unrenders an element.` +
           ` When using 'hideNowType' with ConnectorEntrance(), you may set the config option to "display-none",` +
-          ` but behind the scenes, this just determines whether to adds the class "wbmtr-hidden".`
+          ` but behind the scenes, this just determines whether to adds the class "wbmtr-display-none".`
         )}`
       );
     }
 
-    this.domElem.classList.remove('wbmtr-hidden');
+    this.domElem.classList.remove('wbmtr-display-none');
     this.domElem.updateEndpoints();
     if (this.domElem.pointTrackingEnabled) {
       this.domElem.continuouslyUpdateEndpoints();
@@ -755,7 +755,7 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
 
   protected _onFinishBackward(): void {
     this.domElem.cancelContinuousUpdates();
-    this.domElem.classList.add('wbmtr-hidden');
+    this.domElem.classList.add('wbmtr-display-none');
   }
 }
 
@@ -805,8 +805,8 @@ export class ConnectorExitClip<TEffectGenerator extends EffectGenerator<Connecto
 
   protected _onStartForward(): void {
     let hidingClassName = '';
-    if (this.domElem.classList.contains('wbmtr-hidden')) { hidingClassName = 'wbmtr-hidden'; }
-    if (this.domElem.classList.contains('wbmtr-invisible')) { hidingClassName = 'wbmtr-invisible'; }
+    if (this.domElem.classList.contains('wbmtr-display-none')) { hidingClassName = 'wbmtr-display-none'; }
+    if (this.domElem.classList.contains('wbmtr-visibility-hidden')) { hidingClassName = 'wbmtr-visibility-hidden'; }
     const { display, visibility } = getComputedStyle(this.domElem);
     const hiddenDisplay = display === 'none';
     const hiddenVisibility = visibility === 'hidden';
@@ -817,13 +817,13 @@ export class ConnectorExitClip<TEffectGenerator extends EffectGenerator<Connecto
     throw this.generateError(CustomErrors.InvalidExitAttempt,
       `ConnectorExit() can only play on elements that are not already hidden. The connector here is already hidden by the following:`
       + (hidingClassName ? `\n - Webimator's CSS hiding class "${hidingClassName}"` : '')
-      + ((hidingClassName !== 'wbmtr-hidden' && hiddenDisplay) ? `\n - CSS property 'display: none'` : '')
-      + ((hidingClassName !== 'wbmtr-invisible' && hiddenVisibility) ? `\n - CSS property 'visibility: hidden'` : '')
+      + ((hidingClassName !== 'wbmtr-display-none' && hiddenDisplay) ? `\n - CSS property 'display: none'` : '')
+      + ((hidingClassName !== 'wbmtr-visibility-hidden' && hiddenVisibility) ? `\n - CSS property 'visibility: hidden'` : '')
     );
   }
 
   protected _onStartBackward(): void {
-    this.domElem.classList.remove('wbmtr-hidden');
+    this.domElem.classList.remove('wbmtr-display-none');
     this.domElem.updateEndpoints();
     if (this.domElem.pointTrackingEnabled) {
       this.domElem.continuouslyUpdateEndpoints();
@@ -832,7 +832,7 @@ export class ConnectorExitClip<TEffectGenerator extends EffectGenerator<Connecto
 
   protected _onFinishForward(): void {
     this.domElem.cancelContinuousUpdates();
-    this.domElem.classList.add('wbmtr-hidden');
+    this.domElem.classList.add('wbmtr-display-none');
   }
 }
 

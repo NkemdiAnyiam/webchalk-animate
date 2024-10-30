@@ -34,11 +34,11 @@ export function injectGlobals() {
       --wbmtr-playback-button-symbol-color: white;
     }
     
-    .wbmtr-hidden:not(.wbmtr-override-hidden) {
+    .wbmtr-display-none:not(.wbmtr-force-show) {
       display: none !important;
     }
     
-    .wbmtr-invisible:not(.wbmtr-override-hidden) {
+    .wbmtr-visibility-hidden:not(.wbmtr-force-show) {
       visibility: hidden !important;
     }
     

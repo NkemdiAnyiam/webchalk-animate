@@ -48,8 +48,8 @@ export const getOpeningTag = (element: Element | null | undefined): string => {
   return htmlText.substring(start, end + 1);
 };
 
-export const overrideHidden = (...elements: Element[]): void => { for (const element of elements) {element.classList.value += ` wbmtr-override-hidden`} };
-export const unOverrideHidden = (...elements: Element[]): void => { for (const element of elements) {element.classList.value = element.classList.value.replace(` wbmtr-override-hidden`, '')} };
+export const overrideHidden = (...elements: Element[]): void => { for (const element of elements) {element.classList.value += ` wbmtr-force-show`} };
+export const unOverrideHidden = (...elements: Element[]): void => { for (const element of elements) {element.classList.value = element.classList.value.replace(` wbmtr-force-show`, '')} };
 
 export const splitXYTupleString = (tupleStr: `${CssLength}, ${CssLength}` | undefined): [x: CssLength, y: CssLength] | undefined => {
   return tupleStr?.split(', ') as [x: CssLength, y: CssLength] | undefined;

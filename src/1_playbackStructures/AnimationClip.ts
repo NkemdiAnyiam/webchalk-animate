@@ -65,10 +65,10 @@ type CustomKeyframeEffectOptions = {
    * Determines whether the effects of the animation will persist after the clip finishes.
    * - if `false`, the effects of the animation will not persist after the clip finishes.
    * - if `true`, the effects will attempt to be committed. If the element is not rendered by the
-   * time the clip finishes because of the CSS class "wbmtr-hidden", the clip will try to forcefully apply the styles by
+   * time the clip finishes because of the CSS class "wbmtr-display-none", the clip will try to forcefully apply the styles by
    * instantly unhiding the element, committing the animation styles, then re-hiding the element (necessary because JavaScript
    * does not allow animation results to be saved to unrendered elements).
-   * - - If the element is unrendered for any reason other than having the "wbmtr-hidden" class by the time the clip finishes,
+   * - - If the element is unrendered for any reason other than having the "wbmtr-display-none" class by the time the clip finishes,
    * then this will fail, and an error will be thrown.
    */
   commitsStyles: false | true;
@@ -1148,16 +1148,16 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
           catch (_) {
             // attempt to override the hidden state and apply the style.
             try {
-              this.domElem.classList.add('wbmtr-override-hidden'); // CHANGE NOTE: Use new hidden classes
+              this.domElem.classList.add('wbmtr-force-show'); // CHANGE NOTE: Use new hidden classes
               animation.commitStyles();
               animation.effect?.updateTiming({ fill: 'none' });
-              this.domElem.classList.remove('wbmtr-override-hidden');
+              this.domElem.classList.remove('wbmtr-force-show');
             }
             // If this fails, then the element's parent is hidden. Do not attempt to remedy; throw error instead.
             catch (err: unknown) {
               let reasons = [];
               if (getComputedStyle(this.domElem).display === 'none') {
-                reasons.push(detab`Something is causing the CSS style {display: hidden} to be applied besides the class "wbmtr-hidden".`);
+                reasons.push(detab`Something is causing the CSS style {display: hidden} to be applied besides the class "wbmtr-display-none".`);
               }
               let ancestor = this.domElem;
               while (ancestor = ancestor.parentElement as DOMElement) {
@@ -1169,7 +1169,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
               throw this.generateError(CustomErrors.CommitStylesError,
                 detab`Failed to commit styles on the element while it was unrendered.\
                 Animation styles normally cannot be saved on unrendered elements in JavaScript, but Webimator allows it ONLY IF\
-                the element is unrendered due to having the CSS class "wbmtr-hidden". If there is ANY other reason\
+                the element is unrendered due to having the CSS class "wbmtr-display-none". If there is ANY other reason\
                 for the element not being rendered, the styles cannot be committed.
                 Detected reasons:\n`
                 + reasons.map((reason, index) => `    ${index + 1}) ${reason}`).join('\n')
