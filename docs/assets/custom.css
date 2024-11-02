@@ -118,6 +118,11 @@ h5.custom-color > :first-child.tsd-kind-property, h5.custom-color > :first-child
 .tsd-signature-symbol {
   font-family: var(--font-mono); }
 
+a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 0.5px; }
+
 a.tsd-kind-property,
 a.tsd-kind-method,
 a.tsd-kind-accessor {
