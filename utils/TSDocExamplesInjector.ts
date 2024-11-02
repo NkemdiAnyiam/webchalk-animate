@@ -1,5 +1,5 @@
 import { readTextBetween, SearchResultMeta } from "./fileReaders";
-import { CodeType, writeBetweenText } from "./fileWriters";
+import { CodeType, writeBetweenText, WriteMeta } from "./fileWriters";
 
 const directoryPrefix = `${__dirname}/../src`;
 
@@ -13,6 +13,7 @@ const targets = {
   filePaths: [
     `${directoryPrefix}/Webimator.ts`,
     `${directoryPrefix}/1_playbackStructures/AnimationClip.ts`,
+    `${directoryPrefix}/1_playbackStructures/AnimationClipCategories.ts`,
     `${directoryPrefix}/1_playbackStructures/AnimationTimeline.ts`,
     `${directoryPrefix}/2_animationEffects/easing.ts`,
     `${directoryPrefix}/2_animationEffects/generationTypes.ts`,
@@ -54,6 +55,9 @@ async function overwrite() {
     }
   
     // search for the target tag's id within whichever source file contains the real code
+    const writeMeta: WriteMeta = {
+      lastIndex: 0,
+    };
     for (const {targetId, spaceLength, codeType} of targetMatches) {
       let foundCode = false;
       // search each source path until the one containing the id is found
@@ -83,6 +87,8 @@ async function overwrite() {
             newContent: removeTsIgnore(`${exampleCode}`),
             prependLines: `${' '.repeat(spaceLength)}* `,
             beforeend: `${' '.repeat(spaceLength)}`,
+            writeMeta,
+            searchStart: writeMeta.lastIndex,
           }
         );
         break;
