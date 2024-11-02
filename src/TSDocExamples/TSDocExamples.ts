@@ -254,6 +254,162 @@ const ext = clipFactories.Exit(square, 'flyOutLeft', []);
 
 
 {
+/**** EX:S id="AnimClip.desc" */
+/*
+A "clip" is the smallest building block of a timeline. It is essentially a [DOM element, effect] pair,
+where a "DOM element" is some HTML element on the page and the effect is the animation effect that
+will be applied to it (asynchronously).
+
+The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
+{@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webimator provides convenient factory functions
+that can be used to create such clips—the factory functions can be obtained from {@link Webimator.createAnimationClipFactories}.
+Examples are shown below.
+
+Generally (with some exceptions), using a clip factory function follows this format:
+`const clip = <factory func>(<some element>, <effect name>, [<effect options>], {<optional clip configuration>});`
+*/
+/**** EX:E id="AnimClip.desc" */
+
+/**** EX:S id="AnimClip.class" */
+// retrieve the clip factory functions
+const clipFactories = webimator.createAnimationClipFactories();
+
+// select an element from the DOM
+const square = document.querySelector('.square');
+
+// A = element, B = effect name, C = effect options, D = configuration (optional)
+
+// create 3 animation clips using the clip factory functions Entrance(), Motion(), and Emphasis()
+//                                     A       B           C
+const entClip = clipFactories.Entrance(square, '~fade-in', []);
+//                                   A       B             C
+const motClip = clipFactories.Motion(square, '~translate', [{translateX: '500px', offsetSelf: '50%, 50%'}]);
+//                                     A       B             C        D
+const empClip = clipFactories.Emphasis(square, '~highlight', ['red'], {duration: 2000, easing: 'ease-in'});
+
+(async () => {
+  // play the clips one at a time
+  await entClip.play();
+  await motClip.play();
+  await empClip.play();
+  // rewind the clips one at a time
+  await empClip.rewind();
+  await motClip.rewind();
+  await entClip.rewind();
+})();
+/**** EX:E id="AnimClip.class" */
+}
+
+{
+/**** EX:S id="EntranceClip.example" */
+// retrieve entrance clip factory function;
+const { Entrance } = webimator.createAnimationClipFactories();
+
+// select elements from the DOM
+const square = document.querySelector('.square');
+const circle = document.querySelector('.circle');
+const triangle = document.querySelector('.triangle');
+
+// A = element, B = effect name, C = effect options, D = configuration (optional)
+
+// create three entrance clips using factory function
+//                     A       B          C
+const clip1 = Entrance(square, '~appear', []);
+//                     A       B          C              D
+const clip2 = Entrance(circle, '~fly-in', ['from-left'], {duration: 2000, easing: 'ease-out'});
+//                     A         B            C                 D
+const clip3 = Entrance(triangle, '~pinwheel', [2, 'clockwise'], {playbackRate: 2, delay: 1000});
+
+// play clips (all will play at the same time because they are asynchronous)
+clip1.play();
+clip2.play();
+clip3.play();
+/**** EX:E id="EntranceClip.example" */
+}
+
+{
+/**** EX:S id="ExitClip.example" */
+// retrieve exit clip factory function;
+const { Exit } = webimator.createAnimationClipFactories();
+
+// select elements from the DOM
+const square = document.querySelector('.square');
+const circle = document.querySelector('.circle');
+const triangle = document.querySelector('.triangle');
+
+// A = element, B = effect name, C = effect options, D = configuration (optional)
+
+// create three exit clips using factory function
+//                 A       B             C
+const clip1 = Exit(square, '~disappear', []);
+//                 A       B           C            D
+const clip2 = Exit(circle, '~fly-out', ['to-left'], {duration: 2000, easing: 'ease-in'});
+//                 A         B            C                        D
+const clip3 = Exit(triangle, '~pinwheel', [2, 'counterclockwise'], {playbackRate: 2, delay: 1000});
+
+// play clips (all will play at the same time because they are asynchronous)
+clip1.play();
+clip2.play();
+clip3.play();
+/**** EX:E id="ExitClip.example" */
+}
+
+{
+/**** EX:S id="EmphasisClip.example" */
+// retrieve emphasis clip factory function;
+const { Emphasis } = webimator.createAnimationClipFactories();
+
+// select element from the DOM
+const importantText = document.querySelector('.important-text');
+
+// A = element, B = effect name, C = effect options, D = configuration (optional)
+
+// create emphasis clip using factory function
+const clip1 = Emphasis(
+  importantText, // A
+  '~highlight', // B
+  ['yellow'], // C
+  { // D
+    cssClasses: {toAddOnStart: ['.bold', '.italics']},
+    duration: 1000,
+  },
+);
+
+// play clip
+clip1.play();
+/**** EX:E id="EmphasisClip.example" */
+}
+
+{
+/**** EX:S id="MotionClip.example" */
+// retrieve motion clip factory function;
+const { Motion } = webimator.createAnimationClipFactories();
+
+// select elements from the DOM
+const square = document.querySelector('.square');
+const circle = document.querySelector('.circle');
+const triangle = document.querySelector('.triangle');
+
+// A = element, B = effect name, C = effect options, D = configuration (optional)
+
+// create motion clips using factory function
+//                   A       B             C
+const clip1 = Motion(square, '~translate', [{translate: '200px, 300rem'}]);
+//                   A       B           C
+const clip2 = Motion(circle, '~move-to', [document.querySelector('body'), {alignment: 'center center'}]);
+//                   A         B           C                                                       D
+const clip3 = Motion(triangle, '~move-to', [circle, {alignmentX: 'center', offsetSelfY: '-100%'}], {duration: 2000});
+
+// play clips one at a time
+(async() => {
+  await clip1.play(); // square moves 200px right and 300rem down
+  await clip2.play(); // circle moves to center itself horizontally and vertically with the <body>
+  await clip3.play(); // triangle moves to sit on top of the circle, horizontally centered
+})()
+/**** EX:E id="MotionClip.example" */
+}
+
+{
 /**** EX:S id="AnimClip.generateTimePromise-1" */
 async function testFunc() {
   const { Entrance } = webimator.createAnimationClipFactories();

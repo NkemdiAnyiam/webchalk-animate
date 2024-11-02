@@ -1,6 +1,7 @@
 import { AnimSequence } from "./AnimationSequence";
 import { AnimTimeline } from "./AnimationTimeline";
-import { webimator } from "../Webimator";
+import { EntranceClip, MotionClip, TransitionClip } from "./AnimationClipCategories";
+import { webimator, Webimator } from "../Webimator";
 import { EffectOptions, EffectGeneratorBank, EffectGenerator } from "../2_animationEffects/generationTypes";
 import { call, detab, getPartial, mergeArrays } from "../4_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
@@ -230,6 +231,52 @@ export type AnimClipStatus = {
 };
 
 /**
+ * <!-- EX:S id="AnimClip.desc" code-type="comment-block" -->
+ * A "clip" is the smallest building block of a timeline. It is essentially a [DOM element, effect] pair,
+ * where a "DOM element" is some HTML element on the page and the effect is the animation effect that
+ * will be applied to it (asynchronously).
+ * 
+ * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webimator provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link Webimator.createAnimationClipFactories}.
+ * Examples are shown below.
+ * 
+ * Generally (with some exceptions), using a clip factory function follows this format:
+ * `const clip = <factory func>(<some element>, <effect name>, [<effect options>], {<optional clip configuration>});`
+ * <!-- EX:E id="AnimClip.desc" -->
+ * 
+ * @example
+ * <!-- EX:S id="AnimClip.class" code-type="ts" -->
+ * ```ts
+ * // retrieve the clip factory functions
+ * const clipFactories = webimator.createAnimationClipFactories();
+ * 
+ * // select an element from the DOM
+ * const square = document.querySelector('.square');
+ * 
+ * // A = element, B = effect name, C = effect options, D = configuration (optional)
+ * 
+ * // create 3 animation clips using the clip factory functions Entrance(), Motion(), and Emphasis()
+ * //                                     A       B           C
+ * const entClip = clipFactories.Entrance(square, '~fade-in', []);
+ * //                                   A       B             C
+ * const motClip = clipFactories.Motion(square, '~translate', [{translateX: '500px', offsetSelf: '50%, 50%'}]);
+ * //                                     A       B             C        D
+ * const empClip = clipFactories.Emphasis(square, '~highlight', ['red'], {duration: 2000, easing: 'ease-in'});
+ * 
+ * (async () => {
+ *   // play the clips one at a time
+ *   await entClip.play();
+ *   await motClip.play();
+ *   await empClip.play();
+ *   // rewind the clips one at a time
+ *   await empClip.rewind();
+ *   await motClip.rewind();
+ *   await entClip.rewind();
+ * })();
+ * ```
+ * <!-- EX:E id="AnimClip.class" -->
+ * 
  * @hideconstructor
  * 
  * @groupDescription Property Getter Methods
