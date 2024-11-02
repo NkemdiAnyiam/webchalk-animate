@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import { getLine, getTagMatches } from "./stringTools";
 
-export type CodeType = 'ts' | 'standard' | 'inline-code' | 'html' | 'css';
+export type CodeType = 'ts' | 'standard' | 'inline-code' | 'html' | 'css' | 'comment-block';
 
 export interface WriteMeta {
   lastIndex: number;
@@ -72,6 +72,8 @@ export async function writeBetweenText(filePath: string, options: WriteBetweenTe
           return content;
         case "inline-code":
           return `\`${content.trim()}\``;
+        case "comment-block":
+          return content.replace(/(?:\/\*(\r\n|\n)?)|(?:(\r\n|\n)?\*\/)/g, '');
         default: throw new Error(`Invalid codeType "${codeType}"`);
       }
     }
