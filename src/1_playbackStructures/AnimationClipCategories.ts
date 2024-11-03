@@ -576,6 +576,7 @@ export interface ScrollerClipConfig extends AnimClipConfig {
  * `const clip = <factory func>(<some element>, <effect name>, [<effect options>], {<optional clip configuration>});`
  * <!-- EX:E id="AnimClip.desc" -->
  * 
+ * @example
  * <!-- EX:S id="ScrollerClip.example" code-type="ts" -->
  * ```ts
  * // retrieve scroller clip factory function;
@@ -675,6 +676,7 @@ export interface TransitionClipModifiers extends AnimClipModifiers, Pick<Transit
  * `const clip = <factory func>(<some element>, <effect name>, [<effect options>], {<optional clip configuration>});`
  * <!-- EX:E id="AnimClip.desc" -->
  * 
+ * @example
  * <!-- EX:S id="TransitionClip.example" code-type="ts" -->
  * ```ts
  * // retrieve transition clip factory function;
@@ -810,10 +812,11 @@ export interface ConnectorSetterClipConfig extends AnimClipConfig {
  * But the ConnectorSetter() function differs.
  * It follows the form `<factory func>(<connector element>, [<point A>], [<point B>], {<optional configuration>})`
  * 
+ * @example
  * <!-- EX:S id="ConnectorSetterClip.example" code-type="ts" -->
  * ```ts
- * // retrieve connset setter and connector entrance clip factory function;
- * const { ConnectorSetter, ConnectorEntrance } = webimator.createAnimationClipFactories();
+ * // retrieve connector setter clip factory function;
+ * const { ConnectorSetter } = webimator.createAnimationClipFactories();
  * 
  * // select connector elements from the DOM
  * const topConnector = document.querySelector('.connector--thick');
@@ -829,7 +832,7 @@ export interface ConnectorSetterClipConfig extends AnimClipConfig {
  * // create connector setter clips using factory function
  * //                            A             B                           C
  * const clip1 = ConnectorSetter(topConnector, [circle1, 'center', 'top'], [circle2, 'center', 'top']);
- * //                            A                B                            C
+ * //                            A                B                             C
  * const clip2 = ConnectorSetter(middleConnector, [circle1, 'right', 'center'], [circle2, 'left', 'center']);
  * //                            A                  B                                   C
  * const clip3 = ConnectorSetter(verticalConnector, [topConnector, 'center', 'center'], [middleConnector, 'center', 'center']);
@@ -974,6 +977,43 @@ export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<
  * Generally (with some exceptions), using a clip factory function follows this format:
  * `const clip = <factory func>(<some element>, <effect name>, [<effect options>], {<optional clip configuration>});`
  * <!-- EX:E id="AnimClip.desc" -->
+ * 
+ * Note that {@link EntranceClip}s are merely for _entering_ connectors, not setting its endpoints.
+ * A connector's endpoints must be set (using a {@link ConnectorSetterClip}), and than an {@link EntranceClip}
+ * can be used to draw the line.
+ * 
+ * @example
+ * <!-- EX:S id="ConnectorEntranceClip.example" code-type="ts" -->
+ * ```ts
+ * // retrieve connector entrance clip factory function;
+ * const { ConnectorEntrance } = webimator.createAnimationClipFactories();
+ * 
+ * // select connector elements from the DOM
+ * const topConnector = document.querySelector('.connector--thick');
+ * const middleConnector = document.querySelector('.connector--skinny');
+ * const verticalConnector = document.querySelector('.connector--red');
+ * const bottomConnector = document.querySelector('.connector--dashed');
+ * 
+ * // A = element, B = effect name, C = effect options, D = configuration (optional)
+ * 
+ * // create connector entrance clips using factory function
+ * //                              A             B           C   D             
+ * const clip1 = ConnectorEntrance(topConnector, '~fade-in', [], {duration: 2000, playbackRate: 2});
+ * //                              A                B         C
+ * const clip2 = ConnectorEntrance(middleConnector, '~trace', ['from-A']);
+ * //                              A                  B         C                D
+ * const clip3 = ConnectorEntrance(verticalConnector, '~trace', ['from-bottom'], {delay: 500});
+ * //                              A                B          C
+ * const clip4 = ConnectorEntrance(bottomConnector, '~appear', []);
+ * 
+ * // play clips (all will play at the same time because they are asynchronous)
+ * clip1.play(); // topConnector fades in
+ * clip2.play(); // middleConnector is drawn from its point A to its point B
+ * clip3.play(); // verticalConnector is draw starting from whichever endpoint is lower
+ * clip4.play(); // bottomConnector appears instantly
+ * ```
+ * <!-- EX:E id="ConnectorEntranceClip.example" -->
+ * 
  * @category Connector Entrance
  * @hideconstructor
  */
@@ -1127,6 +1167,39 @@ export interface ConnectorExitClipConfig extends AnimClipConfig {
  * Generally (with some exceptions), using a clip factory function follows this format:
  * `const clip = <factory func>(<some element>, <effect name>, [<effect options>], {<optional clip configuration>});`
  * <!-- EX:E id="AnimClip.desc" -->
+ * 
+ * @example
+ * <!-- EX:S id="ConnectorEntranceClip.example" code-type="ts" -->
+ * ```ts
+ * // retrieve connector entrance clip factory function;
+ * const { ConnectorEntrance } = webimator.createAnimationClipFactories();
+ * 
+ * // select connector elements from the DOM
+ * const topConnector = document.querySelector('.connector--thick');
+ * const middleConnector = document.querySelector('.connector--skinny');
+ * const verticalConnector = document.querySelector('.connector--red');
+ * const bottomConnector = document.querySelector('.connector--dashed');
+ * 
+ * // A = element, B = effect name, C = effect options, D = configuration (optional)
+ * 
+ * // create connector entrance clips using factory function
+ * //                              A             B           C   D             
+ * const clip1 = ConnectorEntrance(topConnector, '~fade-in', [], {duration: 2000, playbackRate: 2});
+ * //                              A                B         C
+ * const clip2 = ConnectorEntrance(middleConnector, '~trace', ['from-A']);
+ * //                              A                  B         C                D
+ * const clip3 = ConnectorEntrance(verticalConnector, '~trace', ['from-bottom'], {delay: 500});
+ * //                              A                B          C
+ * const clip4 = ConnectorEntrance(bottomConnector, '~appear', []);
+ * 
+ * // play clips (all will play at the same time because they are asynchronous)
+ * clip1.play(); // topConnector fades in
+ * clip2.play(); // middleConnector is drawn from its point A to its point B
+ * clip3.play(); // verticalConnector is draw starting from whichever endpoint is lower
+ * clip4.play(); // bottomConnector appears instantly
+ * ```
+ * <!-- EX:E id="ConnectorEntranceClip.example" -->
+ * 
  * @category Connector Exit
  * @hideconstructor
  */

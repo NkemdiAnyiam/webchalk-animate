@@ -479,8 +479,8 @@ clip3.play(); // triangle transitions FROM 0 opacity to its current opacity
 
 {
 /**** EX:S id="ConnectorSetterClip.example" */
-// retrieve connset setter and connector entrance clip factory function;
-const { ConnectorSetter, ConnectorEntrance } = webimator.createAnimationClipFactories();
+// retrieve connector setter clip factory function;
+const { ConnectorSetter } = webimator.createAnimationClipFactories();
 
 // select connector elements from the DOM
 const topConnector = document.querySelector('.connector--thick');
@@ -524,6 +524,68 @@ clip4.play();
 // if the connectors are then drawn using ConnectorEntrance(), their endpoints will match
 // what was set according to ConnectorSetter()
 /**** EX:E id="ConnectorSetterClip.example" */
+}
+
+{
+/**** EX:S id="ConnectorEntranceClip.example" */
+// retrieve connector entrance clip factory function;
+const { ConnectorEntrance } = webimator.createAnimationClipFactories();
+
+// select connector elements from the DOM
+const topConnector = document.querySelector('.connector--thick');
+const middleConnector = document.querySelector('.connector--skinny');
+const verticalConnector = document.querySelector('.connector--red');
+const bottomConnector = document.querySelector('.connector--dashed');
+
+// A = element, B = effect name, C = effect options, D = configuration (optional)
+
+// create connector entrance clips using factory function
+//                              A             B           C   D             
+const clip1 = ConnectorEntrance(topConnector, '~fade-in', [], {duration: 2000, playbackRate: 2});
+//                              A                B         C
+const clip2 = ConnectorEntrance(middleConnector, '~trace', ['from-A']);
+//                              A                  B         C                D
+const clip3 = ConnectorEntrance(verticalConnector, '~trace', ['from-bottom'], {delay: 500});
+//                              A                B          C
+const clip4 = ConnectorEntrance(bottomConnector, '~appear', []);
+
+// play clips (all will play at the same time because they are asynchronous)
+clip1.play(); // topConnector fades in
+clip2.play(); // middleConnector is drawn from its point A to its point B
+clip3.play(); // verticalConnector is draw starting from whichever endpoint is lower
+clip4.play(); // bottomConnector appears instantly
+/**** EX:E id="ConnectorEntranceClip.example" */
+}
+
+{
+/**** EX:S id="ConnectorExitClip.example" */
+// retrieve connector exit clip factory function;
+const { ConnectorExit } = webimator.createAnimationClipFactories();
+
+// select connector elements from the DOM
+const topConnector = document.querySelector('.connector--thick');
+const middleConnector = document.querySelector('.connector--skinny');
+const verticalConnector = document.querySelector('.connector--red');
+const bottomConnector = document.querySelector('.connector--dashed');
+
+// A = element, B = effect name, C = effect options, D = configuration (optional)
+
+// create connector exit clips using factory function
+//                          A             B            C   D             
+const clip1 = ConnectorExit(topConnector, '~fade-out', [], {duration: 2000, playbackRate: 2});
+//                          A                B         C
+const clip2 = ConnectorExit(middleConnector, '~trace', ['from-B']);
+//                          A                  B         C             D
+const clip3 = ConnectorExit(verticalConnector, '~trace', ['from-top'], {delay: 500});
+//                          A                B             C
+const clip4 = ConnectorExit(bottomConnector, '~disappear', []);
+
+// play clips (all will play at the same time because they are asynchronous)
+clip1.play(); // topConnector fades out
+clip2.play(); // middleConnector is erased from its point B to its point A
+clip3.play(); // verticalConnector is erased starting from whichever endpoint is higher
+clip4.play(); // bottomConnector disappears instantly
+/**** EX:E id="ConnectorExitClip.example" */
 }
 
 {
