@@ -697,10 +697,10 @@ export const libPresetConnectorEntrances = {
     generateKeyframes() {
       return {forwardFrames: []} as const;
     },
-    defaultConfig: {
-      duration: 0
+    defaultConfig: {} as const,
+    immutableConfig: {
+      duration: 0,
     } as const,
-    immutableConfig: {},
   },
 
   /** Connector fades in, starting from 0 opacity. */
