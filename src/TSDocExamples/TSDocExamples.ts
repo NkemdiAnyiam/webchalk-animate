@@ -410,6 +410,123 @@ const clip3 = Motion(triangle, '~move-to', [circle, {alignmentX: 'center', offse
 }
 
 {
+/**** EX:S id="ScrollerClip.example" */
+// retrieve scroller clip factory function;
+const { Scroller } = webimator.createAnimationClipFactories();
+
+// select elements from the DOM
+const sideBar = document.querySelector('.side-bar');
+const mainPage = document.querySelector('.main');
+
+// A = element, B = effect name, C = effect options, D = configuration (optional)
+
+// create scroller clips using factory function
+//                     A        B               C                                          D
+const clip1 = Scroller(sideBar, '~scroll-self', [sideBar?.querySelector('.contact-link')], {duration: 1000});
+const clip2 = Scroller(
+  mainPage, // A
+  '~scroll-self', // B
+  [ // C
+    mainPage?.querySelector('.testimonials'),
+    {
+      scrollableOffsetY: 'center',
+      targetOffsetY: 'top',
+    },
+  ],
+  { // D
+    duration: 2000,
+    easing: 'ease-in-out'
+  },
+);
+
+// play clips one at a time
+(async() => {
+  // side bar scrolls to a presumed contact link
+  await clip1.play();
+  // main page scrolls to a presumed testimonials section.
+  // the top of the testimonials section aligns with the center of the page
+  await clip2.play();
+})();
+/**** EX:E id="ScrollerClip.example" */
+}
+
+{
+/**** EX:S id="TransitionClip.example" */
+// retrieve transition clip factory function;
+const { Transition } = webimator.createAnimationClipFactories();
+
+// select elements from the DOM
+const square = document.querySelector('.square');
+const textBox = document.querySelector('.text-box');
+const triangle = document.querySelector('.triangle');
+
+// A = element, B = effect name, C = effect options, D = configuration (optional)
+
+// create transition clips using factory function
+//                       A       B      C                                              D
+const clip1 = Transition(square, '~to', [{backgroundColor: 'lightred', width: '50%'}], {duration: 1000});
+//                       A        B      C
+const clip2 = Transition(textBox, '~to', [{fontSize: '30px', color: 'blue'}]);
+//                       A         B        C
+const clip3 = Transition(triangle, '~from', [{opacity: '0'}]);
+
+// play clips (all will play at the same time because they are asynchronous)
+clip1.play(); // square transitions to turn red and shrink to half width
+clip2.play(); // text box font size transitions to have font size of 30px and text color blue
+clip3.play(); // triangle transitions FROM 0 opacity to its current opacity
+/**** EX:E id="TransitionClip.example" */
+}
+
+{
+/**** EX:S id="ConnectorSetterClip.example" */
+// retrieve connset setter and connector entrance clip factory function;
+const { ConnectorSetter, ConnectorEntrance } = webimator.createAnimationClipFactories();
+
+// select connector elements from the DOM
+const topConnector = document.querySelector('.connector--thick');
+const middleConnector = document.querySelector('.connector--skinny');
+const verticalConnector = document.querySelector('.connector--red');
+const bottomConnector = document.querySelector('.connector--dashed');
+// select other elements from the DOM
+const circle1 = document.querySelector('.circle--left');
+const circle2 = document.querySelector('.circle--right');
+
+// A = connector element, B = point a, C = point b, D = configuration (optional)
+
+// create connector setter clips using factory function
+//                            A             B                           C
+const clip1 = ConnectorSetter(topConnector, [circle1, 'center', 'top'], [circle2, 'center', 'top']);
+//                            A                B                             C
+const clip2 = ConnectorSetter(middleConnector, [circle1, 'right', 'center'], [circle2, 'left', 'center']);
+//                            A                  B                                   C
+const clip3 = ConnectorSetter(verticalConnector, [topConnector, 'center', 'center'], [middleConnector, 'center', 'center']);
+const clip4 = ConnectorSetter(
+  bottomConnector, // A
+  [circle1, 'center', 'center'], // B
+  [circle2, 'center', 'center'], // C
+  {pointTrackingEnabled: false}, // D
+);
+
+// play clips (all will play at the same time because they are asynchronous)
+// topConnector's endpoints are set to the center-tops of circle1 and circle2
+clip1.play();
+
+// middleConnector's endpoints are set to the right-center of circle1 and left-center of circle2
+clip2.play();
+
+// verticalConnector's endpoints are set to the midpoints of topConnector and middleConnector
+clip3.play();
+
+// bottomConnector's endpoints are set to the center-bottoms of circle1 and circle2,
+// but its endpoints will NOT be updated if the circles move
+clip4.play();
+
+// if the connectors are then drawn using ConnectorEntrance(), their endpoints will match
+// what was set according to ConnectorSetter()
+/**** EX:E id="ConnectorSetterClip.example" */
+}
+
+{
 /**** EX:S id="AnimClip.generateTimePromise-1" */
 async function testFunc() {
   const { Entrance } = webimator.createAnimationClipFactories();
