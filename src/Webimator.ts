@@ -7,7 +7,7 @@ import {
 } from "./1_playbackStructures/AnimationClipCategories";
 import { AnimSequence, AnimSequenceConfig } from "./1_playbackStructures/AnimationSequence";
 import { AnimTimeline, AnimTimelineConfig } from "./1_playbackStructures/AnimationTimeline";
-import { WbmtrConnector, WbmtrConnectorConfig } from "./3_components/WbmtrConnector";
+import { WebimatorConnectorElement, WebimatorConnectorElementConfig } from "./3_components/WebimatorConnectorElement";
 import {
   libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions,
   libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions
@@ -624,11 +624,11 @@ export class Webimator {
       },
 
       /**
-       * Creates a {@link ConnectorSetterClip}, which can be used to set the endpoints of a {@link WbmtrConnector}.
-       * @param connectorElem - the {@link WbmtrConnector} element to which the animation effect will be applied
+       * Creates a {@link ConnectorSetterClip}, which can be used to set the endpoints of a {@link WebimatorConnectorElement}.
+       * @param connectorElem - the {@link WebimatorConnectorElement} element to which the animation effect will be applied
        * @param pointA - the new target of endpoint A (or `"preserve"` if it should not change)
        * @param pointB - the new target of endpoint B (or `"preserve"` if it should not change)
-       * @param connectorConfig A {@link WbmtrConnectorConfig} object.
+       * @param connectorConfig A {@link WebimatorConnectorElementConfig} object.
        * @returns A {@link ConnectorSetter} object.
        * 
        * <!-- EX:S id="ConnectorSetterClip.example" code-type="ts" -->
@@ -681,10 +681,10 @@ export class Webimator {
        * <!-- EX:E id="ConnectorSetterClip.example" -->
        */
       ConnectorSetter: function(
-        connectorElem: WbmtrConnector | Element | null | undefined,
+        connectorElem: WebimatorConnectorElement | Element | null | undefined,
         pointA: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
         pointB: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
-        connectorConfig: WbmtrConnectorConfig = {} as WbmtrConnectorConfig,
+        connectorConfig: WebimatorConnectorElementConfig = {} as WebimatorConnectorElementConfig,
       ) {
         self.clipCreatorLock = false;
         const effectName = `~set-line-points`;
@@ -694,8 +694,8 @@ export class Webimator {
       },
 
       /**
-       * Creates a {@link ConnectorEntranceClip}, which can be used to reveal a {@link WbmtrConnector} that was hidden.
-       * @param domElem - the {@link WbmtrConnector} element to which the animation effect will be applied
+       * Creates a {@link ConnectorEntranceClip}, which can be used to reveal a {@link WebimatorConnectorElement} that was hidden.
+       * @param domElem - the {@link WebimatorConnectorElement} element to which the animation effect will be applied
        * @param effectName - the name of the preset animation effect
        * @param effectOptions - array of arguments that can be used to customize the appearance of the chosen animation effect
        * @param effectConfig - configuration options object ({@link ConnectorEntranceClipConfig}) that defines the behavior of the clip
@@ -735,7 +735,7 @@ export class Webimator {
       ConnectorEntrance: function<
         TGeneratorBank extends typeof combinedConnectorEntranceBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]
       >(
-        connectorElem: WbmtrConnector | Element | null | undefined,
+        connectorElem: WebimatorConnectorElement | Element | null | undefined,
         effectName: TEffectName,
         effectOptions: EffectOptions<TEffectGenerator>,
         effectConfig: Partial<Layer4MutableConfig<ConnectorEntranceClip, TEffectGenerator>> = {},
@@ -745,8 +745,8 @@ export class Webimator {
       },
 
       /**
-       * Creates a {@link ConnectorExitClip}, which can be used to unrender a {@link WbmtrConnector}.
-       * @param domElem - the {@link WbmtrConnector} element to which the animation effect will be applied
+       * Creates a {@link ConnectorExitClip}, which can be used to unrender a {@link WebimatorConnectorElement}.
+       * @param domElem - the {@link WebimatorConnectorElement} element to which the animation effect will be applied
        * @param effectName - the name of the preset animation effect
        * @param effectOptions - array of arguments that can be used to customize the appearance of the chosen animation effect
        * @param effectConfig - configuration options object ({@link ConnectorExitClipConfig}) that defines the behavior of the clip
@@ -784,7 +784,7 @@ export class Webimator {
        * <!-- EX:E id="ConnectorExitClip.example" -->
        */
       ConnectorExit: function<TGeneratorBank extends typeof combinedConnectorExitBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
-        connectorElem: WbmtrConnector | Element | null | undefined,
+        connectorElem: WebimatorConnectorElement | Element | null | undefined,
         effectName: TEffectName,
         effectOptions: EffectOptions<TEffectGenerator>,
         effectConfig: Partial<Layer4MutableConfig<ConnectorExitClip, TEffectGenerator>> = {},

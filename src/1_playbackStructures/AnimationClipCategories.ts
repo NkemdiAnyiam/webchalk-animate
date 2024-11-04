@@ -4,7 +4,7 @@ import { getPartial, parseMultiUnitPlacement } from "../4_utils/helpers";
 import { Webimator } from "../Webimator";
 import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
 import { PickFromArray } from "../4_utils/utilityTypes";
-import { WbmtrConnector, WbmtrConnectorConfig } from "../3_components/WbmtrConnector";
+import { WebimatorConnectorElement, WebimatorConnectorElementConfig } from "../3_components/WebimatorConnectorElement";
 import { EffectGenerator, EffectGeneratorBank, EffectOptions, Layer3MutableClipConfig } from "../2_animationEffects/generationTypes";
 
 /** @ignore */
@@ -811,7 +811,7 @@ export interface ConnectorSetterClipConfig extends AnimClipConfig {
  * <!-- EX:E id="AnimClip.desc" -->
  * The factory function for creating {@link ConnectorSetterClip}s is one such exception.
  * It follows the form `<factory func>(<connector element>, [<point A>], [<point B>], {<optional configuration>})`.
- * Additionally, "\<some element\>" must be of type {@link WbmtrConnector} (our custom `<wbmtr-connector>` HTML element).
+ * Additionally, "\<some element\>" must be of type {@link WebimatorConnectorElement} (our custom `<wbmtr-connector>` HTML element).
  * 
  * @example
  * <!-- EX:S id="ConnectorSetterClip.example" code-type="ts" -->
@@ -868,14 +868,14 @@ export interface ConnectorSetterClipConfig extends AnimClipConfig {
  */
 export class ConnectorSetterClip extends AnimClip<EffectGenerator, ConnectorSetterClipConfig> {
   protected get category(): 'Connector Setter' { return 'Connector Setter'; }
-  domElem: WbmtrConnector;
+  domElem: WebimatorConnectorElement;
   previousPointA?: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
   previousPointB?: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
   pointA: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | 'use-preserved';
   pointB: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | 'use-preserved';
 
-  connectorConfig: WbmtrConnectorConfig = {} as WbmtrConnectorConfig;
-  previousConnectorConfig: WbmtrConnectorConfig = {} as WbmtrConnectorConfig;
+  connectorConfig: WebimatorConnectorElementConfig = {} as WebimatorConnectorElementConfig;
+  previousConnectorConfig: WebimatorConnectorElementConfig = {} as WebimatorConnectorElementConfig;
 
   get categoryImmutableConfig() {
     return {
@@ -899,16 +899,16 @@ export class ConnectorSetterClip extends AnimClip<EffectGenerator, ConnectorSett
   
   /**@internal*/
   constructor(
-    connectorElem: WbmtrConnector | null | undefined,
+    connectorElem: WebimatorConnectorElement | null | undefined,
     pointA: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
     pointB: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
     effectName: string,
     effectGeneratorBank: EffectGeneratorBank,
-    connectorConfig: Partial<WbmtrConnectorConfig> = {},
+    connectorConfig: Partial<WebimatorConnectorElementConfig> = {},
     ) {
     super(connectorElem, effectName, effectGeneratorBank);
 
-    if (!(connectorElem instanceof WbmtrConnector)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass WbmtrConnector element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
+    if (!(connectorElem instanceof WebimatorConnectorElement)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass WebimatorConnectorElement element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
 
     const pointAElement = pointA[0] === 'preserve' ? connectorElem!.pointA?.[0] : pointA?.[0];
     if (!(pointAElement instanceof Element)) {
@@ -941,7 +941,7 @@ export class ConnectorSetterClip extends AnimClip<EffectGenerator, ConnectorSett
     this.domElem.pointTrackingEnabled = this.previousConnectorConfig.pointTrackingEnabled;
   }
 
-  applyLineConfig(connectorConfig: Partial<WbmtrConnectorConfig>): WbmtrConnectorConfig {
+  applyLineConfig(connectorConfig: Partial<WebimatorConnectorElementConfig>): WebimatorConnectorElementConfig {
     return {
       pointTrackingEnabled: this.domElem.pointTrackingEnabled,
       ...connectorConfig,
@@ -979,7 +979,7 @@ export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<
  * `const clip = <factory func>(<some element>, <effect name>, [<effect options>], {<optional clip configuration>});`
  * <!-- EX:E id="AnimClip.desc" -->
  * 
- * "\<some element\>" here must be of type {@link WbmtrConnector} (our custom `<wbmtr-connector>` HTML element).
+ * "\<some element\>" here must be of type {@link WebimatorConnectorElement} (our custom `<wbmtr-connector>` HTML element).
  * 
  * Note that {@link ConnectorEntranceClip}s are merely for _entering_ connectors, not setting their endpoints.
  * A connector's endpoints must be set (using a {@link ConnectorSetterClip}), and then a {@link ConnectorEntranceClip}
@@ -1022,7 +1022,7 @@ export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<
  */
 export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<ConnectorEntranceClip, ConnectorEntranceClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator, ConnectorEntranceClipConfig> {
   protected get category(): 'Connector Entrance' { return 'Connector Entrance'; }
-  domElem: WbmtrConnector;
+  domElem: WebimatorConnectorElement;
 
   get categoryImmutableConfig() {
     return {
@@ -1082,10 +1082,10 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
   }
 
   /**@internal*/
-  constructor(connectorElem: WbmtrConnector | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
+  constructor(connectorElem: WebimatorConnectorElement | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
     super(connectorElem, effectName, effectGeneratorBank);
 
-    if (!(connectorElem instanceof WbmtrConnector)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WbmtrConnector.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
+    if (!(connectorElem instanceof WebimatorConnectorElement)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WebimatorConnectorElement.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
     this.domElem = connectorElem;
   }
 
@@ -1170,7 +1170,7 @@ export interface ConnectorExitClipConfig extends AnimClipConfig {
  * Generally (with some exceptions), using a clip factory function follows this format:
  * `const clip = <factory func>(<some element>, <effect name>, [<effect options>], {<optional clip configuration>});`
  * <!-- EX:E id="AnimClip.desc" -->
- * "\<some element\>" must be of type {@link WbmtrConnector} (our custom `<wbmtr-connector>` HTML element).
+ * "\<some element\>" must be of type {@link WebimatorConnectorElement} (our custom `<wbmtr-connector>` HTML element).
  * 
  * @example
  * <!-- EX:S id="ConnectorEntranceClip.example" code-type="ts" -->
@@ -1209,7 +1209,7 @@ export interface ConnectorExitClipConfig extends AnimClipConfig {
  */
 export class ConnectorExitClip<TEffectGenerator extends EffectGenerator<ConnectorExitClip, ConnectorExitClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator, ConnectorExitClipConfig> {
   protected get category(): 'Connector Exit' { return 'Connector Exit'; }
-  domElem: WbmtrConnector;
+  domElem: WebimatorConnectorElement;
 
   get categoryImmutableConfig() {
     return {
@@ -1229,10 +1229,10 @@ export class ConnectorExitClip<TEffectGenerator extends EffectGenerator<Connecto
   }
 
   /**@internal*/
-  constructor(connectorElem: WbmtrConnector | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
+  constructor(connectorElem: WebimatorConnectorElement | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
     super(connectorElem, effectName, effectGeneratorBank);
 
-    if (!(connectorElem instanceof WbmtrConnector)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WbmtrConnector.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
+    if (!(connectorElem instanceof WebimatorConnectorElement)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WebimatorConnectorElement.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
 
     this.domElem = connectorElem;
   }

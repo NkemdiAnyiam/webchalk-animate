@@ -26,9 +26,10 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance} = w
   func(webimator.newSequence())
 
 
-  const connector = document.querySelector('.connector--red');
+  const connector = document.querySelector<WebimatorTypes.WebimatorConnectorElement>('.connector--1');
+  console.log('is connector (should true): ', connector instanceof WebimatorTypes.WebimatorConnectorElement);
 
-  console.log(webimator.newSequence() instanceof WebimatorTypes.AnimSequence);
+  console.log('is sequence (should true): ', webimator.newSequence() instanceof WebimatorTypes.AnimSequence);
 }
 
 const square = document.querySelector('.square');

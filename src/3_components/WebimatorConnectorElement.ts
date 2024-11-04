@@ -1,13 +1,13 @@
 import { equalWithinTol, overrideHidden, unOverrideHidden } from "../4_utils/helpers";
 import { DOMElement, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
 
-export type WbmtrConnectorConfig = {
+export type WebimatorConnectorElementConfig = {
   pointTrackingEnabled: boolean;
 };
 
 // CHANGE NOTE: Completely get rid of obsolete AnimClipLineUpdater
-export class WbmtrConnector extends HTMLElement {
-  /**@internal*/ static addToCustomElementRegistry() { customElements.define('wbmtr-connector', WbmtrConnector); }
+export class WebimatorConnectorElement extends HTMLElement {
+  /**@internal*/ static addToCustomElementRegistry() { customElements.define('wbmtr-connector', WebimatorConnectorElement); }
   private static staticId: number = 0;
 
   private connectorId: number = 0;
@@ -53,7 +53,7 @@ export class WbmtrConnector extends HTMLElement {
   
   constructor() {
     super();
-    this.connectorId = WbmtrConnector.staticId++;
+    this.connectorId = WebimatorConnectorElement.staticId++;
     const shadow = this.attachShadow({mode: 'open'});
 
     const markerIdPrefix = `markerArrow--${this.connectorId}`;

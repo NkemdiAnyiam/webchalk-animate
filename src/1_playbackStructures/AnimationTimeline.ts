@@ -2,7 +2,7 @@ import { AnimSequence } from "./AnimationSequence";
 import { CustomErrors, errorTip, generateError, TimelineErrorGenerator } from "../4_utils/errors";
 import { getPartial } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
-import { WbmtrPlaybackButton } from "../3_components/WbmtrPlaybackButton";
+import { WebimatorPlaybackButtonElement } from "../3_components/WebimatorPlaybackButtonElement";
 import { webimator } from "../Webimator";
 
 // TYPE
@@ -128,7 +128,7 @@ const DISABLED_FROM_PAUSE = 'playback-button--disabledFromPause';
 
 // TYPE
 type PlaybackButtons = {
-  [key in `${'forward' | 'backward' | 'pause' | 'toggleSkipping' | 'fastForward'}Button`]: WbmtrPlaybackButton | null | undefined;
+  [key in `${'forward' | 'backward' | 'pause' | 'toggleSkipping' | 'fastForward'}Button`]: WebimatorPlaybackButtonElement | null | undefined;
 };
 // TYPE
 type PlaybackButtonPurpose = `Step ${'Forward' | 'Backward'}` | 'Pause' | 'Fast Forward' | 'Toggle Skipping';
@@ -366,11 +366,11 @@ export class AnimTimeline {
     const potentialButtonsContainer = (searchRoot ?? document).querySelector(`[timeline-name="${this.config.timelineName}"]`);
 
     // find the button if it has the correct timeline-name directly on it
-    const getButtonDirect = (action: WbmtrPlaybackButton['action']) => (searchRoot ?? document).querySelector<WbmtrPlaybackButton>(`wbmtr-playback-button[action="${action}"][timeline-name="${this.config.timelineName}"]`);
+    const getButtonDirect = (action: WebimatorPlaybackButtonElement['action']) => (searchRoot ?? document).querySelector<WebimatorPlaybackButtonElement>(`wbmtr-playback-button[action="${action}"][timeline-name="${this.config.timelineName}"]`);
     // find the button if it is nested in a container with the correct timeline-name and does not have a timeline-name of its own
-    const getButtonGroupChild = (action: WbmtrPlaybackButton['action']) => potentialButtonsContainer?.querySelector<WbmtrPlaybackButton>(`wbmtr-playback-button[action="${action}"]:not([timeline-name])`);
+    const getButtonGroupChild = (action: WebimatorPlaybackButtonElement['action']) => potentialButtonsContainer?.querySelector<WebimatorPlaybackButtonElement>(`wbmtr-playback-button[action="${action}"]:not([timeline-name])`);
     // search for button directly, then search for child of button group
-    const getButton = (action: WbmtrPlaybackButton['action']) => getButtonDirect(action) ?? getButtonGroupChild(action);
+    const getButton = (action: WebimatorPlaybackButtonElement['action']) => getButtonDirect(action) ?? getButtonGroupChild(action);
 
     const forwardButton = buttonsSubset.includes('Step Forward') ? getButton("step-forward") : undefined;
     const backwardButton = buttonsSubset.includes('Step Backward') ? getButton("step-backward") : undefined;
@@ -503,7 +503,7 @@ export class AnimTimeline {
     let wasWarned = false;
     const warnedList: string[] = [];
 
-    const warnButton = (button: WbmtrPlaybackButton | null | undefined, purpose: PlaybackButtonPurpose) => {
+    const warnButton = (button: WebimatorPlaybackButtonElement | null | undefined, purpose: PlaybackButtonPurpose) => {
       if (!button && buttonsSubset.includes(purpose)) {
         warnedList.push(purpose);
         wasWarned = true;

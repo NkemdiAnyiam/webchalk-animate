@@ -1,10 +1,10 @@
 import { createStyles } from "./4_utils/helpers";
-import { WbmtrConnector } from "./3_components/WbmtrConnector";
-import { WbmtrPlaybackButton } from "./3_components/WbmtrPlaybackButton";
+import { WebimatorConnectorElement } from "./3_components/WebimatorConnectorElement";
+import { WebimatorPlaybackButtonElement } from "./3_components/WebimatorPlaybackButtonElement";
 
 export function injectGlobals() {
-  WbmtrConnector.addToCustomElementRegistry();
-  WbmtrPlaybackButton.addToCustomElementRegistry();
+  WebimatorConnectorElement.addToCustomElementRegistry();
+  WebimatorPlaybackButtonElement.addToCustomElementRegistry();
 
   // opacity of connector markers
   if (window.CSS.registerProperty) {

@@ -7,7 +7,7 @@ import { call, detab, getPartial, mergeArrays } from "../4_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
 import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "../4_utils/errors";
 import { DOMElement, EffectCategory, Keyframes } from "../4_utils/interfaces";
-import { WbmtrConnector } from "../3_components/WbmtrConnector";
+import { WebimatorConnectorElement } from "../3_components/WebimatorConnectorElement";
 import { WebimatorAnimation } from "./WebimatorAnimation";
 import { PartialPick, PickFromArray } from "../4_utils/utilityTypes";
 
@@ -1344,10 +1344,10 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   }
 
   protected preventConnector() {
-    if (this.domElem instanceof WbmtrConnector) {
+    if (this.domElem instanceof WebimatorConnectorElement) {
       throw this.generateError(CustomErrors.InvalidElementError,
         `Connectors cannot be animated using ${this.category}().` +
-        `${errorTip(`Tip: WbmtrConnector elements cannot be animated using Entrance() or Exit() because many of the animations are not really applicable.` +
+        `${errorTip(`Tip: WebimatorConnectorElement elements cannot be animated using Entrance() or Exit() because many of the animations are not really applicable.` +
           ` Instead, any entrance or exit effects that make sense for connectors are defined in ConnectorEntrance() and ConnectorExit().`
         )}`,
         this.domElem

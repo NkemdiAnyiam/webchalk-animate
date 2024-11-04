@@ -1,5 +1,5 @@
-export class WbmtrPlaybackButton extends HTMLElement {
-  /**@internal*/ static addToCustomElementRegistry() { customElements.define('wbmtr-playback-button', WbmtrPlaybackButton); }
+export class WebimatorPlaybackButtonElement extends HTMLElement {
+  /**@internal*/ static addToCustomElementRegistry() { customElements.define('wbmtr-playback-button', WebimatorPlaybackButtonElement); }
 
   action: `step-${'forward' | 'backward'}` | 'pause' | 'fast-forward' | 'toggle-skipping';
   shortcutKey: KeyboardEvent['key'] | null;
