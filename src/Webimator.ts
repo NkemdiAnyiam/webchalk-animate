@@ -3,6 +3,7 @@ import {
   EntranceClip, ExitClip, EmphasisClip, MotionClip, ScrollerClip, TransitionClip,
   ConnectorEntranceClip, ConnectorExitClip, ConnectorSetterClip,
   Layer4MutableConfig,
+  EntranceClipConfig,
 } from "./1_playbackStructures/AnimationClipCategories";
 import { AnimSequence, AnimSequenceConfig } from "./1_playbackStructures/AnimationSequence";
 import { AnimTimeline, AnimTimelineConfig } from "./1_playbackStructures/AnimationTimeline";
@@ -395,6 +396,42 @@ export class Webimator {
     const self = this;
     // return functions that can be used to instantiate AnimClips with intellisense for the combined banks
     return {
+      /**
+       * Creates an {@link EntranceClip}, which can be used to reveal an element that was hidden.
+       * @param domElem - the element to which the animation effect will be applied
+       * @param effectName - the name of the preset animation effect
+       * @param effectOptions - array of arguments that can be used to customize the appearance of the chosen animation effect
+       * @param effectConfig - configuration options object ({@link EntranceClipConfig}) that defines the behavior of the clip
+       * @returns An {@link EntranceClip} object.
+       * 
+       * @example
+       * <!-- EX:S id="EntranceClip.example" code-type="ts" -->
+       * ```ts
+       * // retrieve entrance clip factory function;
+       * const { Entrance } = webimator.createAnimationClipFactories();
+       * 
+       * // select elements from the DOM
+       * const square = document.querySelector('.square');
+       * const circle = document.querySelector('.circle');
+       * const triangle = document.querySelector('.triangle');
+       * 
+       * // A = element, B = effect name, C = effect options, D = configuration (optional)
+       * 
+       * // create three entrance clips using factory function
+       * //                     A       B          C
+       * const clip1 = Entrance(square, '~appear', []);
+       * //                     A       B          C              D
+       * const clip2 = Entrance(circle, '~fly-in', ['from-left'], {duration: 2000, easing: 'ease-out'});
+       * //                     A         B            C                 D
+       * const clip3 = Entrance(triangle, '~pinwheel', [2, 'clockwise'], {playbackRate: 2, delay: 1000});
+       * 
+       * // play clips (all will play at the same time because they are asynchronous)
+       * clip1.play();
+       * clip2.play();
+       * clip3.play();
+       * ```
+       * <!-- EX:E id="EntranceClip.example" -->
+       */
       Entrance: function<TGeneratorBank extends typeof combinedEntranceBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
@@ -405,6 +442,41 @@ export class Webimator {
         return new EntranceClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedEntranceBank).initialize(effectOptions, effectConfig);
       },
 
+      /**
+       * Creates an {@link ExitClip}, which can be used to unrender or make invisible an element.
+       * @param domElem - the element to which the animation effect will be applied
+       * @param effectName - the name of the preset animation effect
+       * @param effectOptions - array of arguments that can be used to customize the appearance of the chosen animation effect
+       * @param effectConfig - configuration options object ({@link ExitClipConfig}) that defines the behavior of the clip
+       * @returns An {@link ExitClip} object.
+       * 
+       * <!-- EX:S id="ExitClip.example" code-type="ts" -->
+       * ```ts
+       * // retrieve exit clip factory function;
+       * const { Exit } = webimator.createAnimationClipFactories();
+       * 
+       * // select elements from the DOM
+       * const square = document.querySelector('.square');
+       * const circle = document.querySelector('.circle');
+       * const triangle = document.querySelector('.triangle');
+       * 
+       * // A = element, B = effect name, C = effect options, D = configuration (optional)
+       * 
+       * // create three exit clips using factory function
+       * //                 A       B             C
+       * const clip1 = Exit(square, '~disappear', []);
+       * //                 A       B           C            D
+       * const clip2 = Exit(circle, '~fly-out', ['to-left'], {duration: 2000, easing: 'ease-in'});
+       * //                 A         B            C                        D
+       * const clip3 = Exit(triangle, '~pinwheel', [2, 'counterclockwise'], {playbackRate: 2, delay: 1000});
+       * 
+       * // play clips (all will play at the same time because they are asynchronous)
+       * clip1.play();
+       * clip2.play();
+       * clip3.play();
+       * ```
+       * <!-- EX:E id="ExitClip.example" -->
+       */
       Exit: function<TGeneratorBank extends typeof combinedExitBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
@@ -415,6 +487,40 @@ export class Webimator {
         return new ExitClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedExitBank).initialize(effectOptions, effectConfig);
       },
 
+      /**
+       * Creates an {@link EmphasisClip}, which can be used to emphasize an element in someway (like highlighting).
+       * @param domElem - the element to which the animation effect will be applied
+       * @param effectName - the name of the preset animation effect
+       * @param effectOptions - array of arguments that can be used to customize the appearance of the chosen animation effect
+       * @param effectConfig - configuration options object ({@link EmphasisClipConfig}) that defines the behavior of the clip
+       * @returns An {@link EmphasisClip} object.
+       * 
+       * <!-- EX:S id="EmphasisClip.example" code-type="ts" -->
+       * ```ts
+       * // retrieve emphasis clip factory function;
+       * const { Emphasis } = webimator.createAnimationClipFactories();
+       * 
+       * // select element from the DOM
+       * const importantText = document.querySelector('.important-text');
+       * 
+       * // A = element, B = effect name, C = effect options, D = configuration (optional)
+       * 
+       * // create emphasis clip using factory function
+       * const clip1 = Emphasis(
+       *   importantText, // A
+       *   '~highlight', // B
+       *   ['yellow'], // C
+       *   { // D
+       *     cssClasses: {toAddOnStart: ['.bold', '.italics']},
+       *     duration: 1000,
+       *   },
+       * );
+       * 
+       * // play clip
+       * clip1.play();
+       * ```
+       * <!-- EX:E id="EmphasisClip.example" -->
+       */
       Emphasis: function<TGeneratorBank extends typeof combinedEmphasisBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
@@ -425,6 +531,43 @@ export class Webimator {
         return new EmphasisClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedEmphasisBank).initialize(effectOptions, effectConfig);
       },
 
+      /**
+       * Creates a {@link MotionClip}.
+       * @param domElem - the element to which the animation effect will be applied
+       * @param effectName - the name of the preset animation effect
+       * @param effectOptions - array of arguments that can be used to customize the appearance of the chosen animation effect
+       * @param effectConfig - configuration options object ({@link MotionClipConfig}) that defines the behavior of the clip
+       * @returns A {@link MotionClip} object.
+       * 
+       * <!-- EX:S id="MotionClip.example" code-type="ts" -->
+       * ```ts
+       * // retrieve motion clip factory function;
+       * const { Motion } = webimator.createAnimationClipFactories();
+       * 
+       * // select elements from the DOM
+       * const square = document.querySelector('.square');
+       * const circle = document.querySelector('.circle');
+       * const triangle = document.querySelector('.triangle');
+       * 
+       * // A = element, B = effect name, C = effect options, D = configuration (optional)
+       * 
+       * // create motion clips using factory function
+       * //                   A       B             C
+       * const clip1 = Motion(square, '~translate', [{translate: '200px, 300rem'}]);
+       * //                   A       B           C
+       * const clip2 = Motion(circle, '~move-to', [document.querySelector('body'), {alignment: 'center center'}]);
+       * //                   A         B           C                                                       D
+       * const clip3 = Motion(triangle, '~move-to', [circle, {alignmentX: 'center', offsetSelfY: '-100%'}], {duration: 2000});
+       * 
+       * // play clips one at a time
+       * (async() => {
+       *   await clip1.play(); // square moves 200px right and 300rem down
+       *   await clip2.play(); // circle moves to center itself horizontally and vertically with the <body>
+       *   await clip3.play(); // triangle moves to sit on top of the circle, horizontally centered
+       * })()
+       * ```
+       * <!-- EX:E id="MotionClip.example" -->
+       */
       Motion: function<TGeneratorBank extends typeof combinedMotionBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
@@ -435,6 +578,41 @@ export class Webimator {
         return new MotionClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedMotionBank).initialize(effectOptions, effectConfig);
       },
 
+      /**
+       * Creates a {@link TransitionClip}, which can be used to make an element transition to or from a given {@link Keyframe}.
+       * @param domElem - the element to which the animation effect will be applied
+       * @param effectName - the name of the preset animation effect
+       * @param effectOptions - array of arguments that can be used to customize the appearance of the chosen animation effect
+       * @param effectConfig - configuration options object ({@link TransitionClipConfig}) that defines the behavior of the clip
+       * @returns A {@link TransitionClip} object.
+       * 
+       * <!-- EX:S id="TransitionClip.example" code-type="ts" -->
+       * ```ts
+       * // retrieve transition clip factory function;
+       * const { Transition } = webimator.createAnimationClipFactories();
+       * 
+       * // select elements from the DOM
+       * const square = document.querySelector('.square');
+       * const textBox = document.querySelector('.text-box');
+       * const triangle = document.querySelector('.triangle');
+       * 
+       * // A = element, B = effect name, C = effect options, D = configuration (optional)
+       * 
+       * // create transition clips using factory function
+       * //                       A       B      C                                              D
+       * const clip1 = Transition(square, '~to', [{backgroundColor: 'lightred', width: '50%'}], {duration: 1000});
+       * //                       A        B      C
+       * const clip2 = Transition(textBox, '~to', [{fontSize: '30px', color: 'blue'}]);
+       * //                       A         B        C
+       * const clip3 = Transition(triangle, '~from', [{opacity: '0'}]);
+       * 
+       * // play clips (all will play at the same time because they are asynchronous)
+       * clip1.play(); // square transitions to turn red and shrink to half width
+       * clip2.play(); // text box font size transitions to have font size of 30px and text color blue
+       * clip3.play(); // triangle transitions FROM 0 opacity to its current opacity
+       * ```
+       * <!-- EX:E id="TransitionClip.example" -->
+       */
       Transition: function<TGeneratorBank extends typeof combinedTransitionBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
@@ -445,6 +623,63 @@ export class Webimator {
         return new TransitionClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedTransitionBank).initialize(effectOptions, effectConfig);
       },
 
+      /**
+       * Creates a {@link ConnectorSetterClip}, which can be used to set the endpoints of a {@link WbmtrConnector}.
+       * @param connectorElem - the {@link WbmtrConnector} element to which the animation effect will be applied
+       * @param pointA - the new target of endpoint A (or `"preserve"` if it should not change)
+       * @param pointB - the new target of endpoint B (or `"preserve"` if it should not change)
+       * @param connectorConfig A {@link WbmtrConnectorConfig} object.
+       * @returns A {@link ConnectorSetter} object.
+       * 
+       * <!-- EX:S id="ConnectorSetterClip.example" code-type="ts" -->
+       * ```ts
+       * // retrieve connector setter clip factory function;
+       * const { ConnectorSetter } = webimator.createAnimationClipFactories();
+       * 
+       * // select connector elements from the DOM
+       * const topConnector = document.querySelector('.connector--thick');
+       * const middleConnector = document.querySelector('.connector--skinny');
+       * const verticalConnector = document.querySelector('.connector--red');
+       * const bottomConnector = document.querySelector('.connector--dashed');
+       * // select other elements from the DOM
+       * const circle1 = document.querySelector('.circle--left');
+       * const circle2 = document.querySelector('.circle--right');
+       * 
+       * // A = connector element, B = point a, C = point b, D = configuration (optional)
+       * 
+       * // create connector setter clips using factory function
+       * //                            A             B                           C
+       * const clip1 = ConnectorSetter(topConnector, [circle1, 'center', 'top'], [circle2, 'center', 'top']);
+       * //                            A                B                             C
+       * const clip2 = ConnectorSetter(middleConnector, [circle1, 'right', 'center'], [circle2, 'left', 'center']);
+       * //                            A                  B                                   C
+       * const clip3 = ConnectorSetter(verticalConnector, [topConnector, 'center', 'center'], [middleConnector, 'center', 'center']);
+       * const clip4 = ConnectorSetter(
+       *   bottomConnector, // A
+       *   [circle1, 'center', 'center'], // B
+       *   [circle2, 'center', 'center'], // C
+       *   {pointTrackingEnabled: false}, // D
+       * );
+       * 
+       * // play clips (all will play at the same time because they are asynchronous)
+       * // topConnector's endpoints are set to the center-tops of circle1 and circle2
+       * clip1.play();
+       * 
+       * // middleConnector's endpoints are set to the right-center of circle1 and left-center of circle2
+       * clip2.play();
+       * 
+       * // verticalConnector's endpoints are set to the midpoints of topConnector and middleConnector
+       * clip3.play();
+       * 
+       * // bottomConnector's endpoints are set to the center-bottoms of circle1 and circle2,
+       * // but its endpoints will NOT be updated if the circles move
+       * clip4.play();
+       * 
+       * // if the connectors are then drawn using ConnectorEntrance(), their endpoints will match
+       * // what was set according to ConnectorSetter()
+       * ```
+       * <!-- EX:E id="ConnectorSetterClip.example" -->
+       */
       ConnectorSetter: function(
         connectorElem: WbmtrConnector | Element | null | undefined,
         pointA: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
@@ -458,6 +693,45 @@ export class Webimator {
         ).initialize([]);
       },
 
+      /**
+       * Creates a {@link ConnectorEntranceClip}, which can be used to reveal a {@link WbmtrConnector} that was hidden.
+       * @param domElem - the {@link WbmtrConnector} element to which the animation effect will be applied
+       * @param effectName - the name of the preset animation effect
+       * @param effectOptions - array of arguments that can be used to customize the appearance of the chosen animation effect
+       * @param effectConfig - configuration options object ({@link ConnectorEntranceClipConfig}) that defines the behavior of the clip
+       * @returns A {@link ConnectorEntranceClip} object.
+       * 
+       * <!-- EX:S id="ConnectorEntranceClip.example" code-type="ts" -->
+       * ```ts
+       * // retrieve connector entrance clip factory function;
+       * const { ConnectorEntrance } = webimator.createAnimationClipFactories();
+       * 
+       * // select connector elements from the DOM
+       * const topConnector = document.querySelector('.connector--thick');
+       * const middleConnector = document.querySelector('.connector--skinny');
+       * const verticalConnector = document.querySelector('.connector--red');
+       * const bottomConnector = document.querySelector('.connector--dashed');
+       * 
+       * // A = element, B = effect name, C = effect options, D = configuration (optional)
+       * 
+       * // create connector entrance clips using factory function
+       * //                              A             B           C   D             
+       * const clip1 = ConnectorEntrance(topConnector, '~fade-in', [], {duration: 2000, playbackRate: 2});
+       * //                              A                B         C
+       * const clip2 = ConnectorEntrance(middleConnector, '~trace', ['from-A']);
+       * //                              A                  B         C                D
+       * const clip3 = ConnectorEntrance(verticalConnector, '~trace', ['from-bottom'], {delay: 500});
+       * //                              A                B          C
+       * const clip4 = ConnectorEntrance(bottomConnector, '~appear', []);
+       * 
+       * // play clips (all will play at the same time because they are asynchronous)
+       * clip1.play(); // topConnector fades in
+       * clip2.play(); // middleConnector is drawn from its point A to its point B
+       * clip3.play(); // verticalConnector is draw starting from whichever endpoint is lower
+       * clip4.play(); // bottomConnector appears instantly
+       * ```
+       * <!-- EX:E id="ConnectorEntranceClip.example" -->
+       */
       ConnectorEntrance: function<
         TGeneratorBank extends typeof combinedConnectorEntranceBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]
       >(
@@ -470,6 +744,45 @@ export class Webimator {
         return new ConnectorEntranceClip<TEffectGenerator>(connectorElem as Exclude<typeof connectorElem, Element>, effectName, combinedConnectorEntranceBank).initialize(effectOptions, effectConfig);
       },
 
+      /**
+       * Creates a {@link ConnectorExitClip}, which can be used to unrender a {@link WbmtrConnector}.
+       * @param domElem - the {@link WbmtrConnector} element to which the animation effect will be applied
+       * @param effectName - the name of the preset animation effect
+       * @param effectOptions - array of arguments that can be used to customize the appearance of the chosen animation effect
+       * @param effectConfig - configuration options object ({@link ConnectorExitClipConfig}) that defines the behavior of the clip
+       * @returns A {@link ConnectorExitClip} object.
+       * 
+       * <!-- EX:S id="ConnectorExitClip.example" code-type="ts" -->
+       * ```ts
+       * // retrieve connector exit clip factory function;
+       * const { ConnectorExit } = webimator.createAnimationClipFactories();
+       * 
+       * // select connector elements from the DOM
+       * const topConnector = document.querySelector('.connector--thick');
+       * const middleConnector = document.querySelector('.connector--skinny');
+       * const verticalConnector = document.querySelector('.connector--red');
+       * const bottomConnector = document.querySelector('.connector--dashed');
+       * 
+       * // A = element, B = effect name, C = effect options, D = configuration (optional)
+       * 
+       * // create connector exit clips using factory function
+       * //                          A             B            C   D             
+       * const clip1 = ConnectorExit(topConnector, '~fade-out', [], {duration: 2000, playbackRate: 2});
+       * //                          A                B         C
+       * const clip2 = ConnectorExit(middleConnector, '~trace', ['from-B']);
+       * //                          A                  B         C             D
+       * const clip3 = ConnectorExit(verticalConnector, '~trace', ['from-top'], {delay: 500});
+       * //                          A                B             C
+       * const clip4 = ConnectorExit(bottomConnector, '~disappear', []);
+       * 
+       * // play clips (all will play at the same time because they are asynchronous)
+       * clip1.play(); // topConnector fades out
+       * clip2.play(); // middleConnector is erased from its point B to its point A
+       * clip3.play(); // verticalConnector is erased starting from whichever endpoint is higher
+       * clip4.play(); // bottomConnector disappears instantly
+       * ```
+       * <!-- EX:E id="ConnectorExitClip.example" -->
+       */
       ConnectorExit: function<TGeneratorBank extends typeof combinedConnectorExitBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
         connectorElem: WbmtrConnector | Element | null | undefined,
         effectName: TEffectName,
@@ -480,6 +793,55 @@ export class Webimator {
         return new ConnectorExitClip<TEffectGenerator>(connectorElem as Exclude<typeof connectorElem, Element>, effectName, combinedConnectorExitBank).initialize(effectOptions, effectConfig);
       },
       
+      /**
+       * Creates an {@link ScrollerClip}, which can be used to scroll an element.
+       * @param domElem - the element to which the animation effect will be applied
+       * @param effectName - the name of the preset animation effect
+       * @param effectOptions - array of arguments that can be used to customize the appearance of the chosen animation effect
+       * @param effectConfig - configuration options object ({@link ScrollerClipConfig}) that defines the behavior of the clip
+       * @returns An {@link ScrollerClip} object.
+       * 
+       * <!-- EX:S id="ScrollerClip.example" code-type="ts" -->
+       * ```ts
+       * // retrieve scroller clip factory function;
+       * const { Scroller } = webimator.createAnimationClipFactories();
+       * 
+       * // select elements from the DOM
+       * const sideBar = document.querySelector('.side-bar');
+       * const mainPage = document.querySelector('.main');
+       * 
+       * // A = element, B = effect name, C = effect options, D = configuration (optional)
+       * 
+       * // create scroller clips using factory function
+       * //                     A        B               C                                          D
+       * const clip1 = Scroller(sideBar, '~scroll-self', [sideBar?.querySelector('.contact-link')], {duration: 1000});
+       * const clip2 = Scroller(
+       *   mainPage, // A
+       *   '~scroll-self', // B
+       *   [ // C
+       *     mainPage?.querySelector('.testimonials'),
+       *     {
+       *       scrollableOffsetY: 'center',
+       *       targetOffsetY: 'top',
+       *     },
+       *   ],
+       *   { // D
+       *     duration: 2000,
+       *     easing: 'ease-in-out'
+       *   },
+       * );
+       * 
+       * // play clips one at a time
+       * (async() => {
+       *   // side bar scrolls to a presumed contact link
+       *   await clip1.play();
+       *   // main page scrolls to a presumed testimonials section.
+       *   // the top of the testimonials section aligns with the center of the page
+       *   await clip2.play();
+       * })();
+       * ```
+       * <!-- EX:E id="ScrollerClip.example" -->
+       */
       Scroller: function<TGeneratorBank extends typeof combinedScrollerBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>
       (
         domElem: Element | null | undefined,
