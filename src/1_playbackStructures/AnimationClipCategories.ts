@@ -981,7 +981,7 @@ export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<
  * 
  * "\<some element\>" here must be of type {@link WbmtrConnector} (our custom `<wbmtr-connector>` HTML element).
  * 
- * Note that {@link EntranceClip}s are merely for _entering_ connectors, not setting its endpoints.
+ * Note that {@link ConnectorEntranceClip}s are merely for _entering_ connectors, not setting its endpoints.
  * A connector's endpoints must be set (using a {@link ConnectorSetterClip}), and than an {@link EntranceClip}
  * can be used to draw the line.
  * 
