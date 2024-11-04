@@ -810,7 +810,8 @@ export interface ConnectorSetterClipConfig extends AnimClipConfig {
  * `const clip = <factory func>(<some element>, <effect name>, [<effect options>], {<optional clip configuration>});`
  * <!-- EX:E id="AnimClip.desc" -->
  * But the ConnectorSetter() function differs.
- * It follows the form `<factory func>(<connector element>, [<point A>], [<point B>], {<optional configuration>})`
+ * It follows the form `<factory func>(<connector element>, [<point A>], [<point B>], {<optional configuration>})`.
+ * Additionally, "\<some element\>" must be of type {@link WbmtrConnector} (our custom `<wbmtr-connector>` HTML element).
  * 
  * @example
  * <!-- EX:S id="ConnectorSetterClip.example" code-type="ts" -->
@@ -977,6 +978,8 @@ export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<
  * Generally (with some exceptions), using a clip factory function follows this format:
  * `const clip = <factory func>(<some element>, <effect name>, [<effect options>], {<optional clip configuration>});`
  * <!-- EX:E id="AnimClip.desc" -->
+ * 
+ * "\<some element\>" here must be of type {@link WbmtrConnector} (our custom `<wbmtr-connector>` HTML element).
  * 
  * Note that {@link EntranceClip}s are merely for _entering_ connectors, not setting its endpoints.
  * A connector's endpoints must be set (using a {@link ConnectorSetterClip}), and than an {@link EntranceClip}
@@ -1167,6 +1170,7 @@ export interface ConnectorExitClipConfig extends AnimClipConfig {
  * Generally (with some exceptions), using a clip factory function follows this format:
  * `const clip = <factory func>(<some element>, <effect name>, [<effect options>], {<optional clip configuration>});`
  * <!-- EX:E id="AnimClip.desc" -->
+ * "\<some element\>" must be of type {@link WbmtrConnector} (our custom `<wbmtr-connector>` HTML element).
  * 
  * @example
  * <!-- EX:S id="ConnectorEntranceClip.example" code-type="ts" -->
