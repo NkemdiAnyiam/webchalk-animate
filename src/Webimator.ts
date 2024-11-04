@@ -2,6 +2,7 @@ import { AnimClip} from "./1_playbackStructures/AnimationClip";
 import {
   EntranceClip, ExitClip, EmphasisClip, MotionClip, ScrollerClip, TransitionClip,
   ConnectorEntranceClip, ConnectorExitClip, ConnectorSetterClip,
+  Layer4MutableConfig,
 } from "./1_playbackStructures/AnimationClipCategories";
 import { AnimSequence, AnimSequenceConfig } from "./1_playbackStructures/AnimationSequence";
 import { AnimTimeline, AnimTimelineConfig } from "./1_playbackStructures/AnimationTimeline";
@@ -11,7 +12,7 @@ import {
   libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions
 } from "./2_animationEffects/libraryPresetEffectBanks";
 import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./4_utils/interfaces";
-import { EffectGeneratorBank, EffectNameIn, EffectGenerator } from "./2_animationEffects/generationTypes";
+import { EffectGeneratorBank, EffectNameIn, EffectGenerator, EffectOptions } from "./2_animationEffects/generationTypes";
 
 /**
  * @hideconstructor
@@ -397,53 +398,58 @@ export class Webimator {
       Entrance: function<TGeneratorBank extends typeof combinedEntranceBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        ...initializationParams: Parameters<EntranceClip<TEffectGenerator>['initialize']>
+        effectOptions: EffectOptions<TEffectGenerator>,
+        effectConfig: Partial<Layer4MutableConfig<EntranceClip, TEffectGenerator>> = {},
       ) {
         self.clipCreatorLock = false;
-        return new EntranceClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedEntranceBank).initialize(...initializationParams);
+        return new EntranceClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedEntranceBank).initialize(effectOptions, effectConfig);
       },
 
       Exit: function<TGeneratorBank extends typeof combinedExitBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        ...initializationParams: Parameters<ExitClip<TEffectGenerator>['initialize']>
+        effectOptions: EffectOptions<TEffectGenerator>,
+        effectConfig: Partial<Layer4MutableConfig<ExitClip, TEffectGenerator>> = {},
       ) {
         self.clipCreatorLock = false;
-        return new ExitClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedExitBank).initialize(...initializationParams);
+        return new ExitClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedExitBank).initialize(effectOptions, effectConfig);
       },
 
       Emphasis: function<TGeneratorBank extends typeof combinedEmphasisBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        ...initializationParams: Parameters<EmphasisClip<TEffectGenerator>['initialize']>
+        effectOptions: EffectOptions<TEffectGenerator>,
+        effectConfig: Partial<Layer4MutableConfig<EmphasisClip, TEffectGenerator>> = {},
       ) {
         self.clipCreatorLock = false;
-        return new EmphasisClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedEmphasisBank).initialize(...initializationParams);
+        return new EmphasisClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedEmphasisBank).initialize(effectOptions, effectConfig);
       },
 
       Motion: function<TGeneratorBank extends typeof combinedMotionBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        ...initializationParams: Parameters<MotionClip<TEffectGenerator>['initialize']>
+        effectOptions: EffectOptions<TEffectGenerator>,
+        effectConfig: Partial<Layer4MutableConfig<MotionClip, TEffectGenerator>> = {},
       ) {
         self.clipCreatorLock = false;
-        return new MotionClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedMotionBank).initialize(...initializationParams);
+        return new MotionClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedMotionBank).initialize(effectOptions, effectConfig);
       },
 
       Transition: function<TGeneratorBank extends typeof combinedTransitionBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        ...initializationParams: Parameters<TransitionClip<TEffectGenerator>['initialize']>
+        effectOptions: EffectOptions<TEffectGenerator>,
+        effectConfig: Partial<Layer4MutableConfig<TransitionClip, TEffectGenerator>> = {},
       ) {
         self.clipCreatorLock = false;
-        return new TransitionClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedTransitionBank).initialize(...initializationParams);
+        return new TransitionClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedTransitionBank).initialize(effectOptions, effectConfig);
       },
 
       ConnectorSetter: function(
         connectorElem: WbmtrConnector | Element | null | undefined,
         pointA: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
         pointB: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
-        connectorConfig: WbmtrConnectorConfig = {} as WbmtrConnectorConfig
+        connectorConfig: WbmtrConnectorConfig = {} as WbmtrConnectorConfig,
       ) {
         self.clipCreatorLock = false;
         const effectName = `~set-line-points`;
@@ -457,29 +463,32 @@ export class Webimator {
       >(
         connectorElem: WbmtrConnector | Element | null | undefined,
         effectName: TEffectName,
-        ...initializationParams: Parameters<ConnectorEntranceClip<TEffectGenerator>['initialize']>
+        effectOptions: EffectOptions<TEffectGenerator>,
+        effectConfig: Partial<Layer4MutableConfig<ConnectorEntranceClip, TEffectGenerator>> = {},
       ) {
         self.clipCreatorLock = false;
-        return new ConnectorEntranceClip<TEffectGenerator>(connectorElem as Exclude<typeof connectorElem, Element>, effectName, combinedConnectorEntranceBank).initialize(...initializationParams);
+        return new ConnectorEntranceClip<TEffectGenerator>(connectorElem as Exclude<typeof connectorElem, Element>, effectName, combinedConnectorEntranceBank).initialize(effectOptions, effectConfig);
       },
 
       ConnectorExit: function<TGeneratorBank extends typeof combinedConnectorExitBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
         connectorElem: WbmtrConnector | Element | null | undefined,
         effectName: TEffectName,
-        ...initializationParams: Parameters<ConnectorExitClip<TEffectGenerator>['initialize']>
+        effectOptions: EffectOptions<TEffectGenerator>,
+        effectConfig: Partial<Layer4MutableConfig<ConnectorExitClip, TEffectGenerator>> = {},
       ) { 
         self.clipCreatorLock = false;
-        return new ConnectorExitClip<TEffectGenerator>(connectorElem as Exclude<typeof connectorElem, Element>, effectName, combinedConnectorExitBank).initialize(...initializationParams);
+        return new ConnectorExitClip<TEffectGenerator>(connectorElem as Exclude<typeof connectorElem, Element>, effectName, combinedConnectorExitBank).initialize(effectOptions, effectConfig);
       },
       
       Scroller: function<TGeneratorBank extends typeof combinedScrollerBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>
       (
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        ...initializationParams: Parameters<ScrollerClip<TEffectGenerator>['initialize']>
+        effectOptions: EffectOptions<TEffectGenerator>,
+        effectConfig: Partial<Layer4MutableConfig<ScrollerClip, TEffectGenerator>> = {},
       ) {
         self.clipCreatorLock = false;
-        return new ScrollerClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedScrollerBank).initialize(...initializationParams);
+        return new ScrollerClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedScrollerBank).initialize(effectOptions, effectConfig);
       },
     };
   }
