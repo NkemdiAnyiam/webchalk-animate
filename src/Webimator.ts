@@ -146,7 +146,7 @@ export class Webimator {
    * const seq2 = webimator.newSequence(
    *    {description: 'Fade in circle and move it'},
    *    Entrance(circleEl, '~fly-in', ['from-left']),
-   *    Motion(circleEl, '~translate', [{translateX: '250px'}]),
+   *    Motion(circleEl, '~translate', [{translate: '250px, 0px'}]),
    * );
    * 
    * // create timeline with some configuration and both sequences
@@ -189,7 +189,7 @@ export class Webimator {
    * const seq2 = webimator.newSequence(
    *   {description: 'Fade in circle and move it'},
    *   Entrance(circleEl, '~fly-in', ['from-left']),
-   *   Motion(circleEl, '~translate', [{translateX: '250px'}]),
+   *   Motion(circleEl, '~translate', [{translate: '250px, 0px'}]),
    * );
    * 
    * // create timeline with both sequences
@@ -240,8 +240,8 @@ export class Webimator {
    * // Using destructuring assignment to conveniently extract the `Entrance()` and `Motion()` factory functions
    * const {Entrance, Motion} = webimator.createAnimationClipFactories();
    * const ent = Entrance(square, '~fly-in', ['from-top'], {duration: 2000});
-   * const mot1 = Motion(square, '~translate', [{translateX: '500px'}], {duration: 1000});
-   * const mot2 = Motion(square, '~translate', [{translateY: '500px'}], {duration: 500});
+   * const mot1 = Motion(square, '~translate', [{translate: '500px, 0px'}], {duration: 1000});
+   * const mot2 = Motion(square, '~translate', [{translate: '0px, 500px'}], {duration: 500});
    * // clips are added to a sequence
    * const seq = webimator.newSequence(ent, mot1, mot2);
    * seq.play();
@@ -556,8 +556,8 @@ export class Webimator {
        * const clip1 = Motion(square, '~translate', [{translate: '200px, 300rem'}]);
        * //                   A       B           C
        * const clip2 = Motion(circle, '~move-to', [document.querySelector('body'), {alignment: 'center center'}]);
-       * //                   A         B           C                                                       D
-       * const clip3 = Motion(triangle, '~move-to', [circle, {alignmentX: 'center', offsetSelfY: '-100%'}], {duration: 2000});
+       * //                   A         B           C                                                             D
+       * const clip3 = Motion(triangle, '~move-to', [circle, {alignment: 'center top', selfOffset: '0%, -100%'}], {duration: 2000});
        * 
        * // play clips one at a time
        * (async() => {
@@ -821,8 +821,8 @@ export class Webimator {
        *   [ // C
        *     mainPage?.querySelector('.testimonials'),
        *     {
-       *       scrollableOffsetY: 'center',
-       *       targetOffsetY: 'top',
+       *       scrollableOffset: ['0px', 'center'],
+       *       targetOffset: ['0px', 'top'],
        *     },
        *   ],
        *   { // D

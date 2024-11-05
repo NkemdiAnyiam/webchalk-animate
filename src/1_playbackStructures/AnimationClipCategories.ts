@@ -515,8 +515,8 @@ export interface MotionClipConfig extends AnimClipConfig {
  * const clip1 = Motion(square, '~translate', [{translate: '200px, 300rem'}]);
  * //                   A       B           C
  * const clip2 = Motion(circle, '~move-to', [document.querySelector('body'), {alignment: 'center center'}]);
- * //                   A         B           C                                                       D
- * const clip3 = Motion(triangle, '~move-to', [circle, {alignmentX: 'center', offsetSelfY: '-100%'}], {duration: 2000});
+ * //                   A         B           C                                                             D
+ * const clip3 = Motion(triangle, '~move-to', [circle, {alignment: 'center top', selfOffset: '0%, -100%'}], {duration: 2000});
  * 
  * // play clips one at a time
  * (async() => {
@@ -597,8 +597,8 @@ export interface ScrollerClipConfig extends AnimClipConfig {
  *   [ // C
  *     mainPage?.querySelector('.testimonials'),
  *     {
- *       scrollableOffsetY: 'center',
- *       targetOffsetY: 'top',
+ *       scrollableOffset: ['0px', 'center'],
+ *       targetOffset: ['0px', 'top'],
  *     },
  *   ],
  *   { // D

@@ -260,7 +260,7 @@ export type AnimClipStatus = {
  * //                                     A       B           C
  * const entClip = clipFactories.Entrance(square, '~fade-in', []);
  * //                                   A       B             C
- * const motClip = clipFactories.Motion(square, '~translate', [{translateX: '500px', offsetSelf: '50%, 50%'}]);
+ * const motClip = clipFactories.Motion(square, '~translate', [{translate: '500px, 0px', selfOffset: '50%, 50%'}]);
  * //                                     A       B             C        D
  * const empClip = clipFactories.Emphasis(square, '~highlight', ['red'], {duration: 2000, easing: 'ease-in'});
  * 

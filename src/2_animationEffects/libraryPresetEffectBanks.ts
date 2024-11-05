@@ -527,16 +527,16 @@ export const libPresetMotions = {
       }
 
       const alignmentComponents = splitXYAlignmentString(translationOptions.alignment);
-      const offsetSelfComponents = splitXYTupleString(translationOptions.offsetSelf);
-      const offsetTargetComponents = splitXYTupleString(translationOptions.offsetTarget);
+      const selfOffsetComponents = splitXYTupleString(translationOptions.selfOffset);
+      const targetOffsetComponents = splitXYTupleString(translationOptions.targetOffset);
 
+      const alignmentX = alignmentComponents?.[0] ?? 'left';
+      const alignmentY = alignmentComponents?.[1] ?? 'top';
+      const selfOffsetX = selfOffsetComponents?.[0] ?? '0px';
+      const selfOffsetY = selfOffsetComponents?.[1] ?? '0px';
+      const targetOffsetX = targetOffsetComponents?.[0] ?? '0px';
+      const targetOffsetY = targetOffsetComponents?.[1] ?? '0px';
       const {
-        alignmentX = alignmentComponents?.[0] ?? 'left',
-        alignmentY = alignmentComponents?.[1] ?? 'top',
-        offsetSelfX = offsetSelfComponents?.[0] ?? '0px',
-        offsetSelfY = offsetSelfComponents?.[1] ?? '0px',
-        offsetTargetX = offsetTargetComponents?.[0] ?? '0px',
-        offsetTargetY = offsetTargetComponents?.[1] ?? '0px',
         preserveX = false,
         preserveY = false,
       } = translationOptions;
@@ -557,29 +557,29 @@ export const libPresetMotions = {
         : (preserveY ? 0 : rectTarget[alignmentY] - rectSelf[alignmentY]);
 
       // there may also be additional offset with respect to the target element
-      let offsetTargetXTrans = offsetTargetX;
-      let offsetTargetYTrans = offsetTargetY;
-      if (typeof offsetTargetX === 'string') {
-        const match = offsetTargetX.match(/(-?\d+(?:\.\d*)?)(\D+)/);
-        if (!match) { throw new RangeError(`Invalid offsetTargetX value ${offsetTargetX}`); }
+      let targetOffsetXTrans = targetOffsetX;
+      let targetOffsetYTrans = targetOffsetY;
+      if (typeof targetOffsetX === 'string') {
+        const match = targetOffsetX.match(/(-?\d+(?:\.\d*)?)(\D+)/);
+        if (!match) { throw new RangeError(`Invalid targetOffsetX value ${targetOffsetX}`); }
         const num = Number(match[1]);
         const unit = match[2] as CssLengthUnit;
-        if (unit === '%') { offsetTargetXTrans = `${(num/100) * rectTarget.width}px`; }
+        if (unit === '%') { targetOffsetXTrans = `${(num/100) * rectTarget.width}px`; }
       }
-      if (typeof offsetTargetY === 'string') {
-        const match = offsetTargetY.match(/(-?\d+(?:\.\d*)?)(\D+)/);
-        if (!match) { throw new RangeError(`Invalid offsetTargetY value ${offsetTargetY}`); }
+      if (typeof targetOffsetY === 'string') {
+        const match = targetOffsetY.match(/(-?\d+(?:\.\d*)?)(\D+)/);
+        if (!match) { throw new RangeError(`Invalid targetOffsetY value ${targetOffsetY}`); }
         const num = Number(match[1]);
         const unit = match[2] as CssLengthUnit;
-        if (unit === '%') { offsetTargetYTrans = `${(num/100) * rectTarget.height}px`; }
+        if (unit === '%') { targetOffsetYTrans = `${(num/100) * rectTarget.height}px`; }
       }
       
       return {
         forwardFrames: [
-          {translate: `calc(${baseXTrans}px + ${offsetSelfX} + ${offsetTargetXTrans}) calc(${baseYTrans}px + ${offsetSelfY} + ${offsetTargetYTrans})`}
+          {translate: `calc(${baseXTrans}px + ${selfOffsetX} + ${targetOffsetXTrans}) calc(${baseYTrans}px + ${selfOffsetY} + ${targetOffsetYTrans})`}
         ],
         backwardFrames: [
-          {translate: `calc(${-baseXTrans}px + ${negateNumString(offsetSelfX)} + ${negateNumString(offsetTargetXTrans)}) calc(${-baseYTrans}px + ${negateNumString(offsetSelfY)} + ${negateNumString(offsetTargetYTrans)})`}
+          {translate: `calc(${-baseXTrans}px + ${negateNumString(selfOffsetX)} + ${negateNumString(targetOffsetXTrans)}) calc(${-baseYTrans}px + ${negateNumString(selfOffsetY)} + ${negateNumString(targetOffsetYTrans)})`}
         ],
       };
     },
@@ -596,19 +596,17 @@ export const libPresetMotions = {
      */
     generateKeyframes(translationOptions: Partial<TranslateOptions> = {}) {
       const translationComponents = splitXYTupleString(translationOptions.translate);
-      const offsetSelfComponents =  splitXYTupleString(translationOptions.offsetSelf);
+      const selfOffsetComponents =  splitXYTupleString(translationOptions.selfOffset);
 
-      const {
-        translateX = translationComponents?.[0] ?? '0px',
-        translateY = translationComponents?.[1] ?? '0px',
-        offsetSelfX = offsetSelfComponents?.[0] ?? '0px',
-        offsetSelfY = offsetSelfComponents?.[1] ?? '0px',
-      } = translationOptions;
+      const translateX = translationComponents?.[0] ?? '0px';
+      const translateY = translationComponents?.[1] ?? '0px';
+      const selfOffsetX = selfOffsetComponents?.[0] ?? '0px';
+      const selfOffsetY = selfOffsetComponents?.[1] ?? '0px';
       
       return {
-        forwardFrames: [{translate: `calc(${translateX} + ${offsetSelfX}) calc(${translateY} + ${offsetSelfY})`}],
-        backwardFrames: [{translate: `calc(${negateNumString(translateX)} + ${negateNumString(offsetSelfX)})`
-                            + ` calc(${negateNumString(translateY)} + ${negateNumString(offsetSelfY)})`}],
+        forwardFrames: [{translate: `calc(${translateX} + ${selfOffsetX}) calc(${translateY} + ${selfOffsetY})`}],
+        backwardFrames: [{translate: `calc(${negateNumString(translateX)} + ${negateNumString(selfOffsetX)})`
+                            + ` calc(${negateNumString(translateY)} + ${negateNumString(selfOffsetY)})`}],
       };
     },
     defaultConfig: {},

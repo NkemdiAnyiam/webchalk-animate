@@ -35,18 +35,15 @@ export type DOMElement = HTMLElement | SVGElement | MathMLElement;
  */
 interface TranslationOffset {
   /**
-   * determines offsets to apply to both X and Y positional properties
+   * determines offsets to apply to both X and Y positional components
+   * - the offset is applied _after_ {@link alignment} is applied
    * - string in the form "{@link CssLength}, {@link CssLength}"
    * @example
    * ```ts
-   * {offsetSelf: "12px, 50%"}
+   * {selfOffset: "12px, 50%"}
    * ```
    */
-  offsetSelf: `${CssLength}, ${CssLength}`;
-  /** determines additional horizontal offset */
-  offsetSelfX: CssLength;
-  /** determines additional vertical offset */
-  offsetSelfY: CssLength;
+  selfOffset: `${CssLength}, ${CssLength}`; // move 12px right and 50% of own height down
 }
 
 // CHANGE NOTE: Use strings in the format of <number><CssLengthUnit> and remove XY things
@@ -59,14 +56,10 @@ export interface TranslateOptions extends TranslationOffset {
    * - string in the form "{@link CssLength}, {@link CssLength}"
    * @example
    * ```ts
-   * {translate: "12px, 50%"}
+   * {translate: "12px, 50%"} // move 12px right and 50% of own height down
    * ```
    */
   translate: `${CssLength}, ${CssLength}`;
-  /** distance to travel in the X direction */
-  translateX: CssLength;
-  /** distance to travel in the Y direction */
-  translateY: CssLength;
 }
 
 /**
@@ -74,24 +67,17 @@ export interface TranslateOptions extends TranslationOffset {
  */
 export interface MoveToOptions extends TranslationOffset {
   /** determines horizontal and vertical alignment with target element */
-  alignment: `${CssXAlignment} ${CssYAlignment}`
-  /** determines vertical alignment with target element */
-  alignmentY: CssYAlignment;
-  /** determines horizontal alignment with target element */
-  alignmentX: CssXAlignment;
+  alignment: `${CssXAlignment} ${CssYAlignment}`;
   /**
    * offset with respect to target's left and top bound
+   * - the offset is applied _after_ {@link alignment} is applied
    * - string in the form "{@link CssLength}, {@link CssLength}"
    * @example
    * ```ts
-   * {offsetTarget: "12px, 50%"}
+   * {targetOffset: "12px, 50%"} // move 12px right and 50% of target element's height down
    * ```
    */
-  offsetTarget: `${CssLength}, ${CssLength}`;
-  /** offset based on target's left bound or width (50% pushes us 50% of the target element's width rightward) */
-  offsetTargetX: CssLength;
-  /** offset based on target's top bound or height (5% pushes us 50% of the target element's height downward) */
-  offsetTargetY: CssLength;
+  targetOffset: `${CssLength}, ${CssLength}`;
   /** if `true`, there will be no horizontal translation with respect to the target element (offsets still apply) */
   preserveX: boolean;
   /** if `true`, there will be no vertical translation with respect to the target element (offsets still apply) */
@@ -104,16 +90,8 @@ export interface MoveToOptions extends TranslationOffset {
 export interface ScrollingOptions {
   /** determines the intersection point of the scrolling container with respect to its top-left bound */
   scrollableOffset?: [x: MultiUnitPlacementX | number, y: MultiUnitPlacementY | number];
-  /** determines the horizontal intersection point of the scrolling container with respect to its left bound */
-  scrollableOffsetX?: MultiUnitPlacementX | number;
-  /** determines the vertical intersection point of the scrolling container with respect to its top bound */
-  scrollableOffsetY?: MultiUnitPlacementY | number;
   /** determines the intersection point of the scroll target with respect to its top-left corner */
   targetOffset?: [x: MultiUnitPlacementX | number, y: MultiUnitPlacementY | number];
-  /** determines the horizontal intersection point of the scroll target with respect to its left bound */
-  targetOffsetX?: MultiUnitPlacementX | number;
-  /** determines the vertical intersection point of the scroll target with respect to its top bound */
-  targetOffsetY?: MultiUnitPlacementY | number;
   /** if `true`, the scrolling container will not scroll horizontally */
   preserveX?: boolean;
   /** if `true`, the scrolling container will not scroll vertically */
