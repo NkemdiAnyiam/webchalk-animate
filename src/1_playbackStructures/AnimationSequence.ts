@@ -28,7 +28,7 @@ export type AnimSequenceConfig = {
    * ''
    * ```
    */
-  tag: string;
+  jumpTag: string;
 
   /**
    * If `true`, the next sequence in the same timeline will automatically play after this sequence finishes.
@@ -191,18 +191,18 @@ export class AnimSequence {
     autoplaysNextSequence: false,
     description: '<blank sequence description>',
     playbackRate: 1,
-    tag: '',
+    jumpTag: '',
   };
 
   /**
    * Returns an object containing the configuration options used to
-   * define the timing, tag, and description of the animation sequence.
+   * define the timing, jump tag, and description of the animation sequence.
    * @returns an object containing
    * - {@link AnimSequenceConfig.autoplays|autoplays},
    * - {@link AnimSequenceConfig.autoplaysNextSequence|autoplaysNextSequence},
    * - {@link AnimSequenceConfig.description|description},
    * - {@link AnimSequenceConfig.playbackRate|playbackRate},
-   * - {@link AnimSequenceConfig.tag|tag},
+   * - {@link AnimSequenceConfig.jumpTag|jumpTag},
    * @group Property Getter Methods
    * @group Configuration
    */
@@ -363,7 +363,7 @@ export class AnimSequence {
     return specifics ? getPartial(result, specifics) : result;
   }
 
-  // GROUP: Description and Tag
+  // GROUP: Description and Jump tag
   /**
    * @returns the {@link AnimSequenceConfig.description|description} for this sequence.
    * @see {@link AnimSequenceConfig.description}
@@ -372,11 +372,11 @@ export class AnimSequence {
   getDescription() { return this.config.description; }
 
   /**
-   * @returns the {@link AnimSequenceConfig.tag|tag} for this sequence.
-   * @see {@link AnimSequenceConfig.tag|tag}
+   * @returns the {@link AnimSequenceConfig.jumpTag|jumpTag} for this sequence.
+   * @see {@link AnimSequenceConfig.jumpTag|jumpTag}
    * @group Property Getter Methods
    */
-  getTag() { return this.config.tag; }
+  getJumpTag() { return this.config.jumpTag; }
   
   /**
    * Sets the {@link AnimSequenceConfig.description|description} for this sequence.
@@ -387,12 +387,12 @@ export class AnimSequence {
   setDescription(description: string): this { this.config.description = description; return this; }
 
   /**
-   * Sets the {@link AnimSequenceConfig.tag|tag} for this sequence.
-   * @param tag - new tag
-   * @see {@link AnimSequenceConfig.tag}
+   * Sets the {@link AnimSequenceConfig.jumpTag|jumpTag} for this sequence.
+   * @param jumpTag - new jump tag
+   * @see {@link AnimSequenceConfig.jumpTag}
    * @group Property Setter Methods
    */
-  setTag(tag: string): this { this.config.tag = tag; return this; }
+  setJumpTag(jumpTag: string): this { this.config.jumpTag = jumpTag; return this; }
 
   /*-:**************************************************************************************************************************/
   /*-:*********************************        CONSTRUCTOR & INITIALIZERS        ***********************************************/

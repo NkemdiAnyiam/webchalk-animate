@@ -695,7 +695,7 @@ const square = document.querySelector('.square');
 
 const tLine = webimator.newTimeline(
   webimator.newSequence(
-    {tag: 'flickering'},
+    {jumpTag: 'flickering'},
     Entrance(square, '~appear', [], {endDelay: 500}),
     Exit(square, '~disappear', [], {endDelay: 500}),
     Entrance(square, '~appear', [], {endDelay: 500}),
@@ -705,7 +705,7 @@ const tLine = webimator.newTimeline(
   ),
 
   webimator.newSequence(
-    {tag: 'move around'},
+    {jumpTag: 'move around'},
     Motion(square, '~translate', [{translateX: '200px'}]),
     Motion(square, '~translate', [{translateY: '200px'}]),
     Motion(square, '~translate', [{translateX: '-200px'}]),
@@ -713,7 +713,7 @@ const tLine = webimator.newTimeline(
   ),
 
   webimator.newSequence(
-    {tag: 'go away', autoplays: true},
+    {jumpTag: 'go away', autoplays: true},
     Exit(square, '~pinwheel', []),
   )
 );

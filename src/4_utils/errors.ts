@@ -212,7 +212,7 @@ export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg =
       : ''
     ) +
     (sequence
-      ? `\nSequence: [Tag: ${sequence.getTag()}] [Description: ${sequence.getDescription()}]` +
+      ? `\nSequence: [Jump tag: ${sequence.getJumpTag()}] [Description: ${sequence.getDescription()}]` +
         (clip ? `\n          [At Index ${sequence.findClipIndex(clip!)} (the ${indexToOrdinal(sequence.findClipIndex(clip!))} clip)]` : '') +
         (clip ? `\n${'-'.repeat(20)}` : '')
       : ''

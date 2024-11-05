@@ -787,7 +787,7 @@ export class AnimTimeline {
     const sequences = this.animSequences;
 
     const loadedSeq = sequences[this.loadedSeqIndex];
-    if (this.config.debugMode) { console.log(`${this.stepNumber} -->>: ${loadedSeq.getDescription()} [Tag: ${loadedSeq.getTag() || '<blank sequence tag>'}]`); }
+    if (this.config.debugMode) { console.log(`${this.stepNumber} -->>: ${loadedSeq.getDescription()} [Jump tag: ${loadedSeq.getJumpTag() || '<blank sequence tag>'}]`); }
 
     const toPlay = sequences[this.loadedSeqIndex];
     this.inProgressSequences.set(toPlay.id, toPlay);
@@ -815,7 +815,7 @@ export class AnimTimeline {
     const sequences = this.animSequences;
 
     const prevSeq = sequences[prevSeqIndex];
-    if (this.config.debugMode) { console.log(`<<-- ${this.stepNumber}: ${prevSeq.getDescription()} [Tag: ${prevSeq.getTag() || '<blank sequence tag>'}]`); }
+    if (this.config.debugMode) { console.log(`<<-- ${this.stepNumber}: ${prevSeq.getDescription()} [Jump tag: ${prevSeq.getJumpTag() || '<blank sequence tag>'}]`); }
 
     const toRewind = sequences[prevSeqIndex];
     this.inProgressSequences.set(toRewind.id, toRewind);
@@ -901,8 +901,8 @@ export class AnimTimeline {
   }
 
   /**
-   * Jumps instantly to the sequence whose {@link AnimSequence.getTag|AnimSequence.getTag()} value matches the {@link tag} argument.
-   * @param tag - string that is used to search for the target sequence with the matching {@link AnimSequence.getTag|AnimSequence.getTag()} value
+   * Jumps instantly to the sequence whose {@link AnimSequence.getJumpTag|AnimSequence.getJumpTag()} value matches the {@link jumpTag} argument.
+   * @param jumpTag - string that is used to search for the target sequence with the matching {@link AnimSequence.getJumpTag|AnimSequence.getJumpTag()} value
    * @param options - set of options defining the behavior of the search, the offset of the jump, and whether to consider autoplay
    * @returns a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise | Promise} that
    * resolves when the timeline has finished jumping.
@@ -916,7 +916,7 @@ export class AnimTimeline {
    * 
    * const tLine = webimator.newTimeline(
    *   webimator.newSequence(
-   *     {tag: 'flickering'},
+   *     {jumpTag: 'flickering'},
    *     Entrance(square, '~appear', [], {endDelay: 500}),
    *     Exit(square, '~disappear', [], {endDelay: 500}),
    *     Entrance(square, '~appear', [], {endDelay: 500}),
@@ -926,7 +926,7 @@ export class AnimTimeline {
    *   ),
    * 
    *   webimator.newSequence(
-   *     {tag: 'move around'},
+   *     {jumpTag: 'move around'},
    *     Motion(square, '~translate', [{translateX: '200px'}]),
    *     Motion(square, '~translate', [{translateY: '200px'}]),
    *     Motion(square, '~translate', [{translateX: '-200px'}]),
@@ -934,7 +934,7 @@ export class AnimTimeline {
    *   ),
    * 
    *   webimator.newSequence(
-   *     {tag: 'go away', autoplays: true},
+   *     {jumpTag: 'go away', autoplays: true},
    *     Exit(square, '~pinwheel', []),
    *   )
    * );
@@ -972,7 +972,7 @@ export class AnimTimeline {
    * @group Playback Methods
    */
   jumpToSequenceTag(
-    tag: string | RegExp,
+    jumpTag: string | RegExp,
     options: {
       /**
        * the direction and/or the starting point of the search
@@ -1007,7 +1007,7 @@ export class AnimTimeline {
       searchOffset = 0,
       autoplayDetection = 'none',
     } = options;
-    return this.jumpTo({ tag, search, searchOffset, targetOffset, autoplayDetection });
+    return this.jumpTo({ jumpTag, search, searchOffset, targetOffset, autoplayDetection });
   }
 
   /**
@@ -1051,7 +1051,7 @@ export class AnimTimeline {
    * @group Playback Methods
    */
   private async jumpTo(options: {
-    tag: string | RegExp;
+    jumpTag: string | RegExp;
     search: 'forward' | 'backward' | 'forward-from-beginning' | 'backward-from-end';
     searchOffset: number;
     targetOffset: number;
@@ -1060,22 +1060,22 @@ export class AnimTimeline {
   private async jumpTo(options: {position: 'beginning' | 'end' | number; targetOffset: number; autoplayDetection: 'forward' | 'backward' | 'none';}): Promise<this>;
   private async jumpTo(
     options: { targetOffset: number; autoplayDetection: 'forward' | 'backward' | 'none'; } & (
-      {tag: string | RegExp; search?: 'forward' | 'backward' | 'forward-from-beginning' | 'backward-from-end'; searchOffset?: number; position?: never}
-      | {position: 'beginning' | 'end' | number; tag?: never}
+      {jumpTag: string | RegExp; search?: 'forward' | 'backward' | 'forward-from-beginning' | 'backward-from-end'; searchOffset?: number; position?: never}
+      | {position: 'beginning' | 'end' | number; jumpTag?: never}
     ),
   ): Promise<this> {
     if (this.isAnimating) { throw new Error('Cannot use jumpTo() while currently animating.'); }
     // Calls to jumpTo() must be separated using await or something that similarly prevents simultaneous execution of code
     if (this.isJumping) { throw new Error('Cannot perform simultaneous calls to jumpTo() in timeline.'); }
 
-    const { targetOffset, autoplayDetection, position, tag } = options;
+    const { targetOffset, autoplayDetection, position, jumpTag } = options;
 
     // cannot specify both tag and position
-    if (tag !== undefined && position !== undefined) {
-      throw new TypeError(`jumpTo() must receive either the tag or the position, not both. Received tag="${tag}" and position="${position}."`);
+    if (jumpTag !== undefined && position !== undefined) {
+      throw new TypeError(`jumpTo() must receive either the tag or the position, not both. Received tag="${jumpTag}" and position="${position}."`);
     }
     // can only specify one of tag or position, not both
-    if (tag === undefined && position === undefined) {
+    if (jumpTag === undefined && position === undefined) {
       throw new TypeError(`jumpTo() must receive either the tag or the position. Neither were received.`);
     }
     if (!Number.isSafeInteger(targetOffset)) { throw new TypeError(`Invalid offset "${targetOffset}". Value must be an integer.`); }
@@ -1084,7 +1084,7 @@ export class AnimTimeline {
 
     // find target index based on finding sequence with matching tag
     // Math.max(0) prevents wrapping
-    if (tag) {
+    if (jumpTag) {
       const { search = 'forward-from-beginning', searchOffset = 0 } = options;
       if (!Number.isSafeInteger(targetOffset)) { throw new TypeError(`Invalid searchOffset "${searchOffset}". Value must be an integer.`); }
       
@@ -1108,16 +1108,16 @@ export class AnimTimeline {
         default:
           throw new TypeError(`Invalid search value "${search}".`);
       }
-      const sequenceMatchesTag = (sequence: AnimSequence, tag: RegExp | string): boolean => tag instanceof RegExp ? tag.test(sequence.getTag()) : sequence.getTag() === tag;
+      const sequenceMatchesTag = (sequence: AnimSequence, tag: RegExp | string): boolean => tag instanceof RegExp ? tag.test(sequence.getJumpTag()) : sequence.getJumpTag() === tag;
 
       let initialIndex = -1;
       // get index corresponding to matching AnimSequence
       if (!isBackwardSearch)
-        { for (let i = fromIndex; i < this.numSequences; ++i) { if (sequenceMatchesTag(this.animSequences[i], tag)) { initialIndex = i; break; } } }
+        { for (let i = fromIndex; i < this.numSequences; ++i) { if (sequenceMatchesTag(this.animSequences[i], jumpTag)) { initialIndex = i; break; } } }
       else
-        { for (let i = fromIndex; i >= 0; --i) { if (sequenceMatchesTag(this.animSequences[i], tag)) { initialIndex = i; break; } } }
+        { for (let i = fromIndex; i >= 0; --i) { if (sequenceMatchesTag(this.animSequences[i], jumpTag)) { initialIndex = i; break; } } }
 
-      if (initialIndex === -1) { throw new Error(`Sequence tag "${tag}" not found given conditions: search: ${search}; searchOffset: ${searchOffset}.`); }
+      if (initialIndex === -1) { throw new Error(`Sequence tag "${jumpTag}" not found given conditions: search: ${search}; searchOffset: ${searchOffset}.`); }
       targetIndex = initialIndex + targetOffset;
     }
     // find target index based on either the beginning or end of the timeline
@@ -1139,7 +1139,7 @@ export class AnimTimeline {
 
     // check to see if requested target index is within timeline bounds
     {
-      const errorPrefixString = `Jumping to ${tag ? `tag "${tag}"` : `position "${position}"`} with offset "${targetOffset}" goes`;
+      const errorPrefixString = `Jumping to ${jumpTag ? `tag "${jumpTag}"` : `position "${position}"`} with offset "${targetOffset}" goes`;
       const errorPostfixString = `but requested index was ${targetIndex}.`;
       if (targetIndex < 0)
       { throw new RangeError(`${errorPrefixString} before timeline bounds. Minimium index = 0, ${errorPostfixString}`); }
