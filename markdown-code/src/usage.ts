@@ -151,7 +151,7 @@ const circEl = document.querySelector('.circle');
 
 // create sequences
 const seq1 = webimator.newSequence(
-  {tag: 'ABC'},
+  {jumpTag: 'ABC'},
   Entrance(sqrEl, '~fade-in', []),
   Entrance(circEl, '~fade-in', []),
 );
