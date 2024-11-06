@@ -3,6 +3,46 @@ import * as WebimatorTypes from 'webimator/types-and-interfaces';
 import * as WebimatorErrors from "webimator/error-handling";
 import * as WebimatorEasing from "webimator/easing";
 
+/* css */`
+@keyframes roll-in-blurred-left {
+  0% {
+    transform: translateX(-1000px) rotate(-720deg);
+    filter: blur(50px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0) rotate(0deg);
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+@keyframes hinge {
+  0% {
+    animation-timing-function: ease-in-out;
+  }
+
+  20%,
+  60% {
+    transform: rotate3d(0, 0, 1, 80deg);
+    animation-timing-function: ease-in-out;
+  }
+
+  40%,
+  80% {
+    transform: rotate3d(0, 0, 1, 60deg);
+    animation-timing-function: ease-in-out;
+    opacity: 1;
+  }
+
+  to {
+    transform: translate3d(0, 700px, 0);
+    opacity: 0;
+  }
+}
+`
+
+
 const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance} = webimator.createAnimationClipFactories({
   customEntranceEffects: {
     hello: {
@@ -10,10 +50,86 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance} = w
         return {forwardFrames: []}
       },
       defaultConfig: {
-        
+        easing: 'cubic-bezier(0.230, 1.000, 0.320, 1.000)',
+      },
+    },
+
+    ['roll-in-blurred-left']: {
+      generateKeyframes() {
+        return {
+          forwardFrames: [
+            {
+              transform: `translateX(-1000px) rotate(-720deg)`,
+              filter: `blur(50px)`,
+              opacity: 0,
+            },
+            {}
+          ]
+        }
+      },
+      defaultConfig: {
+        easing: 'cubic-bezier(0.230, 1.000, 0.320, 1.000)',
       },
     },
   },
+
+  customExitEffects: {
+    ['hinge']: {
+      generateKeyframes() {
+        return {
+          forwardFrames: [
+            {
+                "offset": 0,
+                "easing": "ease-in-out",
+                "composite": "auto",
+                transformOrigin: "top left"
+            },
+            {
+                "offset": 0,
+                "easing": "ease",
+                "composite": "replace",
+                "transform": "none",
+                "opacity": "1",
+            },
+            {
+                "offset": 0.2,
+                "easing": "ease-in-out",
+                "composite": "auto",
+                "transform": "rotate3d(0, 0, 1, 80deg)",
+            },
+            {
+                "offset": 0.4,
+                "easing": "ease-in-out",
+                "composite": "auto",
+                "transform": "rotate3d(0, 0, 1, 60deg)",
+                "opacity": "1",
+            },
+            {
+                "offset": 0.6,
+                "easing": "ease-in-out",
+                "composite": "auto",
+                "transform": "rotate3d(0, 0, 1, 80deg)",
+            },
+            {
+                "offset": 0.8,
+                "easing": "ease-in-out",
+                "composite": "auto",
+                "transform": "rotate3d(0, 0, 1, 60deg)",
+                "opacity": "1",
+            },
+            {
+                "offset": 1,
+                "easing": "ease",
+                "composite": "auto",
+                "transform": "translate3d(0px, 700px, 0px)",
+                "opacity": "0",
+                transformOrigin: "top left"
+            }
+        ]
+        }
+      }
+    }
+  }
 });
 
 {
