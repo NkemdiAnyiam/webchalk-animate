@@ -11,62 +11,15 @@ import {
 import { webimator } from "../Webimator";
 import { EffectGeneratorBank } from "./generationTypes";
 import { computeSelfScrollingBounds, negateNumString, overrideHidden, splitXYAlignmentString, splitXYTupleString, unOverrideHidden } from "../4_utils/helpers";
-import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions, DOMElement } from "../4_utils/interfaces";
+import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "../4_utils/interfaces";
 import { useEasing } from "./easing";
+export { LibraryPresetEntranceEffects, LibraryPresetConnectorEntranceEffects, LibraryPresetConnectorExitEffects, LibraryPresetMotionEffects, LibraryPresetEmphasisEffects, LibraryPresetExitEffects, LibraryPresetScrollEffects, LibraryPresetTransitionEffects } from "../1_playbackStructures/AnimationClipCategories";
 
 // type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }
 
 type OrthoDirection = 'left' | 'top' | 'right' | 'bottom';
 type DiagDirection = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 type Direction = OrthoDirection | DiagDirection;
-
-/**
- * 
- * @interface
- */
-export type LibraryEntrances = typeof libPresetEntrances;
-
-/**
- * 
- * @interface
- */
-export type LibraryExits = typeof libPresetExits;
-
-/**
- * 
- * @interface
- */
-export type LibraryEmphases = typeof libPresetEmphases;
-
-/**
- * 
- * @interface
- */
-export type LibraryMotions = typeof libPresetMotions;
-
-/**
- * 
- * @interface
- */
-export type LibraryConnectorEntrances = typeof libPresetConnectorEntrances;
-
-/**
- * 
- * @interface
- */
-export type LibraryConnectorExits = typeof libPresetConnectorExits;
-
-/**
- * 
- * @interface
- */
-export type LibraryTransitions = typeof libPresetTransitions;
-
-/**
- * 
- * @interface
- */
-export type LibraryScrolls = typeof libPresetScrolls;
 
 /*-:**************************************************************************************************************************/
 /*-:****************************************        ENTRANCES        *********************************************************/

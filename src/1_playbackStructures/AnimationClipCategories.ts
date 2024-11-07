@@ -6,6 +6,7 @@ import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPl
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { WebimatorConnectorElement, WebimatorConnectorElementConfig } from "../3_components/WebimatorConnectorElement";
 import { EffectGenerator, EffectGeneratorBank, EffectOptions, Layer3MutableClipConfig } from "../2_animationEffects/generationTypes";
+import { libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions, libPresetConnectorEntrances, libPresetConnectorExits, libPresetTransitions, libPresetScrolls } from "../2_animationEffects/libraryPresetEffectBanks";
 
 /** @ignore */
 export type Layer4MutableConfig<TClipClass extends AnimClip, TEffectGenerator extends EffectGenerator> = Omit<Layer3MutableClipConfig<TClipClass>, keyof TEffectGenerator['immutableConfig']>;
@@ -1270,3 +1271,50 @@ export class ConnectorExitClip<TEffectGenerator extends EffectGenerator<Connecto
   }
 }
 
+/**
+ * @category Entrance
+ * @interface
+ */
+export type LibraryPresetEntranceEffects = typeof libPresetEntrances;
+
+/**
+ * @category Exit
+ * @interface
+ */
+export type LibraryPresetExitEffects = typeof libPresetExits;
+
+/**
+ * @category Emphasis
+ * @interface
+ */
+export type LibraryPresetEmphasisEffects = typeof libPresetEmphases;
+
+/**
+ * @category Motion
+ * @interface
+ */
+export type LibraryPresetMotionEffects = typeof libPresetMotions;
+
+/**
+ * @category Connector Entrance
+ * @interface
+ */
+export type LibraryPresetConnectorEntranceEffects = typeof libPresetConnectorEntrances;
+
+/**
+ * @category Connector Exit
+ * @interface
+ */
+export type LibraryPresetConnectorExitEffects = typeof libPresetConnectorExits;
+
+/**
+ * @category Transition
+ * @interface
+ */
+export type LibraryPresetTransitionEffects = typeof libPresetTransitions;
+
+/**
+ * @category Scroller
+ * @interface
+ */
+export type LibraryPresetScrollEffects = typeof libPresetScrolls;
