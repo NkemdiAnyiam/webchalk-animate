@@ -1272,48 +1272,64 @@ export class ConnectorExitClip<TEffectGenerator extends EffectGenerator<Connecto
 }
 
 /**
+ * Typings for the preset entrance animation effects that come with the library's entrance effect bank.
+ * 
  * @category Entrance
  * @interface
  */
 export type LibraryPresetEntranceEffects = typeof libPresetEntrances;
 
 /**
+ * Typings for the preset exit animation effects that come with the library's exit effect bank.
+ * 
  * @category Exit
  * @interface
  */
 export type LibraryPresetExitEffects = typeof libPresetExits;
 
 /**
+ * Typings for the preset emphasis animation effects that come with the library's emphasis bank.
+ * 
  * @category Emphasis
  * @interface
  */
 export type LibraryPresetEmphasisEffects = typeof libPresetEmphases;
 
 /**
+ * Typings for the preset motion animation effects that come with the library's motion effect bank.
+ * 
  * @category Motion
  * @interface
  */
 export type LibraryPresetMotionEffects = typeof libPresetMotions;
 
 /**
+ * Typings for the preset connector entrance animation effects that come with the library's connector entrance effect bank.
+ * 
  * @category Connector Entrance
  * @interface
  */
 export type LibraryPresetConnectorEntranceEffects = typeof libPresetConnectorEntrances;
 
 /**
+ * Typings for the preset connector exit animation effects that come with the library's connector exit effect bank.
+ * 
  * @category Connector Exit
  * @interface
  */
 export type LibraryPresetConnectorExitEffects = typeof libPresetConnectorExits;
 
 /**
+ * Typings for the preset transition animation effects that come with the library's transition effect bank.
+ * 
  * @category Transition
  * @interface
  */
 export type LibraryPresetTransitionEffects = typeof libPresetTransitions;
 
 /**
+ * Typings for the preset scroller animation effects that come with the library's scroller effect bank.
+ * 
  * @category Scroller
  * @interface
  */

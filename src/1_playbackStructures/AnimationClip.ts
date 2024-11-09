@@ -24,6 +24,9 @@ function spreadKeyframes(objOrIterable: Keyframes): Keyframes {
 
 // TYPE
 /**
+ * Contains configuration options that determine what CSS classes should be added or removed
+ * from the target element when the clip is played or rewound.
+ * 
  * @category Subtypes
  */
 export type CssClassOptions = {
@@ -136,6 +139,7 @@ type KeyframeTimingOptions = {
 // TYPE
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
+ * Used as the last argument in most clip factory functions created by {@link Webimator.createAnimationClipFactories}.
  * @category Interfaces
  * @interface
  */
@@ -143,7 +147,8 @@ export type AnimClipConfig = KeyframeTimingOptions & CustomKeyframeEffectOptions
 
 // TYPE
 /**
- * Contains timing-related details about an animation. Returned by {@link AnimClip.getTiming}.
+ * Contains timing-related details about an animation.
+ * Returned by {@link AnimClip.getTiming}.
  * @see {@link AnimClip.getTiming}
  * @category Interfaces
  * @interface
@@ -169,7 +174,8 @@ export type AnimClipTiming = Pick<AnimClip['config'],
 
 // TYPE
 /**
- * Contains specific details about an animation's effect. Returned by {@link AnimClip.getEffectDetails}.
+ * Contains specific details about an animation's effect.
+ * Returned by {@link AnimClip.getEffectDetails}.
  * @see {@link AnimClip.getEffectDetails}
  * @category Interfaces
  * @interface
@@ -199,7 +205,8 @@ export type AnimClipEffectDetails = {
 
 // TYPE
 /**
- * Contains details about how the DOM element is modified beyond just the effect of the animation. Returned by {@link AnimClip.getModifiers}.
+ * Contains details about how the DOM element is modified beyond just the effect of the animation.
+ * Returned by {@link AnimClip.getModifiers}.
  * @see {@link AnimClip.getModifiers}
  * @category Interfaces
  * @interface
@@ -208,7 +215,8 @@ export type AnimClipModifiers = Pick<AnimClipConfig, 'cssClasses' | 'composite' 
 
 // TYPE
 /**
- * Contains details about an animation's current status. Returned by {@link AnimClip.getStatus}.
+ * Contains details about an animation's current status.
+ * Returned by {@link AnimClip.getStatus}.
  * @see {@link AnimClip.getStatus}
  * @category Interfaces
  * @interface
