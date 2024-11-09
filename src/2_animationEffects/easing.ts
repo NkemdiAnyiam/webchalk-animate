@@ -89,14 +89,14 @@ export const easingMap = Object.freeze(new Map<PresetLinearEasingKey, string>([
 
 /**
  * Easing string keys that are within {@link easingMap}.
- * - Equivalent to ${@link PresetLinearEasingKey}
+ *  * Equivalent to ${@link PresetLinearEasingKey}
  * @ignore
  */
 export type KeyInEasingMap = typeof easingMap extends Map<infer I, any> ? I : never;
 
 /**
  * Accepts either a preset easing string or a CSS `<easing-function>` string and returns an `<easing-function>` that inverts the easing.
- * - identical to using {@link useEasing | useEasing()} with the option `{inverted: true}`
+ *  * identical to using {@link useEasing | useEasing()} with the option `{inverted: true}`
  * @param easingString - preset easing string or a CSS `<easing-function>` string
  * @returns The inverted form of {@link easingString}.
  * 
@@ -164,9 +164,9 @@ export function invertEasing(easingString: EasingString): string {
  * @param options - options affecting the output based on {@link easingString}
  * @param options.inverted - If `true`, the returned easing function will be inverted.
  * @returns An `<easing-string>` corresponding to the provided {@link easingString}.
- * - If {@link easingString} is a preset easing string (such as `"power1-in"` or `"bounce-out"`), the returned `<easing-function>`
+ *  * If {@link easingString} is a preset easing string (such as `"power1-in"` or `"bounce-out"`), the returned `<easing-function>`
  * will be a custom `<linear-easing-function>` coming from a map of preset strings to linear easing functions.
- * - If {@link easingString} is a standard `<easing-function>` string (such as `"ease-in"` or `"cubic-bezier(...)"`), the string
+ *  * If {@link easingString} is a standard `<easing-function>` string (such as `"ease-in"` or `"cubic-bezier(...)"`), the string
  * itself will be returned with no modifications since it is obviously already a valid CSS easing function string.
  * 
  * @see [\<easing-function\>](https://developer.mozilla.org/en-US/docs/Web/CSS/easing-function)

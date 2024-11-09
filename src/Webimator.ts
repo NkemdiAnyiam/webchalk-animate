@@ -213,7 +213,7 @@ export class Webimator {
    * `createAnimationClipFactories().Entrance(someElement, '~appear', [])` will use the "\~appear" animation effect from the
    * bank of entrance animation effects, but the "\~appear" animation will obviously not be found in the bank of exit animation
    * effects, so `createAnimationClipFactories().Exit(someElement, '~appear', [])` will throw an error.
-   * - Developers may add their own custom animations to the Entrance, Exit, Emphasis, and Motion categories by using the
+   *  * Developers may add their own custom animations to the Entrance, Exit, Emphasis, and Motion categories by using the
    * {@link customPresetEffectBanks} parameter.
    * @param customPresetEffectBanks - optional object containing additional banks that the developer can use to add their own custom preset effects
    * @param customPresetEffectBanks.customEntranceEffects - objects of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with the `Entrance()` clip factory function

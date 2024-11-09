@@ -155,13 +155,13 @@ a.tsd-signature-type.external {
 .tsd-comment ul li,
 .tsd-description > ul li {
   margin: 0.3rem 0; }
-  .tsd-comment ul li:has(ul),
-  .tsd-description > ul li:has(ul) {
-    list-style: none; }
-    .tsd-comment ul li:has(ul) ul,
-    .tsd-description > ul li:has(ul) ul {
-      list-style: outside;
-      margin: unset; }
+  .tsd-comment ul li ul,
+  .tsd-description > ul li ul {
+    list-style: outside;
+    margin: unset; }
+    .tsd-comment ul li ul li ul,
+    .tsd-description > ul li ul li ul {
+      list-style: circle; }
 
 * {
   scrollbar-color: var(--color-scroll-bar); }

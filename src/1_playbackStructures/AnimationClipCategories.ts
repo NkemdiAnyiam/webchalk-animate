@@ -18,8 +18,8 @@ export type Layer4MutableConfig<TClipClass extends AnimClip, TEffectGenerator ex
  * Contains configuration options used to define both the timing and effects of the animation clip.
  * Used as the last argument in the `Entrance()` factory function created by {@link Webimator.createAnimationClipFactories}.
  * Also returned by {@link EntranceClip.getConfig}.
- * - Contains additional properties:
- * - - {@link EntranceClipModifiers.hideNowType | hideNowType}
+ *  * Contains additional properties:
+ *    * {@link EntranceClipModifiers.hideNowType | hideNowType}
  * @see {@link EntranceClip.getConfig}
  * 
  * @category Entrance
@@ -29,9 +29,9 @@ export interface EntranceClipConfig extends AnimClipConfig {
    * Determines whether/how the element should be hidden as soon as the clip is instantiated
    * (i.e., right when Entrance() is called). This can be convenient because it ensures that the
    * element will be hidden before the entrance clip is played.
-   * - if `null`, the clip does not attempt to hide the element upon the clip's instantiation
-   * - if `'display-none'`, the element is unrendered by setting the CSS `display` to `none`
-   * - if `'visibility-hidden'`, the element is turned invisible by setting the CSS `visibility` to `hidden`
+   *  * if `null`, the clip does not attempt to hide the element upon the clip's instantiation
+   *  * if `'display-none'`, the element is unrendered by setting the CSS `display` to `none`
+   *  * if `'visibility-hidden'`, the element is turned invisible by setting the CSS `visibility` to `hidden`
    * @see [display: none & visibility: hidden](https://www.freecodecamp.org/news/css-display-none-and-visibility-hidden-the-difference/)
    */
   hideNowType: 'display-none' | 'visibility-hidden' | null;
@@ -40,8 +40,8 @@ export interface EntranceClipConfig extends AnimClipConfig {
 /**
  * Contains details about how the DOM element is modified beyond just the effect of the animation (such as modifying CSS classes).
  * Returned by {@link EntranceClip.getModifiers}.
- * - Contains additional properties:
- * - - {@link EntranceClipModifiers.hideNowType | hideNowType}
+ *  * Contains additional properties:
+ *    * {@link EntranceClipModifiers.hideNowType | hideNowType}
  * 
  * @see {@link EntranceClip.getModifiers}
  * 
@@ -115,7 +115,7 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
 
   /**
    * @returns additional properties for entrance configuration:
-   * - {@link EntranceClipConfig.hideNowType | hideNowType}
+   *  * {@link EntranceClipConfig.hideNowType | hideNowType}
    * @inheritdoc *
    */
   getConfig(): EntranceClipConfig {
@@ -125,10 +125,10 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
   /**
    * Returns details about how the DOM element is modified beyond just the effect of the animation.
    * @returns an object containing
-   * - {@link AnimClipModifiers.cssClasses|cssClasses},
-   * - {@link AnimClipModifiers.commitsStyles|commitsStyles},
-   * - {@link AnimClipModifiers.composite|composite},
-   * - {@link EntranceClipModifiers.hideNowType|hideNowType},
+   *  * {@link AnimClipModifiers.cssClasses|cssClasses},
+   *  * {@link AnimClipModifiers.commitsStyles|commitsStyles},
+   *  * {@link AnimClipModifiers.composite|composite},
+   *  * {@link EntranceClipModifiers.hideNowType|hideNowType},
    */
   getModifiers(): EntranceClipModifiers;
   /**
@@ -240,8 +240,8 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
  * Contains configuration options used to define both the timing and effects of the animation clip.
  * Used as the last argument in the `Exit()` factory function created by {@link Webimator.createAnimationClipFactories}.
  * Also returned by {@link ExitClip.getConfig}.
- * - Contains additional properties:
- * - - {@link ExitClipModifiers.exitType | exitType}
+ *  * Contains additional properties:
+ *    * {@link ExitClipModifiers.exitType | exitType}
  * @see {@link ExitClip.getConfig}
  * 
  * @category Exit
@@ -249,8 +249,8 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
 export interface ExitClipConfig extends AnimClipConfig {
   /**
    * Determines how the element should be hidden when the clip has finished playing.
-   * - if `'display-none'`, the element is unrendered by setting the CSS `display` to `none`
-   * - if `'visibility-hidden'`, the element is turned invisible by setting the CSS `visibility` to `hidden`
+   *  * if `'display-none'`, the element is unrendered by setting the CSS `display` to `none`
+   *  * if `'visibility-hidden'`, the element is turned invisible by setting the CSS `visibility` to `hidden`
    * @see [display: none & visibility: hidden](https://www.freecodecamp.org/news/css-display-none-and-visibility-hidden-the-difference/)
    */
   exitType: 'display-none' | 'visibility-hidden';
@@ -259,8 +259,8 @@ export interface ExitClipConfig extends AnimClipConfig {
 /**
  * Contains details about how the DOM element is modified beyond just the effect of the animation (such as modifying CSS classes).
  * Returned by {@link ExitClip.getModifiers}.
- * - Contains additional properties:
- * - - {@link ExitClipModifiers.exitType | exitType}
+ *  * Contains additional properties:
+ *    * {@link ExitClipModifiers.exitType | exitType}
  * 
  * @see {@link ExitClip.getModifiers}
  * 
@@ -334,7 +334,7 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
 
   /**
    * @returns additional properties for exit configuration:
-   * - {@link ExitClipConfig.exitType | exitType}
+   *  * {@link ExitClipConfig.exitType | exitType}
    * @inheritdoc *
    */
   getConfig() {
@@ -344,10 +344,10 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
   /**
    * Returns details about how the DOM element is modified beyond just the effect of the animation.
    * @returns an object containing
-   * - {@link AnimClipModifiers.cssClasses|cssClasses},
-   * - {@link AnimClipModifiers.commitsStyles|commitsStyles},
-   * - {@link AnimClipModifiers.composite|composite},
-   * - {@link ExitClipModifiers.exitType|exitType},
+   *  * {@link AnimClipModifiers.cssClasses|cssClasses},
+   *  * {@link AnimClipModifiers.commitsStyles|commitsStyles},
+   *  * {@link AnimClipModifiers.composite|composite},
+   *  * {@link ExitClipModifiers.exitType|exitType},
    */
   getModifiers(): ExitClipModifiers;
   /**
@@ -434,8 +434,8 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
  * Contains configuration options used to define both the timing and effects of the animation clip.
  * Used as the last argument in the `Emphasis()` factory function created by {@link Webimator.createAnimationClipFactories}.
  * Also returned by {@link EmphasisClip.getConfig}.
- * - Contains additional properties:
- * - - (none)
+ *  * Contains additional properties:
+ *    * (none)
  * @see {@link EmphasisClip.getConfig}
  * 
  * @category Emphasis
@@ -515,8 +515,8 @@ export class EmphasisClip<TEffectGenerator extends EffectGenerator<EmphasisClip,
  * Contains configuration options used to define both the timing and effects of the animation clip.
  * Used as the last argument in the `Motion()` factory function created by {@link Webimator.createAnimationClipFactories}.
  * Also returned by {@link MotionClip.getConfig}.
- * - Contains additional properties:
- * - - (none)
+ *  * Contains additional properties:
+ *    * (none)
  * @see {@link MotionClip.getConfig}
  * 
  * @category Motion
@@ -601,8 +601,8 @@ export class MotionClip<TEffectGenerator extends EffectGenerator<MotionClip, Mot
  * Contains configuration options used to define both the timing and effects of the animation clip.
  * Used as the last argument in the `Scroller()` factory function created by {@link Webimator.createAnimationClipFactories}.
  * Also returned by {@link ScrollerClip.getConfig}.
- * - Contains additional properties:
- * - - (none)
+ *  * Contains additional properties:
+ *    * (none)
  * @see {@link ScrollerClip.getConfig}
  * 
  * @category Scroller
@@ -699,8 +699,8 @@ export class ScrollerClip<TEffectGenerator extends EffectGenerator<ScrollerClip,
  * Contains configuration options used to define both the timing and effects of the animation clip.
  * Used as the last argument in the `Transition()` factory function created by {@link Webimator.createAnimationClipFactories}.
  * Also returned by {@link TransitionClip.getConfig}.
- * - Contains additional properties:
- * - - {@link TransitionClipModifiers.removeInlineStylesOnFinish | removeInlineStylesOnFinish}
+ *  * Contains additional properties:
+ *    * {@link TransitionClipModifiers.removeInlineStylesOnFinish | removeInlineStylesOnFinish}
  * @see {@link TransitionClip.getConfig}
  * 
  * @category Transition
@@ -716,8 +716,8 @@ export interface TransitionClipConfig extends AnimClipConfig {
 /**
  * Contains details about how the DOM element is modified beyond just the effect of the animation (such as modifying CSS classes).
  * Returned by {@link TransitionClip.getModifiers}.
- * - Contains additional properties:
- * - - {@link TransitionClipModifiers.removeInlineStylesOnFinish | removeInlineStylesOnFinish}
+ *  * Contains additional properties:
+ *    * {@link TransitionClipModifiers.removeInlineStylesOnFinish | removeInlineStylesOnFinish}
  * 
  * @see {@link TransitionClip.getModifiers}
  * 
@@ -792,7 +792,7 @@ export class TransitionClip<TEffectGenerator extends EffectGenerator<TransitionC
 
   /**
    * @returns additional properties for transition configuration:
-   * - {@link TransitionClipConfig.removeInlineStylesOnFinish | removeInlineStylesOnFinish}
+   *  * {@link TransitionClipConfig.removeInlineStylesOnFinish | removeInlineStylesOnFinish}
    * @inheritdoc *
    */
   getConfig() {
@@ -802,10 +802,10 @@ export class TransitionClip<TEffectGenerator extends EffectGenerator<TransitionC
   /**
    * Returns details about how the DOM element is modified beyond just the effect of the animation.
    * @returns an object containing
-   * - {@link AnimClipModifiers.cssClasses|cssClasses},
-   * - {@link AnimClipModifiers.commitsStyles|commitsStyles},
-   * - {@link AnimClipModifiers.composite|composite},
-   * - {@link TransitionClipModifiers.removeInlineStylesOnFinish|removeInlineStylesOnFinish},
+   *  * {@link AnimClipModifiers.cssClasses|cssClasses},
+   *  * {@link AnimClipModifiers.commitsStyles|commitsStyles},
+   *  * {@link AnimClipModifiers.composite|composite},
+   *  * {@link TransitionClipModifiers.removeInlineStylesOnFinish|removeInlineStylesOnFinish},
    */
   getModifiers(): TransitionClipModifiers;
   /**
@@ -855,8 +855,8 @@ export class TransitionClip<TEffectGenerator extends EffectGenerator<TransitionC
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
  * Returned by {@link ConnectorSetterClip.getConfig}.
- * - Contains additional properties:
- * - - (none)
+ *  * Contains additional properties:
+ *    * (none)
  * @see {@link EntranceClip.getConfig}
  * 
  * @category Connector Setter
@@ -1026,8 +1026,8 @@ export class ConnectorSetterClip extends AnimClip<EffectGenerator, ConnectorSett
  * Contains configuration options used to define both the timing and effects of the animation clip.
  * Used as the last argument in the `ConnectorEntrance()` factory function created by {@link Webimator.createAnimationClipFactories}.
  * Also returned by {@link ConnectorEntranceClip.getConfig}.
- * - Contains additional properties:
- * - - {@link ConnectorEntranceClipModifiers.hideNowType | hideNowType}
+ *  * Contains additional properties:
+ *    * {@link ConnectorEntranceClipModifiers.hideNowType | hideNowType}
  * @see {@link ConnectorEntranceClip.getConfig}
  * 
  * @category Connector Entrance
@@ -1039,8 +1039,8 @@ export interface ConnectorEntranceClipConfig extends AnimClipConfig {
 /**
  * Contains details about how the DOM element is modified beyond just the effect of the animation (such as modifying CSS classes).
  * Returned by {@link ConnectorEntranceClip.getModifiers}.
- * - Contains additional properties:
- * - - {@link ConnectorEntranceClipModifiers.hideNowType | hideNowType}
+ *  * Contains additional properties:
+ *    * {@link ConnectorEntranceClipModifiers.hideNowType | hideNowType}
  * 
  * @see {@link ConnectorEntranceClip.getModifiers}
  * 
@@ -1124,7 +1124,7 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
 
   /**
    * @returns additional properties for connector entrance configuration:
-   * - {@link ConnectorEntranceClipConfig.hideNowType | hideNowType}
+   *  * {@link ConnectorEntranceClipConfig.hideNowType | hideNowType}
    * @inheritdoc *
    */
   getConfig() {
@@ -1134,10 +1134,10 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
   /**
    * Returns details about how the DOM element is modified beyond just the effect of the animation.
    * @returns an object containing
-   * - {@link AnimClipModifiers.cssClasses|cssClasses},
-   * - {@link AnimClipModifiers.commitsStyles|commitsStyles},
-   * - {@link AnimClipModifiers.composite|composite},
-   * - {@link ConnectorEntranceClipModifiers.hideNowType|hideNowType},
+   *  * {@link AnimClipModifiers.cssClasses|cssClasses},
+   *  * {@link AnimClipModifiers.commitsStyles|commitsStyles},
+   *  * {@link AnimClipModifiers.composite|composite},
+   *  * {@link ConnectorEntranceClipModifiers.hideNowType|hideNowType},
    */
   getModifiers(): ConnectorEntranceClipModifiers;
   /**
@@ -1237,8 +1237,8 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
  * Contains configuration options used to define both the timing and effects of the animation clip.
  * Used as the last argument in the `ConnectorExit()` factory function created by {@link Webimator.createAnimationClipFactories}.
  * Also returned by {@link ConnectorExitClip.getConfig}.
- * - Contains additional properties:
- * - - (none)
+ *  * Contains additional properties:
+ *    * (none)
  * @see {@link ConnectorExitClip.getConfig}
  * 
  * @category Connector Exit

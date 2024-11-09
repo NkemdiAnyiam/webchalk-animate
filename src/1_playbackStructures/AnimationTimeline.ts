@@ -72,8 +72,8 @@ export type AnimTimelineStatus = {
 
   /**
    * The direction the timeline stepped in last (or `'forward'` if the timeline has not stepped yet).
-   * - If the timeline last stepped forward, `'forward'`
-   * - If the timeline last stepped backward, `'backward'`
+   *  * If the timeline last stepped forward, `'forward'`
+   *  * If the timeline last stepped backward, `'backward'`
    */
   currentDirection: AnimTimeline['currentDirection'];
 
@@ -84,8 +84,8 @@ export type AnimTimelineStatus = {
 
   /**
    * The current sequential step number, starting from `1` at the start of an unplayed timeline.
-   * - Stepping forward increments the step number by 1 for each sequence played.
-   * - Stepping backward decrements the step number by 1 for each sequence rewound.
+   *  * Stepping forward increments the step number by 1 for each sequence played.
+   *  * Stepping backward decrements the step number by 1 for each sequence rewound.
    */
   stepNumber: number;
 
@@ -110,7 +110,7 @@ export type AnimTimelineStatus = {
 export type AnimTimelineTiming = {
   /**
    * The playback rate of the timeline.
-   * - Example: A value of `1` means 100% (the typical playback rate), and `0.5` means 50% speed.
+   *  * Example: A value of `1` means 100% (the typical playback rate), and `0.5` means 50% speed.
    */
   playbackRate: number;
 }
@@ -164,9 +164,9 @@ export class AnimTimeline {
    * Returns an object containing the configuration options used to
    * define the name, debugging behavior, and button-linking behavior of the timeline.
    * @returns an object containing
-   * - {@link AnimTimelineConfig.autoLinksButtons|autoLinksButtons},
-   * - {@link AnimTimelineConfig.debugMode|debugMode},
-   * - {@link AnimTimelineConfig.timelineName|timelineName},
+   *  * {@link AnimTimelineConfig.autoLinksButtons|autoLinksButtons},
+   *  * {@link AnimTimelineConfig.debugMode|debugMode},
+   *  * {@link AnimTimelineConfig.timelineName|timelineName},
    * @group Property Getter Methods
    * @group Configuration
    */
@@ -185,7 +185,7 @@ export class AnimTimeline {
 
   /**
    * The highest level of this timeline's lineage.
-   * - The timeline itself (there is currently no higher possible level)
+   *  * The timeline itself (there is currently no higher possible level)
    * @group Structure
    */
   get root(): AnimTimeline { return this; }
@@ -216,14 +216,14 @@ export class AnimTimeline {
   /**
    * Returns details about an timeline's current status.
    * @returns an object containing
-   * - {@link AnimTimelineStatus.isAnimating|isAnimating},
-   * - {@link AnimTimelineStatus.isPaused|isPaused},
-   * - {@link AnimTimelineStatus.skippingOn|skippingOn},
-   * - {@link AnimTimelineStatus.currentDirection|currentDirection},
-   * - {@link AnimTimelineStatus.isJumping|isJumping},
-   * - {@link AnimTimelineStatus.stepNumber|stepNumber},
-   * - {@link AnimTimelineStatus.atBeginning|atBeginning},
-   * - {@link AnimTimelineStatus.atEnd|atEnd},
+   *  * {@link AnimTimelineStatus.isAnimating|isAnimating},
+   *  * {@link AnimTimelineStatus.isPaused|isPaused},
+   *  * {@link AnimTimelineStatus.skippingOn|skippingOn},
+   *  * {@link AnimTimelineStatus.currentDirection|currentDirection},
+   *  * {@link AnimTimelineStatus.isJumping|isJumping},
+   *  * {@link AnimTimelineStatus.stepNumber|stepNumber},
+   *  * {@link AnimTimelineStatus.atBeginning|atBeginning},
+   *  * {@link AnimTimelineStatus.atEnd|atEnd},
    * @group Property Getter Methods
    */
   getStatus(): AnimTimelineStatus;
@@ -267,7 +267,7 @@ export class AnimTimeline {
   /**
    * Returns timing-related details about the timeline.
    * @returns an object containing
-   * - {@link AnimTimelineStatus.playbackRate|playbackRate},
+   *  * {@link AnimTimelineStatus.playbackRate|playbackRate},
    * @group Property Getter Methods
    */
   getTiming(): AnimTimelineTiming;
@@ -337,7 +337,7 @@ export class AnimTimeline {
 
   /**
    * Object containing properties that are either references to `<wbmtr-playback-button>` elements that are connected to this timeline or `null`.
-   * - A property being `null` indicates that there is currently no corresponding button on the page that is linked to this timeline.
+   *  * A property being `null` indicates that there is currently no corresponding button on the page that is linked to this timeline.
    * @group Playback UI
    */
   get playbackButtons(): Readonly<PlaybackButtons> { return {...this._playbackButtons}; }
@@ -346,7 +346,7 @@ export class AnimTimeline {
    * Searches the page for `<wbmtr-playback-button>` elements whose
    * `timeline-name` attributes are equivalent to this timeline's `timelineName` configuration option,
    * then links those buttons to this timeline.
-   * - By default, all button types are searched for.
+   *  * By default, all button types are searched for.
    * @param options - Settings to define the behavior of the search
    * @param options.searchRoot - The HTML element from which to begin searching for the buttons
    * @param options.buttonsSubset - Array of strings indicating which specific buttons we want to link
@@ -545,7 +545,7 @@ export class AnimTimeline {
 
   /**
    * Allows this timeline's linked playback buttons to trigger (and be triggered by) this timeline's playback methods.
-   * - This method is only useful if the buttons were previously
+   *  * This method is only useful if the buttons were previously
    * disabled using {@link AnimTimeline.disablePlaybackButtons|disablePlaybackButtons()}.
    * @group Playback UI
    */
@@ -736,7 +736,7 @@ export class AnimTimeline {
   // TODO: potentially move setting of this.isAniamting to stepForward() and stepBackward()
   /**
    * Takes 1 step in the specified direction.
-   * - If any sequences are set to autoplay, the timeline automatically continues stepping through them.
+   *  * If any sequences are set to autoplay, the timeline automatically continues stepping through them.
    * @param direction - the direction in which the timeline should step
    * @returns a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise | Promise}
    * that resolves when the timeline has finished stepping.
@@ -870,7 +870,7 @@ export class AnimTimeline {
 
   /**
    * Pauses the animation timeline.
-   * - If the timeline is not already in progress, it will still be paused, preventing
+   *  * If the timeline is not already in progress, it will still be paused, preventing
    * playback until unpaused.
    * @group Playback Methods
    */
@@ -886,7 +886,7 @@ export class AnimTimeline {
   
   /**
    * Unpauses the animation timeline.
-   * - If the timeline is not currently paused, this method does nothing.
+   *  * If the timeline is not currently paused, this method does nothing.
    * @group Playback Methods
    */
   unpause(): this;
@@ -989,9 +989,9 @@ export class AnimTimeline {
       /**
        * determines how the timeline should handle sequences set to autoplay once the
        * jump destination (after considering {@link options.targetOffset}) has been reached
-       * - if `'none`', the timeline stays at the final landing position after the initial jumping operation.
-       * - if `'forward'`, the timeline will jump forward for as long as the next sequence is supposed to autoplay after the current sequence.
-       * - if `'backward'`, the timeline will jump backward for as long as the previous sequence is supposed to automatically
+       *  * if `'none`', the timeline stays at the final landing position after the initial jumping operation.
+       *  * if `'forward'`, the timeline will jump forward for as long as the next sequence is supposed to autoplay after the current sequence.
+       *  * if `'backward'`, the timeline will jump backward for as long as the previous sequence is supposed to automatically
        * rewind after the current sequence is rewound (this is naturally only true when the current sequence is set to autoplay when the timeline steps forward).
        * @defaultValue
        * ```ts
@@ -1026,9 +1026,9 @@ export class AnimTimeline {
       /**
        * determines how the timeline should handle sequences set to autoplay once the
        * jump destination (after considering {@link options.targetOffset}) has been reached
-       * - if `'none`', the timeline stays at the final landing position after the initial jumping operation.
-       * - if `'forward'`, the timeline will jump forward for as long as the next sequence is supposed to autoplay after the current sequence.
-       * - if `'backward'`, the timeline will jump backward for as long as the previous sequence as long as the previous sequence is supposed to automatically
+       *  * if `'none`', the timeline stays at the final landing position after the initial jumping operation.
+       *  * if `'forward'`, the timeline will jump forward for as long as the next sequence is supposed to autoplay after the current sequence.
+       *  * if `'backward'`, the timeline will jump backward for as long as the previous sequence as long as the previous sequence is supposed to automatically
        * rewind after the current sequence is rewound (this is naturally only true when the current sequence is set to autoplay when the timeline steps forward).
        * @defaultValue
        * ```ts
@@ -1253,7 +1253,7 @@ export class AnimTimeline {
 
   /**
    * Makes it so that any sequence that is played is finished instantly.
-   * - The timeline will still pause for any roadblocks generated by {@link AnimClip.addRoadblocks}.
+   *  * The timeline will still pause for any roadblocks generated by {@link AnimClip.addRoadblocks}.
    * @group Playback Methods
    */
   async turnSkippingOn(): Promise<this>;
@@ -1284,9 +1284,9 @@ export class AnimTimeline {
   // tells the current AnimSequence(s) (really just 1 in this project iteration) to instantly finish its animations
   /**
    * Forces the animation sequences that are currently running within the timeline to instantly finish.
-   * - After the currently running animation sequences complete, the rest of the timeline runs normally.
-   * - The timeline will still pause for any roadblocks generated by {@link AnimClip.addRoadblocks}.
-   * - (Currently, only 1 sequence can play at a time in a timeline, so by "sequences", we just mean "sequence").
+   *  * After the currently running animation sequences complete, the rest of the timeline runs normally.
+   *  * The timeline will still pause for any roadblocks generated by {@link AnimClip.addRoadblocks}.
+   *  * (Currently, only 1 sequence can play at a time in a timeline, so by "sequences", we just mean "sequence").
    * @group Playback Methods
    */
   async finishInProgressSequences(): Promise<this> {

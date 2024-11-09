@@ -199,17 +199,20 @@ a.tsd-signature-type.external {
   color: var(--color-text-aside);
 }
 
+// nested bullet lists in comments
 .tsd-comment ul,
 .tsd-description > ul {
   li {
     margin: 0.3rem 0;
 
-    &:has(ul) {
-      list-style: none;
+    ul {
+      list-style: outside;
+      margin: unset;
 
-      ul {
-        list-style: outside;
-        margin: unset;
+      li {
+        ul {
+          list-style: circle;
+        }
       }
     }
   }

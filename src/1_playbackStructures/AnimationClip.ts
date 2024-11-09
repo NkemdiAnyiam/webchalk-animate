@@ -55,24 +55,24 @@ export type CssClassOptions = {
 type CustomKeyframeEffectOptions = {
   /**
    * If `true`, the next clip in the same sequence will play at the same time as this clip.
-   * - If this clip is not part of a sequence or is at the end of a sequence, this option has no effect.
+   *  * If this clip is not part of a sequence or is at the end of a sequence, this option has no effect.
    */
   startsNextClipToo: boolean;
 
   /**
    * If `true`, this clip will play at the same time as the previous clip in the same sequence.
-   * - If this clip is not part of a sequence or is at the beginning of a sequence, this option has no effect.
+   *  * If this clip is not part of a sequence or is at the beginning of a sequence, this option has no effect.
    */
   startsWithPrevious: boolean;
 
   /**
    * Determines whether the effects of the animation will persist after the clip finishes.
-   * - if `false`, the effects of the animation will not persist after the clip finishes.
-   * - if `true`, the effects will attempt to be committed. If the element is not rendered by the
+   *  * if `false`, the effects of the animation will not persist after the clip finishes.
+   *  * if `true`, the effects will attempt to be committed. If the element is not rendered by the
    * time the clip finishes because of the CSS class "wbmtr-display-none", the clip will try to forcefully apply the styles by
    * instantly unhiding the element, committing the animation styles, then re-hiding the element (necessary because JavaScript
    * does not allow animation results to be saved to unrendered elements).
-   * - - If the element is unrendered for any reason other than having the "wbmtr-display-none" class by the time the clip finishes,
+   *    * If the element is unrendered for any reason other than having the "wbmtr-display-none" class by the time the clip finishes,
    * then this will fail, and an error will be thrown.
    */
   commitsStyles: false | true;
@@ -85,8 +85,8 @@ type CustomKeyframeEffectOptions = {
 
   /**
    * Contains arrays of CSS classes that should be added to or removed from the element.
-   * - The array of classes to add is added first, and then the array of classes to remove is removed.
-   * - Changes are automatically undone in the appropriate order when the clip is rewound.
+   *  * The array of classes to add is added first, and then the array of classes to remove is removed.
+   *  * Changes are automatically undone in the appropriate order when the clip is rewound.
    */
   cssClasses: Partial<CssClassOptions>;
 
@@ -103,35 +103,35 @@ type CustomKeyframeEffectOptions = {
 type KeyframeTimingOptions = {
   /**
    * The number of milliseconds the active phase of the animation takes to complete.
-   * - This refers to the actual effect of the animation, not the delay or endDelay.
+   *  * This refers to the actual effect of the animation, not the delay or endDelay.
    */
   duration: number;
 
   /**
    * The rate of the animation's change over time.
-   * - Accepts a typical `<easing-function>`, such as `"linear"`, `"ease-in"`, `"step-end"`, `"cubic-bezier(0.42, 0, 0.58, 1)"`, etc.
-   * - Also accepts autocompleted preset strings (such as `"bounce-in"`, `"power-1-out"`, etc.)
+   *  * Accepts a typical `<easing-function>`, such as `"linear"`, `"ease-in"`, `"step-end"`, `"cubic-bezier(0.42, 0, 0.58, 1)"`, etc.
+   *  * Also accepts autocompleted preset strings (such as `"bounce-in"`, `"power-1-out"`, etc.)
    * that produce preset easing effects using linear functions.
    */
   easing: EasingString;
 
   /**
    * The base playback rate of the animation (ignoring any multipliers from a parent sequence/timeline).
-   * - Example: A value of `1` means 100% (the typical playback rate), and `0.5` means 50% speed.
-   * - Example: If the `playbackRate` of the parent sequence is `4` and the `playbackRate` of this clip is `5`,
+   *  * Example: A value of `1` means 100% (the typical playback rate), and `0.5` means 50% speed.
+   *  * Example: If the `playbackRate` of the parent sequence is `4` and the `playbackRate` of this clip is `5`,
    * the `playbackRate` property is still `5`, but the clip would run at 4 * 5 = 20x speed.
    */
   playbackRate: number;
 
   /**
    * The number of milliseconds the delay phase of the animation takes to complete.
-   * - This refers to the time before the active phase of the animation starts (i.e., before the animation effect begins).
+   *  * This refers to the time before the active phase of the animation starts (i.e., before the animation effect begins).
    */
   delay: number;
 
   /**
    * The number of milliseconds the endDelay phase of the animation takes to complete.
-   * - This refers to the time after the active phase of the animation end (i.e., after the animation effect has finished).
+   *  * This refers to the time after the active phase of the animation end (i.e., after the animation effect has finished).
    */
   endDelay: number;
 };
@@ -168,7 +168,7 @@ export type AnimClipTiming = Pick<AnimClip['config'],
 > & {
   /**
    * The actual playback rate of the animation after the playback rates of any parents are taken into account.
-   * - Example: If the `playbackRate` of the parent sequence is `4` and the `playbackRate` of this clip is `5`,
+   *  * Example: If the `playbackRate` of the parent sequence is `4` and the `playbackRate` of this clip is `5`,
    * the `compoundedPlaybackRate` will be 4 * 5 = 20.
    * @see {@link AnimClipTiming.playbackRate}
    */
@@ -352,9 +352,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**
    * The default configuration for clips in a specific effect category, which includes
    * any additional configuration options that are specific to the effect category.
-   * - This never changes, and it available mostly just for reference. Consider it a
+   *  * This never changes, and it available mostly just for reference. Consider it a
    * static property.
-   * - This does NOT include any default configuration from effect generators or
+   *  * This does NOT include any default configuration from effect generators or
    * configurations passed in from clip factory functions.
    * @group Configuration
    */
@@ -362,9 +362,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
   /**
    * The unchangeable default configuration for clips in a specific effect category.
-   * - This never changes, and it is available mostly just for reference. Consider it a static
+   *  * This never changes, and it is available mostly just for reference. Consider it a static
    * property.
-   * - This does NOT include any immutable configuration from effect generators.
+   *  * This does NOT include any immutable configuration from effect generators.
    * @group Configuration
    */
   abstract get categoryImmutableConfig(): Partial<TClipConfig>;
@@ -390,17 +390,17 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**
    * Returns an object containing the configuration options used to define both the timing and effects of the animation clip.
    * @returns an object containing
-   * - {@link AnimClipConfig.commitsStyles|commitsStyles},
-   * - {@link AnimClipConfig.composite|composite},
-   * - {@link AnimClipConfig.cssClasses|cssClasses},
-   * - {@link AnimClipConfig.delay|delay},
-   * - {@link AnimClipConfig.duration|duration},
-   * - {@link AnimClipConfig.easing|easing},
-   * - {@link AnimClipConfig.endDelay|endDelay},
-   * - {@link AnimClipConfig.playbackRate|playbackRate},
-   * - {@link AnimClipConfig.runGeneratorsNow|runGeneratorsNow},
-   * - {@link AnimClipConfig.startsWithPrevious|startsWithPrevious},
-   * - {@link AnimClipConfig.startsNextClipToo|startsNextClipToo},
+   *  * {@link AnimClipConfig.commitsStyles|commitsStyles},
+   *  * {@link AnimClipConfig.composite|composite},
+   *  * {@link AnimClipConfig.cssClasses|cssClasses},
+   *  * {@link AnimClipConfig.delay|delay},
+   *  * {@link AnimClipConfig.duration|duration},
+   *  * {@link AnimClipConfig.easing|easing},
+   *  * {@link AnimClipConfig.endDelay|endDelay},
+   *  * {@link AnimClipConfig.playbackRate|playbackRate},
+   *  * {@link AnimClipConfig.runGeneratorsNow|runGeneratorsNow},
+   *  * {@link AnimClipConfig.startsWithPrevious|startsWithPrevious},
+   *  * {@link AnimClipConfig.startsNextClipToo|startsNextClipToo},
    * @group Property Getter Methods
    * @group Configuration
    */
@@ -434,9 +434,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   get parentTimeline() { return this._parentTimeline; }
   /**
    * The highest level of this clip's lineage.
-   * - If the clip is nested within an {@link AnimTimeline}: that timeline,
-   * - Else, if the clip is within an {@link AnimSequence}: that sequence,
-   * - Else: the clip itself
+   *  * If the clip is nested within an {@link AnimTimeline}: that timeline,
+   *  * Else, if the clip is within an {@link AnimSequence}: that sequence,
+   *  * Else: the clip itself
    * @group Structure
    */
   get root(): AnimTimeline | AnimSequence | AnimClip { return this.parentTimeline ?? this.parentSequence ?? this; }
@@ -479,10 +479,10 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**
    * Returns specific details about the animation's effect.
    * @returns an object containing
-   * - {@link AnimClipEffectDetails.category|category},
-   * - {@link AnimClipEffectDetails.effectName|effectName},
-   * - {@link AnimClipEffectDetails.effectGenerator|effectGenerator},
-   * - {@link AnimClipEffectDetails.effectOptions|effectOptions},
+   *  * {@link AnimClipEffectDetails.category|category},
+   *  * {@link AnimClipEffectDetails.effectName|effectName},
+   *  * {@link AnimClipEffectDetails.effectGenerator|effectGenerator},
+   *  * {@link AnimClipEffectDetails.effectOptions|effectOptions},
    */
   getEffectDetails(): AnimClipEffectDetails;
   /**
@@ -526,15 +526,15 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**
    * Returns timing-related details about the animation.
    * @returns an object containing
-   * - {@link AnimClipTiming.startsWithPrevious|startsWithPrevious},
-   * - {@link AnimClipTiming.startsNextClipToo|startsNextClipToo},
-   * - {@link AnimClipTiming.duration|duration},
-   * - {@link AnimClipTiming.delay|delay},
-   * - {@link AnimClipTiming.endDelay|endDelay},
-   * - {@link AnimClipTiming.easing|easing},
-   * - {@link AnimClipTiming.playbackRate|playbackRate},
-   * - {@link AnimClipTiming.compoundedPlaybackRate|compoundedPlaybackRate},
-   * - {@link AnimClipTiming.runGeneratorsNow|runGeneratorsNow},
+   *  * {@link AnimClipTiming.startsWithPrevious|startsWithPrevious},
+   *  * {@link AnimClipTiming.startsNextClipToo|startsNextClipToo},
+   *  * {@link AnimClipTiming.duration|duration},
+   *  * {@link AnimClipTiming.delay|delay},
+   *  * {@link AnimClipTiming.endDelay|endDelay},
+   *  * {@link AnimClipTiming.easing|easing},
+   *  * {@link AnimClipTiming.playbackRate|playbackRate},
+   *  * {@link AnimClipTiming.compoundedPlaybackRate|compoundedPlaybackRate},
+   *  * {@link AnimClipTiming.runGeneratorsNow|runGeneratorsNow},
    */
   getTiming(): AnimClipTiming;
   /**
@@ -577,9 +577,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**
    * Returns details about how the DOM element is modified beyond just the effect of the animation.
    * @returns an object containing
-   * - {@link AnimClipModifiers.cssClasses|cssClasses},
-   * - {@link AnimClipModifiers.commitsStyles|commitsStyles},
-   * - {@link AnimClipModifiers.composite|composite},
+   *  * {@link AnimClipModifiers.cssClasses|cssClasses},
+   *  * {@link AnimClipModifiers.commitsStyles|commitsStyles},
+   *  * {@link AnimClipModifiers.composite|composite},
    */
   getModifiers(): AnimClipModifiers;
   /**
@@ -620,9 +620,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**
    * Returns details about the animation's current status.
    * @returns an object containing
-   * - {@link AnimClipStatus.inProgress|inProgress},
-   * - {@link AnimClipStatus.isRunning|isRunning},
-   * - {@link AnimClipStatus.isPaused|isPaused},
+   *  * {@link AnimClipStatus.inProgress|inProgress},
+   *  * {@link AnimClipStatus.isRunning|isRunning},
+   *  * {@link AnimClipStatus.isPaused|isPaused},
    */
   getStatus(): AnimClipStatus;
   /**
@@ -880,7 +880,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
   /**
    * Pauses the animation clip.
-   * - If the clip is not already in progress, this method does nothing.
+   *  * If the clip is not already in progress, this method does nothing.
    * @group Playback Methods
    */
   pause(): this;
@@ -898,7 +898,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
   /**
    * Unpauses the animation clip.
-   * - If the clip is not currently paused, this method does nothing.
+   *  * If the clip is not currently paused, this method does nothing.
    * @group Playback Methods
    */
   unpause(): this;
@@ -916,9 +916,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
   /**
    * Forces the animation clip to instantly finish.
-   * - This works even if the animation is not already currently in progress.
-   * - The animation will still pause for any roadblocks generated by {@link AnimClip.addRoadblocks | addRoadblocks()}.
-   * - Does not work if the clip is currently paused.
+   *  * This works even if the animation is not already currently in progress.
+   *  * The animation will still pause for any roadblocks generated by {@link AnimClip.addRoadblocks | addRoadblocks()}.
+   *  * Does not work if the clip is currently paused.
    * @group Playback Methods
    */
   async finish(): Promise<this>;
@@ -1019,7 +1019,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**
    * Pauses the animation clip when it reaches the specified time in the specified direction, only unpausing after
    * the specified array of `Promise` objects is resolved.
-   * - If the clip is part of a structure (like a sequence), the entire structure is paused as well.
+   *  * If the clip is part of a structure (like a sequence), the entire structure is paused as well.
    * @param direction - the direction the animation will be going when the clip is paused
    * @param phase - the phase of the animation to place the blocks in
    * @param timePosition - the time position within the phase when the roadblocks should be encountered
@@ -1290,7 +1290,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**
    * Calculates the value partway between two fixed numbers (an initial value and a final value)
    * based on the progress of the animation.
-   * - Intended for use inside effect generator functions that utilize RAF loops.
+   *  * Intended for use inside effect generator functions that utilize RAF loops.
    * @param initialVal - the starting value
    * @param finalVal - the ending value
    * @returns the number that is a percentage of the way between `initialVal` and `finalVal` based on the

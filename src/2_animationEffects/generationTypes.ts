@@ -12,9 +12,9 @@ export type KeyframesGenerator<TClipContext extends unknown> = {
    * Runs every time the clip is played, returning up to 2 new sets of {@link Keyframes} each time.
    * @param effectOptions - parameters used to set the behavior for the specific animation effect
    * @returns An object containing 2 possible sets of {@link Keyframes}.
-   * - `forwardKeyframes` is used for the clip's animation when the clip is played
-   * - `backwardKeyframes` (optional) is used for the clip's animation when the clip is rewound
-   * - - If `backwardKeyframes` is omitted, the reversal of `forwardKeyframes` is used instead
+   *  * `forwardKeyframes` is used for the clip's animation when the clip is played
+   *  * `backwardKeyframes` (optional) is used for the clip's animation when the clip is rewound
+   *    * If `backwardKeyframes` is omitted, the reversal of `forwardKeyframes` is used instead
    * 
    * @example
    * <!-- EX:S id="KeyframesGenerator.generateKeyframes-1" code-type="ts" -->
@@ -66,9 +66,9 @@ export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
    * Runs itself exactly once (creating a closure) and returns up to 2 callback functions that each return one set of {@link Keyframes}.
    * @param effectOptions - parameters used to set the behavior for the specific animation effect
    * @returns An object containing 2 possible callback functions that each generate (return) one set of {@link Keyframes}.
-   * - `forwardGenerator` will run every time the clip is played
-   * - `backwardGenerator` (optional) will run every time the clip is rewound
-   * - - If `backwardGenerator` is omitted, `forwardGenerator` will be used, and the resulting keyframes will be reversed
+   *  * `forwardGenerator` will run every time the clip is played
+   *  * `backwardGenerator` (optional) will run every time the clip is rewound
+   *    * If `backwardGenerator` is omitted, `forwardGenerator` will be used, and the resulting keyframes will be reversed
    * 
    * @example
    * <!-- EX:S id="KeyframesGeneratorsGenerator.generateKeyframeGenerators-1" code-type="ts" -->
@@ -137,8 +137,8 @@ export type RafMutatorsGenerator<TClipContext extends unknown> = {
    * {@link AnimClip.computeTween}, it will look like a smooth animation.
    * @param effectOptions - parameters used to set the behavior for the specific animation effect
    * @returns An object containing 2 functions.
-   * - `forwardMutator` is used for the clip's animation when the clip is played
-   * - `backwardKeyframes` is used for the clip's animation when the clip is rewound
+   *  * `forwardMutator` is used for the clip's animation when the clip is played
+   *  * `backwardKeyframes` is used for the clip's animation when the clip is rewound
    * 
    * @see {@link AnimClip.computeTween}
    * 
@@ -201,8 +201,8 @@ export type RafMutatorsGeneratorsGenerator<TClipContext extends unknown> = {
    * {@link AnimClip.computeTween}, it will look like a smooth animation.
    * @param effectOptions - parameters used to set the behavior for the specific animation effect
    * @returns An object containing 2 callback functions that each generate (return) one function.
-   * - `forwardGenerator` will run every time the clip is played, producing a function that will be used in a loop
-   * - `backwardGenerator` will run every time the clip is rewound, producing a function that will be used in a loop
+   *  * `forwardGenerator` will run every time the clip is played, producing a function that will be used in a loop
+   *  * `backwardGenerator` will run every time the clip is rewound, producing a function that will be used in a loop
    * 
    * @see {@link AnimClip.computeTween}
    * 
@@ -259,13 +259,13 @@ export type RafMutatorsGeneratorsGenerator<TClipContext extends unknown> = {
 
 /**
  * Object representing an entry in an {@link EffectGeneratorBank}. It consists of 3 properties:
- * - {@link EffectGenerator.defaultConfig | defaultConfig} - default configuration options that are appropriate for the effect (and can be overwritten)
- * - {@link EffectGenerator.immutableConfig | immutableConfig} - default configuration options for the effect (but cannot be overwritten)
- * - a generator function that creates the animation effect. There are 4 possible functions:
- * - - {@link KeyframesGenerator.generateKeyframes | generateKeyframes}
- * - - {@link KeyframesGeneratorsGenerator.generateKeyframeGenerators | generateKeyframeGenerators}
- * - - {@link RafMutatorsGenerator.generateRafMutators | generateRafMutators}
- * - - {@link RafMutatorsGeneratorsGenerator.generateRafMutatorGenerators | generateRafMutatorGenerators}
+ *  * {@link EffectGenerator.defaultConfig | defaultConfig} - default configuration options that are appropriate for the effect (and can be overwritten)
+ *  * {@link EffectGenerator.immutableConfig | immutableConfig} - default configuration options for the effect (but cannot be overwritten)
+ *  * a generator function that creates the animation effect. There are 4 possible functions:
+ *    * {@link KeyframesGenerator.generateKeyframes | generateKeyframes}
+ *    * {@link KeyframesGeneratorsGenerator.generateKeyframeGenerators | generateKeyframeGenerators}
+ *    * {@link RafMutatorsGenerator.generateRafMutators | generateRafMutators}
+ *    * {@link RafMutatorsGeneratorsGenerator.generateRafMutatorGenerators | generateRafMutatorGenerators}
  * 
  * The configuration options that are allowed to be set in {@link EffectGenerator.defaultConfig | defaultConfig} or 
  * {@link EffectGenerator.immutableConfig | immutableConfig} depend on {@link AnimClip.categoryImmutableConfig}. For example,

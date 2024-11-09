@@ -36,8 +36,8 @@ export type DOMElement = HTMLElement | SVGElement | MathMLElement;
 interface TranslationOffset {
   /**
    * determines offsets to apply to both X and Y positional components
-   * - the offset is applied _after_ {@link alignment} is applied
-   * - string in the form "{@link CssLength}, {@link CssLength}"
+   *  * the offset is applied _after_ {@link alignment} is applied
+   *  * string in the form "{@link CssLength}, {@link CssLength}"
    * @example
    * ```ts
    * {selfOffset: "12px, 50%"}
@@ -53,7 +53,7 @@ interface TranslationOffset {
 export interface TranslateOptions extends TranslationOffset {
   /**
    * distances to travel in the X and Y directions
-   * - string in the form "{@link CssLength}, {@link CssLength}"
+   *  * string in the form "{@link CssLength}, {@link CssLength}"
    * @example
    * ```ts
    * {translate: "12px, 50%"} // move 12px right and 50% of own height down
@@ -70,8 +70,8 @@ export interface MoveToOptions extends TranslationOffset {
   alignment: `${CssXAlignment} ${CssYAlignment}`;
   /**
    * offset with respect to target's left and top bound
-   * - the offset is applied _after_ {@link alignment} is applied
-   * - string in the form "{@link CssLength}, {@link CssLength}"
+   *  * the offset is applied _after_ {@link alignment} is applied
+   *  * string in the form "{@link CssLength}, {@link CssLength}"
    * @example
    * ```ts
    * {targetOffset: "12px, 50%"} // move 12px right and 50% of target element's height down
@@ -100,9 +100,9 @@ export interface ScrollingOptions {
 
 /**
  * A few common options for units in CSS.
- * - `"px"` refers to pixels
- * - `"rem"` refers to root em
- * - `"%"` refers to a percentage
+ *  * `"px"` refers to pixels
+ *  * `"rem"` refers to root em
+ *  * `"%"` refers to a percentage
  * @see [CSS values and units](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Values_and_units)
  */
 export type CssLengthUnit = | 'px' | 'rem' | '%';
@@ -110,16 +110,16 @@ export type CssLengthUnit = | 'px' | 'rem' | '%';
 export type CssLength = `${number}${CssLengthUnit}`;
 /**
  * Keywords for common alignments along the y-axis.
- * - `"top"` indicates a distance of 0% from the top of an element
- * - `"center"` indicates a distance of 50% from the top of an element
- * - `"bottom"` indicates a distance of 100% from the top of an element
+ *  * `"top"` indicates a distance of 0% from the top of an element
+ *  * `"center"` indicates a distance of 50% from the top of an element
+ *  * `"bottom"` indicates a distance of 100% from the top of an element
  */
 export type CssYAlignment = | 'top' | 'bottom' | 'center';
 /**
  * Keywords for common alignments along the x-axis.
- * - `"left"` indicates a distance of 0% from the left of an element
- * - `"center"` indicates a distance of 50% from the left of an element
- * - `"right"` indicates a distance of 100% from the left of an element
+ *  * `"left"` indicates a distance of 0% from the left of an element
+ *  * `"center"` indicates a distance of 50% from the left of an element
+ *  * `"right"` indicates a distance of 100% from the left of an element
  */
 export type CssXAlignment = | 'left' | 'right' | 'center';
 
@@ -132,21 +132,21 @@ export type operator = '+' | '-';
 
 /**
  * Denotes an X coordinate alignment in the following formats:
- * - {@link percentage} (such as `"50%"`)
- * - {@link pixels} (such as `"12px"`)
- * - {@link CssXAlignment} (such as `"center"` (which is equivalent to `"50%"`) and `"left"` (which is equivalent to `"0%"`))
- * - {@link percentage} (+|-) {@link pixels} or {@link pixels} (+|-) {@link percentage} (such as `"50% - 12px"` and `"30px - 20%"`)
- * - {@link CssXAlignment} (+|-) ({@link pixels}|{@link percentage}) (such as `"left + 50%"` and `"center - 12px"`)
+ *  * {@link percentage} (such as `"50%"`)
+ *  * {@link pixels} (such as `"12px"`)
+ *  * {@link CssXAlignment} (such as `"center"` (which is equivalent to `"50%"`) and `"left"` (which is equivalent to `"0%"`))
+ *  * {@link percentage} (+|-) {@link pixels} or {@link pixels} (+|-) {@link percentage} (such as `"50% - 12px"` and `"30px - 20%"`)
+ *  * {@link CssXAlignment} (+|-) ({@link pixels}|{@link percentage}) (such as `"left + 50%"` and `"center - 12px"`)
  */
 export type MultiUnitPlacementX = percentage | pixels | CssXAlignment | `${percentage} ${operator} ${pixels}` | `${pixels} ${operator} ${percentage}` | `${CssXAlignment} ${operator} ${pixels | percentage}`;
 
 /**
  * Denotes an X coordinate alignment in the following formats:
- * - {@link percentage} (such as `"50%"`)
- * - {@link pixels} (such as `"12px"`)
- * - {@link CssYAlignment} (such as `"center"` (which is equivalent to `"50%"`) and `"top"` (which is equivalent to `"0%"`))
- * - {@link percentage} (+|-) {@link pixels} or {@link pixels} (+|-) {@link percentage} (such as `"50% - 12px"` and `"30px - 20%"`)
- * - {@link CssYAlignment} (+|-) ({@link pixels}|{@link percentage}) (such as `"top + 50%"` and `"center - 12px"`)
+ *  * {@link percentage} (such as `"50%"`)
+ *  * {@link pixels} (such as `"12px"`)
+ *  * {@link CssYAlignment} (such as `"center"` (which is equivalent to `"50%"`) and `"top"` (which is equivalent to `"0%"`))
+ *  * {@link percentage} (+|-) {@link pixels} or {@link pixels} (+|-) {@link percentage} (such as `"50% - 12px"` and `"30px - 20%"`)
+ *  * {@link CssYAlignment} (+|-) ({@link pixels}|{@link percentage}) (such as `"top + 50%"` and `"center - 12px"`)
  */
 export type MultiUnitPlacementY = percentage | pixels | CssYAlignment | `${percentage} ${operator} ${pixels}` | `${pixels} ${operator} ${percentage}` | `${CssYAlignment} ${operator} ${pixels | percentage}`;
 

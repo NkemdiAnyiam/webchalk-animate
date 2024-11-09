@@ -32,7 +32,7 @@ export type AnimSequenceConfig = {
 
   /**
    * If `true`, the next sequence in the same timeline will automatically play after this sequence finishes.
-   * - If this sequence is not part of a timeline or is at the end of a timeline, this option has no effect.
+   *  * If this sequence is not part of a timeline or is at the end of a timeline, this option has no effect.
    * @defaultValue
    * ```ts
    * false
@@ -42,7 +42,7 @@ export type AnimSequenceConfig = {
 
   /**
    * If `true`, this sequence will automatically play after the previous sequence in the same timeline finishes.
-   * - If this sequence is not part of a timeline or is at the beginning of a timeline, this option has no effect.
+   *  * If this sequence is not part of a timeline or is at the beginning of a timeline, this option has no effect.
    * @defaultValue
    * ```ts
    * false
@@ -53,8 +53,8 @@ export type AnimSequenceConfig = {
 
   /**
    * The base playback rate of the sequence (ignoring any multipliers from a parent timeline).
-   * - Example: A value of `1` means 100% (the typical playback rate), and `0.5` means 50% speed.
-   * - Example: If the `playbackRate` of the parent timeline is `4` and the `playbackRate` of this sequence is `5`,
+   *  * Example: A value of `1` means 100% (the typical playback rate), and `0.5` means 50% speed.
+   *  * Example: If the `playbackRate` of the parent timeline is `4` and the `playbackRate` of this sequence is `5`,
    * the `playbackRate` property is still `5`, but the sequence would run at 4 * 5 = 20x speed.
    */
   playbackRate: number;
@@ -74,7 +74,7 @@ export type AnimSequenceTiming = Pick<AnimSequenceConfig,
 > & {
   /**
    * The actual playback rate of the sequence after the playback rates of any parents are taken into account.
-   * - Example: If the `playbackRate` of the parent timeline is `4` and the `playbackRate` of this sequence is `5`,
+   *  * Example: If the `playbackRate` of the parent timeline is `4` and the `playbackRate` of this sequence is `5`,
    * the `compoundedPlaybackRate` will be 4 * 5 = 20.
    * @see {@link AnimSequenceTiming.playbackRate}
    */
@@ -127,13 +127,13 @@ export type AnimSequenceStatus = {
   /**
    * `true` only if the sequence has finished being played and not finished being rewound.
    * (if rewound at all).
-   * - Resets to `false` once the sequence has finished being rewound.
+   *  * Resets to `false` once the sequence has finished being rewound.
    */
   wasPlayed: boolean;
 
   /**
    * `true` only if the sequence has finished being rewound and not finished being played.
-   * - Resets to `false` once the sequence has finished being rewound.
+   *  * Resets to `false` once the sequence has finished being rewound.
    * (if played at all).
    */
   wasRewound: boolean;
@@ -141,9 +141,9 @@ export type AnimSequenceStatus = {
   /**
    * Shows whether the sequence is currently allowed to accept changes to its structure.
    * `true` only if the sequence is in progress or in a forward finished state.
-   * - Operations like {@link AnimSequence.addClips | addClips()}, {@link AnimSequence.removeClips | removeClips()},
+   *  * Operations like {@link AnimSequence.addClips | addClips()}, {@link AnimSequence.removeClips | removeClips()},
    * etc. check whether the structure is locked before proceeding.
-   * - Any time the sequence goes back to its starting point after fully rewinding, its structure is unlocked
+   *  * Any time the sequence goes back to its starting point after fully rewinding, its structure is unlocked
    * and allowed to accept changes (i.e., {@link AnimSequenceStatus.lockedStructure | lockedStructure} is `false`).
    */
   lockedStructure: boolean;
@@ -198,11 +198,11 @@ export class AnimSequence {
    * Returns an object containing the configuration options used to
    * define the timing, jump tag, and description of the animation sequence.
    * @returns an object containing
-   * - {@link AnimSequenceConfig.autoplays|autoplays},
-   * - {@link AnimSequenceConfig.autoplaysNextSequence|autoplaysNextSequence},
-   * - {@link AnimSequenceConfig.description|description},
-   * - {@link AnimSequenceConfig.playbackRate|playbackRate},
-   * - {@link AnimSequenceConfig.jumpTag|jumpTag},
+   *  * {@link AnimSequenceConfig.autoplays|autoplays},
+   *  * {@link AnimSequenceConfig.autoplaysNextSequence|autoplaysNextSequence},
+   *  * {@link AnimSequenceConfig.description|description},
+   *  * {@link AnimSequenceConfig.playbackRate|playbackRate},
+   *  * {@link AnimSequenceConfig.jumpTag|jumpTag},
    * @group Property Getter Methods
    * @group Configuration
    */
@@ -224,8 +224,8 @@ export class AnimSequence {
   /**@internal*/ _parentTimeline?: AnimTimeline; // pointer to parent AnimTimeline
   /**
    * The highest level of this sequence's lineage.
-   * - If the sequence is nested within an {@link AnimTimeline}: that timeline,
-   * - Else: the sequence itself
+   *  * If the sequence is nested within an {@link AnimTimeline}: that timeline,
+   *  * Else: the sequence itself
    * @group Structure
    */
   get root(): AnimTimeline | AnimSequence { return this.parentTimeline ?? this; }
@@ -273,15 +273,15 @@ export class AnimSequence {
   /**
    * Returns details about an sequence's current status.
    * @returns an object containing
-   * - {@link AnimSequenceStatus.inProgress|inProgress},
-   * - {@link AnimSequenceStatus.isPaused|isPaused},
-   * - {@link AnimSequenceStatus.isRunning|isRunning},
-   * - {@link AnimSequenceStatus.skippingOn|skippingOn},
-   * - {@link AnimSequenceStatus.isFinished|isFinished},
-   * - {@link AnimSequenceStatus.usingFinish|usingFinish},
-   * - {@link AnimSequenceStatus.wasPlayed|wasPlayed},
-   * - {@link AnimSequenceStatus.wasRewound|wasRewound},
-   * - {@link AnimSequenceStatus.lockedStructure|lockedStructure},
+   *  * {@link AnimSequenceStatus.inProgress|inProgress},
+   *  * {@link AnimSequenceStatus.isPaused|isPaused},
+   *  * {@link AnimSequenceStatus.isRunning|isRunning},
+   *  * {@link AnimSequenceStatus.skippingOn|skippingOn},
+   *  * {@link AnimSequenceStatus.isFinished|isFinished},
+   *  * {@link AnimSequenceStatus.usingFinish|usingFinish},
+   *  * {@link AnimSequenceStatus.wasPlayed|wasPlayed},
+   *  * {@link AnimSequenceStatus.wasRewound|wasRewound},
+   *  * {@link AnimSequenceStatus.lockedStructure|lockedStructure},
    * @group Property Getter Methods
    */
   getStatus(): AnimSequenceStatus;
@@ -325,10 +325,10 @@ export class AnimSequence {
   /**
    * Returns timing-related details about the sequence.
    * @returns an object containing
-   * - {@link AnimSequenceTiming.autoplays|autoplays},
-   * - {@link AnimSequenceTiming.autoplaysNextSequence|autoplaysNextSequence},
-   * - {@link AnimSequenceTiming.compoundedPlaybackRate|compoundedPlaybackRate},
-   * - {@link AnimSequenceTiming.playbackRate|playbackRate},
+   *  * {@link AnimSequenceTiming.autoplays|autoplays},
+   *  * {@link AnimSequenceTiming.autoplaysNextSequence|autoplaysNextSequence},
+   *  * {@link AnimSequenceTiming.compoundedPlaybackRate|compoundedPlaybackRate},
+   *  * {@link AnimSequenceTiming.playbackRate|playbackRate},
    * @group Property Getter Methods
    */
   getTiming(): AnimSequenceTiming;
@@ -694,7 +694,7 @@ export class AnimSequence {
   
   /**
    * Pauses the animation sequence.
-   * - If the sequence is not already in progress, this method does nothing.
+   *  * If the sequence is not already in progress, this method does nothing.
    * @group Playback Methods
    */
   pause(): this {
@@ -707,7 +707,7 @@ export class AnimSequence {
 
   /**
    * Unpauses the animation sequence.
-   * - If the sequence is not currently paused, this method does nothing.
+   *  * If the sequence is not currently paused, this method does nothing.
    * @group Playback Methods
    */
   unpause(): this {
@@ -721,9 +721,9 @@ export class AnimSequence {
   // TODO: check to see if it's necessary to prevent direct finish() calls if sequence has a parent timeline
   /**
    * Forces the animation sequence to instantly finish.
-   * - This works even if the animation sequence is not already currently in progress.
-   * - The sequence will still pause for any roadblocks generated by {@link AnimClip.addRoadblocks}.
-   * - Does not work if the sequence is currently paused.
+   *  * This works even if the animation sequence is not already currently in progress.
+   *  * The sequence will still pause for any roadblocks generated by {@link AnimClip.addRoadblocks}.
+   *  * Does not work if the sequence is currently paused.
    * @group Playback Methods
    */
   async finish(): Promise<this> {
@@ -743,8 +743,8 @@ export class AnimSequence {
   // used to skip currently running animation so they don't run at regular speed while using finish()
   /**
    * Forces the animation clips that are currently running within the sequence to instantly finish.
-   * - After the currently running animation clips complete, the rest of the sequence runs normally.
-   * - The sequence will still pause for any roadblocks generated by {@link AnimClip.addRoadblocks}.
+   *  * After the currently running animation clips complete, the rest of the sequence runs normally.
+   *  * The sequence will still pause for any roadblocks generated by {@link AnimClip.addRoadblocks}.
    * @group Playback Methods
    */
   async finishInProgressAnimations(): Promise<this> {
