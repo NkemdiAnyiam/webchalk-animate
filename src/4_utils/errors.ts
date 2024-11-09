@@ -215,13 +215,13 @@ export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg =
     (timeline
       ? `\nTimeline: [Timeline Name: ${timeline.getConfig().timelineName}]` +
         `\n          [At Step# ${timeline.getStatus().stepNumber}]` +
-        (sequence ? `\n          [At Index ${timeline.findSequenceIndex(sequence!)} (the ${indexToOrdinal(timeline.findSequenceIndex(sequence!))} sequence)]` : '') +
+        (sequence ? `\n          [At the ${indexToOrdinal(timeline.findSequenceIndex(sequence!))} sequence]` : '') +
         ((sequence || clip) ? `\n${'-'.repeat(20)}` : '')
       : ''
     ) +
     (sequence
       ? `\nSequence: [Jump tag: ${sequence.getJumpTag()}] [Description: ${sequence.getDescription()}]` +
-        (clip ? `\n          [At Index ${sequence.findClipIndex(clip!)} (the ${indexToOrdinal(sequence.findClipIndex(clip!))} clip)]` : '') +
+        (clip ? `\n          [At the ${indexToOrdinal(sequence.findClipIndex(clip!))} clip]` : '') +
         (clip ? `\n${'-'.repeat(20)}` : '')
       : ''
     ) +
