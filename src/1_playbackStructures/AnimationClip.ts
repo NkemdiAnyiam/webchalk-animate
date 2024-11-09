@@ -140,6 +140,9 @@ type KeyframeTimingOptions = {
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
  * Used as the last argument in most clip factory functions created by {@link Webimator.createAnimationClipFactories}.
+ * Returned by {@link AnimClip.getConfig}.
+ * @see {@link AnimClip.getConfig}.
+ * 
  * @category Interfaces
  * @interface
  */
@@ -205,7 +208,7 @@ export type AnimClipEffectDetails = {
 
 // TYPE
 /**
- * Contains details about how the DOM element is modified beyond just the effect of the animation.
+ * Contains details about how the DOM element is modified beyond just the effect of the animation (such as modifying CSS classes).
  * Returned by {@link AnimClip.getModifiers}.
  * @see {@link AnimClip.getModifiers}
  * @category Interfaces

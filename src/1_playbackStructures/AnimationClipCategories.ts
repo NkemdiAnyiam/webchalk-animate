@@ -15,6 +15,13 @@ export type Layer4MutableConfig<TClipClass extends AnimClip, TEffectGenerator ex
 /*-:*******************************************        ENTRANCE        ********************************************************/
 /*-:***************************************************************************************************************************/
 /**
+ * Contains configuration options used to define both the timing and effects of the animation clip.
+ * Used as the last argument in the `Entrance()` factory function created by {@link Webimator.createAnimationClipFactories}.
+ * Also returned by {@link EntranceClip.getConfig}.
+ * - Contains additional properties:
+ * - - {@link EntranceClipModifiers.hideNowType | hideNowType}
+ * @see {@link EntranceClip.getConfig}
+ * 
  * @category Entrance
  */
 export interface EntranceClipConfig extends AnimClipConfig {
@@ -31,6 +38,13 @@ export interface EntranceClipConfig extends AnimClipConfig {
 }
 
 /**
+ * Contains details about how the DOM element is modified beyond just the effect of the animation (such as modifying CSS classes).
+ * Returned by {@link EntranceClip.getModifiers}.
+ * - Contains additional properties:
+ * - - {@link EntranceClipModifiers.hideNowType | hideNowType}
+ * 
+ * @see {@link EntranceClip.getModifiers}
+ * 
  * @category Entrance
  */
 export interface EntranceClipModifiers extends AnimClipModifiers, Pick<EntranceClipConfig, 'hideNowType'> {}
@@ -223,11 +237,18 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
 /*-:*********************************************        EXIT        **********************************************************/
 /*-:***************************************************************************************************************************/
 /**
+ * Contains configuration options used to define both the timing and effects of the animation clip.
+ * Used as the last argument in the `Exit()` factory function created by {@link Webimator.createAnimationClipFactories}.
+ * Also returned by {@link ExitClip.getConfig}.
+ * - Contains additional properties:
+ * - - {@link ExitClipModifiers.exitType | exitType}
+ * @see {@link ExitClip.getConfig}
+ * 
  * @category Exit
  */
 export interface ExitClipConfig extends AnimClipConfig {
   /**
-   * Determineshow the element should be hidden when the clip has finished playing.
+   * Determines how the element should be hidden when the clip has finished playing.
    * - if `'display-none'`, the element is unrendered by setting the CSS `display` to `none`
    * - if `'visibility-hidden'`, the element is turned invisible by setting the CSS `visibility` to `hidden`
    * @see [display: none & visibility: hidden](https://www.freecodecamp.org/news/css-display-none-and-visibility-hidden-the-difference/)
@@ -236,6 +257,13 @@ export interface ExitClipConfig extends AnimClipConfig {
 };
 
 /**
+ * Contains details about how the DOM element is modified beyond just the effect of the animation (such as modifying CSS classes).
+ * Returned by {@link ExitClip.getModifiers}.
+ * - Contains additional properties:
+ * - - {@link ExitClipModifiers.exitType | exitType}
+ * 
+ * @see {@link ExitClip.getModifiers}
+ * 
  * @category Exit
  */
 interface ExitClipModifiers extends AnimClipModifiers, Pick<ExitClipConfig, 'exitType'> {}
@@ -403,6 +431,13 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
 /*-:*******************************************        EMPHASIS        ********************************************************/
 /*-:***************************************************************************************************************************/
 /**
+ * Contains configuration options used to define both the timing and effects of the animation clip.
+ * Used as the last argument in the `Emphasis()` factory function created by {@link Webimator.createAnimationClipFactories}.
+ * Also returned by {@link EmphasisClip.getConfig}.
+ * - Contains additional properties:
+ * - - (none)
+ * @see {@link EmphasisClip.getConfig}
+ * 
  * @category Emphasis
  */
 export interface EmphasisClipConfig extends AnimClipConfig {
@@ -477,6 +512,13 @@ export class EmphasisClip<TEffectGenerator extends EffectGenerator<EmphasisClip,
 /*-:********************************************        MOTION        *********************************************************/
 /*-:***************************************************************************************************************************/
 /**
+ * Contains configuration options used to define both the timing and effects of the animation clip.
+ * Used as the last argument in the `Motion()` factory function created by {@link Webimator.createAnimationClipFactories}.
+ * Also returned by {@link MotionClip.getConfig}.
+ * - Contains additional properties:
+ * - - (none)
+ * @see {@link MotionClip.getConfig}
+ * 
  * @category Motion
  */
 export interface MotionClipConfig extends AnimClipConfig {
@@ -556,6 +598,13 @@ export class MotionClip<TEffectGenerator extends EffectGenerator<MotionClip, Mot
 /*-:*******************************************        SCROLLER        ********************************************************/
 /*-:***************************************************************************************************************************/
 /**
+ * Contains configuration options used to define both the timing and effects of the animation clip.
+ * Used as the last argument in the `Scroller()` factory function created by {@link Webimator.createAnimationClipFactories}.
+ * Also returned by {@link ScrollerClip.getConfig}.
+ * - Contains additional properties:
+ * - - (none)
+ * @see {@link ScrollerClip.getConfig}
+ * 
  * @category Scroller
  */
 export interface ScrollerClipConfig extends AnimClipConfig {
@@ -647,6 +696,13 @@ export class ScrollerClip<TEffectGenerator extends EffectGenerator<ScrollerClip,
 /*-:******************************************        TRANSITION        *******************************************************/
 /*-:***************************************************************************************************************************/
 /**
+ * Contains configuration options used to define both the timing and effects of the animation clip.
+ * Used as the last argument in the `Transition()` factory function created by {@link Webimator.createAnimationClipFactories}.
+ * Also returned by {@link TransitionClip.getConfig}.
+ * - Contains additional properties:
+ * - - {@link TransitionClipModifiers.removeInlineStylesOnFinish | removeInlineStylesOnFinish}
+ * @see {@link TransitionClip.getConfig}
+ * 
  * @category Transition
  */
 export interface TransitionClipConfig extends AnimClipConfig {
@@ -658,6 +714,13 @@ export interface TransitionClipConfig extends AnimClipConfig {
 }
 
 /**
+ * Contains details about how the DOM element is modified beyond just the effect of the animation (such as modifying CSS classes).
+ * Returned by {@link TransitionClip.getModifiers}.
+ * - Contains additional properties:
+ * - - {@link TransitionClipModifiers.removeInlineStylesOnFinish | removeInlineStylesOnFinish}
+ * 
+ * @see {@link TransitionClip.getModifiers}
+ * 
  * @category Transition
  */
 export interface TransitionClipModifiers extends AnimClipModifiers, Pick<TransitionClipConfig, 'removeInlineStylesOnFinish'> {}
@@ -790,6 +853,12 @@ export class TransitionClip<TEffectGenerator extends EffectGenerator<TransitionC
 /*-:***************************************        CONNECTOR SETTER        ****************************************************/
 /*-:***************************************************************************************************************************/
 /**
+ * Contains configuration options used to define both the timing and effects of the animation clip.
+ * Returned by {@link ConnectorSetterClip.getConfig}.
+ * - Contains additional properties:
+ * - - (none)
+ * @see {@link EntranceClip.getConfig}
+ * 
  * @category Connector Setter
  */
 export interface ConnectorSetterClipConfig extends AnimClipConfig {
@@ -954,6 +1023,13 @@ export class ConnectorSetterClip extends AnimClip<EffectGenerator, ConnectorSett
 /*-:**************************************        CONNECTOR ENTRANCE        ***************************************************/
 /*-:***************************************************************************************************************************/
 /**
+ * Contains configuration options used to define both the timing and effects of the animation clip.
+ * Used as the last argument in the `ConnectorEntrance()` factory function created by {@link Webimator.createAnimationClipFactories}.
+ * Also returned by {@link ConnectorEntranceClip.getConfig}.
+ * - Contains additional properties:
+ * - - {@link ConnectorEntranceClipModifiers.hideNowType | hideNowType}
+ * @see {@link ConnectorEntranceClip.getConfig}
+ * 
  * @category Connector Entrance
  */
 export interface ConnectorEntranceClipConfig extends AnimClipConfig {
@@ -961,6 +1037,13 @@ export interface ConnectorEntranceClipConfig extends AnimClipConfig {
 };
 
 /**
+ * Contains details about how the DOM element is modified beyond just the effect of the animation (such as modifying CSS classes).
+ * Returned by {@link ConnectorEntranceClip.getModifiers}.
+ * - Contains additional properties:
+ * - - {@link ConnectorEntranceClipModifiers.hideNowType | hideNowType}
+ * 
+ * @see {@link ConnectorEntranceClip.getModifiers}
+ * 
  * @category Connector Entrance
  */
 export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<ConnectorEntranceClipConfig, 'hideNowType'> {}
@@ -1151,6 +1234,13 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
 /*-:****************************************        CONNECTOR EXIT        *****************************************************/
 /*-:***************************************************************************************************************************/
 /**
+ * Contains configuration options used to define both the timing and effects of the animation clip.
+ * Used as the last argument in the `ConnectorExit()` factory function created by {@link Webimator.createAnimationClipFactories}.
+ * Also returned by {@link ConnectorExitClip.getConfig}.
+ * - Contains additional properties:
+ * - - (none)
+ * @see {@link ConnectorExitClip.getConfig}
+ * 
  * @category Connector Exit
  */
 export interface ConnectorExitClipConfig extends AnimClipConfig {
