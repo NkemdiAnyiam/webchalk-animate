@@ -451,7 +451,7 @@ export const libPresetEmphases = {
      */
     generateKeyframes() {
       if (!this.domElem.classList.contains(`wbmtr-highlightable`)) {
-        throw new CustomErrors.InvalidEffectError(`Cannot unhighlight an element that was not already highlighted.`);
+        throw new CustomErrors.InvalidEffectError(`Cannot un-highlight an element that was not already highlighted.`);
       }
       return {
         forwardFrames: [ {backgroundPositionX: '0%'}, {backgroundPositionX: '100%'}],
