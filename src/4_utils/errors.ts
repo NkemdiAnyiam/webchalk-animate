@@ -157,6 +157,13 @@ class InvalidChildError extends Error {
   }
 }
 
+class InvalidEffectError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'InvalidEffectError';
+  }
+}
+
 /**
  * @category hidden
  */
@@ -170,6 +177,7 @@ export const CustomErrors = {
   TimeParadoxError,
   ChildPlaybackError,
   InvalidChildError,
+  InvalidEffectError,
 };
 
 /**

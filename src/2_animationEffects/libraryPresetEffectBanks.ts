@@ -13,6 +13,7 @@ import { EffectGeneratorBank } from "./generationTypes";
 import { computeSelfScrollingBounds, negateNumString, overrideHidden, splitXYAlignmentString, splitXYTupleString, unOverrideHidden } from "../4_utils/helpers";
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "../4_utils/interfaces";
 import { useEasing } from "./easing";
+import { CustomErrors } from "../4_utils/errors";
 export { LibraryPresetEntranceEffects, LibraryPresetConnectorEntranceEffects, LibraryPresetConnectorExitEffects, LibraryPresetMotionEffects, LibraryPresetEmphasisEffects, LibraryPresetExitEffects, LibraryPresetScrollEffects, LibraryPresetTransitionEffects } from "../1_playbackStructures/AnimationClipCategories";
 
 // type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }
@@ -414,6 +415,7 @@ export const libPresetEmphases = {
       //   prevVal = getComputedStyle(this.domElem).getPropertyValue('--wbmtr-highlight-color');
       // };
 
+      // TODO: Prevent highlighting an element that is already highlighted
       // get the previous highlight color of the element (if none, it naturally uses the value from :root)
       const prevColor = getComputedStyle(this.domElem).getPropertyValue('--wbmtr-highlight-color');
       // if color is 'default', use :root's highlight color
@@ -448,6 +450,9 @@ export const libPresetEmphases = {
      * @returns 
      */
     generateKeyframes() {
+      if (!this.domElem.classList.contains(`wbmtr-highlightable`)) {
+        throw new CustomErrors.InvalidEffectError(`Cannot unhighlight an element that was not already highlighted.`);
+      }
       return {
         forwardFrames: [ {backgroundPositionX: '0%'}, {backgroundPositionX: '100%'}],
       } as const;
