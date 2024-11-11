@@ -50,6 +50,8 @@ export interface EntranceClipConfig extends AnimClipConfig {
 export interface EntranceClipModifiers extends AnimClipModifiers, Pick<EntranceClipConfig, 'hideNowType'> {}
 
 /**
+ * Used to reveal an element that was hidden.
+ * 
  * <!-- EX:S id="AnimClip.desc" code-type="comment-block" -->
  * A "clip" is the smallest building block of a timeline. It is essentially a [DOM element, effect] pair,
  * where a "DOM element" is some HTML element on the page and the effect is the animation effect that
@@ -269,6 +271,8 @@ export interface ExitClipConfig extends AnimClipConfig {
 interface ExitClipModifiers extends AnimClipModifiers, Pick<ExitClipConfig, 'exitType'> {}
 
 /**
+ * Used to unrender or make invisible an element.
+ * 
  * <!-- EX:S id="AnimClip.desc" code-type="comment-block" -->
  * A "clip" is the smallest building block of a timeline. It is essentially a [DOM element, effect] pair,
  * where a "DOM element" is some HTML element on the page and the effect is the animation effect that
@@ -445,6 +449,8 @@ export interface EmphasisClipConfig extends AnimClipConfig {
 };
 
 /**
+ * Used to emphasize an element in someway (like highlighting).
+ * 
  * <!-- EX:S id="AnimClip.desc" code-type="comment-block" -->
  * A "clip" is the smallest building block of a timeline. It is essentially a [DOM element, effect] pair,
  * where a "DOM element" is some HTML element on the page and the effect is the animation effect that
@@ -612,6 +618,8 @@ export interface ScrollerClipConfig extends AnimClipConfig {
 };
 
 /**
+ * Used to scroll an element.
+ * 
  * <!-- EX:S id="AnimClip.desc" code-type="comment-block" -->
  * A "clip" is the smallest building block of a timeline. It is essentially a [DOM element, effect] pair,
  * where a "DOM element" is some HTML element on the page and the effect is the animation effect that
@@ -726,6 +734,8 @@ export interface TransitionClipConfig extends AnimClipConfig {
 export interface TransitionClipModifiers extends AnimClipModifiers, Pick<TransitionClipConfig, 'removeInlineStylesOnFinish'> {}
 
 /**
+ * Used to make an element transition to or from a given {@link Keyframe}.
+ * 
  * <!-- EX:S id="AnimClip.desc" code-type="comment-block" -->
  * A "clip" is the smallest building block of a timeline. It is essentially a [DOM element, effect] pair,
  * where a "DOM element" is some HTML element on the page and the effect is the animation effect that
@@ -853,6 +863,8 @@ export class TransitionClip<TEffectGenerator extends EffectGenerator<TransitionC
 /*-:***************************************        CONNECTOR SETTER        ****************************************************/
 /*-:***************************************************************************************************************************/
 /**
+ * Used to set the endpoints of a {@link WebimatorConnectorElement}.
+ * 
  * Contains configuration options used to define both the timing and effects of the animation clip.
  * Returned by {@link ConnectorSetterClip.getConfig}.
  *  * Contains additional properties:
@@ -1049,6 +1061,8 @@ export interface ConnectorEntranceClipConfig extends AnimClipConfig {
 export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<ConnectorEntranceClipConfig, 'hideNowType'> {}
 
 /**
+ * Used to reveal a {@link WebimatorConnectorElement} that was hidden.
+ * 
  * <!-- EX:S id="AnimClip.desc" code-type="comment-block" -->
  * A "clip" is the smallest building block of a timeline. It is essentially a [DOM element, effect] pair,
  * where a "DOM element" is some HTML element on the page and the effect is the animation effect that
@@ -1248,6 +1262,8 @@ export interface ConnectorExitClipConfig extends AnimClipConfig {
 };
 
 /**
+ * Used to unrender a {@link WebimatorConnectorElement}.
+ * 
  * <!-- EX:S id="AnimClip.desc" code-type="comment-block" -->
  * A "clip" is the smallest building block of a timeline. It is essentially a [DOM element, effect] pair,
  * where a "DOM element" is some HTML element on the page and the effect is the animation effect that

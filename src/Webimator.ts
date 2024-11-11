@@ -488,7 +488,7 @@ export class Webimator {
       },
 
       /**
-       * Creates an {@link EmphasisClip}, which can be used to emphasize an element in someway (like highlighting).
+       * Creates an {@link EmphasisClip}, which can be used to emphasize an element in some way (like highlighting).
        * @param domElem - the element to which the animation effect will be applied
        * @param effectName - the name of the preset animation effect
        * @param effectOptions - array of arguments that can be used to customize the appearance of the chosen animation effect
