@@ -716,7 +716,16 @@ export class ScrollerClip<TEffectGenerator extends EffectGenerator<ScrollerClip,
 export interface TransitionClipConfig extends AnimClipConfig {
   /**
    * If `true`, any CSS property that this clip's effect targeted will be removed from the
-   * element's inline style after the clip finishes playing.
+   * element's inline style after the clip finishes playing. For example, if a transition _to_
+   * a style involved changing `width` and `backgroundColor`, then the line styles for `width`
+   * and `background-color` will be deleted after the transition completes.
+   * 
+   * @remark
+   * Practically, this is intended for the specific use case when an element is
+   * transitioning _to_ a new style that is identical to its original state (as in, the transition style
+   * is the _same_ as what is already specified in some CSS style for the element, so the inline style resulting
+   * from the transition is redundant). Removing the inline styles can be useful for preventing their higher precedence from
+   * impacting future attempts to modify the element's styles through normal CSS.
    */
   removeInlineStylesOnFinish: boolean;
 }

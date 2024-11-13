@@ -43,7 +43,7 @@ import * as WebimatorEasing from "webimator/easing";
 `
 
 
-const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance} = webimator.createAnimationClipFactories({
+const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Transition} = webimator.createAnimationClipFactories({
   customEntranceEffects: {
     hello: {
       generateKeyframes() {
@@ -199,6 +199,9 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   const seq = webimator.newSequence(
     entrance,
+    // Transition(square, '~from', [{opacity: '0', backgroundColor: 'red', width: '0'}], {duration: 2000}),
+    // Transition(square, '~to', [{width: '20rem'}], {}),
+    // Transition(square, '~to', [{width: '10rem'}], {removeInlineStylesOnFinish: true}),
     motion,
     Emphasis(square, '~highlight', [], {}),
     Emphasis(square, '~un-highlight', [], {}),

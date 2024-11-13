@@ -937,3 +937,77 @@ const mot = clipFactories.Motion(element, 'scrollToImproved', [1020]);
 mot.play().then(mot.rewind);
 /**** EX:E id="RafMutatorsGeneratorsGenerator.generateRafMutatorGenerators-1" */
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+{
+  /**** EX:S id="Transition.~from" */
+  const { Transition } = webimator.createAnimationClipFactories();
+
+  // get element from DOM and set its styles (just to give some explicit values to look at)
+  const square = document.querySelector('.square') as HTMLElement;
+  square.style.opacity = '0.5';
+  square.style.backgroundColor = 'black';
+  square.style.width = '200px';
+
+  // A = element, B = effect name, C = effect options, D = configuration (optional)
+  
+  //                       A       B        C                                                     D
+  const clip1 = Transition(square, '~from', [{opacity: '0', backgroundColor: 'red', width: '0'}], {duration: 2000});
+  //                       A       B        C                    D
+  const clip2 = Transition(square, '~from', [{width: '5000px'}], {duration: 1000});
+
+  (async () => {
+    // The square instantly becomes invisible (0 opacity), turns red, and has 0 width. Then over 2 seconds, it
+    // transitions back to its state before the transition (0.5 opacity, black background, and 200px width).
+    await clip1.play();
+
+    // The square instantly becomes 5000px. Then over 1 second, it transitions back to 200px width.
+    await clip2.play();
+  })();
+  /**** EX:E id="Transition.~from" */
+}
+
+{
+  /**** EX:S id="Transition.~to" */
+  const { Transition } = webimator.createAnimationClipFactories();
+
+  // get element from DOM and set its styles (just to give some explicit values to look at)
+  const square = document.querySelector('.square') as HTMLElement;
+  square.style.opacity = '0.5';
+  square.style.backgroundColor = 'black';
+  square.style.width = '200px';
+
+  // A = element, B = effect name, C = effect options, D = configuration (optional)
+  
+  //                       A       B      C                                                     D
+  const clip1 = Transition(square, '~to', [{opacity: '0', backgroundColor: 'red', width: '0'}], {duration: 2000});
+  //                       A       B      C                            D
+  const clip2 = Transition(square, '~to', [{opacity: '1', width: '5000px'}], {duration: 1000});
+  const clip3 = Transition(square, '~to', [{width: '200px'}], {duration: 0.5, removeInlineStylesOnFinish: true});
+
+  (async () => {
+    // Over 2 seconds, the square transitions to having 0 opacity, a red background color, and 0 width.
+    await clip1.play();
+
+    // Over 1 second, the square transitions to have 100% opacity and 5000px width.
+    await clip2.play();
+
+    // Over 0.5 seconds, the square transitions to having 200px.
+    // Because of removeInlineStylesOnFinish, the inline styles related to this clip (i.e., just the width) will be
+    // removed from the element in the HTML after the clip finishes. This is reasonable here since the very original
+    // width of the square is 200px.
+    await clip3.play();
+  })();
+  /**** EX:E id="Transition.~to" */
+}
