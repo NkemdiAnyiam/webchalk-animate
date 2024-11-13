@@ -14,7 +14,7 @@ import { computeSelfScrollingBounds, negateNumString, overrideHidden, splitXYAli
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "../4_utils/interfaces";
 import { useEasing } from "./easing";
 import { CustomErrors } from "../4_utils/errors";
-export { LibraryPresetEntranceEffects, LibraryPresetConnectorEntranceEffects, LibraryPresetConnectorExitEffects, LibraryPresetMotionEffects, LibraryPresetEmphasisEffects, LibraryPresetExitEffects, LibraryPresetScrollEffects, LibraryPresetTransitionEffects } from "../1_playbackStructures/AnimationClipCategories";
+export type { LibraryPresetEntranceEffects, LibraryPresetConnectorEntranceEffects, LibraryPresetConnectorExitEffects, LibraryPresetMotionEffects, LibraryPresetEmphasisEffects, LibraryPresetExitEffects, LibraryPresetScrollEffects, LibraryPresetTransitionEffects } from "../1_playbackStructures/AnimationClipCategories";
 
 // type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }
 
