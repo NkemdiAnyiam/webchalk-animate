@@ -89,7 +89,7 @@ export const easingMap = Object.freeze(new Map<PresetLinearEasingKey, string>([
 
 /**
  * Easing string keys that are within {@link easingMap}.
- *  * Equivalent to ${@link PresetLinearEasingKey}
+ *  * Equivalent to {@link PresetLinearEasingKey}
  * @ignore
  */
 export type KeyInEasingMap = typeof easingMap extends Map<infer I, any> ? I : never;
