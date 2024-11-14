@@ -95,6 +95,10 @@
   }
 }
 
+#icon-chevronDown path {
+  fill: var(--color-text);
+}
+
 li:has(> details > summary[data-key$="$hidden"]) {
   display: none;
 }

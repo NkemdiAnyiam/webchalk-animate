@@ -45,9 +45,10 @@
   "devDependencies": {
     "@types/node": "^22.7.2",
     "doctoc": "^2.2.1",
+    "madge": "^8.0.0",
     "node-sass": "^9.0.0",
     "tsup": "^8.0.1",
-    "typedoc": "^0.26.7",
+    "typedoc": "^0.26.11",
     "typedoc-material-theme": "^1.1.0",
     "typedoc-plugin-mdn-links": "^3.2.11",
     "typescript": "^5.5.3"
