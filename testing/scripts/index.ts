@@ -3,6 +3,8 @@ import * as WebimatorTypes from 'webimator/types-and-interfaces';
 import * as WebimatorErrors from "webimator/error-handling";
 import * as WebimatorEasing from "webimator/easing";
 
+console.log(WebimatorTypes.AnimClip);
+
 /* css */`
 @keyframes roll-in-blurred-left {
   0% {

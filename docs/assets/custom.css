@@ -83,6 +83,9 @@
     --color-sub-param: var(--dark-sub-param);
     --color-scroll-bar: var(--dark-scroll-bar); }
 
+#icon-chevronDown path {
+  fill: var(--color-text); }
+
 li:has(> details > summary[data-key$="$hidden"]) {
   display: none; }
 

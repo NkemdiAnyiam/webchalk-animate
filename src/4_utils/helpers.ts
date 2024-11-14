@@ -257,3 +257,19 @@ export function detab(text: TemplateStringsArray | string): string {
   if (typeof text === 'string') { return text.replace(/\n +/g, '\n').replace(/ +/g, ' '); /*return text.replaceAll(/(\t|\s)/g, ' ');*/ }
   return text.map(str => str.replace(/\n +/g, '\n').replace(/ +/g, ' ')).join(' ');
 }
+
+/**
+ * Gets the bounding rectangle of an element even if it is unrendered.
+ * @param element - the element on which to call `getBoundingClientRect()`
+ * @returns The bounding client rectange of {@link element}.
+ */
+export function getBoundingClientRectOfHidden(element: Element | null): DOMRect {
+  if (!element) { throw new TypeError(`Element must not be null or undefined.`); }
+  if (element.classList.value.includes('wbmtr-display-none')) {
+    overrideHidden(element);
+    const boundingRect = element.getBoundingClientRect();
+    unOverrideHidden(element);
+    return boundingRect;
+  }
+  return element.getBoundingClientRect();
+}
