@@ -10,7 +10,7 @@ import {
 } from "../1_playbackStructures/AnimationClipCategories";
 import { webimator } from "../Webimator";
 import { EffectGeneratorBank } from "./generationTypes";
-import { computeSelfScrollingBounds, negateNumString, overrideHidden, splitXYAlignmentString, splitXYTupleString, unOverrideHidden } from "../4_utils/helpers";
+import { computeSelfScrollingBounds, getBoundingClientRectOfHidden, negateNumString, overrideHidden, splitXYAlignmentString, splitXYTupleString, unOverrideHidden } from "../4_utils/helpers";
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "../4_utils/interfaces";
 import { useEasing } from "./easing";
 import { CustomErrors } from "../4_utils/errors";
@@ -21,6 +21,12 @@ export type { LibraryPresetEntranceEffects, LibraryPresetConnectorEntranceEffect
 type OrthoDirection = 'left' | 'top' | 'right' | 'bottom';
 type DiagDirection = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 type Direction = OrthoDirection | DiagDirection;
+
+const clipClosed_bottom = 'polygon(0 100%, 100% 100%, 100% 100%, 0 100%)';
+const clipClosed_left = 'polygon(0 0, 0 0, 0 100%, 0 100%)';
+const clipClosed_top = 'polygon(0 0, 100% 0, 100% 0, 0 0)';
+const clipClosed_right = 'polygon(100% 0, 100% 0, 100% 100%, 100% 100%)';
+const clipOpened = 'polygon(0 0%, 100% 0%, 100% 100%, 0 100%)';
 
 /*-:**************************************************************************************************************************/
 /*-:****************************************        ENTRANCES        *********************************************************/
@@ -170,37 +176,10 @@ export const libPresetEntrances = {
      */
     generateKeyframes(direction: 'from-bottom' | 'from-left' | 'from-top' | 'from-right' = 'from-bottom') {
       switch(direction) {
-        case 'from-bottom':
-          return {
-            forwardFrames: [
-              {clipPath: 'polygon(0 100%, 100% 100%, 100% 100%, 0 100%)'},
-              {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
-            ]
-          };
-
-        case 'from-left':
-          return {
-            forwardFrames: [
-              {clipPath: 'polygon(0 0, 0 0, 0 100%, 0 100%)'},
-              {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
-            ]
-          };
-
-        case 'from-top':
-          return {
-            forwardFrames: [
-              {clipPath: 'polygon(0 0, 100% 0, 100% 0, 0 0)'},
-              {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
-            ]
-          };
-
-        case 'from-right':
-          return {
-            forwardFrames: [
-              {clipPath: 'polygon(100% 0, 100% 0, 100% 100%, 100% 100%)'},
-              {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
-            ]
-          };
+        case 'from-bottom': return { forwardFrames: [ {clipPath: clipClosed_bottom}, {clipPath: clipOpened} ] };
+        case 'from-left':   return { forwardFrames: [ {clipPath: clipClosed_left}, {clipPath: clipOpened} ] };
+        case 'from-top':    return { forwardFrames: [ {clipPath: clipClosed_top}, {clipPath: clipOpened} ] };
+        case 'from-right':  return { forwardFrames: [ {clipPath: clipClosed_right}, {clipPath: clipOpened} ] };
 
         default:
           throw new RangeError(`Invalid direction "${direction}". Must be "from-top", "from-right", "from-bottom", or "from-left"`);
@@ -208,6 +187,60 @@ export const libPresetEntrances = {
     },
     defaultConfig: {},
     immutableConfig: {},
+  },
+
+  /**
+   * Element slides in from the specified direction while also wiping.
+   * Particularly effective if the element is adjacent to a different element, making it look as if it
+   * is sliding out of that element like a dropdown expanding.
+   */
+  ['~slide-in']: {
+    /**
+     * 
+     * @param direction - direction from which to slide
+     * @returns 
+     */
+    generateKeyframeGenerators(direction: 'from-left' | 'from-top' | 'from-right' | 'from-bottom' = 'from-top') {
+      const genStartFrames = (dir: typeof direction) => {
+        switch(dir) {
+          case 'from-left':
+            return {
+              translate: `-100% 0`,
+              clipPath: clipClosed_right,
+              // marginLeft: -getBoundingClientRectOfHidden(this.domElem).width+'px',
+            };
+          case 'from-top':
+            return {
+              translate: `0% -100%`,
+              clipPath: clipClosed_bottom,
+              marginBottom: -getBoundingClientRectOfHidden(this.domElem).height+'px',
+            };
+          case 'from-right':
+            return {
+              translate: `100% 0`,
+              clipPath: clipClosed_left,
+              marginRight: -getBoundingClientRectOfHidden(this.domElem).width+'px',
+            };
+          case 'from-bottom':
+            return {
+              translate: `0% 100%`,
+              clipPath: clipClosed_top,
+              // marginTop: -getBoundingClientRectOfHidden(this.domElem).height+'px',
+            };
+          default: throw new TypeError(`Invalid direction "${direction}"`);
+        }
+      };
+
+      return {
+        forwardGenerator: () => [
+          genStartFrames(direction),
+          { clipPath: clipOpened },
+        ],
+      };
+    },
+    defaultConfig: {
+      duration: 100
+    } as const,
   },
 
   // invalidProperty: 5,
@@ -351,38 +384,10 @@ export const libPresetExits = {
      */
     generateKeyframes(direction: 'from-bottom' | 'from-left' | 'from-top' | 'from-right' = 'from-bottom') {
       switch(direction) {
-        case 'from-bottom':
-          return {
-            forwardFrames: [
-              {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
-              {clipPath: 'polygon(0 0, 100% 0, 100% 0, 0 0)'},
-            ]
-          };
-
-        case 'from-left':
-          return {
-            forwardFrames: [
-              {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
-              {clipPath: 'polygon(100% 0, 100% 0, 100% 100%, 100% 100%)'},
-            ]
-          };
-
-        case 'from-top':
-          return {
-            forwardFrames: [
-              {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
-              {clipPath: 'polygon(0 100%, 100% 100%, 100% 100%, 0 100%)'},
-            ]
-          };
-
-        case 'from-right':
-          return {
-            forwardFrames: [
-              {clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'},
-              {clipPath: 'polygon(0 0, 0 0, 0 100%, 0 100%)'},
-            ]
-          };
-
+        case 'from-bottom': return { forwardFrames: [ {clipPath: clipOpened}, {clipPath: clipClosed_top} ] };
+        case 'from-left':   return { forwardFrames: [ {clipPath: clipOpened}, {clipPath: clipClosed_right} ] };
+        case 'from-top':    return { forwardFrames: [ {clipPath: clipOpened}, {clipPath: clipClosed_bottom} ] };
+        case 'from-right':  return { forwardFrames: [ {clipPath: clipOpened}, {clipPath: clipClosed_left} ] };
         default:
           throw new RangeError(`Invalid direction "${direction}". Must be "from-top", "from-right", "from-bottom", or "from-left"`);
       }
@@ -390,6 +395,60 @@ export const libPresetExits = {
     defaultConfig: {},
     immutableConfig: {},
   },
+
+  /**
+   * Element slides out to the specified direction while also wiping.
+   * Particularly effective if the element is adjacent to a different element, making it look as if it
+   * is sliding into that element like a dropdown collapsing.
+   */
+  ['~slide-out']: {
+    /**
+     * 
+     * @param direction - direction to which to slide
+     * @returns 
+     */
+    generateKeyframeGenerators(direction: 'to-left' | 'to-top' | 'to-right' | 'to-bottom' = 'to-top') {
+      const genEndFrames = (dir: typeof direction) => {
+        switch(dir) {
+          case 'to-left':
+            return {
+              translate: `-100% 0`,
+              clipPath: clipClosed_right,
+              // marginLeft: -getBoundingClientRectOfHidden(this.domElem).width+'px',
+            };
+          case 'to-top':
+            return {
+              translate: `0% -100%`,
+              clipPath: clipClosed_bottom,
+              marginBottom: -getBoundingClientRectOfHidden(this.domElem).height+'px',
+            };
+          case 'to-right':
+            return {
+              translate: `100% 0`,
+              clipPath: clipClosed_left,
+              marginRight: -getBoundingClientRectOfHidden(this.domElem).width+'px',
+            };
+          case 'to-bottom':
+            return {
+              translate: `0% 100%`,
+              clipPath: clipClosed_top,
+              // marginTop: -getBoundingClientRectOfHidden(this.domElem).height+'px',
+            };
+          default: throw new TypeError(`Invalid direction "${direction}"`);
+        }
+      };
+
+      return {
+        forwardGenerator: () => [
+          { clipPath: clipOpened },
+          genEndFrames(direction),
+        ],
+      };
+    },
+    defaultConfig: {
+      duration: 100
+    } as const,
+  }
 } satisfies EffectGeneratorBank<ExitClip>;
 
 /*-:**************************************************************************************************************************/
