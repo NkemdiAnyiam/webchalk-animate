@@ -10,7 +10,7 @@ import {
 } from "../1_playbackStructures/AnimationClipCategories";
 import { webimator } from "../Webimator";
 import { EffectGeneratorBank } from "./generationTypes";
-import { computeSelfScrollingBounds, getBoundingClientRectOfHidden, negateNumString, overrideHidden, splitXYAlignmentString, splitXYTupleString, unOverrideHidden } from "../4_utils/helpers";
+import { computeSelfScrollingBounds, getBoundingClientRectOfHidden, negateNumString, splitXYAlignmentString, splitXYTupleString } from "../4_utils/helpers";
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "../4_utils/interfaces";
 import { useEasing } from "./easing";
 import { CustomErrors } from "../4_utils/errors";
@@ -559,11 +559,8 @@ export const libPresetMotions = {
       } = translationOptions;
       
       // get the bounding boxes of our DOM element and the target element
-      // TODO: Make available to developers a way to forcefully get the bounding rect
-      overrideHidden(this.domElem, targetElem);
-      const rectSelf = this.domElem.getBoundingClientRect();
-      const rectTarget = targetElem.getBoundingClientRect();
-      unOverrideHidden(this.domElem, targetElem);
+      const rectSelf = getBoundingClientRectOfHidden(this.domElem);
+      const rectTarget = getBoundingClientRectOfHidden(targetElem);
 
       // the displacement will start as the difference between the target element's position and our element's position
       const baseXTrans: number = alignmentX === 'center'

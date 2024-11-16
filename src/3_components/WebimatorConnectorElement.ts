@@ -1,4 +1,4 @@
-import { equalWithinTol, overrideHidden, unOverrideHidden } from "../4_utils/helpers";
+import { equalWithinTol, getBoundingClientRectOfHidden } from "../4_utils/helpers";
 import { DOMElement, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
 
 export type WebimatorConnectorElementConfig = {
@@ -235,13 +235,8 @@ export class WebimatorConnectorElement extends HTMLElement {
     // CHANGE NOTE: elements are unhidden using override to allow access to bounding box
     // the override class is appended without classList.add() so that multiple applications...
     // of the class do not interfere with each other upon removal
-    const [aHidden, bHidden] = [pointA[0].classList.value.includes('wbmtr-display-none'), pointB[0].classList.value.includes('wbmtr-display-none')];
-    if (aHidden) overrideHidden(pointA[0]);
-    if (bHidden) overrideHidden(pointB[0]);
-    const {left: aLeft, right: aRight, top: aTop, bottom: aBottom} = pointA[0].getBoundingClientRect();
-    const {left: bLeft, right: bRight, top: bTop, bottom: bBottom} = pointB[0].getBoundingClientRect();
-    if (aHidden) unOverrideHidden(pointA[0]);
-    if (bHidden) unOverrideHidden(pointB[0]);
+    const {left: aLeft, right: aRight, top: aTop, bottom: aBottom} = getBoundingClientRectOfHidden(pointA[0]);
+    const {left: bLeft, right: bRight, top: bTop, bottom: bBottom} = getBoundingClientRectOfHidden(pointB[0]);
 
     // change x and y coords of our <svg>'s nested <line> based on the bounding boxes of the A and B reference elements
     // the offset with respect to the reference elements' tops and lefts is calculated using linear interpolation
