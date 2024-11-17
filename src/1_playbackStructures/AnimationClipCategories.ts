@@ -972,7 +972,6 @@ export class ConnectorSetterClip extends AnimClip<EffectGenerator, ConnectorSett
     return {
       duration: 0,
       commitsStyles: false,
-      runGeneratorsNow: true,
       startsNextClipToo: true,
     } satisfies Partial<ConnectorSetterClipConfig>;
   }

@@ -108,7 +108,6 @@ export const libPresetEntrances = {
       };
     },
     defaultConfig: {
-      runGeneratorsNow: false,
       composite: 'accumulate',
     } as const,
     immutableConfig: {},
@@ -321,7 +320,6 @@ export const libPresetExits = {
       };
     },
     defaultConfig: {
-      runGeneratorsNow: false,
       composite: 'accumulate',
     } as const,
     immutableConfig: {},
@@ -980,7 +978,6 @@ export const libPresetScrolls = {
   //     return [forwardMutator, backwardMutator];
   //   },
   //   config: {
-  //     runGeneratorsNow: false,
   //   }
   // },
 
@@ -1059,7 +1056,6 @@ export const libPresetScrolls = {
       return {forwardGenerator, backwardGenerator};
     },
     defaultConfig: {
-      runGeneratorsNow: false,
     } as const,
     immutableConfig: {},
   },
