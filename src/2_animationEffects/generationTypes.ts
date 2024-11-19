@@ -3,65 +3,12 @@ import { ExitClip } from "../1_playbackStructures/AnimationClipCategories";
 import { Keyframes } from "../4_utils/interfaces";
 import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord } from "../4_utils/utilityTypes";
 
-/**
- * @category Effect Generator Functions
- * @interface
- */
-export type KeyframesGenerator<TClipContext extends unknown> = {
-  /**
-   * Runs every time the clip is played, returning up to 2 new sets of {@link Keyframes} each time.
-   * @param effectOptions - parameters used to set the behavior for the specific animation effect
-   * @returns An object containing 2 possible sets of {@link Keyframes}.
-   *  * `forwardKeyframes` is used for the clip's animation when the clip is played
-   *  * `backwardKeyframes` (optional) is used for the clip's animation when the clip is rewound
-   *    * If `backwardKeyframes` is omitted, the reversal of `forwardKeyframes` is used instead
-   * 
-   * @example
-   * <!-- EX:S id="KeyframesGenerator.generateKeyframes-1" code-type="ts" -->
-   * ```ts
-   * const clipFactories = webimator.createAnimationClipFactories({
-   *   customEntranceEffects: {
-   *     // a custom 'zoomIn' entrance animation effect that you might make
-   *     zoomIn: {
-   *       generateKeyframes(initialScale: number) {
-   *         return {
-   *           forwardFrames: [
-   *             {scale: initialScale, opacity: 0},
-   *             {scale: 1, opacity: 1}
-   *           ],
-   *           // (backwardFrames could have been omitted in this case because
-   *           // the reversal of forwardFrames is exactly equivalent)
-   *           backwardFrames: [
-   *             {scale: 1, opacity: 1},
-   *             {scale: initialScale, opacity: 0}
-   *           ]
-   *         };
-   *       }
-   *     }
-   *   },
-   * });
-   * 
-   * const element = document.querySelector('.some-element');
-   * const ent = clipFactories.Entrance(element, 'zoomIn', [0.2]);
-   * ent.play().then(ent.rewind);
-   * ```
-   * <!-- EX:E id="KeyframesGenerator.generateKeyframes-1" -->
-   */
-  generateKeyframes(
-    /**@ignore*/
-    this: TClipContext,
-    ...effectOptions: unknown[]): { forwardFrames: Keyframes; backwardFrames?: Keyframes; };
-  generateKeyframeGenerators?: never;
-  generateRafMutators?: never;
-  generateRafMutatorGenerators?: never;
-};
 
 /**
  * @category Effect Generator Functions
  * @interface
  */
 export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
-  generateKeyframes?: never;
   /**
    * Runs itself exactly once (creating a closure) and returns up to 2 callback functions that each return one set of {@link Keyframes}.
    * @param effectOptions - parameters used to set the behavior for the specific animation effect
@@ -118,71 +65,10 @@ export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
   generateKeyframeGenerators(
     /**@ignore*/
     this: TClipContext,
-    ...effectOptions: unknown[]): StripDuplicateMethodAutocompletion<{ forwardGenerator: () => Keyframes; backwardGenerator?: () => Keyframes; }>;
-  generateRafMutators?: never;
-  generateRafMutatorGenerators?: never;
-};
-
-/**
- * @category Effect Generator Functions
- * @interface
- */
-export type RafMutatorsGenerator<TClipContext extends unknown> = {
-  generateKeyframes?: never;
-  generateKeyframeGenerators?: never;
-  /**
-   * Runs every time the clip is played, returning 2 functions each time.
-   * These functions are run every frame (using {@link requestAnimationFrame} behind the scenes),
-   * so if a property of the animated element is changed using
-   * {@link AnimClip.computeTween}, it will look like a smooth animation.
-   * @param effectOptions - parameters used to set the behavior for the specific animation effect
-   * @returns An object containing 2 functions.
-   *  * `forwardMutator` is used for the clip's animation when the clip is played
-   *  * `backwardKeyframes` is used for the clip's animation when the clip is rewound
-   * 
-   * @see {@link AnimClip.computeTween}
-   * 
-   * @example
-   * <!-- EX:S id="RafMutatorsGenerator.generateRafMutators-1" code-type="ts" -->
-   * ```ts
-   * const clipFactories = webimator.createAnimationClipFactories({
-   *   customMotionEffects: {
-   *     // a custom animation for scrolling to a specific position (but when
-   *     // rewinding, it will snap to yPosition before scrolling to the initial position, which
-   *     // may feel janky. This could be solved with generateRafMutatorGenerators())
-   *     scrollTo: {
-   *       generateRafMutators(yPosition: number) {
-   *         const initialPosition = this.domElem.scrollTop;
-   *   
-   *         return {
-   *           forwardMutator: () => {
-   *             this.domElem.scrollTo({
-   *               top: this.computeTween(initialPosition, yPosition),
-   *               behavior: 'instant'
-   *             });
-   *           },
-   *           backwardMutator: () => {
-   *             this.domElem.scrollTo({
-   *               top: this.computeTween(yPosition, initialPosition),
-   *               behavior: 'instant'
-   *             });
-   *           }
-   *         };
-   *       }
-   *     },
-   *   }
-   * });
-   * 
-   * const element = document.querySelector('.some-element');
-   * const mot = clipFactories.Motion(element, 'scrollTo', [1020]);
-   * mot.play().then(mot.rewind);
-   * ```
-   * <!-- EX:E id="RafMutatorsGenerator.generateRafMutators-1" -->
-   */
-  generateRafMutators(
-    /**@ignore*/
-    this: TClipContext & ReadonlyPick<AnimClip, 'computeTween'>,
-    ...effectOptions: unknown[]): StripDuplicateMethodAutocompletion<{ forwardMutator: () => void; backwardMutator: () => void; }>;
+    ...effectOptions: unknown[]): StripDuplicateMethodAutocompletion<{
+      forwardGenerator: () => Keyframes;
+      backwardGenerator?: () => Keyframes;
+    }>;
   generateRafMutatorGenerators?: never;
 };
 
@@ -191,9 +77,7 @@ export type RafMutatorsGenerator<TClipContext extends unknown> = {
  * @interface
  */
 export type RafMutatorsGeneratorsGenerator<TClipContext extends unknown> = {
-  generateKeyframes?: never;
   generateKeyframeGenerators?: never;
-  generateRafMutators?: never;
   /**
    * Runs itself exactly once (creating a closure) and returns 2 function that each return one function.
    * Those final returned functions are run every frame (using {@link requestAnimationFrame} behind the scenes),
@@ -261,10 +145,8 @@ export type RafMutatorsGeneratorsGenerator<TClipContext extends unknown> = {
  * Object representing an entry in an {@link EffectGeneratorBank}. It consists of 3 properties:
  *  * {@link EffectGenerator.defaultConfig | defaultConfig} - default configuration options that are appropriate for the effect (and can be overwritten)
  *  * {@link EffectGenerator.immutableConfig | immutableConfig} - default configuration options for the effect (but cannot be overwritten)
- *  * a generator function that creates the animation effect. There are 4 possible functions:
- *    * {@link KeyframesGenerator.generateKeyframes | generateKeyframes}
+ *  * a generator function that creates the animation effect. There are 2 possible functions:
  *    * {@link KeyframesGeneratorsGenerator.generateKeyframeGenerators | generateKeyframeGenerators}
- *    * {@link RafMutatorsGenerator.generateRafMutators | generateRafMutators}
  *    * {@link RafMutatorsGeneratorsGenerator.generateRafMutatorGenerators | generateRafMutatorGenerators}
  * 
  * The configuration options that are allowed to be set in {@link EffectGenerator.defaultConfig | defaultConfig} or 
@@ -293,9 +175,7 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
     // sourceBank?: EffectGeneratorBank<any>;
   } &
   StripDuplicateMethodAutocompletion<(
-    | KeyframesGenerator<TClipContext>
     | KeyframesGeneratorsGenerator<TClipContext>
-    | RafMutatorsGenerator<TClipContext>
     | RafMutatorsGeneratorsGenerator<TClipContext>
   )>
 >;
@@ -316,12 +196,9 @@ export type EffectGeneratorBank<TClip extends AnimClip = AnimClip> = ReadonlyRec
  * The parameters for a specific {@link EffectGenerator}'s generator function.
  */
 export type EffectOptions<TEffectGenerator extends EffectGenerator> = Parameters<
-  TEffectGenerator extends KeyframesGenerator<unknown> ? TEffectGenerator['generateKeyframes']
-  : (TEffectGenerator extends KeyframesGeneratorsGenerator<unknown> ? TEffectGenerator['generateKeyframeGenerators']
-    : (TEffectGenerator extends RafMutatorsGenerator<unknown> ? TEffectGenerator['generateRafMutators']
-      : (TEffectGenerator extends RafMutatorsGeneratorsGenerator<unknown> ? TEffectGenerator['generateRafMutatorGenerators']
-        : (never)
-      )
+  (TEffectGenerator extends KeyframesGeneratorsGenerator<unknown> ? TEffectGenerator['generateKeyframeGenerators']
+  : (TEffectGenerator extends RafMutatorsGeneratorsGenerator<unknown> ? TEffectGenerator['generateRafMutatorGenerators']
+    : (never)
     )
   )
 >;

@@ -337,7 +337,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * This static method is purely for convenience.
    * @group Helper Methods
    */
-  public static createNoOpEffectGenerator() { return {generateKeyframes() { return {forwardFrames: [], backwardFrames: []}; }} as EffectGenerator; }
+  public static createNoOpEffectGenerator() { return {generateKeyframeGenerators() { return {forwardGenerator: () => [], backwardGenerator: () => []}; }} as EffectGenerator; }
 
   /**
    * The default configuration for clips in a specific effect category, which includes
@@ -712,16 +712,13 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     let [forwardFrames, backwardFrames]: [Keyframes, Keyframes | undefined] = [[{fontFeatureSettings: 'normal'}], []];
 
     try {
-      // generateKeyframes()
-      if (this.effectGenerator.generateKeyframes) {
-      }
       // generateKeyframeGenerators()
-      else if (this.effectGenerator.generateKeyframeGenerators) {
-        const {forwardGenerator, backwardGenerator} = call(this.effectGenerator.generateKeyframeGenerators, this, ...effectOptions);
-        this.keyframesGenerators = {forwardGenerator, backwardGenerator};
-      }
-      // generateRafMutators()
-      else if (this.effectGenerator.generateRafMutators) {
+      if (this.effectGenerator.generateKeyframeGenerators) {
+        const results = call(this.effectGenerator.generateKeyframeGenerators, this, ...effectOptions);
+        this.keyframesGenerators = {
+          forwardGenerator: results.forwardGenerator,
+          backwardGenerator: results.backwardGenerator
+        };
       }
       // generateRafMutatorGenerators()
       else {
@@ -1092,19 +1089,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
             // Keyframe generation is done here so that generations operations that rely on the side effects of class modifications and _onStartForward()...
             // ...can function properly.
             try {
-              // if generateKeyframes() is the method of generation, generate f-ward and b-ward frames
-              if (bankEntry.generateKeyframes) {
-                let {forwardFrames, backwardFrames} = call(bankEntry.generateKeyframes, this, ...this.effectOptions);
-                animation.setForwardAndBackwardFrames(forwardFrames, backwardFrames ?? spreadKeyframes(forwardFrames), backwardFrames ? false : true);
-              }
               // if generateKeyframeGenerators() is the method of generation, generate f-ward frames
-              else if (bankEntry.generateKeyframeGenerators) {
+              if (bankEntry.generateKeyframeGenerators) {
                 animation.setForwardFrames(this.keyframesGenerators!.forwardGenerator());
-              }
-              // if generateRafMutators() is the method of generation, generate f-ward and b-ward mutators
-              else if (bankEntry.generateRafMutators) {
-                const {forwardMutator, backwardMutator} = call(bankEntry.generateRafMutators, this, ...this.effectOptions);
-                this.rafMutators = { forwardMutator, backwardMutator };
               }
               // if generateRafMutatorGenerators() is the method of generation, generate f-ward mutator
               else {
@@ -1116,7 +1103,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
               throw this.generateError(err as Error);
             }
 
-            if (bankEntry.generateRafMutators || bankEntry.generateRafMutatorGenerators) { requestAnimationFrame(this.loop); }
+            if (bankEntry.generateRafMutatorGenerators) { requestAnimationFrame(this.loop); }
 
             // sets it back to 'forwards' in case it was set to 'none' in a previous running
             animation.effect?.updateTiming({fill: 'forwards'});
@@ -1128,15 +1115,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
             this.domElem.classList.remove(...config.cssClasses.toAddOnFinish ?? []);
 
             try {
-              if (bankEntry.generateKeyframes) {
-                // do nothing (backward keyframes would have already been set during forward direction)
-              }
-              else if (bankEntry.generateKeyframeGenerators) {
+              if (bankEntry.generateKeyframeGenerators) {
                 const {forwardGenerator, backwardGenerator} = this.keyframesGenerators!;
                 this.animation.setBackwardFrames(backwardGenerator?.() ?? forwardGenerator(), backwardGenerator ? false : true);
-              }
-              else if (bankEntry.generateRafMutators) {
-                // do nothing (backward mutator would have already been set during forward direction)
               }
               else {
                 const backwardMutator = this.rafMutatorGenerators!.backwardGenerator();
@@ -1145,7 +1126,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
             }
             catch (err: unknown) { throw this.generateError(err as Error); }
 
-            if (bankEntry.generateRafMutators || bankEntry.generateRafMutatorGenerators) { requestAnimationFrame(this.loop); }
+            if (bankEntry.generateRafMutatorGenerators) { requestAnimationFrame(this.loop); }
             break;
     
           default:

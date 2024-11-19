@@ -865,7 +865,7 @@ export class Webimator {
       if (!bank) { return; }
       for (const animName in bank) {
         const entry = bank[animName];
-        const generator = entry.generateKeyframes ?? entry.generateKeyframeGenerators ?? entry.generateRafMutators ?? entry.generateRafMutatorGenerators;
+        const generator = entry.generateKeyframeGenerators ?? entry.generateRafMutatorGenerators;
         if (generator.toString().match(/^\(.*\) => .*/)) {
           errors.push(`"${animName}"`);
         }
@@ -890,8 +890,8 @@ export const webimator = new Webimator();
 // const thing =  webimator.createAnimationClipFactories({
 //   customEntranceEffects: {
 //     hello: {
-//       generateKeyframes() { return {
-//         forwardFrames: []
+//       generateKeyframeGenerators() { return {
+//         forwardGenerator: () => []
 //       } },
 //       defaultConfig: {
         
