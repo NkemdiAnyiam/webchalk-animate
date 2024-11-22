@@ -46,12 +46,11 @@ export const libPresetEntrances = {
         forwardFramesGenerator: () => [],
       } as const;
     },
-    defaultConfig: {
-
-    } as const,
+    defaultConfig: {} as const,
     immutableConfig: {
       duration: 0,
     } as const,
+    effectCompositionFrequency: 'on-first-play-only',
   },
 
   /** Element fades in, starting from 0 opacity. */
@@ -67,6 +66,7 @@ export const libPresetEntrances = {
     },
     defaultConfig: {},
     immutableConfig: {},
+    effectCompositionFrequency: 'on-first-play-only',
   },
 
   /**
@@ -113,6 +113,7 @@ export const libPresetEntrances = {
       composite: 'accumulate',
     } as const,
     immutableConfig: {},
+    effectCompositionFrequency: 'on-first-play-only',
   },
 
   /**
@@ -139,6 +140,7 @@ export const libPresetEntrances = {
     },
     defaultConfig: {},
     immutableConfig: {},
+    effectCompositionFrequency: 'on-first-play-only',
   },
 
   /**
@@ -164,6 +166,7 @@ export const libPresetEntrances = {
       composite: 'accumulate',
     } as const,
     immutableConfig: {},
+    effectCompositionFrequency: 'on-first-play-only',
   },
 
   /**
@@ -188,6 +191,7 @@ export const libPresetEntrances = {
     },
     defaultConfig: {},
     immutableConfig: {},
+    effectCompositionFrequency: 'on-first-play-only',
   },
 
   /**
@@ -242,6 +246,8 @@ export const libPresetEntrances = {
     defaultConfig: {
       duration: 100
     } as const,
+    immutableConfig: {},
+    effectCompositionFrequency: 'on-first-play-only',
   },
 
   // invalidProperty: 5,
@@ -267,6 +273,7 @@ export const libPresetExits = {
     immutableConfig: {
       duration: 0,
     } as const,
+    effectCompositionFrequency: 'on-first-play-only',
   },
 
   /** Element fades out to 0 opacity. */
@@ -282,6 +289,7 @@ export const libPresetExits = {
     },
     defaultConfig: {},
     immutableConfig: {},
+    effectCompositionFrequency: 'on-first-play-only',
   },
 
   /** Element flies offscreen towards the specified direction */
@@ -325,6 +333,7 @@ export const libPresetExits = {
       composite: 'accumulate',
     } as const,
     immutableConfig: {},
+    effectCompositionFrequency: 'on-first-play-only',
   },
 
   /** Element spins and shrinks while fading out. */
@@ -349,6 +358,7 @@ export const libPresetExits = {
     },
      defaultConfig: {},
      immutableConfig: {},
+     effectCompositionFrequency: 'on-first-play-only',
   },
 
   /**
@@ -373,6 +383,7 @@ export const libPresetExits = {
       composite: 'accumulate',
     } as const,
     immutableConfig: {},
+    effectCompositionFrequency: 'on-first-play-only',
   },
   
   /** Element is wiped off, starting from the specified direction. */
@@ -402,6 +413,7 @@ export const libPresetExits = {
     },
     defaultConfig: {},
     immutableConfig: {},
+    effectCompositionFrequency: 'on-first-play-only',
   },
 
   /**
@@ -456,6 +468,8 @@ export const libPresetExits = {
     defaultConfig: {
       duration: 100
     } as const,
+    immutableConfig: {},
+    effectCompositionFrequency: 'on-first-play-only',
   }
 } satisfies EffectGeneratorBank<ExitClip>;
 
@@ -508,6 +522,7 @@ export const libPresetEmphases = {
       // invalidProp: 4,
     } as const,
     immutableConfig: {},
+    effectCompositionFrequency: 'on-every-play',
   },
 
   /** Element is unhighlighted. */
@@ -528,6 +543,7 @@ export const libPresetEmphases = {
       cssClasses: { toRemoveOnFinish: [`wbmtr-highlightable`] },
     } as const,
     immutableConfig: {},
+    effectCompositionFrequency: 'on-every-play',
   },
 } satisfies EffectGeneratorBank<EmphasisClip>;
 
@@ -607,6 +623,7 @@ export const libPresetMotions = {
     },
     defaultConfig: {},
     immutableConfig: {},
+    effectCompositionFrequency: 'on-every-play',
   },
 
   /** Element moves based on the specified translation options. */
@@ -633,6 +650,7 @@ export const libPresetMotions = {
     },
     defaultConfig: {},
     immutableConfig: {},
+    effectCompositionFrequency: 'on-first-play-only',
   },
 } satisfies EffectGeneratorBank<MotionClip>;
 
@@ -686,11 +704,11 @@ export const libPresetTransitions = {
         forwardFramesGenerator: () => [{...keyframe}, {}],
       };
     },
-    defaultConfig: {
-    } as const,
+    defaultConfig: {} as const,
     immutableConfig: {
       commitsStyles: false,
     },
+    effectCompositionFrequency: 'on-first-play-only',
   },
 
   /** Element transitions from its current state to the specified {@link Keyframe}. */
@@ -767,6 +785,7 @@ export const libPresetTransitions = {
     },
     defaultConfig: {},
     immutableConfig: {},
+    effectCompositionFrequency: 'on-every-play',
   },
 } satisfies EffectGeneratorBank<TransitionClip>;
 
@@ -792,6 +811,7 @@ export const libPresetConnectorEntrances = {
     immutableConfig: {
       duration: 0,
     } as const,
+    effectCompositionFrequency: 'on-first-play-only',
   },
 
   /** Connector fades in, starting from 0 opacity. */
@@ -807,6 +827,7 @@ export const libPresetConnectorEntrances = {
     },
     defaultConfig: {},
     immutableConfig: {},
+    effectCompositionFrequency: 'on-first-play-only',
   },
 
   // TODO: Fix new bugs surrounding animating custom variables
@@ -834,6 +855,7 @@ export const libPresetConnectorEntrances = {
         {['--a-marker-opacity']: 1},
       ];
 
+      // TODO: check to make sure this is actually correct with the new changes to generators
       switch(direction) {
         case 'from-A':
           return {
@@ -871,6 +893,7 @@ export const libPresetConnectorEntrances = {
     },
     defaultConfig: {},
     immutableConfig: {},
+    effectCompositionFrequency: 'on-first-play-only',
   },
 } satisfies EffectGeneratorBank<ConnectorEntranceClip>;
 
@@ -896,6 +919,7 @@ export const libPresetConnectorExits = {
     immutableConfig: {
       duration: 0,
     } as const,
+    effectCompositionFrequency: 'on-first-play-only',
   },
 
   /** Connector fades out to 0 opacity. */
@@ -911,6 +935,7 @@ export const libPresetConnectorExits = {
     },
     defaultConfig: {},
     immutableConfig: {},
+    effectCompositionFrequency: 'on-first-play-only',
   },
 
   /** Connector is wiped off from the specified direction as if being erased. */
@@ -972,6 +997,7 @@ export const libPresetConnectorExits = {
     },
     defaultConfig: {},
     immutableConfig: {},
+    effectCompositionFrequency: 'on-first-play-only',
   },
 } satisfies EffectGeneratorBank<ConnectorExitClip>;
 
@@ -1099,5 +1125,6 @@ export const libPresetScrolls = {
     defaultConfig: {
     } as const,
     immutableConfig: {},
+    effectCompositionFrequency: 'on-first-play-only',
   },
 } satisfies EffectGeneratorBank<ScrollerClip>;
