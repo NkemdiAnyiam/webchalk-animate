@@ -169,7 +169,7 @@ const clipFactories = webimator.createAnimationClipFactories({
   // CUSTOM ENTRANCES
   customEntranceEffects: {
     coolZoomIn: {
-      generateKeyframeGenerators(initialScale: number) {
+      generateEffect(initialScale: number) {
         return {
           forwardFramesGenerator: () => [
             {scale: initialScale, opacity: 0},
@@ -186,7 +186,7 @@ const clipFactories = webimator.createAnimationClipFactories({
     },
 
     blinkIn: {
-      generateKeyframeGenerators() {
+      generateEffect() {
         return {
           forwardFramesGenerator: () => [
             {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}
@@ -201,7 +201,7 @@ const clipFactories = webimator.createAnimationClipFactories({
   customExitEffects: {
     // a custom animation effect for flying out to the left side of the screen
     flyOutLeft: {
-      generateKeyframeGenerators() {
+      generateEffect() {
         const computeTranslationStr = () => {
           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
           const translationString = `${orthogonalDistance}px 0px`;
@@ -653,7 +653,7 @@ ent.play();
 const {Entrance} = webimator.createAnimationClipFactories({
   customEntranceEffects: {
     rotate: {
-      generateKeyframeGenerators(degrees: number) {
+      generateEffect(degrees: number) {
         return {
           // when playing, keep computing the value between 0 and 'degrees'
           forwardRafGenerator: () => () => { this.domElem.style.rotate = this.computeTween(0, degrees)+'deg'; },
@@ -790,7 +790,7 @@ const clipFactories = webimator.createAnimationClipFactories({
   customEntranceEffects: {
     // a custom 'zoomIn' entrance animation effect that you might make
     zoomIn: {
-      generateKeyframeGenerators(initialScale: number) {
+      generateEffect(initialScale: number) {
         return {
           forwardFramesGenerator: () => [
             {scale: initialScale, opacity: 0},
@@ -815,12 +815,12 @@ ent.play().then(ent.rewind);
 }
 
 {
-/**** EX:S id="KeyframesGeneratorsGenerator.generateKeyframeGenerators-1" */
+/**** EX:S id="EffectGeneratorFunction.generateEffect-1" */
 const clipFactories = webimator.createAnimationClipFactories({
   customExitEffects: {
     // a custom animation effect for flying out to the left side of the screen
     flyOutLeft: {
-      generateKeyframeGenerators() {
+      generateEffect() {
         const computeTranslationStr = () => {
           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
           const translationString = `${orthogonalDistance}px 0px`;
@@ -855,7 +855,7 @@ const clipFactories = webimator.createAnimationClipFactories({
 const element = document.querySelector('.some-element');
 const ext = clipFactories.Exit(element, 'flyOutLeft', []);
 ext.play().then(ext.rewind);
-/**** EX:E id="KeyframesGeneratorsGenerator.generateKeyframeGenerators-1" */
+/**** EX:E id="EffectGeneratorFunction.generateEffect-1" */
 }
 
 {
@@ -866,7 +866,7 @@ const clipFactories = webimator.createAnimationClipFactories({
     // rewinding, it will snap to yPosition before scrolling to the initial position, which
     // may feel janky. This could be solved with generateRafMutatorGenerators())
     scrollTo: {
-      generateKeyframeGenerators(yPosition: number) {
+      generateEffect(yPosition: number) {
         const initialPosition = this.domElem.scrollTop;
   
         return {
@@ -902,7 +902,7 @@ const clipFactories = webimator.createAnimationClipFactories({
     // when rewinding, the current scroll position is computed on the spot so that
     // it can smoothly scroll from THERE to the initial position.
     scrollToImproved: {
-      generateKeyframeGenerators(yPosition: number) {
+      generateEffect(yPosition: number) {
         const initialPosition = this.domElem.scrollTop;
   
         return {

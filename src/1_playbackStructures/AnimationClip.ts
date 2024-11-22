@@ -2,7 +2,7 @@ import { AnimSequence } from "./AnimationSequence";
 import { AnimTimeline } from "./AnimationTimeline";
 import { EntranceClip, MotionClip, TransitionClip } from "./AnimationClipCategories";
 import { webimator, Webimator } from "../Webimator";
-import { EffectOptions, EffectGeneratorBank, EffectGenerator } from "../2_animationEffects/generationTypes";
+import { EffectOptions, EffectGeneratorBank, EffectGenerator, EffectGeneratorFunction } from "../2_animationEffects/generationTypes";
 import { asserter, call, detab, getPartial, mergeArrays, nor, xor } from "../4_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
 import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "../4_utils/errors";
@@ -342,7 +342,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * This static method is purely for convenience.
    * @group Helper Methods
    */
-  public static createNoOpEffectGenerator() { return {generateKeyframeGenerators() { return {forwardFramesGenerator: () => [], backwardFramesGenerator: () => []}; }} as EffectGenerator; }
+  public static createNoOpEffectGenerator() { return {generateEffect() { return {forwardFramesGenerator: () => [], backwardFramesGenerator: () => []}; }} as EffectGenerator; }
 
   /**
    * The default configuration for clips in a specific effect category, which includes
@@ -466,7 +466,17 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   protected effectName: string;
   protected effectGenerator: TEffectGenerator;
   protected effectOptions: EffectOptions<TEffectGenerator> = {} as EffectOptions<TEffectGenerator>;
-  protected refreshesGeneratorsOnPlay = true;
+  /**
+   * If `true`, the effect generator's {@link EffectGeneratorFunction.generateEffect} function will be re-run every time
+   * the clip plays forward, which creates a new closure and returns new generator callbacks.
+   *  * This should be set to `false` when code in the closure of {@link EffectGeneratorFunction.generateEffect}
+   * only needs to (or perhaps _must_ only) run once for the returned generators to be correct
+   * @defaultValue
+   * ```ts
+   * true
+   * ```
+   */
+  protected reruns_generateEffect_onPlay = true;
   
   /**@internal*/
   keyframesGenerators: {
@@ -1073,7 +1083,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
         direction: this.bFramesMirrored ? 'reverse' : 'normal',
       });
     }
-    else if (direction === 'forward' && this.refreshesGeneratorsOnPlay) {
+    else if (direction === 'forward' && this.reruns_generateEffect_onPlay) {
       this.refreshGenerators();
     }
 
@@ -1241,7 +1251,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
         backwardFramesGenerator,
         forwardRafGenerator,
         backwardRafGenerator,
-      } = call(this.effectGenerator.generateKeyframeGenerators, this, ...this.getEffectDetails().effectOptions);
+      } = call(this.effectGenerator.generateEffect, this, ...this.getEffectDetails().effectOptions);
 
       // if no generators are specified, error
       if (!(forwardFramesGenerator || backwardFramesGenerator || forwardRafGenerator || backwardRafGenerator)) {
@@ -1295,7 +1305,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
         backwardFramesGenerator,
         forwardRafGenerator,
         backwardRafGenerator,
-      } = call(this.effectGenerator.generateKeyframeGenerators, this, ...this.getEffectDetails().effectOptions);
+      } = call(this.effectGenerator.generateEffect, this, ...this.getEffectDetails().effectOptions);
 
       this.keyframesGenerators = {
         forwardFramesGenerator: forwardFramesGenerator! ?? backwardFramesGenerator!,
@@ -1341,7 +1351,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * const {Entrance} = webimator.createAnimationClipFactories({
    *   customEntranceEffects: {
    *     rotate: {
-   *       generateKeyframeGenerators(degrees: number) {
+   *       generateEffect(degrees: number) {
    *         return {
    *           // when playing, keep computing the value between 0 and 'degrees'
    *           forwardRafGenerator: () => () => { this.domElem.style.rotate = this.computeTween(0, degrees)+'deg'; },

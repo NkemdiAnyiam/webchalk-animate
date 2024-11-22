@@ -48,7 +48,7 @@ console.log(WebimatorTypes.AnimClip);
 const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Transition} = webimator.createAnimationClipFactories({
   customEntranceEffects: {
     hello: {
-      generateKeyframeGenerators() {
+      generateEffect() {
         return {};
       },
       defaultConfig: {
@@ -57,7 +57,7 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
     },
 
     ['roll-in-blurred-left']: {
-      generateKeyframeGenerators() {
+      generateEffect() {
         return {
           forwardFramesGenerator: () => [
             {
@@ -77,7 +77,7 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
 
   customExitEffects: {
     ['hinge']: {
-      generateKeyframeGenerators() {
+      generateEffect() {
         return {
           forwardFramesGenerator: () => [
             {

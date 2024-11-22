@@ -256,7 +256,7 @@ export class Webimator {
    *   // CUSTOM ENTRANCES
    *   customEntranceEffects: {
    *     coolZoomIn: {
-   *       generateKeyframeGenerators(initialScale: number) {
+   *       generateEffect(initialScale: number) {
    *         return {
    *           forwardFramesGenerator: () => [
    *             {scale: initialScale, opacity: 0},
@@ -273,7 +273,7 @@ export class Webimator {
    *     },
    * 
    *     blinkIn: {
-   *       generateKeyframeGenerators() {
+   *       generateEffect() {
    *         return {
    *           forwardFramesGenerator: () => [
    *             {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}
@@ -288,7 +288,7 @@ export class Webimator {
    *   customExitEffects: {
    *     // a custom animation effect for flying out to the left side of the screen
    *     flyOutLeft: {
-   *       generateKeyframeGenerators() {
+   *       generateEffect() {
    *         const computeTranslationStr = () => {
    *           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
    *           const translationString = `${orthogonalDistance}px 0px`;
@@ -865,7 +865,7 @@ export class Webimator {
       if (!bank) { return; }
       for (const animName in bank) {
         const entry = bank[animName];
-        const generator = entry.generateKeyframeGenerators;
+        const generator = entry.generateEffect;
         if (generator.toString().match(/^\(.*\) => .*/)) {
           errors.push(`"${animName}"`);
         }
@@ -890,7 +890,7 @@ export const webimator = new Webimator();
 // const thing =  webimator.createAnimationClipFactories({
 //   customEntranceEffects: {
 //     hello: {
-//       generateKeyframeGenerators() {
+//       generateEffect() {
 //         return {
 //           forwardFramesGenerator: () => [],
 //           backwardFramesGenerator: () => [],

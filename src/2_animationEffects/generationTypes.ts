@@ -8,7 +8,7 @@ import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord } from
  * @category Effect Generator Functions
  * @interface
  */
-export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
+export type EffectGeneratorFunction<TClipContext extends unknown> = {
   /**
    * Runs itself exactly once (creating a closure) and returns up to 2 callback functions that each return one set of {@link Keyframes}.
    * @param effectOptions - parameters used to set the behavior for the specific animation effect
@@ -18,13 +18,13 @@ export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
    *    * If `backwardGenerator` is omitted, `forwardGenerator` will be used, and the resulting keyframes will be reversed
    * 
    * @example
-   * <!-- EX:S id="KeyframesGeneratorsGenerator.generateKeyframeGenerators-1" code-type="ts" -->
+   * <!-- EX:S id="EffectGeneratorFunction.generateEffect-1" code-type="ts" -->
    * ```ts
    * const clipFactories = webimator.createAnimationClipFactories({
    *   customExitEffects: {
    *     // a custom animation effect for flying out to the left side of the screen
    *     flyOutLeft: {
-   *       generateKeyframeGenerators() {
+   *       generateEffect() {
    *         const computeTranslationStr = () => {
    *           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
    *           const translationString = `${orthogonalDistance}px 0px`;
@@ -60,9 +60,9 @@ export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
    * const ext = clipFactories.Exit(element, 'flyOutLeft', []);
    * ext.play().then(ext.rewind);
    * ```
-   * <!-- EX:E id="KeyframesGeneratorsGenerator.generateKeyframeGenerators-1" -->
+   * <!-- EX:E id="EffectGeneratorFunction.generateEffect-1" -->
    */
-  generateKeyframeGenerators(
+  generateEffect(
     /**@ignore*/
     this: TClipContext & ReadonlyPick<AnimClip, 'computeTween'>,
     ...effectOptions: unknown[]): StripDuplicateMethodAutocompletion<{
@@ -78,7 +78,7 @@ export type KeyframesGeneratorsGenerator<TClipContext extends unknown> = {
  *  * {@link EffectGenerator.defaultConfig | defaultConfig} - default configuration options that are appropriate for the effect (and can be overwritten)
  *  * {@link EffectGenerator.immutableConfig | immutableConfig} - default configuration options for the effect (but cannot be overwritten)
  *  * a generator function that creates the animation effect. There is 1 possible function:
- *    * {@link KeyframesGeneratorsGenerator.generateKeyframeGenerators | generateKeyframeGenerators}
+ *    * {@link EffectGeneratorFunction.generateEffect | generateEffect}
  * 
  * The configuration options that are allowed to be set in {@link EffectGenerator.defaultConfig | defaultConfig} or 
  * {@link EffectGenerator.immutableConfig | immutableConfig} depend on {@link AnimClip.categoryImmutableConfig}. For example,
@@ -104,7 +104,7 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
     //  * This is set automatically at run-time. There is no need to set it manually (and trying to does nothing).
     //  */
     // sourceBank?: EffectGeneratorBank<any>;
-  } & KeyframesGeneratorsGenerator<TClipContext>
+  } & EffectGeneratorFunction<TClipContext>
 >;
 
 /** @ignore */
@@ -122,7 +122,7 @@ export type EffectGeneratorBank<TClip extends AnimClip = AnimClip> = ReadonlyRec
 /**
  * The parameters for a specific {@link EffectGenerator}'s generator function.
  */
-export type EffectOptions<TEffectGenerator extends EffectGenerator> = Parameters<TEffectGenerator['generateKeyframeGenerators']>;
+export type EffectOptions<TEffectGenerator extends EffectGenerator> = Parameters<TEffectGenerator['generateEffect']>;
 
 // CHANGE NOTE: EffectNameIn now handles keyof and Extract
 // extracts only those strings in an object whose paired value is an EffectGenerator
