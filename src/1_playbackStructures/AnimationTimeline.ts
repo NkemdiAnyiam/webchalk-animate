@@ -315,7 +315,11 @@ export class AnimTimeline {
     
     this.id = AnimTimeline.id++;
 
-    Object.assign(this.config, configOrSequence instanceof AnimSequence ? {} : configOrSequence);
+    // if first argument is not an AnimSequqence (and thus is presumably a configuration object),
+    // assign its values to this timeline's configuration object
+    if (!(configOrSequence instanceof AnimSequence)) {
+      Object.assign<AnimTimelineConfig, Partial<AnimTimelineConfig>>(this.config, configOrSequence);
+    }
 
     this.addSequences(...(configOrSequence instanceof AnimSequence ? [configOrSequence, ...animSequence] : animSequence));
 

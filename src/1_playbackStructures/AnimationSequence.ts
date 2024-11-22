@@ -412,7 +412,11 @@ export class AnimSequence {
     
     this.id = AnimSequence.id++;
 
-    Object.assign(this.config, configOrClips instanceof AnimClip ? {} : configOrClips);
+    // if first argument is not an AnimClip (and thus is presumably a configuration object),
+    // assign its values to this sequence's configuration object
+    if (!(configOrClips instanceof AnimClip)) {
+      Object.assign<AnimSequenceConfig, Partial<AnimSequenceConfig>>(this.config, configOrClips);
+    }
     
     this.addClips(...(configOrClips instanceof AnimClip ? [configOrClips, ...animClips] : animClips));
   }
