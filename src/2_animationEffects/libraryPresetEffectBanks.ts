@@ -41,7 +41,7 @@ export const libPresetEntrances = {
      * 
      * @returns 
      */
-    generateEffect() {
+    composeEffect() {
       return {
         forwardFramesGenerator: () => [],
       } as const;
@@ -60,7 +60,7 @@ export const libPresetEntrances = {
      * 
      * @returns 
      */
-    generateEffect() {
+    composeEffect() {
       return {
         forwardFramesGenerator: () => [ {opacity: '0'}, {} ],
       } as const;
@@ -78,7 +78,7 @@ export const libPresetEntrances = {
      * @param direction - direction from which the element should enter
      * @returns 
      */
-    generateEffect(direction: `from-${Direction}` = 'from-bottom') {
+    composeEffect(direction: `from-${Direction}` = 'from-bottom') {
       const computeOrthoDist = (dir: `from-${OrthoDirection}`) => {
         const {left, right, top, bottom} = this.domElem.getBoundingClientRect();
         switch(dir) {
@@ -125,7 +125,7 @@ export const libPresetEntrances = {
      * @param direction - direction of the rotation
      * @returns 
      */
-    generateEffect(numSpins: number = 2, direction: 'clockwise' | 'counterclockwise' = 'counterclockwise') {
+    composeEffect(numSpins: number = 2, direction: 'clockwise' | 'counterclockwise' = 'counterclockwise') {
       return {
         forwardFramesGenerator: () => [
           {
@@ -150,7 +150,7 @@ export const libPresetEntrances = {
      * 
      * @returns 
      */
-    generateEffect() {
+    composeEffect() {
       return {
         forwardFramesGenerator: () => [
           {translate: `0 ${window.innerHeight - this.domElem.getBoundingClientRect().top}px`, opacity: 0, easing: useEasing('power2-out')},
@@ -175,7 +175,7 @@ export const libPresetEntrances = {
      * @param direction - direction from which to begin the wipe
      * @returns 
      */
-    generateEffect(direction: 'from-bottom' | 'from-left' | 'from-top' | 'from-right' = 'from-bottom') {
+    composeEffect(direction: 'from-bottom' | 'from-left' | 'from-top' | 'from-right' = 'from-bottom') {
       switch(direction) {
         case 'from-bottom': return { forwardFramesGenerator: () => [ {clipPath: clipClosed_bottom}, {clipPath: clipOpened} ] };
         case 'from-left':   return { forwardFramesGenerator: () => [ {clipPath: clipClosed_left}, {clipPath: clipOpened} ] };
@@ -201,7 +201,7 @@ export const libPresetEntrances = {
      * @param direction - direction from which to slide
      * @returns 
      */
-    generateEffect(direction: 'from-left' | 'from-top' | 'from-right' | 'from-bottom' = 'from-top') {
+    composeEffect(direction: 'from-left' | 'from-top' | 'from-right' | 'from-bottom' = 'from-top') {
       const genStartFrames = (dir: typeof direction) => {
         switch(dir) {
           case 'from-left':
@@ -260,7 +260,7 @@ export const libPresetExits = {
      * 
      * @returns 
      */
-    generateEffect() {
+    composeEffect() {
       return {forwardFramesGenerator: () => []} as const;
     },
     defaultConfig: {},
@@ -275,7 +275,7 @@ export const libPresetExits = {
      * 
      * @returns 
      */
-    generateEffect() {
+    composeEffect() {
       return {
         forwardFramesGenerator: () => [{}, {opacity: '0'}],
       } as const;
@@ -291,7 +291,7 @@ export const libPresetExits = {
      * @param direction - direction to which the element should exit
      * @returns 
      */
-    generateEffect(direction: `to-${OrthoDirection | DiagDirection}` = 'to-bottom') {
+    composeEffect(direction: `to-${OrthoDirection | DiagDirection}` = 'to-bottom') {
       const computeOrthoDist = (dir: `to-${OrthoDirection}`) => {
         const {left, right, top, bottom} = this.domElem.getBoundingClientRect();
         switch(dir) {
@@ -335,7 +335,7 @@ export const libPresetExits = {
      * @param direction - direction of the spin
      * @returns 
      */
-    generateEffect(numSpins: number = 2, direction: 'clockwise' | 'counterclockwise' = 'clockwise') {
+    composeEffect(numSpins: number = 2, direction: 'clockwise' | 'counterclockwise' = 'clockwise') {
       return {
         forwardFramesGenerator: () => [
           {},
@@ -359,7 +359,7 @@ export const libPresetExits = {
      * 
      * @returns 
      */
-    generateEffect() {
+    composeEffect() {
       return {
         forwardFramesGenerator: () => [
           {translate: `0 0`, easing: useEasing('power1-out')},
@@ -382,7 +382,7 @@ export const libPresetExits = {
      * @param direction 
      * @returns 
      */
-    generateEffect(direction: 'from-bottom' | 'from-left' | 'from-top' | 'from-right' = 'from-bottom') {
+    composeEffect(direction: 'from-bottom' | 'from-left' | 'from-top' | 'from-right' = 'from-bottom') {
       switch(direction) {
         case 'from-bottom': return {
           forwardFramesGenerator: () => [ {clipPath: clipOpened}, {clipPath: clipClosed_top} ],
@@ -415,7 +415,7 @@ export const libPresetExits = {
      * @param direction - direction to which to slide
      * @returns 
      */
-    generateEffect(direction: 'to-left' | 'to-top' | 'to-right' | 'to-bottom' = 'to-top') {
+    composeEffect(direction: 'to-left' | 'to-top' | 'to-right' | 'to-bottom' = 'to-top') {
       const genEndFrames = (dir: typeof direction) => {
         switch(dir) {
           case 'to-left':
@@ -475,7 +475,7 @@ export const libPresetEmphases = {
      * @param color - color to use for the highlight
      * @returns 
      */
-    generateEffect(color: string = 'default') {
+    composeEffect(color: string = 'default') {
       // this.domElem.style.setProperty(`--wbmtr-highlight-color`, 'red');
       // let prevVal = '';
       // if (this.domElem.getAttribute('style')?.includes('--wbmtr-highlight-color')) {
@@ -516,7 +516,7 @@ export const libPresetEmphases = {
      * 
      * @returns 
      */
-    generateEffect() {
+    composeEffect() {
       if (!this.domElem.classList.contains(`wbmtr-highlightable`)) {
         throw new CustomErrors.InvalidEffectError(`Cannot un-highlight an element that was not already highlighted.`);
       }
@@ -546,7 +546,7 @@ export const libPresetMotions = {
      * @param translationOptions - options defining the behavior of the motion
      * @returns 
      */
-    generateEffect(targetElem: Element | null | undefined, translationOptions: Partial<MoveToOptions> = {}) {
+    composeEffect(targetElem: Element | null | undefined, translationOptions: Partial<MoveToOptions> = {}) {
       if (!targetElem) {
         throw new TypeError(`Target for ~move-to must not be null`);
       }
@@ -616,7 +616,7 @@ export const libPresetMotions = {
      * @param translationOptions - options defining the behavior of the motion
      * @returns 
      */
-    generateEffect(translationOptions: Partial<TranslateOptions> = {}) {
+    composeEffect(translationOptions: Partial<TranslateOptions> = {}) {
       const translationComponents = splitXYTupleString(translationOptions.translate);
       const selfOffsetComponents =  splitXYTupleString(translationOptions.selfOffset);
 
@@ -681,7 +681,7 @@ export const libPresetTransitions = {
      * ```
      * <!-- EX:E id="Transition.~from" -->
      */
-    generateEffect(keyframe: Keyframe) {
+    composeEffect(keyframe: Keyframe) {
       return {
         forwardFramesGenerator: () => [{...keyframe}, {}],
       };
@@ -737,7 +737,7 @@ export const libPresetTransitions = {
      * ```
      * <!-- EX:E id="Transition.~to" -->
      */
-    generateEffect(keyframe: Keyframe) {
+    composeEffect(keyframe: Keyframe) {
       const computedStyles = getComputedStyle(this.domElem);
       const original = Object.keys(keyframe).reduce((acc, key) => {
         // when longhand properties are set in CSS (like border-right), the corresponding shorthand property is NOT set in the
@@ -783,7 +783,7 @@ export const libPresetConnectorEntrances = {
      * 
      * @returns 
      */
-    generateEffect() {
+    composeEffect() {
       return {
         forwardFramesGenerator: () => [],
       } as const;
@@ -800,7 +800,7 @@ export const libPresetConnectorEntrances = {
      * 
      * @returns 
      */
-    generateEffect() {
+    composeEffect() {
       return {
         forwardFramesGenerator: () => [ {opacity: '0'}, {}],
       } as const;
@@ -817,7 +817,7 @@ export const libPresetConnectorEntrances = {
      * @param direction - direction from which the connector should be traced
      * @returns 
      */
-    generateEffect(direction: 'from-A' | 'from-B' | 'from-top' | 'from-bottom' | 'from-left' | 'from-right' = 'from-A') {
+    composeEffect(direction: 'from-A' | 'from-B' | 'from-top' | 'from-bottom' | 'from-left' | 'from-right' = 'from-A') {
       // using CSS variables to control marker-end or marker-start opacity with easing step-end
       // makes it possible to instantly hide a marker and re-reveal it at the end
       const fromAFrames = [
@@ -887,7 +887,7 @@ export const libPresetConnectorExits = {
      * 
      * @returns 
      */
-    generateEffect() {
+    composeEffect() {
       return {
         forwardFramesGenerator: () => [],
       } as const;
@@ -904,7 +904,7 @@ export const libPresetConnectorExits = {
      * 
      * @returns 
      */
-    generateEffect() {
+    composeEffect() {
       return {
         forwardFramesGenerator: () => [ {}, {opacity: '0'} ],
       } as const;
@@ -920,7 +920,7 @@ export const libPresetConnectorExits = {
      * @param direction - direction from which the connector should be traced
      * @returns 
      */
-    generateEffect(direction: 'from-A' | 'from-B' | 'from-top' | 'from-bottom' | 'from-left' | 'from-right' = 'from-A') {
+    composeEffect(direction: 'from-A' | 'from-B' | 'from-top' | 'from-bottom' | 'from-left' | 'from-right' = 'from-A') {
       const fromStartFrames = [
         {['--a-marker-opacity']: 1, easing: 'step-start'},
         {strokeDashoffset: 0, offset: 0},
@@ -1027,7 +1027,7 @@ export const libPresetScrolls = {
      * @param scrollOptions - options defining the behavior of the scroll
      * @returns 
      */
-    generateEffect(target: Element | null | undefined, scrollOptions: Partial<ScrollingOptions> = {}) {
+    composeEffect(target: Element | null | undefined, scrollOptions: Partial<ScrollingOptions> = {}) {
       if (!target) { throw new TypeError(`Target for ~scroll-self must not be null`); }
       const {
         preserveX = false,

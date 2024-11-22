@@ -255,7 +255,7 @@ export class Webimator {
    *   // CUSTOM ENTRANCES
    *   customEntranceEffects: {
    *     coolZoomIn: {
-   *       generateEffect(initialScale: number) {
+   *       composeEffect(initialScale: number) {
    *         return {
    *           forwardFramesGenerator: () => [
    *             {scale: initialScale, opacity: 0},
@@ -272,7 +272,7 @@ export class Webimator {
    *     },
    * 
    *     blinkIn: {
-   *       generateEffect() {
+   *       composeEffect() {
    *         return {
    *           forwardFramesGenerator: () => [
    *             {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}
@@ -287,7 +287,7 @@ export class Webimator {
    *   customExitEffects: {
    *     // a custom animation effect for flying out to the left side of the screen
    *     flyOutLeft: {
-   *       generateEffect() {
+   *       composeEffect() {
    *         const computeTranslationStr = () => {
    *           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
    *           const translationString = `${orthogonalDistance}px 0px`;
@@ -367,7 +367,7 @@ export class Webimator {
       customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisClip>;
       customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionClip>;
     };
-    Webimator.checkBanksFormatting(customEntranceEffects, customExitEffects, customEmphasisEffects, customMotionEffects);
+    Webimator.formatBanks(customEntranceEffects, customExitEffects, customEmphasisEffects, customMotionEffects);
 
     type TogglePresets<TLibBank, TCustomBank> = Readonly<(IncludeLibPresets extends true ? TLibBank : {}) & TCustomBank>;
 
@@ -857,21 +857,27 @@ export class Webimator {
   /**@internal*/
   scrollAnchorsStack: [target: Element, scrollOptions: ScrollingOptions][] = [];
 
-  private static checkBanksFormatting(...banks: (EffectGeneratorBank | undefined)[]) {
+  private static formatBanks(...banks: (EffectGeneratorBank | undefined)[]) {
     const errors: string[] = [];
-    
-    const checkForArrowFunctions = (bank?: EffectGeneratorBank) => {
-      if (!bank) { return; }
+
+    // for each bank...
+    for (const bank of banks) {
+      if (!bank) { continue; }
+      // for each entry in the bank...
       for (const animName in bank) {
         const entry = bank[animName];
-        const generator = entry.generateEffect;
-        if (generator.toString().match(/^\(.*\) => .*/)) {
+        // make sure composers are NOT arrow functions
+        if (entry.composeEffect.toString().match(/^\(.*\) => .*/)) {
           errors.push(`"${animName}"`);
+          continue;
         }
+        // set the effect composition frequency to be on every play by default (if no value is already specified)
+        Object.assign<typeof entry, Partial<typeof entry>>(
+          entry,
+          {effectCompositionFrequency: entry.effectCompositionFrequency ?? 'on-every-play'}
+        );
       }
-    };
-
-    for (const bank of banks) { checkForArrowFunctions(bank); }
+    }
 
     if (errors.length > 0) {
       throw new SyntaxError(
