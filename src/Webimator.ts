@@ -256,15 +256,15 @@ export class Webimator {
    *   // CUSTOM ENTRANCES
    *   customEntranceEffects: {
    *     coolZoomIn: {
-   *       generateKeyframes(initialScale: number) {
+   *       generateKeyframeGenerators(initialScale: number) {
    *         return {
-   *           forwardFrames: [
+   *           forwardFramesGenerator: () => [
    *             {scale: initialScale, opacity: 0},
    *             {scale: 1, opacity: 1}
    *           ],
    *           // (backwardFrames could have been omitted in this case because
    *           // the reversal of forwardFrames is exactly equivalent)
-   *           backwardFrames: [
+   *           backwardFramesGenerator: () => [
    *             {scale: 1, opacity: 1},
    *             {scale: initialScale, opacity: 0}
    *           ]
@@ -273,9 +273,9 @@ export class Webimator {
    *     },
    * 
    *     blinkIn: {
-   *       generateKeyframes() {
+   *       generateKeyframeGenerators() {
    *         return {
-   *           forwardFrames: [
+   *           forwardFramesGenerator: () => [
    *             {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}
    *           ],
    *           // (backwardFrames omitted because the reversal of forwardFrames is exactly equivalent)
@@ -296,14 +296,14 @@ export class Webimator {
    *         }
    *   
    *         return {
-   *           forwardGenerator: () => {
+   *           forwardFramesGenerator: () => {
    *             return [
    *               {translate: computeTranslationStr()}
    *             ];
    *           },
    *           // backwardGenerator could have been omitted because the result of running forwardGenerator()
    *           // again and reversing the keyframes produces the same desired rewinding effect in this case
-   *           backwardGenerator: () => {
+   *           backwardFramesGenerator: () => {
    *             return [
    *               {translate: computeTranslationStr()},
    *               {translate: `0 0`}
@@ -865,7 +865,7 @@ export class Webimator {
       if (!bank) { return; }
       for (const animName in bank) {
         const entry = bank[animName];
-        const generator = entry.generateKeyframeGenerators ?? entry.generateRafMutatorGenerators;
+        const generator = entry.generateKeyframeGenerators;
         if (generator.toString().match(/^\(.*\) => .*/)) {
           errors.push(`"${animName}"`);
         }
@@ -890,9 +890,18 @@ export const webimator = new Webimator();
 // const thing =  webimator.createAnimationClipFactories({
 //   customEntranceEffects: {
 //     hello: {
-//       generateKeyframeGenerators() { return {
-//         forwardGenerator: () => []
-//       } },
+//       generateKeyframeGenerators() {
+//         return {
+//           forwardFramesGenerator: () => [],
+//           backwardFramesGenerator: () => [],
+//           forwardRafGenerator: () => {
+//             return () => {};
+//           },
+//           backwardRafGenerator: () => {
+//             return () => {};
+//           }
+//         }
+//       },
 //       defaultConfig: {
         
 //       },

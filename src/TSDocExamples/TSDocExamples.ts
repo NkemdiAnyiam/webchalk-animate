@@ -169,15 +169,15 @@ const clipFactories = webimator.createAnimationClipFactories({
   // CUSTOM ENTRANCES
   customEntranceEffects: {
     coolZoomIn: {
-      generateKeyframes(initialScale: number) {
+      generateKeyframeGenerators(initialScale: number) {
         return {
-          forwardFrames: [
+          forwardFramesGenerator: () => [
             {scale: initialScale, opacity: 0},
             {scale: 1, opacity: 1}
           ],
           // (backwardFrames could have been omitted in this case because
           // the reversal of forwardFrames is exactly equivalent)
-          backwardFrames: [
+          backwardFramesGenerator: () => [
             {scale: 1, opacity: 1},
             {scale: initialScale, opacity: 0}
           ]
@@ -186,9 +186,9 @@ const clipFactories = webimator.createAnimationClipFactories({
     },
 
     blinkIn: {
-      generateKeyframes() {
+      generateKeyframeGenerators() {
         return {
-          forwardFrames: [
+          forwardFramesGenerator: () => [
             {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}
           ],
           // (backwardFrames omitted because the reversal of forwardFrames is exactly equivalent)
@@ -209,14 +209,14 @@ const clipFactories = webimator.createAnimationClipFactories({
         }
   
         return {
-          forwardGenerator: () => {
+          forwardFramesGenerator: () => {
             return [
               {translate: computeTranslationStr()}
             ];
           },
           // backwardGenerator could have been omitted because the result of running forwardGenerator()
           // again and reversing the keyframes produces the same desired rewinding effect in this case
-          backwardGenerator: () => {
+          backwardFramesGenerator: () => {
             return [
               {translate: computeTranslationStr()},
               {translate: `0 0`}
@@ -653,12 +653,12 @@ ent.play();
 const {Entrance} = webimator.createAnimationClipFactories({
   customEntranceEffects: {
     rotate: {
-      generateRafMutators(degrees: number) {
+      generateKeyframeGenerators(degrees: number) {
         return {
           // when playing, keep computing the value between 0 and 'degrees'
-          forwardMutator: () => { this.domElem.style.rotate = this.computeTween(0, degrees)+'deg'; },
+          forwardRafGenerator: () => () => { this.domElem.style.rotate = this.computeTween(0, degrees)+'deg'; },
           // when rewinding, keep computing the value between 'degrees' and 0
-          backwardMutator: () => { this.domElem.style.rotate = this.computeTween(degrees, 0)+'deg'; }
+          backwardRafGenerator: () => () => { this.domElem.style.rotate = this.computeTween(degrees, 0)+'deg'; }
         };
       }
     }
@@ -790,15 +790,15 @@ const clipFactories = webimator.createAnimationClipFactories({
   customEntranceEffects: {
     // a custom 'zoomIn' entrance animation effect that you might make
     zoomIn: {
-      generateKeyframes(initialScale: number) {
+      generateKeyframeGenerators(initialScale: number) {
         return {
-          forwardFrames: [
+          forwardFramesGenerator: () => [
             {scale: initialScale, opacity: 0},
             {scale: 1, opacity: 1}
           ],
           // (backwardFrames could have been omitted in this case because
           // the reversal of forwardFrames is exactly equivalent)
-          backwardFrames: [
+          backwardFramesGenerator: () => [
             {scale: 1, opacity: 1},
             {scale: initialScale, opacity: 0}
           ]
@@ -835,7 +835,7 @@ const clipFactories = webimator.createAnimationClipFactories({
           },
           // backwardGenerator could have been omitted because the result of running forwardGenerator()
           // again and reversing the keyframes produces the same desired rewinding effect in this case
-          backwardGenerator: () => {
+          backwardFramesGenerator: () => {
             return [
               {translate: computeTranslationStr()},
               {translate: `0 0`}
@@ -866,17 +866,17 @@ const clipFactories = webimator.createAnimationClipFactories({
     // rewinding, it will snap to yPosition before scrolling to the initial position, which
     // may feel janky. This could be solved with generateRafMutatorGenerators())
     scrollTo: {
-      generateRafMutators(yPosition: number) {
+      generateKeyframeGenerators(yPosition: number) {
         const initialPosition = this.domElem.scrollTop;
   
         return {
-          forwardMutator: () => {
+          forwardRafGenerator: () => () => {
             this.domElem.scrollTo({
               top: this.computeTween(initialPosition, yPosition),
               behavior: 'instant'
             });
           },
-          backwardMutator: () => {
+          backwardRafGenerator: () => () => {
             this.domElem.scrollTo({
               top: this.computeTween(yPosition, initialPosition),
               behavior: 'instant'
@@ -902,11 +902,11 @@ const clipFactories = webimator.createAnimationClipFactories({
     // when rewinding, the current scroll position is computed on the spot so that
     // it can smoothly scroll from THERE to the initial position.
     scrollToImproved: {
-      generateRafMutatorGenerators(yPosition: number) {
+      generateKeyframeGenerators(yPosition: number) {
         const initialPosition = this.domElem.scrollTop;
   
         return {
-          forwardGenerator: () => {
+          forwardRafGenerator: () => {
             const forwardMutator = () => {
               this.domElem.scrollTo({
                 top: this.computeTween(initialPosition, yPosition),
@@ -916,7 +916,7 @@ const clipFactories = webimator.createAnimationClipFactories({
             return forwardMutator;
           },
 
-          backwardGenerator: () => {
+          backwardRafGenerator: () => {
             const backwardMutator = () => {
               const currentPosition = this.domElem.scrollTop;
               this.domElem.scrollTo({

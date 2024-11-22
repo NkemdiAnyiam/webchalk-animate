@@ -56,29 +56,60 @@ export class WebimatorAnimation extends Animation {
     this.segmentsBackwardCache = [...this.segmentsBackward] as SegmentsCache;
   }
   
-  setForwardFrames(frames: Keyframes): void {
+  setForwardFrames(frames: Keyframes, isMirror: boolean = false): void {
     this.forwardEffect.setKeyframes(frames);
     (super.effect as KeyframeEffect).setKeyframes(frames);
-    if (this.inProgress) {
-      super.effect?.updateTiming({direction: 'normal'});
-    }
-  }
 
-  setBackwardFrames(frames: Keyframes, backwardIsMirror?: boolean): void {
-    this.backwardEffect.setKeyframes(frames);
-    (super.effect as KeyframeEffect).setKeyframes(frames);
-    if (backwardIsMirror) {
-      const [direction, easing] = ['reverse' as PlaybackDirection, this.forwardEffect.getTiming().easing];
-      this.backwardEffect.updateTiming({direction, easing});
-      if (this.inProgress) {
-        super.effect?.updateTiming({direction, easing});
+    // if forward frames were copied from backward frames, then
+    // reverse direction of forward frames and use the same easing
+    // as the backward frames (since it will naturally also be reversed)
+    // due to the reversed direction
+    if (isMirror) {
+      this.forwardEffect.updateTiming({
+        direction: 'reverse',
+        easing: this.backwardEffect.getTiming().easing,
+      });
+    }
+
+    // if animation is playback, the current effect object must be updated
+    if (this.inProgress) {
+      // if forward frames are mirrored, use same logic as above
+      if (isMirror) {
+        super.effect?.updateTiming({
+          direction: isMirror ? 'reverse' : 'normal',
+          easing: this.backwardEffect.getTiming().easing,
+        });
+      }
+      // otherwise, update the direction to be normal in case it was changed by
+      // the backward frames potentially being mirrored
+      else {
+        super.effect?.updateTiming({direction: 'normal'});
       }
     }
   }
 
-  setForwardAndBackwardFrames(forwardFrames: Keyframes, backwardFrames: Keyframes, backwardIsMirror?: boolean): void {
-    this.setBackwardFrames(backwardFrames, backwardIsMirror);
-    this.setForwardFrames(forwardFrames);
+  setBackwardFrames(frames: Keyframes, isMirror: boolean = false): void {
+    this.backwardEffect.setKeyframes(frames);
+    (super.effect as KeyframeEffect).setKeyframes(frames);
+
+    if (isMirror) {
+      this.backwardEffect.updateTiming({
+        direction: 'reverse',
+        easing: this.forwardEffect.getTiming().easing,
+      });
+    }
+
+    if (this.inProgress) {
+      if (isMirror) {
+        super.effect?.updateTiming({
+          direction: isMirror ? 'reverse' : 'normal',
+          easing: this.forwardEffect.getTiming().easing,
+        });
+      }
+      else {
+        super.effect?.updateTiming({ direction: 'normal' });
+      }
+    }
   }
 
   setDirection(direction: 'forward' | 'backward') {

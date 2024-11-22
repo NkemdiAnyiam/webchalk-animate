@@ -1,6 +1,22 @@
 import { CssLength, CssXAlignment, CssYAlignment, ScrollingOptions, ParsedMultiUnitPlacement, MultiUnitPlacementX, MultiUnitPlacementY, DOMElement } from "./interfaces";
 import { KeyOf, PickFromArray } from "./utilityTypes";
 
+export function asserter<T extends unknown>(val: T, tar: any): T | undefined {
+  return val === tar ? val : undefined;
+}
+
+export function xor(a: unknown, b: unknown) {
+  return ( a || b ) && !( a && b );
+}
+
+export function xnor(a: unknown, b: unknown) {
+  return !xor(a, b);
+}
+
+export function nor(a: unknown, b: unknown) {
+  return !(a || b);
+}
+
 export const equalWithinTol = (numA: number, numB: number): boolean => Math.abs(numA - numB) < 0.001;
 export const mergeArrays = <T>(...arrays: (Array<T> | undefined)[]): Array<T> => Array.from(new Set(new Array<T>().concat(...arrays.filter(arr => arr !== undefined))));
 export function findLastIndex<T>(array: Array<T>, predicate: (value: T, index: number, obj: T[]) => boolean): number {

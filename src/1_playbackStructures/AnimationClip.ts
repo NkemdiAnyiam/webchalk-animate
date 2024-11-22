@@ -3,7 +3,7 @@ import { AnimTimeline } from "./AnimationTimeline";
 import { EntranceClip, MotionClip, TransitionClip } from "./AnimationClipCategories";
 import { webimator, Webimator } from "../Webimator";
 import { EffectOptions, EffectGeneratorBank, EffectGenerator } from "../2_animationEffects/generationTypes";
-import { call, detab, getPartial, mergeArrays } from "../4_utils/helpers";
+import { asserter, call, detab, getPartial, mergeArrays, nor, xor } from "../4_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
 import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "../4_utils/errors";
 import { DOMElement, EffectCategory, Keyframes } from "../4_utils/interfaces";
@@ -342,7 +342,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * This static method is purely for convenience.
    * @group Helper Methods
    */
-  public static createNoOpEffectGenerator() { return {generateKeyframeGenerators() { return {forwardGenerator: () => [], backwardGenerator: () => []}; }} as EffectGenerator; }
+  public static createNoOpEffectGenerator() { return {generateKeyframeGenerators() { return {forwardFramesGenerator: () => [], backwardFramesGenerator: () => []}; }} as EffectGenerator; }
 
   /**
    * The default configuration for clips in a specific effect category, which includes
@@ -441,12 +441,25 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
  readonly domElem: DOMElement;
 
  protected animation: WebimatorAnimation = {} as WebimatorAnimation;
-  /**@internal*/
-  get rafLoopsProgress(): number {
-    const { progress, direction } = this.animation.effect!.getComputedTiming();
-    // ?? 1 because during the active phase (the only time when raf runs), null progress means finished
-    return direction === 'normal' ? (progress ?? 1) : 1 - (progress ?? 1);
+ /**@internal*/
+ get rafLoopsProgress(): number {
+  const { progress, direction } = this.animation.effect!.getComputedTiming();
+
+  // ?? 1 because during the active phase (the only time when raf runs), null progress means finished
+  const prog = (direction === 'normal' ? (progress ?? 1) : 1 - (progress ?? 1));
+
+  if ((this.animation.direction === 'forward' && this.fRafMirrored)
+    || (this.animation.direction === 'backward' && this.bRafMirrored)
+  ) {
+    return 1 - prog;
   }
+
+  return prog;
+ }
+ protected bFramesMirrored: boolean = false;
+ protected fFramesMirrored: boolean = false;
+ protected bRafMirrored: boolean = false;
+ protected fRafMirrored: boolean = false;
 
   // GROUP: Effect Details
   protected abstract get category(): EffectCategory;
@@ -455,20 +468,22 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   protected effectOptions: EffectOptions<TEffectGenerator> = {} as EffectOptions<TEffectGenerator>;
   
   /**@internal*/
-  keyframesGenerators?: {
-    forwardGenerator: () => Keyframes;
-    backwardGenerator?: () => Keyframes;
+  keyframesGenerators: {
+    forwardFramesGenerator: () => Keyframes;
+    backwardFramesGenerator: () => Keyframes;
+    forwardRafGenerator?: () => () => void;
+    backwardRafGenerator?: () => () => void;
+  } = {} as {
+    forwardFramesGenerator: () => Keyframes;
+    backwardFramesGenerator: () => Keyframes;
+    forwardRafGenerator?: () => () => void;
+    backwardRafGenerator?: () => () => void;
   };
   /**@internal*/
-  rafMutators?: {
-    forwardMutator: () => void;
-    backwardMutator: () => void;
-  };
-  /**@internal*/
-  rafMutatorGenerators?: {
-    forwardGenerator: () => () => void;
-    backwardGenerator: () => () => void;
-  }
+  rafMutators: {
+    forwardMutator?: () => void;
+    backwardMutator?: () => void;
+  } = {};
 
   /**
    * Returns specific details about the animation's effect.
@@ -616,6 +631,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    *  * {@link AnimClipStatus.inProgress|inProgress},
    *  * {@link AnimClipStatus.isRunning|isRunning},
    *  * {@link AnimClipStatus.isPaused|isPaused},
+   *  * {@link AnimClipStatus.direction|direction},
    */
   getStatus(): AnimClipStatus;
   /**
@@ -719,19 +735,55 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     let [forwardFrames, backwardFrames]: [Keyframes, Keyframes | undefined] = [[{fontFeatureSettings: 'normal'}], []];
 
     try {
-      // generateKeyframeGenerators()
-      if (this.effectGenerator.generateKeyframeGenerators) {
-        const results = call(this.effectGenerator.generateKeyframeGenerators, this, ...effectOptions);
-        this.keyframesGenerators = {
-          forwardGenerator: results.forwardGenerator,
-          backwardGenerator: results.backwardGenerator
-        };
+      // retrieve generators
+      let {
+        forwardFramesGenerator,
+        backwardFramesGenerator,
+        forwardRafGenerator,
+        backwardRafGenerator,
+      } = call(this.effectGenerator.generateKeyframeGenerators, this, ...effectOptions);
+
+      if (!(forwardFramesGenerator || backwardFramesGenerator || forwardRafGenerator || backwardRafGenerator)) {
+        throw this.generateError(CustomErrors.InvalidEffectError, 'No generators specified');
       }
-      // generateRafMutatorGenerators()
-      else {
-        const {forwardGenerator, backwardGenerator} = call(this.effectGenerator.generateRafMutatorGenerators, this, ...effectOptions);
-        this.rafMutatorGenerators = {forwardGenerator, backwardGenerator};
+
+      // if neither frame generators are specified, make them return empty keyframes array
+      if (!forwardFramesGenerator && !backwardFramesGenerator) {
+        forwardFramesGenerator = () => [];
+        backwardFramesGenerator = () => [];
       }
+      // if only forward frames generator is unspecified, use backward generator and set mirrored to true
+      else if (!forwardFramesGenerator) {
+        forwardFramesGenerator = backwardFramesGenerator!;
+        this.fFramesMirrored = true;
+      }
+      // if only backward frames generator is unspecified, use forward generator and set mirrored to true
+      else if (!backwardFramesGenerator) {
+        backwardFramesGenerator = forwardFramesGenerator!;
+        this.bFramesMirrored = true;
+      }
+
+      // if neither RAF generators are specified, do nothing
+      if (!forwardRafGenerator && !backwardRafGenerator) {
+
+      }
+      // if only forward RAF mutator generator is unspecified, use backward generator and set mirrored to true
+      else if (!forwardRafGenerator) {
+        forwardRafGenerator = backwardRafGenerator;
+        this.fRafMirrored = true;
+      }
+      // if only backward RAF mutator generator is unspecified, use forward generator and set mirrored to true
+      else if (!backwardRafGenerator) {
+        backwardRafGenerator = forwardRafGenerator;
+        this.bRafMirrored = true;
+      }
+
+      this.keyframesGenerators = {
+        forwardFramesGenerator,
+        backwardFramesGenerator: backwardFramesGenerator!,
+        forwardRafGenerator,
+        backwardRafGenerator,
+      };
     }
     catch (err: unknown) { throw this.generateError(err as Error); }
 
@@ -749,8 +801,17 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     this.animation = new WebimatorAnimation(
       new KeyframeEffect(
         this.domElem,
-        forwardFrames,
-        keyframeOptions,
+        forwardFrames ?? spreadKeyframes(backwardFrames),
+        {
+          ...keyframeOptions,
+          // if no forward frames were specified, assume the reverse of the backward frames
+          direction: this.fFramesMirrored ? 'reverse' : 'normal',
+          // if forward frames were NOT specified, easing should be inverted
+          easing: this.fFramesMirrored ? useEasing(easing, {inverted: true}) : keyframeOptions.easing,
+          // // delay & endDelay are of course swapped when we want to play in "reverse"
+          // delay: keyframeOptions.endDelay,
+          // endDelay: keyframeOptions.delay,
+        },
       ),
       new KeyframeEffect(
         this.domElem,
@@ -758,9 +819,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
         {
           ...keyframeOptions,
           // if no backward frames were specified, assume the reverse of the forward frames
-          ...(backwardFrames ? {} : {direction: 'reverse'}),
+          direction: this.bFramesMirrored ? 'reverse' : 'normal',
           // if backward frames were specified, easing needs to be inverted
-          ...(backwardFrames ? {easing: useEasing(easing, {inverted: true})} : {}),
+          easing: this.bFramesMirrored ? keyframeOptions.easing : useEasing(easing, {inverted: true}),
           // delay & endDelay are of course swapped when we want to play in "reverse"
           delay: keyframeOptions.endDelay,
           endDelay: keyframeOptions.delay,
@@ -1066,7 +1127,8 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     animation.setDirection(direction);
     this.direction = direction;
     // Clear the current keyframes to prevent interference with generators
-    animation.setForwardAndBackwardFrames([{fontFeatureSettings: 'normal'}], []);
+    animation.setForwardFrames([{fontFeatureSettings: 'normal'}]);
+    animation.setBackwardFrames([]);
     this.useCompoundedPlaybackRate();
 
     // used as resolve() and reject() in the eventually returned promise
@@ -1085,10 +1147,10 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     // Additionally, generate keyframes on 'forward' if keyframe pregeneration is disabled.
     animation.onDelayFinish = () => {
       try {
-        const bankEntry = this.effectGenerator;
-
         switch(direction) {
+          // FORWARD
           case 'forward':
+            // handle CSS classes and pre-start function
             this.domElem.classList.add(...config.cssClasses.toAddOnStart ?? []);
             this.domElem.classList.remove(...config.cssClasses.toRemoveOnStart ?? []);
             this._onStartForward();
@@ -1097,44 +1159,36 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
             // Keyframe generation is done here so that generations operations that rely on the side effects of class modifications and _onStartForward()...
             // ...can function properly.
             try {
-              // if generateKeyframeGenerators() is the method of generation, generate f-ward frames
-              if (bankEntry.generateKeyframeGenerators) {
-                animation.setForwardFrames(this.keyframesGenerators!.forwardGenerator());
-              }
-              // if generateRafMutatorGenerators() is the method of generation, generate f-ward mutator
-              else {
-                const forwardMutator = this.rafMutatorGenerators!.forwardGenerator();
-                this.rafMutators = { forwardMutator, backwardMutator(){} };
-              }
+              animation.setForwardFrames(this.keyframesGenerators.forwardFramesGenerator(), this.fFramesMirrored);
+              this.rafMutators.forwardMutator = this.keyframesGenerators.forwardRafGenerator?.();
             }
             catch (err: unknown) {
               throw this.generateError(err as Error);
             }
 
-            if (bankEntry.generateRafMutatorGenerators) { requestAnimationFrame(this.loop); }
+            // If RAF mutator exists, begin RAF loop
+            if (this.rafMutators.forwardMutator) { requestAnimationFrame(this.loop); }
 
             // sets it back to 'forwards' in case it was set to 'none' in a previous running
             animation.effect?.updateTiming({fill: 'forwards'});
             break;
     
+          // BACKWARD
           case 'backward':
+            // handle pre-start function and CSS classes
             this._onStartBackward();
             this.domElem.classList.add(...config.cssClasses.toRemoveOnFinish ?? []);
             this.domElem.classList.remove(...config.cssClasses.toAddOnFinish ?? []);
 
+            // Generate keyframes
             try {
-              if (bankEntry.generateKeyframeGenerators) {
-                const {forwardGenerator, backwardGenerator} = this.keyframesGenerators!;
-                this.animation.setBackwardFrames(backwardGenerator?.() ?? forwardGenerator(), backwardGenerator ? false : true);
-              }
-              else {
-                const backwardMutator = this.rafMutatorGenerators!.backwardGenerator();
-                this.rafMutators = { forwardMutator(){}, backwardMutator };
-              }
+              this.animation.setBackwardFrames(this.keyframesGenerators.backwardFramesGenerator(), this.bFramesMirrored);
+              this.rafMutators.backwardMutator = this.keyframesGenerators.backwardRafGenerator?.();
             }
             catch (err: unknown) { throw this.generateError(err as Error); }
 
-            if (bankEntry.generateRafMutatorGenerators) { requestAnimationFrame(this.loop); }
+            // If RAF mutator exists, begin RAF loop
+            if (this.rafMutators.backwardMutator) { requestAnimationFrame(this.loop); }
             break;
     
           default:
@@ -1228,10 +1282,10 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     try {
       switch(this.animation.direction) {
         case "forward":
-          rafMutators.forwardMutator();
+          rafMutators.forwardMutator!();
           break;
         case "backward":
-          rafMutators.backwardMutator();
+          rafMutators.backwardMutator!();
           break;
         default: throw this.generateError(Error, `Something very wrong occured for there to be an error here.`);
       }
@@ -1257,12 +1311,12 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * const {Entrance} = webimator.createAnimationClipFactories({
    *   customEntranceEffects: {
    *     rotate: {
-   *       generateRafMutators(degrees: number) {
+   *       generateKeyframeGenerators(degrees: number) {
    *         return {
    *           // when playing, keep computing the value between 0 and 'degrees'
-   *           forwardMutator: () => { this.domElem.style.rotate = this.computeTween(0, degrees)+'deg'; },
+   *           forwardRafGenerator: () => () => { this.domElem.style.rotate = this.computeTween(0, degrees)+'deg'; },
    *           // when rewinding, keep computing the value between 'degrees' and 0
-   *           backwardMutator: () => { this.domElem.style.rotate = this.computeTween(degrees, 0)+'deg'; }
+   *           backwardRafGenerator: () => () => { this.domElem.style.rotate = this.computeTween(degrees, 0)+'deg'; }
    *         };
    *       }
    *     }
