@@ -44,7 +44,7 @@ export class WebimatorAnimation extends Animation {
   pauseForRoadblocks: Function = () => { throw new Error(`This should never be called before being defined by parent clip`); };
   unpauseFromRoadblocks: Function = () => { throw new Error(`This should never be called before being defined by parent clip`); };
 
-  constructor(private forwardEffect: KeyframeEffect, private backwardEffect: KeyframeEffect, private errorGenerator: ClipErrorGenerator) {
+  constructor(public forwardEffect: KeyframeEffect, public backwardEffect: KeyframeEffect, private errorGenerator: ClipErrorGenerator) {
     super();
 
     if (!this.forwardEffect.target) { throw this.errorGenerator(CustomErrors.InvalidElementError, `Animation target must not be null or undefined`); }

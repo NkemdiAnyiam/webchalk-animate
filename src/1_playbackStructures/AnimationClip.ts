@@ -440,7 +440,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    */
  readonly domElem: DOMElement;
 
- protected animation: WebimatorAnimation = {} as WebimatorAnimation;
+ protected animation!: WebimatorAnimation;
  /**@internal*/
  get rafLoopsProgress(): number {
   const { progress, direction } = this.animation.effect!.getComputedTiming();
@@ -466,6 +466,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   protected effectName: string;
   protected effectGenerator: TEffectGenerator;
   protected effectOptions: EffectOptions<TEffectGenerator> = {} as EffectOptions<TEffectGenerator>;
+  protected refreshesGeneratorsOnPlay = true;
   
   /**@internal*/
   keyframesGenerators: {
@@ -625,6 +626,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   protected isRunning: AnimClipStatus['isRunning'] = false; // true only when inProgress and !isPaused
   protected isPaused: AnimClipStatus['isPaused'] = false;
   protected direction: AnimClipStatus['direction'] = 'forward';
+  protected firstRun: boolean = true;
   /**
    * Returns details about the animation's current status.
    * @returns an object containing
@@ -726,67 +728,6 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     // cannot be exactly 0 because that causes some Animation-related bugs that can't be easily worked around
     this.config.duration = Math.max(this.getTiming('duration') as number, 0.01);
 
-    // The fontFeatureSettings part handles a very strange Firefox bug that causes animations to run without any visual changes
-    // when the animation is finished, setKeyframes() is called, and the animation continues after extending the runtime using
-    // endDelay. It appears that the bug only occurs when the keyframes field contains nothing that will actually affect the
-    // styling of the element (for example, adding {['fake-field']: 'bla'} will not fix it), but I obviously do not want to
-    // add anything that will actually affect the style of the element, so I decided to use fontFeatureSettings and set it to
-    // the default value to make it as unlikely as possible that anything the user does is obstructed.
-    let [forwardFrames, backwardFrames]: [Keyframes, Keyframes | undefined] = [[{fontFeatureSettings: 'normal'}], []];
-
-    try {
-      // retrieve generators
-      let {
-        forwardFramesGenerator,
-        backwardFramesGenerator,
-        forwardRafGenerator,
-        backwardRafGenerator,
-      } = call(this.effectGenerator.generateKeyframeGenerators, this, ...effectOptions);
-
-      if (!(forwardFramesGenerator || backwardFramesGenerator || forwardRafGenerator || backwardRafGenerator)) {
-        throw this.generateError(CustomErrors.InvalidEffectError, 'No generators specified');
-      }
-
-      // if neither frame generators are specified, make them return empty keyframes array
-      if (!forwardFramesGenerator && !backwardFramesGenerator) {
-        forwardFramesGenerator = () => [];
-        backwardFramesGenerator = () => [];
-      }
-      // if only forward frames generator is unspecified, use backward generator and set mirrored to true
-      else if (!forwardFramesGenerator) {
-        forwardFramesGenerator = backwardFramesGenerator!;
-        this.fFramesMirrored = true;
-      }
-      // if only backward frames generator is unspecified, use forward generator and set mirrored to true
-      else if (!backwardFramesGenerator) {
-        backwardFramesGenerator = forwardFramesGenerator!;
-        this.bFramesMirrored = true;
-      }
-
-      // if neither RAF generators are specified, do nothing
-      if (!forwardRafGenerator && !backwardRafGenerator) {
-
-      }
-      // if only forward RAF mutator generator is unspecified, use backward generator and set mirrored to true
-      else if (!forwardRafGenerator) {
-        forwardRafGenerator = backwardRafGenerator;
-        this.fRafMirrored = true;
-      }
-      // if only backward RAF mutator generator is unspecified, use forward generator and set mirrored to true
-      else if (!backwardRafGenerator) {
-        backwardRafGenerator = forwardRafGenerator;
-        this.bRafMirrored = true;
-      }
-
-      this.keyframesGenerators = {
-        forwardFramesGenerator,
-        backwardFramesGenerator: backwardFramesGenerator!,
-        forwardRafGenerator,
-        backwardRafGenerator,
-      };
-    }
-    catch (err: unknown) { throw this.generateError(err as Error); }
-
     // playbackRate is not included because it is computed at the time of animating
     const { delay, duration, endDelay, easing, composite  } = this.config;
     const keyframeOptions: KeyframeEffectOptions = {
@@ -801,27 +742,21 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     this.animation = new WebimatorAnimation(
       new KeyframeEffect(
         this.domElem,
-        forwardFrames ?? spreadKeyframes(backwardFrames),
-        {
-          ...keyframeOptions,
-          // if no forward frames were specified, assume the reverse of the backward frames
-          direction: this.fFramesMirrored ? 'reverse' : 'normal',
-          // if forward frames were NOT specified, easing should be inverted
-          easing: this.fFramesMirrored ? useEasing(easing, {inverted: true}) : keyframeOptions.easing,
-          // // delay & endDelay are of course swapped when we want to play in "reverse"
-          // delay: keyframeOptions.endDelay,
-          // endDelay: keyframeOptions.delay,
-        },
+        // Using fontFeatureSettings handles a very strange Firefox bug that causes animations to run without any visual changes
+        // when the animation is finished, setKeyframes() is called, and the animation continues after extending the runtime using
+        // endDelay. It appears that the bug only occurs when the keyframes field contains nothing that will actually affect the
+        // styling of the element (for example, adding {['fake-field']: 'bla'} will not fix it), but I obviously do not want to
+        // add anything that will actually affect the style of the element, so I decided to use fontFeatureSettings and set it to
+        // the default value to make it as unlikely as possible that anything the user does is obstructed.
+        [{fontFeatureSettings: 'normal'}],
+        keyframeOptions
       ),
       new KeyframeEffect(
         this.domElem,
-        backwardFrames ?? spreadKeyframes(forwardFrames),
+        [],
         {
           ...keyframeOptions,
-          // if no backward frames were specified, assume the reverse of the forward frames
-          direction: this.bFramesMirrored ? 'reverse' : 'normal',
-          // if backward frames were specified, easing needs to be inverted
-          easing: this.bFramesMirrored ? keyframeOptions.easing : useEasing(easing, {inverted: true}),
+          easing: useEasing(easing, {inverted: true}),
           // delay & endDelay are of course swapped when we want to play in "reverse"
           delay: keyframeOptions.endDelay,
           endDelay: keyframeOptions.delay,
@@ -1121,6 +1056,27 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
   protected async animate(direction: 'forward' | 'backward'): Promise<this> {
     if (this.inProgress) { return this; }
+
+    // if this is the first time running animate(), retrieve the generators and
+    // update animation effects' directions according to presence of frames generators
+    if (this.firstRun) {
+      this.firstRun = false;
+      this.retrieveGenerators();
+      
+      this.animation.forwardEffect.updateTiming({
+        // if no forward frames generator was specified, assume the reverse of the backward frames generator
+        direction: this.fFramesMirrored ? 'reverse' : 'normal',
+      });
+
+      this.animation.backwardEffect.updateTiming({
+        // if no backward frames generator was specified, assume the reverse of the forward frames generator
+        direction: this.bFramesMirrored ? 'reverse' : 'normal',
+      });
+    }
+    else if (direction === 'forward' && this.refreshesGeneratorsOnPlay) {
+      this.refreshGenerators();
+    }
+
     const config = this.config;
 
     const animation = this.animation;
@@ -1275,6 +1231,80 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       this.root.pause();
       throw err;
     })
+  }
+
+  private retrieveGenerators(): void {
+    try {
+      // retrieve generators
+      let {
+        forwardFramesGenerator,
+        backwardFramesGenerator,
+        forwardRafGenerator,
+        backwardRafGenerator,
+      } = call(this.effectGenerator.generateKeyframeGenerators, this, ...this.getEffectDetails().effectOptions);
+
+      // if no generators are specified, error
+      if (!(forwardFramesGenerator || backwardFramesGenerator || forwardRafGenerator || backwardRafGenerator)) {
+        throw this.generateError(CustomErrors.InvalidEffectError, 'No generators specified');
+      }
+
+      // if neither frame generators are specified, make them return empty keyframes array
+      if (!forwardFramesGenerator && !backwardFramesGenerator) {
+        forwardFramesGenerator = () => [];
+        backwardFramesGenerator = () => [];
+      }
+      // if only forward frames generator is unspecified, use backward generator and set mirrored to true
+      else if (!forwardFramesGenerator) {
+        forwardFramesGenerator = backwardFramesGenerator!;
+        this.fFramesMirrored = true;
+      }
+      // if only backward frames generator is unspecified, use forward generator and set mirrored to true
+      else if (!backwardFramesGenerator) {
+        backwardFramesGenerator = forwardFramesGenerator!;
+        this.bFramesMirrored = true;
+      }
+
+      // if neither RAF generators are specified, do nothing
+      if (!forwardRafGenerator && !backwardRafGenerator) {}
+      // if only forward RAF mutator generator is unspecified, use backward generator and set mirrored to true
+      else if (!forwardRafGenerator) {
+        forwardRafGenerator = backwardRafGenerator;
+        this.fRafMirrored = true;
+      }
+      // if only backward RAF mutator generator is unspecified, use forward generator and set mirrored to true
+      else if (!backwardRafGenerator) {
+        backwardRafGenerator = forwardRafGenerator;
+        this.bRafMirrored = true;
+      }
+
+      this.keyframesGenerators = {
+        forwardFramesGenerator,
+        backwardFramesGenerator: backwardFramesGenerator!,
+        forwardRafGenerator,
+        backwardRafGenerator,
+      };
+    }
+    catch (err: unknown) { throw this.generateError(err as Error); }
+  }
+
+  private refreshGenerators(): void {
+    try {
+      // retrieve generators
+      let {
+        forwardFramesGenerator,
+        backwardFramesGenerator,
+        forwardRafGenerator,
+        backwardRafGenerator,
+      } = call(this.effectGenerator.generateKeyframeGenerators, this, ...this.getEffectDetails().effectOptions);
+
+      this.keyframesGenerators = {
+        forwardFramesGenerator: forwardFramesGenerator! ?? backwardFramesGenerator!,
+        backwardFramesGenerator: backwardFramesGenerator! ?? forwardFramesGenerator!,
+        forwardRafGenerator: forwardRafGenerator ?? backwardRafGenerator,
+        backwardRafGenerator: backwardRafGenerator ?? forwardRafGenerator,
+      };
+    }
+    catch (err: unknown) { throw this.generateError(err as Error); }
   }
 
   private loop = (): void => {
