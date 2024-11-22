@@ -189,7 +189,7 @@ export type Layer3MutableClipConfig<TClipClass extends AnimClip> = Omit<ReturnTy
  * For example, there is an effect generator bank containing effect generators for entrance animation effects.
  */
 export type EffectGeneratorBank<TClip extends AnimClip = AnimClip> = ReadonlyRecord<
-  string, EffectGenerator<ReadonlyPick<TClip, 'domElem' | 'getEffectDetails'>, Layer3MutableClipConfig<TClip>>
+  string, EffectGenerator<ReadonlyPick<TClip, 'domElem' | 'getEffectDetails' | 'getStatus'>, Layer3MutableClipConfig<TClip>>
 >;
 
 /**

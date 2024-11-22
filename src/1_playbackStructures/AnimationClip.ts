@@ -230,6 +230,11 @@ export type AnimClipStatus = {
    * `true` only if the clip is in the process of playback and paused.
    */
   isPaused: boolean;
+
+  /**
+   * the current direction of the animation
+   */
+  direction: 'forward' | 'backward';
 };
 
 /**
@@ -604,6 +609,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   protected inProgress: AnimClipStatus['inProgress'] = false; // true only during animate() (regardless of pause state)
   protected isRunning: AnimClipStatus['isRunning'] = false; // true only when inProgress and !isPaused
   protected isPaused: AnimClipStatus['isPaused'] = false;
+  protected direction: AnimClipStatus['direction'] = 'forward';
   /**
    * Returns details about the animation's current status.
    * @returns an object containing
@@ -636,6 +642,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       inProgress: this.inProgress,
       isRunning: this.isRunning,
       isPaused: this.isPaused,
+      direction: this.direction,
     };
 
     return specifics ? getPartial(result, specifics) : result;
@@ -1057,6 +1064,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
     const animation = this.animation;
     animation.setDirection(direction);
+    this.direction = direction;
     // Clear the current keyframes to prevent interference with generators
     animation.setForwardAndBackwardFrames([{fontFeatureSettings: 'normal'}], []);
     this.useCompoundedPlaybackRate();
