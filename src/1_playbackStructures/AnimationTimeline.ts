@@ -931,10 +931,10 @@ export class AnimTimeline {
    * 
    *   webimator.newSequence(
    *     {jumpTag: 'move around'},
-   *     Motion(square, '~translate', [{translate: '200px, 0px'}]),
-   *     Motion(square, '~translate', [{translate: '0px, 200px'}]),
-   *     Motion(square, '~translate', [{translate: '-200px, 0px'}]),
-   *     Motion(square, '~translate', [{translate: '0px, -200px'}]),
+   *     Motion(square, '~translate', [{translate: '200px 0px'}]),
+   *     Motion(square, '~translate', [{translate: '0px 200px'}]),
+   *     Motion(square, '~translate', [{translate: '-200px 0px'}]),
+   *     Motion(square, '~translate', [{translate: '0px -200px'}]),
    *   ),
    * 
    *   webimator.newSequence(

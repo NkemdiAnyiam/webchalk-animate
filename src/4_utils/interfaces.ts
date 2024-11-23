@@ -37,13 +37,14 @@ interface TranslationOffset {
   /**
    * determines offsets to apply to both X and Y positional components
    *  * the offset is applied _after_ {@link alignment} is applied
-   *  * string in the form "{@link CssLength}, {@link CssLength}"
+   *  * string in the form "{@link CssLength} {@link CssLength}"
    * @example
    * ```ts
-   * {selfOffset: "12px, 50%"}
+   * // move 12px right and 50% of own height down
+   * {selfOffset: "12px 50%"}
    * ```
    */
-  selfOffset: `${CssLength}, ${CssLength}`; // move 12px right and 50% of own height down
+  selfOffset: `${CssLength} ${CssLength}`;
 }
 
 // CHANGE NOTE: Use strings in the format of <number><CssLengthUnit> and remove XY things
@@ -53,13 +54,14 @@ interface TranslationOffset {
 export interface TranslateOptions extends TranslationOffset {
   /**
    * distances to travel in the X and Y directions
-   *  * string in the form "{@link CssLength}, {@link CssLength}"
+   *  * string in the form "{@link CssLength} {@link CssLength}"
    * @example
    * ```ts
-   * {translate: "12px, 50%"} // move 12px right and 50% of own height down
+   * // move 12px right and 50% of own height down
+   * {translate: "12px 50%"}
    * ```
    */
-  translate: `${CssLength}, ${CssLength}`;
+  translate: `${CssLength} ${CssLength}`;
 }
 
 /**
@@ -71,13 +73,14 @@ export interface MoveToOptions extends TranslationOffset {
   /**
    * offset with respect to target's left and top bound
    *  * the offset is applied _after_ {@link alignment} is applied
-   *  * string in the form "{@link CssLength}, {@link CssLength}"
+   *  * string in the form "{@link CssLength} {@link CssLength}"
    * @example
    * ```ts
-   * {targetOffset: "12px, 50%"} // move 12px right and 50% of target element's height down
+   * // move 12px right and 50% of target element's height down
+   * {targetOffset: "12px 50%"}
    * ```
    */
-  targetOffset: `${CssLength}, ${CssLength}`;
+  targetOffset: `${CssLength} ${CssLength}`;
   /** if `true`, there will be no horizontal translation with respect to the target element (offsets still apply) */
   preserveX: boolean;
   /** if `true`, there will be no vertical translation with respect to the target element (offsets still apply) */

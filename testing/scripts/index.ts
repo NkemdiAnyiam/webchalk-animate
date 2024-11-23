@@ -157,7 +157,7 @@ const ent = Entrance(square, '~appear', []);
 // console.log(ent.generateTimePromise === ent.generateTimePromise);
 
 const entrance: WebimatorTypes.EntranceClip = Entrance(square, '~fly-in', ['from-bottom'], {duration: 1000, hideNowType: 'display-none'});
-const motion = Motion(square, '~translate', [{translate: '200px, 200px'}], {duration: 1000, easing: 'bounce-out'});
+const motion = Motion(square, '~translate', [{translate: '200px 200px'}], {duration: 1000, easing: 'bounce-out'});
 console.log(entrance.getModifiers());
 console.log(entrance.getModifiers('hideNowType'));
 console.log(entrance.getModifiers(['cssClasses', 'composite']));

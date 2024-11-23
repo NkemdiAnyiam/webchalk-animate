@@ -67,8 +67,8 @@ export const getOpeningTag = (element: Element | null | undefined): string => {
 export const overrideHidden = (...elements: Element[]): void => { for (const element of elements) {element.classList.value += ` wbmtr-force-show`} };
 export const unOverrideHidden = (...elements: Element[]): void => { for (const element of elements) {element.classList.value = element.classList.value.replace(` wbmtr-force-show`, '')} };
 
-export const splitXYTupleString = (tupleStr: `${CssLength}, ${CssLength}` | undefined): [x: CssLength, y: CssLength] | undefined => {
-  return tupleStr?.split(', ') as [x: CssLength, y: CssLength] | undefined;
+export const splitXYTupleString = (tupleStr: `${CssLength} ${CssLength}` | undefined): [x: CssLength, y: CssLength] | undefined => {
+  return tupleStr?.split(' ') as [x: CssLength, y: CssLength] | undefined;
 };
 export const splitXYAlignmentString = (tupleStr: `${CssXAlignment} ${CssYAlignment}` | undefined): [x: CssXAlignment, y: CssYAlignment] | undefined => {
   return tupleStr?.split(' ') as [x: CssXAlignment, y: CssYAlignment] | undefined;

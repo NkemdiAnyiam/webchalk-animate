@@ -12,7 +12,7 @@ const squareEl = document.querySelector(".square");
 const seq = webimator.newSequence(
   { description: "Fade in square, move it, and fade out", playbackRate: 2 },
   clipFactories.Entrance(squareEl, "~fade-in", []),
-  clipFactories.Motion(squareEl, "~translate", [{ translate: "200px, 500px" }]),
+  clipFactories.Motion(squareEl, "~translate", [{ translate: "200px 500px" }]),
   clipFactories.Exit(squareEl, "~fade-out", [])
 );
 // play sequence
@@ -30,7 +30,7 @@ const squareEl = document.querySelector('.square');
 const seq = webimator.newSequence(
   {description: 'Fade in square, move it, and fade out', playbackRate: 2},
   Entrance(squareEl, '~fade-in', []),
-  Motion(squareEl, '~translate', [{translate: '200px, 500px'}]),
+  Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
   Exit(squareEl, '~fade-out', []),
 );
 seq.play();
@@ -47,7 +47,7 @@ const squareEl = document.querySelector('.square');
 // create sequence with some animation clips
 const seq = webimator.newSequence(
    clipFactories.Entrance(squareEl, '~fade-in', []),
-   clipFactories.Motion(squareEl, '~translate', [{translate: '200px, 500px'}]),
+   clipFactories.Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
    clipFactories.Exit(squareEl, '~fade-out', []),
 );
 // play sequence
@@ -64,7 +64,7 @@ const squareEl = document.querySelector('.square');
 
 const seq = webimator.newSequence(
    Entrance(squareEl, '~fade-in', []),
-   Motion(squareEl, '~translate', [{translate: '200px, 500px'}]),
+   Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
    Exit(squareEl, '~fade-out', []),
 );
 seq.play();
@@ -83,7 +83,7 @@ const circleEl = document.querySelector('.circle');
 const seq1 = webimator.newSequence(
    {description: 'Fade in square, move it, and fade out', playbackRate: 2},
    Entrance(squareEl, '~fade-in', []),
-   Motion(squareEl, '~translate', [{translate: '200px, 500px'}]),
+   Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
    Exit(squareEl, '~fade-out', []),
 );
 
@@ -91,7 +91,7 @@ const seq1 = webimator.newSequence(
 const seq2 = webimator.newSequence(
    {description: 'Fade in circle and move it'},
    Entrance(circleEl, '~fly-in', ['from-left']),
-   Motion(circleEl, '~translate', [{translate: '250px, 0px'}]),
+   Motion(circleEl, '~translate', [{translate: '250px 0px'}]),
 );
 
 // create timeline with some configuration and both sequences
@@ -119,7 +119,7 @@ const circleEl = document.querySelector('.circle');
 const seq1 = webimator.newSequence(
   {description: 'Fade in square, move it, and fade out', playbackRate: 2},
   Entrance(squareEl, '~fade-in', []),
-  Motion(squareEl, '~translate', [{translate: '200px, 500px'}]),
+  Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
   Exit(squareEl, '~fade-out', []),
 );
 
@@ -127,7 +127,7 @@ const seq1 = webimator.newSequence(
 const seq2 = webimator.newSequence(
   {description: 'Fade in circle and move it'},
   Entrance(circleEl, '~fly-in', ['from-left']),
-  Motion(circleEl, '~translate', [{translate: '250px, 0px'}]),
+  Motion(circleEl, '~translate', [{translate: '250px 0px'}]),
 );
 
 // create timeline with both sequences
@@ -154,8 +154,8 @@ const square = document.querySelector('.square');
 // Using destructuring assignment to conveniently extract the `Entrance()` and `Motion()` factory functions
 const {Entrance, Motion} = webimator.createAnimationClipFactories();
 const ent = Entrance(square, '~fly-in', ['from-top'], {duration: 2000});
-const mot1 = Motion(square, '~translate', [{translate: '500px, 0px'}], {duration: 1000});
-const mot2 = Motion(square, '~translate', [{translate: '0px, 500px'}], {duration: 500});
+const mot1 = Motion(square, '~translate', [{translate: '500px 0px'}], {duration: 1000});
+const mot2 = Motion(square, '~translate', [{translate: '0px 500px'}], {duration: 500});
 // clips are added to a sequence
 const seq = webimator.newSequence(ent, mot1, mot2);
 seq.play();
@@ -283,7 +283,7 @@ const square = document.querySelector('.square');
 //                                     A       B           C
 const entClip = clipFactories.Entrance(square, '~fade-in', []);
 //                                   A       B             C
-const motClip = clipFactories.Motion(square, '~translate', [{translate: '500px, 0px', selfOffset: '50%, 50%'}]);
+const motClip = clipFactories.Motion(square, '~translate', [{translate: '500px 0px', selfOffset: '50% 50%'}]);
 //                                     A       B             C        D
 const empClip = clipFactories.Emphasis(square, '~highlight', ['red'], {duration: 2000, easing: 'ease-in'});
 
@@ -394,11 +394,11 @@ const triangle = document.querySelector('.triangle');
 
 // create motion clips using factory function
 //                   A       B             C
-const clip1 = Motion(square, '~translate', [{translate: '200px, 300rem'}]);
+const clip1 = Motion(square, '~translate', [{translate: '200px 300rem'}]);
 //                   A       B           C
 const clip2 = Motion(circle, '~move-to', [document.querySelector('body'), {alignment: 'center center'}]);
 //                   A         B           C                                                             D
-const clip3 = Motion(triangle, '~move-to', [circle, {alignment: 'center top', selfOffset: '0%, -100%'}], {duration: 2000});
+const clip3 = Motion(triangle, '~move-to', [circle, {alignment: 'center top', selfOffset: '0% -100%'}], {duration: 2000});
 
 // play clips one at a time
 (async() => {
@@ -706,10 +706,10 @@ const tLine = webimator.newTimeline(
 
   webimator.newSequence(
     {jumpTag: 'move around'},
-    Motion(square, '~translate', [{translate: '200px, 0px'}]),
-    Motion(square, '~translate', [{translate: '0px, 200px'}]),
-    Motion(square, '~translate', [{translate: '-200px, 0px'}]),
-    Motion(square, '~translate', [{translate: '0px, -200px'}]),
+    Motion(square, '~translate', [{translate: '200px 0px'}]),
+    Motion(square, '~translate', [{translate: '0px 200px'}]),
+    Motion(square, '~translate', [{translate: '-200px 0px'}]),
+    Motion(square, '~translate', [{translate: '0px -200px'}]),
   ),
 
   webimator.newSequence(

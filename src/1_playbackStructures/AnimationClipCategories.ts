@@ -561,11 +561,11 @@ export interface MotionClipConfig extends AnimClipConfig {
  * 
  * // create motion clips using factory function
  * //                   A       B             C
- * const clip1 = Motion(square, '~translate', [{translate: '200px, 300rem'}]);
+ * const clip1 = Motion(square, '~translate', [{translate: '200px 300rem'}]);
  * //                   A       B           C
  * const clip2 = Motion(circle, '~move-to', [document.querySelector('body'), {alignment: 'center center'}]);
  * //                   A         B           C                                                             D
- * const clip3 = Motion(triangle, '~move-to', [circle, {alignment: 'center top', selfOffset: '0%, -100%'}], {duration: 2000});
+ * const clip3 = Motion(triangle, '~move-to', [circle, {alignment: 'center top', selfOffset: '0% -100%'}], {duration: 2000});
  * 
  * // play clips one at a time
  * (async() => {
