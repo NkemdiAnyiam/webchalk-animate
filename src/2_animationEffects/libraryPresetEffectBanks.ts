@@ -48,6 +48,7 @@ export const libPresetEntrances = {
     },
     defaultConfig: {} as const,
     immutableConfig: {
+      easing: 'linear',
       duration: 0,
       composite: 'replace',
     } as const,
@@ -66,7 +67,9 @@ export const libPresetEntrances = {
       } as const;
     },
     defaultConfig: {} as const,
-    immutableConfig: {} as const,
+    immutableConfig: {
+      composite: 'replace',
+    } as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
 
@@ -191,7 +194,9 @@ export const libPresetEntrances = {
       }
     },
     defaultConfig: {} as const,
-    immutableConfig: {} as const,
+    immutableConfig: {
+      composite: 'replace',
+    } as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
 
@@ -247,7 +252,9 @@ export const libPresetEntrances = {
     defaultConfig: {
       duration: 100,
     } as const,
-    immutableConfig: {} as const,
+    immutableConfig: {
+      composite: 'accumulate',
+    } as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
 
@@ -273,6 +280,8 @@ export const libPresetExits = {
     defaultConfig: {} as const,
     immutableConfig: {
       duration: 0,
+      easing: 'linear',
+      composite: 'replace',
     } as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
@@ -289,7 +298,9 @@ export const libPresetExits = {
       } as const;
     },
     defaultConfig: {} as const,
-    immutableConfig: {} as const,
+    immutableConfig: {
+      composite: 'replace',
+    } as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
 
@@ -358,7 +369,7 @@ export const libPresetExits = {
       } as const;
     },
      defaultConfig: {} as const,
-     immutableConfig: {} as const,
+     immutableConfig: {} as const, // TODO: figure out good way to set composite
      effectCompositionFrequency: 'on-first-play-only',
   },
 
@@ -469,7 +480,7 @@ export const libPresetExits = {
       };
     },
     defaultConfig: {
-      duration: 100
+      duration: 100,
     } as const,
     immutableConfig: {
       composite: 'accumulate',
@@ -824,6 +835,7 @@ export const libPresetConnectorEntrances = {
     immutableConfig: {
       composite: 'replace',
       duration: 0,
+      easing: 'linear',
     } as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
@@ -906,7 +918,7 @@ export const libPresetConnectorEntrances = {
           throw new RangeError(`Invalid direction "${direction}". Must be "from-A", "from-B", "from-top", "from-bottom", "from-left", or "from-right"`);
       }
     },
-    defaultConfig: {},
+    defaultConfig: {} as const,
     immutableConfig: {
       composite: 'replace',
     } as const,
@@ -936,6 +948,7 @@ export const libPresetConnectorExits = {
     immutableConfig: {
       composite: 'replace',
       duration: 0,
+      easing: 'linear',
     } as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
