@@ -855,7 +855,6 @@ export const libPresetConnectorEntrances = {
         {['--a-marker-opacity']: 1},
       ];
 
-      // TODO: check to make sure this is actually correct with the new changes to generators
       switch(direction) {
         case 'from-A':
           return {
@@ -869,22 +868,22 @@ export const libPresetConnectorEntrances = {
 
         case 'from-top':
           return {
-            forwardFramesGenerator: () => this.domElem.ay <= this.domElem.by ? fromAFrames : fromBFrames,
+            forwardFramesGenerator: this.domElem.ay <= this.domElem.by ? () => fromAFrames : () => fromBFrames,
           };
 
         case 'from-bottom':
           return {
-            forwardFramesGenerator: () => this.domElem.ay >= this.domElem.by ? fromAFrames : fromBFrames,
+            forwardFramesGenerator: this.domElem.ay >= this.domElem.by ? () => fromAFrames : () => fromBFrames,
           };
 
         case 'from-left':
           return {
-            forwardFramesGenerator: () => this.domElem.ax <= this.domElem.bx ? fromAFrames : fromBFrames,
+            forwardFramesGenerator: this.domElem.ax <= this.domElem.bx ? () => fromAFrames : () => fromBFrames,
           };
 
         case 'from-right':
           return {
-            forwardFramesGenerator: () => this.domElem.ax >= this.domElem.bx ? fromAFrames : fromBFrames,
+            forwardFramesGenerator: this.domElem.ax >= this.domElem.bx ? () => fromAFrames : () => fromBFrames,
           };
 
         default:
@@ -893,7 +892,7 @@ export const libPresetConnectorEntrances = {
     },
     defaultConfig: {},
     immutableConfig: {},
-    effectCompositionFrequency: 'on-first-play-only',
+    effectCompositionFrequency: 'on-every-play',
   },
 } satisfies EffectGeneratorBank<ConnectorEntranceClip>;
 
@@ -973,22 +972,22 @@ export const libPresetConnectorExits = {
 
         case 'from-top':
           return {
-            forwardFramesGenerator: () => this.domElem.ay <= this.domElem.by ? fromStartFrames : fromEndFrames,
+            forwardFramesGenerator: this.domElem.ay <= this.domElem.by ? () => fromStartFrames : () => fromEndFrames,
           };
 
         case 'from-bottom':
           return {
-            forwardFramesGenerator: () => this.domElem.ay >= this.domElem.by ? fromStartFrames : fromEndFrames,
+            forwardFramesGenerator: this.domElem.ay >= this.domElem.by ? () => fromStartFrames : () => fromEndFrames,
           };
 
         case 'from-left':
           return {
-            forwardFramesGenerator: () => this.domElem.ax <= this.domElem.bx ? fromStartFrames : fromEndFrames,
+            forwardFramesGenerator: this.domElem.ax <= this.domElem.bx ? () => fromStartFrames : () => fromEndFrames,
           };
 
         case 'from-right':
           return {
-            forwardFramesGenerator: () => this.domElem.ax >= this.domElem.bx ? fromStartFrames : fromEndFrames,
+            forwardFramesGenerator: this.domElem.ax >= this.domElem.bx ? () => fromStartFrames : () => fromEndFrames,
           };
 
         default:
@@ -997,7 +996,7 @@ export const libPresetConnectorExits = {
     },
     defaultConfig: {},
     immutableConfig: {},
-    effectCompositionFrequency: 'on-first-play-only',
+    effectCompositionFrequency: 'on-every-play',
   },
 } satisfies EffectGeneratorBank<ConnectorExitClip>;
 
