@@ -49,6 +49,7 @@ export const libPresetEntrances = {
     defaultConfig: {} as const,
     immutableConfig: {
       duration: 0,
+      composite: 'replace',
     } as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
@@ -64,8 +65,8 @@ export const libPresetEntrances = {
         forwardFramesGenerator: () => [ {opacity: '0'}, {} ],
       } as const;
     },
-    defaultConfig: {},
-    immutableConfig: {},
+    defaultConfig: {} as const,
+    immutableConfig: {} as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
 
@@ -138,8 +139,8 @@ export const libPresetEntrances = {
         ],
       } as const;
     },
-    defaultConfig: {},
-    immutableConfig: {},
+    defaultConfig: {} as const,
+    immutableConfig: {} as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
 
@@ -165,7 +166,7 @@ export const libPresetEntrances = {
     defaultConfig: {
       composite: 'accumulate',
     } as const,
-    immutableConfig: {},
+    immutableConfig: {} as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
 
@@ -189,8 +190,8 @@ export const libPresetEntrances = {
           throw new RangeError(`Invalid direction "${direction}". Must be "from-top", "from-right", "from-bottom", or "from-left"`);
       }
     },
-    defaultConfig: {},
-    immutableConfig: {},
+    defaultConfig: {} as const,
+    immutableConfig: {} as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
 
@@ -244,9 +245,9 @@ export const libPresetEntrances = {
       };
     },
     defaultConfig: {
-      duration: 100
+      duration: 100,
     } as const,
-    immutableConfig: {},
+    immutableConfig: {} as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
 
@@ -269,7 +270,7 @@ export const libPresetExits = {
     composeEffect() {
       return {forwardFramesGenerator: () => []} as const;
     },
-    defaultConfig: {},
+    defaultConfig: {} as const,
     immutableConfig: {
       duration: 0,
     } as const,
@@ -287,8 +288,8 @@ export const libPresetExits = {
         forwardFramesGenerator: () => [{}, {opacity: '0'}],
       } as const;
     },
-    defaultConfig: {},
-    immutableConfig: {},
+    defaultConfig: {} as const,
+    immutableConfig: {} as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
 
@@ -329,10 +330,10 @@ export const libPresetExits = {
         // backwardGenerator: () => [ {translate: computeTranslationStr()}, {translate: `0 0`} ]
       };
     },
-    defaultConfig: {
+    defaultConfig: {} as const,
+    immutableConfig: {
       composite: 'accumulate',
     } as const,
-    immutableConfig: {},
     effectCompositionFrequency: 'on-first-play-only',
   },
 
@@ -356,8 +357,8 @@ export const libPresetExits = {
         ],
       } as const;
     },
-     defaultConfig: {},
-     immutableConfig: {},
+     defaultConfig: {} as const,
+     immutableConfig: {} as const,
      effectCompositionFrequency: 'on-first-play-only',
   },
 
@@ -379,10 +380,10 @@ export const libPresetExits = {
         ],
       };
     },
-    defaultConfig: {
+    defaultConfig: {} as const,
+    immutableConfig: {
       composite: 'accumulate',
     } as const,
-    immutableConfig: {},
     effectCompositionFrequency: 'on-first-play-only',
   },
   
@@ -411,8 +412,10 @@ export const libPresetExits = {
           throw new RangeError(`Invalid direction "${direction}". Must be "from-top", "from-right", "from-bottom", or "from-left"`);
       }
     },
-    defaultConfig: {},
-    immutableConfig: {},
+    defaultConfig: {} as const,
+    immutableConfig: {
+      composite: 'replace',
+    } as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
 
@@ -468,7 +471,9 @@ export const libPresetExits = {
     defaultConfig: {
       duration: 100
     } as const,
-    immutableConfig: {},
+    immutableConfig: {
+      composite: 'accumulate',
+    } as const,
     effectCompositionFrequency: 'on-first-play-only',
   }
 } satisfies EffectGeneratorBank<ExitClip>;
@@ -521,7 +526,9 @@ export const libPresetEmphases = {
       cssClasses: { toAddOnStart: [`wbmtr-highlightable`] },
       // invalidProp: 4,
     } as const,
-    immutableConfig: {},
+    immutableConfig: {
+      composite: 'replace',
+    } as const,
     effectCompositionFrequency: 'on-every-play',
   },
 
@@ -542,7 +549,9 @@ export const libPresetEmphases = {
     defaultConfig: {
       cssClasses: { toRemoveOnFinish: [`wbmtr-highlightable`] },
     } as const,
-    immutableConfig: {},
+    immutableConfig: {
+      composite: 'replace',
+    } as const,
     effectCompositionFrequency: 'on-every-play',
   },
 } satisfies EffectGeneratorBank<EmphasisClip>;
@@ -621,8 +630,10 @@ export const libPresetMotions = {
         ],
       };
     },
-    defaultConfig: {},
-    immutableConfig: {},
+    defaultConfig: {} as const,
+    immutableConfig: {
+      composite: 'accumulate',
+    } as const,
     effectCompositionFrequency: 'on-every-play',
   },
 
@@ -648,8 +659,10 @@ export const libPresetMotions = {
                             + ` calc(${negateNumString(translateY)} + ${negateNumString(selfOffsetY)})`}],
       };
     },
-    defaultConfig: {},
-    immutableConfig: {},
+    defaultConfig: {
+      composite: 'accumulate',
+    } as const,
+    immutableConfig: {} as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
 } satisfies EffectGeneratorBank<MotionClip>;
@@ -707,7 +720,7 @@ export const libPresetTransitions = {
     defaultConfig: {} as const,
     immutableConfig: {
       commitsStyles: false,
-    },
+    } as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
 
@@ -783,8 +796,8 @@ export const libPresetTransitions = {
         forwardFramesGenerator: () => [original, {...keyframe}],
       };
     },
-    defaultConfig: {},
-    immutableConfig: {},
+    defaultConfig: {} as const,
+    immutableConfig: {} as const,
     effectCompositionFrequency: 'on-every-play',
   },
 } satisfies EffectGeneratorBank<TransitionClip>;
@@ -809,6 +822,7 @@ export const libPresetConnectorEntrances = {
     },
     defaultConfig: {} as const,
     immutableConfig: {
+      composite: 'replace',
       duration: 0,
     } as const,
     effectCompositionFrequency: 'on-first-play-only',
@@ -826,7 +840,9 @@ export const libPresetConnectorEntrances = {
       } as const;
     },
     defaultConfig: {},
-    immutableConfig: {},
+    immutableConfig: {
+      composite: 'replace',
+    } as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
 
@@ -891,7 +907,9 @@ export const libPresetConnectorEntrances = {
       }
     },
     defaultConfig: {},
-    immutableConfig: {},
+    immutableConfig: {
+      composite: 'replace',
+    } as const,
     effectCompositionFrequency: 'on-every-play',
   },
 } satisfies EffectGeneratorBank<ConnectorEntranceClip>;
@@ -916,6 +934,7 @@ export const libPresetConnectorExits = {
     },
     defaultConfig: {} as const,
     immutableConfig: {
+      composite: 'replace',
       duration: 0,
     } as const,
     effectCompositionFrequency: 'on-first-play-only',
@@ -932,8 +951,10 @@ export const libPresetConnectorExits = {
         forwardFramesGenerator: () => [ {}, {opacity: '0'} ],
       } as const;
     },
-    defaultConfig: {},
-    immutableConfig: {},
+    defaultConfig: {} as const,
+    immutableConfig: {
+      composite: 'replace',
+    } as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
 
@@ -994,8 +1015,10 @@ export const libPresetConnectorExits = {
           throw new RangeError(`Invalid direction "${direction}". Must be "from-A", "from-B", "from-top", "from-bottom", "from-left", or "from-right"`);
       }
     },
-    defaultConfig: {},
-    immutableConfig: {},
+    defaultConfig: {} as const,
+    immutableConfig: {
+      composite: 'replace',
+    } as const,
     effectCompositionFrequency: 'on-every-play',
   },
 } satisfies EffectGeneratorBank<ConnectorExitClip>;
@@ -1121,9 +1144,10 @@ export const libPresetScrolls = {
         backwardRafGenerator,
       };
     },
-    defaultConfig: {
+    defaultConfig: {} as const,
+    immutableConfig: {
+      composite: 'replace',
     } as const,
-    immutableConfig: {},
     effectCompositionFrequency: 'on-first-play-only',
   },
 } satisfies EffectGeneratorBank<ScrollerClip>;
