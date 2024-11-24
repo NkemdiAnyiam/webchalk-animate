@@ -462,6 +462,8 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
  protected fFramesMirrored: boolean = false;
  protected bRafMirrored: boolean = false;
  protected fRafMirrored: boolean = false;
+ protected rafOnly: boolean = false;
+ protected framesOnly: boolean = false;
 
   // GROUP: Effect Details
   protected abstract get category(): EffectCategory;
@@ -1251,6 +1253,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
       // if neither frame generators are specified, make them return empty keyframes array
       if (!forwardFramesGenerator && !backwardFramesGenerator) {
+        this.rafOnly = true;
         forwardFramesGenerator = () => [];
         backwardFramesGenerator = () => [];
       }
@@ -1266,7 +1269,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       }
 
       // if neither RAF generators are specified, do nothing
-      if (!forwardRafGenerator && !backwardRafGenerator) {}
+      if (!forwardRafGenerator && !backwardRafGenerator) {
+        this.framesOnly = true;
+      }
       // if only forward RAF mutator generator is unspecified, use backward generator and set mirrored to true
       else if (!forwardRafGenerator) {
         forwardRafGenerator = backwardRafGenerator;
