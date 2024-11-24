@@ -73,6 +73,17 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
         easing: 'cubic-bezier(0.230, 1.000, 0.320, 1.000)',
       },
     },
+
+    'fade-in-red': {
+      composeEffect() {
+        return {
+          forwardFramesGenerator: () => [{opacity: 0}, {}],
+          forwardRafGenerator: () => () => {
+            this.domElem.style.backgroundColor = `rgb(255 ${this.computeTween(255, 0)} ${this.computeTween(255, 0)})`
+          }
+        }
+      }
+    }
   },
 
   customExitEffects: {

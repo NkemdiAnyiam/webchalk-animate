@@ -65,6 +65,8 @@ type CustomKeyframeEffectOptions = {
    */
   startsWithPrevious: boolean;
 
+  // TODO: figure out best way to handle commitStyles behavior regarding A) RAF loops and B) effects that
+  // don't actually need to use commitStyles()
   /**
    * Determines whether the effects of the animation will persist after the clip finishes.
    *  * if `false`, the effects of the animation will not persist after the clip finishes.
