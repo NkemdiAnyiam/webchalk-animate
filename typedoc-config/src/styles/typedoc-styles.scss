@@ -273,6 +273,16 @@ h3.tsd-anchor-link {
   @include resizable-vert;
 }
 
+.tsd-type-parameter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .tsd-comment p {
+    margin: 0;
+  }
+}
+
 .tsd-signatures {
   margin-bottom: 0;
 
