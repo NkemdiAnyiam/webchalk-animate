@@ -22,7 +22,6 @@ interface WriteBetweenTextOptions {
   nestedTagRemoval?: RegExp[];
 }
 
-
 export async function writeBetweenText(filePath: string, options: WriteBetweenTextOptions): Promise<void> {
   const {
     startMarker,
