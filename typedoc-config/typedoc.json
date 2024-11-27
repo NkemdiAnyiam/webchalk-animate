@@ -3,7 +3,6 @@
     "typedoc-material-theme", "typedoc-plugin-mdn-links",
     "./assets/plugins/handleLibraries.js",
     "./assets/plugins/specialCategories.js",
-    "./assets/plugins/hideNeverGenerators.js",
     "./assets/plugins/reduceClutter.js"
   ],
   "themeColor": "#99ffff",

@@ -3,6 +3,7 @@
 // import { PrefixProps } from "./utilityTypes";
 
 import { AnimClip } from "../1_playbackStructures/AnimationClip";
+import { ComposedEffect } from "../2_animationEffects/generationTypes";
 
 // type FrozenPrefix = '__';
 // export type FromFrozenKey<S extends string> = S extends `${FrozenPrefix}${infer key}` ? key : never;
@@ -178,16 +179,25 @@ export type EffectCategory =
 /**
  * The possible formats for writing keyframes. The two accepted forms
  * are {@link PropertyIndexedKeyframes} and—more commonly used—{@link Keyframe}[].
+ * 
+ * Used in {@link ComposedEffect}.
+ * 
  * @see [Keyframe Formats](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Keyframe_Formats)
  */
 export type Keyframes = PropertyIndexedKeyframes | Keyframe[];
 
 /**
  * A function that is supposed to mutate the properties of JavaScript objects by utilizing the result of calling {@link AnimClip.computeTween}.
- * The function will automatically run on every frame, and the result of {@link AnimClip.computeTween} also changes on every frame according
+ * The function will automatically run on every frame, and the output of {@link AnimClip.computeTween} automatically changes on every frame according
  * to the clip's duration, so the outcome is ultimately the illusion of a smooth animation because the target JavaScript properties will change
  * at the device's frame rate.
  * 
+ * Used in {@link ComposedEffect}.
+ * 
+ * @remarks
+ * The reason the return type is `void` is because there is no need to return any value since the mutation should occur directly within the function.
+ * 
  * @see {@link AnimClip.computeTween}
+ * @see {@link ComposedEffect}
  */
 export type Mutator = () => void;

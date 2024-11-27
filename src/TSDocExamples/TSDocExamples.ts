@@ -815,7 +815,7 @@ ent.play().then(ent.rewind);
 }
 
 {
-/**** EX:S id="EffectComposerFunction.composeEffect-1" */
+/**** EX:S id="EffectGenerator.composeEffect-1" */
 const clipFactories = webimator.createAnimationClipFactories({
   customExitEffects: {
     // a custom animation effect for flying out to the left side of the screen
@@ -855,7 +855,7 @@ const clipFactories = webimator.createAnimationClipFactories({
 const element = document.querySelector('.some-element');
 const ext = clipFactories.Exit(element, 'flyOutLeft', []);
 ext.play().then(ext.rewind);
-/**** EX:E id="EffectComposerFunction.composeEffect-1" */
+/**** EX:E id="EffectGenerator.composeEffect-1" */
 }
 
 {
