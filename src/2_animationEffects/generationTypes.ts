@@ -1,5 +1,5 @@
 /**
- * @module 2_animationEffects/customEffectGeneration
+ * @module 2_animationEffects/customEffectCreation
  */
 import { AnimClip } from "../1_playbackStructures/AnimationClip";
 import { ExitClip } from "../1_playbackStructures/AnimationClipCategories";
@@ -456,7 +456,6 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      * @group Effect Composition
      */
     effectCompositionFrequency?: 'on-first-play-only' | 'on-every-play';
-    // TODO: write updated examples
     /**
      * Runs when the clip is played and returns a {@link ComposedEffect}, which contains callback functions that will produce the
      * animation effects for both playing and rewinding.
