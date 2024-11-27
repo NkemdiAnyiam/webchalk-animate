@@ -1,5 +1,7 @@
 # Webimator
 
+(Note: This README is a work in progress and does not currently give a suitable rundown of Webimator and its usage)
+
 Webimator is a web animation framework that supports the development of interactive algorithm visualizations, providing a library of preset animations and  beginner-friendly API that can be used to animate DOM elements (i.e., the contents on a webpage which are produced by HTML code).
 
 ## Table of Contents
