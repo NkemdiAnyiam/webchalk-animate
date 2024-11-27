@@ -11,7 +11,7 @@ import {
 import { webimator } from "../Webimator";
 import { EffectGeneratorBank } from "./generationTypes";
 import { computeSelfScrollingBounds, getBoundingClientRectOfHidden, negateNumString, splitXYAlignmentString, splitXYTupleString } from "../4_utils/helpers";
-import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions, DOMElement } from "../4_utils/interfaces";
+import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "../4_utils/interfaces";
 import { useEasing } from "./easing";
 import { CustomErrors } from "../4_utils/errors";
 export type { LibraryPresetEntranceEffects, LibraryPresetConnectorEntranceEffects, LibraryPresetConnectorExitEffects, LibraryPresetMotionEffects, LibraryPresetEmphasisEffects, LibraryPresetExitEffects, LibraryPresetScrollEffects, LibraryPresetTransitionEffects } from "../1_playbackStructures/AnimationClipCategories";
