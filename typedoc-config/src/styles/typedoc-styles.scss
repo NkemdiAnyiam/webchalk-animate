@@ -110,6 +110,7 @@ li:has(> details > summary[data-key$="$hidden"]) {
 body {
 }
 
+// TODO: use proper selector after upgrading TypeDoc
 h4:has([id^="Default Value"]) {
   & {
     margin-top: 0;
@@ -338,12 +339,12 @@ h3.tsd-anchor-link {
     .tsd-returns-title +p {
       margin-top: -0.8rem;
     }
+  }
+}
 
-    h4:has(a[id^="Example"]) {
-      & + pre {
-        @include resizable-vert;
-      }
-    }
+.tsd-tag-Example {
+  pre {
+    @include resizable-vert;
   }
 }
 
