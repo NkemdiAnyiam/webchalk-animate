@@ -10,7 +10,7 @@ import {
 } from "../1_playbackStructures/AnimationClipCategories";
 import { webimator } from "../Webimator";
 import { EffectGeneratorBank } from "./generationTypes";
-import { computeSelfScrollingBounds, getBoundingClientRectOfHidden, negateNumString, splitXYAlignmentString, splitXYTupleString } from "../4_utils/helpers";
+import { computeSelfScrollingBounds, getBoundingClientRectOfHidden, negateNumString, parseXYAlignmentString, parseXYTupleString } from "../4_utils/helpers";
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "../4_utils/interfaces";
 import { useEasing } from "./easing";
 import { CustomErrors } from "../4_utils/errors";
@@ -587,9 +587,9 @@ export const libPresetMotions = {
         throw new TypeError(`Target for ~move-to must not be null`);
       }
 
-      const alignmentComponents = splitXYAlignmentString(translationOptions.alignment);
-      const selfOffsetComponents = splitXYTupleString(translationOptions.selfOffset);
-      const targetOffsetComponents = splitXYTupleString(translationOptions.targetOffset);
+      const alignmentComponents = parseXYAlignmentString(translationOptions.alignment);
+      const selfOffsetComponents = parseXYTupleString(translationOptions.selfOffset);
+      const targetOffsetComponents = parseXYTupleString(translationOptions.targetOffset);
 
       const alignmentX = alignmentComponents?.[0] ?? 'left';
       const alignmentY = alignmentComponents?.[1] ?? 'top';
@@ -656,8 +656,8 @@ export const libPresetMotions = {
      * @returns 
      */
     composeEffect(translationOptions: Partial<TranslateOptions> = {}) {
-      const translationComponents = splitXYTupleString(translationOptions.translate);
-      const selfOffsetComponents =  splitXYTupleString(translationOptions.selfOffset);
+      const translationComponents = parseXYTupleString(translationOptions.translate);
+      const selfOffsetComponents =  parseXYTupleString(translationOptions.selfOffset);
 
       const translateX = translationComponents?.[0] ?? '0px';
       const translateY = translationComponents?.[1] ?? '0px';

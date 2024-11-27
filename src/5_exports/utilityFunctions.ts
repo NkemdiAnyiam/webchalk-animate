@@ -4,6 +4,6 @@ export {
   getOpeningTag,
   getPartial,
   parseMultiUnitPlacement,
-  splitXYAlignmentString,
-  splitXYTupleString,
+  parseXYAlignmentString,
+  parseXYTupleString,
 } from "../4_utils/helpers";

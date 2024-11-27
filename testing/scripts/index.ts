@@ -324,6 +324,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     // Transition(square, '~to', [{width: '20rem'}], {}),
     // Transition(square, '~to', [{width: '10rem'}], {removeInlineStylesOnFinish: true}),
     motion,
+    Motion(square, '~translate', [{translate: '0 200px'}], {duration: 250}),
     Emphasis(square, '~highlight', [], {}),
     Emphasis(square, '~un-highlight', [], {}),
     Emphasis(square, '~highlight', ['purple'], {}),

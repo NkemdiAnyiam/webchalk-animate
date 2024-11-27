@@ -113,7 +113,7 @@ export interface ScrollingOptions {
  */
 export type CssLengthUnit = | 'px' | 'rem' | '%';
 /** String in the form of a number and a CSS length unit, such as `"12px"`. */
-export type CssLength = `${number}${CssLengthUnit}`;
+export type CssLength = `${number}${CssLengthUnit}` | '0';
 /**
  * Keywords for common alignments along the y-axis.
  *  * `"top"` indicates a distance of 0% from the top of an element
