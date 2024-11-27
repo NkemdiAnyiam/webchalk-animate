@@ -277,7 +277,8 @@ export class Webimator {
    *           forwardFramesGenerator: () => [
    *             {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}
    *           ],
-   *           // (backwardFrames omitted because the reversal of forwardFrames is exactly equivalent)
+   *           // (backwardFramesGenerator() omitted because the reversal of
+   *           // forwardFramesGenerator() is exactly equivalent)
    *         };
    *       }
    *     }
@@ -300,8 +301,9 @@ export class Webimator {
    *               {translate: computeTranslationStr()}
    *             ];
    *           },
-   *           // backwardGenerator could have been omitted because the result of running forwardGenerator()
-   *           // again and reversing the keyframes produces the same desired rewinding effect in this case
+   *           // backwardFramesGenerator could have been omitted because the result
+   *           // of running forwardFramesGenerator() again and reversing the keyframes
+   *           // produces the same desired rewinding effect in this case
    *           backwardFramesGenerator: () => {
    *             return [
    *               {translate: computeTranslationStr()},

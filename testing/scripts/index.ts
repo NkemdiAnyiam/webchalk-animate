@@ -141,7 +141,113 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
           ]
         };
       }
-    }
+    },
+
+    // a custom animation effect that you might make for flying out to the left side of the screen
+    flyOutLeft: {
+      composeEffect() {
+        const computeTranslationStr = () => {
+          const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
+          const translationString = `${orthogonalDistance}px 0px`;
+          return translationString;
+        }
+  
+        return {
+          forwardFramesGenerator: () => {
+            return [
+              {translate: computeTranslationStr()}
+            ];
+          },
+          // backwardFramesGenerator could have been omitted because the result of running forwardFramesGenerator()
+          // again and reversing the keyframes produces the same desired rewinding effect in this case
+          // backwardFramesGenerator: () => {
+          //   return [
+          //     {translate: computeTranslationStr()},
+          //     {translate: `0 0`}
+          //   ];
+          // }
+        };
+      },
+      
+      immutableConfig: {
+        // this means that the translation is added onto the element's position instead of replacing it
+        composite: 'accumulate',
+      }
+    },
+
+    sinkDown: {
+      composeEffect() {
+        // return Composed Effect
+        return {
+          backwardFramesGenerator: () => {
+            // return Keyframes (Keyframe[])
+            return [
+              {
+                translate: `0 ${window.innerHeight - this.domElem.getBoundingClientRect().top}px`,
+                opacity: 0,
+                easing: WebimatorEasing.useEasing('power2-out')
+              },
+              {
+                translate: `0 -25px`,
+                offset: 0.83333
+              },
+              {
+                translate: `0 -25px`,
+                offset: 0.86,
+                easing: WebimatorEasing.useEasing('power1-in')
+              },
+              {translate: `0 0`},
+            ];
+          },
+          // It would be a pain to figure out what the backward keyframes should look like 
+          // for rewinding this effect. Fortunately, the desired rewinding effect happens to
+          // be equivalent to re-using forwardFramesGenerator() and using its reverse,
+          // so backwardFramesGenerator can be omitted.
+          // ---------------------------------------------------------------------------------------
+          // backwardFramesGenerator: () => {
+          //   // return Keyframes (Keyframe[])
+          //   return [] // ??????
+          // },
+        };
+      },
+      defaultConfig: {
+        composite: 'accumulate',
+      } as const,
+      immutableConfig: {} as const,
+      effectCompositionFrequency: 'on-first-play-only',
+    },
+  },
+
+  customMotionEffects: {
+    translateRight: {
+      composeEffect(numPixels: number) {
+        const createTranslationString = () => {
+          if (numPixels <= 0) { throw RangeError(`Number of pixels must exceed 0.`) }
+          const translationString = `${numPixels}px`;
+          return translationString;
+        }
+  
+        return {
+          forwardFramesGenerator: () => {
+            return [
+              {translate: createTranslationString()}
+            ];
+          },
+          // backwardFramesGenerator could have been omitted because the result of running forwardFramesGenerator()
+          // again and reversing the keyframes produces the same desired rewinding effect in this case
+          backwardFramesGenerator: () => {
+            return [
+              {translate: '-'+createTranslationString()},
+            ];
+          }
+        };
+      },
+      
+      immutableConfig: {
+        // this means that the translation is added onto the element's position instead of replacing it
+        composite: 'accumulate',
+      }
+    },
   }
 });
 
@@ -169,6 +275,8 @@ const ent = Entrance(square, '~appear', []);
 
 const entrance: WebimatorTypes.EntranceClip = Entrance(square, '~fly-in', ['from-bottom'], {duration: 1000, hideNowType: 'display-none'});
 const motion = Motion(square, '~translate', [{translate: '200px 200px'}], {duration: 1000, easing: 'bounce-out'});
+// const entrance: WebimatorTypes.EntranceClip = Entrance(square, '~fly-in', ['from-bottom'], {duration: 1000});
+// const motion = Motion(square, 'translateRight', [500], {duration: 1000, easing: 'bounce-out'});
 console.log(entrance.getModifiers());
 console.log(entrance.getModifiers('hideNowType'));
 console.log(entrance.getModifiers(['cssClasses', 'composite']));
@@ -246,6 +354,8 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   timeline.linkPlaybackButtons();
   // await wait(1000);
   timeline.addSequences(seq);
+  timeline.addSequences(webimator.newSequence(
+    Exit(square, 'flyOutLeft', [], {}),))
   // await timeline.step('forward');
   // await timeline.step('backward');
   // timeline.removeSequences(seq);

@@ -110,7 +110,7 @@ export const libPresetEntrances = {
 
       return {
         forwardFramesGenerator: () => [ {translate: computeTranslationStr()}, {translate: `0 0`} ],
-        // backwardGenerator () => [ {translate: computeTranslationStr()} ]
+        // backwardFramesGenerator () => [ {translate: computeTranslationStr()} ]
       };
     },
     defaultConfig: {
@@ -338,7 +338,7 @@ export const libPresetExits = {
 
       return {
         forwardFramesGenerator: () => [ {translate: computeTranslationStr()} ],
-        // backwardGenerator: () => [ {translate: computeTranslationStr()}, {translate: `0 0`} ]
+        // backwardFramesGenerator: () => [ {translate: computeTranslationStr()}, {translate: `0 0`} ]
       };
     },
     defaultConfig: {} as const,
