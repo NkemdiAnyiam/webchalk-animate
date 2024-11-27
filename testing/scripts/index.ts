@@ -143,7 +143,8 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
       }
     },
 
-    // a custom animation effect that you might make for flying out to the left side of the screen
+    // a custom animation effect for flying out to the left side of the screen
+    // while displaying the percentage progress in the element's text content
     flyOutLeft: {
       composeEffect() {
         const computeTranslationStr = () => {
@@ -152,25 +153,47 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
           return translationString;
         }
   
+        // return ComposedEffect
         return {
           forwardFramesGenerator: () => {
+            // return Keyframes (Keyframe[])
             return [
               {translate: computeTranslationStr()}
             ];
           },
-          // backwardFramesGenerator could have been omitted because the result of running forwardFramesGenerator()
-          // again and reversing the keyframes produces the same desired rewinding effect in this case
+
+          // not needed
           // backwardFramesGenerator: () => {
+          //   // return Keyframes (Keyframe[])
           //   return [
           //     {translate: computeTranslationStr()},
           //     {translate: `0 0`}
           //   ];
-          // }
+          // },
+
+          forwardRafGenerator: () => {
+            // return Mutator
+            return () => {
+              this.domElem.textContent = `${this.computeTween(0, 100)}%`;
+            };
+          },
+
+          // not needed
+          // backwardRafGenerator: () => {
+          //   // return Mutator
+          //   return () => {
+          //     this.domElem.textContent = `${this.computeTween(100, 0)}%`;
+          //   };
+          // },
         };
       },
-      
+      defaultConfig: {
+        duration: 1000,
+        easing: "ease-in",
+      },
       immutableConfig: {
-        // this means that the translation is added onto the element's position instead of replacing it
+        // this means that the translation is added onto the element's position
+        // instead of replacing it
         composite: 'accumulate',
       }
     },
@@ -246,6 +269,44 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
       immutableConfig: {
         // this means that the translation is added onto the element's position instead of replacing it
         composite: 'accumulate',
+      }
+    },
+    
+    scrollTo: {
+      composeEffect(yPosition: number) {
+        const initialPosition = this.domElem.scrollTop;
+  
+        // return ComposedEffect
+        return {
+          // The mutation is to use the scrollTo() method on the element.
+          // Thanks to computeTween(), there will be a smooth scroll
+          // from initialPosition to yPosition
+          forwardRafGenerator: () => {
+            // return Mutator
+            return () => {
+              this.domElem.scrollTo({
+                top: this.computeTween(initialPosition, yPosition),
+                behavior: 'instant'
+              });
+            };
+          },
+
+          // The forward mutation loop is not invertible because reversing it requires
+          // re-computing the element's scroll position at the time of rewinding
+          // (which may have since changed for any number of reasons, including user
+          // scrolling, size changes, etc.). So we must define backwardRafGenerator()
+          // to do exactly that.
+          backwardRafGenerator: () => {
+            // return Mutator
+            return () => {
+              const currentPosition = this.domElem.scrollTop;
+              this.domElem.scrollTo({
+                top: this.computeTween(currentPosition, initialPosition),
+                behavior: 'instant'
+              });
+            };
+          },
+        };
       }
     },
   }

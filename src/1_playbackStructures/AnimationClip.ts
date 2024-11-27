@@ -453,12 +453,6 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     // ?? 0 for the same reason except accounting for direction === 'reverse' instead of 'normal'
     : 1 - (progress ?? 0);
 
-  if ((this.animation.direction === 'forward' && this.fRafMirrored)
-    || (this.animation.direction === 'backward' && this.bRafMirrored)
-  ) {
-    return 1 - prog;
-  }
-
   return prog;
  }
  protected bFramesMirrored: boolean = false;
@@ -1383,7 +1377,11 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * @group Helper Methods
    */
   computeTween(initialVal: number, finalVal: number): number {
-    return initialVal + (finalVal - initialVal) * this.rafLoopsProgress;
+    // if using a mirror for the current mutator, computeTween() should run the progress from 1 to 0
+    const usingMirror =
+      (this.animation.direction === 'forward' && this.fRafMirrored)
+      || (this.animation.direction === 'backward' && this.bRafMirrored);
+    return initialVal + (finalVal - initialVal) * (usingMirror ? 1 - this.rafLoopsProgress : this.rafLoopsProgress);
   }
 
   /*-:**************************************************************************************************************************/
