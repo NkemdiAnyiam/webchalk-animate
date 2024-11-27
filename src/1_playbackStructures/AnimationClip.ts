@@ -447,8 +447,11 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
  get rafLoopsProgress(): number {
   const { progress, direction } = this.animation.effect!.getComputedTiming();
 
-  // ?? 1 because during the active phase (the only time when raf runs), null progress means finished
-  const prog = (direction === 'normal' ? (progress ?? 1) : 1 - (progress ?? 1));
+  const prog = direction === 'normal'
+    // ?? 1 because during the active phase (the only time when raf runs), null progress means finished
+    ? (progress ?? 1)
+    // ?? 0 for the same reason except accounting for direction === 'reverse' instead of 'normal'
+    : 1 - (progress ?? 0);
 
   if ((this.animation.direction === 'forward' && this.fRafMirrored)
     || (this.animation.direction === 'backward' && this.bRafMirrored)
