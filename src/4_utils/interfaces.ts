@@ -2,6 +2,8 @@
 // import { EffectGenerator } from "../Webimator";
 // import { PrefixProps } from "./utilityTypes";
 
+import { AnimClip } from "../1_playbackStructures/AnimationClip";
+
 // type FrozenPrefix = '__';
 // export type FromFrozenKey<S extends string> = S extends `${FrozenPrefix}${infer key}` ? key : never;
 // export type FromFrozenKeys<T extends Partial<AnimClipConfig> | undefined> = keyof { [key in Extract<keyof T, string> as FromFrozenKey<key>]: void };
@@ -179,3 +181,13 @@ export type EffectCategory =
  * @see [Keyframe Formats](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Keyframe_Formats)
  */
 export type Keyframes = PropertyIndexedKeyframes | Keyframe[];
+
+/**
+ * A function that is supposed to mutate the properties of JavaScript objects by utilizing the result of calling {@link AnimClip.computeTween}.
+ * The function will automatically run on every frame, and the result of {@link AnimClip.computeTween} also changes on every frame according
+ * to the clip's duration, so the outcome is ultimately the illusion of a smooth animation because the target JavaScript properties will change
+ * at the device's frame rate.
+ * 
+ * @see {@link AnimClip.computeTween}
+ */
+export type Mutator = () => void;
