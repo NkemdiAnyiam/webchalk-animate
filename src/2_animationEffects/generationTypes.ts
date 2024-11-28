@@ -156,8 +156,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
   forwardKeyframesGenerator?: () => Keyframes;
   /**
    * Performs any necessary operations/computations and then returns keyframes ({@link Keyframes}).
-   * @returns Keyframes, either in the form of a {@link PropertyIndexedKeyframes} object
-   * or—more commonly—an array of {@link Keyframe} objects.
+   * @returns Keyframes, either in the form of a {@link PropertyIndexedKeyframes} object or—more commonly—an array of {@link Keyframe} objects.
    * @see [Keyframe Formats](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Keyframe_Formats)
    * 
    * @example

@@ -163,7 +163,7 @@ export class AnimTimeline {
   /**
    * Returns an object containing the configuration options used to
    * define the name, debugging behavior, and button-linking behavior of the timeline.
-   * @returns an object containing
+   * @returns An object containing
    *  * {@link AnimTimelineConfig.autoLinksButtons|autoLinksButtons},
    *  * {@link AnimTimelineConfig.debugMode|debugMode},
    *  * {@link AnimTimelineConfig.timelineName|timelineName},
@@ -215,7 +215,7 @@ export class AnimTimeline {
 
   /**
    * Returns details about an timeline's current status.
-   * @returns an object containing
+   * @returns An object containing
    *  * {@link AnimTimelineStatus.isAnimating|isAnimating},
    *  * {@link AnimTimelineStatus.isPaused|isPaused},
    *  * {@link AnimTimelineStatus.skippingOn|skippingOn},
@@ -266,7 +266,7 @@ export class AnimTimeline {
 
   /**
    * Returns timing-related details about the timeline.
-   * @returns an object containing
+   * @returns An object containing
    *  * {@link AnimTimelineStatus.playbackRate|playbackRate},
    * @group Property Getter Methods
    */
@@ -678,7 +678,7 @@ export class AnimTimeline {
    * Removes a number of {@link AnimSequence} objects from the timeline based on the provided indices range (0-based).
    * @param startIndex - the starting index, inclusive
    * @param endIndex - the ending index, exclusive
-   * @returns an array containing the sequences that were removed from the timeline.
+   * @returns An array containing the sequences that were removed from the timeline.
    * @group Structure
    */
   removeSequencesAt(startIndex: number, endIndex: number = startIndex + 1): AnimSequence[] {
@@ -711,7 +711,7 @@ export class AnimTimeline {
   /**
    * Finds the index of a given {@link AnimSequence} object within the timeline
    * @param animSequence - the animation sequence to search for within the timeline
-   * @returns the index of {@link animSequence} within the timeline or `-1` if the sequence is not part of the timeline.
+   * @returns The index of {@link animSequence} within the timeline or `-1` if the sequence is not part of the timeline.
    * @group Structure
    */
   findSequenceIndex(animSequence: AnimSequence): number {
@@ -742,8 +742,7 @@ export class AnimTimeline {
    * Takes 1 step in the specified direction.
    *  * If any sequences are set to autoplay, the timeline automatically continues stepping through them.
    * @param direction - the direction in which the timeline should step
-   * @returns a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise | Promise}
-   * that resolves when the timeline has finished stepping.
+   * @returns A {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise | Promise} that resolves when the timeline has finished stepping.
    * @group Playback Methods
    */
   async step(direction: 'forward' | 'backward'): Promise<this>;
@@ -908,8 +907,7 @@ export class AnimTimeline {
    * Jumps instantly to the sequence whose {@link AnimSequence.getJumpTag|AnimSequence.getJumpTag()} value matches the {@link jumpTag} argument.
    * @param jumpTag - string that is used to search for the target sequence with the matching {@link AnimSequence.getJumpTag|AnimSequence.getJumpTag()} value
    * @param options - set of options defining the behavior of the search, the offset of the jump, and whether to consider autoplay
-   * @returns a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise | Promise} that
-   * resolves when the timeline has finished jumping.
+   * @returns A {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise | Promise} that resolves when the timeline has finished jumping.
    * 
    * 
    * @example
@@ -1018,8 +1016,7 @@ export class AnimTimeline {
    * Jumps instantly to the position within the timeline based on the {@link position} argument.
    * @param position - the target position within the timeline
    * @param options - set of options defining the offset of the jump and whether to consider autoplay
-   * @returns a {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise | Promise} that
-   * resolves when the timeline has finished jumping.
+   * @returns A {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise | Promise} that resolves when the timeline has finished jumping.
    * @group Playback Methods
    */
   jumpToPosition(

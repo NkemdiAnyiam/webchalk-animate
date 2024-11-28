@@ -116,7 +116,7 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
   }
 
   /**
-   * @returns additional properties for entrance configuration:
+   * @returns Additional properties for entrance configuration:
    *  * {@link EntranceClipConfig.hideNowType | hideNowType}
    * @inheritdoc *
    */
@@ -126,7 +126,7 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
 
   /**
    * Returns details about how the DOM element is modified beyond just the effect of the animation.
-   * @returns an object containing
+   * @returns An object containing
    *  * {@link AnimClipModifiers.cssClasses|cssClasses},
    *  * {@link AnimClipModifiers.commitsStyles|commitsStyles},
    *  * {@link AnimClipModifiers.composite|composite},
@@ -337,7 +337,7 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
   }
 
   /**
-   * @returns additional properties for exit configuration:
+   * @returns Additional properties for exit configuration:
    *  * {@link ExitClipConfig.exitType | exitType}
    * @inheritdoc *
    */
@@ -347,7 +347,7 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
 
   /**
    * Returns details about how the DOM element is modified beyond just the effect of the animation.
-   * @returns an object containing
+   * @returns An object containing
    *  * {@link AnimClipModifiers.cssClasses|cssClasses},
    *  * {@link AnimClipModifiers.commitsStyles|commitsStyles},
    *  * {@link AnimClipModifiers.composite|composite},
@@ -810,7 +810,7 @@ export class TransitionClip<TEffectGenerator extends EffectGenerator<TransitionC
   }
 
   /**
-   * @returns additional properties for transition configuration:
+   * @returns Additional properties for transition configuration:
    *  * {@link TransitionClipConfig.removeInlineStylesOnFinish | removeInlineStylesOnFinish}
    * @inheritdoc *
    */
@@ -820,7 +820,7 @@ export class TransitionClip<TEffectGenerator extends EffectGenerator<TransitionC
 
   /**
    * Returns details about how the DOM element is modified beyond just the effect of the animation.
-   * @returns an object containing
+   * @returns An object containing
    *  * {@link AnimClipModifiers.cssClasses|cssClasses},
    *  * {@link AnimClipModifiers.commitsStyles|commitsStyles},
    *  * {@link AnimClipModifiers.composite|composite},
@@ -1145,7 +1145,7 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
   }
 
   /**
-   * @returns additional properties for connector entrance configuration:
+   * @returns Additional properties for connector entrance configuration:
    *  * {@link ConnectorEntranceClipConfig.hideNowType | hideNowType}
    * @inheritdoc *
    */
@@ -1155,7 +1155,7 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
 
   /**
    * Returns details about how the DOM element is modified beyond just the effect of the animation.
-   * @returns an object containing
+   * @returns An object containing
    *  * {@link AnimClipModifiers.cssClasses|cssClasses},
    *  * {@link AnimClipModifiers.commitsStyles|commitsStyles},
    *  * {@link AnimClipModifiers.composite|composite},

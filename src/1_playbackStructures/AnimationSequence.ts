@@ -197,7 +197,7 @@ export class AnimSequence {
   /**
    * Returns an object containing the configuration options used to
    * define the timing, jump tag, and description of the animation sequence.
-   * @returns an object containing
+   * @returns An object containing
    *  * {@link AnimSequenceConfig.autoplays|autoplays},
    *  * {@link AnimSequenceConfig.autoplaysNextSequence|autoplaysNextSequence},
    *  * {@link AnimSequenceConfig.description|description},
@@ -272,7 +272,7 @@ export class AnimSequence {
   }
   /**
    * Returns details about an sequence's current status.
-   * @returns an object containing
+   * @returns An object containing
    *  * {@link AnimSequenceStatus.inProgress|inProgress},
    *  * {@link AnimSequenceStatus.isPaused|isPaused},
    *  * {@link AnimSequenceStatus.isRunning|isRunning},
@@ -324,7 +324,7 @@ export class AnimSequence {
   protected get compoundedPlaybackRate() { return this.config.playbackRate * (this._parentTimeline?.getTiming().playbackRate ?? 1); }
   /**
    * Returns timing-related details about the sequence.
-   * @returns an object containing
+   * @returns An object containing
    *  * {@link AnimSequenceTiming.autoplays|autoplays},
    *  * {@link AnimSequenceTiming.autoplaysNextSequence|autoplaysNextSequence},
    *  * {@link AnimSequenceTiming.compoundedPlaybackRate|compoundedPlaybackRate},
@@ -365,14 +365,14 @@ export class AnimSequence {
 
   // GROUP: Description and Jump tag
   /**
-   * @returns the {@link AnimSequenceConfig.description|description} for this sequence.
+   * @returns The {@link AnimSequenceConfig.description|description} for this sequence.
    * @see {@link AnimSequenceConfig.description}
    * @group Property Getter Methods
    */
   getDescription() { return this.config.description; }
 
   /**
-   * @returns the {@link AnimSequenceConfig.jumpTag|jumpTag} for this sequence.
+   * @returns The {@link AnimSequenceConfig.jumpTag|jumpTag} for this sequence.
    * @see {@link AnimSequenceConfig.jumpTag|jumpTag}
    * @group Property Getter Methods
    */
@@ -520,7 +520,7 @@ export class AnimSequence {
    * Removes a number of {@link AnimClip} objects from the sequence based on the provided indices range (0-based).
    * @param startIndex - the starting index, inclusive
    * @param endIndex - the ending index, exclusive
-   * @returns an array containing the clips that were removed from the sequence.
+   * @returns An array containing the clips that were removed from the sequence.
    * @group Structure
    */
   removeClipsAt(startIndex: number, endIndex: number = startIndex + 1): AnimClip[] {
@@ -534,7 +534,7 @@ export class AnimSequence {
   /**
    * Finds the index of a given {@link AnimClip} object within the sequence
    * @param animClip - the animation clip to search for within the sequence
-   * @returns the index of {@link animClip} within the sequence or `-1` if the clip is not part of the sequence.
+   * @returns The index of {@link animClip} within the sequence or `-1` if the clip is not part of the sequence.
    * @group Structure
    */
   findClipIndex(animClip: AnimClip): number {
@@ -559,7 +559,7 @@ export class AnimSequence {
   // plays each animClip contained in this AnimSequence instance in sequential order
   /**
    * Plays the animation sequence (sequence runs forward).
-   * @returns a promise that is resolved when the sequence finishes playing.
+   * @returns A promise that is resolved when the sequence finishes playing.
    * @group Playback Methods
    */
   async play(): Promise<this> {
@@ -626,7 +626,7 @@ export class AnimSequence {
   // rewinds each animClip contained in this AnimSequence instance in reverse order
   /**
    * Rewinds the animation sequence (sequence runs backward).
-   * @returns a promise that is resolved when the sequence finishes rewinding.
+   * @returns A promise that is resolved when the sequence finishes rewinding.
    * @group Playback Methods
    */
   async rewind(): Promise<this> {

@@ -219,7 +219,7 @@ export const computeSelfScrollingBounds = (scrollable: Element, target: Element,
  * @param callableFunction - function whose `call` method we want to invoke
  * @param thisArg - value to use for the `thisArg` parameter for `callableFunction.call()`
  * @param args - arguments to pass to the `args` parameter for `callableFunction.call()`
- * @returns the result of `callableFunction.call(thisArg, ...args)`
+ * @returns The result of `callableFunction.call(thisArg, ...args)`.
  */
 export function call<TFunction extends ([...args]: unknown[]) => unknown>(
   callableFunction: TFunction,
@@ -234,8 +234,7 @@ export function call<TFunction extends ([...args]: unknown[]) => unknown>(
  * or the value of a singluar property of the source object.
  * @param source - the object whose properties should be targeted
  * @param props - a singular property name or an array of property names
- * @returns a singular value if {@link props} is a string or an object containing a subset of properties if
- * {@link props} is an array of strings.
+ * @returns A singular value if {@link props} is a string or an object containing a subset of properties if {@link props} is an array of strings.
  */
 export function getPartial<Source extends object, T extends (keyof Source)[] = (keyof Source)[]>(source: Source, props: (keyof Source)[] | T | KeyOf<Source>): PickFromArray<Source, T> | Source[keyof Source] {
   if (typeof props === 'string') {

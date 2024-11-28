@@ -15,7 +15,7 @@ import { PartialPick, PickFromArray } from "../4_utils/utilityTypes";
  * Spreads {@link objOrIterable} whether it is an array of keyframes
  * or an object of property-indexed keyframes
  * @param objOrIterable - an array of keyframes or property-indexed keyframes
- * @returns the result of spreading {@link objOrIterable} into a new object or array.
+ * @returns The result of spreading {@link objOrIterable} into a new object or array.
  */
 function spreadKeyframes(objOrIterable: Keyframes): Keyframes {
   if (Symbol.iterator in objOrIterable) { return [...objOrIterable]; }
@@ -339,7 +339,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   }
 
   /**
-   * @returns an effect generator with a function that returns empty arrays (so no actual keyframes).
+   * @returns An effect generator with a function that returns empty arrays (so no actual keyframes).
    * @remarks
    * This static method is purely for convenience.
    * @group Helper Methods
@@ -386,7 +386,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
   /**
    * Returns an object containing the configuration options used to define both the timing and effects of the animation clip.
-   * @returns an object containing
+   * @returns An object containing
    *  * {@link AnimClipConfig.commitsStyles|commitsStyles},
    *  * {@link AnimClipConfig.composite|composite},
    *  * {@link AnimClipConfig.cssClasses|cssClasses},
@@ -488,7 +488,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
   /**
    * Returns specific details about the animation's effect.
-   * @returns an object containing
+   * @returns An object containing
    *  * {@link AnimClipEffectDetails.category|category},
    *  * {@link AnimClipEffectDetails.effectName|effectName},
    *  * {@link AnimClipEffectDetails.effectGenerator|effectGenerator},
@@ -535,7 +535,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
   /**
    * Returns timing-related details about the animation.
-   * @returns an object containing
+   * @returns An object containing
    *  * {@link AnimClipTiming.startsWithPrevious|startsWithPrevious},
    *  * {@link AnimClipTiming.startsNextClipToo|startsNextClipToo},
    *  * {@link AnimClipTiming.duration|duration},
@@ -584,7 +584,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   // GROUP: Modifiers
   /**
    * Returns details about how the DOM element is modified beyond just the effect of the animation.
-   * @returns an object containing
+   * @returns An object containing
    *  * {@link AnimClipModifiers.cssClasses|cssClasses},
    *  * {@link AnimClipModifiers.commitsStyles|commitsStyles},
    *  * {@link AnimClipModifiers.composite|composite},
@@ -629,7 +629,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   protected firstRun: boolean = true;
   /**
    * Returns details about the animation's current status.
-   * @returns an object containing
+   * @returns An object containing
    *  * {@link AnimClipStatus.inProgress|inProgress},
    *  * {@link AnimClipStatus.isRunning|isRunning},
    *  * {@link AnimClipStatus.isPaused|isPaused},
@@ -825,7 +825,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /*-:**************************************************************************************************************************/
   /**
    * Plays the animation clip (animation runs forward).
-   * @returns a promise that is resolved when the animation finishes playing (including playing its endDelay phase).
+   * @returns A promise that is resolved when the animation finishes playing (including playing its endDelay phase).
    * @group Playback Methods
    */
   async play(): Promise<this>;
@@ -839,7 +839,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
   /**
    * Rewinds the animation clip (animation runs backward).
-   * @returns a promise that is resolved when the animation finishes rewinding (including rewinding its delay phase).
+   * @returns A promise that is resolved when the animation finishes rewinding (including rewinding its delay phase).
    * @group Playback Methods
    */
   async rewind(): Promise<this>;
@@ -931,7 +931,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * @param direction - the direction the animation will be going when the Promise is resolved
    * @param phase - the phase of the animation where the Promise will be resolved
    * @param timePosition - the time position within the phase when the Promise will be resolved
-   * @returns a Promise that is resolved at the specific time point of the animation.
+   * @returns A Promise that is resolved at the specific time point of the animation.
    * 
    * @example
    * <!-- EX:S id="AnimClip.generateTimePromise-1" code-type="ts" -->
@@ -1335,8 +1335,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    *  * Intended for use inside {@link ComposedEffect.forwardMutatorGenerator} and {@link ComposedEffect.backwardMutatorGenerator}).
    * @param initialVal - the starting value
    * @param finalVal - the ending value
-   * @returns the number that is a percentage of the way between `initialVal` and `finalVal` based on the
-   * percentage of completion of the animation (playing or rewinding).
+   * @returns The number that is a percentage of the way between `initialVal` and `finalVal` based on the percentage of completion of the animation (playing or rewinding).
    * 
    * @see {@link ComposedEffect}
    * 
