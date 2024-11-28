@@ -186,13 +186,13 @@
         for (const member of members) {
             // remove member signature
             member.querySelector(':scope > .tsd-signature')?.remove();
-            // remove signatures of objects returned by generator functions
-            member.querySelector('h5 + ul.tsd-parameters')?.remove();
+            // remove signature of ComposeEffect object returned by composeEffect()
+            member.querySelector('.tsd-description h5')?.closest('ul.tsd-parameters')?.remove();
             const h5List = [...member.querySelectorAll('h5')];
             for (const h5 of h5List) {
                 h5.classList.add('custom-color');
             }
-            // remove return title for objects returned by generator functions
+            // remove return title for ComposeEffect object returned by composeEffect()
             member.querySelector('.tsd-returns-title')?.remove();
             // remove duplicate list of config objects' properties
             member.querySelector('li.tsd-parameter ul.tsd-parameters:has(> li.tsd-parameter > h5')?.remove();
