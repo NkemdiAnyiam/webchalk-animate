@@ -24,7 +24,7 @@ const targets = {
 };
 
 function removeTsIgnore(text: string): string {
-  return text.replaceAll(/\s*\/\*\* @ts-ignore \*\//g, '');
+  return text.replaceAll(/\s\/\*\* @ts-ignore \*\//g, '');
 }
 
 async function overwrite() {
