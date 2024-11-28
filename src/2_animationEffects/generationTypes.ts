@@ -24,6 +24,8 @@ import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord } from
  * 
  * @see {@link EffectGenerator.composeEffect}
  * 
+ * @category Effect Generation
+ * 
  * @interface
  */
 export type ComposedEffect = StripDuplicateMethodAutocompletion<{
@@ -152,6 +154,8 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    * })();
    * ```
    * <!-- EX:E id="ComposedEffect.keyframe-generators" -->
+   * 
+   * @group Keyframes Generators
    */
   forwardKeyframesGenerator?: () => Keyframes;
   /**
@@ -279,6 +283,8 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    * })();
    * ```
    * <!-- EX:E id="ComposedEffect.keyframe-generators" -->
+   * 
+   * @group Keyframes Generators
    */
   backwardKeyframesGenerator?: () => Keyframes;
   /**
@@ -337,6 +343,8 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    * mot.play().then(mot.rewind);
    * ```
    * <!-- EX:E id="ComposedEffect.mutator-generators" -->
+   * 
+   * @group Mutator Generators
    */
   forwardMutatorGenerator?: () => Mutator;
   /**
@@ -395,6 +403,8 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    * mot.play().then(mot.rewind);
    * ```
    * <!-- EX:E id="ComposedEffect.mutator-generators" -->
+   * 
+   * @group Mutator Generators
    */
   backwardMutatorGenerator?: () => Mutator;
 }>;
@@ -407,6 +417,8 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
  *    * one property contains default configuration settings
  *    * the other property contains immutable configuration settings
  *  * a property that sets how often the effect composition function should be run
+ * 
+ * @category Effect Generation
  * 
  * @interface
  */
@@ -811,6 +823,8 @@ export type Layer3MutableClipConfig<TClipClass extends AnimClip> = Omit<ReturnTy
 /**
  * Object containing {@link EffectGenerator} entries for a specific category of animation effects.
  * For example, there is an effect generator bank containing generators for entrance animation effects.
+ * 
+ * @category Effect Generation
  */
 export type EffectGeneratorBank<TClip extends AnimClip = AnimClip> = ReadonlyRecord<
   string, EffectGenerator<ReadonlyPick<TClip, 'domElem' | 'getEffectDetails' | 'getStatus'>, Layer3MutableClipConfig<TClip>>
@@ -818,6 +832,8 @@ export type EffectGeneratorBank<TClip extends AnimClip = AnimClip> = ReadonlyRec
 
 /**
  * The parameters for a specific {@link EffectGenerator}'s generator function.
+ * 
+ * @category Effect Generation
  */
 export type EffectOptions<TEffectGenerator extends EffectGenerator> = Parameters<TEffectGenerator['composeEffect']>;
 
@@ -825,8 +841,8 @@ export type EffectOptions<TEffectGenerator extends EffectGenerator> = Parameters
 // extracts only those strings in an object whose paired value is an EffectGenerator
 /**
  * Detects the keys corresponding to {@link EffectGenerator} entries within an {@link EffectGeneratorBank}. 
+ * @category Utility Types
  */
 export type EffectNameIn<TGeneratorBank extends EffectGeneratorBank> = Exclude<keyof {
   [key in keyof TGeneratorBank as TGeneratorBank[key] extends EffectGenerator ? key : never]: TGeneratorBank[key];
 }, number | symbol>;/** @ignore */
-

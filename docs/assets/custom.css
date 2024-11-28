@@ -207,6 +207,13 @@ h3.tsd-anchor-link + .tsd-signature {
   overscroll-behavior: contain;
   resize: vertical; }
 
+.tsd-type-parameter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; }
+  .tsd-type-parameter-list .tsd-comment p {
+    margin: 0; }
+
 .tsd-signatures {
   margin-bottom: 0; }
   .tsd-signatures .tsd-signature {
@@ -240,12 +247,13 @@ h3.tsd-anchor-link + .tsd-signature {
     resize: vertical; }
   .tsd-signatures .tsd-description .tsd-returns-title + p {
     margin-top: -0.8rem; }
-  .tsd-signatures .tsd-description h4:has(a[id^="Example"]) + pre {
-    height: 15rem;
-    max-height: max-content;
-    overflow: auto;
-    overscroll-behavior: contain;
-    resize: vertical; }
+
+.tsd-tag-Example pre {
+  height: 15rem;
+  max-height: max-content;
+  overflow: auto;
+  overscroll-behavior: contain;
+  resize: vertical; }
 
 footer {
   padding-top: 0;

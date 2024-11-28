@@ -160,8 +160,8 @@
 <a href="modules/1_playbackStructures_AnimationClipCategories.html" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="assets/icons.svg#icon-2"></use></svg><span>1_<wbr/>playback<wbr/>Structures/<wbr/>Animation<wbr/>Clip<wbr/>Categories</span></a>
 <a href="modules/1_playbackStructures_AnimationSequence.html" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="assets/icons.svg#icon-2"></use></svg><span>1_<wbr/>playback<wbr/>Structures/<wbr/>Animation<wbr/>Sequence</span></a>
 <a href="modules/1_playbackStructures_AnimationTimeline.html" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="assets/icons.svg#icon-2"></use></svg><span>1_<wbr/>playback<wbr/>Structures/<wbr/>Animation<wbr/>Timeline</span></a>
+<a href="modules/2_animationEffects_customEffectCreation.html" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="assets/icons.svg#icon-2"></use></svg><span>2_<wbr/>animation<wbr/>Effects/custom<wbr/>Effect<wbr/>Creation</span></a>
 <a href="modules/2_animationEffects_easing.html" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="assets/icons.svg#icon-2"></use></svg><span>2_<wbr/>animation<wbr/>Effects/easing</span></a>
-<a href="modules/2_animationEffects_generationTypes.html" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="assets/icons.svg#icon-2"></use></svg><span>2_<wbr/>animation<wbr/>Effects/generation<wbr/>Types</span></a>
 <a href="modules/2_animationEffects_libraryPresetEffectBanks.html" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="assets/icons.svg#icon-2"></use></svg><span>2_<wbr/>animation<wbr/>Effects/library<wbr/>Preset<wbr/>Effect<wbr/>Banks</span></a>
 <a href="modules/3_components_WebimatorConnectorElement.html" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="assets/icons.svg#icon-2"></use></svg><span>3_<wbr/>components/<wbr/>Webimator<wbr/>Connector<wbr/>Element</span></a>
 <a href="modules/3_components_WebimatorPlaybackButtonElement.html" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="assets/icons.svg#icon-2"></use></svg><span>3_<wbr/>components/<wbr/>Webimator<wbr/>Playback<wbr/>Button<wbr/>Element</span></a>
@@ -193,7 +193,7 @@
         </script>
         <script type="module" defer>
           function hider() {
-    // remove property sections and navigation links associated with doscScriptRunner
+    // // remove property sections and navigation links associated with doscScriptRunner
     // document.querySelector('a#______')?.closest('.tsd-panel.tsd-member')?.remove();
     // [...document.querySelectorAll('a[href$="#______"]')].forEach((elem) => elem.remove());
     if (window.location.pathname.includes(`1_playbackStructures_AnimationClipCategories.Library`)) {
@@ -246,47 +246,6 @@
     }
 }
           window.addEventListener('load', handleSpecialCategories);
-        </script>
-        
-        <script type="module" defer>
-          const regex = new RegExp('.(Keyframes(Generator|GeneratorsGenerator)|RafMutators(Generator|GeneratorsGenerator)).html');
-          if (regex.test(window.location.pathname)) {
-            function hider() {
-    // remove Properties section from Index section since it will only contain the never-typed generator functions
-    const indexHeadings = [...document.querySelectorAll('.tsd-index-heading')];
-    for (const heading of indexHeadings) {
-        if (heading.textContent === 'Properties') {
-            heading.closest('.tsd-index-section')?.remove();
-        }
-    }
-    // remove all Properties <details>
-    document.querySelector('summary[data-key="section-Properties"]')?.closest('.tsd-accordion')?.remove();
-    document.querySelector('summary[data-key="tsd-otp-Properties"]')?.closest('.tsd-accordion')?.remove();
-    // remove never-typed generator properties from signature
-    const signature = document.querySelector(".tsd-signature");
-    while (true) {
-        const prop = signature.querySelector("a.tsd-kind-property");
-        if (!prop) {
-            break;
-        }
-        let firstBr = prop.previousElementSibling;
-        let secondBr = prop.nextElementSibling;
-        while (!(firstBr instanceof HTMLBRElement)) {
-            firstBr = firstBr?.previousElementSibling;
-        }
-        while (!(secondBr instanceof HTMLBRElement)) {
-            secondBr = secondBr?.nextElementSibling;
-        }
-        let curr = firstBr.nextElementSibling;
-        while (curr !== secondBr) {
-            curr = curr?.nextElementSibling;
-            curr.previousElementSibling?.remove();
-        }
-        secondBr.remove();
-    }
-}
-            window.addEventListener('load', hider);
-          }
         </script>
         
         <script type="module" defer>

@@ -156,7 +156,8 @@
   --md-sys-color-surface-container-high: #e6e9e8;
   --md-sys-color-surface-container-highest: #e0e3e2
 }
-</style><link rel="stylesheet" href="assets/material-style.css"/></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><use href="assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">webimator - v0.23.0</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><h1>webimator - v0.23.0</h1></div><div class="tsd-panel tsd-typography"><a id="md:webimator" class="tsd-anchor"></a><h1 class="tsd-anchor-link">Webimator<a href="#md:webimator" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1><p>Webimator is a web animation framework that supports the development of interactive algorithm visualizations, providing a library of preset animations and  beginner-friendly API that can be used to animate DOM elements (i.e., the contents on a webpage which are produced by HTML code).</p>
+</style><link rel="stylesheet" href="assets/material-style.css"/></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><use href="assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">webimator - v0.23.0</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><h1>webimator - v0.23.0</h1></div><div class="tsd-panel tsd-typography"><a id="md:webimator" class="tsd-anchor"></a><h1 class="tsd-anchor-link">Webimator<a href="#md:webimator" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1><p>(Note: This README is a work in progress and does not currently give a suitable rundown of Webimator and its usage)</p>
+<p>Webimator is a web animation framework that supports the development of interactive algorithm visualizations, providing a library of preset animations and  beginner-friendly API that can be used to animate DOM elements (i.e., the contents on a webpage which are produced by HTML code).</p>
 <a id="md:table-of-contents" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Table of Contents<a href="#md:table-of-contents" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 <ul>
@@ -366,7 +367,7 @@ Sometimes, you will need an animation effect that Webimator does not exactly hav
         </script>
         <script type="module" defer>
           function hider() {
-    // remove property sections and navigation links associated with doscScriptRunner
+    // // remove property sections and navigation links associated with doscScriptRunner
     // document.querySelector('a#______')?.closest('.tsd-panel.tsd-member')?.remove();
     // [...document.querySelectorAll('a[href$="#______"]')].forEach((elem) => elem.remove());
     if (window.location.pathname.includes(`1_playbackStructures_AnimationClipCategories.Library`)) {
@@ -419,47 +420,6 @@ Sometimes, you will need an animation effect that Webimator does not exactly hav
     }
 }
           window.addEventListener('load', handleSpecialCategories);
-        </script>
-        
-        <script type="module" defer>
-          const regex = new RegExp('.(Keyframes(Generator|GeneratorsGenerator)|RafMutators(Generator|GeneratorsGenerator)).html');
-          if (regex.test(window.location.pathname)) {
-            function hider() {
-    // remove Properties section from Index section since it will only contain the never-typed generator functions
-    const indexHeadings = [...document.querySelectorAll('.tsd-index-heading')];
-    for (const heading of indexHeadings) {
-        if (heading.textContent === 'Properties') {
-            heading.closest('.tsd-index-section')?.remove();
-        }
-    }
-    // remove all Properties <details>
-    document.querySelector('summary[data-key="section-Properties"]')?.closest('.tsd-accordion')?.remove();
-    document.querySelector('summary[data-key="tsd-otp-Properties"]')?.closest('.tsd-accordion')?.remove();
-    // remove never-typed generator properties from signature
-    const signature = document.querySelector(".tsd-signature");
-    while (true) {
-        const prop = signature.querySelector("a.tsd-kind-property");
-        if (!prop) {
-            break;
-        }
-        let firstBr = prop.previousElementSibling;
-        let secondBr = prop.nextElementSibling;
-        while (!(firstBr instanceof HTMLBRElement)) {
-            firstBr = firstBr?.previousElementSibling;
-        }
-        while (!(secondBr instanceof HTMLBRElement)) {
-            secondBr = secondBr?.nextElementSibling;
-        }
-        let curr = firstBr.nextElementSibling;
-        while (curr !== secondBr) {
-            curr = curr?.nextElementSibling;
-            curr.previousElementSibling?.remove();
-        }
-        secondBr.remove();
-    }
-}
-            window.addEventListener('load', hider);
-          }
         </script>
         
         <script type="module" defer>
