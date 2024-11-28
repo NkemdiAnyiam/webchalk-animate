@@ -433,6 +433,53 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      * {@link ExitClip.categoryImmutableConfig} sets a value for `commitStyles`, so you cannot set a value for `commitStyles` in
      * {@link EffectGenerator.defaultConfig | defaultConfig} for any entries in the exit effects bank.
      * 
+     * @example
+     * <!-- EX:S id="EffectGenerator.defaultConfig" code-type="ts" -->
+     * ```ts
+     * const clipFactories = webimator.createAnimationClipFactories({
+     *   customEntranceEffects: {
+     *     // Element fades in, starting from 0 opacity.
+     *     fadeIn: {
+     *       composeEffect() {
+     *         return {
+     *           forwardKeyframesGenerator: () => {
+     *             return [ {opacity: '0'}, {} ];
+     *           },
+     *         } as const;
+     *       },
+     *     },
+     * 
+     *     fadeIn_default: {
+     *       composeEffect() {
+     *         return {forwardKeyframesGenerator: () => {
+     *           return [ {opacity: '0'}, {} ];
+     *         },
+     *         } as const;
+     *       },
+     *       defaultConfig: {
+     *         duration: 2000,
+     *       },
+     *     },
+     *   }
+     * });
+     * 
+     * // select element from DOM
+     * const element = document.querySelector('.some-element');
+     * 
+     * const ent1 = clipFactories.Entrance(element, 'fadeIn', [], {});
+     * // ↑ duration will be set to whatever the default duration is for all
+     * // EntranceClip objects
+     * 
+     * const ent2 = clipFactories.Entrance(element, 'fadeIn_default', [], {});
+     * // ↑ duration will be set to 2000 because that is what was specified in
+     * // the 'fadeIn_default' effect definition
+     * 
+     * const ent3 = clipFactories.Entrance(element, 'fadeIn_default', [], {duration: 1000});
+     * // ↑ duration will be set to 1000 because configuration settings set in the
+     * // clip factory function call will overwrite any default settings
+     * ```
+     * <!-- EX:E id="EffectGenerator.defaultConfig" -->
+     * 
      * @group Clip Configuration
      */
     defaultConfig?: Partial<TConfig>;
@@ -445,6 +492,54 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      * value for {@link AnimClip.categoryImmutableConfig} (which you cannot modify). For example, for exit animation clips,
      * {@link ExitClip.categoryImmutableConfig} sets a value for `commitStyles`, so you cannot set a value for `commitStyles` in
      * {@link EffectGenerator.immutableConfig | immutableConfig} for any entries in the exit effects bank.
+     * 
+     * @example
+     * <!-- EX:S id="EffectGenerator.immutableConfig" code-type="ts" -->
+     * ```ts
+     * const clipFactories = webimator.createAnimationClipFactories({
+     *   customEntranceEffects: {
+     *     appear: {
+     *       composeEffect() {
+     *         return {
+     *           forwardKeyframesGenerator: () => {
+     *             return [];
+     *           },
+     *         };
+     *       },
+     *     },
+     * 
+     *     appear_immutable: {
+     *       composeEffect() {
+     *         return {
+     *           forwardKeyframesGenerator: () => {
+     *             return [];
+     *           },
+     *         };
+     *       },
+     *       immutableConfig: {
+     *         duration: 0,
+     *         easing: 'linear',
+     *         composite: 'replace',
+     *       },
+     *     },
+     *   }
+     * });
+     * 
+     * // select element from DOM
+     * const element = document.querySelector('.some-element');
+     * 
+     * const ent1 = clipFactories.Entrance(element, 'appear', [], {duration: 1000});
+     * // ↑ no issues
+     * 
+     * const ent2 = clipFactories.Entrance(element, 'appear_immutable', [], {endDelay: 1000});
+     * // ↑ no issues (there is no immutable setting on endDelay for 'appear_immutable')
+     * 
+     * const ent3 = clipFactories.Entrance(element, 'appear_immutable', [], {duration: 1000});
+     * // ↑ TypeScript compiler error will be thrown because duration is not allowed to be set
+     * // when using the 'appear_immutable' effect. When running the code, this duration will
+     * // simply be ignored in favor of the immutable duration setting.
+     * ```
+     * <!-- EX:E id="EffectGenerator.immutableConfig" -->
      * 
      * @group Clip Configuration
      */
@@ -723,86 +818,86 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      * <!-- EX:S id="EffectGenerator.composeEffect-2" code-type="ts" -->
      * ```ts
      * const clipFactories = webimator.createAnimationClipFactories({
-     *     customMotionEffects: {
-     *       translateRight: {
-     *         composeEffect(numPixels: number) {
-     *           // a helper function you wrote that will exist within a closure scoped to composeEffect()
-     *           const createTranslationString = () => {
-     *             if (numPixels <= 0) { throw RangeError(`Number of pixels must exceed 0.`) }
-     *             const translationString = `${numPixels}px`;
-     *             return translationString;
-     *           }
-     *     
-     *           // return ComposedEffect
-     *           return {
-     *             forwardKeyframesGenerator: () => {
-     *               // return Keyframes (Keyframe][])
-     *               return [
-     *                 {translate: createTranslationString()} // Keyframe
-     *               ];
-     *             },
-     *             // backwardKeyframesGenerator() must be specified because reversing the keyframes produced by
-     *             // forwardKeyframesGenerator() would not have the intended effect (because of
-     *             // {composite: accumulate}, trying to simply use the reversal of
-     *             // {translate: createTranslationString()} from forwardKeyframesGenerator() would actually
-     *             // cause the target element to jump an additional numPixels pixels to the right
-     *             // before sliding left, which is not the intended rewinding effect).
-     *             backwardKeyframesGenerator: () => {
-     *               // return Keyframes (Keyframe[])
-     *               return [
-     *                 {translate: '-'+createTranslationString()}, // Keyframe
-     *               ];
-     *             }
-     *           };
-     *         },
-     *         immutableConfig: {
-     *           // this means that the translation is added onto the element's position
-     *           // instead of replacing it
-     *           composite: 'accumulate',
-     *         },
-     *         effectCompositionFrequency: 'on-first-play-only',
-     *       },
-     *   
-     *       // a custom animation for scrolling to a specific point on the page.
-     *       scrollTo: {
-     *         composeEffect(yPosition: number) {
-     *           const initialPosition = this.domElem.scrollTop;
-     *     
-     *           // return ComposedEffect
-     *           return {
-     *             // The mutation is to use the scrollTo() method on the element.
-     *             // Thanks to computeTween(), there will be a smooth scroll
-     *             // from initialPosition to yPosition
-     *             forwardMutatorGenerator: () => {
-     *               // return Mutator
-     *               return () => {
-     *                 this.domElem.scrollTo({
-     *                   top: this.computeTween(initialPosition, yPosition),
-     *                   behavior: 'instant'
-     *                 });
-     *               };
-     *             },
-     *   
-     *             // The forward mutation loop is not invertible because reversing it requires
-     *             // re-computing the element's scroll position at the time of rewinding
-     *             // (which may have since changed for any number of reasons, including user
-     *             // scrolling, size changes, etc.). So we must define backwardMutatorGenerator()
-     *             // to do exactly that.
-     *             backwardMutatorGenerator: () => {
-     *               // return Mutator
-     *               return () => {
-     *                 const currentPosition = this.domElem.scrollTop;
-     *                 this.domElem.scrollTo({
-     *                   top: this.computeTween(currentPosition, initialPosition),
-     *                   behavior: 'instant'
-     *                 });
-     *               };
-     *             }
-     *           };
+     *   customMotionEffects: {
+     *     translateRight: {
+     *       composeEffect(numPixels: number) {
+     *         // a helper function you wrote that will exist within a closure scoped to composeEffect()
+     *         const createTranslationString = () => {
+     *           if (numPixels <= 0) { throw RangeError(`Number of pixels must exceed 0.`) }
+     *           const translationString = `${numPixels}px`;
+     *           return translationString;
      *         }
+     *   
+     *         // return ComposedEffect
+     *         return {
+     *           forwardKeyframesGenerator: () => {
+     *             // return Keyframes (Keyframe][])
+     *             return [
+     *               {translate: createTranslationString()} // Keyframe
+     *             ];
+     *           },
+     *           // backwardKeyframesGenerator() must be specified because reversing the keyframes produced by
+     *           // forwardKeyframesGenerator() would not have the intended effect (because of
+     *           // {composite: accumulate}, trying to simply use the reversal of
+     *           // {translate: createTranslationString()} from forwardKeyframesGenerator() would actually
+     *           // cause the target element to jump an additional numPixels pixels to the right
+     *           // before sliding left, which is not the intended rewinding effect).
+     *           backwardKeyframesGenerator: () => {
+     *             // return Keyframes (Keyframe[])
+     *             return [
+     *               {translate: '-'+createTranslationString()}, // Keyframe
+     *             ];
+     *           }
+     *         };
      *       },
-     *     }
-     *   });
+     *       immutableConfig: {
+     *         // this means that the translation is added onto the element's position
+     *         // instead of replacing it
+     *         composite: 'accumulate',
+     *       },
+     *       effectCompositionFrequency: 'on-first-play-only',
+     *     },
+     * 
+     *     // a custom animation for scrolling to a specific point on the page.
+     *     scrollTo: {
+     *       composeEffect(yPosition: number) {
+     *         const initialPosition = this.domElem.scrollTop;
+     *   
+     *         // return ComposedEffect
+     *         return {
+     *           // The mutation is to use the scrollTo() method on the element.
+     *           // Thanks to computeTween(), there will be a smooth scroll
+     *           // from initialPosition to yPosition
+     *           forwardMutatorGenerator: () => {
+     *             // return Mutator
+     *             return () => {
+     *               this.domElem.scrollTo({
+     *                 top: this.computeTween(initialPosition, yPosition),
+     *                 behavior: 'instant'
+     *               });
+     *             };
+     *           },
+     * 
+     *           // The forward mutation loop is not invertible because reversing it requires
+     *           // re-computing the element's scroll position at the time of rewinding
+     *           // (which may have since changed for any number of reasons, including user
+     *           // scrolling, size changes, etc.). So we must define backwardMutatorGenerator()
+     *           // to do exactly that.
+     *           backwardMutatorGenerator: () => {
+     *             // return Mutator
+     *             return () => {
+     *               const currentPosition = this.domElem.scrollTop;
+     *               this.domElem.scrollTo({
+     *                 top: this.computeTween(currentPosition, initialPosition),
+     *                 behavior: 'instant'
+     *               });
+     *             };
+     *           }
+     *         };
+     *       }
+     *     },
+     *   }
+     * });
      * ```
      * <!-- EX:E id="EffectGenerator.composeEffect-2" -->
      * 

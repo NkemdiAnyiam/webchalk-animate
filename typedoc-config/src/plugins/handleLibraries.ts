@@ -36,6 +36,7 @@ export function load(app: Application) {
           ${hider}
           window.addEventListener('load', hider);
         </script>
-        `});
-    })
+        `
+      });
+    });
 }
