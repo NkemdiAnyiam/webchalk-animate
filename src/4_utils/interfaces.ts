@@ -187,10 +187,13 @@ export type EffectCategory =
 export type Keyframes = PropertyIndexedKeyframes | Keyframe[];
 
 /**
- * A function that is supposed to mutate the properties of JavaScript objects by utilizing the result of calling {@link AnimClip.computeTween}
+ * A function that is supposed to mutate the properties of JavaScript objects by
+ * utilizing the result of calling {@link AnimClip.computeTween}
  * (_or_ by utilizing the result of some other value that may already be updating onscreen).
- * The function will automatically run on every frame, and the output of {@link AnimClip.computeTween} automatically changes on every frame according
- * to the clip's duration, so the outcome is ultimately the illusion of a smooth animation because the target JavaScript properties will change
+ * The function will automatically run on every frame (as in, the device's frame rate),
+ * and the output of {@link AnimClip.computeTween} automatically changes on every frame according
+ * to the clip's duration, so the outcome is ultimately the illusion of a
+ * smooth animation because the target JavaScript properties will change
  * at the device's frame rate.
  * 
  * Used in {@link ComposedEffect}.

@@ -43,7 +43,7 @@ export const libPresetEntrances = {
      */
     composeEffect() {
       return {
-        forwardFramesGenerator: () => [],
+        forwardKeyframesGenerator: () => [],
       } as const;
     },
     defaultConfig: {} as const,
@@ -63,7 +63,7 @@ export const libPresetEntrances = {
      */
     composeEffect() {
       return {
-        forwardFramesGenerator: () => [ {opacity: '0'}, {} ],
+        forwardKeyframesGenerator: () => [ {opacity: '0'}, {} ],
       } as const;
     },
     defaultConfig: {} as const,
@@ -109,8 +109,8 @@ export const libPresetEntrances = {
       };
 
       return {
-        forwardFramesGenerator: () => [ {translate: computeTranslationStr()}, {translate: `0 0`} ],
-        // backwardFramesGenerator () => [ {translate: computeTranslationStr()} ]
+        forwardKeyframesGenerator: () => [ {translate: computeTranslationStr()}, {translate: `0 0`} ],
+        // backwardKeyframesGenerator () => [ {translate: computeTranslationStr()} ]
       };
     },
     defaultConfig: {
@@ -132,7 +132,7 @@ export const libPresetEntrances = {
      */
     composeEffect(numSpins: number = 2, direction: 'clockwise' | 'counterclockwise' = 'counterclockwise') {
       return {
-        forwardFramesGenerator: () => [
+        forwardKeyframesGenerator: () => [
           {
             rotate: `z ${360 * numSpins * (direction === 'clockwise' ? -1 : 1)}deg`,
             scale: 0,
@@ -158,7 +158,7 @@ export const libPresetEntrances = {
      */
     composeEffect() {
       return {
-        forwardFramesGenerator: () => [
+        forwardKeyframesGenerator: () => [
           {translate: `0 ${window.innerHeight - this.domElem.getBoundingClientRect().top}px`, opacity: 0, easing: useEasing('power2-out')},
           {translate: `0 -25px`, offset: 0.83333},
           {translate: `0 -25px`, offset: 0.86, easing: useEasing('power1-in')},
@@ -184,10 +184,10 @@ export const libPresetEntrances = {
      */
     composeEffect(direction: 'from-bottom' | 'from-left' | 'from-top' | 'from-right' = 'from-bottom') {
       switch(direction) {
-        case 'from-bottom': return { forwardFramesGenerator: () => [ {clipPath: clipClosed_bottom}, {clipPath: clipOpened} ] };
-        case 'from-left':   return { forwardFramesGenerator: () => [ {clipPath: clipClosed_left}, {clipPath: clipOpened} ] };
-        case 'from-top':    return { forwardFramesGenerator: () => [ {clipPath: clipClosed_top}, {clipPath: clipOpened} ] };
-        case 'from-right':  return { forwardFramesGenerator: () => [ {clipPath: clipClosed_right}, {clipPath: clipOpened} ] };
+        case 'from-bottom': return { forwardKeyframesGenerator: () => [ {clipPath: clipClosed_bottom}, {clipPath: clipOpened} ] };
+        case 'from-left':   return { forwardKeyframesGenerator: () => [ {clipPath: clipClosed_left}, {clipPath: clipOpened} ] };
+        case 'from-top':    return { forwardKeyframesGenerator: () => [ {clipPath: clipClosed_top}, {clipPath: clipOpened} ] };
+        case 'from-right':  return { forwardKeyframesGenerator: () => [ {clipPath: clipClosed_right}, {clipPath: clipOpened} ] };
 
         default:
           throw new RangeError(`Invalid direction "${direction}". Must be "from-top", "from-right", "from-bottom", or "from-left"`);
@@ -243,7 +243,7 @@ export const libPresetEntrances = {
       };
 
       return {
-        forwardFramesGenerator: () => [
+        forwardKeyframesGenerator: () => [
           genStartFrames(direction),
           { clipPath: clipOpened },
         ],
@@ -275,7 +275,7 @@ export const libPresetExits = {
      * @returns 
      */
     composeEffect() {
-      return {forwardFramesGenerator: () => []} as const;
+      return {forwardKeyframesGenerator: () => []} as const;
     },
     defaultConfig: {} as const,
     immutableConfig: {
@@ -294,7 +294,7 @@ export const libPresetExits = {
      */
     composeEffect() {
       return {
-        forwardFramesGenerator: () => [{}, {opacity: '0'}],
+        forwardKeyframesGenerator: () => [{}, {opacity: '0'}],
       } as const;
     },
     defaultConfig: {} as const,
@@ -337,8 +337,8 @@ export const libPresetExits = {
       };
 
       return {
-        forwardFramesGenerator: () => [ {translate: computeTranslationStr()} ],
-        // backwardFramesGenerator: () => [ {translate: computeTranslationStr()}, {translate: `0 0`} ]
+        forwardKeyframesGenerator: () => [ {translate: computeTranslationStr()} ],
+        // backwardKeyframesGenerator: () => [ {translate: computeTranslationStr()}, {translate: `0 0`} ]
       };
     },
     defaultConfig: {} as const,
@@ -358,7 +358,7 @@ export const libPresetExits = {
      */
     composeEffect(numSpins: number = 2, direction: 'clockwise' | 'counterclockwise' = 'clockwise') {
       return {
-        forwardFramesGenerator: () => [
+        forwardKeyframesGenerator: () => [
           {},
           {
             rotate: `z ${360 * numSpins * (direction === 'clockwise' ? 1 : -1)}deg`,
@@ -383,7 +383,7 @@ export const libPresetExits = {
      */
     composeEffect() {
       return {
-        forwardFramesGenerator: () => [
+        forwardKeyframesGenerator: () => [
           {translate: `0 0`, easing: useEasing('power1-out')},
           {translate: `0 -25px`, offset: 0.14 },
           {translate: `0 -25px`, easing: useEasing('power2-in'), offset: 0.16666666},
@@ -408,16 +408,16 @@ export const libPresetExits = {
     composeEffect(direction: 'from-bottom' | 'from-left' | 'from-top' | 'from-right' = 'from-bottom') {
       switch(direction) {
         case 'from-bottom': return {
-          forwardFramesGenerator: () => [ {clipPath: clipOpened}, {clipPath: clipClosed_top} ],
+          forwardKeyframesGenerator: () => [ {clipPath: clipOpened}, {clipPath: clipClosed_top} ],
         };
         case 'from-left': return {
-          forwardFramesGenerator: () => [ {clipPath: clipOpened}, {clipPath: clipClosed_right} ],
+          forwardKeyframesGenerator: () => [ {clipPath: clipOpened}, {clipPath: clipClosed_right} ],
         };
         case 'from-top': return {
-          forwardFramesGenerator: () => [ {clipPath: clipOpened}, {clipPath: clipClosed_bottom} ],
+          forwardKeyframesGenerator: () => [ {clipPath: clipOpened}, {clipPath: clipClosed_bottom} ],
         };
         case 'from-right': return {
-          forwardFramesGenerator: () => [ {clipPath: clipOpened}, {clipPath: clipClosed_left} ],
+          forwardKeyframesGenerator: () => [ {clipPath: clipOpened}, {clipPath: clipClosed_left} ],
         };
         default:
           throw new RangeError(`Invalid direction "${direction}". Must be "from-top", "from-right", "from-bottom", or "from-left"`);
@@ -473,7 +473,7 @@ export const libPresetExits = {
       };
 
       return {
-        forwardFramesGenerator: () => [
+        forwardKeyframesGenerator: () => [
           { clipPath: clipOpened },
           genEndFrames(direction),
         ],
@@ -520,13 +520,13 @@ export const libPresetEmphases = {
         ? getComputedStyle(document.documentElement).getPropertyValue('--wbmtr-highlight-color')
         : color;
       return {
-        forwardFramesGenerator: () => [
+        forwardKeyframesGenerator: () => [
           {['--wbmtr-highlight-color']: prevColor, easing: 'step-start'}, // step-start -> steps(1, jump-start)
           {backgroundPositionX: '100%', offset: 0},
           {backgroundPositionX: '0%', offset: 1},
           {['--wbmtr-highlight-color']: finalColor}
         ],
-        backwardFramesGenerator: () => [
+        backwardKeyframesGenerator: () => [
           {['--wbmtr-highlight-color']: finalColor, easing: 'step-end'}, // step-end -> steps(1, jump-end)
           {backgroundPositionX: '0%', offset: 0},
           {backgroundPositionX: '100%', offset: 1},
@@ -554,7 +554,7 @@ export const libPresetEmphases = {
         throw new CustomErrors.InvalidEffectError(`Cannot un-highlight an element that was not already highlighted.`);
       }
       return {
-        forwardFramesGenerator: () => [ {backgroundPositionX: '0%'}, {backgroundPositionX: '100%'}],
+        forwardKeyframesGenerator: () => [ {backgroundPositionX: '0%'}, {backgroundPositionX: '100%'}],
       } as const;
     },
     defaultConfig: {
@@ -633,10 +633,10 @@ export const libPresetMotions = {
       }
       
       return {
-        forwardFramesGenerator: () => [
+        forwardKeyframesGenerator: () => [
           {translate: `calc(${baseXTrans}px + ${selfOffsetX} + ${targetOffsetXTrans}) calc(${baseYTrans}px + ${selfOffsetY} + ${targetOffsetYTrans})`}
         ],
-        backwardFramesGenerator: () => [
+        backwardKeyframesGenerator: () => [
           {translate: `calc(${-baseXTrans}px + ${negateNumString(selfOffsetX)} + ${negateNumString(targetOffsetXTrans)}) calc(${-baseYTrans}px + ${negateNumString(selfOffsetY)} + ${negateNumString(targetOffsetYTrans)})`}
         ],
       };
@@ -665,8 +665,8 @@ export const libPresetMotions = {
       const selfOffsetY = selfOffsetComponents?.[1] ?? '0px';
       
       return {
-        forwardFramesGenerator: () => [{translate: `calc(${translateX} + ${selfOffsetX}) calc(${translateY} + ${selfOffsetY})`}],
-        backwardFramesGenerator: () => [{translate: `calc(${negateNumString(translateX)} + ${negateNumString(selfOffsetX)})`
+        forwardKeyframesGenerator: () => [{translate: `calc(${translateX} + ${selfOffsetX}) calc(${translateY} + ${selfOffsetY})`}],
+        backwardKeyframesGenerator: () => [{translate: `calc(${negateNumString(translateX)} + ${negateNumString(selfOffsetX)})`
                             + ` calc(${negateNumString(translateY)} + ${negateNumString(selfOffsetY)})`}],
       };
     },
@@ -725,7 +725,7 @@ export const libPresetTransitions = {
      */
     composeEffect(keyframe: Keyframe) {
       return {
-        forwardFramesGenerator: () => [{...keyframe}, {}],
+        forwardKeyframesGenerator: () => [{...keyframe}, {}],
       };
     },
     defaultConfig: {} as const,
@@ -804,7 +804,7 @@ export const libPresetTransitions = {
         return {...acc, ...longhandKeys.reduce((acc, key) => {return {...acc, [key]: computedStyles[key]}}, {})};
       }, {});
       return {
-        forwardFramesGenerator: () => [original, {...keyframe}],
+        forwardKeyframesGenerator: () => [original, {...keyframe}],
       };
     },
     defaultConfig: {} as const,
@@ -828,7 +828,7 @@ export const libPresetConnectorEntrances = {
      */
     composeEffect() {
       return {
-        forwardFramesGenerator: () => [],
+        forwardKeyframesGenerator: () => [],
       } as const;
     },
     defaultConfig: {} as const,
@@ -848,7 +848,7 @@ export const libPresetConnectorEntrances = {
      */
     composeEffect() {
       return {
-        forwardFramesGenerator: () => [ {opacity: '0'}, {}],
+        forwardKeyframesGenerator: () => [ {opacity: '0'}, {}],
       } as const;
     },
     defaultConfig: {},
@@ -886,32 +886,32 @@ export const libPresetConnectorEntrances = {
       switch(direction) {
         case 'from-A':
           return {
-            forwardFramesGenerator: () => fromAFrames,
+            forwardKeyframesGenerator: () => fromAFrames,
           };
 
         case 'from-B':
           return {
-            forwardFramesGenerator: () => fromBFrames,
+            forwardKeyframesGenerator: () => fromBFrames,
           };
 
         case 'from-top':
           return {
-            forwardFramesGenerator: this.domElem.ay <= this.domElem.by ? () => fromAFrames : () => fromBFrames,
+            forwardKeyframesGenerator: this.domElem.ay <= this.domElem.by ? () => fromAFrames : () => fromBFrames,
           };
 
         case 'from-bottom':
           return {
-            forwardFramesGenerator: this.domElem.ay >= this.domElem.by ? () => fromAFrames : () => fromBFrames,
+            forwardKeyframesGenerator: this.domElem.ay >= this.domElem.by ? () => fromAFrames : () => fromBFrames,
           };
 
         case 'from-left':
           return {
-            forwardFramesGenerator: this.domElem.ax <= this.domElem.bx ? () => fromAFrames : () => fromBFrames,
+            forwardKeyframesGenerator: this.domElem.ax <= this.domElem.bx ? () => fromAFrames : () => fromBFrames,
           };
 
         case 'from-right':
           return {
-            forwardFramesGenerator: this.domElem.ax >= this.domElem.bx ? () => fromAFrames : () => fromBFrames,
+            forwardKeyframesGenerator: this.domElem.ax >= this.domElem.bx ? () => fromAFrames : () => fromBFrames,
           };
 
         default:
@@ -941,7 +941,7 @@ export const libPresetConnectorExits = {
      */
     composeEffect() {
       return {
-        forwardFramesGenerator: () => [],
+        forwardKeyframesGenerator: () => [],
       } as const;
     },
     defaultConfig: {} as const,
@@ -961,7 +961,7 @@ export const libPresetConnectorExits = {
      */
     composeEffect() {
       return {
-        forwardFramesGenerator: () => [ {}, {opacity: '0'} ],
+        forwardKeyframesGenerator: () => [ {}, {opacity: '0'} ],
       } as const;
     },
     defaultConfig: {} as const,
@@ -996,32 +996,32 @@ export const libPresetConnectorExits = {
       switch(direction) {
         case 'from-A':
           return {
-            forwardFramesGenerator: () => fromStartFrames,
+            forwardKeyframesGenerator: () => fromStartFrames,
           };
 
         case 'from-B':
           return {
-            forwardFramesGenerator: () => fromEndFrames,
+            forwardKeyframesGenerator: () => fromEndFrames,
           };
 
         case 'from-top':
           return {
-            forwardFramesGenerator: this.domElem.ay <= this.domElem.by ? () => fromStartFrames : () => fromEndFrames,
+            forwardKeyframesGenerator: this.domElem.ay <= this.domElem.by ? () => fromStartFrames : () => fromEndFrames,
           };
 
         case 'from-bottom':
           return {
-            forwardFramesGenerator: this.domElem.ay >= this.domElem.by ? () => fromStartFrames : () => fromEndFrames,
+            forwardKeyframesGenerator: this.domElem.ay >= this.domElem.by ? () => fromStartFrames : () => fromEndFrames,
           };
 
         case 'from-left':
           return {
-            forwardFramesGenerator: this.domElem.ax <= this.domElem.bx ? () => fromStartFrames : () => fromEndFrames,
+            forwardKeyframesGenerator: this.domElem.ax <= this.domElem.bx ? () => fromStartFrames : () => fromEndFrames,
           };
 
         case 'from-right':
           return {
-            forwardFramesGenerator: this.domElem.ax >= this.domElem.bx ? () => fromStartFrames : () => fromEndFrames,
+            forwardKeyframesGenerator: this.domElem.ax >= this.domElem.bx ? () => fromStartFrames : () => fromEndFrames,
           };
 
         default:
@@ -1097,7 +1097,7 @@ export const libPresetScrolls = {
 
       let [x_from, y_from, x_to, y_to] = [0, 0, 0, 0];
 
-      const forwardRafGenerator = () => {
+      const forwardMutatorGenerator = () => {
         const {
           fromXY,
           toXY
@@ -1121,7 +1121,7 @@ export const libPresetScrolls = {
         }
       };
 
-      const backwardRafGenerator = () => {
+      const backwardMutatorGenerator = () => {
         webimator.scrollAnchorsStack.pop();
         if (webimator.scrollAnchorsStack.length > 0) {
           const [anchor, anchorOptions] = webimator.scrollAnchorsStack[webimator.scrollAnchorsStack.length - 1];
@@ -1153,8 +1153,8 @@ export const libPresetScrolls = {
       };
 
       return {
-        forwardRafGenerator,
-        backwardRafGenerator,
+        forwardMutatorGenerator,
+        backwardMutatorGenerator,
       };
     },
     defaultConfig: {} as const,

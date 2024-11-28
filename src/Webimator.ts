@@ -257,13 +257,13 @@ export class Webimator {
    *     coolZoomIn: {
    *       composeEffect(initialScale: number) {
    *         return {
-   *           forwardFramesGenerator: () => [
+   *           forwardKeyframesGenerator: () => [
    *             {scale: initialScale, opacity: 0},
    *             {scale: 1, opacity: 1}
    *           ],
    *           // (backwardFrames could have been omitted in this case because
    *           // the reversal of forwardFrames is exactly equivalent)
-   *           backwardFramesGenerator: () => [
+   *           backwardKeyframesGenerator: () => [
    *             {scale: 1, opacity: 1},
    *             {scale: initialScale, opacity: 0}
    *           ]
@@ -274,11 +274,11 @@ export class Webimator {
    *     blinkIn: {
    *       composeEffect() {
    *         return {
-   *           forwardFramesGenerator: () => [
+   *           forwardKeyframesGenerator: () => [
    *             {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}
    *           ],
-   *           // (backwardFramesGenerator() omitted because the reversal of
-   *           // forwardFramesGenerator() is exactly equivalent)
+   *           // (backwardKeyframesGenerator() omitted because the reversal of
+   *           // forwardKeyframesGenerator() is exactly equivalent)
    *         };
    *       }
    *     }
@@ -296,15 +296,15 @@ export class Webimator {
    *         }
    *   
    *         return {
-   *           forwardFramesGenerator: () => {
+   *           forwardKeyframesGenerator: () => {
    *             return [
    *               {translate: computeTranslationStr()}
    *             ];
    *           },
-   *           // backwardFramesGenerator could have been omitted because the result
-   *           // of running forwardFramesGenerator() again and reversing the keyframes
+   *           // backwardKeyframesGenerator could have been omitted because the result
+   *           // of running forwardKeyframesGenerator() again and reversing the keyframes
    *           // produces the same desired rewinding effect in this case
-   *           backwardFramesGenerator: () => {
+   *           backwardKeyframesGenerator: () => {
    *             return [
    *               {translate: computeTranslationStr()},
    *               {translate: `0 0`}
@@ -899,12 +899,12 @@ export const webimator = new Webimator();
 //     hello: {
 //       generateEffect() {
 //         return {
-//           forwardFramesGenerator: () => [],
-//           backwardFramesGenerator: () => [],
-//           forwardRafGenerator: () => {
+//           forwardKeyframesGenerator: () => [],
+//           backwardKeyframesGenerator: () => [],
+//           forwardMutatorGenerator: () => {
 //             return () => {};
 //           },
-//           backwardRafGenerator: () => {
+//           backwardMutatorGenerator: () => {
 //             return () => {};
 //           }
 //         }

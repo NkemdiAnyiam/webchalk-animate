@@ -59,7 +59,7 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
     ['roll-in-blurred-left']: {
       composeEffect() {
         return {
-          forwardFramesGenerator: () => [
+          forwardKeyframesGenerator: () => [
             {
               transform: `translateX(-1000px) rotate(-720deg)`,
               filter: `blur(50px)`,
@@ -77,8 +77,8 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
     'fade-in-red': {
       composeEffect() {
         return {
-          forwardFramesGenerator: () => [{opacity: 0}, {}],
-          forwardRafGenerator: () => () => {
+          forwardKeyframesGenerator: () => [{opacity: 0}, {}],
+          forwardMutatorGenerator: () => () => {
             this.domElem.style.backgroundColor = `rgb(255 ${this.computeTween(255, 0)} ${this.computeTween(255, 0)})`
           }
         }
@@ -90,7 +90,7 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
     ['hinge']: {
       composeEffect() {
         return {
-          forwardFramesGenerator: () => [
+          forwardKeyframesGenerator: () => [
             {
                 "offset": 0,
                 "easing": "ease-in-out",
@@ -155,7 +155,7 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
   
         // return ComposedEffect
         return {
-          forwardFramesGenerator: () => {
+          forwardKeyframesGenerator: () => {
             // return Keyframes (Keyframe[])
             return [
               {translate: computeTranslationStr()}
@@ -163,7 +163,7 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
           },
 
           // not needed
-          // backwardFramesGenerator: () => {
+          // backwardKeyframesGenerator: () => {
           //   // return Keyframes (Keyframe[])
           //   return [
           //     {translate: computeTranslationStr()},
@@ -171,7 +171,7 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
           //   ];
           // },
 
-          forwardRafGenerator: () => {
+          forwardMutatorGenerator: () => {
             // return Mutator
             return () => {
               this.domElem.textContent = `${this.computeTween(0, 100)}%`;
@@ -179,7 +179,7 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
           },
 
           // not needed
-          // backwardRafGenerator: () => {
+          // backwardMutatorGenerator: () => {
           //   // return Mutator
           //   return () => {
           //     this.domElem.textContent = `${this.computeTween(100, 0)}%`;
@@ -202,7 +202,7 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
       composeEffect() {
         // return Composed Effect
         return {
-          backwardFramesGenerator: () => {
+          backwardKeyframesGenerator: () => {
             // return Keyframes (Keyframe[])
             return [
               {
@@ -224,10 +224,10 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
           },
           // It would be a pain to figure out what the backward keyframes should look like 
           // for rewinding this effect. Fortunately, the desired rewinding effect happens to
-          // be equivalent to re-using forwardFramesGenerator() and using its reverse,
-          // so backwardFramesGenerator can be omitted.
+          // be equivalent to re-using forwardKeyframesGenerator() and using its reverse,
+          // so backwardKeyframesGenerator can be omitted.
           // ---------------------------------------------------------------------------------------
-          // backwardFramesGenerator: () => {
+          // backwardKeyframesGenerator: () => {
           //   // return Keyframes (Keyframe[])
           //   return [] // ??????
           // },
@@ -251,14 +251,14 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
         }
   
         return {
-          forwardFramesGenerator: () => {
+          forwardKeyframesGenerator: () => {
             return [
               {translate: createTranslationString()}
             ];
           },
-          // backwardFramesGenerator could have been omitted because the result of running forwardFramesGenerator()
+          // backwardKeyframesGenerator could have been omitted because the result of running forwardKeyframesGenerator()
           // again and reversing the keyframes produces the same desired rewinding effect in this case
-          backwardFramesGenerator: () => {
+          backwardKeyframesGenerator: () => {
             return [
               {translate: '-'+createTranslationString()},
             ];
@@ -281,7 +281,7 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
           // The mutation is to use the scrollTo() method on the element.
           // Thanks to computeTween(), there will be a smooth scroll
           // from initialPosition to yPosition
-          forwardRafGenerator: () => {
+          forwardMutatorGenerator: () => {
             // return Mutator
             return () => {
               this.domElem.scrollTo({
@@ -294,9 +294,9 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
           // The forward mutation loop is not invertible because reversing it requires
           // re-computing the element's scroll position at the time of rewinding
           // (which may have since changed for any number of reasons, including user
-          // scrolling, size changes, etc.). So we must define backwardRafGenerator()
+          // scrolling, size changes, etc.). So we must define backwardMutatorGenerator()
           // to do exactly that.
-          backwardRafGenerator: () => {
+          backwardMutatorGenerator: () => {
             // return Mutator
             return () => {
               const currentPosition = this.domElem.scrollTop;

@@ -344,7 +344,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * This static method is purely for convenience.
    * @group Helper Methods
    */
-  public static createNoOpEffectGenerator() { return {composeEffect() { return {forwardFramesGenerator: () => [], backwardFramesGenerator: () => []}; }} as EffectGenerator; }
+  public static createNoOpEffectGenerator() { return {composeEffect() { return {forwardKeyframesGenerator: () => [], backwardKeyframesGenerator: () => []}; }} as EffectGenerator; }
 
   /**
    * The default configuration for clips in a specific effect category, which includes
@@ -470,15 +470,15 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   
   /**@internal*/
   keyframesGenerators: {
-    forwardFramesGenerator: () => Keyframes;
-    backwardFramesGenerator: () => Keyframes;
-    forwardRafGenerator?: () => () => void;
-    backwardRafGenerator?: () => () => void;
+    forwardKeyframesGenerator: () => Keyframes;
+    backwardKeyframesGenerator: () => Keyframes;
+    forwardMutatorGenerator?: () => () => void;
+    backwardMutatorGenerator?: () => () => void;
   } = {} as {
-    forwardFramesGenerator: () => Keyframes;
-    backwardFramesGenerator: () => Keyframes;
-    forwardRafGenerator?: () => () => void;
-    backwardRafGenerator?: () => () => void;
+    forwardKeyframesGenerator: () => Keyframes;
+    backwardKeyframesGenerator: () => Keyframes;
+    forwardMutatorGenerator?: () => () => void;
+    backwardMutatorGenerator?: () => () => void;
   };
   /**@internal*/
   rafMutators: {
@@ -1115,8 +1115,8 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
             // Keyframe generation is done here so that generations operations that rely on the side effects of class modifications and _onStartForward()...
             // ...can function properly.
             try {
-              animation.setForwardFrames(this.keyframesGenerators.forwardFramesGenerator(), this.fFramesMirrored);
-              this.rafMutators.forwardMutator = this.keyframesGenerators.forwardRafGenerator?.();
+              animation.setForwardFrames(this.keyframesGenerators.forwardKeyframesGenerator(), this.fFramesMirrored);
+              this.rafMutators.forwardMutator = this.keyframesGenerators.forwardMutatorGenerator?.();
             }
             catch (err: unknown) {
               throw this.generateError(err as Error);
@@ -1138,8 +1138,8 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
             // Generate keyframes
             try {
-              this.animation.setBackwardFrames(this.keyframesGenerators.backwardFramesGenerator(), this.bFramesMirrored);
-              this.rafMutators.backwardMutator = this.keyframesGenerators.backwardRafGenerator?.();
+              this.animation.setBackwardFrames(this.keyframesGenerators.backwardKeyframesGenerator(), this.bFramesMirrored);
+              this.rafMutators.backwardMutator = this.keyframesGenerators.backwardMutatorGenerator?.();
             }
             catch (err: unknown) { throw this.generateError(err as Error); }
 
@@ -1237,54 +1237,54 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     try {
       // retrieve generators
       let {
-        forwardFramesGenerator,
-        backwardFramesGenerator,
-        forwardRafGenerator,
-        backwardRafGenerator,
+        forwardKeyframesGenerator,
+        backwardKeyframesGenerator,
+        forwardMutatorGenerator,
+        backwardMutatorGenerator,
       } = call(this.effectGenerator.composeEffect, this, ...this.getEffectDetails().effectOptions);
 
       // if no generators are specified, error
-      if (!(forwardFramesGenerator || backwardFramesGenerator || forwardRafGenerator || backwardRafGenerator)) {
+      if (!(forwardKeyframesGenerator || backwardKeyframesGenerator || forwardMutatorGenerator || backwardMutatorGenerator)) {
         throw this.generateError(CustomErrors.InvalidEffectError, 'No generators specified');
       }
 
-      // if neither frame generators are specified, make them return empty keyframes array
-      if (!forwardFramesGenerator && !backwardFramesGenerator) {
+      // if neither keyframe generators is specified, make them return empty keyframes array
+      if (!forwardKeyframesGenerator && !backwardKeyframesGenerator) {
         this.rafOnly = true;
-        forwardFramesGenerator = () => [];
-        backwardFramesGenerator = () => [];
+        forwardKeyframesGenerator = () => [];
+        backwardKeyframesGenerator = () => [];
       }
       // if only forward frames generator is unspecified, use backward generator and set mirrored to true
-      else if (!forwardFramesGenerator) {
-        forwardFramesGenerator = backwardFramesGenerator!;
+      else if (!forwardKeyframesGenerator) {
+        forwardKeyframesGenerator = backwardKeyframesGenerator!;
         this.fFramesMirrored = true;
       }
       // if only backward frames generator is unspecified, use forward generator and set mirrored to true
-      else if (!backwardFramesGenerator) {
-        backwardFramesGenerator = forwardFramesGenerator!;
+      else if (!backwardKeyframesGenerator) {
+        backwardKeyframesGenerator = forwardKeyframesGenerator!;
         this.bFramesMirrored = true;
       }
 
       // if neither RAF generators are specified, do nothing
-      if (!forwardRafGenerator && !backwardRafGenerator) {
+      if (!forwardMutatorGenerator && !backwardMutatorGenerator) {
         this.framesOnly = true;
       }
       // if only forward RAF mutator generator is unspecified, use backward generator and set mirrored to true
-      else if (!forwardRafGenerator) {
-        forwardRafGenerator = backwardRafGenerator;
+      else if (!forwardMutatorGenerator) {
+        forwardMutatorGenerator = backwardMutatorGenerator;
         this.fRafMirrored = true;
       }
       // if only backward RAF mutator generator is unspecified, use forward generator and set mirrored to true
-      else if (!backwardRafGenerator) {
-        backwardRafGenerator = forwardRafGenerator;
+      else if (!backwardMutatorGenerator) {
+        backwardMutatorGenerator = forwardMutatorGenerator;
         this.bRafMirrored = true;
       }
 
       this.keyframesGenerators = {
-        forwardFramesGenerator,
-        backwardFramesGenerator: backwardFramesGenerator!,
-        forwardRafGenerator,
-        backwardRafGenerator,
+        forwardKeyframesGenerator,
+        backwardKeyframesGenerator: backwardKeyframesGenerator!,
+        forwardMutatorGenerator,
+        backwardMutatorGenerator,
       };
     }
     catch (err: unknown) { throw this.generateError(err as Error); }
@@ -1294,17 +1294,17 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     try {
       // retrieve generators
       let {
-        forwardFramesGenerator,
-        backwardFramesGenerator,
-        forwardRafGenerator,
-        backwardRafGenerator,
+        forwardKeyframesGenerator,
+        backwardKeyframesGenerator,
+        forwardMutatorGenerator,
+        backwardMutatorGenerator,
       } = call(this.effectGenerator.composeEffect, this, ...this.getEffectDetails().effectOptions);
 
       this.keyframesGenerators = {
-        forwardFramesGenerator: forwardFramesGenerator! ?? backwardFramesGenerator!,
-        backwardFramesGenerator: backwardFramesGenerator! ?? forwardFramesGenerator!,
-        forwardRafGenerator: forwardRafGenerator ?? backwardRafGenerator,
-        backwardRafGenerator: backwardRafGenerator ?? forwardRafGenerator,
+        forwardKeyframesGenerator: forwardKeyframesGenerator! ?? backwardKeyframesGenerator!,
+        backwardKeyframesGenerator: backwardKeyframesGenerator! ?? forwardKeyframesGenerator!,
+        forwardMutatorGenerator: forwardMutatorGenerator ?? backwardMutatorGenerator,
+        backwardMutatorGenerator: backwardMutatorGenerator ?? forwardMutatorGenerator,
       };
     }
     catch (err: unknown) { throw this.generateError(err as Error); }
@@ -1332,11 +1332,13 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**
    * Calculates the value partway between two fixed numbers (an initial value and a final value)
    * based on the progress of the animation.
-   *  * Intended for use inside effect generator functions that utilize RAF loops.
+   *  * Intended for use inside {@link ComposedEffect.forwardMutatorGenerator} and {@link ComposedEffect.backwardMutatorGenerator}).
    * @param initialVal - the starting value
    * @param finalVal - the ending value
    * @returns the number that is a percentage of the way between `initialVal` and `finalVal` based on the
    * percentage of completion of the animation (playing or rewinding).
+   * 
+   * @see {@link ComposedEffect}
    * 
    * @example
    * <!-- EX:S id="AnimClip.computeTween-1" code-type="ts" -->
@@ -1347,9 +1349,9 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    *       composeEffect(degrees: number) {
    *         return {
    *           // when playing, keep computing the value between 0 and 'degrees'
-   *           forwardRafGenerator: () => () => { this.domElem.style.rotate = this.computeTween(0, degrees)+'deg'; },
+   *           forwardMutatorGenerator: () => () => { this.domElem.style.rotate = this.computeTween(0, degrees)+'deg'; },
    *           // when rewinding, keep computing the value between 'degrees' and 0
-   *           backwardRafGenerator: () => () => { this.domElem.style.rotate = this.computeTween(degrees, 0)+'deg'; }
+   *           backwardMutatorGenerator: () => () => { this.domElem.style.rotate = this.computeTween(degrees, 0)+'deg'; }
    *         };
    *       }
    *     }

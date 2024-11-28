@@ -171,13 +171,13 @@ const clipFactories = webimator.createAnimationClipFactories({
     coolZoomIn: {
       composeEffect(initialScale: number) {
         return {
-          forwardFramesGenerator: () => [
+          forwardKeyframesGenerator: () => [
             {scale: initialScale, opacity: 0},
             {scale: 1, opacity: 1}
           ],
           // (backwardFrames could have been omitted in this case because
           // the reversal of forwardFrames is exactly equivalent)
-          backwardFramesGenerator: () => [
+          backwardKeyframesGenerator: () => [
             {scale: 1, opacity: 1},
             {scale: initialScale, opacity: 0}
           ]
@@ -188,11 +188,11 @@ const clipFactories = webimator.createAnimationClipFactories({
     blinkIn: {
       composeEffect() {
         return {
-          forwardFramesGenerator: () => [
+          forwardKeyframesGenerator: () => [
             {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}
           ],
-          // (backwardFramesGenerator() omitted because the reversal of
-          // forwardFramesGenerator() is exactly equivalent)
+          // (backwardKeyframesGenerator() omitted because the reversal of
+          // forwardKeyframesGenerator() is exactly equivalent)
         };
       }
     }
@@ -210,15 +210,15 @@ const clipFactories = webimator.createAnimationClipFactories({
         }
   
         return {
-          forwardFramesGenerator: () => {
+          forwardKeyframesGenerator: () => {
             return [
               {translate: computeTranslationStr()}
             ];
           },
-          // backwardFramesGenerator could have been omitted because the result
-          // of running forwardFramesGenerator() again and reversing the keyframes
+          // backwardKeyframesGenerator could have been omitted because the result
+          // of running forwardKeyframesGenerator() again and reversing the keyframes
           // produces the same desired rewinding effect in this case
-          backwardFramesGenerator: () => {
+          backwardKeyframesGenerator: () => {
             return [
               {translate: computeTranslationStr()},
               {translate: `0 0`}
@@ -658,9 +658,9 @@ const {Entrance} = webimator.createAnimationClipFactories({
       composeEffect(degrees: number) {
         return {
           // when playing, keep computing the value between 0 and 'degrees'
-          forwardRafGenerator: () => () => { this.domElem.style.rotate = this.computeTween(0, degrees)+'deg'; },
+          forwardMutatorGenerator: () => () => { this.domElem.style.rotate = this.computeTween(0, degrees)+'deg'; },
           // when rewinding, keep computing the value between 'degrees' and 0
-          backwardRafGenerator: () => () => { this.domElem.style.rotate = this.computeTween(degrees, 0)+'deg'; }
+          backwardMutatorGenerator: () => () => { this.domElem.style.rotate = this.computeTween(degrees, 0)+'deg'; }
         };
       }
     }
@@ -787,7 +787,7 @@ const str6: EasingString = 'cubic-bezier(0.25, 0.1, 0.25)'; // valid (matches st
 
 
 {
-/**** EX:S id="ComposedEffect.frame-generators" */
+/**** EX:S id="ComposedEffect.keyframe-generators" */
 const clipFactories = webimator.createAnimationClipFactories({
   customEntranceEffects: {
     // -----------------------------------------------------------------
@@ -796,13 +796,13 @@ const clipFactories = webimator.createAnimationClipFactories({
     // Let us pretend you made this custom entrance animation effect named 'zoomIn'.
     // For this animation, you wrote the forward keyframes generator and
     // then verified that the desired rewinding effect is exactly equivalent
-    // to playing the keyframes produced by forwardFramesGenerator() in reverse,
-    // so you omit backwardFramesGenerator.
+    // to playing the keyframes produced by forwardKeyframesGenerator() in reverse,
+    // so you omit backwardKeyframesGenerator.
     zoomIn: {
       composeEffect(initialScale: number) {
         // return ComposedEffect
         return {
-          forwardFramesGenerator: () => {
+          forwardKeyframesGenerator: () => {
             console.log('About to return keyframes!');
             // return Keyframes (Keyframe[])
             return [
@@ -810,11 +810,11 @@ const clipFactories = webimator.createAnimationClipFactories({
               {scale: 1, opacity: 1}             // Keyframe 2
             ];
           },
-          // backwardFramesGenerator() can be omitted in this case because
+          // backwardKeyframesGenerator() can be omitted in this case because
           // the reversal of the forward frames is exactly equivalent.
           // It is written below for demonstration purposes but commented out.
           // -----------------------------------------------------------------------
-          // backwardFramesGenerator: () => {
+          // backwardKeyframesGenerator: () => {
           //   // return Keyframes (Keyframe[])
           //   return [
           //     {scale: 1, opacity: 1},           // Keyframe 1
@@ -833,7 +833,7 @@ const clipFactories = webimator.createAnimationClipFactories({
     // Let us pretend you made this custom animation effect for moving an element rightward.
     // For this animation, you wrote the forward keyframes generator and then
     // checked to see if the desired rewinding effect could be achieved by just reusing
-    // forwardFramesGenerator() and reversing the result. You realize that this effect is NOT
+    // forwardKeyframesGenerator() and reversing the result. You realize that this effect is NOT
     // a candidate for that shortcut, so you write backwardKeyframesEffect.
     translateRight: {
       composeEffect(numPixels: number) {
@@ -846,19 +846,19 @@ const clipFactories = webimator.createAnimationClipFactories({
   
         // return ComposedEffect
         return {
-          forwardFramesGenerator: () => {
+          forwardKeyframesGenerator: () => {
             // return Keyframes (Keyframe[])
             return [
               {translate: createTranslationString()} // Keyframe
             ];
           },
-          // backwardFramesGenerator() must be specified because reversing the keyframes produced by
-          // forwardFramesGenerator() would not have the intended effect (because of
+          // backwardKeyframesGenerator() must be specified because reversing the keyframes produced by
+          // forwardKeyframesGenerator() would not have the intended effect (because of
           // {composite: accumulate}, trying to simply use the reversal of
-          // {translate: createTranslationString()} from forwardFramesGenerator() would actually
+          // {translate: createTranslationString()} from forwardKeyframesGenerator() would actually
           // cause the target element to jump an additional numPixels pixels to the right
           // before sliding left, which is not the intended rewinding effect).
-          backwardFramesGenerator: () => {
+          backwardKeyframesGenerator: () => {
             // return Keyframes (Keyframe[])
             return [
               {translate: '-'+createTranslationString()}, // Keyframe
@@ -880,30 +880,30 @@ const element = document.querySelector('.some-element');
 (async () => {
   const ent = clipFactories.Entrance(element, 'zoomIn', [0.2]);
   await ent.play();
-  // ↑ forwardFramesGenerator() will run and produce the Keyframe array
+  // ↑ forwardKeyframesGenerator() will run and produce the Keyframe array
   // [{scale: initialScale, opacity: 0}, {scale: 1, opacity: 1}].
   // That Keyframe array is used for the animation effect as the clip plays forward.
 
   await ent.rewind();
-  // ↑ Since backwardFramesGenerator() was not set, the clip will run forwardFramesGenerator()
+  // ↑ Since backwardKeyframesGenerator() was not set, the clip will run forwardKeyframesGenerator()
   // again and just use its effect in reverse when rewinding (which would be exactly equivalent
-  // to specifying backwardFramesGenerator() and having it return
+  // to specifying backwardKeyframesGenerator() and having it return
   // [{scale: 1, opacity: 1}, {scale: initialScale, opacity: 0}]).
-  // In other words, forwardFramesGenerator() will run again to produce the Keyframe array
+  // In other words, forwardKeyframesGenerator() will run again to produce the Keyframe array
   // [{scale: initialScale, opacity: 0}, {scale: 1, opacity: 1}], then
   // the Keyframe array is used for the animation effect but set to go in reverse,
   // and the effect is used as the clip rewinds.
 
   const mot = clipFactories.Motion(element, 'translateRight', [756]);
   await mot.play();
-  // ↑ forwardFramesGenerator() will run and produce the Keyframes array [{translate: '756px'}].
+  // ↑ forwardKeyframesGenerator() will run and produce the Keyframes array [{translate: '756px'}].
   // That Keyframe array is used for the animation effect as the clip plays.
 
   await mot.rewind();
   // ↑ backwawrdFramesGenerator() will run and produce the Keyframe array [{translate: '-756px'}].
   // That Keyframe array is used for the animation effect as the clip rewinds.
 })();
-/**** EX:E id="ComposedEffect.frame-generators" */
+/**** EX:E id="ComposedEffect.keyframe-generators" */
 }
 
 {
@@ -920,7 +920,7 @@ const clipFactories = webimator.createAnimationClipFactories({
           // The mutation is to use the scrollTo() method on the element.
           // Thanks to computeTween(), there will be a smooth scroll
           // from initialPosition to yPosition
-          forwardRafGenerator: () => {
+          forwardMutatorGenerator: () => {
             // return Mutator
             return () => {
               this.domElem.scrollTo({
@@ -933,9 +933,9 @@ const clipFactories = webimator.createAnimationClipFactories({
           // The forward mutation loop is not invertible because reversing it requires
           // re-computing the element's scroll position at the time of rewinding
           // (which may have since changed for any number of reasons, including user
-          // scrolling, size changes, etc.). So we must define backwardRafGenerator()
+          // scrolling, size changes, etc.). So we must define backwardMutatorGenerator()
           // to do exactly that.
-          backwardRafGenerator: () => {
+          backwardMutatorGenerator: () => {
             // return Mutator
             return () => {
               const currentPosition = this.domElem.scrollTop;
@@ -967,7 +967,7 @@ const clipFactories = webimator.createAnimationClipFactories({
       composeEffect() {
         // return ComposedEffect
         return {
-          forwardFramesGenerator: () => {
+          forwardKeyframesGenerator: () => {
             // return Keyframes (PropertyIndexedKeyframes)
             return {
               opacity: [0, 0.5, 0.1, 0.7, 0, 1],
@@ -975,10 +975,10 @@ const clipFactories = webimator.createAnimationClipFactories({
             };
           },
           // The desired rewinding effect is equivalent to using the forward frames generator
-          // and reversing the output, so backwardFramesGenerator() can be omitted. But if you did
+          // and reversing the output, so backwardKeyframesGenerator() can be omitted. But if you did
           // not realize this, you could just specify it anyway, it would simply look like this:
           // ---------------------------------------------------------------------------------------
-          // backwardFramesGenerator: () => {
+          // backwardKeyframesGenerator: () => {
           //   // return Keyframes (PropertyIndexedKeyframes) 
           //   return {
           //     opacity: [1, 0, 0.7, 0.1, 0.5, 0],
@@ -996,7 +996,7 @@ const clipFactories = webimator.createAnimationClipFactories({
       composeEffect() {
         // return Composed Effect
         return {
-          forwardFramesGenerator: () => {
+          forwardKeyframesGenerator: () => {
             // return Keyframes (Keyframe[])
             return [
               {
@@ -1018,10 +1018,10 @@ const clipFactories = webimator.createAnimationClipFactories({
           },
           // It would be a pain to figure out what the backward keyframes should look like 
           // for rewinding this effect. Fortunately, the desired rewinding effect happens to
-          // be equivalent to re-using forwardFramesGenerator() and using its reverse,
-          // so backwardFramesGenerator() can be omitted.
+          // be equivalent to re-using forwardKeyframesGenerator() and using its reverse,
+          // so backwardKeyframesGenerator() can be omitted.
           // ---------------------------------------------------------------------------------------
-          // backwardFramesGenerator: () => {
+          // backwardKeyframesGenerator: () => {
           //   // return Keyframes (Keyframe[])
           //   return [] // ??????
           // },
@@ -1047,18 +1047,18 @@ const clipFactories = webimator.createAnimationClipFactories({
           // write flyOut; if you write slideOut, you'll probably write slideIn; if you write riseUp,
           // you'll probably write sinkDown. The beauty is that if riseUp and sinkDown are opposites,
           // then we know that playing riseUp should be the same as rewinding sinkDown. Therefore,
-          // we can copy-paste the logic from riseUp's forwardFramesGenerator() and use it for
-          // sinkDown's backwardFramesGenerator(). Since we know the effect is invertible already,
-          // we do not have to specify forwardFramesGenerator() here. Once gain, we have gotten away
+          // we can copy-paste the logic from riseUp's forwardKeyframesGenerator() and use it for
+          // sinkDown's backwardKeyframesGenerator(). Since we know the effect is invertible already,
+          // we do not have to specify forwardKeyframesGenerator() here. Once gain, we have gotten away
           // with just figuring out only 1 set of keyframes without having
           // to figure out what the other set looks like.
           // ---------------------------------------------------------------------------------------
-          // forwardFramesGenerator: () => {
+          // forwardKeyframesGenerator: () => {
           //   // return Keyframes (Keyframe[])
           //   return [] // ??????
           // },
 
-          backwardFramesGenerator: () => {
+          backwardKeyframesGenerator: () => {
             // return Keyframes (Keyframe[])
             return [
               {
@@ -1099,20 +1099,20 @@ const clipFactories = webimator.createAnimationClipFactories({
   
         // return ComposedEffect
         return {
-          forwardFramesGenerator: () => {
+          forwardKeyframesGenerator: () => {
             // return Keyframes (Keyframe[])
             return [
               {translate: computeTranslationStr()}
             ];
           },
 
-          // backwardFramesGenerator() can be omitted because the result of running
-          // forwardFramesGenerator() again and reversing its output keyframes produces
+          // backwardKeyframesGenerator() can be omitted because the result of running
+          // forwardKeyframesGenerator() again and reversing its output keyframes produces
           // the same desired rewinding effect in this case. But if you were not aware
           // of this, you could just define it anyway, and it would look like the code below
           // (commented out).
           // ------------------------------------------------------------------------------------------
-          // backwardFramesGenerator: () => {
+          // backwardKeyframesGenerator: () => {
           //   // return Keyframes (Keyframe[])
           //   return [
           //     {translate: computeTranslationStr()},
@@ -1120,18 +1120,18 @@ const clipFactories = webimator.createAnimationClipFactories({
           //   ];
           // },
 
-          forwardRafGenerator: () => {
+          forwardMutatorGenerator: () => {
             // return Mutator
             return () => {
               this.domElem.textContent = `${this.computeTween(0, 100)}%`;
             };
           },
 
-          // backwardRafGenerator can be omitted because the mutator formed by forwardRafGenerator()
+          // backwardMutatorGenerator can be omitted because the mutator formed by forwardMutatorGenerator()
           // here is invertible. But if you were not aware of this, you could just define it
           // anyway, and it would look like the code below (commented out).
           // ------------------------------------------------------------------------------------------
-          // backwardRafGenerator: () => {
+          // backwardMutatorGenerator: () => {
           //   // return Mutator
           //   return () => {
           //     this.domElem.textContent = `${this.computeTween(100, 0)}%`;
@@ -1169,19 +1169,19 @@ const clipFactories = webimator.createAnimationClipFactories({
     
           // return ComposedEffect
           return {
-            forwardFramesGenerator: () => {
+            forwardKeyframesGenerator: () => {
               // return Keyframes (Keyframe][])
               return [
                 {translate: createTranslationString()} // Keyframe
               ];
             },
-            // backwardFramesGenerator() must be specified because reversing the keyframes produced by
-            // forwardFramesGenerator() would not have the intended effect (because of
+            // backwardKeyframesGenerator() must be specified because reversing the keyframes produced by
+            // forwardKeyframesGenerator() would not have the intended effect (because of
             // {composite: accumulate}, trying to simply use the reversal of
-            // {translate: createTranslationString()} from forwardFramesGenerator() would actually
+            // {translate: createTranslationString()} from forwardKeyframesGenerator() would actually
             // cause the target element to jump an additional numPixels pixels to the right
             // before sliding left, which is not the intended rewinding effect).
-            backwardFramesGenerator: () => {
+            backwardKeyframesGenerator: () => {
               // return Keyframes (Keyframe[])
               return [
                 {translate: '-'+createTranslationString()}, // Keyframe
@@ -1207,7 +1207,7 @@ const clipFactories = webimator.createAnimationClipFactories({
             // The mutation is to use the scrollTo() method on the element.
             // Thanks to computeTween(), there will be a smooth scroll
             // from initialPosition to yPosition
-            forwardRafGenerator: () => {
+            forwardMutatorGenerator: () => {
               // return Mutator
               return () => {
                 this.domElem.scrollTo({
@@ -1220,9 +1220,9 @@ const clipFactories = webimator.createAnimationClipFactories({
             // The forward mutation loop is not invertible because reversing it requires
             // re-computing the element's scroll position at the time of rewinding
             // (which may have since changed for any number of reasons, including user
-            // scrolling, size changes, etc.). So we must define backwardRafGenerator()
+            // scrolling, size changes, etc.). So we must define backwardMutatorGenerator()
             // to do exactly that.
-            backwardRafGenerator: () => {
+            backwardMutatorGenerator: () => {
               // return Mutator
               return () => {
                 const currentPosition = this.domElem.scrollTop;

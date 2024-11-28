@@ -9,15 +9,15 @@ import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord } from
 /**
  * Contains up to 4 callback functions (at _least_ 1 must be specified) that will be called to
  * produce the effect for an animation clip. Returned by {@link EffectGenerator.composeEffect}.
- *  * {@link ComposedEffect.forwardFramesGenerator | forwardFramesGenerator} will run every time the clip is played,
+ *  * {@link ComposedEffect.forwardKeyframesGenerator | forwardKeyframesGenerator} will run every time the clip is played,
  * producing a {@link Keyframes} object.
- *  * {@link ComposedEffect.backwardFramesGenerator | backwardFramesGenerator} will run every time the clip is rewound,
+ *  * {@link ComposedEffect.backwardKeyframesGenerator | backwardKeyframesGenerator} will run every time the clip is rewound,
  * producing a {@link Keyframes} object.
  *    * If either one is omitted, the other callback will be used instead, and the result will just be played in reverse.
  * It is up to you to check whether the animation effect is valid if this shortcut is taken.
- *  * {@link ComposedEffect.forwardRafGenerator | forwardRafGenerator} will run every time the clip is played,
+ *  * {@link ComposedEffect.forwardMutatorGenerator | forwardMutatorGenerator} will run every time the clip is played,
  * producing a {@link Mutator} function.
- *  * {@link ComposedEffect.backwardRafGenerator | backwardRafGenerator} will run every time the clip is rewound,
+ *  * {@link ComposedEffect.backwardMutatorGenerator | backwardMutatorGenerator} will run every time the clip is rewound,
  * producing a {@link Mutator} function.
  *    * If either one is omitted, the other callback will be used instead, and the result will just be reversed.
  * It is up to you to check whether the animation effect is valid if this shortcut is taken.
@@ -33,7 +33,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    * @see [Keyframe Formats](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Keyframe_Formats)
    * 
    * @example
-   * <!-- EX:S id="ComposedEffect.frame-generators" code-type="ts" -->
+   * <!-- EX:S id="ComposedEffect.keyframe-generators" code-type="ts" -->
    * ```ts
    * const clipFactories = webimator.createAnimationClipFactories({
    *   customEntranceEffects: {
@@ -43,13 +43,13 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *     // Let us pretend you made this custom entrance animation effect named 'zoomIn'.
    *     // For this animation, you wrote the forward keyframes generator and
    *     // then verified that the desired rewinding effect is exactly equivalent
-   *     // to playing the keyframes produced by forwardFramesGenerator() in reverse,
-   *     // so you omit backwardFramesGenerator.
+   *     // to playing the keyframes produced by forwardKeyframesGenerator() in reverse,
+   *     // so you omit backwardKeyframesGenerator.
    *     zoomIn: {
    *       composeEffect(initialScale: number) {
    *         // return ComposedEffect
    *         return {
-   *           forwardFramesGenerator: () => {
+   *           forwardKeyframesGenerator: () => {
    *             console.log('About to return keyframes!');
    *             // return Keyframes (Keyframe[])
    *             return [
@@ -57,11 +57,11 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *               {scale: 1, opacity: 1}             // Keyframe 2
    *             ];
    *           },
-   *           // backwardFramesGenerator() can be omitted in this case because
+   *           // backwardKeyframesGenerator() can be omitted in this case because
    *           // the reversal of the forward frames is exactly equivalent.
    *           // It is written below for demonstration purposes but commented out.
    *           // -----------------------------------------------------------------------
-   *           // backwardFramesGenerator: () => {
+   *           // backwardKeyframesGenerator: () => {
    *           //   // return Keyframes (Keyframe[])
    *           //   return [
    *           //     {scale: 1, opacity: 1},           // Keyframe 1
@@ -80,7 +80,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *     // Let us pretend you made this custom animation effect for moving an element rightward.
    *     // For this animation, you wrote the forward keyframes generator and then
    *     // checked to see if the desired rewinding effect could be achieved by just reusing
-   *     // forwardFramesGenerator() and reversing the result. You realize that this effect is NOT
+   *     // forwardKeyframesGenerator() and reversing the result. You realize that this effect is NOT
    *     // a candidate for that shortcut, so you write backwardKeyframesEffect.
    *     translateRight: {
    *       composeEffect(numPixels: number) {
@@ -93,19 +93,19 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *   
    *         // return ComposedEffect
    *         return {
-   *           forwardFramesGenerator: () => {
+   *           forwardKeyframesGenerator: () => {
    *             // return Keyframes (Keyframe[])
    *             return [
    *               {translate: createTranslationString()} // Keyframe
    *             ];
    *           },
-   *           // backwardFramesGenerator() must be specified because reversing the keyframes produced by
-   *           // forwardFramesGenerator() would not have the intended effect (because of
+   *           // backwardKeyframesGenerator() must be specified because reversing the keyframes produced by
+   *           // forwardKeyframesGenerator() would not have the intended effect (because of
    *           // {composite: accumulate}, trying to simply use the reversal of
-   *           // {translate: createTranslationString()} from forwardFramesGenerator() would actually
+   *           // {translate: createTranslationString()} from forwardKeyframesGenerator() would actually
    *           // cause the target element to jump an additional numPixels pixels to the right
    *           // before sliding left, which is not the intended rewinding effect).
-   *           backwardFramesGenerator: () => {
+   *           backwardKeyframesGenerator: () => {
    *             // return Keyframes (Keyframe[])
    *             return [
    *               {translate: '-'+createTranslationString()}, // Keyframe
@@ -127,23 +127,23 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    * (async () => {
    *   const ent = clipFactories.Entrance(element, 'zoomIn', [0.2]);
    *   await ent.play();
-   *   // ↑ forwardFramesGenerator() will run and produce the Keyframe array
+   *   // ↑ forwardKeyframesGenerator() will run and produce the Keyframe array
    *   // [{scale: initialScale, opacity: 0}, {scale: 1, opacity: 1}].
    *   // That Keyframe array is used for the animation effect as the clip plays forward.
    * 
    *   await ent.rewind();
-   *   // ↑ Since backwardFramesGenerator() was not set, the clip will run forwardFramesGenerator()
+   *   // ↑ Since backwardKeyframesGenerator() was not set, the clip will run forwardKeyframesGenerator()
    *   // again and just use its effect in reverse when rewinding (which would be exactly equivalent
-   *   // to specifying backwardFramesGenerator() and having it return
+   *   // to specifying backwardKeyframesGenerator() and having it return
    *   // [{scale: 1, opacity: 1}, {scale: initialScale, opacity: 0}]).
-   *   // In other words, forwardFramesGenerator() will run again to produce the Keyframe array
+   *   // In other words, forwardKeyframesGenerator() will run again to produce the Keyframe array
    *   // [{scale: initialScale, opacity: 0}, {scale: 1, opacity: 1}], then
    *   // the Keyframe array is used for the animation effect but set to go in reverse,
    *   // and the effect is used as the clip rewinds.
    * 
    *   const mot = clipFactories.Motion(element, 'translateRight', [756]);
    *   await mot.play();
-   *   // ↑ forwardFramesGenerator() will run and produce the Keyframes array [{translate: '756px'}].
+   *   // ↑ forwardKeyframesGenerator() will run and produce the Keyframes array [{translate: '756px'}].
    *   // That Keyframe array is used for the animation effect as the clip plays.
    * 
    *   await mot.rewind();
@@ -151,9 +151,9 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *   // That Keyframe array is used for the animation effect as the clip rewinds.
    * })();
    * ```
-   * <!-- EX:E id="ComposedEffect.frame-generators" -->
+   * <!-- EX:E id="ComposedEffect.keyframe-generators" -->
    */
-  forwardFramesGenerator?: () => Keyframes;
+  forwardKeyframesGenerator?: () => Keyframes;
   /**
    * Performs any necessary operations/computations and then returns keyframes ({@link Keyframes}).
    * @returns Keyframes, either in the form of a {@link PropertyIndexedKeyframes} object
@@ -161,7 +161,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    * @see [Keyframe Formats](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Keyframe_Formats)
    * 
    * @example
-   * <!-- EX:S id="ComposedEffect.frame-generators" code-type="ts" -->
+   * <!-- EX:S id="ComposedEffect.keyframe-generators" code-type="ts" -->
    * ```ts
    * const clipFactories = webimator.createAnimationClipFactories({
    *   customEntranceEffects: {
@@ -171,13 +171,13 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *     // Let us pretend you made this custom entrance animation effect named 'zoomIn'.
    *     // For this animation, you wrote the forward keyframes generator and
    *     // then verified that the desired rewinding effect is exactly equivalent
-   *     // to playing the keyframes produced by forwardFramesGenerator() in reverse,
-   *     // so you omit backwardFramesGenerator.
+   *     // to playing the keyframes produced by forwardKeyframesGenerator() in reverse,
+   *     // so you omit backwardKeyframesGenerator.
    *     zoomIn: {
    *       composeEffect(initialScale: number) {
    *         // return ComposedEffect
    *         return {
-   *           forwardFramesGenerator: () => {
+   *           forwardKeyframesGenerator: () => {
    *             console.log('About to return keyframes!');
    *             // return Keyframes (Keyframe[])
    *             return [
@@ -185,11 +185,11 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *               {scale: 1, opacity: 1}             // Keyframe 2
    *             ];
    *           },
-   *           // backwardFramesGenerator() can be omitted in this case because
+   *           // backwardKeyframesGenerator() can be omitted in this case because
    *           // the reversal of the forward frames is exactly equivalent.
    *           // It is written below for demonstration purposes but commented out.
    *           // -----------------------------------------------------------------------
-   *           // backwardFramesGenerator: () => {
+   *           // backwardKeyframesGenerator: () => {
    *           //   // return Keyframes (Keyframe[])
    *           //   return [
    *           //     {scale: 1, opacity: 1},           // Keyframe 1
@@ -208,7 +208,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *     // Let us pretend you made this custom animation effect for moving an element rightward.
    *     // For this animation, you wrote the forward keyframes generator and then
    *     // checked to see if the desired rewinding effect could be achieved by just reusing
-   *     // forwardFramesGenerator() and reversing the result. You realize that this effect is NOT
+   *     // forwardKeyframesGenerator() and reversing the result. You realize that this effect is NOT
    *     // a candidate for that shortcut, so you write backwardKeyframesEffect.
    *     translateRight: {
    *       composeEffect(numPixels: number) {
@@ -221,19 +221,19 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *   
    *         // return ComposedEffect
    *         return {
-   *           forwardFramesGenerator: () => {
+   *           forwardKeyframesGenerator: () => {
    *             // return Keyframes (Keyframe[])
    *             return [
    *               {translate: createTranslationString()} // Keyframe
    *             ];
    *           },
-   *           // backwardFramesGenerator() must be specified because reversing the keyframes produced by
-   *           // forwardFramesGenerator() would not have the intended effect (because of
+   *           // backwardKeyframesGenerator() must be specified because reversing the keyframes produced by
+   *           // forwardKeyframesGenerator() would not have the intended effect (because of
    *           // {composite: accumulate}, trying to simply use the reversal of
-   *           // {translate: createTranslationString()} from forwardFramesGenerator() would actually
+   *           // {translate: createTranslationString()} from forwardKeyframesGenerator() would actually
    *           // cause the target element to jump an additional numPixels pixels to the right
    *           // before sliding left, which is not the intended rewinding effect).
-   *           backwardFramesGenerator: () => {
+   *           backwardKeyframesGenerator: () => {
    *             // return Keyframes (Keyframe[])
    *             return [
    *               {translate: '-'+createTranslationString()}, // Keyframe
@@ -255,23 +255,23 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    * (async () => {
    *   const ent = clipFactories.Entrance(element, 'zoomIn', [0.2]);
    *   await ent.play();
-   *   // ↑ forwardFramesGenerator() will run and produce the Keyframe array
+   *   // ↑ forwardKeyframesGenerator() will run and produce the Keyframe array
    *   // [{scale: initialScale, opacity: 0}, {scale: 1, opacity: 1}].
    *   // That Keyframe array is used for the animation effect as the clip plays forward.
    * 
    *   await ent.rewind();
-   *   // ↑ Since backwardFramesGenerator() was not set, the clip will run forwardFramesGenerator()
+   *   // ↑ Since backwardKeyframesGenerator() was not set, the clip will run forwardKeyframesGenerator()
    *   // again and just use its effect in reverse when rewinding (which would be exactly equivalent
-   *   // to specifying backwardFramesGenerator() and having it return
+   *   // to specifying backwardKeyframesGenerator() and having it return
    *   // [{scale: 1, opacity: 1}, {scale: initialScale, opacity: 0}]).
-   *   // In other words, forwardFramesGenerator() will run again to produce the Keyframe array
+   *   // In other words, forwardKeyframesGenerator() will run again to produce the Keyframe array
    *   // [{scale: initialScale, opacity: 0}, {scale: 1, opacity: 1}], then
    *   // the Keyframe array is used for the animation effect but set to go in reverse,
    *   // and the effect is used as the clip rewinds.
    * 
    *   const mot = clipFactories.Motion(element, 'translateRight', [756]);
    *   await mot.play();
-   *   // ↑ forwardFramesGenerator() will run and produce the Keyframes array [{translate: '756px'}].
+   *   // ↑ forwardKeyframesGenerator() will run and produce the Keyframes array [{translate: '756px'}].
    *   // That Keyframe array is used for the animation effect as the clip plays.
    * 
    *   await mot.rewind();
@@ -279,9 +279,9 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *   // That Keyframe array is used for the animation effect as the clip rewinds.
    * })();
    * ```
-   * <!-- EX:E id="ComposedEffect.frame-generators" -->
+   * <!-- EX:E id="ComposedEffect.keyframe-generators" -->
    */
-  backwardFramesGenerator?: () => Keyframes;
+  backwardKeyframesGenerator?: () => Keyframes;
   /**
    * Performs any necessary operations/computations and then returns a function that will be run on every frame.
    * @returns A function that presumably mutates the target element in some way (possibly with the help of {@link AnimClip.computeTween}) and will automatically be run on every frame. Since it will be run on every frame, it will create the illusion of a smooth animation.
@@ -302,7 +302,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *           // The mutation is to use the scrollTo() method on the element.
    *           // Thanks to computeTween(), there will be a smooth scroll
    *           // from initialPosition to yPosition
-   *           forwardRafGenerator: () => {
+   *           forwardMutatorGenerator: () => {
    *             // return Mutator
    *             return () => {
    *               this.domElem.scrollTo({
@@ -315,9 +315,9 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *           // The forward mutation loop is not invertible because reversing it requires
    *           // re-computing the element's scroll position at the time of rewinding
    *           // (which may have since changed for any number of reasons, including user
-   *           // scrolling, size changes, etc.). So we must define backwardRafGenerator()
+   *           // scrolling, size changes, etc.). So we must define backwardMutatorGenerator()
    *           // to do exactly that.
-   *           backwardRafGenerator: () => {
+   *           backwardMutatorGenerator: () => {
    *             // return Mutator
    *             return () => {
    *               const currentPosition = this.domElem.scrollTop;
@@ -339,7 +339,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    * ```
    * <!-- EX:E id="ComposedEffect.mutator-generators" -->
    */
-  forwardRafGenerator?: () => Mutator;
+  forwardMutatorGenerator?: () => Mutator;
   /**
    * Performs any necessary operations/computations and then returns a function that will be run on every frame.
    * @returns A function that presumably mutates the target element in some way (possibly with the help of {@link AnimClip.computeTween}) and will automatically be run on every frame. Since it will be run on every frame, it will create the illusion of a smooth animation.
@@ -360,7 +360,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *           // The mutation is to use the scrollTo() method on the element.
    *           // Thanks to computeTween(), there will be a smooth scroll
    *           // from initialPosition to yPosition
-   *           forwardRafGenerator: () => {
+   *           forwardMutatorGenerator: () => {
    *             // return Mutator
    *             return () => {
    *               this.domElem.scrollTo({
@@ -373,9 +373,9 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *           // The forward mutation loop is not invertible because reversing it requires
    *           // re-computing the element's scroll position at the time of rewinding
    *           // (which may have since changed for any number of reasons, including user
-   *           // scrolling, size changes, etc.). So we must define backwardRafGenerator()
+   *           // scrolling, size changes, etc.). So we must define backwardMutatorGenerator()
    *           // to do exactly that.
-   *           backwardRafGenerator: () => {
+   *           backwardMutatorGenerator: () => {
    *             // return Mutator
    *             return () => {
    *               const currentPosition = this.domElem.scrollTop;
@@ -397,7 +397,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    * ```
    * <!-- EX:E id="ComposedEffect.mutator-generators" -->
    */
-  backwardRafGenerator?: () => Mutator;
+  backwardMutatorGenerator?: () => Mutator;
 }>;
 
 // TODO: add code examples
@@ -474,20 +474,20 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      * ent.play();
      * ```
      * ↑ `composeEffect()` runs for the first time, producing a `ComposedEffect` that contains up to 4 callbacks.
-     * The `forwardFramesGenerator()` (if exists) and `forwardRafGenerator()` (if exists) callbacks are called to
+     * The `forwardKeyframesGenerator()` (if exists) and `forwardMutatorGenerator()` (if exists) callbacks are called to
      * produce the forward effect, and then the clip plays, using that animation effect.
      * 
      * ```ts
      * ent.rewind();
      * ```
-     * ↑ The `backwardFramesGenerator()` (if exists) and `backwardRafGenerator()` (if exists) callbacks are called to
+     * ↑ The `backwardKeyframesGenerator()` (if exists) and `backwardMutatorGenerator()` (if exists) callbacks are called to
      * produce the backward effect, and then the clip rewinds, using that animation effect.
      * 
      * ```ts
      * ent.play();
      * ```
      * ↑ `composeEffect()` runs for the second time, producing a new `ComposedEffect` that contains up to 4 callbacks.
-     * The `forwardFramesGenerator()` (if exists) and `forwardRafGenerator()` (if exists) callbacks are called to
+     * The `forwardKeyframesGenerator()` (if exists) and `forwardMutatorGenerator()` (if exists) callbacks are called to
      * produce the forward effect, and then the clip plays, using that animation effect.
      * 
      * Behind the scenes, the animation inside an animation clip does not actually simply play on `play()` and rewind on
@@ -498,15 +498,15 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      * forward frames.
      * Thus, when a clip is played with `play()` and rewound with `rewind()`, the internal animation is actually swapping between
      * the forward and backward frames and then playing. A similar principle holds for
-     * `forwardRafGenerator()` and `backwardRafGenerator()`.
+     * `forwardMutatorGenerator()` and `backwardMutatorGenerator()`.
      * 
      * This design makes it possible to define more sophisticated animations that can account dynamic factors like screen size,
      * shifting elements, etc. The semantics of some animations are impossible unless the backward effect is specially made, so
      * we allow the backward effect to be defined independently of the forward effect.
      * However, for effects that do not require this (likely the majority of them) (i.e., effects where the desired rewinding
-     * effect could achieved by simply re-running `forwardFramesGenerator()` for its keyframes and then playing
+     * effect could achieved by simply re-running `forwardKeyframesGenerator()` for its keyframes and then playing
      * the internal animation with its direction reversed), the backward generator can be omitted. We can say that the
-     * forward generator, or `forwardFramesGenerator()`, is "invertible".
+     * forward generator, or `forwardKeyframesGenerator()`, is "invertible".
      * The same holds true for the mutator generators. It is up to you, however, to test whether your custom animations
      * do or don't need specially written backward effects.
      * 
@@ -521,7 +521,7 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      *       composeEffect() {
      *         // return ComposedEffect
      *         return {
-     *           forwardFramesGenerator: () => {
+     *           forwardKeyframesGenerator: () => {
      *             // return Keyframes (PropertyIndexedKeyframes)
      *             return {
      *               opacity: [0, 0.5, 0.1, 0.7, 0, 1],
@@ -529,10 +529,10 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      *             };
      *           },
      *           // The desired rewinding effect is equivalent to using the forward frames generator
-     *           // and reversing the output, so backwardFramesGenerator() can be omitted. But if you did
+     *           // and reversing the output, so backwardKeyframesGenerator() can be omitted. But if you did
      *           // not realize this, you could just specify it anyway, it would simply look like this:
      *           // ---------------------------------------------------------------------------------------
-     *           // backwardFramesGenerator: () => {
+     *           // backwardKeyframesGenerator: () => {
      *           //   // return Keyframes (PropertyIndexedKeyframes) 
      *           //   return {
      *           //     opacity: [1, 0, 0.7, 0.1, 0.5, 0],
@@ -550,7 +550,7 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      *       composeEffect() {
      *         // return Composed Effect
      *         return {
-     *           forwardFramesGenerator: () => {
+     *           forwardKeyframesGenerator: () => {
      *             // return Keyframes (Keyframe[])
      *             return [
      *               {
@@ -572,10 +572,10 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      *           },
      *           // It would be a pain to figure out what the backward keyframes should look like 
      *           // for rewinding this effect. Fortunately, the desired rewinding effect happens to
-     *           // be equivalent to re-using forwardFramesGenerator() and using its reverse,
-     *           // so backwardFramesGenerator() can be omitted.
+     *           // be equivalent to re-using forwardKeyframesGenerator() and using its reverse,
+     *           // so backwardKeyframesGenerator() can be omitted.
      *           // ---------------------------------------------------------------------------------------
-     *           // backwardFramesGenerator: () => {
+     *           // backwardKeyframesGenerator: () => {
      *           //   // return Keyframes (Keyframe[])
      *           //   return [] // ??????
      *           // },
@@ -601,18 +601,18 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      *           // write flyOut; if you write slideOut, you'll probably write slideIn; if you write riseUp,
      *           // you'll probably write sinkDown. The beauty is that if riseUp and sinkDown are opposites,
      *           // then we know that playing riseUp should be the same as rewinding sinkDown. Therefore,
-     *           // we can copy-paste the logic from riseUp's forwardFramesGenerator() and use it for
-     *           // sinkDown's backwardFramesGenerator(). Since we know the effect is invertible already,
-     *           // we do not have to specify forwardFramesGenerator() here. Once gain, we have gotten away
+     *           // we can copy-paste the logic from riseUp's forwardKeyframesGenerator() and use it for
+     *           // sinkDown's backwardKeyframesGenerator(). Since we know the effect is invertible already,
+     *           // we do not have to specify forwardKeyframesGenerator() here. Once gain, we have gotten away
      *           // with just figuring out only 1 set of keyframes without having
      *           // to figure out what the other set looks like.
      *           // ---------------------------------------------------------------------------------------
-     *           // forwardFramesGenerator: () => {
+     *           // forwardKeyframesGenerator: () => {
      *           //   // return Keyframes (Keyframe[])
      *           //   return [] // ??????
      *           // },
      * 
-     *           backwardFramesGenerator: () => {
+     *           backwardKeyframesGenerator: () => {
      *             // return Keyframes (Keyframe[])
      *             return [
      *               {
@@ -653,20 +653,20 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      *   
      *         // return ComposedEffect
      *         return {
-     *           forwardFramesGenerator: () => {
+     *           forwardKeyframesGenerator: () => {
      *             // return Keyframes (Keyframe[])
      *             return [
      *               {translate: computeTranslationStr()}
      *             ];
      *           },
      * 
-     *           // backwardFramesGenerator() can be omitted because the result of running
-     *           // forwardFramesGenerator() again and reversing its output keyframes produces
+     *           // backwardKeyframesGenerator() can be omitted because the result of running
+     *           // forwardKeyframesGenerator() again and reversing its output keyframes produces
      *           // the same desired rewinding effect in this case. But if you were not aware
      *           // of this, you could just define it anyway, and it would look like the code below
      *           // (commented out).
      *           // ------------------------------------------------------------------------------------------
-     *           // backwardFramesGenerator: () => {
+     *           // backwardKeyframesGenerator: () => {
      *           //   // return Keyframes (Keyframe[])
      *           //   return [
      *           //     {translate: computeTranslationStr()},
@@ -674,18 +674,18 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      *           //   ];
      *           // },
      * 
-     *           forwardRafGenerator: () => {
+     *           forwardMutatorGenerator: () => {
      *             // return Mutator
      *             return () => {
      *               this.domElem.textContent = `${this.computeTween(0, 100)}%`;
      *             };
      *           },
      * 
-     *           // backwardRafGenerator can be omitted because the mutator formed by forwardRafGenerator()
+     *           // backwardMutatorGenerator can be omitted because the mutator formed by forwardMutatorGenerator()
      *           // here is invertible. But if you were not aware of this, you could just define it
      *           // anyway, and it would look like the code below (commented out).
      *           // ------------------------------------------------------------------------------------------
-     *           // backwardRafGenerator: () => {
+     *           // backwardMutatorGenerator: () => {
      *           //   // return Mutator
      *           //   return () => {
      *           //     this.domElem.textContent = `${this.computeTween(100, 0)}%`;
@@ -724,19 +724,19 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      *     
      *           // return ComposedEffect
      *           return {
-     *             forwardFramesGenerator: () => {
+     *             forwardKeyframesGenerator: () => {
      *               // return Keyframes (Keyframe][])
      *               return [
      *                 {translate: createTranslationString()} // Keyframe
      *               ];
      *             },
-     *             // backwardFramesGenerator() must be specified because reversing the keyframes produced by
-     *             // forwardFramesGenerator() would not have the intended effect (because of
+     *             // backwardKeyframesGenerator() must be specified because reversing the keyframes produced by
+     *             // forwardKeyframesGenerator() would not have the intended effect (because of
      *             // {composite: accumulate}, trying to simply use the reversal of
-     *             // {translate: createTranslationString()} from forwardFramesGenerator() would actually
+     *             // {translate: createTranslationString()} from forwardKeyframesGenerator() would actually
      *             // cause the target element to jump an additional numPixels pixels to the right
      *             // before sliding left, which is not the intended rewinding effect).
-     *             backwardFramesGenerator: () => {
+     *             backwardKeyframesGenerator: () => {
      *               // return Keyframes (Keyframe[])
      *               return [
      *                 {translate: '-'+createTranslationString()}, // Keyframe
@@ -762,7 +762,7 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      *             // The mutation is to use the scrollTo() method on the element.
      *             // Thanks to computeTween(), there will be a smooth scroll
      *             // from initialPosition to yPosition
-     *             forwardRafGenerator: () => {
+     *             forwardMutatorGenerator: () => {
      *               // return Mutator
      *               return () => {
      *                 this.domElem.scrollTo({
@@ -775,9 +775,9 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      *             // The forward mutation loop is not invertible because reversing it requires
      *             // re-computing the element's scroll position at the time of rewinding
      *             // (which may have since changed for any number of reasons, including user
-     *             // scrolling, size changes, etc.). So we must define backwardRafGenerator()
+     *             // scrolling, size changes, etc.). So we must define backwardMutatorGenerator()
      *             // to do exactly that.
-     *             backwardRafGenerator: () => {
+     *             backwardMutatorGenerator: () => {
      *               // return Mutator
      *               return () => {
      *                 const currentPosition = this.domElem.scrollTop;
