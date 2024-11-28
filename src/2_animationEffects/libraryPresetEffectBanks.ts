@@ -14,7 +14,16 @@ import { computeSelfScrollingBounds, getBoundingClientRectOfHidden, negateNumStr
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "../4_utils/interfaces";
 import { useEasing } from "./easing";
 import { CustomErrors } from "../4_utils/errors";
-export type { LibraryPresetEntranceEffects, LibraryPresetConnectorEntranceEffects, LibraryPresetConnectorExitEffects, LibraryPresetMotionEffects, LibraryPresetEmphasisEffects, LibraryPresetExitEffects, LibraryPresetScrollEffects, LibraryPresetTransitionEffects } from "../1_playbackStructures/AnimationClipCategories";
+export type {
+  LibraryPresetEntranceEffects as EntranceEffects,
+  LibraryPresetConnectorEntranceEffects as ConnectorEntranceEffects,
+  LibraryPresetConnectorExitEffects as ConnectorExitEffects,
+  LibraryPresetMotionEffects as MotionEffects,
+  LibraryPresetEmphasisEffects as EmphasisEffects,
+  LibraryPresetExitEffects as ExitEffects,
+  LibraryPresetScrollEffects as ScrollEffects,
+  LibraryPresetTransitionEffects as TransitionEffects
+} from "../1_playbackStructures/AnimationClipCategories";
 
 // type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }
 
