@@ -101,8 +101,8 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *               {translate: createTranslationString()} // Keyframe
    *             ];
    *           },
-   *           // backwardKeyframesGenerator() must be specified because reversing the keyframes produced by
-   *           // forwardKeyframesGenerator() would not have the intended effect (because of
+   *           // backwardKeyframesGenerator() must be specified because reversing the keyframes produced
+   *           // by forwardKeyframesGenerator() would not have the intended effect (because of
    *           // {composite: accumulate}, trying to simply use the reversal of
    *           // {translate: createTranslationString()} from forwardKeyframesGenerator() would actually
    *           // cause the target element to jump an additional numPixels pixels to the right
@@ -230,8 +230,8 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *               {translate: createTranslationString()} // Keyframe
    *             ];
    *           },
-   *           // backwardKeyframesGenerator() must be specified because reversing the keyframes produced by
-   *           // forwardKeyframesGenerator() would not have the intended effect (because of
+   *           // backwardKeyframesGenerator() must be specified because reversing the keyframes produced
+   *           // by forwardKeyframesGenerator() would not have the intended effect (because of
    *           // {composite: accumulate}, trying to simply use the reversal of
    *           // {translate: createTranslationString()} from forwardKeyframesGenerator() would actually
    *           // cause the target element to jump an additional numPixels pixels to the right
@@ -545,10 +545,9 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      */
     immutableConfig?: Partial<TConfig>;
     /**
-     * Determines whether {@link EffectGenerator.composeEffect | composeEffect} should re-run every time
-     * `play()` is called (the default behavior) or only run once.
-     *  * if `on-every-play`, the effect generator's {@link EffectGenerator.composeEffect | composeEffect} function will re-run every time
-     * the clip plays forward, which creates a new closure and returns new generator callbacks.
+     * Determines how frequently the effect will be composed (i.e., how often {@link EffectGenerator.composeEffect | composeEffect} will be run).
+     *  * if `on-every-play`, the effect generator's {@link EffectGenerator.composeEffect | composeEffect} function will run every time
+     * the clip plays forward, which creates a new closure and returns a new {@link ComposedEffect}.
      *  * if `on-first-play-only`, the effect generator's {@link EffectGenerator.composeEffect | composeEffect} function will run the first time
      * `play()` is called and never again.
      *    * This should be set to `on-first-play-only` when code in the closure of {@link EffectGenerator.composeEffect | composeEffect}
@@ -558,6 +557,231 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      * ```ts
      * 'on-every-play'
      * ```
+     * 
+     * @example
+     * <!-- EX:S id="EffectGenerator.effectCompositionFrequency" code-type="ts" -->
+     * ```ts
+     * // global variable that will be used in the fadeOut_exclusive effect.
+     * let usedFadeOutEx = false;
+     * 
+     * const clipFactories = webimator.createAnimationClipFactories({
+     *   customExitEffects: {
+     *     // A custom effect you wrote for fading an element out.
+     *     // Here, it makes no difference what effectCompositionFrequency is set to.
+     *     //
+     *     // - If set to 'on-first-play-only', then composeEffect() will run only once
+     *     // (on the first play()). Thus, forwardKeyframesGenerator() is defined
+     *     // only once and is set to return [{}, {opacity: 0}].
+     *     //
+     *     // - If set to 'on-every-play', then EVERY time the clip
+     *     // plays, composeEffect() plays. Thus, forwardKeyframesGenerator()
+     *     // will keep being redefined and set to be a function that
+     *     // returns [{}, {opacity: 0}]. It made no difference because 
+     *     // the body of forwardKeyframesGenerator() remains the same.
+     *     //
+     *     // Thus, it makes no difference what effectCompositionFrequency is set to.
+     *     fadeOut: {
+     *       composeEffect() {
+     *         return {
+     *           forwardKeyframesGenerator: () => {
+     *             return [{}, {opacity: 0}];
+     *           },
+     *         }
+     *       }
+     *     },
+     * 
+     *     // A custom animation effect you made for flying out to the left side of the screen.
+     *     // Here, it makes no difference what effectCompositionFrequency is set to.
+     *     //
+     *     // - If set to 'on-first-play-only', then composeEffect() will run only once. Thus,
+     *     // forwardKeyframesGenerator() is defined only once, and the closure containing
+     *     // computeTranslationStr() will also only be made once. On every play(),
+     *     // forwardKeyframesGenerator() uses computeTranslationStr() to compute
+     *     // the translation, so the translation will always be recomputed.
+     *     // This is the desired behavior.
+     * 
+     *     // - If set to 'on-every-play', then every time play() is called to play the clip,
+     *     // composeEffect() is called again, creataing a new closure containing a function
+     *     // called computeTranslationStr() and returning a new forwardKeyframesGenerator()
+     *     // that uses computeTranslationStr() to compute the translation. It makes no
+     *     // difference since the bodies of computeTranslationStr() and
+     *     // forwardKeyframesGenerator() remain the same, so this is functionally the
+     *     // same as the previous paragraph.
+     *     // This is the desired behavior.
+     *     //
+     *     // Thus, it makes no difference what effectCompositionFrequency is set to.
+     *     flyOutLeft: {
+     *       composeEffect() {
+     *         const computeTranslationStr = () => {
+     *           // compute distance between right side of element and left side of viewport
+     *           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
+     *           // create translation string
+     *           const translationString = `${orthogonalDistance}px 0px`;
+     *           return translationString;
+     *         }
+     *   
+     *         return {
+     *           forwardKeyframesGenerator: () => {
+     *             return [
+     *               {translate: computeTranslationStr()}
+     *             ];
+     *           },
+     *           // backwardKeyframesGenerator could have been omitted, but for ease of
+     *           // visual understanding, they are kept
+     *           backwardKeyframesGenerator: () => {
+     *             return [
+     *               {translate: computeTranslationStr()},
+     *               {translate: `0 0`}
+     *             ];
+     *           }
+     *         };
+     *       },
+     *       
+     *       immutableConfig: {
+     *         composite: 'accumulate',
+     *       },
+     *     },
+     * 
+     *     // A custom animation effect for flying out either left or right (random).
+     *     // Here, effectCompositionFrequency must be set to 'on-every-play'.
+     *     //
+     *     // - If set to 'on-first-play-only', then leftOrRight is defined only once. Thus,
+     *     // once the clip plays for the first time, leftOrRight will be permanently set
+     *     // to 'go left' or 'go right' within the closure created by composeEffect(),
+     *     // so the element's direction will not be randomized each time.
+     *     // This is NOT the desired effect.
+     * 
+     *     // - If set to 'on-every-play', then every time play() is called to play the clip,
+     *     // composeEffect() is called again. The variable leftOrRight is thus recomputed, so
+     *     // the result of computeTranslationStr() will be randomly left or right every time
+     *     // the clip is played. This is the desired behavior.
+     *     //
+     *     // The difference is that 'on-every-play' causes the effect to use a fresh
+     *     // leftOrRight on each play, while 'on-first-play-only' does not.
+     *     flyOutRandom1: {
+     *       composeEffect() {
+     *         // 50% change of going left or right
+     *         const leftOrRight = Math.random() < 0.5 ? 'go left' : 'go right';
+     * 
+     *         const computeTranslationStr = () => {
+     *           // compute distance between right side of element and left side of viewport
+     *           const distGoingLeft = -(this.domElem.getBoundingClientRect().right);
+     *           // compute distance between left side of element and right side of viewport
+     *           const distGoingRight = window.innerWidth - this.domElem.getBoundingClientRect().left;
+     *           // choose distance based on leftOrRight
+     *           const orthogonalDistance = leftOrRight === 'go left' ? distGoingLeft : distGoingRight;
+     *           // create translation string
+     *           const translationString = `${orthogonalDistance}px 0px`;
+     *           return translationString;
+     *         }
+     *   
+     *         return {
+     *           forwardKeyframesGenerator: () => {
+     *             return [
+     *               {translate: computeTranslationStr()}
+     *             ];
+     *           },
+     *         };
+     *       },
+     *       
+     *       immutableConfig: {
+     *         composite: 'accumulate',
+     *       },
+     *     },
+     * 
+     *     // A custom animation effect you made for flying out either left or right (random).
+     *     // This is exactly the same as flyOutRandom1 except leftOrRight is inside
+     *     // computeTranslationStr() instead of the closure of composeEffect().
+     *     // Here, it makes no difference what effectCompositionFrequency is set to.
+     *     //
+     *     // - If set to 'on-first-play-only', then computeTranslationStr() and
+     *     // forwardKeyframesGenerator() are created once. forwardKeyframesGenerator()
+     *     // uses computeTranslationStr() to compute a new translation string, which
+     *     // will randomly either send the element to the left or to the right.
+     *     // Since The leftOrRight is computed WITHIN computeTranslationStr(), every
+     *     // time forwardKeyframesGenerator() runs, a new random translation string
+     *     // will be made, so the element's movement will be randomized each time.
+     *     // This is the desired behavior.
+     *     //
+     *     // - If set to 'on-every-play', then every time play() is called to play the clip,
+     *     // composeEffect() is called again. The helper function computeTranslationStr()
+     *     // and forwardKeyframesGenerator are redefined each time, but that makes no difference
+     *     // since both their function bodies remain the same. This is functionally the exact
+     *     // same as the previous paragraph–forwardKeyframesGenerator() will still call
+     *     // computeTranslationStr() to recompute the translation every time the clip is played.
+     *     // This is the desired effect.
+     *     //
+     *     // Either option causes leftOrRight to be recomputed on every play.
+     *     // Thus, it makes no difference what effectCompositionFrequency is set to.
+     *     flyOutRandom2: {
+     *       composeEffect() {
+     *         const computeTranslationStr = () => {
+     *           // 50% change of going left or right
+     *           const leftOrRight = Math.random() < 0.5 ? 'go left' : 'go right';
+     *           // compute distance between right side of element and left side of viewport
+     *           const distGoingLeft = -(this.domElem.getBoundingClientRect().right);
+     *           // compute distance between left side of element and right side of viewport
+     *           const distGoingRight = window.innerWidth - this.domElem.getBoundingClientRect().left;
+     *           // choose distance based on leftOrRight
+     *           const orthogonalDistance = leftOrRight === 'go left' ? distGoingLeft : distGoingRight;
+     *           // create translation string
+     *           const translationString = `${orthogonalDistance}px 0px`;
+     *           return translationString;
+     *         }
+     *   
+     *         return {
+     *           forwardKeyframesGenerator: () => {
+     *             return [
+     *               {translate: computeTranslationStr()}
+     *             ];
+     *           },
+     *         };
+     *       },
+     *       
+     *       immutableConfig: {
+     *         composite: 'accumulate',
+     *       },
+     *     },
+     * 
+     *     // A custom animation effect you made that can only be used by one animation clip
+     *     // (Why you would ever do something this is unclear, but the reason does not matter.)
+     *     // Here, effectCompositionFrequency must be set to 'on-first-play-only'.
+     * 
+     *     // - If set to 'on-first-play-only', then the global variable usedFadeOutEx is
+     *     // checked for truthiness and then set to true on the first (and only) running of
+     *     // composeEffect(). On subsequent calls to play(), composeEffect() does not re-run, so
+     *     // the if-condition is not run again. However, any OTHER clip that uses the fadeOut_exclusive
+     *     // effect will fail on their first play() because they need to run composeEffect() for
+     *     // the first time and will throw the error (because usedFadeOutEx is already set to true).
+     *     // This is the desired behavior.
+     *     //
+     *     // If set to 'on-every-play', then composeEffect() will run on every play(). Thus,
+     *     // playing the same clip twice will always cause an error because it will run into
+     *     // the if-conditional again after usedFadeOutEx is already set to true, which is
+     *     // NOT the desired behavior.
+     *     //
+     *     // The difference is that 'on-first-play-only' causes the if-conditional to run
+     *     // only once, while 'on-every-play' causes it to be encountered a second time.
+     *     fadeOut_exclusive: {
+     *       composeEffect() {
+     *         if (usedFadeOutEx) {
+     *           throw new Error(`Only one clip is allowed to use the 'fadeOut_exclusive' effect.`);
+     *         }
+     *         usedFadeOutEx = true;
+     *   
+     *         return {
+     *           forwardKeyframesGenerator: () => {
+     *             return [ {}, {opacity: 0} ];
+     *           },
+     *         };
+     *       },
+     * 
+     *       effectCompositionFrequency: 'on-first-play-only',
+     *     },
+     *   }
+     * });
+     * ```
+     * <!-- EX:E id="EffectGenerator.effectCompositionFrequency" -->
      * 
      * @group Effect Composition
      */
@@ -597,28 +821,29 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      * produce the forward effect, and then the clip plays, using that animation effect.
      * 
      * Behind the scenes, the animation inside an animation clip does not actually simply play on `play()` and rewind on
-     * `rewind()`—that is just an API abstraction. In reality, on `play()`, the animation's keyframes are set to the result
-     * of `forwardKeyframesGenerator()`, and then the animation is played (as expected), but on `rewind()`, the animation's
-     * keyframes are set to the result of `backwardKeyframesGenerator()`, and then the animation is played again, _not_ rewound.
-     * It is of course functionally the same as rewinding because it is playing with keyframes that are meant to undo the
+     * `rewind()`—that is just an API abstraction. On `play()`, yes, the internal animation's keyframes are set to the result
+     * of `forwardKeyframesGenerator()`, and then the animation is played (as expected). But on `rewind()`, the internal animation's
+     * keyframes are set to the result of `backwardKeyframesGenerator()`, and then the internal animation is played again, _not_ rewound.
+     * From the outside, it of course feels functionally the same as rewinding because it is playing with keyframes that are meant to undo the
      * forward frames.
      * Thus, when a clip is played with `play()` and rewound with `rewind()`, the internal animation is actually swapping between
      * the forward and backward frames and then playing. A similar principle holds for
      * `forwardMutatorGenerator()` and `backwardMutatorGenerator()`.
      * 
-     * This design makes it possible to define more sophisticated animations that can account dynamic factors like screen size,
-     * shifting elements, etc. The semantics of some animations are impossible unless the backward effect is specially made, so
+     * This design makes it possible to define more sophisticated animations that can account for dynamic factors like screen size,
+     * shifting elements, etc. Sometimes, the semantics of an animation are impossible unless the backward generation is specially made, so
      * we allow the backward effect to be defined independently of the forward effect.
      * However, for effects that do not require this (likely the majority of them) (i.e., effects where the desired rewinding
-     * effect could achieved by simply re-running `forwardKeyframesGenerator()` for its keyframes and then playing
+     * effect could be achieved by simply re-running `forwardKeyframesGenerator()`, taking the resulting keyframes, and then playing
      * the internal animation with its direction reversed), the backward generator can be omitted. We can say that the
      * forward generator, or `forwardKeyframesGenerator()`, is "invertible".
-     * The same holds true for the mutator generators. It is up to you, however, to test whether your custom animations
-     * do or don't need specially written backward effects.
+     * The same allowance holds true for the mutator generators. It is up to you, however, to test whether your custom animations
+     * do or don't need specially written backward generators.
      * 
      * @example
      * <!-- EX:S id="EffectGenerator.composeEffect-1" code-type="ts" -->
      * ```ts
+     * // EXAMPLES WHERE OMISSIONS ARE VALID
      * const clipFactories = webimator.createAnimationClipFactories({
      *   customEntranceEffects: {
      *     // Element shyly enters, hesitantly fading and scaling in and out until it
@@ -709,8 +934,8 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      *           // then we know that playing riseUp should be the same as rewinding sinkDown. Therefore,
      *           // we can copy-paste the logic from riseUp's forwardKeyframesGenerator() and use it for
      *           // sinkDown's backwardKeyframesGenerator(). Since we know the effect is invertible already,
-     *           // we do not have to specify forwardKeyframesGenerator() here. Once gain, we have gotten away
-     *           // with just figuring out only 1 set of keyframes without having
+     *           // we do not have to specify forwardKeyframesGenerator() here. Once gain, we have gotten
+     *           // away with just figuring out only 1 set of keyframes without having
      *           // to figure out what the other set looks like.
      *           // ---------------------------------------------------------------------------------------
      *           // forwardKeyframesGenerator: () => {
@@ -771,7 +996,7 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      *           // the same desired rewinding effect in this case. But if you were not aware
      *           // of this, you could just define it anyway, and it would look like the code below
      *           // (commented out).
-     *           // ------------------------------------------------------------------------------------------
+     *           // --------------------------------------------------------------------------------------
      *           // backwardKeyframesGenerator: () => {
      *           //   // return Keyframes (Keyframe[])
      *           //   return [
@@ -787,10 +1012,10 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      *             };
      *           },
      * 
-     *           // backwardMutatorGenerator can be omitted because the mutator formed by forwardMutatorGenerator()
-     *           // here is invertible. But if you were not aware of this, you could just define it
-     *           // anyway, and it would look like the code below (commented out).
-     *           // ------------------------------------------------------------------------------------------
+     *           // backwardMutatorGenerator can be omitted because the mutator formed by
+     *           // forwardMutatorGenerator() here is invertible. But if you were not aware of this,
+     *           // you could just define it anyway, and it would look like the code below (commented out).
+     *           // --------------------------------------------------------------------------------------
      *           // backwardMutatorGenerator: () => {
      *           //   // return Mutator
      *           //   return () => {
@@ -817,6 +1042,7 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      * @example
      * <!-- EX:S id="EffectGenerator.composeEffect-2" code-type="ts" -->
      * ```ts
+     * // EXAMPLES WHERE OMISSIONS ARE INVALID
      * const clipFactories = webimator.createAnimationClipFactories({
      *   customMotionEffects: {
      *     translateRight: {
@@ -836,8 +1062,8 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      *               {translate: createTranslationString()} // Keyframe
      *             ];
      *           },
-     *           // backwardKeyframesGenerator() must be specified because reversing the keyframes produced by
-     *           // forwardKeyframesGenerator() would not have the intended effect (because of
+     *           // backwardKeyframesGenerator() must be specified because reversing the keyframes produced
+     *           // by forwardKeyframesGenerator() would not have the intended effect (because of
      *           // {composite: accumulate}, trying to simply use the reversal of
      *           // {translate: createTranslationString()} from forwardKeyframesGenerator() would actually
      *           // cause the target element to jump an additional numPixels pixels to the right

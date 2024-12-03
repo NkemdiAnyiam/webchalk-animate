@@ -314,7 +314,8 @@ export class Webimator {
    *       },
    *       
    *       immutableConfig: {
-   *         // this means that the translation is added onto the element's position instead of replacing it
+   *         // this means that the translation is added onto the element's position
+   *         // instead of replacing it
    *         composite: 'accumulate',
    *       }
    *     },
