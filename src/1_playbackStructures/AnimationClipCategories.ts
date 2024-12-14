@@ -1,10 +1,10 @@
 import { AnimClip, AnimClipConfig, AnimClipModifiers } from "./AnimationClip";
 import { CustomErrors, errorTip } from "../4_utils/errors";
 import { getPartial, parseMultiUnitPlacement } from "../4_utils/helpers";
-import { Webimator } from "../Webimator";
+import { WebChalk } from "../WebChalk";
 import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
 import { PickFromArray } from "../4_utils/utilityTypes";
-import { WebimatorConnectorElement, WebimatorConnectorElementConfig } from "../3_components/WebimatorConnectorElement";
+import { WebChalkConnectorElement, WebChalkConnectorElementConfig } from "../3_components/WebChalkConnectorElement";
 import { EffectComposer, EffectComposerBank, EffectOptions, Layer3MutableClipConfig } from "../2_animationEffects/compositionTypes";
 import { libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions, libPresetConnectorEntrances, libPresetConnectorExits, libPresetTransitions, libPresetScrolls } from "../2_animationEffects/libraryPresetEffectBanks";
 
@@ -16,7 +16,7 @@ export type Layer4MutableConfig<TClipClass extends AnimClip, TEffectComposer ext
 /*-:***************************************************************************************************************************/
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
- * Used as the last argument in the `Entrance()` factory function created by {@link Webimator.createAnimationClipFactories}.
+ * Used as the last argument in the `Entrance()` factory function created by {@link WebChalk.createAnimationClipFactories}.
  * Also returned by {@link EntranceClip.getConfig}.
  *  * Contains additional properties:
  *    * {@link EntranceClipModifiers.hideNowType | hideNowType}
@@ -58,8 +58,8 @@ export interface EntranceClipModifiers extends AnimClipModifiers, Pick<EntranceC
  * will be applied to it (asynchronously).
  * 
  * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
- * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webimator provides convenient factory functions
- * that can be used to create such clips—the factory functions can be obtained from {@link Webimator.createAnimationClipFactories}.
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
  * Examples are shown below.
  * 
  * Generally (with some exceptions), using a clip factory function follows this format:
@@ -70,7 +70,7 @@ export interface EntranceClipModifiers extends AnimClipModifiers, Pick<EntranceC
  * <!-- EX:S id="EntranceClip.example" code-type="ts" -->
  * ```ts
  * // retrieve entrance clip factory function;
- * const { Entrance } = webimator.createAnimationClipFactories();
+ * const { Entrance } = webchalk.createAnimationClipFactories();
  * 
  * // select elements from the DOM
  * const square = document.querySelector('.square');
@@ -171,10 +171,10 @@ export class EntranceClip<TEffectComposer extends EffectComposer<EntranceClip, E
     const hideNow = (effectConfig as Partial<EntranceClipConfig>).hideNowType ?? this.effectComposer.defaultConfig?.hideNowType ?? this.categoryDefaultConfig.hideNowType!;
     switch(hideNow) {
       case "display-none":
-        this.domElem.classList.add('wbmtr-display-none');
+        this.domElem.classList.add('webchalk-display-none');
         break;
       case "visibility-hidden":
-        this.domElem.classList.add('wbmtr-visibility-hidden');
+        this.domElem.classList.add('webchalk-visibility-hidden');
         break;
       default:
         break;
@@ -184,13 +184,13 @@ export class EntranceClip<TEffectComposer extends EffectComposer<EntranceClip, E
   }
 
   protected _onStartForward(): void {
-    if (this.domElem.classList.contains('wbmtr-display-none')) {
+    if (this.domElem.classList.contains('webchalk-display-none')) {
       this.backwardsHidingMethod = 'display-none';
-      this.domElem.classList.remove('wbmtr-display-none');
+      this.domElem.classList.remove('webchalk-display-none');
     }
-    else if (this.domElem.classList.contains('wbmtr-visibility-hidden')) {
+    else if (this.domElem.classList.contains('webchalk-visibility-hidden')) {
       this.backwardsHidingMethod = 'visibility-hidden';
-      this.domElem.classList.remove('wbmtr-visibility-hidden');
+      this.domElem.classList.remove('webchalk-visibility-hidden');
     }
     // error case
     else {
@@ -199,27 +199,27 @@ export class EntranceClip<TEffectComposer extends EffectComposer<EntranceClip, E
       const { display, visibility } = getComputedStyle(this.domElem);
       let str = ``;
       if (display === 'none') {
-        str = `The element being entered is hidden with CSS 'display: none', but it was not using the class "wbmtr-display-none".` +
-        ` An element needs to be unrendered using the class "wbmtr-display-none" in order for Entrance() to act on it.`;
+        str = `The element being entered is hidden with CSS 'display: none', but it was not using the class "webchalk-display-none".` +
+        ` An element needs to be unrendered using the class "webchalk-display-none" in order for Entrance() to act on it.`;
       }
       else if (visibility === 'hidden') {
-        str = `The element being entered is hidden with CSS 'visibility: hidden', but it was not using the class "wbmtr-visibility-hidden".` +
-        ` An element needs to be unrendered using the class "wbmtr-visibility-hidden" in order for Entrance() to act on it.`;
+        str = `The element being entered is hidden with CSS 'visibility: hidden', but it was not using the class "webchalk-visibility-hidden".` +
+        ` An element needs to be unrendered using the class "webchalk-visibility-hidden" in order for Entrance() to act on it.`;
       }
       else {
         str = `Entrance() can only play on elements that are already hidden, but this element was not hidden.` +
         ` To hide an element, you can 1) use the 'hideNowType' config option to immediately hide the element from the very start,` +
         ` 2) hide it with Exit() before the Entrance() animation runs, or` +
-        ` 3) manually add either "wbmtr-display-none" or "wbmtr-visibility-hidden" to its CSS class list in the HTML.`;
+        ` 3) manually add either "webchalk-display-none" or "webchalk-visibility-hidden" to its CSS class list in the HTML.`;
       }
       throw this.generateError(CustomErrors.InvalidEntranceAttempt,
         str +
         `${errorTip(
-          `Tip: Adding "wbmtr-display-none" to an element's CSS class list applies a 'display: none' CSS style, which completely unrenders an element.` +
-          ` "wbmtr-visibility-hidden" applies a 'visibility: hidden' CSS style, which just makes the element invisible while still taking up space.` +
+          `Tip: Adding "webchalk-display-none" to an element's CSS class list applies a 'display: none' CSS style, which completely unrenders an element.` +
+          ` "webchalk-visibility-hidden" applies a 'visibility: hidden' CSS style, which just makes the element invisible while still taking up space.` +
           ` When using 'exitType' with Exit() or 'hideNowType' with Entrance(), you may set the config options to "display-none" (the default for exitType)` +
           ` or "visibility-hidden", but behind the scenes, this just determines whether to add` +
-          ` the class "wbmtr-display-none" or the class "wbmtr-visibility-hidden".`
+          ` the class "webchalk-display-none" or the class "webchalk-visibility-hidden".`
         )}`
       );
     }
@@ -227,8 +227,8 @@ export class EntranceClip<TEffectComposer extends EffectComposer<EntranceClip, E
 
   protected _onFinishBackward(): void {
     switch(this.backwardsHidingMethod) {
-      case "display-none": this.domElem.classList.add('wbmtr-display-none'); break;
-      case "visibility-hidden": this.domElem.classList.add('wbmtr-visibility-hidden'); break;
+      case "display-none": this.domElem.classList.add('webchalk-display-none'); break;
+      case "visibility-hidden": this.domElem.classList.add('webchalk-visibility-hidden'); break;
       default: throw this.generateError(Error, `This error should NEVER be reached.`);
     }
   }
@@ -240,7 +240,7 @@ export class EntranceClip<TEffectComposer extends EffectComposer<EntranceClip, E
 /*-:***************************************************************************************************************************/
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
- * Used as the last argument in the `Exit()` factory function created by {@link Webimator.createAnimationClipFactories}.
+ * Used as the last argument in the `Exit()` factory function created by {@link WebChalk.createAnimationClipFactories}.
  * Also returned by {@link ExitClip.getConfig}.
  *  * Contains additional properties:
  *    * {@link ExitClipModifiers.exitType | exitType}
@@ -279,8 +279,8 @@ interface ExitClipModifiers extends AnimClipModifiers, Pick<ExitClipConfig, 'exi
  * will be applied to it (asynchronously).
  * 
  * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
- * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webimator provides convenient factory functions
- * that can be used to create such clips—the factory functions can be obtained from {@link Webimator.createAnimationClipFactories}.
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
  * Examples are shown below.
  * 
  * Generally (with some exceptions), using a clip factory function follows this format:
@@ -291,7 +291,7 @@ interface ExitClipModifiers extends AnimClipModifiers, Pick<ExitClipConfig, 'exi
  * <!-- EX:S id="ExitClip.example" code-type="ts" -->
  * ```ts
  * // retrieve exit clip factory function;
- * const { Exit } = webimator.createAnimationClipFactories();
+ * const { Exit } = webchalk.createAnimationClipFactories();
  * 
  * // select elements from the DOM
  * const square = document.querySelector('.square');
@@ -399,8 +399,8 @@ export class ExitClip<TEffectComposer extends EffectComposer<ExitClip, ExitClipC
 
   protected _onStartForward(): void {
     let hidingClassName = '';
-    if (this.domElem.classList.contains('wbmtr-display-none')) { hidingClassName = 'wbmtr-display-none'; }
-    if (this.domElem.classList.contains('wbmtr-visibility-hidden')) { hidingClassName = 'wbmtr-visibility-hidden'; }
+    if (this.domElem.classList.contains('webchalk-display-none')) { hidingClassName = 'webchalk-display-none'; }
+    if (this.domElem.classList.contains('webchalk-visibility-hidden')) { hidingClassName = 'webchalk-visibility-hidden'; }
     const { display, visibility } = getComputedStyle(this.domElem);
     const hiddenDisplay = display === 'none';
     const hiddenVisibility = visibility === 'hidden';
@@ -410,23 +410,23 @@ export class ExitClip<TEffectComposer extends EffectComposer<ExitClip, ExitClipC
 
     throw this.generateError(CustomErrors.InvalidExitAttempt,
       `Exit() can only play on elements that are not already hidden. The element here is already hidden by the following:`
-      + (hidingClassName ? `\n - Webimator's CSS hiding class "${hidingClassName}"` : '')
-      + ((hidingClassName !== 'wbmtr-display-none' && hiddenDisplay) ? `\n - CSS property 'display: none'` : '')
-      + ((hidingClassName !== 'wbmtr-visibility-hidden' && hiddenVisibility) ? `\n - CSS property 'visibility: hidden'` : '')
+      + (hidingClassName ? `\n - WebChalk's CSS hiding class "${hidingClassName}"` : '')
+      + ((hidingClassName !== 'webchalk-display-none' && hiddenDisplay) ? `\n - CSS property 'display: none'` : '')
+      + ((hidingClassName !== 'webchalk-visibility-hidden' && hiddenVisibility) ? `\n - CSS property 'visibility: hidden'` : '')
     );
   }
 
   protected _onFinishForward(): void {
     switch(this.exitType) {
-      case "display-none": this.domElem.classList.add('wbmtr-display-none'); break;
-      case "visibility-hidden": this.domElem.classList.add('wbmtr-visibility-hidden'); break;
+      case "display-none": this.domElem.classList.add('webchalk-display-none'); break;
+      case "visibility-hidden": this.domElem.classList.add('webchalk-visibility-hidden'); break;
     }
   }
 
   protected _onStartBackward(): void {
     switch(this.exitType) {
-      case "display-none": this.domElem.classList.remove('wbmtr-display-none'); break;
-      case "visibility-hidden": this.domElem.classList.remove('wbmtr-visibility-hidden'); break;
+      case "display-none": this.domElem.classList.remove('webchalk-display-none'); break;
+      case "visibility-hidden": this.domElem.classList.remove('webchalk-visibility-hidden'); break;
     }
   }
 }
@@ -436,7 +436,7 @@ export class ExitClip<TEffectComposer extends EffectComposer<ExitClip, ExitClipC
 /*-:***************************************************************************************************************************/
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
- * Used as the last argument in the `Emphasis()` factory function created by {@link Webimator.createAnimationClipFactories}.
+ * Used as the last argument in the `Emphasis()` factory function created by {@link WebChalk.createAnimationClipFactories}.
  * Also returned by {@link EmphasisClip.getConfig}.
  *  * Contains additional properties:
  *    * (none)
@@ -457,8 +457,8 @@ export interface EmphasisClipConfig extends AnimClipConfig {
  * will be applied to it (asynchronously).
  * 
  * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
- * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webimator provides convenient factory functions
- * that can be used to create such clips—the factory functions can be obtained from {@link Webimator.createAnimationClipFactories}.
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
  * Examples are shown below.
  * 
  * Generally (with some exceptions), using a clip factory function follows this format:
@@ -469,7 +469,7 @@ export interface EmphasisClipConfig extends AnimClipConfig {
  * <!-- EX:S id="EmphasisClip.example" code-type="ts" -->
  * ```ts
  * // retrieve emphasis clip factory function;
- * const { Emphasis } = webimator.createAnimationClipFactories();
+ * const { Emphasis } = webchalk.createAnimationClipFactories();
  * 
  * // select element from the DOM
  * const importantText = document.querySelector('.important-text');
@@ -519,7 +519,7 @@ export class EmphasisClip<TEffectComposer extends EffectComposer<EmphasisClip, E
 /*-:***************************************************************************************************************************/
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
- * Used as the last argument in the `Motion()` factory function created by {@link Webimator.createAnimationClipFactories}.
+ * Used as the last argument in the `Motion()` factory function created by {@link WebChalk.createAnimationClipFactories}.
  * Also returned by {@link MotionClip.getConfig}.
  *  * Contains additional properties:
  *    * (none)
@@ -538,8 +538,8 @@ export interface MotionClipConfig extends AnimClipConfig {
  * will be applied to it (asynchronously).
  * 
  * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
- * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webimator provides convenient factory functions
- * that can be used to create such clips—the factory functions can be obtained from {@link Webimator.createAnimationClipFactories}.
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
  * Examples are shown below.
  * 
  * Generally (with some exceptions), using a clip factory function follows this format:
@@ -550,7 +550,7 @@ export interface MotionClipConfig extends AnimClipConfig {
  * <!-- EX:S id="MotionClip.example" code-type="ts" -->
  * ```ts
  * // retrieve motion clip factory function;
- * const { Motion } = webimator.createAnimationClipFactories();
+ * const { Motion } = webchalk.createAnimationClipFactories();
  * 
  * // select elements from the DOM
  * const square = document.querySelector('.square');
@@ -605,7 +605,7 @@ export class MotionClip<TEffectComposer extends EffectComposer<MotionClip, Motio
 /*-:***************************************************************************************************************************/
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
- * Used as the last argument in the `Scroller()` factory function created by {@link Webimator.createAnimationClipFactories}.
+ * Used as the last argument in the `Scroller()` factory function created by {@link WebChalk.createAnimationClipFactories}.
  * Also returned by {@link ScrollerClip.getConfig}.
  *  * Contains additional properties:
  *    * (none)
@@ -626,8 +626,8 @@ export interface ScrollerClipConfig extends AnimClipConfig {
  * will be applied to it (asynchronously).
  * 
  * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
- * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webimator provides convenient factory functions
- * that can be used to create such clips—the factory functions can be obtained from {@link Webimator.createAnimationClipFactories}.
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
  * Examples are shown below.
  * 
  * Generally (with some exceptions), using a clip factory function follows this format:
@@ -638,7 +638,7 @@ export interface ScrollerClipConfig extends AnimClipConfig {
  * <!-- EX:S id="ScrollerClip.example" code-type="ts" -->
  * ```ts
  * // retrieve scroller clip factory function;
- * const { Scroller } = webimator.createAnimationClipFactories();
+ * const { Scroller } = webchalk.createAnimationClipFactories();
  * 
  * // select elements from the DOM
  * const sideBar = document.querySelector('.side-bar');
@@ -705,7 +705,7 @@ export class ScrollerClip<TEffectComposer extends EffectComposer<ScrollerClip, S
 /*-:***************************************************************************************************************************/
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
- * Used as the last argument in the `Transition()` factory function created by {@link Webimator.createAnimationClipFactories}.
+ * Used as the last argument in the `Transition()` factory function created by {@link WebChalk.createAnimationClipFactories}.
  * Also returned by {@link TransitionClip.getConfig}.
  *  * Contains additional properties:
  *    * {@link TransitionClipModifiers.removeInlineStylesOnFinish | removeInlineStylesOnFinish}
@@ -751,8 +751,8 @@ export interface TransitionClipModifiers extends AnimClipModifiers, Pick<Transit
  * will be applied to it (asynchronously).
  * 
  * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
- * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webimator provides convenient factory functions
- * that can be used to create such clips—the factory functions can be obtained from {@link Webimator.createAnimationClipFactories}.
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
  * Examples are shown below.
  * 
  * Generally (with some exceptions), using a clip factory function follows this format:
@@ -763,7 +763,7 @@ export interface TransitionClipModifiers extends AnimClipModifiers, Pick<Transit
  * <!-- EX:S id="TransitionClip.example" code-type="ts" -->
  * ```ts
  * // retrieve transition clip factory function;
- * const { Transition } = webimator.createAnimationClipFactories();
+ * const { Transition } = webchalk.createAnimationClipFactories();
  * 
  * // select elements from the DOM
  * const square = document.querySelector('.square');
@@ -872,7 +872,7 @@ export class TransitionClip<TEffectComposer extends EffectComposer<TransitionCli
 /*-:***************************************        CONNECTOR SETTER        ****************************************************/
 /*-:***************************************************************************************************************************/
 /**
- * Used to set the endpoints of a {@link WebimatorConnectorElement}.
+ * Used to set the endpoints of a {@link WebChalkConnectorElement}.
  * 
  * Contains configuration options used to define both the timing and effects of the animation clip.
  * Returned by {@link ConnectorSetterClip.getConfig}.
@@ -893,8 +893,8 @@ export interface ConnectorSetterClipConfig extends AnimClipConfig {
  * will be applied to it (asynchronously).
  * 
  * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
- * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webimator provides convenient factory functions
- * that can be used to create such clips—the factory functions can be obtained from {@link Webimator.createAnimationClipFactories}.
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
  * Examples are shown below.
  * 
  * Generally (with some exceptions), using a clip factory function follows this format:
@@ -902,13 +902,13 @@ export interface ConnectorSetterClipConfig extends AnimClipConfig {
  * <!-- EX:E id="AnimClip.desc" -->
  * The factory function for creating {@link ConnectorSetterClip}s is one such exception.
  * It follows the form `<factory func>(<connector element>, [<point A>], [<point B>], {<optional configuration>})`.
- * Additionally, "\<some element\>" must be of type {@link WebimatorConnectorElement} (our custom `<wbmtr-connector>` HTML element).
+ * Additionally, "\<some element\>" must be of type {@link WebChalkConnectorElement} (our custom `<webchalk-connector>` HTML element).
  * 
  * @example
  * <!-- EX:S id="ConnectorSetterClip.example" code-type="ts" -->
  * ```ts
  * // retrieve connector setter clip factory function;
- * const { ConnectorSetter } = webimator.createAnimationClipFactories();
+ * const { ConnectorSetter } = webchalk.createAnimationClipFactories();
  * 
  * // select connector elements from the DOM
  * const topConnector = document.querySelector('.connector--thick');
@@ -959,14 +959,14 @@ export interface ConnectorSetterClipConfig extends AnimClipConfig {
  */
 export class ConnectorSetterClip extends AnimClip<EffectComposer, ConnectorSetterClipConfig> {
   protected get category(): 'Connector Setter' { return 'Connector Setter'; }
-  domElem: WebimatorConnectorElement;
+  domElem: WebChalkConnectorElement;
   previousPointA?: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
   previousPointB?: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
   pointA: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | 'use-preserved';
   pointB: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | 'use-preserved';
 
-  connectorConfig: WebimatorConnectorElementConfig = {} as WebimatorConnectorElementConfig;
-  previousConnectorConfig: WebimatorConnectorElementConfig = {} as WebimatorConnectorElementConfig;
+  connectorConfig: WebChalkConnectorElementConfig = {} as WebChalkConnectorElementConfig;
+  previousConnectorConfig: WebChalkConnectorElementConfig = {} as WebChalkConnectorElementConfig;
 
   get categoryImmutableConfig() {
     return {
@@ -989,16 +989,16 @@ export class ConnectorSetterClip extends AnimClip<EffectComposer, ConnectorSette
   
   /**@internal*/
   constructor(
-    connectorElem: WebimatorConnectorElement | null | undefined,
+    connectorElem: WebChalkConnectorElement | null | undefined,
     pointA: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
     pointB: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
     effectName: string,
     effectComposerBank: EffectComposerBank,
-    connectorConfig: Partial<WebimatorConnectorElementConfig> = {},
+    connectorConfig: Partial<WebChalkConnectorElementConfig> = {},
     ) {
     super(connectorElem, effectName, effectComposerBank);
 
-    if (!(connectorElem instanceof WebimatorConnectorElement)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass WebimatorConnectorElement element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
+    if (!(connectorElem instanceof WebChalkConnectorElement)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass WebChalkConnectorElement element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
 
     const pointAElement = pointA[0] === 'preserve' ? connectorElem!.pointA?.[0] : pointA?.[0];
     if (!(pointAElement instanceof Element)) {
@@ -1031,7 +1031,7 @@ export class ConnectorSetterClip extends AnimClip<EffectComposer, ConnectorSette
     this.domElem.pointTrackingEnabled = this.previousConnectorConfig.pointTrackingEnabled;
   }
 
-  applyLineConfig(connectorConfig: Partial<WebimatorConnectorElementConfig>): WebimatorConnectorElementConfig {
+  applyLineConfig(connectorConfig: Partial<WebChalkConnectorElementConfig>): WebChalkConnectorElementConfig {
     return {
       pointTrackingEnabled: this.domElem.pointTrackingEnabled,
       ...connectorConfig,
@@ -1044,7 +1044,7 @@ export class ConnectorSetterClip extends AnimClip<EffectComposer, ConnectorSette
 /*-:***************************************************************************************************************************/
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
- * Used as the last argument in the `ConnectorEntrance()` factory function created by {@link Webimator.createAnimationClipFactories}.
+ * Used as the last argument in the `ConnectorEntrance()` factory function created by {@link WebChalk.createAnimationClipFactories}.
  * Also returned by {@link ConnectorEntranceClip.getConfig}.
  *  * Contains additional properties:
  *    * {@link ConnectorEntranceClipModifiers.hideNowType | hideNowType}
@@ -1069,7 +1069,7 @@ export interface ConnectorEntranceClipConfig extends AnimClipConfig {
 export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<ConnectorEntranceClipConfig, 'hideNowType'> {}
 
 /**
- * Used to reveal a {@link WebimatorConnectorElement} that was hidden.
+ * Used to reveal a {@link WebChalkConnectorElement} that was hidden.
  * 
  * <!-- EX:S id="AnimClip.desc" code-type="comment-block" -->
  * A "clip" is the smallest building block of a timeline. It is essentially a [DOM element, effect] pair,
@@ -1077,15 +1077,15 @@ export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<
  * will be applied to it (asynchronously).
  * 
  * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
- * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webimator provides convenient factory functions
- * that can be used to create such clips—the factory functions can be obtained from {@link Webimator.createAnimationClipFactories}.
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
  * Examples are shown below.
  * 
  * Generally (with some exceptions), using a clip factory function follows this format:
  * `const clip = <factory func>(<some element>, <effect name>, [<effect options>], {<optional clip configuration>});`
  * <!-- EX:E id="AnimClip.desc" -->
  * 
- * "\<some element\>" here must be of type {@link WebimatorConnectorElement} (our custom `<wbmtr-connector>` HTML element).
+ * "\<some element\>" here must be of type {@link WebChalkConnectorElement} (our custom `<webchalk-connector>` HTML element).
  * 
  * Note that {@link ConnectorEntranceClip}s are merely for _entering_ connectors, not setting their endpoints.
  * A connector's endpoints must be set (using a {@link ConnectorSetterClip}), and then a {@link ConnectorEntranceClip}
@@ -1095,7 +1095,7 @@ export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<
  * <!-- EX:S id="ConnectorEntranceClip.example" code-type="ts" -->
  * ```ts
  * // retrieve connector entrance clip factory function;
- * const { ConnectorEntrance } = webimator.createAnimationClipFactories();
+ * const { ConnectorEntrance } = webchalk.createAnimationClipFactories();
  * 
  * // select connector elements from the DOM
  * const topConnector = document.querySelector('.connector--thick');
@@ -1128,7 +1128,7 @@ export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<
  */
 export class ConnectorEntranceClip<TEffectComposer extends EffectComposer<ConnectorEntranceClip, ConnectorEntranceClipConfig> = EffectComposer> extends AnimClip<TEffectComposer, ConnectorEntranceClipConfig> {
   protected get category(): 'Connector Entrance' { return 'Connector Entrance'; }
-  domElem: WebimatorConnectorElement;
+  domElem: WebChalkConnectorElement;
 
   get categoryImmutableConfig() {
     return {
@@ -1188,10 +1188,10 @@ export class ConnectorEntranceClip<TEffectComposer extends EffectComposer<Connec
   }
 
   /**@internal*/
-  constructor(connectorElem: WebimatorConnectorElement | null | undefined, effectName: string, effectComposerBank: EffectComposerBank) {
+  constructor(connectorElem: WebChalkConnectorElement | null | undefined, effectName: string, effectComposerBank: EffectComposerBank) {
     super(connectorElem, effectName, effectComposerBank);
 
-    if (!(connectorElem instanceof WebimatorConnectorElement)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WebimatorConnectorElement.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
+    if (!(connectorElem instanceof WebChalkConnectorElement)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WebChalkConnectorElement.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
     this.domElem = connectorElem;
   }
 
@@ -1202,7 +1202,7 @@ export class ConnectorEntranceClip<TEffectComposer extends EffectComposer<Connec
     const hideNow = (effectConfig as ConnectorEntranceClipConfig).hideNowType ?? this.effectComposer.defaultConfig?.hideNowType ?? this.categoryDefaultConfig.hideNowType!;
     switch(hideNow) {
       case "display-none":
-        this.domElem.classList.add('wbmtr-display-none');
+        this.domElem.classList.add('webchalk-display-none');
         break;
       default:
         break;
@@ -1212,34 +1212,34 @@ export class ConnectorEntranceClip<TEffectComposer extends EffectComposer<Connec
   }
 
   protected _onStartForward(): void {
-    if (!this.domElem.classList.contains('wbmtr-display-none')) {
+    if (!this.domElem.classList.contains('webchalk-display-none')) {
       const { display } = getComputedStyle(this.domElem);
       let str = ``;
       if (display === 'none') {
-        str = `The element being entered is hidden with CSS 'display: none', but it was not using the class "wbmtr-display-none".` +
-        ` A connector element needs to be unrendered using the class "wbmtr-display-none" in order for ConnectorEntrance() to act on it.`;
+        str = `The element being entered is hidden with CSS 'display: none', but it was not using the class "webchalk-display-none".` +
+        ` A connector element needs to be unrendered using the class "webchalk-display-none" in order for ConnectorEntrance() to act on it.`;
       }
-      else if (this.domElem.classList.contains('wbmtr-visibility-hidden')) {
-        str = `The connector element being entered is hidden with the Webimator CSS class "wbmtr-visibility-hidden",` +
-        ` but connectors must only be hidden using the class "wbmtr-display-none".`;
+      else if (this.domElem.classList.contains('webchalk-visibility-hidden')) {
+        str = `The connector element being entered is hidden with the WebChalk CSS class "webchalk-visibility-hidden",` +
+        ` but connectors must only be hidden using the class "webchalk-display-none".`;
       }
       else {
         str = `ConnectorEntrance() can only play on connectors that are already hidden, but this element was not hidden.` +
         ` To hide a connector element, you can 1) use the 'hideNowType' config option to immediately hide the element from the very start,` +
         ` 2) hide it with ConnectorExit() before the ConnectorEntrance() animation runs, or` +
-        ` 3) manually add "wbmtr-display-none" to its CSS class list in the HTML.`;
+        ` 3) manually add "webchalk-display-none" to its CSS class list in the HTML.`;
       }
       throw this.generateError(CustomErrors.InvalidEntranceAttempt,
         str +
         `${errorTip(
-          `Tip: Adding "wbmtr-display-none" to an element's CSS class list applies a 'display: none' CSS style, which completely unrenders an element.` +
+          `Tip: Adding "webchalk-display-none" to an element's CSS class list applies a 'display: none' CSS style, which completely unrenders an element.` +
           ` When using 'hideNowType' with ConnectorEntrance(), you may set the config option to "display-none",` +
-          ` but behind the scenes, this just determines whether to adds the class "wbmtr-display-none".`
+          ` but behind the scenes, this just determines whether to adds the class "webchalk-display-none".`
         )}`
       );
     }
 
-    this.domElem.classList.remove('wbmtr-display-none');
+    this.domElem.classList.remove('webchalk-display-none');
     this.domElem.updateEndpoints();
     if (this.domElem.pointTrackingEnabled) {
       this.domElem.continuouslyUpdateEndpoints();
@@ -1248,7 +1248,7 @@ export class ConnectorEntranceClip<TEffectComposer extends EffectComposer<Connec
 
   protected _onFinishBackward(): void {
     this.domElem.cancelContinuousUpdates();
-    this.domElem.classList.add('wbmtr-display-none');
+    this.domElem.classList.add('webchalk-display-none');
   }
 }
 
@@ -1257,7 +1257,7 @@ export class ConnectorEntranceClip<TEffectComposer extends EffectComposer<Connec
 /*-:***************************************************************************************************************************/
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
- * Used as the last argument in the `ConnectorExit()` factory function created by {@link Webimator.createAnimationClipFactories}.
+ * Used as the last argument in the `ConnectorExit()` factory function created by {@link WebChalk.createAnimationClipFactories}.
  * Also returned by {@link ConnectorExitClip.getConfig}.
  *  * Contains additional properties:
  *    * (none)
@@ -1270,7 +1270,7 @@ export interface ConnectorExitClipConfig extends AnimClipConfig {
 };
 
 /**
- * Used to unrender a {@link WebimatorConnectorElement}.
+ * Used to unrender a {@link WebChalkConnectorElement}.
  * 
  * <!-- EX:S id="AnimClip.desc" code-type="comment-block" -->
  * A "clip" is the smallest building block of a timeline. It is essentially a [DOM element, effect] pair,
@@ -1278,20 +1278,20 @@ export interface ConnectorExitClipConfig extends AnimClipConfig {
  * will be applied to it (asynchronously).
  * 
  * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
- * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webimator provides convenient factory functions
- * that can be used to create such clips—the factory functions can be obtained from {@link Webimator.createAnimationClipFactories}.
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
  * Examples are shown below.
  * 
  * Generally (with some exceptions), using a clip factory function follows this format:
  * `const clip = <factory func>(<some element>, <effect name>, [<effect options>], {<optional clip configuration>});`
  * <!-- EX:E id="AnimClip.desc" -->
- * "\<some element\>" must be of type {@link WebimatorConnectorElement} (our custom `<wbmtr-connector>` HTML element).
+ * "\<some element\>" must be of type {@link WebChalkConnectorElement} (our custom `<webchalk-connector>` HTML element).
  * 
  * @example
  * <!-- EX:S id="ConnectorEntranceClip.example" code-type="ts" -->
  * ```ts
  * // retrieve connector entrance clip factory function;
- * const { ConnectorEntrance } = webimator.createAnimationClipFactories();
+ * const { ConnectorEntrance } = webchalk.createAnimationClipFactories();
  * 
  * // select connector elements from the DOM
  * const topConnector = document.querySelector('.connector--thick');
@@ -1324,7 +1324,7 @@ export interface ConnectorExitClipConfig extends AnimClipConfig {
  */
 export class ConnectorExitClip<TEffectComposer extends EffectComposer<ConnectorExitClip, ConnectorExitClipConfig> = EffectComposer> extends AnimClip<TEffectComposer, ConnectorExitClipConfig> {
   protected get category(): 'Connector Exit' { return 'Connector Exit'; }
-  domElem: WebimatorConnectorElement;
+  domElem: WebChalkConnectorElement;
 
   get categoryImmutableConfig() {
     return {
@@ -1344,18 +1344,18 @@ export class ConnectorExitClip<TEffectComposer extends EffectComposer<ConnectorE
   }
 
   /**@internal*/
-  constructor(connectorElem: WebimatorConnectorElement | null | undefined, effectName: string, effectComposerBank: EffectComposerBank) {
+  constructor(connectorElem: WebChalkConnectorElement | null | undefined, effectName: string, effectComposerBank: EffectComposerBank) {
     super(connectorElem, effectName, effectComposerBank);
 
-    if (!(connectorElem instanceof WebimatorConnectorElement)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WebimatorConnectorElement.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
+    if (!(connectorElem instanceof WebChalkConnectorElement)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WebChalkConnectorElement.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
 
     this.domElem = connectorElem;
   }
 
   protected _onStartForward(): void {
     let hidingClassName = '';
-    if (this.domElem.classList.contains('wbmtr-display-none')) { hidingClassName = 'wbmtr-display-none'; }
-    if (this.domElem.classList.contains('wbmtr-visibility-hidden')) { hidingClassName = 'wbmtr-visibility-hidden'; }
+    if (this.domElem.classList.contains('webchalk-display-none')) { hidingClassName = 'webchalk-display-none'; }
+    if (this.domElem.classList.contains('webchalk-visibility-hidden')) { hidingClassName = 'webchalk-visibility-hidden'; }
     const { display, visibility } = getComputedStyle(this.domElem);
     const hiddenDisplay = display === 'none';
     const hiddenVisibility = visibility === 'hidden';
@@ -1365,14 +1365,14 @@ export class ConnectorExitClip<TEffectComposer extends EffectComposer<ConnectorE
 
     throw this.generateError(CustomErrors.InvalidExitAttempt,
       `ConnectorExit() can only play on elements that are not already hidden. The connector here is already hidden by the following:`
-      + (hidingClassName ? `\n - Webimator's CSS hiding class "${hidingClassName}"` : '')
-      + ((hidingClassName !== 'wbmtr-display-none' && hiddenDisplay) ? `\n - CSS property 'display: none'` : '')
-      + ((hidingClassName !== 'wbmtr-visibility-hidden' && hiddenVisibility) ? `\n - CSS property 'visibility: hidden'` : '')
+      + (hidingClassName ? `\n - WebChalk's CSS hiding class "${hidingClassName}"` : '')
+      + ((hidingClassName !== 'webchalk-display-none' && hiddenDisplay) ? `\n - CSS property 'display: none'` : '')
+      + ((hidingClassName !== 'webchalk-visibility-hidden' && hiddenVisibility) ? `\n - CSS property 'visibility: hidden'` : '')
     );
   }
 
   protected _onStartBackward(): void {
-    this.domElem.classList.remove('wbmtr-display-none');
+    this.domElem.classList.remove('webchalk-display-none');
     this.domElem.updateEndpoints();
     if (this.domElem.pointTrackingEnabled) {
       this.domElem.continuouslyUpdateEndpoints();
@@ -1381,7 +1381,7 @@ export class ConnectorExitClip<TEffectComposer extends EffectComposer<ConnectorE
 
   protected _onFinishForward(): void {
     this.domElem.cancelContinuousUpdates();
-    this.domElem.classList.add('wbmtr-display-none');
+    this.domElem.classList.add('webchalk-display-none');
   }
 }
 

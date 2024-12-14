@@ -51,7 +51,7 @@ export function indexToOrdinal(value: number | `${number}`) {
 
 export const createStyles = (rules: string = ''): void => {
   const sheet = document.createElement('style');
-  sheet.id = `wbmtr-global-styles`;
+  sheet.id = `webchalk-global-styles`;
   sheet.innerHTML = rules;
   document.body.appendChild(sheet);
 };
@@ -64,8 +64,8 @@ export const getOpeningTag = (element: Element | null | undefined): string => {
   return htmlText.substring(start, end + 1);
 };
 
-export const overrideHidden = (...elements: Element[]): void => { for (const element of elements) {element.classList.value += ` wbmtr-force-show`} };
-export const unOverrideHidden = (...elements: Element[]): void => { for (const element of elements) {element.classList.value = element.classList.value.replace(` wbmtr-force-show`, '')} };
+export const overrideHidden = (...elements: Element[]): void => { for (const element of elements) {element.classList.value += ` webchalk-force-show`} };
+export const unOverrideHidden = (...elements: Element[]): void => { for (const element of elements) {element.classList.value = element.classList.value.replace(` webchalk-force-show`, '')} };
 
 export const parseXYTupleString = (tupleStr: `${CssLength} ${CssLength}` | undefined): [x: CssLength, y: CssLength] | undefined => {
   return tupleStr?.split(' ')
@@ -282,7 +282,7 @@ export function detab(text: TemplateStringsArray | string): string {
  */
 export function getBoundingClientRectOfHidden(element: Element | null): DOMRect {
   if (!element) { throw new TypeError(`Element must not be null or undefined.`); }
-  if (element.classList.value.includes('wbmtr-display-none')) {
+  if (element.classList.value.includes('webchalk-display-none')) {
     overrideHidden(element);
     const boundingRect = element.getBoundingClientRect();
     unOverrideHidden(element);

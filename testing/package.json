@@ -15,7 +15,7 @@
     "typescript": "^5.5.3"
   },
   "dependencies": {
-    "webimator": "file:../tarballs/webimator-0.24.0.tgz"
+    "webchalk": "file:../tarballs/webchalk-0.25.0.tgz"
   },
   "@parcel/resolver-default": {
      "packageExports": true

@@ -1,26 +1,26 @@
-/**** MD-S id="import webimator" */
-import { webimator } from 'webimator';
-/**** MD-E id="import webimator" */
+/**** MD-S id="import webchalk" */
+import { webchalk } from 'webchalk';
+/**** MD-E id="import webchalk" */
 /**** MD-S id="import paths" */
-import * as WebimatorTypes from 'webimator/types-and-interfaces';
-import * as WebimatorErrors from "webimator/error-handling";
-import * as WebimatorEasing from "webimator/easing";
+import * as WebChalkTypes from 'webchalk/types-and-interfaces';
+import * as WebChalkErrors from "webchalk/error-handling";
+import * as WebChalkEasing from "webchalk/easing";
 /**** MD-E id="import paths" */
 
-const { AnimSequence, AnimClip } = WebimatorTypes;
+const { AnimSequence, AnimClip } = WebChalkTypes;
 
-/**** MD-S id="usage__webimator.createAnimationClipFactories()" */
-const clipFactories = webimator.createAnimationClipFactories();
-/**** MD-E id="usage__webimator.createAnimationClipFactories()" */
+/**** MD-S id="usage__webchalk.createAnimationClipFactories()" */
+const clipFactories = webchalk.createAnimationClipFactories();
+/**** MD-E id="usage__webchalk.createAnimationClipFactories()" */
 
 if (false) {
-  webimator./**** MD-S id="clip-factories-method" MD-G */createAnimationClipFactories()/**** MD-E */;
-  /**** MD-S id="webimator-clip-factories-method" MD-G */
-  webimator.createAnimationClipFactories();
+  webchalk./**** MD-S id="clip-factories-method" MD-G */createAnimationClipFactories()/**** MD-E */;
+  /**** MD-S id="webchalk-clip-factories-method" MD-G */
+  webchalk.createAnimationClipFactories();
   /**** MD-E */
 
   /**** MD-S id="usage__create-sequence" */
-  webimator.newSequence()
+  webchalk.newSequence()
   /**** MD-E id="usage__create-sequence" */
   /**** MD-S id="usage__add-clips" */
   AnimSequence.prototype.addClips()
@@ -69,7 +69,7 @@ ent.play().then(() => {
 if (false) {
 /**** MD-S id="usage__create-sequence-clips" --> */
 // get clip factory functions
-const { Entrance, Exit, Motion } = webimator.createAnimationClipFactories();
+const { Entrance, Exit, Motion } = webchalk.createAnimationClipFactories();
 
 // select elements from page
 const sqrEl = document.querySelector('.square');
@@ -81,7 +81,7 @@ const enterSquare = Entrance(sqrEl, '~pinwheel', [2, 'clockwise']);
 const enterCircle = Entrance(circEl, '~fade-in', []);
 
 // create sequence with configuration options and animation clips
-const seq = webimator.newSequence(
+const seq = webchalk.newSequence(
   // optional configuration object
   {playbackRate: 2, description: 'Enter all the shapes'},
   // 4 animation clips
@@ -110,7 +110,7 @@ AnimClip.prototype.getTiming().
   
 
 // get clip factory functions
-const { Entrance, Exit, Motion } = webimator.createAnimationClipFactories();
+const { Entrance, Exit, Motion } = webchalk.createAnimationClipFactories();
 
 // select elements from page
 const sqrEl = document.querySelector('.square');
@@ -120,7 +120,7 @@ const pentaEl = document.querySelector('.pentagon');
 
 /**** MD-S id="usage__sequencing-clips" */
 // create sequence
-const seq = webimator.newSequence(
+const seq = webchalk.newSequence(
   // optional configuration object
   {description: 'No one likes Pentagon!'},
   // 6 animation clips
@@ -143,31 +143,31 @@ seq.play().then(() => seq.rewind());
 if (false) {
 /****MD-S id="create-timeline"*/
 // get clip factory functions
-const { Entrance, Exit, Motion } = webimator.createAnimationClipFactories();
+const { Entrance, Exit, Motion } = webchalk.createAnimationClipFactories();
 
 // select elements from page
 const sqrEl = document.querySelector('.square');
 const circEl = document.querySelector('.circle');
 
 // create sequences
-const seq1 = webimator.newSequence(
+const seq1 = webchalk.newSequence(
   {jumpTag: 'ABC'},
   Entrance(sqrEl, '~fade-in', []),
   Entrance(circEl, '~fade-in', []),
 );
 
-const seq2 = webimator.newSequence(
+const seq2 = webchalk.newSequence(
   Motion(sqrEl, '~move-to', [circEl]),
   Exit(circEl, '~sink-down', [], {startsWithPrevious: true}),
 );
 
-const seq3 = webimator.newSequence(
+const seq3 = webchalk.newSequence(
   {autoplays: true},
   Exit(circEl, '~fade-out', []),
 );
 
 // create new timeline
-const /****MD-S id="usage__timeline" MD-G*/tLine/****MD-E*/ = webimator.newTimeline(
+const /****MD-S id="usage__timeline" MD-G*/tLine/****MD-E*/ = webchalk.newTimeline(
   // optional config object
   {debugMode: true, timelineName: /****MD-S id="usage__timeline-name" MD-G*/'Basics'/****MD-E*/},
   // 3 sequences

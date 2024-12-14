@@ -1,5 +1,5 @@
 import { injectGlobals } from "./globalSideEffects";
 
-export { webimator } from "./Webimator";
+export { webchalk } from "./WebChalk";
 
 injectGlobals();

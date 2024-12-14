@@ -1,12 +1,12 @@
 {
-  "name": "webimator",
+  "name": "webchalk",
   "version": "0.25.0",
   "description": "Web animation framework built for creating interactive animated visualizations.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/NkemdiAnyiam/webimator.git"
+    "url": "https://github.com/NkemdiAnyiam/webchalk.git"
   },
-  "homepage": "https://nkemdianyiam.github.io/webimator/",
+  "homepage": "https://nkemdianyiam.github.io/webchalk/",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -36,7 +36,7 @@
     "lint": "tsc"
   },
   "keywords": [
-    "webimator",
+    "webchalk",
     "animation",
     "typescript",
     "javascript"

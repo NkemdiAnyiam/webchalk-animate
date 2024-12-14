@@ -1,5 +1,5 @@
 // import { AnimClipConfig } from "../AnimClip";
-// import { EffectComposer } from "../Webimator";
+// import { EffectComposer } from "../WebChalk";
 // import { PrefixProps } from "./utilityTypes";
 
 import { AnimClip } from "../1_playbackStructures/AnimationClip";

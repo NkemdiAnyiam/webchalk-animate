@@ -7,7 +7,7 @@
   ],
   "themeColor": "#99ffff",
   "customCss": "./assets/styles/typedoc-styles.css",
-  "exclude": ["**/WebimatorAnimation.ts", "**/index.ts", "**/globalSideEffects.ts", "**/TSDocExamples.ts"],
+  "exclude": ["**/WebChalkAnimation.ts", "**/index.ts", "**/globalSideEffects.ts", "**/TSDocExamples.ts"],
   "entryPoints": ["../src"],
   "entryPointStrategy": "expand",
   "out": "../docs",

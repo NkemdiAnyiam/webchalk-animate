@@ -8,7 +8,7 @@ import {
   ConnectorEntranceClip,
   ConnectorExitClip,
 } from "../1_playbackStructures/AnimationClipCategories";
-import { webimator } from "../Webimator";
+import { webchalk } from "../WebChalk";
 import { EffectComposerBank } from "./compositionTypes";
 import { computeSelfScrollingBounds, getBoundingClientRectOfHidden, negateNumString, parseXYAlignmentString, parseXYTupleString } from "../4_utils/helpers";
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "../4_utils/interfaces";
@@ -515,35 +515,35 @@ export const libPresetEmphases = {
      * @returns 
      */
     composeEffect(color: string = 'default') {
-      // this.domElem.style.setProperty(`--wbmtr-highlight-color`, 'red');
+      // this.domElem.style.setProperty(`--webchalk-highlight-color`, 'red');
       // let prevVal = '';
-      // if (this.domElem.getAttribute('style')?.includes('--wbmtr-highlight-color')) {
-      //   prevVal = getComputedStyle(this.domElem).getPropertyValue('--wbmtr-highlight-color');
+      // if (this.domElem.getAttribute('style')?.includes('--webchalk-highlight-color')) {
+      //   prevVal = getComputedStyle(this.domElem).getPropertyValue('--webchalk-highlight-color');
       // };
 
       // TODO: Prevent highlighting an element that is already highlighted
       // get the previous highlight color of the element (if none, it naturally uses the value from :root)
-      const prevColor = getComputedStyle(this.domElem).getPropertyValue('--wbmtr-highlight-color');
+      const prevColor = getComputedStyle(this.domElem).getPropertyValue('--webchalk-highlight-color');
       // if color is 'default', use :root's highlight color
       const finalColor = color === 'default'
-        ? getComputedStyle(document.documentElement).getPropertyValue('--wbmtr-highlight-color')
+        ? getComputedStyle(document.documentElement).getPropertyValue('--webchalk-highlight-color')
         : color;
       return {
         forwardKeyframesGenerator: () => [
-          {['--wbmtr-highlight-color']: prevColor, easing: 'step-start'}, // step-start -> steps(1, jump-start)
+          {['--webchalk-highlight-color']: prevColor, easing: 'step-start'}, // step-start -> steps(1, jump-start)
           {backgroundPositionX: '100%', offset: 0},
           {backgroundPositionX: '0%', offset: 1},
-          {['--wbmtr-highlight-color']: finalColor}
+          {['--webchalk-highlight-color']: finalColor}
         ],
         backwardKeyframesGenerator: () => [
-          {['--wbmtr-highlight-color']: finalColor, easing: 'step-end'}, // step-end -> steps(1, jump-end)
+          {['--webchalk-highlight-color']: finalColor, easing: 'step-end'}, // step-end -> steps(1, jump-end)
           {backgroundPositionX: '0%', offset: 0},
           {backgroundPositionX: '100%', offset: 1},
-          {['--wbmtr-highlight-color']: prevColor}
+          {['--webchalk-highlight-color']: prevColor}
         ]};
     },
     defaultConfig: {
-      cssClasses: { toAddOnStart: [`wbmtr-highlightable`] },
+      cssClasses: { toAddOnStart: [`webchalk-highlightable`] },
       // invalidProp: 4,
     } as const,
     immutableConfig: {
@@ -559,7 +559,7 @@ export const libPresetEmphases = {
      * @returns 
      */
     composeEffect() {
-      if (!this.domElem.classList.contains(`wbmtr-highlightable`)) {
+      if (!this.domElem.classList.contains(`webchalk-highlightable`)) {
         throw new CustomErrors.InvalidEffectError(`Cannot un-highlight an element that was not already highlighted.`);
       }
       return {
@@ -567,7 +567,7 @@ export const libPresetEmphases = {
       } as const;
     },
     defaultConfig: {
-      cssClasses: { toRemoveOnFinish: [`wbmtr-highlightable`] },
+      cssClasses: { toRemoveOnFinish: [`webchalk-highlightable`] },
     } as const,
     immutableConfig: {
       composite: 'replace',
@@ -706,7 +706,7 @@ export const libPresetTransitions = {
      * @example
      * <!-- EX:S id="Transition.~from" code-type="ts" -->
      * ```ts
-     * const { Transition } = webimator.createAnimationClipFactories();
+     * const { Transition } = webchalk.createAnimationClipFactories();
      * 
      *   // get element from DOM and set its styles (just to give some explicit values to look at)
      *   const square = document.querySelector('.square') as HTMLElement;
@@ -756,7 +756,7 @@ export const libPresetTransitions = {
      * @example
      * <!-- EX:S id="Transition.~to" code-type="ts" -->
      * ```ts
-     * const { Transition } = webimator.createAnimationClipFactories();
+     * const { Transition } = webchalk.createAnimationClipFactories();
      * 
      *   // get element from DOM and set its styles (just to give some explicit values to look at)
      *   const square = document.querySelector('.square') as HTMLElement;
@@ -1113,7 +1113,7 @@ export const libPresetScrolls = {
         } = computeSelfScrollingBounds(this.domElem, target, scrollOptions);
         [x_from, y_from] = fromXY;
         [x_to, y_to] = toXY;
-        webimator.scrollAnchorsStack.push([target, scrollOptions]);
+        webchalk.scrollAnchorsStack.push([target, scrollOptions]);
 
         if (getComputedStyle(target).display === 'none') {
           // TODO: improve warning
@@ -1131,9 +1131,9 @@ export const libPresetScrolls = {
       };
 
       const backwardMutatorGenerator = () => {
-        webimator.scrollAnchorsStack.pop();
-        if (webimator.scrollAnchorsStack.length > 0) {
-          const [anchor, anchorOptions] = webimator.scrollAnchorsStack[webimator.scrollAnchorsStack.length - 1];
+        webchalk.scrollAnchorsStack.pop();
+        if (webchalk.scrollAnchorsStack.length > 0) {
+          const [anchor, anchorOptions] = webchalk.scrollAnchorsStack[webchalk.scrollAnchorsStack.length - 1];
 
           const {
             fromXY: [x_from, y_from],

@@ -1,9 +1,9 @@
-import { webimator } from 'webimator';
-import * as WebimatorTypes from 'webimator/types-and-interfaces';
-import * as WebimatorErrors from "webimator/error-handling";
-import * as WebimatorEasing from "webimator/easing";
+import { webchalk } from 'webchalk';
+import * as WebChalkTypes from 'webchalk/types-and-interfaces';
+import * as WebChalkErrors from "webchalk/error-handling";
+import * as WebChalkEasing from "webchalk/easing";
 
-console.log(WebimatorTypes.AnimClip);
+console.log(WebChalkTypes.AnimClip);
 
 /* css */`
 @keyframes roll-in-blurred-left {
@@ -45,7 +45,7 @@ console.log(WebimatorTypes.AnimClip);
 `
 
 
-const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Transition} = webimator.createAnimationClipFactories({
+const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Transition} = webchalk.createAnimationClipFactories({
   customEntranceEffects: {
     hello: {
       composeEffect() {
@@ -208,7 +208,7 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
               {
                 translate: `0 ${window.innerHeight - this.domElem.getBoundingClientRect().top}px`,
                 opacity: 0,
-                easing: WebimatorEasing.useEasing('power2-out')
+                easing: WebChalkEasing.useEasing('power2-out')
               },
               {
                 translate: `0 -25px`,
@@ -217,7 +217,7 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
               {
                 translate: `0 -25px`,
                 offset: 0.86,
-                easing: WebimatorEasing.useEasing('power1-in')
+                easing: WebChalkEasing.useEasing('power1-in')
               },
               {translate: `0 0`},
             ];
@@ -313,19 +313,19 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
 });
 
 {
-  const thing: WebimatorTypes.AnimSequence = webimator.newSequence();
+  const thing: WebChalkTypes.AnimSequence = webchalk.newSequence();
 
-  const func = function(sequence: WebimatorTypes.AnimSequence) {
+  const func = function(sequence: WebChalkTypes.AnimSequence) {
 
   }
 
-  func(webimator.newSequence())
+  func(webchalk.newSequence())
 
 
-  const connector = document.querySelector<WebimatorTypes.WebimatorConnectorElement>('.connector--1');
-  console.log('is connector (should true): ', connector instanceof WebimatorTypes.WebimatorConnectorElement);
+  const connector = document.querySelector<WebChalkTypes.WebChalkConnectorElement>('.connector--1');
+  console.log('is connector (should true): ', connector instanceof WebChalkTypes.WebChalkConnectorElement);
 
-  console.log('is sequence (should true): ', webimator.newSequence() instanceof WebimatorTypes.AnimSequence);
+  console.log('is sequence (should true): ', webchalk.newSequence() instanceof WebChalkTypes.AnimSequence);
 }
 
 const square = document.querySelector('.square');
@@ -334,9 +334,9 @@ const ent = Entrance(square, '~appear', []);
 
 // console.log(ent.generateTimePromise === ent.generateTimePromise);
 
-const entrance: WebimatorTypes.EntranceClip = Entrance(square, '~fly-in', ['from-bottom'], {duration: 1000, hideNowType: 'display-none'});
+const entrance: WebChalkTypes.EntranceClip = Entrance(square, '~fly-in', ['from-bottom'], {duration: 1000, hideNowType: 'display-none'});
 const motion = Motion(square, '~translate', [{translate: '200px 200px'}], {duration: 1000, easing: 'bounce-out'});
-// const entrance: WebimatorTypes.EntranceClip = Entrance(square, '~fly-in', ['from-bottom'], {duration: 1000});
+// const entrance: WebChalkTypes.EntranceClip = Entrance(square, '~fly-in', ['from-bottom'], {duration: 1000});
 // const motion = Motion(square, 'translateRight', [500], {duration: 1000, easing: 'bounce-out'});
 console.log(entrance.getModifiers());
 console.log(entrance.getModifiers('hideNowType'));
@@ -379,7 +379,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   // });
   // console.log('HELLO WORLD')
 
-  const seq = webimator.newSequence(
+  const seq = webchalk.newSequence(
     entrance,
     // Transition(square, '~from', [{opacity: '0', backgroundColor: 'red', width: '0'}], {duration: 2000}),
     // Transition(square, '~to', [{width: '20rem'}], {}),
@@ -412,11 +412,11 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   //   console.log('WE BACK')
   // });
 
-  const timeline = webimator.newTimeline({timelineName: 'Basic', autoLinksButtons: false, debugMode: true});
+  const timeline = webchalk.newTimeline({timelineName: 'Basic', autoLinksButtons: false, debugMode: true});
   timeline.linkPlaybackButtons();
   // await wait(1000);
   timeline.addSequences(seq);
-  timeline.addSequences(webimator.newSequence(
+  timeline.addSequences(webchalk.newSequence(
     Exit(square, 'flyOutLeft', [], {}),))
   // await timeline.step('forward');
   // await timeline.step('backward');

@@ -11,7 +11,7 @@ const sources = {
 
 const targets = {
   filePaths: [
-    `${directoryPrefix}/Webimator.ts`,
+    `${directoryPrefix}/WebChalk.ts`,
     `${directoryPrefix}/1_playbackStructures/AnimationClip.ts`,
     `${directoryPrefix}/1_playbackStructures/AnimationClipCategories.ts`,
     `${directoryPrefix}/1_playbackStructures/AnimationTimeline.ts`,

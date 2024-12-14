@@ -38,7 +38,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    * @example
    * <!-- EX:S id="ComposedEffect.keyframes-generators" code-type="ts" -->
    * ```ts
-   * const clipFactories = webimator.createAnimationClipFactories({
+   * const clipFactories = webchalk.createAnimationClipFactories({
    *   customEntranceEffects: {
    *     // -----------------------------------------------------------------
    *     // ----------------------------EXAMPLE 1----------------------------
@@ -167,7 +167,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    * @example
    * <!-- EX:S id="ComposedEffect.keyframes-generators" code-type="ts" -->
    * ```ts
-   * const clipFactories = webimator.createAnimationClipFactories({
+   * const clipFactories = webchalk.createAnimationClipFactories({
    *   customEntranceEffects: {
    *     // -----------------------------------------------------------------
    *     // ----------------------------EXAMPLE 1----------------------------
@@ -296,7 +296,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    * @example
    * <!-- EX:S id="ComposedEffect.mutator-generators" code-type="ts" -->
    * ```ts
-   * const clipFactories = webimator.createAnimationClipFactories({
+   * const clipFactories = webchalk.createAnimationClipFactories({
    *   customMotionEffects: {
    *     // a custom animation for scrolling to a specific point on the page.
    *     scrollTo: {
@@ -356,7 +356,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    * @example
    * <!-- EX:S id="ComposedEffect.mutator-generators" code-type="ts" -->
    * ```ts
-   * const clipFactories = webimator.createAnimationClipFactories({
+   * const clipFactories = webchalk.createAnimationClipFactories({
    *   customMotionEffects: {
    *     // a custom animation for scrolling to a specific point on the page.
    *     scrollTo: {
@@ -437,7 +437,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * @example
      * <!-- EX:S id="EffectComposer.defaultConfig" code-type="ts" -->
      * ```ts
-     * const clipFactories = webimator.createAnimationClipFactories({
+     * const clipFactories = webchalk.createAnimationClipFactories({
      *   customEntranceEffects: {
      *     // Element fades in, starting from 0 opacity.
      *     fadeIn: {
@@ -497,7 +497,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * @example
      * <!-- EX:S id="EffectComposer.immutableConfig" code-type="ts" -->
      * ```ts
-     * const clipFactories = webimator.createAnimationClipFactories({
+     * const clipFactories = webchalk.createAnimationClipFactories({
      *   customEntranceEffects: {
      *     appear: {
      *       composeEffect() {
@@ -569,7 +569,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * // global variable that will be used in the fadeOut_exclusive effect.
      * let usedFadeOutEx = false;
      * 
-     * const clipFactories = webimator.createAnimationClipFactories({
+     * const clipFactories = webchalk.createAnimationClipFactories({
      *   customExitEffects: {
      *     // A custom effect you wrote for fading an element out.
      *     // Here, it makes no difference what effectCompositionFrequency is set to.
@@ -899,7 +899,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * <!-- EX:S id="EffectComposer.composeEffect-1" code-type="ts" -->
      * ```ts
      * // EXAMPLES WHERE OMISSIONS ARE VALID
-     * const clipFactories = webimator.createAnimationClipFactories({
+     * const clipFactories = webchalk.createAnimationClipFactories({
      *   customEmphasisEffects: {
      *     // -----------------------------------------------------------------
      *     // ----------------------------EXAMPLE 1----------------------------
@@ -1309,7 +1309,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * <!-- EX:S id="EffectComposer.composeEffect-2" code-type="ts" -->
      * ```ts
      * // EXAMPLES WHERE OMISSIONS ARE INVALID
-     * const clipFactories = webimator.createAnimationClipFactories({
+     * const clipFactories = webchalk.createAnimationClipFactories({
      *   customMotionEffects: {
      *     // a custom animation for translating a certain number of pixels to the right
      *     translateRight: {

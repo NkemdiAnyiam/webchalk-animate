@@ -2,8 +2,8 @@ import { AnimSequence } from "./AnimationSequence";
 import { CustomErrors, errorTip, generateError, TimelineErrorGenerator } from "../4_utils/errors";
 import { getPartial } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
-import { WebimatorPlaybackButtonElement } from "../3_components/WebimatorPlaybackButtonElement";
-import { webimator } from "../Webimator";
+import { WebChalkPlaybackButtonElement } from "../3_components/WebChalkPlaybackButtonElement";
+import { webchalk } from "../WebChalk";
 
 // TYPE
 /**
@@ -14,7 +14,7 @@ import { webimator } from "../Webimator";
 export type AnimTimelineConfig = {
   /**
    * String representing the name of the timeline.
-   * This value is used to sync with `<wbmtr-playback-button>` elements that share the same
+   * This value is used to sync with `<webchalk-playback-button>` elements that share the same
    * value in their `timeline-name` attribute.
    * @defaultValue
    * ```ts
@@ -34,7 +34,7 @@ export type AnimTimelineConfig = {
   debugMode: boolean;
 
   /**
-   * If `true`, the timeline will instantly attempt to find `<wbmtr-playback-button>` elements whose
+   * If `true`, the timeline will instantly attempt to find `<webchalk-playback-button>` elements whose
    * `timeline-name` attributes are equivalent to the timeline's `timelineName` configuration option
    * using {@link AnimTimeline.linkPlaybackButtons|linkPlaybackButtons()}.
    * @defaultValue
@@ -128,7 +128,7 @@ const DISABLED_FROM_PAUSE = 'playback-button--disabledFromPause';
 
 // TYPE
 type PlaybackButtons = {
-  [key in `${'forward' | 'backward' | 'pause' | 'toggleSkipping' | 'fastForward'}Button`]: WebimatorPlaybackButtonElement | null | undefined;
+  [key in `${'forward' | 'backward' | 'pause' | 'toggleSkipping' | 'fastForward'}Button`]: WebChalkPlaybackButtonElement | null | undefined;
 };
 // TYPE
 type PlaybackButtonPurpose = `Step ${'Forward' | 'Backward'}` | 'Pause' | 'Fast Forward' | 'Toggle Skipping';
@@ -308,10 +308,10 @@ export class AnimTimeline {
 
   /**@internal*/
   constructor(configOrSequence: Partial<AnimTimelineConfig>| AnimSequence = {}, ...animSequence: AnimSequence[]) {
-    if (webimator.timelineCreatorLock) {
-      throw this.generateError(TypeError, `Illegal constructor. Timelines can only be instantiated using webimator.newTimeline().`);
+    if (webchalk.timelineCreatorLock) {
+      throw this.generateError(TypeError, `Illegal constructor. Timelines can only be instantiated using webchalk.newTimeline().`);
     }
-    webimator.timelineCreatorLock = true;
+    webchalk.timelineCreatorLock = true;
     
     this.id = AnimTimeline.id++;
 
@@ -340,14 +340,14 @@ export class AnimTimeline {
   };
 
   /**
-   * Object containing properties that are either references to `<wbmtr-playback-button>` elements that are connected to this timeline or `null`.
+   * Object containing properties that are either references to `<webchalk-playback-button>` elements that are connected to this timeline or `null`.
    *  * A property being `null` indicates that there is currently no corresponding button on the page that is linked to this timeline.
    * @group Playback UI
    */
   get playbackButtons(): Readonly<PlaybackButtons> { return {...this._playbackButtons}; }
 
   /**
-   * Searches the page for `<wbmtr-playback-button>` elements whose
+   * Searches the page for `<webchalk-playback-button>` elements whose
    * `timeline-name` attributes are equivalent to this timeline's `timelineName` configuration option,
    * then links those buttons to this timeline.
    *  * By default, all button types are searched for.
@@ -370,11 +370,11 @@ export class AnimTimeline {
     const potentialButtonsContainer = (searchRoot ?? document).querySelector(`[timeline-name="${this.config.timelineName}"]`);
 
     // find the button if it has the correct timeline-name directly on it
-    const getButtonDirect = (action: WebimatorPlaybackButtonElement['action']) => (searchRoot ?? document).querySelector<WebimatorPlaybackButtonElement>(`wbmtr-playback-button[action="${action}"][timeline-name="${this.config.timelineName}"]`);
+    const getButtonDirect = (action: WebChalkPlaybackButtonElement['action']) => (searchRoot ?? document).querySelector<WebChalkPlaybackButtonElement>(`webchalk-playback-button[action="${action}"][timeline-name="${this.config.timelineName}"]`);
     // find the button if it is nested in a container with the correct timeline-name and does not have a timeline-name of its own
-    const getButtonGroupChild = (action: WebimatorPlaybackButtonElement['action']) => potentialButtonsContainer?.querySelector<WebimatorPlaybackButtonElement>(`wbmtr-playback-button[action="${action}"]:not([timeline-name])`);
+    const getButtonGroupChild = (action: WebChalkPlaybackButtonElement['action']) => potentialButtonsContainer?.querySelector<WebChalkPlaybackButtonElement>(`webchalk-playback-button[action="${action}"]:not([timeline-name])`);
     // search for button directly, then search for child of button group
-    const getButton = (action: WebimatorPlaybackButtonElement['action']) => getButtonDirect(action) ?? getButtonGroupChild(action);
+    const getButton = (action: WebChalkPlaybackButtonElement['action']) => getButtonDirect(action) ?? getButtonGroupChild(action);
 
     const forwardButton = buttonsSubset.includes('Step Forward') ? getButton("step-forward") : undefined;
     const backwardButton = buttonsSubset.includes('Step Backward') ? getButton("step-backward") : undefined;
@@ -507,7 +507,7 @@ export class AnimTimeline {
     let wasWarned = false;
     const warnedList: string[] = [];
 
-    const warnButton = (button: WebimatorPlaybackButtonElement | null | undefined, purpose: PlaybackButtonPurpose) => {
+    const warnButton = (button: WebChalkPlaybackButtonElement | null | undefined, purpose: PlaybackButtonPurpose) => {
       if (!button && buttonsSubset.includes(purpose)) {
         warnedList.push(purpose);
         wasWarned = true;
@@ -524,7 +524,7 @@ export class AnimTimeline {
         `Some buttons for timeline named "${this.config.timelineName}" not found.`
         + ` Missing buttons: ${warnedList.join(', ')}.`
         + errorTip(
-          `For <wbmtr-playback-button> tags to be detected, their 'timeline-name' attribute (or the 'timeline-name' attribute of`
+          `For <webchalk-playback-button> tags to be detected, their 'timeline-name' attribute (or the 'timeline-name' attribute of`
           + ` their parent container) must match this timeline's 'timelineName' configuration option.`
           + ` If this timeline does not need to detect any buttons, you may set its 'autoLinkButtons' config option to false`
         + ` to prevent this warning.`)
@@ -913,11 +913,11 @@ export class AnimTimeline {
    * @example
    * <!-- EX:S id="AnimTimeline.jumpToSequenceTag" code-type="ts" -->
    * ```ts
-   * const {Entrance, Motion, Exit} = webimator.createAnimationClipFactories();
+   * const {Entrance, Motion, Exit} = webchalk.createAnimationClipFactories();
    * const square = document.querySelector('.square');
    * 
-   * const tLine = webimator.newTimeline(
-   *   webimator.newSequence(
+   * const tLine = webchalk.newTimeline(
+   *   webchalk.newSequence(
    *     {jumpTag: 'flickering'},
    *     Entrance(square, '~appear', [], {endDelay: 500}),
    *     Exit(square, '~disappear', [], {endDelay: 500}),
@@ -927,7 +927,7 @@ export class AnimTimeline {
    *     Exit(square, '~disappear', [], {endDelay: 500}),
    *   ),
    * 
-   *   webimator.newSequence(
+   *   webchalk.newSequence(
    *     {jumpTag: 'move around'},
    *     Motion(square, '~translate', [{translate: '200px 0px'}]),
    *     Motion(square, '~translate', [{translate: '0px 200px'}]),
@@ -935,7 +935,7 @@ export class AnimTimeline {
    *     Motion(square, '~translate', [{translate: '0px -200px'}]),
    *   ),
    * 
-   *   webimator.newSequence(
+   *   webchalk.newSequence(
    *     {jumpTag: 'go away', autoplays: true},
    *     Exit(square, '~pinwheel', []),
    *   )

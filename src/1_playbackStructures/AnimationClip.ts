@@ -1,14 +1,14 @@
 import { AnimSequence } from "./AnimationSequence";
 import { AnimTimeline } from "./AnimationTimeline";
 import { EntranceClip, MotionClip, TransitionClip } from "./AnimationClipCategories";
-import { webimator, Webimator } from "../Webimator";
+import { webchalk, WebChalk } from "../WebChalk";
 import { EffectOptions, EffectComposerBank, EffectComposer } from "../2_animationEffects/compositionTypes";
 import { call, detab, getPartial, mergeArrays } from "../4_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
 import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "../4_utils/errors";
 import { DOMElement, EffectCategory, Keyframes } from "../4_utils/interfaces";
-import { WebimatorConnectorElement } from "../3_components/WebimatorConnectorElement";
-import { WebimatorAnimation } from "./WebimatorAnimation";
+import { WebChalkConnectorElement } from "../3_components/WebChalkConnectorElement";
+import { WebChalkAnimation } from "./WebChalkAnimation";
 import { PartialPick, PickFromArray } from "../4_utils/utilityTypes";
 
 /**
@@ -71,10 +71,10 @@ type CustomKeyframeEffectOptions = {
    * Determines whether the effects of the animation will persist after the clip finishes.
    *  * if `false`, the effects of the animation will not persist after the clip finishes.
    *  * if `true`, the effects will attempt to be committed. If the element is not rendered by the
-   * time the clip finishes because of the CSS class "wbmtr-display-none", the clip will try to forcefully apply the styles by
+   * time the clip finishes because of the CSS class "webchalk-display-none", the clip will try to forcefully apply the styles by
    * instantly unhiding the element, committing the animation styles, then re-hiding the element (necessary because JavaScript
    * does not allow animation results to be saved to unrendered elements).
-   *    * If the element is unrendered for any reason other than having the "wbmtr-display-none" class by the time the clip finishes,
+   *    * If the element is unrendered for any reason other than having the "webchalk-display-none" class by the time the clip finishes,
    * then this will fail, and an error will be thrown.
    */
   commitsStyles: false | true;
@@ -133,7 +133,7 @@ type KeyframeTimingOptions = {
 // TYPE
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
- * Used as the last argument in most clip factory functions created by {@link Webimator.createAnimationClipFactories}.
+ * Used as the last argument in most clip factory functions created by {@link WebChalk.createAnimationClipFactories}.
  * Returned by {@link AnimClip.getConfig}.
  * @see {@link AnimClip.getConfig}.
  * 
@@ -246,8 +246,8 @@ export type AnimClipStatus = {
  * will be applied to it (asynchronously).
  * 
  * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
- * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webimator provides convenient factory functions
- * that can be used to create such clips—the factory functions can be obtained from {@link Webimator.createAnimationClipFactories}.
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
  * Examples are shown below.
  * 
  * Generally (with some exceptions), using a clip factory function follows this format:
@@ -258,7 +258,7 @@ export type AnimClipStatus = {
  * <!-- EX:S id="AnimClip.class" code-type="ts" -->
  * ```ts
  * // retrieve the clip factory functions
- * const clipFactories = webimator.createAnimationClipFactories();
+ * const clipFactories = webchalk.createAnimationClipFactories();
  * 
  * // select an element from the DOM
  * const square = document.querySelector('.square');
@@ -442,7 +442,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
    */
  readonly domElem: DOMElement;
 
- protected animation!: WebimatorAnimation;
+ protected animation!: WebChalkAnimation;
  /**@internal*/
  get rafLoopsProgress(): number {
   const { progress, direction } = this.animation.effect!.getComputedTiming();
@@ -690,18 +690,18 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
   }
 
   constructor(domElem: DOMElement | null | undefined, effectName: string, bank: EffectComposerBank) {
-    if (webimator.clipCreatorLock) {
+    if (webchalk.clipCreatorLock) {
       throw this.generateError(
         TypeError,
         `Illegal constructor. Clips can only be instantiated using clip factory functions.` +
         errorTip(
-          `Tip: Clip factory functions are created by webimator.createAnimationClipFactories(),` +
+          `Tip: Clip factory functions are created by webchalk.createAnimationClipFactories(),` +
           ` a method that returns an object containing factory functions like Entrance(), Motion(), etc.` +
           ` (A factory function is just a function that returns an instance of a class without using 'new').`
         )
       );
     }
-    webimator.clipCreatorLock = true;
+    webchalk.clipCreatorLock = true;
 
     this.id = AnimClip.id++;
     
@@ -739,7 +739,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
       composite: composite,
     };
 
-    this.animation = new WebimatorAnimation(
+    this.animation = new WebChalkAnimation(
       new KeyframeEffect(
         this.domElem,
         // Using fontFeatureSettings handles a very strange Firefox bug that causes animations to run without any visual changes
@@ -801,7 +801,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
       // layer 3 config defined in effect composer takes priority over default
       ...effectComposerDefaultConfig,
 
-      // layer 4 config (person using Webimator) takes priority over composer
+      // layer 4 config (person using WebChalk) takes priority over composer
       ...usageConfig,
 
       // mergeable properties
@@ -937,7 +937,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
    * <!-- EX:S id="AnimClip.generateTimePromise-1" code-type="ts" -->
    * ```ts
    * async function testFunc() {
-   *   const { Entrance } = webimator.createAnimationClipFactories();
+   *   const { Entrance } = webchalk.createAnimationClipFactories();
    *   const square = document.querySelector('.square');
    *   const ent = Entrance(square, '~fade-in', []);
    *   // wait until ent is played and gets 1/5 of the way through the active phase of the animation
@@ -953,7 +953,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
    * <!-- EX:S id="AnimClip.generateTimePromise-2" code-type="ts" -->
    * ```ts
    * async function testFunc() {
-   *   const { Entrance } = webimator.createAnimationClipFactories();
+   *   const { Entrance } = webchalk.createAnimationClipFactories();
    *   const square = document.querySelector('.square');
    *   const ent = Entrance(square, '~fade-in', []);
    *    // wait until ent is eventually rewound and gets 4/5 of the way through rewinding the active phase of the animation
@@ -1006,7 +1006,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
    * }
    * 
    * const square = document.querySelector('.square');
-   * const { Entrance } = webimator.createAnimationClipFactories();
+   * const { Entrance } = webchalk.createAnimationClipFactories();
    * const ent = Entrance(square, '~fade-in', []);
    * 
    * // adds 1 roadblock that will pause the clip once the clip is 15% through the delay phase
@@ -1174,16 +1174,16 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
           catch (_) {
             // attempt to override the hidden state and apply the style.
             try {
-              this.domElem.classList.add('wbmtr-force-show'); // CHANGE NOTE: Use new hidden classes
+              this.domElem.classList.add('webchalk-force-show'); // CHANGE NOTE: Use new hidden classes
               animation.commitStyles();
               animation.effect?.updateTiming({ fill: 'none' });
-              this.domElem.classList.remove('wbmtr-force-show');
+              this.domElem.classList.remove('webchalk-force-show');
             }
             // If this fails, then the element's parent is hidden. Do not attempt to remedy; throw error instead.
             catch (err: unknown) {
               let reasons = [];
               if (getComputedStyle(this.domElem).display === 'none') {
-                reasons.push(detab`Something is causing the CSS style {display: hidden} to be applied besides the class "wbmtr-display-none".`);
+                reasons.push(detab`Something is causing the CSS style {display: hidden} to be applied besides the class "webchalk-display-none".`);
               }
               let ancestor = this.domElem;
               while (ancestor = ancestor.parentElement as DOMElement) {
@@ -1194,8 +1194,8 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
               }
               throw this.generateError(CustomErrors.CommitStylesError,
                 detab`Failed to commit styles on the element while it was unrendered.\
-                Animation styles normally cannot be saved on unrendered elements in JavaScript, but Webimator allows it ONLY IF\
-                the element is unrendered due to having the CSS class "wbmtr-display-none". If there is ANY other reason\
+                Animation styles normally cannot be saved on unrendered elements in JavaScript, but WebChalk allows it ONLY IF\
+                the element is unrendered due to having the CSS class "webchalk-display-none". If there is ANY other reason\
                 for the element not being rendered, the styles cannot be committed.
                 Detected reasons:\n`
                 + reasons.map((reason, index) => `    ${index + 1}) ${reason}`).join('\n')
@@ -1345,7 +1345,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
    * @example
    * <!-- EX:S id="AnimClip.computeTween-1" code-type="ts" -->
    * ```ts
-   * const {Entrance} = webimator.createAnimationClipFactories({
+   * const {Entrance} = webchalk.createAnimationClipFactories({
    *   customEntranceEffects: {
    *     rotate: {
    *       composeEffect(degrees: number) {
@@ -1405,10 +1405,10 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
   }
 
   protected preventConnector() {
-    if (this.domElem instanceof WebimatorConnectorElement) {
+    if (this.domElem instanceof WebChalkConnectorElement) {
       throw this.generateError(CustomErrors.InvalidElementError,
         `Connectors cannot be animated using ${this.category}().` +
-        `${errorTip(`Tip: WebimatorConnectorElement elements cannot be animated using Entrance() or Exit() because many of the animations are not really applicable.` +
+        `${errorTip(`Tip: WebChalkConnectorElement elements cannot be animated using Entrance() or Exit() because many of the animations are not really applicable.` +
           ` Instead, any entrance or exit effects that make sense for connectors are defined in ConnectorEntrance() and ConnectorExit().`
         )}`,
         this.domElem

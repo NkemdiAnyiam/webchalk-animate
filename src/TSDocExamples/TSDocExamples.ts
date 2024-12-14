@@ -1,15 +1,15 @@
 import { EasingString, PresetLinearEasingKey, useEasing } from "../2_animationEffects/easing";
-import { webimator } from "../Webimator";
+import { webchalk } from "../WebChalk";
 
 {
-/**** EX:S id="Webimator.newSequence-1.1" */
+/**** EX:S id="WebChalk.newSequence-1.1" */
 // retrieve clip factory functions
-const clipFactories = webimator.createAnimationClipFactories();
+const clipFactories = webchalk.createAnimationClipFactories();
 // select a (presumable) square-shaped element from the DOM
 const squareEl = document.querySelector(".square");
 
 // create sequence with some configuration options and some animation clips
-const seq = webimator.newSequence(
+const seq = webchalk.newSequence(
   { description: "Fade in square, move it, and fade out", playbackRate: 2 },
   clipFactories.Entrance(squareEl, "~fade-in", []),
   clipFactories.Motion(squareEl, "~translate", [{ translate: "200px 500px" }]),
@@ -17,70 +17,70 @@ const seq = webimator.newSequence(
 );
 // play sequence
 seq.play();
-/**** EX:E id="Webimator.newSequence-1.1" */
+/**** EX:E id="WebChalk.newSequence-1.1" */
 }
 
 {
-/**** EX:S id="Webimator.newSequence-1.2" */
+/**** EX:S id="WebChalk.newSequence-1.2" */
 // SAME EXAMPLE BUT WITH DESTRUCTURING ASSIGNMENT FOR THE CLIP FACTORY FUNCTIONS
 
-const {Entrance, Exit, Motion} = webimator.createAnimationClipFactories();
+const {Entrance, Exit, Motion} = webchalk.createAnimationClipFactories();
 const squareEl = document.querySelector('.square');
 
-const seq = webimator.newSequence(
+const seq = webchalk.newSequence(
   {description: 'Fade in square, move it, and fade out', playbackRate: 2},
   Entrance(squareEl, '~fade-in', []),
   Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
   Exit(squareEl, '~fade-out', []),
 );
 seq.play();
-/**** EX:E id="Webimator.newSequence-1.2" */
+/**** EX:E id="WebChalk.newSequence-1.2" */
 }
 
 {
-/**** EX:S id="Webimator.newSequence-2.1" */
+/**** EX:S id="WebChalk.newSequence-2.1" */
 // retrieve clip factory functions
-const clipFactories = webimator.createAnimationClipFactories();
+const clipFactories = webchalk.createAnimationClipFactories();
 // select a (presumable) square-shaped element from the DOM
 const squareEl = document.querySelector('.square');
 
 // create sequence with some animation clips
-const seq = webimator.newSequence(
+const seq = webchalk.newSequence(
    clipFactories.Entrance(squareEl, '~fade-in', []),
    clipFactories.Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
    clipFactories.Exit(squareEl, '~fade-out', []),
 );
 // play sequence
 seq.play();
-/**** EX:E id="Webimator.newSequence-2.1" */
+/**** EX:E id="WebChalk.newSequence-2.1" */
 }
 
 {
-/**** EX:S id="Webimator.newSequence-2.2" */
+/**** EX:S id="WebChalk.newSequence-2.2" */
 // SAME EXAMPLE BUT WITH DESTRUCTURING ASSIGNMENT FOR THE CLIP FACTORY FUNCTIONS
 
-const {Entrance, Exit, Motion} = webimator.createAnimationClipFactories();
+const {Entrance, Exit, Motion} = webchalk.createAnimationClipFactories();
 const squareEl = document.querySelector('.square');
 
-const seq = webimator.newSequence(
+const seq = webchalk.newSequence(
    Entrance(squareEl, '~fade-in', []),
    Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
    Exit(squareEl, '~fade-out', []),
 );
 seq.play();
-/**** EX:E id="Webimator.newSequence-2.2" */
+/**** EX:E id="WebChalk.newSequence-2.2" */
 }
 
 {
-/**** EX:S id="Webimator.newTimeline-1" */
+/**** EX:S id="WebChalk.newTimeline-1" */
 // retrieve some clip factory functions
-const {Entrance, Exit, Motion} = webimator.createAnimationClipFactories();
+const {Entrance, Exit, Motion} = webchalk.createAnimationClipFactories();
 // select presumably a square element and a circle element from the DOM
 const squareEl = document.querySelector('.square');
 const circleEl = document.querySelector('.circle');
 
 // create first sequence
-const seq1 = webimator.newSequence(
+const seq1 = webchalk.newSequence(
    {description: 'Fade in square, move it, and fade out', playbackRate: 2},
    Entrance(squareEl, '~fade-in', []),
    Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
@@ -88,14 +88,14 @@ const seq1 = webimator.newSequence(
 );
 
 // create second sequence
-const seq2 = webimator.newSequence(
+const seq2 = webchalk.newSequence(
    {description: 'Fade in circle and move it'},
    Entrance(circleEl, '~fly-in', ['from-left']),
    Motion(circleEl, '~translate', [{translate: '250px 0px'}]),
 );
 
 // create timeline with some configuration and both sequences
-const timeline = webimator.newTimeline(
+const timeline = webchalk.newTimeline(
    {timelineName: 'Moving Shapes', autoLinksButtons: true},
    seq1,
    seq2,
@@ -104,19 +104,19 @@ const timeline = webimator.newTimeline(
 // step forward twice, playing both sequences
 timeline.step('forward')
   .then(() => timeline.step('forward'));
-/**** EX:E id="Webimator.newTimeline-1" */
+/**** EX:E id="WebChalk.newTimeline-1" */
 }
 
 {
-/**** EX:S id="Webimator.newTimeline-2" */
+/**** EX:S id="WebChalk.newTimeline-2" */
 // retrieve some clip factory functions
-const {Entrance, Exit, Motion} = webimator.createAnimationClipFactories();
+const {Entrance, Exit, Motion} = webchalk.createAnimationClipFactories();
 // select presumably a square element and a circle element from the DOM
 const squareEl = document.querySelector('.square');
 const circleEl = document.querySelector('.circle');
 
 // create first sequence
-const seq1 = webimator.newSequence(
+const seq1 = webchalk.newSequence(
   {description: 'Fade in square, move it, and fade out', playbackRate: 2},
   Entrance(squareEl, '~fade-in', []),
   Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
@@ -124,48 +124,48 @@ const seq1 = webimator.newSequence(
 );
 
 // create second sequence
-const seq2 = webimator.newSequence(
+const seq2 = webchalk.newSequence(
   {description: 'Fade in circle and move it'},
   Entrance(circleEl, '~fly-in', ['from-left']),
   Motion(circleEl, '~translate', [{translate: '250px 0px'}]),
 );
 
 // create timeline with both sequences
-const timeline = webimator.newTimeline(
+const timeline = webchalk.newTimeline(
    seq1,
    seq2,
 );
-/**** EX:E id="Webimator.newTimeline-2" */
+/**** EX:E id="WebChalk.newTimeline-2" */
 }
 
 {
-/**** EX:S id="Webimator.createAnimationClipFactories-1.1" */
+/**** EX:S id="WebChalk.createAnimationClipFactories-1.1" */
 const square = document.querySelector('.square');
 // Using the method and using one of the `Entrance()` factory function
-const clipFactories = webimator.createAnimationClipFactories();
+const clipFactories = webchalk.createAnimationClipFactories();
 const ent = clipFactories.Entrance(square, '~fly-in', ['from-top'], {duration: 2000});
 ent.play();
-/**** EX:E id="Webimator.createAnimationClipFactories-1.1" */
+/**** EX:E id="WebChalk.createAnimationClipFactories-1.1" */
 }
 
 {
-/**** EX:S id="Webimator.createAnimationClipFactories-1.2" */
+/**** EX:S id="WebChalk.createAnimationClipFactories-1.2" */
 const square = document.querySelector('.square');
 // Using destructuring assignment to conveniently extract the `Entrance()` and `Motion()` factory functions
-const {Entrance, Motion} = webimator.createAnimationClipFactories();
+const {Entrance, Motion} = webchalk.createAnimationClipFactories();
 const ent = Entrance(square, '~fly-in', ['from-top'], {duration: 2000});
 const mot1 = Motion(square, '~translate', [{translate: '500px 0px'}], {duration: 1000});
 const mot2 = Motion(square, '~translate', [{translate: '0px 500px'}], {duration: 500});
 // clips are added to a sequence
-const seq = webimator.newSequence(ent, mot1, mot2);
+const seq = webchalk.newSequence(ent, mot1, mot2);
 seq.play();
-/**** EX:E id="Webimator.createAnimationClipFactories-1.2" */
+/**** EX:E id="WebChalk.createAnimationClipFactories-1.2" */
 }
 
 {
-/**** EX:S id="Webimator.createAnimationClipFactories-1.3" */
+/**** EX:S id="WebChalk.createAnimationClipFactories-1.3" */
 // Extending the preset entrances and motions banks with custom effects
-const clipFactories = webimator.createAnimationClipFactories({
+const clipFactories = webchalk.createAnimationClipFactories({
   // CUSTOM ENTRANCES
   customEntranceEffects: {
     coolZoomIn: {
@@ -241,7 +241,7 @@ const square = document.querySelector('.square');
 const ent1 = clipFactories.Entrance(square, 'coolZoomIn', [0.2]);
 const ent2 = clipFactories.Entrance(square, 'blinkIn', []);
 const ext = clipFactories.Exit(square, 'flyOutLeft', []);
-/**** EX:E id="Webimator.createAnimationClipFactories-1.3" */
+/**** EX:E id="WebChalk.createAnimationClipFactories-1.3" */
 }
 
 
@@ -264,8 +264,8 @@ where a "DOM element" is some HTML element on the page and the effect is the ani
 will be applied to it (asynchronously).
 
 The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
-{@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webimator provides convenient factory functions
-that can be used to create such clips—the factory functions can be obtained from {@link Webimator.createAnimationClipFactories}.
+{@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
+that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
 Examples are shown below.
 
 Generally (with some exceptions), using a clip factory function follows this format:
@@ -275,7 +275,7 @@ Generally (with some exceptions), using a clip factory function follows this for
 
 /**** EX:S id="AnimClip.class" */
 // retrieve the clip factory functions
-const clipFactories = webimator.createAnimationClipFactories();
+const clipFactories = webchalk.createAnimationClipFactories();
 
 // select an element from the DOM
 const square = document.querySelector('.square');
@@ -306,7 +306,7 @@ const empClip = clipFactories.Emphasis(square, '~highlight', ['red'], {duration:
 {
 /**** EX:S id="EntranceClip.example" */
 // retrieve entrance clip factory function;
-const { Entrance } = webimator.createAnimationClipFactories();
+const { Entrance } = webchalk.createAnimationClipFactories();
 
 // select elements from the DOM
 const square = document.querySelector('.square');
@@ -333,7 +333,7 @@ clip3.play();
 {
 /**** EX:S id="ExitClip.example" */
 // retrieve exit clip factory function;
-const { Exit } = webimator.createAnimationClipFactories();
+const { Exit } = webchalk.createAnimationClipFactories();
 
 // select elements from the DOM
 const square = document.querySelector('.square');
@@ -360,7 +360,7 @@ clip3.play();
 {
 /**** EX:S id="EmphasisClip.example" */
 // retrieve emphasis clip factory function;
-const { Emphasis } = webimator.createAnimationClipFactories();
+const { Emphasis } = webchalk.createAnimationClipFactories();
 
 // select element from the DOM
 const importantText = document.querySelector('.important-text');
@@ -386,7 +386,7 @@ clip1.play();
 {
 /**** EX:S id="MotionClip.example" */
 // retrieve motion clip factory function;
-const { Motion } = webimator.createAnimationClipFactories();
+const { Motion } = webchalk.createAnimationClipFactories();
 
 // select elements from the DOM
 const square = document.querySelector('.square');
@@ -415,7 +415,7 @@ const clip3 = Motion(triangle, '~move-to', [circle, {alignment: 'center top', se
 {
 /**** EX:S id="ScrollerClip.example" */
 // retrieve scroller clip factory function;
-const { Scroller } = webimator.createAnimationClipFactories();
+const { Scroller } = webchalk.createAnimationClipFactories();
 
 // select elements from the DOM
 const sideBar = document.querySelector('.side-bar');
@@ -456,7 +456,7 @@ const clip2 = Scroller(
 {
 /**** EX:S id="TransitionClip.example" */
 // retrieve transition clip factory function;
-const { Transition } = webimator.createAnimationClipFactories();
+const { Transition } = webchalk.createAnimationClipFactories();
 
 // select elements from the DOM
 const square = document.querySelector('.square');
@@ -483,7 +483,7 @@ clip3.play(); // triangle transitions FROM 0 opacity to its current opacity
 {
 /**** EX:S id="ConnectorSetterClip.example" */
 // retrieve connector setter clip factory function;
-const { ConnectorSetter } = webimator.createAnimationClipFactories();
+const { ConnectorSetter } = webchalk.createAnimationClipFactories();
 
 // select connector elements from the DOM
 const topConnector = document.querySelector('.connector--thick');
@@ -532,7 +532,7 @@ clip4.play();
 {
 /**** EX:S id="ConnectorEntranceClip.example" */
 // retrieve connector entrance clip factory function;
-const { ConnectorEntrance } = webimator.createAnimationClipFactories();
+const { ConnectorEntrance } = webchalk.createAnimationClipFactories();
 
 // select connector elements from the DOM
 const topConnector = document.querySelector('.connector--thick');
@@ -563,7 +563,7 @@ clip4.play(); // bottomConnector appears instantly
 {
 /**** EX:S id="ConnectorExitClip.example" */
 // retrieve connector exit clip factory function;
-const { ConnectorExit } = webimator.createAnimationClipFactories();
+const { ConnectorExit } = webchalk.createAnimationClipFactories();
 
 // select connector elements from the DOM
 const topConnector = document.querySelector('.connector--thick');
@@ -594,7 +594,7 @@ clip4.play(); // bottomConnector disappears instantly
 {
 /**** EX:S id="AnimClip.generateTimePromise-1" */
 async function testFunc() {
-  const { Entrance } = webimator.createAnimationClipFactories();
+  const { Entrance } = webchalk.createAnimationClipFactories();
   const square = document.querySelector('.square');
   const ent = Entrance(square, '~fade-in', []);
   // wait until ent is played and gets 1/5 of the way through the active phase of the animation
@@ -610,7 +610,7 @@ testFunc();
 /**** EX:S id="AnimClip.generateTimePromise-2" */
 
 async function testFunc() {
-  const { Entrance } = webimator.createAnimationClipFactories();
+  const { Entrance } = webchalk.createAnimationClipFactories();
   const square = document.querySelector('.square');
   const ent = Entrance(square, '~fade-in', []);
    // wait until ent is eventually rewound and gets 4/5 of the way through rewinding the active phase of the animation
@@ -629,7 +629,7 @@ async function wait(milliseconds: number) { // Promise-based timer
 }
 
 const square = document.querySelector('.square');
-const { Entrance } = webimator.createAnimationClipFactories();
+const { Entrance } = webchalk.createAnimationClipFactories();
 const ent = Entrance(square, '~fade-in', []);
 
 // adds 1 roadblock that will pause the clip once the clip is 15% through the delay phase
@@ -653,7 +653,7 @@ ent.play();
 
 {
 /**** EX:S id="AnimClip.computeTween-1" */
-const {Entrance} = webimator.createAnimationClipFactories({
+const {Entrance} = webchalk.createAnimationClipFactories({
   customEntranceEffects: {
     rotate: {
       composeEffect(degrees: number) {
@@ -693,11 +693,11 @@ const someElement = document.querySelector('.some-element');
 
 {
 /**** EX:S id="AnimTimeline.jumpToSequenceTag" */
-const {Entrance, Motion, Exit} = webimator.createAnimationClipFactories();
+const {Entrance, Motion, Exit} = webchalk.createAnimationClipFactories();
 const square = document.querySelector('.square');
 
-const tLine = webimator.newTimeline(
-  webimator.newSequence(
+const tLine = webchalk.newTimeline(
+  webchalk.newSequence(
     {jumpTag: 'flickering'},
     Entrance(square, '~appear', [], {endDelay: 500}),
     Exit(square, '~disappear', [], {endDelay: 500}),
@@ -707,7 +707,7 @@ const tLine = webimator.newTimeline(
     Exit(square, '~disappear', [], {endDelay: 500}),
   ),
 
-  webimator.newSequence(
+  webchalk.newSequence(
     {jumpTag: 'move around'},
     Motion(square, '~translate', [{translate: '200px 0px'}]),
     Motion(square, '~translate', [{translate: '0px 200px'}]),
@@ -715,7 +715,7 @@ const tLine = webimator.newTimeline(
     Motion(square, '~translate', [{translate: '0px -200px'}]),
   ),
 
-  webimator.newSequence(
+  webchalk.newSequence(
     {jumpTag: 'go away', autoplays: true},
     Exit(square, '~pinwheel', []),
   )
@@ -789,7 +789,7 @@ const str6: EasingString = 'cubic-bezier(0.25, 0.1, 0.25)'; // valid (matches st
 
 {
 /**** EX:S id="ComposedEffect.keyframes-generators" */
-const clipFactories = webimator.createAnimationClipFactories({
+const clipFactories = webchalk.createAnimationClipFactories({
   customEntranceEffects: {
     // -----------------------------------------------------------------
     // ----------------------------EXAMPLE 1----------------------------
@@ -909,7 +909,7 @@ const element = document.querySelector('.some-element');
 
 {
 /**** EX:S id="ComposedEffect.mutator-generators" */
-const clipFactories = webimator.createAnimationClipFactories({
+const clipFactories = webchalk.createAnimationClipFactories({
   customMotionEffects: {
     // a custom animation for scrolling to a specific point on the page.
     scrollTo: {
@@ -961,7 +961,7 @@ mot.play().then(mot.rewind);
 {
 /**** EX:S id="EffectComposer.composeEffect-1" */
 // EXAMPLES WHERE OMISSIONS ARE VALID
-const clipFactories = webimator.createAnimationClipFactories({
+const clipFactories = webchalk.createAnimationClipFactories({
   customEmphasisEffects: {
     // -----------------------------------------------------------------
     // ----------------------------EXAMPLE 1----------------------------
@@ -1370,7 +1370,7 @@ const clipFactories = webimator.createAnimationClipFactories({
 {
 /**** EX:S id="EffectComposer.composeEffect-2" */
 // EXAMPLES WHERE OMISSIONS ARE INVALID
-const clipFactories = webimator.createAnimationClipFactories({
+const clipFactories = webchalk.createAnimationClipFactories({
   customMotionEffects: {
     // a custom animation for translating a certain number of pixels to the right
     translateRight: {
@@ -1458,7 +1458,7 @@ const clipFactories = webimator.createAnimationClipFactories({
 
 {
 /**** EX:S id="EffectComposer.defaultConfig" */
-const clipFactories = webimator.createAnimationClipFactories({
+const clipFactories = webchalk.createAnimationClipFactories({
   customEntranceEffects: {
     // Element fades in, starting from 0 opacity.
     fadeIn: {
@@ -1504,7 +1504,7 @@ const ent3 = clipFactories.Entrance(element, 'fadeIn_default', [], {duration: 10
 
 {
 /**** EX:S id="EffectComposer.immutableConfig" */
-const clipFactories = webimator.createAnimationClipFactories({
+const clipFactories = webchalk.createAnimationClipFactories({
   customEntranceEffects: {
     appear: {
       composeEffect() {
@@ -1555,7 +1555,7 @@ const ent3 = clipFactories.Entrance(element, 'appear_immutable', [], {duration: 
 // global variable that will be used in the fadeOut_exclusive effect.
 let usedFadeOutEx = false;
 
-const clipFactories = webimator.createAnimationClipFactories({
+const clipFactories = webchalk.createAnimationClipFactories({
   customExitEffects: {
     // A custom effect you wrote for fading an element out.
     // Here, it makes no difference what effectCompositionFrequency is set to.
@@ -1827,7 +1827,7 @@ const clipFactories = webimator.createAnimationClipFactories({
 
 {
   /**** EX:S id="Transition.~from" */
-  const { Transition } = webimator.createAnimationClipFactories();
+  const { Transition } = webchalk.createAnimationClipFactories();
 
   // get element from DOM and set its styles (just to give some explicit values to look at)
   const square = document.querySelector('.square') as HTMLElement;
@@ -1855,7 +1855,7 @@ const clipFactories = webimator.createAnimationClipFactories({
 
 {
   /**** EX:S id="Transition.~to" */
-  const { Transition } = webimator.createAnimationClipFactories();
+  const { Transition } = webchalk.createAnimationClipFactories();
 
   // get element from DOM and set its styles (just to give some explicit values to look at)
   const square = document.querySelector('.square') as HTMLElement;
