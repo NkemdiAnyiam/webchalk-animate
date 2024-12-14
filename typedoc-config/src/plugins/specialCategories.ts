@@ -27,8 +27,6 @@ const handleSpecialCategories = (function handleSpecialCategories() {
 }).toString();
 
 export function load(app: Application) {
-    // todo: Add event listeners to app, app.converter, etc.
-    // this function may be async
     app.renderer.hooks.on('body.end', () => {
       return JSX.createElement(JSX.Raw, {html: /* html */`
         <script type="module" defer>
