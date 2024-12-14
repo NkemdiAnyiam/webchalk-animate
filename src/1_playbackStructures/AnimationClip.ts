@@ -1257,12 +1257,12 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
         forwardKeyframesGenerator = () => [];
         backwardKeyframesGenerator = () => [];
       }
-      // if only forward frames generator is unspecified, use backward generator and set mirrored to true
+      // if only forward keyframes generator is unspecified, use backward generator and set mirrored to true
       else if (!forwardKeyframesGenerator) {
         forwardKeyframesGenerator = backwardKeyframesGenerator!;
         this.fFramesMirrored = true;
       }
-      // if only backward frames generator is unspecified, use forward generator and set mirrored to true
+      // if only backward keyframes generator is unspecified, use forward generator and set mirrored to true
       else if (!backwardKeyframesGenerator) {
         backwardKeyframesGenerator = forwardKeyframesGenerator!;
         this.bFramesMirrored = true;

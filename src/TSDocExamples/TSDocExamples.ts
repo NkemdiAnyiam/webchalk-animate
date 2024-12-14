@@ -812,7 +812,7 @@ const clipFactories = webimator.createAnimationClipFactories({
             ];
           },
           // backwardKeyframesGenerator() can be omitted in this case because
-          // the reversal of the forward frames is exactly equivalent.
+          // the reversal of the forward keyframes is exactly equivalent.
           // It is written below for demonstration purposes but commented out.
           // -----------------------------------------------------------------------
           // backwardKeyframesGenerator: () => {
