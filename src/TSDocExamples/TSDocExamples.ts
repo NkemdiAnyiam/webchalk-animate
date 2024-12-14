@@ -788,7 +788,7 @@ const str6: EasingString = 'cubic-bezier(0.25, 0.1, 0.25)'; // valid (matches st
 
 
 {
-/**** EX:S id="ComposedEffect.keyframe-generators" */
+/**** EX:S id="ComposedEffect.keyframes-generators" */
 const clipFactories = webimator.createAnimationClipFactories({
   customEntranceEffects: {
     // -----------------------------------------------------------------
@@ -904,7 +904,7 @@ const element = document.querySelector('.some-element');
   // ↑ backwawrdFramesGenerator() will run and produce the Keyframe array [{translate: '-756px'}].
   // That Keyframe array is used for the animation effect as the clip rewinds.
 })();
-/**** EX:E id="ComposedEffect.keyframe-generators" */
+/**** EX:E id="ComposedEffect.keyframes-generators" */
 }
 
 {
@@ -959,7 +959,7 @@ mot.play().then(mot.rewind);
 }
 
 {
-/**** EX:S id="EffectGenerator.composeEffect-1" */
+/**** EX:S id="EffectComposer.composeEffect-1" */
 // EXAMPLES WHERE OMISSIONS ARE VALID
 const clipFactories = webimator.createAnimationClipFactories({
   customEmphasisEffects: {
@@ -1364,11 +1364,11 @@ const clipFactories = webimator.createAnimationClipFactories({
     },
   },
 });
-/**** EX:E id="EffectGenerator.composeEffect-1" */
+/**** EX:E id="EffectComposer.composeEffect-1" */
 }
 
 {
-/**** EX:S id="EffectGenerator.composeEffect-2" */
+/**** EX:S id="EffectComposer.composeEffect-2" */
 // EXAMPLES WHERE OMISSIONS ARE INVALID
 const clipFactories = webimator.createAnimationClipFactories({
   customMotionEffects: {
@@ -1453,11 +1453,11 @@ const clipFactories = webimator.createAnimationClipFactories({
     },
   }
 });
-/**** EX:E id="EffectGenerator.composeEffect-2" */
+/**** EX:E id="EffectComposer.composeEffect-2" */
 }
 
 {
-/**** EX:S id="EffectGenerator.defaultConfig" */
+/**** EX:S id="EffectComposer.defaultConfig" */
 const clipFactories = webimator.createAnimationClipFactories({
   customEntranceEffects: {
     // Element fades in, starting from 0 opacity.
@@ -1499,11 +1499,11 @@ const ent2 = clipFactories.Entrance(element, 'fadeIn_default', [], {});
 const ent3 = clipFactories.Entrance(element, 'fadeIn_default', [], {duration: 1000});
 // ↑ duration will be set to 1000 because configuration settings set in the
 // clip factory function call will overwrite any default settings
-/**** EX:E id="EffectGenerator.defaultConfig" */
+/**** EX:E id="EffectComposer.defaultConfig" */
 }
 
 {
-/**** EX:S id="EffectGenerator.immutableConfig" */
+/**** EX:S id="EffectComposer.immutableConfig" */
 const clipFactories = webimator.createAnimationClipFactories({
   customEntranceEffects: {
     appear: {
@@ -1547,11 +1547,11 @@ const ent3 = clipFactories.Entrance(element, 'appear_immutable', [], {duration: 
 // ↑ TypeScript compiler error will be thrown because duration is not allowed to be set
 // when using the 'appear_immutable' effect. When running the code, this duration will
 // simply be ignored in favor of the immutable duration setting.
-/**** EX:E id="EffectGenerator.immutableConfig" */
+/**** EX:E id="EffectComposer.immutableConfig" */
 }
 
 {
-/**** EX:S id="EffectGenerator.effectCompositionFrequency" */
+/**** EX:S id="EffectComposer.effectCompositionFrequency" */
 // global variable that will be used in the fadeOut_exclusive effect.
 let usedFadeOutEx = false;
 
@@ -1812,7 +1812,7 @@ const clipFactories = webimator.createAnimationClipFactories({
     },
   }
 });
-/**** EX:E id="EffectGenerator.effectCompositionFrequency" */
+/**** EX:E id="EffectComposer.effectCompositionFrequency" */
 }
 
 

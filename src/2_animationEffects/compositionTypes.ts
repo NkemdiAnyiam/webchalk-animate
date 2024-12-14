@@ -9,7 +9,7 @@ import { AnimClipConfig } from "../1_playbackStructures/AnimationClip";
 
 /**
  * Contains up to 4 callback functions (at _least_ 1 must be specified) that will be called to
- * produce the effect for an animation clip. Returned by {@link EffectGenerator.composeEffect}.
+ * produce the effect for an animation clip. Returned by {@link EffectComposer.composeEffect}.
  *  * {@link ComposedEffect.forwardKeyframesGenerator | forwardKeyframesGenerator} will run every time the clip is played,
  * producing a {@link Keyframes} object.
  *  * {@link ComposedEffect.backwardKeyframesGenerator | backwardKeyframesGenerator} will run every time the clip is rewound,
@@ -23,9 +23,9 @@ import { AnimClipConfig } from "../1_playbackStructures/AnimationClip";
  *    * If either one is omitted, the other callback will be used instead, and the result will just be reversed.
  * It is up to you to check whether the animation effect is valid if this shortcut is taken.
  * 
- * @see {@link EffectGenerator.composeEffect}
+ * @see {@link EffectComposer.composeEffect}
  * 
- * @category Effect Generation
+ * @category Effect Composition
  * 
  * @interface
  */
@@ -36,7 +36,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    * @see [Keyframe Formats](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Keyframe_Formats)
    * 
    * @example
-   * <!-- EX:S id="ComposedEffect.keyframe-generators" code-type="ts" -->
+   * <!-- EX:S id="ComposedEffect.keyframes-generators" code-type="ts" -->
    * ```ts
    * const clipFactories = webimator.createAnimationClipFactories({
    *   customEntranceEffects: {
@@ -154,7 +154,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *   // That Keyframe array is used for the animation effect as the clip rewinds.
    * })();
    * ```
-   * <!-- EX:E id="ComposedEffect.keyframe-generators" -->
+   * <!-- EX:E id="ComposedEffect.keyframes-generators" -->
    * 
    * @group Keyframes Generators
    */
@@ -165,7 +165,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    * @see [Keyframe Formats](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Keyframe_Formats)
    * 
    * @example
-   * <!-- EX:S id="ComposedEffect.keyframe-generators" code-type="ts" -->
+   * <!-- EX:S id="ComposedEffect.keyframes-generators" code-type="ts" -->
    * ```ts
    * const clipFactories = webimator.createAnimationClipFactories({
    *   customEntranceEffects: {
@@ -283,7 +283,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *   // That Keyframe array is used for the animation effect as the clip rewinds.
    * })();
    * ```
-   * <!-- EX:E id="ComposedEffect.keyframe-generators" -->
+   * <!-- EX:E id="ComposedEffect.keyframes-generators" -->
    * 
    * @group Keyframes Generators
    */
@@ -412,18 +412,18 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
 
 // TODO: add code examples
 /**
- * Object representing an entry in an {@link EffectGeneratorBank}. It contains
+ * Object representing an entry in an {@link EffectComposerBank}. It contains
  *  * a function for composing an animation effect
  *  * two properties that can be used to specify clip configuration settings
  *    * one property contains default configuration settings
  *    * the other property contains immutable configuration settings
  *  * a property that sets how often the effect composition function should be run
  * 
- * @category Effect Generation
+ * @category Effect Composition
  * 
  * @interface
  */
-export type EffectGenerator<TClipContext extends unknown = unknown, TConfig extends unknown = unknown> = Readonly<
+export type EffectComposer<TClipContext extends unknown = unknown, TConfig extends unknown = unknown> = Readonly<
   {
     /**
      * Default configuration options that are appropriate for the effect (and can be overwritten while calling the clip factory function).
@@ -431,11 +431,11 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      * 
      * When creating custom effects, the configuration options that you are allowed to set here may be limited by the {@link AnimClip}
      * value for {@link AnimClip.categoryImmutableConfig} (which you cannot modify). For example, for exit animation clips,
-     * {@link ExitClip.categoryImmutableConfig} sets a value for `commitStyles`, so you cannot set a value for `commitStyles` in
-     * {@link EffectGenerator.defaultConfig | defaultConfig} for any entries in the exit effects bank.
+     * {@link ExitClip.categoryImmutableConfig} sets a value for `commitsStyles`, so you cannot set a value for `commitsStyles` in
+     * {@link EffectComposer.defaultConfig | defaultConfig} for any entries in the exit effects bank.
      * 
      * @example
-     * <!-- EX:S id="EffectGenerator.defaultConfig" code-type="ts" -->
+     * <!-- EX:S id="EffectComposer.defaultConfig" code-type="ts" -->
      * ```ts
      * const clipFactories = webimator.createAnimationClipFactories({
      *   customEntranceEffects: {
@@ -479,7 +479,7 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      * // ↑ duration will be set to 1000 because configuration settings set in the
      * // clip factory function call will overwrite any default settings
      * ```
-     * <!-- EX:E id="EffectGenerator.defaultConfig" -->
+     * <!-- EX:E id="EffectComposer.defaultConfig" -->
      * 
      * @group Clip Configuration
      */
@@ -491,11 +491,11 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      * 
      * When creating custom effects, the configuration options that you are allowed to set here may be limited by the {@link AnimClip}
      * value for {@link AnimClip.categoryImmutableConfig} (which you cannot modify). For example, for exit animation clips,
-     * {@link ExitClip.categoryImmutableConfig} sets a value for `commitStyles`, so you cannot set a value for `commitStyles` in
-     * {@link EffectGenerator.immutableConfig | immutableConfig} for any entries in the exit effects bank.
+     * {@link ExitClip.categoryImmutableConfig} sets a value for `commitsStyles`, so you cannot set a value for `commitsStyles` in
+     * {@link EffectComposer.immutableConfig | immutableConfig} for any entries in the exit effects bank.
      * 
      * @example
-     * <!-- EX:S id="EffectGenerator.immutableConfig" code-type="ts" -->
+     * <!-- EX:S id="EffectComposer.immutableConfig" code-type="ts" -->
      * ```ts
      * const clipFactories = webimator.createAnimationClipFactories({
      *   customEntranceEffects: {
@@ -540,23 +540,23 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      * // when using the 'appear_immutable' effect. When running the code, this duration will
      * // simply be ignored in favor of the immutable duration setting.
      * ```
-     * <!-- EX:E id="EffectGenerator.immutableConfig" -->
+     * <!-- EX:E id="EffectComposer.immutableConfig" -->
      * 
      * @group Clip Configuration
      */
     immutableConfig?: Partial<TConfig>;
     /**
-     * Determines how frequently the effect will be composed (i.e., how often {@link EffectGenerator.composeEffect | composeEffect} will be run).
-     * **SUGGESTION:** Read the documentation for {@link EffectGenerator.composeEffect | composeEffect} first.
-     *  * if `on-first-play-only`, the effect generator's {@link EffectGenerator.composeEffect | composeEffect} function will run the first time
+     * Determines how frequently the effect will be composed (i.e., how often {@link EffectComposer.composeEffect | composeEffect} will be run).
+     * **SUGGESTION:** Read the documentation for {@link EffectComposer.composeEffect | composeEffect} first.
+     *  * if `on-first-play-only`, {@link EffectComposer.composeEffect | composeEffect} will run the first time
      * `play()` is called and never again. The one {@link ComposedEffect} object's functions and the closure created during the one call to
-     * {@link EffectGenerator.composeEffect | composeEffect} will be used for the clip's entire lifetime.
-     *    * This should be set to `on-first-play-only` when code in the closure of {@link EffectGenerator.composeEffect | composeEffect}
+     * {@link EffectComposer.composeEffect | composeEffect} will be used for the clip's entire lifetime.
+     *    * This should be set to `on-first-play-only` when code in the closure of {@link EffectComposer.composeEffect | composeEffect}
      * only needs to (or perhaps _must only_) run once for the returned generators to be correct.
-     *  * if `on-every-play`, the effect generator's {@link EffectGenerator.composeEffect | composeEffect} function will run every time
-     * the clip plays forward, which creates a new closure and returns a new {@link ComposedEffect}.
-     *  * if `on-every-play-and-rewind`, the effect generator's {@link EffectGenerator.composeEffect | composeEffect} function
-     * will run every time the clip plays _or_ rewinds.
+     *  * if `on-every-play`, {@link EffectComposer.composeEffect | composeEffect} will run every time
+     * the clip plays forward, which creates a new closure and returns a new {@link ComposedEffect} each time.
+     *  * if `on-every-play-and-rewind`, {@link EffectComposer.composeEffect | composeEffect} will run
+     * every time the clip plays _or_ rewinds, which creates a new closure and returns a new {@link ComposedEffect} each time.
      * 
      * @defaultValue
      * ```ts
@@ -564,7 +564,7 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      * ```
      * 
      * @example
-     * <!-- EX:S id="EffectGenerator.effectCompositionFrequency" code-type="ts" -->
+     * <!-- EX:S id="EffectComposer.effectCompositionFrequency" code-type="ts" -->
      * ```ts
      * // global variable that will be used in the fadeOut_exclusive effect.
      * let usedFadeOutEx = false;
@@ -827,7 +827,7 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      *   }
      * });
      * ```
-     * <!-- EX:E id="EffectGenerator.effectCompositionFrequency" -->
+     * <!-- EX:E id="EffectComposer.effectCompositionFrequency" -->
      * 
      * @group Effect Composition
      */
@@ -839,10 +839,10 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      * @returns An object containing 4 possible callback functions that return {@link Keyframes} and/or {@link Mutator}.
      * 
      * @remarks
-     * Whenever {@link EffectGenerator.composeEffect composeEffect} runs (how often it runs depends on
-     * {@link EffectGenerator.effectCompositionFrequency | effectCompositionFrequency}), it returns a new {@link ComposedEffect} containing
+     * Whenever {@link EffectComposer.composeEffect composeEffect} runs (how often it runs depends on
+     * {@link EffectComposer.effectCompositionFrequency | effectCompositionFrequency}), it returns a new {@link ComposedEffect} containing
      * generators, which the clip will use to produce the keyframes/mutators for the animation. Naturally, the generators have access to the
-     * closure created by the call to {@link EffectGenerator.composeEffect composeEffect}, which is useful for storing stateful data.
+     * closure created by the call to {@link EffectComposer.composeEffect composeEffect}, which is useful for storing stateful data.
      * 
      * An animation clip uses two separate sets of keyframes—one set that will be used when the clip is played (the forward set)
      * and one set that will be used when the clip is rewound (the backward set). This means that you can define two distinct
@@ -869,7 +869,7 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      * keyframes—the forward set sends the target to B, and the backward set sends the target to A.\
      * That is why we allow the backward effect to be generated independently—this design makes it possible to define more sophisticated animations that
      * can account for dynamic factors like screen size, shifting elements, etc. (especially when paired with the possible values for
-     * {@link EffectGenerator.effectCompositionFrequency | effectCompositionFrequency}).
+     * {@link EffectComposer.effectCompositionFrequency | effectCompositionFrequency}).
      * 
      * **OPTIONAL SHORTCUT:** For most effects, the semantic expectations will likely be trivial (i.e., effects where the rewind is simply just the reverse
      * of the forward keyframes). For example, suppose you make an emphasis effect where the element's opacity changes from 1 to 0.5. The semantic
@@ -883,11 +883,11 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      * But because the backward generator was filled in, the clip will reverse the effect of the keyframes it produces,
      * resulting in an animation that changes the opacity from 1 to 0.5 when the clip is rewound (which is the desired rewinding effect).
      * The same shortcut allowance holds true for the mutator generators.\
-     * **NOTE:** Using the shortcut has _no_ impact on {@link EffectGenerator.effectCompositionFrequency | effectCompositionFrequency}.
+     * **NOTE:** Using the shortcut has _no_ impact on {@link EffectComposer.effectCompositionFrequency | effectCompositionFrequency}.
      * Do not concern yourself with whether or not using the shortcut will change the behavior of
-     * {@link EffectGenerator.effectCompositionFrequency | effectCompositionFrequency}—it makes absolutely no difference. In other words,
+     * {@link EffectComposer.effectCompositionFrequency | effectCompositionFrequency}—it makes absolutely no difference. In other words,
      * if you fully write an effect and then later realize that the generators are invertible, you can utilize the shortcut without even
-     * a second thought on how it may affect the behavior of {@link EffectGenerator.effectCompositionFrequency | effectCompositionFrequency}.
+     * a second thought on how it may affect the behavior of {@link EffectComposer.effectCompositionFrequency | effectCompositionFrequency}.
      * 
      * **SHORTCUT CAVEAT:** When using the shortcut, be mindful if you write an effect that has an {@link AnimClipConfig.composite} value of
      * `'add'` or `'accumulate'` (instead of `'replace'`). The keyframes generators may potentially be non-invertible even though
@@ -896,7 +896,7 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      * categories are never committed, meaning there cannot be accidental overaccumulations.
      * 
      * @example
-     * <!-- EX:S id="EffectGenerator.composeEffect-1" code-type="ts" -->
+     * <!-- EX:S id="EffectComposer.composeEffect-1" code-type="ts" -->
      * ```ts
      * // EXAMPLES WHERE OMISSIONS ARE VALID
      * const clipFactories = webimator.createAnimationClipFactories({
@@ -1303,10 +1303,10 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      *   },
      * });
      * ```
-     * <!-- EX:E id="EffectGenerator.composeEffect-1" -->
+     * <!-- EX:E id="EffectComposer.composeEffect-1" -->
      * 
      * @example
-     * <!-- EX:S id="EffectGenerator.composeEffect-2" code-type="ts" -->
+     * <!-- EX:S id="EffectComposer.composeEffect-2" code-type="ts" -->
      * ```ts
      * // EXAMPLES WHERE OMISSIONS ARE INVALID
      * const clipFactories = webimator.createAnimationClipFactories({
@@ -1393,7 +1393,7 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
      *   }
      * });
      * ```
-     * <!-- EX:E id="EffectGenerator.composeEffect-2" -->
+     * <!-- EX:E id="EffectComposer.composeEffect-2" -->
      * 
      * @group Effect Composition
      */
@@ -1408,30 +1408,30 @@ export type EffectGenerator<TClipContext extends unknown = unknown, TConfig exte
 /** @ignore */
 export type Layer3MutableClipConfig<TClipClass extends AnimClip> = Omit<ReturnType<TClipClass['getConfig']>, keyof TClipClass['categoryImmutableConfig']>;
 
-// represents an object where every string key is paired with a EffectGenerator value
+// represents an object where every string key is paired with a EffectComposer value
 /**
- * Object containing {@link EffectGenerator} entries for a specific category of animation effects.
- * For example, there is an effect generator bank containing generators for entrance animation effects.
+ * Object containing {@link EffectComposer} entries for a specific category of animation effects.
+ * For example, there is an effect composer bank containing composers for entrance animation effects.
  * 
- * @category Effect Generation
+ * @category Effect Composition
  */
-export type EffectGeneratorBank<TClip extends AnimClip = AnimClip> = ReadonlyRecord<
-  string, EffectGenerator<ReadonlyPick<TClip, 'domElem' | 'getEffectDetails' | 'getStatus'>, Layer3MutableClipConfig<TClip>>
+export type EffectComposerBank<TClip extends AnimClip = AnimClip> = ReadonlyRecord<
+  string, EffectComposer<ReadonlyPick<TClip, 'domElem' | 'getEffectDetails' | 'getStatus'>, Layer3MutableClipConfig<TClip>>
 >;
 
 /**
- * The parameters for a specific {@link EffectGenerator}'s generator function.
+ * The parameters for a specific {@link EffectComposer}'s composer function ({@link EffectComposer.composeEffect}).
  * 
- * @category Effect Generation
+ * @category Effect Composition
  */
-export type EffectOptions<TEffectGenerator extends EffectGenerator> = Parameters<TEffectGenerator['composeEffect']>;
+export type EffectOptions<TEffectComposer extends EffectComposer> = Parameters<TEffectComposer['composeEffect']>;
 
 // CHANGE NOTE: EffectNameIn now handles keyof and Extract
-// extracts only those strings in an object whose paired value is an EffectGenerator
+// extracts only those strings in an object whose paired value is an EffectComposer
 /**
- * Detects the keys corresponding to {@link EffectGenerator} entries within an {@link EffectGeneratorBank}. 
+ * Detects the keys corresponding to {@link EffectComposer} entries within an {@link EffectComposerBank}. 
  * @category Utility Types
  */
-export type EffectNameIn<TGeneratorBank extends EffectGeneratorBank> = Exclude<keyof {
-  [key in keyof TGeneratorBank as TGeneratorBank[key] extends EffectGenerator ? key : never]: TGeneratorBank[key];
+export type EffectNameIn<TComposerBank extends EffectComposerBank> = Exclude<keyof {
+  [key in keyof TComposerBank as TComposerBank[key] extends EffectComposer ? key : never]: TComposerBank[key];
 }, number | symbol>;/** @ignore */

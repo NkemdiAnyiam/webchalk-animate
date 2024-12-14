@@ -1,9 +1,9 @@
 // import { AnimClipConfig } from "../AnimClip";
-// import { EffectGenerator } from "../Webimator";
+// import { EffectComposer } from "../Webimator";
 // import { PrefixProps } from "./utilityTypes";
 
 import { AnimClip } from "../1_playbackStructures/AnimationClip";
-import { ComposedEffect } from "../2_animationEffects/generationTypes";
+import { ComposedEffect } from "../2_animationEffects/compositionTypes";
 
 // type FrozenPrefix = '__';
 // export type FromFrozenKey<S extends string> = S extends `${FrozenPrefix}${infer key}` ? key : never;
@@ -14,15 +14,15 @@ import { ComposedEffect } from "../2_animationEffects/generationTypes";
 // export type AddFreezableConfig<TClipConfig extends AnimClipConfig> = PrefixProps<TClipConfig, FrozenPrefix> & TClipConfig;
 
 // /**
-//  * Returns TClipConfig without any props marked as frozen in TEffectGenerator's config.
+//  * Returns TClipConfig without any props marked as frozen in TEffectComposer's config.
 //  * @interface StripFrozenConfig
 //  * @typeParam TClipConfig - Configuration interface for AnimClip or an AnimClip subclass.
-//  * @typeParam TEffectGenerator - An effect generator defined in any generator bank.
+//  * @typeParam TEffectComposer - An effect composer defined in any composer bank.
 //  */
 // export type StripFrozenConfig<
 //   TClipConfig extends AnimClipConfig,
-//   TEffectGenerator extends EffectGenerator
-// > = Omit<TClipConfig, FromFrozenKeys<TEffectGenerator['defaultConfig']>>;
+//   TEffectComposer extends EffectComposer
+// > = Omit<TClipConfig, FromFrozenKeys<TEffectComposer['defaultConfig']>>;
 
 /**
  * Practical union of the 3 subclasses of {@link Element}.

@@ -2,7 +2,7 @@ import { AnimSequence } from "./AnimationSequence";
 import { AnimTimeline } from "./AnimationTimeline";
 import { EntranceClip, MotionClip, TransitionClip } from "./AnimationClipCategories";
 import { webimator, Webimator } from "../Webimator";
-import { EffectOptions, EffectGeneratorBank, EffectGenerator } from "../2_animationEffects/generationTypes";
+import { EffectOptions, EffectComposerBank, EffectComposer } from "../2_animationEffects/compositionTypes";
 import { call, detab, getPartial, mergeArrays } from "../4_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
 import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "../4_utils/errors";
@@ -183,10 +183,10 @@ export type AnimClipEffectDetails = {
   effectName: AnimClip['effectName'];
 
   /**
-   * Generator containing the function used to generate the effect and
+   * Object containing both the function used to compose the effect and
    * possibly a set of default configuration options for the effect.
    */
-  effectGenerator: AnimClip['effectGenerator'];
+  effectComposer: AnimClip['effectComposer'];
 
   /**
    * An array containing the effect options used to set the behavior of the animation effect.
@@ -309,12 +309,12 @@ export type AnimClipStatus = {
  * @groupDescription Helper Methods
  * Methods to help with the functionality of clip operations.
  */
-export abstract class AnimClip<TEffectGenerator extends EffectGenerator = EffectGenerator, TClipConfig extends AnimClipConfig = AnimClipConfig> {
+export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectComposer, TClipConfig extends AnimClipConfig = AnimClipConfig> {
   private static id: number = 0;
 
   /**
    * The base default configuration for any animation clip before any category-specific
-   * configuration, effect generator configuration, or configuration passed in through
+   * configuration, effect composer configuration, or configuration passed in through
    * clip factory functions are applied.
    * @group Configuration
    */
@@ -339,19 +339,19 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   }
 
   /**
-   * @returns An effect generator with a function that returns empty arrays (so no actual keyframes).
+   * @returns An effect composer with a function that returns empty arrays (so no actual keyframes).
    * @remarks
    * This static method is purely for convenience.
    * @group Helper Methods
    */
-  public static createNoOpEffectGenerator() { return {composeEffect() { return {forwardKeyframesGenerator: () => [], backwardKeyframesGenerator: () => []}; }} as EffectGenerator; }
+  public static createNoOpEffectComposer() { return {composeEffect() { return {forwardKeyframesGenerator: () => [], backwardKeyframesGenerator: () => []}; }} as EffectComposer; }
 
   /**
    * The default configuration for clips in a specific effect category, which includes
    * any additional configuration options that are specific to the effect category.
    *  * This never changes, and it available mostly just for reference. Consider it a
    * static property.
-   *  * This does NOT include any default configuration from effect generators or
+   *  * This does NOT include any default configuration from effect composers or
    * configurations passed in from clip factory functions.
    * @group Configuration
    */
@@ -361,7 +361,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * The unchangeable default configuration for clips in a specific effect category.
    *  * This never changes, and it is available mostly just for reference. Consider it a static
    * property.
-   *  * This does NOT include any immutable configuration from effect generators.
+   *  * This does NOT include any immutable configuration from effect composers.
    * @group Configuration
    */
   abstract get categoryImmutableConfig(): Partial<TClipConfig>;
@@ -369,12 +369,12 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   /**
    * All the unchangeable default configuration settings for the clip (both category-specific
    * immutable configurations and immutable configurations that come from the specific
-   * effect generator).
+   * effect composer).
    * @group Configuration
    */
-  get immutableConfig(): this['categoryImmutableConfig'] & TEffectGenerator['immutableConfig'] {
+  get immutableConfig(): this['categoryImmutableConfig'] & TEffectComposer['immutableConfig'] {
     return {
-      ...this.effectGenerator.immutableConfig,
+      ...this.effectComposer.immutableConfig,
       ...this.categoryImmutableConfig,
     };
   }
@@ -465,8 +465,8 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
   // GROUP: Effect Details
   protected abstract get category(): EffectCategory;
   protected effectName: string;
-  protected effectGenerator: TEffectGenerator;
-  protected effectOptions: EffectOptions<TEffectGenerator> = {} as EffectOptions<TEffectGenerator>;
+  protected effectComposer: TEffectComposer;
+  protected effectOptions: EffectOptions<TEffectComposer> = {} as EffectOptions<TEffectComposer>;
   
   /**@internal*/
   keyframesGenerators: {
@@ -491,7 +491,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
    * @returns An object containing
    *  * {@link AnimClipEffectDetails.category|category},
    *  * {@link AnimClipEffectDetails.effectName|effectName},
-   *  * {@link AnimClipEffectDetails.effectGenerator|effectGenerator},
+   *  * {@link AnimClipEffectDetails.effectComposer|effectComposer},
    *  * {@link AnimClipEffectDetails.effectOptions|effectOptions},
    */
   getEffectDetails(): AnimClipEffectDetails;
@@ -518,7 +518,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     const result: AnimClipEffectDetails = {
       category: this.category,
       effectName: this.effectName,
-      effectGenerator: this.effectGenerator,
+      effectComposer: this.effectComposer,
       effectOptions: this.effectOptions
     };
 
@@ -689,7 +689,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     return this;
   }
 
-  constructor(domElem: DOMElement | null | undefined, effectName: string, bank: EffectGeneratorBank) {
+  constructor(domElem: DOMElement | null | undefined, effectName: string, bank: EffectComposerBank) {
     if (webimator.clipCreatorLock) {
       throw this.generateError(
         TypeError,
@@ -711,20 +711,20 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     this.domElem = domElem;
     this.effectName = effectName;
     
-    this.effectGenerator = bank[effectName] as TEffectGenerator;
+    this.effectComposer = bank[effectName] as TEffectComposer;
 
-    // checking if this.effectGenerator exists is deferred until initialize()
+    // checking if this.effectComposer exists is deferred until initialize()
   }
 
   /**@internal*/
-  initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<TClipConfig> = {}): this {
+  initialize(effectOptions: EffectOptions<TEffectComposer>, effectConfig: Partial<TClipConfig> = {}): this {
     // Throw error if invalid effectName
     // Deferred until initialize() so that this.category has actually been initialized by derived class by now
-    if (!this.effectGenerator) { throw this.generateError(RangeError, `Invalid effect name: "${this.effectName}" does not exists in the "${this.category}" category.`); }
+    if (!this.effectComposer) { throw this.generateError(RangeError, `Invalid effect name: "${this.effectName}" does not exists in the "${this.category}" category.`); }
 
     this.effectOptions = effectOptions;
 
-    this.config = this.mergeConfigs(effectConfig, this.effectGenerator.defaultConfig ?? {}, this.effectGenerator.immutableConfig ?? {});
+    this.config = this.mergeConfigs(effectConfig, this.effectComposer.defaultConfig ?? {}, this.effectComposer.immutableConfig ?? {});
     // cannot be exactly 0 because that causes some Animation-related bugs that can't be easily worked around
     this.config.duration = Math.max(this.getTiming('duration') as number, 0.01);
 
@@ -789,8 +789,8 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
 
   protected mergeConfigs(
     usageConfig: Partial<TClipConfig>,
-    effectGeneratorDefaultConfig: Partial<TClipConfig>,
-    effectGeneratorImmutableConfig: Partial<TClipConfig>,
+    effectComposerDefaultConfig: Partial<TClipConfig>,
+    effectComposerImmutableConfig: Partial<TClipConfig>,
   ): TClipConfig {
     return {
       ...AnimClip.baseDefaultConfig,
@@ -798,22 +798,22 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       // layer 2 subclass defaults take priority
       ...this.categoryDefaultConfig,
 
-      // layer 3 config defined in effect generator takes priority over default
-      ...effectGeneratorDefaultConfig,
+      // layer 3 config defined in effect composer takes priority over default
+      ...effectComposerDefaultConfig,
 
-      // layer 4 config (person using Webimator) takes priority over generator
+      // layer 4 config (person using Webimator) takes priority over composer
       ...usageConfig,
 
       // mergeable properties
       cssClasses: AnimClip.mergeCssClassesConfig<PartialPick<AnimClipConfig, 'cssClasses'>>(
         AnimClip.baseDefaultConfig,
         this.categoryDefaultConfig,
-        effectGeneratorDefaultConfig,
+        effectComposerDefaultConfig,
         usageConfig,
       ),
 
       // layer 3 immutable config take priority over layer 4 config
-      ...effectGeneratorImmutableConfig,
+      ...effectComposerImmutableConfig,
 
       // layer 2 subclass immutable config takes priority over layer 3 immutable config
       ...this.categoryImmutableConfig,
@@ -1058,7 +1058,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     if (this.inProgress) { return this; }
 
     // if this is the first time running animate(), retrieve the generators and
-    // update animation effects' directions according to presence of frames generators
+    // update animation effects' directions according to presence of keyframes generators
     if (this.firstRun) {
       this.firstRun = false;
       this.retrieveGenerators();
@@ -1075,8 +1075,8 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
     }
     // else, refresh the generators depending on the effect composition frequency
     else if (
-      this.effectGenerator.effectCompositionFrequency === 'on-every-play-and-rewind'
-      || direction === 'forward' && this.effectGenerator.effectCompositionFrequency === 'on-every-play'
+      this.effectComposer.effectCompositionFrequency === 'on-every-play-and-rewind'
+      || direction === 'forward' && this.effectComposer.effectCompositionFrequency === 'on-every-play'
     ) {
       this.refreshGenerators();
     }
@@ -1103,8 +1103,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       { animation.play(); }
     if (this._parentSequence?.getStatus('isPaused')) { animation.pause(); }
     
-    // After delay phase, then apply class modifications and call onStart functions.
-    // Additionally, generate keyframes on 'forward' if keyframe pregeneration is disabled.
+    // After delay phase, apply class modifications and call onStart functions.
     animation.onDelayFinish = () => {
       try {
         switch(direction) {
@@ -1245,7 +1244,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
         backwardKeyframesGenerator,
         forwardMutatorGenerator,
         backwardMutatorGenerator,
-      } = call(this.effectGenerator.composeEffect, this, ...this.getEffectDetails().effectOptions);
+      } = call(this.effectComposer.composeEffect, this, ...this.getEffectDetails().effectOptions);
 
       // if no generators are specified, error
       if (!(forwardKeyframesGenerator || backwardKeyframesGenerator || forwardMutatorGenerator || backwardMutatorGenerator)) {
@@ -1302,7 +1301,7 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
         backwardKeyframesGenerator,
         forwardMutatorGenerator,
         backwardMutatorGenerator,
-      } = call(this.effectGenerator.composeEffect, this, ...this.getEffectDetails().effectOptions);
+      } = call(this.effectComposer.composeEffect, this, ...this.getEffectDetails().effectOptions);
 
       this.keyframesGenerators = {
         forwardKeyframesGenerator: forwardKeyframesGenerator! ?? backwardKeyframesGenerator!,

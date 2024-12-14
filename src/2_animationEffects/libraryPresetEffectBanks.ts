@@ -9,7 +9,7 @@ import {
   ConnectorExitClip,
 } from "../1_playbackStructures/AnimationClipCategories";
 import { webimator } from "../Webimator";
-import { EffectGeneratorBank } from "./generationTypes";
+import { EffectComposerBank } from "./compositionTypes";
 import { computeSelfScrollingBounds, getBoundingClientRectOfHidden, negateNumString, parseXYAlignmentString, parseXYTupleString } from "../4_utils/helpers";
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "../4_utils/interfaces";
 import { useEasing } from "./easing";
@@ -268,7 +268,7 @@ export const libPresetEntrances = {
   },
 
   // invalidProperty: 5,
-} satisfies EffectGeneratorBank<EntranceClip>;
+} satisfies EffectComposerBank<EntranceClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:******************************************        EXITS        ***********************************************************/
@@ -496,7 +496,7 @@ export const libPresetExits = {
     } as const,
     effectCompositionFrequency: 'on-first-play-only',
   }
-} satisfies EffectGeneratorBank<ExitClip>;
+} satisfies EffectComposerBank<ExitClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:*****************************************        EMPHASES        *********************************************************/
@@ -574,7 +574,7 @@ export const libPresetEmphases = {
     } as const,
     effectCompositionFrequency: 'on-every-play',
   },
-} satisfies EffectGeneratorBank<EmphasisClip>;
+} satisfies EffectComposerBank<EmphasisClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:*****************************************        MOTIONS        **********************************************************/
@@ -685,7 +685,7 @@ export const libPresetMotions = {
     immutableConfig: {} as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
-} satisfies EffectGeneratorBank<MotionClip>;
+} satisfies EffectComposerBank<MotionClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:***************************************        TRANSITIONS        ********************************************************/
@@ -820,7 +820,7 @@ export const libPresetTransitions = {
     immutableConfig: {} as const,
     effectCompositionFrequency: 'on-every-play',
   },
-} satisfies EffectGeneratorBank<TransitionClip>;
+} satisfies EffectComposerBank<TransitionClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:***********************************        CONNECTOR ENTRANCES      ******************************************************/
@@ -933,7 +933,7 @@ export const libPresetConnectorEntrances = {
     } as const,
     effectCompositionFrequency: 'on-every-play',
   },
-} satisfies EffectGeneratorBank<ConnectorEntranceClip>;
+} satisfies EffectComposerBank<ConnectorEntranceClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:*************************************        CONNECTOR EXITS        ******************************************************/
@@ -1043,7 +1043,7 @@ export const libPresetConnectorExits = {
     } as const,
     effectCompositionFrequency: 'on-every-play',
   },
-} satisfies EffectGeneratorBank<ConnectorExitClip>;
+} satisfies EffectComposerBank<ConnectorExitClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:*****************************************        SCROLLS        **********************************************************/
@@ -1172,4 +1172,4 @@ export const libPresetScrolls = {
     } as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
-} satisfies EffectGeneratorBank<ScrollerClip>;
+} satisfies EffectComposerBank<ScrollerClip>;

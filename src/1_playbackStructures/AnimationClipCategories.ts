@@ -5,11 +5,11 @@ import { Webimator } from "../Webimator";
 import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { WebimatorConnectorElement, WebimatorConnectorElementConfig } from "../3_components/WebimatorConnectorElement";
-import { EffectGenerator, EffectGeneratorBank, EffectOptions, Layer3MutableClipConfig } from "../2_animationEffects/generationTypes";
+import { EffectComposer, EffectComposerBank, EffectOptions, Layer3MutableClipConfig } from "../2_animationEffects/compositionTypes";
 import { libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions, libPresetConnectorEntrances, libPresetConnectorExits, libPresetTransitions, libPresetScrolls } from "../2_animationEffects/libraryPresetEffectBanks";
 
 /** @ignore */
-export type Layer4MutableConfig<TClipClass extends AnimClip, TEffectGenerator extends EffectGenerator> = Omit<Layer3MutableClipConfig<TClipClass>, keyof TEffectGenerator['immutableConfig']>;
+export type Layer4MutableConfig<TClipClass extends AnimClip, TEffectComposer extends EffectComposer> = Omit<Layer3MutableClipConfig<TClipClass>, keyof TEffectComposer['immutableConfig']>;
 
 /*-:***************************************************************************************************************************/
 /*-:*******************************************        ENTRANCE        ********************************************************/
@@ -97,7 +97,7 @@ export interface EntranceClipModifiers extends AnimClipModifiers, Pick<EntranceC
  * @category Entrance
  * @hideconstructor
  */
-export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip, EntranceClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator, EntranceClipConfig> {
+export class EntranceClip<TEffectComposer extends EffectComposer<EntranceClip, EntranceClipConfig> = EffectComposer> extends AnimClip<TEffectComposer, EntranceClipConfig> {
   protected get category(): 'Entrance' { return 'Entrance'; }
   private backwardsHidingMethod: ExitClipConfig['exitType'] = '' as ExitClipConfig['exitType'];
 
@@ -159,16 +159,16 @@ export class EntranceClip<TEffectGenerator extends EffectGenerator<EntranceClip,
   }
 
   /**@internal*/
-  constructor(domElem: DOMElement | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
-    super(domElem, effectName, effectGeneratorBank);
+  constructor(domElem: DOMElement | null | undefined, effectName: string, effectComposerBank: EffectComposerBank) {
+    super(domElem, effectName, effectComposerBank);
     super.preventConnector();
   }
 
   /**@internal*/
-  initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<Layer4MutableConfig<EntranceClip, TEffectGenerator>> = {}) {
+  initialize(effectOptions: EffectOptions<TEffectComposer>, effectConfig: Partial<Layer4MutableConfig<EntranceClip, TEffectComposer>> = {}) {
     super.initialize(effectOptions, effectConfig);
 
-    const hideNow = (effectConfig as Partial<EntranceClipConfig>).hideNowType ?? this.effectGenerator.defaultConfig?.hideNowType ?? this.categoryDefaultConfig.hideNowType!;
+    const hideNow = (effectConfig as Partial<EntranceClipConfig>).hideNowType ?? this.effectComposer.defaultConfig?.hideNowType ?? this.categoryDefaultConfig.hideNowType!;
     switch(hideNow) {
       case "display-none":
         this.domElem.classList.add('wbmtr-display-none');
@@ -318,7 +318,7 @@ interface ExitClipModifiers extends AnimClipModifiers, Pick<ExitClipConfig, 'exi
  * @category Exit
  * @hideconstructor
  */
-export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator, ExitClipConfig> {
+export class ExitClip<TEffectComposer extends EffectComposer<ExitClip, ExitClipConfig> = EffectComposer> extends AnimClip<TEffectComposer, ExitClipConfig> {
   protected get category(): 'Exit' { return 'Exit'; }
   private exitType: ExitClipConfig['exitType'] = '' as ExitClipConfig['exitType'];
 
@@ -380,15 +380,15 @@ export class ExitClip<TEffectGenerator extends EffectGenerator<ExitClip, ExitCli
   }
 
   /**@internal*/
-  constructor(domElem: DOMElement | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
-    super(domElem, effectName, effectGeneratorBank);
+  constructor(domElem: DOMElement | null | undefined, effectName: string, effectComposerBank: EffectComposerBank) {
+    super(domElem, effectName, effectComposerBank);
     super.preventConnector();
   }
 
-  /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<Layer4MutableConfig<ExitClip, TEffectGenerator>> = {}) {
+  /**@internal*/initialize(effectOptions: EffectOptions<TEffectComposer>, effectConfig: Partial<Layer4MutableConfig<ExitClip, TEffectComposer>> = {}) {
     super.initialize(effectOptions, effectConfig);
 
-    const exitType = (effectConfig as ExitClipConfig).exitType ?? this.effectGenerator.defaultConfig?.exitType ?? this.categoryDefaultConfig.exitType!;
+    const exitType = (effectConfig as ExitClipConfig).exitType ?? this.effectComposer.defaultConfig?.exitType ?? this.categoryDefaultConfig.exitType!;
     if (exitType !== 'display-none' && exitType !== 'visibility-hidden') {
       throw this.generateError(RangeError, `Invalid 'exitType' config value "${exitType}". Must be "display-none" or "visibility-hidden".`);
     }
@@ -495,7 +495,7 @@ export interface EmphasisClipConfig extends AnimClipConfig {
  * @category Emphasis
  * @hideconstructor
  */
-export class EmphasisClip<TEffectGenerator extends EffectGenerator<EmphasisClip, EmphasisClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator, EmphasisClipConfig> {
+export class EmphasisClip<TEffectComposer extends EffectComposer<EmphasisClip, EmphasisClipConfig> = EffectComposer> extends AnimClip<TEffectComposer, EmphasisClipConfig> {
   protected get category(): 'Emphasis' { return 'Emphasis'; }
   get categoryImmutableConfig() {
     return {
@@ -579,7 +579,7 @@ export interface MotionClipConfig extends AnimClipConfig {
  * @category Motion
  * @hideconstructor
  */
-export class MotionClip<TEffectGenerator extends EffectGenerator<MotionClip, MotionClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator, MotionClipConfig> {
+export class MotionClip<TEffectComposer extends EffectComposer<MotionClip, MotionClipConfig> = EffectComposer> extends AnimClip<TEffectComposer, MotionClipConfig> {
   protected get category(): 'Motion' { return 'Motion'; }
   get categoryImmutableConfig() {
     return {
@@ -680,7 +680,7 @@ export interface ScrollerClipConfig extends AnimClipConfig {
  * @hideconstructor
  */
 // TODO: implement rewindScrollBehavior: 'prior-user-position' | 'prior-scroll-target' = 'prior-scroll-target'
-export class ScrollerClip<TEffectGenerator extends EffectGenerator<ScrollerClip, ScrollerClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator, ScrollerClipConfig> {
+export class ScrollerClip<TEffectComposer extends EffectComposer<ScrollerClip, ScrollerClipConfig> = EffectComposer> extends AnimClip<TEffectComposer, ScrollerClipConfig> {
   protected get category(): 'Scroller' { return 'Scroller'; }
   get categoryImmutableConfig() {
     return {
@@ -790,7 +790,7 @@ export interface TransitionClipModifiers extends AnimClipModifiers, Pick<Transit
  * @category Transition
  * @hideconstructor
  */
-export class TransitionClip<TEffectGenerator extends EffectGenerator<TransitionClip, TransitionClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator, TransitionClipConfig> {
+export class TransitionClip<TEffectComposer extends EffectComposer<TransitionClip, TransitionClipConfig> = EffectComposer> extends AnimClip<TEffectComposer, TransitionClipConfig> {
   protected get category(): 'Transition' { return 'Transition'; }
   // determines whether properties affected by this transition should be removed from inline style upon finishing animation
   private removeInlineStyleOnFinish: boolean = false;
@@ -852,9 +852,9 @@ export class TransitionClip<TEffectGenerator extends EffectGenerator<TransitionC
     return specifics ? getPartial(result, specifics) : result;
   }
 
-  /**@internal*/initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<Layer4MutableConfig<TransitionClip, TEffectGenerator>> = {}) {
+  /**@internal*/initialize(effectOptions: EffectOptions<TEffectComposer>, effectConfig: Partial<Layer4MutableConfig<TransitionClip, TEffectComposer>> = {}) {
     super.initialize(effectOptions, effectConfig);
-    this.removeInlineStyleOnFinish = (effectConfig as TransitionClipConfig).removeInlineStylesOnFinish ?? this.effectGenerator.defaultConfig?.removeInlineStylesOnFinish ?? this.categoryDefaultConfig.removeInlineStylesOnFinish!;
+    this.removeInlineStyleOnFinish = (effectConfig as TransitionClipConfig).removeInlineStylesOnFinish ?? this.effectComposer.defaultConfig?.removeInlineStylesOnFinish ?? this.categoryDefaultConfig.removeInlineStylesOnFinish!;
     return this;
   }
 
@@ -957,7 +957,7 @@ export interface ConnectorSetterClipConfig extends AnimClipConfig {
  * @category Connector Setter
  * @hideconstructor
  */
-export class ConnectorSetterClip extends AnimClip<EffectGenerator, ConnectorSetterClipConfig> {
+export class ConnectorSetterClip extends AnimClip<EffectComposer, ConnectorSetterClipConfig> {
   protected get category(): 'Connector Setter' { return 'Connector Setter'; }
   domElem: WebimatorConnectorElement;
   previousPointA?: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
@@ -993,10 +993,10 @@ export class ConnectorSetterClip extends AnimClip<EffectGenerator, ConnectorSett
     pointA: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
     pointB: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
     effectName: string,
-    effectGeneratorBank: EffectGeneratorBank,
+    effectComposerBank: EffectComposerBank,
     connectorConfig: Partial<WebimatorConnectorElementConfig> = {},
     ) {
-    super(connectorElem, effectName, effectGeneratorBank);
+    super(connectorElem, effectName, effectComposerBank);
 
     if (!(connectorElem instanceof WebimatorConnectorElement)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass WebimatorConnectorElement element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
 
@@ -1126,7 +1126,7 @@ export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<
  * @category Connector Entrance
  * @hideconstructor
  */
-export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<ConnectorEntranceClip, ConnectorEntranceClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator, ConnectorEntranceClipConfig> {
+export class ConnectorEntranceClip<TEffectComposer extends EffectComposer<ConnectorEntranceClip, ConnectorEntranceClipConfig> = EffectComposer> extends AnimClip<TEffectComposer, ConnectorEntranceClipConfig> {
   protected get category(): 'Connector Entrance' { return 'Connector Entrance'; }
   domElem: WebimatorConnectorElement;
 
@@ -1188,18 +1188,18 @@ export class ConnectorEntranceClip<TEffectGenerator extends EffectGenerator<Conn
   }
 
   /**@internal*/
-  constructor(connectorElem: WebimatorConnectorElement | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
-    super(connectorElem, effectName, effectGeneratorBank);
+  constructor(connectorElem: WebimatorConnectorElement | null | undefined, effectName: string, effectComposerBank: EffectComposerBank) {
+    super(connectorElem, effectName, effectComposerBank);
 
     if (!(connectorElem instanceof WebimatorConnectorElement)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WebimatorConnectorElement.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
     this.domElem = connectorElem;
   }
 
   /**@internal*/
-  initialize(effectOptions: EffectOptions<TEffectGenerator>, effectConfig: Partial<Layer4MutableConfig<ConnectorEntranceClip, TEffectGenerator>> = {}) {
+  initialize(effectOptions: EffectOptions<TEffectComposer>, effectConfig: Partial<Layer4MutableConfig<ConnectorEntranceClip, TEffectComposer>> = {}) {
     super.initialize(effectOptions, effectConfig);
 
-    const hideNow = (effectConfig as ConnectorEntranceClipConfig).hideNowType ?? this.effectGenerator.defaultConfig?.hideNowType ?? this.categoryDefaultConfig.hideNowType!;
+    const hideNow = (effectConfig as ConnectorEntranceClipConfig).hideNowType ?? this.effectComposer.defaultConfig?.hideNowType ?? this.categoryDefaultConfig.hideNowType!;
     switch(hideNow) {
       case "display-none":
         this.domElem.classList.add('wbmtr-display-none');
@@ -1322,7 +1322,7 @@ export interface ConnectorExitClipConfig extends AnimClipConfig {
  * @category Connector Exit
  * @hideconstructor
  */
-export class ConnectorExitClip<TEffectGenerator extends EffectGenerator<ConnectorExitClip, ConnectorExitClipConfig> = EffectGenerator> extends AnimClip<TEffectGenerator, ConnectorExitClipConfig> {
+export class ConnectorExitClip<TEffectComposer extends EffectComposer<ConnectorExitClip, ConnectorExitClipConfig> = EffectComposer> extends AnimClip<TEffectComposer, ConnectorExitClipConfig> {
   protected get category(): 'Connector Exit' { return 'Connector Exit'; }
   domElem: WebimatorConnectorElement;
 
@@ -1344,8 +1344,8 @@ export class ConnectorExitClip<TEffectGenerator extends EffectGenerator<Connecto
   }
 
   /**@internal*/
-  constructor(connectorElem: WebimatorConnectorElement | null | undefined, effectName: string, effectGeneratorBank: EffectGeneratorBank) {
-    super(connectorElem, effectName, effectGeneratorBank);
+  constructor(connectorElem: WebimatorConnectorElement | null | undefined, effectName: string, effectComposerBank: EffectComposerBank) {
+    super(connectorElem, effectName, effectComposerBank);
 
     if (!(connectorElem instanceof WebimatorConnectorElement)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WebimatorConnectorElement.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
 

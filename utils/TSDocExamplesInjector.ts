@@ -16,7 +16,7 @@ const targets = {
     `${directoryPrefix}/1_playbackStructures/AnimationClipCategories.ts`,
     `${directoryPrefix}/1_playbackStructures/AnimationTimeline.ts`,
     `${directoryPrefix}/2_animationEffects/easing.ts`,
-    `${directoryPrefix}/2_animationEffects/generationTypes.ts`,
+    `${directoryPrefix}/2_animationEffects/compositionTypes.ts`,
     `${directoryPrefix}/2_animationEffects/libraryPresetEffectBanks.ts`,
   ],
   startMarker: /\* \<\!-- EX:S .*? --\>/,

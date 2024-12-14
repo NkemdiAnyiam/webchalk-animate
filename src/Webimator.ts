@@ -12,7 +12,7 @@ import {
   libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions
 } from "./2_animationEffects/libraryPresetEffectBanks";
 import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./4_utils/interfaces";
-import { EffectGeneratorBank, EffectNameIn, EffectGenerator, EffectOptions } from "./2_animationEffects/generationTypes";
+import { EffectComposerBank, EffectNameIn, EffectComposer, EffectOptions } from "./2_animationEffects/compositionTypes";
 
 /**
  * @hideconstructor
@@ -215,10 +215,10 @@ export class Webimator {
    *  * Developers may add their own custom animations to the Entrance, Exit, Emphasis, and Motion categories by using the
    * {@link customPresetEffectBanks} parameter.
    * @param customPresetEffectBanks - optional object containing additional banks that the developer can use to add their own custom preset effects
-   * @param customPresetEffectBanks.customEntranceEffects - objects of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with the `Entrance()` clip factory function
-   * @param customPresetEffectBanks.customExitEffects - objects of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with the `Exit()` clip factory function
-   * @param customPresetEffectBanks.customEmphasisEffects - objects of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with the `Emphasis()` clip factory function
-   * @param customPresetEffectBanks.customMotionEffects - objects of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with the `Motion()` clip factory function
+   * @param customPresetEffectBanks.customEntranceEffects - objects of type {@link EffectComposerBank}, containing keys that represent effect names and values that are {@link EffectComposer}s to be used with the `Entrance()` clip factory function
+   * @param customPresetEffectBanks.customExitEffects - objects of type {@link EffectComposerBank}, containing keys that represent effect names and values that are {@link EffectComposer}s to be used with the `Exit()` clip factory function
+   * @param customPresetEffectBanks.customEmphasisEffects - objects of type {@link EffectComposerBank}, containing keys that represent effect names and values that are {@link EffectComposer}s to be used with the `Emphasis()` clip factory function
+   * @param customPresetEffectBanks.customMotionEffects - objects of type {@link EffectComposerBank}, containing keys that represent effect names and values that are {@link EffectComposer}s to be used with the `Motion()` clip factory function
    * @returns Factory functions that return category-specific {@link AnimClip}s, each with intellisense for their category-specific effects banks.
    * 
    * @example
@@ -334,26 +334,26 @@ export class Webimator {
   <
    // default = {} ensures intellisense for a given bank still works
    // without specifying the field (why? not sure)
-    CustomEntranceBank extends EffectGeneratorBank<EntranceClip> = {},
-    CustomExitBank extends EffectGeneratorBank<ExitClip> = {},
-    CustomEmphasisBank extends EffectGeneratorBank<EmphasisClip> = {},
-    CustomMotionBank extends EffectGeneratorBank<MotionClip> = {},
-    _EmptyTransitionBank extends EffectGeneratorBank<TransitionClip> = {},
-    _EmptyConnectorEntranceBank extends EffectGeneratorBank<ConnectorEntranceClip> = {},
-    _EmptyConnectorExitBank extends EffectGeneratorBank<ConnectorExitClip> = {},
-    _EmptyScrollerBank extends EffectGeneratorBank<ScrollerClip> = {},
+    CustomEntranceBank extends EffectComposerBank<EntranceClip> = {},
+    CustomExitBank extends EffectComposerBank<ExitClip> = {},
+    CustomEmphasisBank extends EffectComposerBank<EmphasisClip> = {},
+    CustomMotionBank extends EffectComposerBank<MotionClip> = {},
+    _EmptyTransitionBank extends EffectComposerBank<TransitionClip> = {},
+    _EmptyConnectorEntranceBank extends EffectComposerBank<ConnectorEntranceClip> = {},
+    _EmptyConnectorExitBank extends EffectComposerBank<ConnectorExitClip> = {},
+    _EmptyScrollerBank extends EffectComposerBank<ScrollerClip> = {},
     IncludeLibPresets extends boolean = true
   >
   (
     customPresetEffectBanks: {
-      /** object of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with `Entrance()` clip factory function */
-      customEntranceEffects?: CustomEntranceBank & EffectGeneratorBank<EntranceClip>;
-      /** object of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with the `Exit()` clip factory function */
-      customExitEffects?: CustomExitBank & EffectGeneratorBank<ExitClip>;
-      /** object of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with the `Emphasis()` clip factory function */
-      customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisClip>;
-      /** object of type {@link EffectGeneratorBank}, containing keys that represent effect names and values that are {@link EffectGenerator}s to be used with the `Motion()` clip factory function */
-      customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionClip>;
+      /** object of type {@link EffectComposerBank}, containing keys that represent effect names and values that are {@link EffectComposer}s to be used with `Entrance()` clip factory function */
+      customEntranceEffects?: CustomEntranceBank & EffectComposerBank<EntranceClip>;
+      /** object of type {@link EffectComposerBank}, containing keys that represent effect names and values that are {@link EffectComposer}s to be used with the `Exit()` clip factory function */
+      customExitEffects?: CustomExitBank & EffectComposerBank<ExitClip>;
+      /** object of type {@link EffectComposerBank}, containing keys that represent effect names and values that are {@link EffectComposer}s to be used with the `Emphasis()` clip factory function */
+      customEmphasisEffects?: CustomEmphasisBank & EffectComposerBank<EmphasisClip>;
+      /** object of type {@link EffectComposerBank}, containing keys that represent effect names and values that are {@link EffectComposer}s to be used with the `Motion()` clip factory function */
+      customMotionEffects?: CustomMotionBank & EffectComposerBank<MotionClip>;
     } = {},
     /**
      * if `false`, the preset effects that normally come with the framework will be excluded
@@ -365,21 +365,21 @@ export class Webimator {
     includeLibraryPresets: IncludeLibPresets | void = true as IncludeLibPresets
   ) {
     const {customEntranceEffects, customExitEffects, customEmphasisEffects, customMotionEffects} = customPresetEffectBanks as {
-      customEntranceEffects?: CustomEntranceBank & EffectGeneratorBank<EntranceClip>;
-      customExitEffects?: CustomExitBank & EffectGeneratorBank<ExitClip>;
-      customEmphasisEffects?: CustomEmphasisBank & EffectGeneratorBank<EmphasisClip>;
-      customMotionEffects?: CustomMotionBank & EffectGeneratorBank<MotionClip>;
+      customEntranceEffects?: CustomEntranceBank & EffectComposerBank<EntranceClip>;
+      customExitEffects?: CustomExitBank & EffectComposerBank<ExitClip>;
+      customEmphasisEffects?: CustomEmphasisBank & EffectComposerBank<EmphasisClip>;
+      customMotionEffects?: CustomMotionBank & EffectComposerBank<MotionClip>;
     };
     Webimator.formatBanks(customEntranceEffects, customExitEffects, customEmphasisEffects, customMotionEffects);
 
     type TogglePresets<TLibBank, TCustomBank> = Readonly<(IncludeLibPresets extends true ? TLibBank : {}) & TCustomBank>;
 
     const mergeBanks = <L, U>(libraryBank: L, customBank: U) => {
-      const combinedBank = {...(includeLibraryPresets ? libraryBank : {}), ...(customBank ?? {})} as EffectGeneratorBank;
+      const combinedBank = {...(includeLibraryPresets ? libraryBank : {}), ...(customBank ?? {})} as EffectComposerBank;
       // // set effectName and sourceBank properties of each generator to thier obviously corresponding values
       // // Object.assign circumvents the Readonly<>, preventing a TS error
       // for (const key in combinedBank) {
-      //   const extras = { effectName: key, sourceBank: combinedBank } satisfies Partial<EffectGenerator>;
+      //   const extras = { effectName: key, sourceBank: combinedBank } satisfies Partial<EffectComposer>;
       //   Object.assign(combinedBank[key], extras);
       // }
       return combinedBank as TogglePresets<L, U>;
@@ -434,14 +434,14 @@ export class Webimator {
        * ```
        * <!-- EX:E id="EntranceClip.example" -->
        */
-      Entrance: function<TGeneratorBank extends typeof combinedEntranceBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
+      Entrance: function<TComposerBank extends typeof combinedEntranceBank, TEffectName extends EffectNameIn<TComposerBank>, TEffectComposer extends TComposerBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        effectOptions: EffectOptions<TEffectGenerator>,
-        effectConfig: Partial<Layer4MutableConfig<EntranceClip, TEffectGenerator>> = {},
+        effectOptions: EffectOptions<TEffectComposer>,
+        effectConfig: Partial<Layer4MutableConfig<EntranceClip, TEffectComposer>> = {},
       ) {
         self.clipCreatorLock = false;
-        return new EntranceClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedEntranceBank).initialize(effectOptions, effectConfig);
+        return new EntranceClip<TEffectComposer>(domElem as DOMElement, effectName, combinedEntranceBank).initialize(effectOptions, effectConfig);
       },
 
       /**
@@ -479,14 +479,14 @@ export class Webimator {
        * ```
        * <!-- EX:E id="ExitClip.example" -->
        */
-      Exit: function<TGeneratorBank extends typeof combinedExitBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
+      Exit: function<TComposerBank extends typeof combinedExitBank, TEffectName extends EffectNameIn<TComposerBank>, TEffectComposer extends TComposerBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        effectOptions: EffectOptions<TEffectGenerator>,
-        effectConfig: Partial<Layer4MutableConfig<ExitClip, TEffectGenerator>> = {},
+        effectOptions: EffectOptions<TEffectComposer>,
+        effectConfig: Partial<Layer4MutableConfig<ExitClip, TEffectComposer>> = {},
       ) {
         self.clipCreatorLock = false;
-        return new ExitClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedExitBank).initialize(effectOptions, effectConfig);
+        return new ExitClip<TEffectComposer>(domElem as DOMElement, effectName, combinedExitBank).initialize(effectOptions, effectConfig);
       },
 
       /**
@@ -523,14 +523,14 @@ export class Webimator {
        * ```
        * <!-- EX:E id="EmphasisClip.example" -->
        */
-      Emphasis: function<TGeneratorBank extends typeof combinedEmphasisBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
+      Emphasis: function<TComposerBank extends typeof combinedEmphasisBank, TEffectName extends EffectNameIn<TComposerBank>, TEffectComposer extends TComposerBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        effectOptions: EffectOptions<TEffectGenerator>,
-        effectConfig: Partial<Layer4MutableConfig<EmphasisClip, TEffectGenerator>> = {},
+        effectOptions: EffectOptions<TEffectComposer>,
+        effectConfig: Partial<Layer4MutableConfig<EmphasisClip, TEffectComposer>> = {},
       ) {
         self.clipCreatorLock = false;
-        return new EmphasisClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedEmphasisBank).initialize(effectOptions, effectConfig);
+        return new EmphasisClip<TEffectComposer>(domElem as DOMElement, effectName, combinedEmphasisBank).initialize(effectOptions, effectConfig);
       },
 
       /**
@@ -570,14 +570,14 @@ export class Webimator {
        * ```
        * <!-- EX:E id="MotionClip.example" -->
        */
-      Motion: function<TGeneratorBank extends typeof combinedMotionBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
+      Motion: function<TComposerBank extends typeof combinedMotionBank, TEffectName extends EffectNameIn<TComposerBank>, TEffectComposer extends TComposerBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        effectOptions: EffectOptions<TEffectGenerator>,
-        effectConfig: Partial<Layer4MutableConfig<MotionClip, TEffectGenerator>> = {},
+        effectOptions: EffectOptions<TEffectComposer>,
+        effectConfig: Partial<Layer4MutableConfig<MotionClip, TEffectComposer>> = {},
       ) {
         self.clipCreatorLock = false;
-        return new MotionClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedMotionBank).initialize(effectOptions, effectConfig);
+        return new MotionClip<TEffectComposer>(domElem as DOMElement, effectName, combinedMotionBank).initialize(effectOptions, effectConfig);
       },
 
       /**
@@ -615,14 +615,14 @@ export class Webimator {
        * ```
        * <!-- EX:E id="TransitionClip.example" -->
        */
-      Transition: function<TGeneratorBank extends typeof combinedTransitionBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
+      Transition: function<TComposerBank extends typeof combinedTransitionBank, TEffectName extends EffectNameIn<TComposerBank>, TEffectComposer extends TComposerBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        effectOptions: EffectOptions<TEffectGenerator>,
-        effectConfig: Partial<Layer4MutableConfig<TransitionClip, TEffectGenerator>> = {},
+        effectOptions: EffectOptions<TEffectComposer>,
+        effectConfig: Partial<Layer4MutableConfig<TransitionClip, TEffectComposer>> = {},
       ) {
         self.clipCreatorLock = false;
-        return new TransitionClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedTransitionBank).initialize(effectOptions, effectConfig);
+        return new TransitionClip<TEffectComposer>(domElem as DOMElement, effectName, combinedTransitionBank).initialize(effectOptions, effectConfig);
       },
 
       /**
@@ -691,7 +691,7 @@ export class Webimator {
         self.clipCreatorLock = false;
         const effectName = `~set-line-points`;
         return new ConnectorSetterClip(
-          connectorElem as Exclude<typeof connectorElem, Element>, pointA, pointB, effectName, {[effectName]: {...AnimClip.createNoOpEffectGenerator(), /*effectName*/}}, connectorConfig
+          connectorElem as Exclude<typeof connectorElem, Element>, pointA, pointB, effectName, {[effectName]: {...AnimClip.createNoOpEffectComposer(), /*effectName*/}}, connectorConfig
         ).initialize([]);
       },
 
@@ -735,15 +735,15 @@ export class Webimator {
        * <!-- EX:E id="ConnectorEntranceClip.example" -->
        */
       ConnectorEntrance: function<
-        TGeneratorBank extends typeof combinedConnectorEntranceBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]
+        TComposerBank extends typeof combinedConnectorEntranceBank, TEffectName extends EffectNameIn<TComposerBank>, TEffectComposer extends TComposerBank[TEffectName]
       >(
         connectorElem: WebimatorConnectorElement | Element | null | undefined,
         effectName: TEffectName,
-        effectOptions: EffectOptions<TEffectGenerator>,
-        effectConfig: Partial<Layer4MutableConfig<ConnectorEntranceClip, TEffectGenerator>> = {},
+        effectOptions: EffectOptions<TEffectComposer>,
+        effectConfig: Partial<Layer4MutableConfig<ConnectorEntranceClip, TEffectComposer>> = {},
       ) {
         self.clipCreatorLock = false;
-        return new ConnectorEntranceClip<TEffectGenerator>(connectorElem as Exclude<typeof connectorElem, Element>, effectName, combinedConnectorEntranceBank).initialize(effectOptions, effectConfig);
+        return new ConnectorEntranceClip<TEffectComposer>(connectorElem as Exclude<typeof connectorElem, Element>, effectName, combinedConnectorEntranceBank).initialize(effectOptions, effectConfig);
       },
 
       /**
@@ -785,14 +785,14 @@ export class Webimator {
        * ```
        * <!-- EX:E id="ConnectorExitClip.example" -->
        */
-      ConnectorExit: function<TGeneratorBank extends typeof combinedConnectorExitBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>(
+      ConnectorExit: function<TComposerBank extends typeof combinedConnectorExitBank, TEffectName extends EffectNameIn<TComposerBank>, TEffectComposer extends TComposerBank[TEffectName]>(
         connectorElem: WebimatorConnectorElement | Element | null | undefined,
         effectName: TEffectName,
-        effectOptions: EffectOptions<TEffectGenerator>,
-        effectConfig: Partial<Layer4MutableConfig<ConnectorExitClip, TEffectGenerator>> = {},
+        effectOptions: EffectOptions<TEffectComposer>,
+        effectConfig: Partial<Layer4MutableConfig<ConnectorExitClip, TEffectComposer>> = {},
       ) { 
         self.clipCreatorLock = false;
-        return new ConnectorExitClip<TEffectGenerator>(connectorElem as Exclude<typeof connectorElem, Element>, effectName, combinedConnectorExitBank).initialize(effectOptions, effectConfig);
+        return new ConnectorExitClip<TEffectComposer>(connectorElem as Exclude<typeof connectorElem, Element>, effectName, combinedConnectorExitBank).initialize(effectOptions, effectConfig);
       },
       
       /**
@@ -844,15 +844,15 @@ export class Webimator {
        * ```
        * <!-- EX:E id="ScrollerClip.example" -->
        */
-      Scroller: function<TGeneratorBank extends typeof combinedScrollerBank, TEffectName extends EffectNameIn<TGeneratorBank>, TEffectGenerator extends TGeneratorBank[TEffectName]>
+      Scroller: function<TComposerBank extends typeof combinedScrollerBank, TEffectName extends EffectNameIn<TComposerBank>, TEffectComposer extends TComposerBank[TEffectName]>
       (
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        effectOptions: EffectOptions<TEffectGenerator>,
-        effectConfig: Partial<Layer4MutableConfig<ScrollerClip, TEffectGenerator>> = {},
+        effectOptions: EffectOptions<TEffectComposer>,
+        effectConfig: Partial<Layer4MutableConfig<ScrollerClip, TEffectComposer>> = {},
       ) {
         self.clipCreatorLock = false;
-        return new ScrollerClip<TEffectGenerator>(domElem as DOMElement, effectName, combinedScrollerBank).initialize(effectOptions, effectConfig);
+        return new ScrollerClip<TEffectComposer>(domElem as DOMElement, effectName, combinedScrollerBank).initialize(effectOptions, effectConfig);
       },
     };
   }
@@ -860,7 +860,7 @@ export class Webimator {
   /**@internal*/
   scrollAnchorsStack: [target: Element, scrollOptions: ScrollingOptions][] = [];
 
-  private static formatBanks(...banks: (EffectGeneratorBank | undefined)[]) {
+  private static formatBanks(...banks: (EffectComposerBank | undefined)[]) {
     const errors: string[] = [];
 
     // for each bank...
@@ -884,7 +884,7 @@ export class Webimator {
 
     if (errors.length > 0) {
       throw new SyntaxError(
-        `Arrow functions are not allowed to be used as generators. Detected in the following animation definitions:${errors.map(msg => `\n${msg}`)}`
+        `Arrow functions are not allowed to be used as effect composers. Detected in the following animation definitions:${errors.map(msg => `\n${msg}`)}`
       );
     }
   }
