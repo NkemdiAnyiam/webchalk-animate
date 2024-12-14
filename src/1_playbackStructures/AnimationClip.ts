@@ -1064,16 +1064,20 @@ export abstract class AnimClip<TEffectGenerator extends EffectGenerator = Effect
       this.retrieveGenerators();
       
       this.animation.forwardEffect.updateTiming({
-        // if no forward frames generator was specified, assume the reverse of the backward frames generator
+        // if no forward keyframes generator was specified, assume the reverse of the backward keyframes generator
         direction: this.fFramesMirrored ? 'reverse' : 'normal',
       });
 
       this.animation.backwardEffect.updateTiming({
-        // if no backward frames generator was specified, assume the reverse of the forward frames generator
+        // if no backward keyframes generator was specified, assume the reverse of the forward keyframes generator
         direction: this.bFramesMirrored ? 'reverse' : 'normal',
       });
     }
-    else if (direction === 'forward' && this.effectGenerator.effectCompositionFrequency === 'on-every-play') {
+    // else, refresh the generators depending on the effect composition frequency
+    else if (
+      this.effectGenerator.effectCompositionFrequency === 'on-every-play-and-rewind'
+      || direction === 'forward' && this.effectGenerator.effectCompositionFrequency === 'on-every-play'
+    ) {
       this.refreshGenerators();
     }
 
