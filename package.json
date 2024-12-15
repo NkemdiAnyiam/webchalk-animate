@@ -4,9 +4,9 @@
   "description": "Web animation framework built for creating interactive animated visualizations.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/NkemdiAnyiam/webchalk.git"
+    "url": "https://github.com/NkemdiAnyiam/webchalk-animate.git"
   },
-  "homepage": "https://nkemdianyiam.github.io/webchalk/",
+  "homepage": "https://nkemdianyiam.github.io/webchalk-animate/",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
