@@ -1,7 +1,7 @@
-import { webchalk } from 'webchalk';
-import * as WebChalkTypes from 'webchalk/types-and-interfaces';
-import * as WebChalkErrors from "webchalk/error-handling";
-import * as WebChalkEasing from "webchalk/easing";
+import { webchalk } from 'webchalk-animate';
+import * as WebChalkTypes from 'webchalk-animate/types-and-interfaces';
+import * as WebChalkErrors from "webchalk-animate/error-handling";
+import * as WebChalkEasing from "webchalk-animate/easing";
 
 console.log(WebChalkTypes.AnimClip);
 

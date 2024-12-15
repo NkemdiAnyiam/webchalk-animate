@@ -1,5 +1,5 @@
 {
-  "name": "webchalk",
+  "name": "webchalk-animate",
   "version": "0.26.0",
   "description": "Web animation framework built for creating interactive animated visualizations.",
   "repository": {
@@ -37,7 +37,10 @@
   },
   "keywords": [
     "webchalk",
+    "webchalk-animate",
     "animation",
+    "playback",
+    "visualization",
     "typescript",
     "javascript"
   ],

@@ -1,4 +1,4 @@
-# WebChalk
+# WebChalk Animate
 
 (Note: This README is a work in progress and does not currently give a suitable rundown of WebChalk and its usage)
 
@@ -73,10 +73,10 @@ This will initialize a new Node project (do not worry about filling out all of t
 Now you can use the command given at the beginning of the [Installation section](#installation) (repeated here for convenience):
 
 ```bash
-npm install webchalk
+npm install webchalk-animate
 ```
 
-NPM will install the specified package (in this case, `webchalk`) as a "dependency". That means that the package is required for your code to work if you were to, say, publish your project online for users to look at.
+NPM will install the specified package (in this case, `webchalk-animate`) as a "dependency". That means that the package is required for your code to work if you were to, say, publish your project online for users to look at.
 </details>
 
 ## Usage
@@ -86,15 +86,15 @@ NPM will install the specified package (in this case, `webchalk`) as a "dependen
 Once WebChalk is installed, import it with the following statements in your JavaScript code:
 <!--MD-S id="import webchalk" code-type="ts"-->
 ```ts
-import { webchalk } from 'webchalk';
+import { webchalk } from 'webchalk-animate';
 ```
 <!--MD-E id="import webchalk"-->
 For convenience (and clarity), the package also exposes a majority of its internal types and objects using other import paths (but none of them are required to make full usage of WebChalk's functionalities):
 <!--MD-S id="import paths" code-type="ts"-->
 ```ts
-import * as WebChalkTypes from 'webchalk/types-and-interfaces';
-import * as WebChalkErrors from "webchalk/error-handling";
-import * as WebChalkEasing from "webchalk/easing";
+import * as WebChalkTypes from 'webchalk-animate/types-and-interfaces';
+import * as WebChalkErrors from "webchalk-animate/error-handling";
+import * as WebChalkEasing from "webchalk-animate/easing";
 ```
 <!--MD-E id="import paths"-->
 
