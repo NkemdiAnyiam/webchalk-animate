@@ -555,8 +555,6 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * only needs to (or perhaps _must only_) run once for the returned generators to be correct.
      *  * if `on-every-play`, {@link EffectComposer.composeEffect | composeEffect} will run every time
      * the clip plays forward, which creates a new closure and returns a new {@link ComposedEffect} each time.
-     *  * if `on-every-play-and-rewind`, {@link EffectComposer.composeEffect | composeEffect} will run
-     * every time the clip plays _or_ rewinds, which creates a new closure and returns a new {@link ComposedEffect} each time.
      * 
      * @defaultValue
      * ```ts
@@ -583,11 +581,6 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *     // will keep being redefined and set to be a function that
      *     // returns [{}, {opacity: 0}]. It made no difference because 
      *     // the body of forwardKeyframesGenerator() remains the same.
-     *     //
-     *     // - If set to 'on-every-play-and-rewind', then EVERY time the clip
-     *     // plays OR rewinds, composeEffect() plays. Again, the body of
-     *     // forwardKeyframesGenerator() (as well as backwardKeyframesGenerator(),
-     *     // which will just re-use forwardKeyframesGenerator()) remains the same.
      *     //
      *     // Thus, it makes no difference what effectCompositionFrequency is set to.
      *     // For the sake of optimization, you decide to set it to 'on-first-play-only'.
@@ -620,14 +613,8 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *     // the if-conditional again after usedFadeOutEx is already set to true, which is
      *     // NOT the desired behavior.
      *     //
-     *     // - If set the 'on-every-play-and-rewind', then the same problem as above will occur
-     *     // but even sooner. Rewinding the clip that is supposed to have exclusive usage of
-     *     // the effect will cause composeEffect() to run a second time and run into the
-     *     // if-conditional, causing an error.
-     *     //
      *     // The difference is that 'on-first-play-only' causes the if-conditional to run
-     *     // only once, while 'on-every-play' and 'on-every-play-and-rewind' cause it to
-     *     // be encountered a second time.
+     *     // only once, while 'on-every-play' causes it to be encountered a second time.
      *     fadeOut_exclusive: {
      *       composeEffect() {
      *         if (usedFadeOutEx) {
@@ -663,11 +650,6 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *     // forwardKeyframesGenerator() remain the same, so this is functionally the
      *     // same as the previous paragraph.
      *     // This is the desired behavior.
-     *     //
-     *     // - If set to 'on-every-play-and-rewind', then every time play() or rewind() is
-     *     // called, composeEffect() is called. Again, the bodies of computeTranslationStr()
-     *     // and forwardKeyframesGenerator() remain the same, so there is no difference.
-     *     // The desired behavior is still achieved.
      *     //
      *     // Thus, it makes no difference what effectCompositionFrequency is set to.
      *     // For the sake of optimization, you decide to set it to 'on-first-play-only'.
@@ -705,63 +687,6 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *       effectCompositionFrequency: 'on-first-play-only',
      *     },
      * 
-     *     // A custom animation effect you made for flying out to the left side of the screen.
-     *     // This is exactly the same as flyOutLeft1 except translationString is computed
-     *     // without using a helper function.
-     *     // Here, effectCompositionFrequency must be set to 'on-every-play-and-rewind'.
-     *     //
-     *     // - If set to 'on-first-play-only', then composeEffect() will run only once. Thus,
-     *     // translationString is computed only once. On every play(),
-     *     // forwardKeyframesGenerator() and backwardKeyframesGenerator() will use that
-     *     // single stale value for translationString, which will make the animation look
-     *     // incorrect if the distance between the element and the left edge ever changes.
-     *     // This is NOT the desired behavior.
-     * 
-     *     // - If set to 'on-every-play', then every time play() is called to play the clip,
-     *     // composeEffect() is called again, creating a new closure that redefines
-     *     // translationString and returns a new forwardKeyframesGenerator() and
-     *     // backwardKeyframesGenerator(). Since translationString is only recomputed when
-     *     // the clip is played, the forward animation will correctly account for screen
-     *     // changes, but the value may be stale by the time backwardKeyframesGenerator()
-     *     // runs when the clip is rewound.
-     *     // This is NOT the desired behavior.
-     *     //
-     *     // - If set to 'on-every-play-and-rewind', then every time play() or rewind()
-     *     // is called, composeEffect() is called again. Thus, translationString is computed
-     *     // both when the clip plays AND when the clip rewinds.
-     *     // This is the desired behavior.
-     *     //
-     *     // The difference is that 'on-every-play-and-rewind' ensures that the
-     *     // value of translationString is always computed right when it is needed.
-     *     flyOutLeft2: {
-     *       composeEffect() {
-     *         // compute distance between right side of element and left side of viewport
-     *         const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
-     *         // create translation string
-     *         const translationString = `${orthogonalDistance}px 0px`;
-     *   
-     *         return {
-     *           forwardKeyframesGenerator: () => {
-     *             return [
-     *               {translate: translationString}
-     *             ];
-     *           },
-     *           backwardKeyframesGenerator: () => {
-     *             return [
-     *               {translate: translationString},
-     *               {translate: `0 0`}
-     *             ];
-     *           }
-     *         };
-     *       },
-     *       
-     *       immutableConfig: {
-     *         composite: 'accumulate',
-     *       },
-     * 
-     *       effectCompositionFrequency: 'on-every-play-and-rewind',
-     *     },
-     * 
      *     // A custom animation effect for flying out either left or right (random).
      *     // Here, effectCompositionFrequency must be set to 'on-every-play'.
      *     //
@@ -777,15 +702,8 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *     // the clip is played.
      *     // This is the desired behavior.
      *     //
-     *     // - If set to 'on-every-play-and-rewind', then every time play() or rewind() is
-     *     // called, composeEffect() is called again. The variable leftOrRight will be
-     *     // recomputed on play() AND rewind(), which will cause the element to potentially
-     *     // move in the incorrect direction when the clip rewinds.
-     *     // This is NOT the desired effect.
-     *     //
      *     // The difference is that 'on-every-play' causes the effect to use a fresh
-     *     // leftOrRight on each play, while 'on-first-play-only' does not, and
-     *     // 'on-every-play-and-rewind' recomputes it TOO often.
+     *     // leftOrRight on each play, while 'on-first-play-only' does not.
      *     flyOutRandom: {
      *       composeEffect() {
      *         // 50% change of going left or right
@@ -831,7 +749,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * 
      * @group Effect Composition
      */
-    effectCompositionFrequency?: 'on-first-play-only' | 'on-every-play' | 'on-every-play-and-rewind';
+    effectCompositionFrequency?: 'on-first-play-only' | 'on-every-play';
     /**
      * Runs when the clip is executed and returns a {@link ComposedEffect}, which contains callback functions that will produce the
      * effects for both playing and rewinding the animation.

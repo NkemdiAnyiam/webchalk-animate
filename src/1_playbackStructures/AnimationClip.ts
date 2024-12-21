@@ -1171,10 +1171,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
       });
     }
     // else, refresh the generators depending on the effect composition frequency
-    else if (
-      this.effectComposer.effectCompositionFrequency === 'on-every-play-and-rewind'
-      || direction === 'forward' && this.effectComposer.effectCompositionFrequency === 'on-every-play'
-    ) {
+    else if (direction === 'forward' && this.effectComposer.effectCompositionFrequency === 'on-every-play') {
       this.refreshGenerators();
     }
 
