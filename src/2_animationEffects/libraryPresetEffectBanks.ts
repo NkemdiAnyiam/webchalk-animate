@@ -523,11 +523,10 @@ export const libPresetEmphases = {
 
       // TODO: Prevent highlighting an element that is already highlighted
       // get the previous highlight color of the element (if none, it naturally uses the value from :root)
-      const prevColor = getComputedStyle(this.domElem).getPropertyValue('--webchalk-highlight-color');
+      const prevColor = this.getStyles('--webchalk-highlight-color');
       // if color is 'default', use :root's highlight color
-      const finalColor = color === 'default'
-        ? getComputedStyle(document.documentElement).getPropertyValue('--webchalk-highlight-color')
-        : color;
+      const finalColor = color === 'default' ? this.getStyles(document.documentElement, '--webchalk-highlight-color') : color;
+      console.log(prevColor, finalColor);
       return {
         forwardKeyframesGenerator: () => [
           {['--webchalk-highlight-color']: prevColor, easing: 'step-start'}, // step-start -> steps(1, jump-start)
@@ -540,7 +539,8 @@ export const libPresetEmphases = {
           {backgroundPositionX: '0%', offset: 0},
           {backgroundPositionX: '100%', offset: 1},
           {['--webchalk-highlight-color']: prevColor}
-        ]};
+        ],
+      };
     },
     defaultConfig: {
       cssClasses: { toAddOnStart: [`webchalk-highlightable`] },

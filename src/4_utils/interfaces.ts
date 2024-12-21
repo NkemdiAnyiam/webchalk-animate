@@ -4,6 +4,7 @@
 
 import { AnimClip } from "../1_playbackStructures/AnimationClip";
 import { ComposedEffect } from "../2_animationEffects/compositionTypes";
+import { Union } from "./utilityTypes";
 
 // type FrozenPrefix = '__';
 // export type FromFrozenKey<S extends string> = S extends `${FrozenPrefix}${infer key}` ? key : never;
@@ -205,3 +206,24 @@ export type Keyframes = PropertyIndexedKeyframes | Keyframe[];
  * @see {@link ComposedEffect}
  */
 export type Mutator = () => void;
+
+/**
+ * Standard CSS style property names in camelCase form.
+ * * Standard names are autocompleted, but non-standard values are still allowed (this accounts
+ * for custom CSS variables)
+ */
+export type StyleProperty = Union<
+  Extract<
+    keyof Omit<
+      CSSStyleDeclaration,
+      | 'length'
+      | 'parentRule'
+      | 'getPropertyPriority'
+      | 'getPropertyValue'
+      | 'item'
+      | 'removeProperty'
+      | 'setProperty'
+    >,
+    string>,
+  string
+>;

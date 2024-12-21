@@ -2,11 +2,11 @@ import { AnimSequence } from "./AnimationSequence";
 import { AnimTimeline } from "./AnimationTimeline";
 import { EntranceClip, MotionClip, TransitionClip } from "./AnimationClipCategories";
 import { webchalk, WebChalk } from "../WebChalk";
-import { EffectOptions, EffectComposerBank, EffectComposer } from "../2_animationEffects/compositionTypes";
+import { EffectOptions, EffectComposerBank, EffectComposer, ComposedEffect } from "../2_animationEffects/compositionTypes";
 import { call, detab, getPartial, mergeArrays } from "../4_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
 import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "../4_utils/errors";
-import { DOMElement, EffectCategory, Keyframes } from "../4_utils/interfaces";
+import { DOMElement, EffectCategory, Keyframes, StyleProperty } from "../4_utils/interfaces";
 import { WebChalkConnectorElement } from "../3_components/WebChalkConnectorElement";
 import { WebChalkAnimation } from "./WebChalkAnimation";
 import { PartialPick, PickFromArray } from "../4_utils/utilityTypes";
@@ -441,6 +441,103 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
    * @group Structure
    */
  readonly domElem: DOMElement;
+
+ /**
+  * Returns an object containing the specified style properties of the specified element.
+  * * Normal CSS properties _must_ be written in camelCase
+  * (e.g., `['marginBottom', 'backgroundColor']`, _NOT_ `['margin-bottom', 'background-color']`),
+  * * CSS variables should be written normally (e.g., `['--nav-edge-color', '--brand-red']`).
+  * @param element - DOM element from which to read the styles
+  * @param styleProps - Array of strings representing camelCase CSS property names
+  * @returns An object where the keys are the specified camelCase strings and the values are the CSS property values.
+  */
+ getStyles(element: Element, styleProps: StyleProperty[]): {[key: string]: string};
+ /**
+  * Returns the string value of the specified CSS property name for the specified element.
+  * * Normal CSS properties _must_ be written in camelCase (e.g., `'marginBottom'`, _NOT_ `'margin-bottom'`),
+  * * CSS variables should be written normally (e.g., `'--brand-red'`).
+  * @param element - DOM element from which to read the style
+  * @param styleProps - String representing a single camelCase CSS property name
+  * @returns The string value of the specified camelCase CSS property name.
+  */
+ getStyles(element: Element, styleProp: StyleProperty): string;
+ /**
+  * Returns an object containing the specified style properties of this clip's DOM element.
+  * * Normal CSS properties _must_ be written in camelCase
+  * (e.g., `['marginBottom', 'backgroundColor']`, _NOT_ `['margin-bottom', 'background-color']`),
+  * * CSS variables should be written normally (e.g., `['--nav-edge-color', '--brand-red']`).
+  * @param styleProps - Array of strings representing camelCase CSS property names
+  * @returns An object where the keys are the specified camelCase strings and the values are the CSS property values.
+  */
+ getStyles(styleProps: StyleProperty[]): {[key: string]: string};
+ /**
+  * Returns the string value of the specified CSS property name for this clip's DOM element.
+  * * Normal CSS properties _must_ be written in camelCase (e.g., `'marginBottom'`, _NOT_ `'margin-bottom'`),
+  * * CSS variables should be written normally (e.g., `'--brand-red'`).
+  * @param styleProps - String representing a single camelCase CSS property name
+  * @returns The string value of the specified camelCase CSS property name.
+  */
+ getStyles(styleProp: StyleProperty): string;
+ /**
+  * @group Property Getter Methods
+  */
+ getStyles(stylePropsOrEl: StyleProperty[] | StyleProperty | Element, styleProps?: StyleProperty[] | StyleProperty) {
+  const elementSpecified = !!styleProps;
+  const props = elementSpecified ? styleProps : stylePropsOrEl as Exclude<typeof stylePropsOrEl, Element>;
+  const element = elementSpecified ? stylePropsOrEl as Extract<typeof stylePropsOrEl, Element> : this.domElem;
+
+  // create object that will store style props
+  const subsetObj = {} as any;
+  // for each requested style property, set that property inside result object
+  const styleDec = getComputedStyle(element);
+  if (typeof props === 'string') {
+    // @ts-expect-error
+    return props.startsWith('--') ? styleDec.getPropertyValue(props) : styleDec[props];
+  }
+  else {
+    for (const prop of props) {
+      // @ts-expect-error
+      subsetObj[prop] = prop.startsWith('--') ? styleDec.getPropertyValue(prop) : styleDec[prop as string];
+    }
+    return  subsetObj;
+  }
+ }
+
+//  private currStylesMap: Map<Element, {[key: string]: string}> = new Map();
+
+//  getInitialStyles(element: Element, styleProp: StyleProperty[]): {[key: string]: string};
+//  getInitialStyles(element: Element, styleProp: StyleProperty): string;
+//  getInitialStyles(element: Element, styleProp_s: StyleProperty[] | StyleProperty) {
+//   // if clip is rewinding, return previously stored values
+//   if (this.direction === 'backward') {
+//     const relevantProps = this.currStylesMap.get(element)
+//     if (!relevantProps) {
+//       // TODO: elaborate
+//       throw this.generateError(Error, 'Something WRONG');
+//     }
+//     return relevantProps;
+//   }
+  
+//   const currStylesMap = this.currStylesMap;
+//   // if entry for specified element doesn't exist, create one with style props object set to {}
+//   if (!currStylesMap.has(element)) { currStylesMap.set(element, {}); }
+//   // get object storing style props associated with element
+//   const relevantProps = currStylesMap.get(element) as any;
+//   // for each requested style property, set that property inside storage object
+//   const getPropertyValue = getComputedStyle(element).getPropertyValue;
+//   if (typeof styleProp_s === 'string') {
+//     relevantProps[styleProp_s] = getPropertyValue(styleProp_s);
+//   }
+//   else {
+//     for (const prop of styleProp_s) {
+//       relevantProps[prop] = getPropertyValue(prop as string);
+//     }
+//   }
+
+//   return relevantProps;
+// }
+
+
 
  protected animation!: WebChalkAnimation;
  /**@internal*/

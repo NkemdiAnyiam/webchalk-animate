@@ -2,6 +2,7 @@ import { webchalk } from 'webchalk-animate';
 import * as WebChalkTypes from 'webchalk-animate/types-and-interfaces';
 import * as WebChalkErrors from "webchalk-animate/error-handling";
 import * as WebChalkEasing from "webchalk-animate/easing";
+import * as WebChalkUtils from "webchalk-animate/utility-functions";
 
 console.log(WebChalkTypes.AnimClip);
 
@@ -83,7 +84,33 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
           }
         }
       }
-    }
+    },
+
+  /**
+   * Element flies in from the bottom of the screen and ends up
+   * slightly too high, then settles down to its final position.
+   */
+  riseUp: {
+    /**
+     * 
+     * @returns 
+     */
+    composeEffect() {
+      return {
+        forwardKeyframesGenerator: () => [
+          {translate: `0 ${window.innerHeight - this.domElem.getBoundingClientRect().top}px`, opacity: 0, easing: WebChalkEasing.useEasing('power2-out')},
+          {translate: `0 -25px`, offset: 0.83333, composite: 'accumulate'},
+          {translate: `0 -25px`, offset: 0.86, easing: WebChalkEasing.useEasing('power1-in'), composite: 'accumulate'},
+          {translate: `0 0`},
+        ],
+      };
+    },
+    defaultConfig: {
+      composite: 'replace',
+    } as const,
+    immutableConfig: {} as const,
+    effectCompositionFrequency: 'on-first-play-only',
+  },
   },
 
   customExitEffects: {
@@ -271,6 +298,17 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
         composite: 'accumulate',
       }
     },
+
+    translateRel: {
+      composeEffect() {
+        return {
+          forwardKeyframesGenerator: () => {
+            return [{...this.getStyles(['translate'])}, {translate: '200px 500px'}]
+          },
+        }
+      },
+      defaultConfig: {composite: 'replace'}
+    },
     
     scrollTo: {
       composeEffect(yPosition: number) {
@@ -329,6 +367,7 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
 }
 
 const square = document.querySelector('.square');
+const circle = document.querySelector('.circle.circle--1');
 
 const ent = Entrance(square, '~appear', []);
 
@@ -429,4 +468,9 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   // timeline.toggleSkipping({forceState: 'on'}).then(() => {
   //   console.log('HEY, EVERYONE!!!');
   // })
-})()
+
+  timeline.addSequences(webchalk.newSequence(
+    Motion(circle, '~translate', [{translate: '900px 0'}], {delay: 500}),
+    Motion(circle, 'translateRel', []),
+  ));
+})();

@@ -844,6 +844,13 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * generators, which the clip will use to produce the keyframes/mutators for the animation. Naturally, the generators have access to the
      * closure created by the call to {@link EffectComposer.composeEffect composeEffect}, which is useful for storing stateful data.
      * 
+     * **_SHORT EXPLANATION_**
+     * In a typical case, you will return a {@link ComposedEffect} containing the callback function {@link ComposedEffect.forwardKeyframesGenerator}.
+     * When the clip is played, the callback function will be called to produce the keyframes for the animation to play. When the clip
+     * is rewound, the _same_ callback function will be used to produce keyframes for the animation to play, but the direction will
+     * be reversed.\
+     * When writing your keyframes _avoid using implicit from/to keyframes_.
+     * 
      * An animation clip uses two separate sets of keyframes—one set that will be used when the clip is played (the forward set)
      * and one set that will be used when the clip is rewound (the backward set). This means that you can define two distinct
      * effects for a clip's forward and backward animations, though you will most likely just want to define backward keyframes
@@ -1416,7 +1423,7 @@ export type Layer3MutableClipConfig<TClipClass extends AnimClip> = Omit<ReturnTy
  * @category Effect Composition
  */
 export type EffectComposerBank<TClip extends AnimClip = AnimClip> = ReadonlyRecord<
-  string, EffectComposer<ReadonlyPick<TClip, 'domElem' | 'getEffectDetails' | 'getStatus'>, Layer3MutableClipConfig<TClip>>
+  string, EffectComposer<ReadonlyPick<TClip, 'domElem' | 'getEffectDetails' | 'getStatus' | 'getStyles'>, Layer3MutableClipConfig<TClip>>
 >;
 
 /**
