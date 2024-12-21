@@ -11,7 +11,7 @@ import {
 import { webchalk } from "../WebChalk";
 import { EffectComposerBank } from "./compositionTypes";
 import { computeSelfScrollingBounds, getBoundingClientRectOfHidden, negateNumString, parseXYAlignmentString, parseXYTupleString } from "../4_utils/helpers";
-import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions } from "../4_utils/interfaces";
+import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions, Keyframes } from "../4_utils/interfaces";
 import { useEasing } from "./easing";
 import { CustomErrors } from "../4_utils/errors";
 export type {
@@ -192,15 +192,31 @@ export const libPresetEntrances = {
      * @returns 
      */
     composeEffect(direction: 'from-bottom' | 'from-left' | 'from-top' | 'from-right' = 'from-bottom') {
+      let keyframes: Keyframes;
       switch(direction) {
-        case 'from-bottom': return { forwardKeyframesGenerator: () => [ {clipPath: clipClosed_bottom}, {clipPath: clipOpened} ] };
-        case 'from-left':   return { forwardKeyframesGenerator: () => [ {clipPath: clipClosed_left}, {clipPath: clipOpened} ] };
-        case 'from-top':    return { forwardKeyframesGenerator: () => [ {clipPath: clipClosed_top}, {clipPath: clipOpened} ] };
-        case 'from-right':  return { forwardKeyframesGenerator: () => [ {clipPath: clipClosed_right}, {clipPath: clipOpened} ] };
+        case 'from-bottom':
+          keyframes = [ {clipPath: clipClosed_bottom}, {clipPath: clipOpened} ];
+          break;
+
+        case 'from-left':  
+          keyframes = [ {clipPath: clipClosed_left}, {clipPath: clipOpened} ];
+          break;
+          
+        case 'from-top':
+          keyframes = [ {clipPath: clipClosed_top}, {clipPath: clipOpened} ];
+          break;
+
+        case 'from-right':
+          keyframes = [ {clipPath: clipClosed_right}, {clipPath: clipOpened} ];
+          break;
 
         default:
           throw new RangeError(`Invalid direction "${direction}". Must be "from-top", "from-right", "from-bottom", or "from-left"`);
       }
+
+      return {
+        forwardKeyframesGenerator: () => keyframes,
+      };
     },
     defaultConfig: {} as const,
     immutableConfig: {
@@ -415,22 +431,28 @@ export const libPresetExits = {
      * @returns 
      */
     composeEffect(direction: 'from-bottom' | 'from-left' | 'from-top' | 'from-right' = 'from-bottom') {
+      let keyframes: Keyframes;
+
       switch(direction) {
-        case 'from-bottom': return {
-          forwardKeyframesGenerator: () => [ {clipPath: clipOpened}, {clipPath: clipClosed_top} ],
-        };
-        case 'from-left': return {
-          forwardKeyframesGenerator: () => [ {clipPath: clipOpened}, {clipPath: clipClosed_right} ],
-        };
-        case 'from-top': return {
-          forwardKeyframesGenerator: () => [ {clipPath: clipOpened}, {clipPath: clipClosed_bottom} ],
-        };
-        case 'from-right': return {
-          forwardKeyframesGenerator: () => [ {clipPath: clipOpened}, {clipPath: clipClosed_left} ],
-        };
+        case 'from-bottom':
+          keyframes = [ {clipPath: clipOpened}, {clipPath: clipClosed_top} ];
+          break;
+        case 'from-left':
+          keyframes = [ {clipPath: clipOpened}, {clipPath: clipClosed_right} ];
+          break;
+        case 'from-top':
+          keyframes = [ {clipPath: clipOpened}, {clipPath: clipClosed_bottom} ];
+          break;
+        case 'from-right':
+          keyframes = [ {clipPath: clipOpened}, {clipPath: clipClosed_left} ];
+          break;
         default:
           throw new RangeError(`Invalid direction "${direction}". Must be "from-top", "from-right", "from-bottom", or "from-left"`);
       }
+
+      return {
+        forwardKeyframesGenerator: () => keyframes,
+      };
     },
     defaultConfig: {} as const,
     immutableConfig: {
@@ -811,6 +833,7 @@ export const libPresetTransitions = {
         
         return {...acc, ...longhandKeys.reduce((acc, key) => {return {...acc, [key]: computedStyles[key]}}, {})};
       }, {});
+      
       return {
         forwardKeyframesGenerator: () => [original, {...keyframe}],
       };
@@ -891,40 +914,40 @@ export const libPresetConnectorEntrances = {
         {['--a-marker-opacity']: 1},
       ];
 
+      let keyframes: Keyframes;
+
       switch(direction) {
         case 'from-A':
-          return {
-            forwardKeyframesGenerator: () => fromAFrames,
-          };
+          keyframes = fromAFrames;
+          break;
 
         case 'from-B':
-          return {
-            forwardKeyframesGenerator: () => fromBFrames,
-          };
+          keyframes = fromBFrames;
+          break;
 
         case 'from-top':
-          return {
-            forwardKeyframesGenerator: this.domElem.ay <= this.domElem.by ? () => fromAFrames : () => fromBFrames,
-          };
+          keyframes = this.domElem.ay <= this.domElem.by ? fromAFrames : fromBFrames;
+          break;
 
         case 'from-bottom':
-          return {
-            forwardKeyframesGenerator: this.domElem.ay >= this.domElem.by ? () => fromAFrames : () => fromBFrames,
-          };
+          keyframes = this.domElem.ay >= this.domElem.by ? fromAFrames : fromBFrames;
+          break;
 
         case 'from-left':
-          return {
-            forwardKeyframesGenerator: this.domElem.ax <= this.domElem.bx ? () => fromAFrames : () => fromBFrames,
-          };
+          keyframes = this.domElem.ax <= this.domElem.bx ? fromAFrames : fromBFrames;
+          break;
 
         case 'from-right':
-          return {
-            forwardKeyframesGenerator: this.domElem.ax >= this.domElem.bx ? () => fromAFrames : () => fromBFrames,
-          };
+          keyframes = this.domElem.ax >= this.domElem.bx ? fromAFrames : fromBFrames;
+          break;
 
         default:
           throw new RangeError(`Invalid direction "${direction}". Must be "from-A", "from-B", "from-top", "from-bottom", "from-left", or "from-right"`);
       }
+
+      return {
+        forwardKeyframesGenerator: () => keyframes,
+      };
     },
     defaultConfig: {} as const,
     immutableConfig: {
@@ -1001,39 +1024,39 @@ export const libPresetConnectorExits = {
         {['--b-marker-opacity']: 0},
       ];
 
+      let keyframes : Keyframes;
+
       switch(direction) {
         case 'from-A':
-          return {
-            forwardKeyframesGenerator: () => fromStartFrames,
-          };
+          keyframes = fromStartFrames;
+          break;
 
         case 'from-B':
-          return {
-            forwardKeyframesGenerator: () => fromEndFrames,
-          };
+          keyframes = fromEndFrames;
+          break;
 
         case 'from-top':
-          return {
-            forwardKeyframesGenerator: this.domElem.ay <= this.domElem.by ? () => fromStartFrames : () => fromEndFrames,
-          };
+          keyframes = this.domElem.ay <= this.domElem.by ? fromStartFrames : fromEndFrames;
+          break;
 
         case 'from-bottom':
-          return {
-            forwardKeyframesGenerator: this.domElem.ay >= this.domElem.by ? () => fromStartFrames : () => fromEndFrames,
-          };
+          keyframes = this.domElem.ay >= this.domElem.by ? fromStartFrames : fromEndFrames
+          break;
 
         case 'from-left':
-          return {
-            forwardKeyframesGenerator: this.domElem.ax <= this.domElem.bx ? () => fromStartFrames : () => fromEndFrames,
-          };
+          keyframes = this.domElem.ax <= this.domElem.bx ? fromStartFrames : fromEndFrames;
+          break;
 
         case 'from-right':
-          return {
-            forwardKeyframesGenerator: this.domElem.ax >= this.domElem.bx ? () => fromStartFrames : () => fromEndFrames,
-          };
+          keyframes = this.domElem.ax >= this.domElem.bx ? fromStartFrames : fromEndFrames
+          break;
 
         default:
           throw new RangeError(`Invalid direction "${direction}". Must be "from-A", "from-B", "from-top", "from-bottom", "from-left", or "from-right"`);
+      }
+
+      return {
+        forwardKeyframesGenerator: () => keyframes,
       }
     },
     defaultConfig: {} as const,
