@@ -526,7 +526,6 @@ export const libPresetEmphases = {
       const prevColor = this.getStyles('--webchalk-highlight-color');
       // if color is 'default', use :root's highlight color
       const finalColor = color === 'default' ? this.getStyles(document.documentElement, '--webchalk-highlight-color') : color;
-      console.log(prevColor, finalColor);
       return {
         forwardKeyframesGenerator: () => [
           {['--webchalk-highlight-color']: prevColor, easing: 'step-start'}, // step-start -> steps(1, jump-start)
