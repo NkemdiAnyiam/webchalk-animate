@@ -56,7 +56,7 @@ export class WebChalkAnimation extends Animation {
     this.segmentsBackwardCache = [...this.segmentsBackward] as SegmentsCache;
   }
   
-  setForwardFrames(keyframes: Keyframes, isMirror: boolean = false): void {
+  setForwardFrames(keyframes: Keyframes, shouldReverse: boolean = false): void {
     this.forwardEffect.setKeyframes(keyframes);
     (super.effect as KeyframeEffect).setKeyframes(keyframes);
 
@@ -64,37 +64,37 @@ export class WebChalkAnimation extends Animation {
     // reverse direction of forward keyframes and use the same easing
     // as the backward keyframes (since it will naturally also be reversed)
     // due to the reversed direction
-    if (isMirror) {
+    if (shouldReverse) {
       this.forwardEffect.updateTiming({
         direction: 'reverse',
-        easing: this.backwardEffect.getTiming().easing,
+        // easing: this.backwardEffect.getTiming().easing,
       });
     }
 
-    // if animation is playback, the current effect object must be updated
+    // if animation is playing, the current effect object must be updated
     if (this.inProgress) {
       // if forward keyframes are mirrored, use same logic as above
-      if (isMirror) {
+      if (shouldReverse) {
         super.effect?.updateTiming({
-          direction: isMirror ? 'reverse' : 'normal',
-          easing: this.backwardEffect.getTiming().easing,
+          direction: shouldReverse ? 'reverse' : 'normal',
+          // easing: this.backwardEffect.getTiming().easing,
         });
       }
       // otherwise, update the direction to be normal in case it was changed by
       // the backward keyframes potentially being mirrored
       else {
-        super.effect?.updateTiming({direction: 'normal'});
+        super.effect?.updateTiming({direction: shouldReverse ? 'reverse' : 'normal'});
       }
     }
   }
 
-  setBackwardFrames(keyframes: Keyframes, isMirror: boolean = false): void {
+  setBackwardFrames(keyframes: Keyframes, isMirror: boolean = false, shouldReverse: boolean = false): void {
     this.backwardEffect.setKeyframes(keyframes);
     (super.effect as KeyframeEffect).setKeyframes(keyframes);
 
     if (isMirror) {
       this.backwardEffect.updateTiming({
-        direction: 'reverse',
+        direction: shouldReverse ? 'normal' : 'reverse',
         easing: this.forwardEffect.getTiming().easing,
       });
     }
@@ -102,12 +102,12 @@ export class WebChalkAnimation extends Animation {
     if (this.inProgress) {
       if (isMirror) {
         super.effect?.updateTiming({
-          direction: isMirror ? 'reverse' : 'normal',
+          direction: shouldReverse ? 'normal' : 'reverse',
           easing: this.forwardEffect.getTiming().easing,
         });
       }
       else {
-        super.effect?.updateTiming({ direction: 'normal' });
+        super.effect?.updateTiming({ direction: shouldReverse ? 'reverse' : 'normal' });
       }
     }
   }

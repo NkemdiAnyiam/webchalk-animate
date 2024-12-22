@@ -106,7 +106,7 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
       };
     },
     defaultConfig: {
-      composite: 'replace',
+      composite: 'accumulate',
     } as const,
     immutableConfig: {} as const,
     effectCompositionFrequency: 'on-first-play-only',
@@ -229,7 +229,8 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
       composeEffect() {
         // return Composed Effect
         return {
-          backwardKeyframesGenerator: () => {
+          reverseKeyframesEffect: true,
+          forwardKeyframesGenerator: () => {
             // return Keyframes (Keyframe[])
             return [
               {
@@ -456,7 +457,10 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   // await wait(1000);
   timeline.addSequences(seq);
   timeline.addSequences(webchalk.newSequence(
-    Exit(square, 'flyOutLeft', [], {}),))
+    Exit(square, 'sinkDown', [], {}),
+    Entrance(square, 'riseUp', []),
+    Exit(square, 'flyOutLeft', [], {duration: 2000})
+  ))
   // await timeline.step('forward');
   // await timeline.step('backward');
   // timeline.removeSequences(seq);

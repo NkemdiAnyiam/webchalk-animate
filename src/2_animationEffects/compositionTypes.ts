@@ -14,13 +14,13 @@ import { AnimClipConfig } from "../1_playbackStructures/AnimationClip";
  * producing a {@link Keyframes} object.
  *  * {@link ComposedEffect.backwardKeyframesGenerator | backwardKeyframesGenerator} will run every time the clip is rewound,
  * producing a {@link Keyframes} object.
- *    * If either one is omitted, the other callback will be used instead, and the result will just be played in reverse.
+ *    * If the backward generator is omitted, the forward generator will be used again instead, and the result will just be played in reverse.
  * It is up to you to check whether the animation effect is valid if this shortcut is taken.
  *  * {@link ComposedEffect.forwardMutatorGenerator | forwardMutatorGenerator} will run every time the clip is played,
  * producing a {@link Mutator} function.
  *  * {@link ComposedEffect.backwardMutatorGenerator | backwardMutatorGenerator} will run every time the clip is rewound,
  * producing a {@link Mutator} function.
- *    * If either one is omitted, the other callback will be used instead, and the result will just be reversed.
+ *    * If the backward generator is omitted, the backward generator will be used again instead, and the result will just be reversed.
  * It is up to you to check whether the animation effect is valid if this shortcut is taken.
  * 
  * @see {@link EffectComposer.composeEffect}
@@ -408,6 +408,16 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    * @group Mutator Generators
    */
   backwardMutatorGenerator?: () => Mutator;
+  /**
+   * If true, the effect specified by the keyframes generators will be reversed.
+   * * This is convenient when you want to create the opposite of another previously defined effect
+   */
+  reverseKeyframesEffect?: boolean;
+  /**
+   * If true, the effect specified by the mutator generators will be reversed.
+   * * This is convenient when you want to create the opposite of another previously defined effect
+   */
+  reverseMutatorEffect?: boolean;
 }>;
 
 // TODO: add code examples
@@ -583,7 +593,8 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *     // the body of forwardKeyframesGenerator() remains the same.
      *     //
      *     // Thus, it makes no difference what effectCompositionFrequency is set to.
-     *     // For the sake of optimization, you decide to set it to 'on-first-play-only'.
+     *     // For the sake of optimization, you decide to set it to 'on-first-play-only'
+     *     // (which is the default value anyway, but it adds more clarity).
      *     fadeOut: {
      *       composeEffect() {
      *         return {
@@ -757,18 +768,49 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * @returns An object containing 4 possible callback functions that return {@link Keyframes} and/or {@link Mutator}.
      * 
      * @remarks
+     * **Overview**\
      * Whenever {@link EffectComposer.composeEffect composeEffect} runs (how often it runs depends on
      * {@link EffectComposer.effectCompositionFrequency | effectCompositionFrequency}), it returns a new {@link ComposedEffect} containing
-     * generators, which the clip will use to produce the keyframes/mutators for the animation. Naturally, the generators have access to the
+     * callback functions—which can be referred to as "effect generators"—which the clip will use to generate the keyframes/mutators for the animation.
+     * Naturally, the generators have access to the
      * closure created by the call to {@link EffectComposer.composeEffect composeEffect}, which is useful for storing stateful data.
      * 
-     * **_SHORT EXPLANATION_**
+     * **Forward Keyframes Generator**\
      * In a typical case, you will return a {@link ComposedEffect} containing the callback function {@link ComposedEffect.forwardKeyframesGenerator}.
      * When the clip is played, the callback function will be called to produce the keyframes for the animation to play. When the clip
-     * is rewound, the _same_ callback function will be used to produce keyframes for the animation to play, but the direction will
-     * be reversed.\
-     * When writing your keyframes _avoid using implicit from/to keyframes_.
+     * is rewound, the _same_ callback function will be called again to produce keyframes for the animation to play, but the direction will
+     * be reversed. When writing your keyframes you must _always_ define the _full_ course of the effect. For example, from the forward keyframes effect,
+     * do _not_ return `[{}, {backgroundColor: 'blue'}, {backgroundColor: 'red', opacity: '0.5'}]`. Instead, return
+     * `[{...this.getStyles(['backgroundColor', 'opacity'])}, {backgroundColor: 'blue'}, {backgroundColor: 'red', opacity: 0.5}]`. This ensures
+     * that the initial styles can be restored when the clip is rewound. The helper method {@link AnimClip.getStyles} is a convenient way
+     * to get current style properties of an element.
      * 
+     * **Forward Mutator Generator**\
+     * You can also animate JavaScript values using {@link ComposedEffect.forwardMutatorGenerator}.
+     * Like the keyframes generator, it is a callback function that will be called when the clip is played, and when the clip is rewound,
+     * it will be called again with its effect being reversed this time. The difference is that instead of returning
+     * a {@link Keyframes}, it will return a {@link Mutator}—a function that will be repeatedly called at the device's framerate.
+     * If some JavaScript value is changed within the mutator with respect to the clip's progress, then the result is the illusion of a
+     * smooth animation that couldn't be achieved using normal CSS-based animations (since CSS cannot animate JavaScript values).
+     * (Under the hood, {@link requestAnimationFrame} loops are being used.)
+     * See the documentation of {@link ComposedEffect} for details on how to use mutator generators.
+     * 
+     * **Backward Effect Generators**\
+     * In addition to the forward keyframes/mutator generators, you may also define {@link ComposedEffect.backwardKeyframesGenerator} and/or
+     * {@link ComposedEffect.backwardMutatorGenerator}, giving you the ability to define more complex effects. When the clip is played,
+     * the full {@link ComposedEffect} will be produced. Only the forward keyframes/mutator generators will be called at first since they will be used for
+     * playing a clip (just as before). When the clip is eventually rewound, then the backward keyframes/mutator generators will be called and
+     * used for the animation (_instead_ of reusing the forward generators). When the clip is eventually played again, the forward generators
+     * will be called to produce the effect again. Then when the clip is eventually rewound again, the backward generators will once again
+     * be called to produce the effect—so on and so forth.
+     * 
+     * **Composition Frequency**\
+     * By default, {@link EffectComposer.composeEffect | composeEffect} only runs the first time the clip is played, so the
+     * resulting generators will exist for the lifetime of the clip. To allow {@link EffectComposer.composeEffect | composeEffect}
+     * to re-run and remake the {@link ComposedEffect}, set {@link EffectComposer.effectCompositionFrequency} to `'on-every-play'`.
+     * 
+     * <!--
+     * **_LONG, DETAILED EXPLANATION_**\
      * An animation clip uses two separate sets of keyframes—one set that will be used when the clip is played (the forward set)
      * and one set that will be used when the clip is rewound (the backward set). This means that you can define two distinct
      * effects for a clip's forward and backward animations, though you will most likely just want to define backward keyframes
@@ -799,31 +841,34 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * **OPTIONAL SHORTCUT:** For most effects, the semantic expectations will likely be trivial (i.e., effects where the rewind is simply just the reverse
      * of the forward keyframes). For example, suppose you make an emphasis effect where the element's opacity changes from 1 to 0.5. The semantic
      * expectation is that when the clip is rewound, the opacity changes from 0.5 to 1. Here, then, the expectation for the backward
-     * keyframes would be equivalent to just reversing the effect of the forward keyframes. We can say that the forward and backward generators are
-     * "invertible". In cases like this, we allow you to omit one of the keyframes generators. If this is done, the clip internally will automatically
-     * assign a copy of the defined generator to the missing generator, filling it in (so they will both be equivalent functions),
-     * and when it is time to call the filled-in generator to produce keyframes, the clip will set its animation to go in reverse.\
+     * keyframes would be equivalent to just reversing the effect of the forward keyframes. We can say that the forward generator is
+     * "invertible". In cases like this, we allow you to omit the backward generator. If this is done, the clip internally will automatically
+     * assign a copy of the forward generator to the missing backward generator, filling it in (so they will both be equivalent functions),
+     * and when it is time to call the now filled-in backward generator to produce keyframes, the clip will set its animation to go in reverse.\
      * For example, with the 0.5-to-1 opacity effect, if we omit the backward keyframes generator, it will be assigned a copy of the
      * forward keyframes generator, so _both_ generators will produce keyframes that change the element's opacity from 0.5 to 1.
-     * But because the backward generator was filled in, the clip will reverse the effect of the keyframes it produces,
+     * Then, because the backward generator was filled in, the clip will reverse the effect of the keyframes it produces,
      * resulting in an animation that changes the opacity from 1 to 0.5 when the clip is rewound (which is the desired rewinding effect).
      * The same shortcut allowance holds true for the mutator generators.\
      * **NOTE:** Using the shortcut has _no_ impact on {@link EffectComposer.effectCompositionFrequency | effectCompositionFrequency}.
      * Do not concern yourself with whether or not using the shortcut will change the behavior of
      * {@link EffectComposer.effectCompositionFrequency | effectCompositionFrequency}—it makes absolutely no difference. In other words,
-     * if you fully write an effect and then later realize that the generators are invertible, you can utilize the shortcut without even
-     * a second thought on how it may affect the behavior of {@link EffectComposer.effectCompositionFrequency | effectCompositionFrequency}.
+     * if you fully write an effect and then later realize that one or both forward generators are invertible,
+     * you can utilize the shortcut without even a second thought on how it may affect the behavior
+     * of {@link EffectComposer.effectCompositionFrequency | effectCompositionFrequency}.
+     * -->
      * 
-     * **SHORTCUT CAVEAT:** When using the shortcut, be mindful if you write an effect that has an {@link AnimClipConfig.composite} value of
-     * `'add'` or `'accumulate'` (instead of `'replace'`). The keyframes generators may potentially be non-invertible even though
-     * it may not be obvious at first glance.
-     * This typically will not be an issue for entrance or exit effects since changes resulting from effects in these
-     * categories are never committed, meaning there cannot be accidental overaccumulations.
+     * **Caution with `composite`**\
+     * Be mindful of how the value of {@link AnimClipConfig.composite} 
+     * (`'replace'`, `'add'` or `'accumulate'`) may affect the effect when rewinding. This will less often be an issue
+     * for entrance and exit effects since changes resulting from effects in these
+     * categories are never committed (meaning `composite`-related bugs are less likely), but for motion and
+     * emphasis effects, you should be especially cognizant of potential logic errors.
      * 
      * @example
      * <!-- EX:S id="EffectComposer.composeEffect-1" code-type="ts" -->
      * ```ts
-     * // EXAMPLES WHERE OMISSIONS ARE VALID
+     * // EXAMPLES WHERE BACKWARD GENERATORS CAN BE OMITTED
      * const clipFactories = webchalk.createAnimationClipFactories({
      *   customEmphasisEffects: {
      *     // -----------------------------------------------------------------
@@ -836,23 +881,22 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *         return {
      *           forwardKeyframesGenerator: () => {
      *             // return Keyframes (Keyframe[])
-     *             return [{opacity: 0.5}, {opacity: 1}];
+     *             return [{opacity: 1}, {opacity: 0.5}];
      *           },
      *           // Notice how the backward generator would be equivalent to running the forward generator
-     *           // and reversing the effect of the keyframes. That means that the keyframes
-     *           // generators are invertible.
+     *           // and reversing the effect of the keyframes. That means that the forward keyframes
+     *           // generator is invertible, and the backward generator can be omitted.
      *           backwardKeyframesGenerator: () => {
      *             // return Keyframes (Keyframe[])
-     *             return [{opacity: 1}, {opacity: 0.5}];
+     *             return [{opacity: 0.5}, {opacity: 1}];
      *           },
      *         };
      *       },
-     *       effectCompositionFrequency: 'on-first-play-only',
      *     },
      * 
-     *     // Exactly equivalent to transparencyHalf because the keyframes generators
-     *     // are invertible
-     *     transparencyHalf_shortcut_1: {
+     *     // Exactly equivalent to transparencyHalf because the keyframe generator
+     *     // is invertible
+     *     transparencyHalf_shortcut: {
      *       composeEffect() {
      *         // return ComposedEffect
      *         return {
@@ -862,22 +906,6 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *           },
      *         };
      *       },
-     *       effectCompositionFrequency: 'on-first-play-only',
-     *     },
-     * 
-     *     // Exactly equivalent to transparencyHalf because the keyframes generators
-     *     // are invertible
-     *     transparencyHalf_shortcut_2: {
-     *       composeEffect() {
-     *         // return ComposedEffect
-     *         return {
-     *           backwardKeyframesGenerator: () => {
-     *             // return Keyframes (Keyframe[])
-     *             return [{opacity: 0.5}, {opacity: 1}];
-     *           },
-     *         };
-     *       },
-     *       effectCompositionFrequency: 'on-first-play-only',
      *     },
      *   },
      * 
@@ -900,8 +928,8 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *             };
      *           },
      *           // Notice how the backward generator would be equivalent to running the forward generator
-     *           // and reversing the effect of the keyframes. That means that the keyframes
-     *           // generators are invertible.
+     *           // and reversing the effect of the keyframes. That means that the forward keyframes
+     *           // generator is invertible.
      *           backwardKeyframesGenerator: () => {
      *             // return Keyframes (PropertyIndexedKeyframes) 
      *             return {
@@ -911,11 +939,10 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *           },
      *         };
      *       },
-     *       effectCompositionFrequency: 'on-first-play-only',
      *     },
      * 
-     *     // Exactly equivalent to shyIn because the keyframes generators are invertible
-     *     shyIn_shortcut_1: {
+     *     // Exactly equivalent to shyIn because the keyframes generator is invertible.
+     *     shyIn_shortcut: {
      *       composeEffect() {
      *         // return ComposedEffect
      *         return {
@@ -928,24 +955,6 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *           },
      *         };
      *       },
-     *       effectCompositionFrequency: 'on-first-play-only',
-     *     },
-     * 
-     *     // Exactly equivalent to shyIn because the keyframes generators are invertible
-     *     shyIn_shortcut_2: {
-     *       composeEffect() {
-     *         // return ComposedEffect
-     *         return {
-     *           backwardKeyframesGenerator: () => {
-     *             // return Keyframes (PropertyIndexedKeyframes) 
-     *             return {
-     *               opacity: [1, 0, 0.7, 0.1, 0.5, 0],
-     *               scale: [1, 0, 0.7, 0.1, 0.5, 0],
-     *             };
-     *           },
-     *         };
-     *       },
-     *       effectCompositionFrequency: 'on-first-play-only',
      *     },
      * 
      *     // -----------------------------------------------------------------
@@ -993,7 +1002,6 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *         composite: 'accumulate',
      *       },
      *       immutableConfig: {},
-     *       effectCompositionFrequency: 'on-first-play-only',
      *     },
      *   },
      * 
@@ -1009,9 +1017,8 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *           // write flyOut; if you write slideOut, you'll probably write slideIn; if you write riseUp,
      *           // you'll probably write sinkDown. The beauty is that if riseUp and sinkDown are opposites,
      *           // then we know that playing riseUp should be the same as rewinding sinkDown. Therefore,
-     *           // we can copy-paste the logic from riseUp's forwardKeyframesGenerator() and use it for
-     *           // sinkDown's backwardKeyframesGenerator(). Since we know the effect is invertible already,
-     *           // we do not have to specify forwardKeyframesGenerator() here. Once again, we have gotten
+     *           // we can copy-paste the logic from riseUp's forwardKeyframesGenerator() and simply set
+     *           // reverseKeyframesEffect to true. Once again, we have gotten
      *           // away with just figuring out only 1 set of keyframes without having
      *           // to figure out what the other set looks like.
      *           // ---------------------------------------------------------------------------------------
@@ -1019,8 +1026,8 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *           //   // return Keyframes (Keyframe[])
      *           //   return [] // ??????
      *           // },
-     * 
-     *           backwardKeyframesGenerator: () => {
+     *           reverseKeyframesEffect: true,
+     *           forwardKeyframesGenerator: () => {
      *             // return Keyframes (Keyframe[])
      *             return [
      *               {
@@ -1046,7 +1053,6 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *         composite: 'accumulate',
      *       },
      *       immutableConfig: {},
-     *       effectCompositionFrequency: 'on-first-play-only',
      *     },
      * 
      *     // -----------------------------------------------------------------
@@ -1075,7 +1081,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *           // Notice how the backward generator would be equivalent to running the forward generator
      *           // and reversing the effect of the keyframes (even though the composite value is
      *           // 'accumulate', it's still invertible because exit effects' changes are never committed).
-     *           // That means that the keyframes generators are invertible.
+     *           // That means that the forward keyframes generator is invertible.
      *           // --------------------------------------------------------------------------------------
      *           backwardKeyframesGenerator: () => {
      *             // return Keyframes (Keyframe[])
@@ -1093,9 +1099,9 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *           },
      * 
      *           // Notice how the backward generator would be equivalent to running the forward generator
-     *           // and reversing the effect of the mutator. That means that the mutator generators are
+     *           // and reversing the effect of the mutator. That means that the mutator generator is
      *           // invertible. (Note that it may not always be the case that BOTH the keyframes
-     *           // generators and the mutator generators are invertible).
+     *           // generators and the forward mutator generator are invertible).
      *           // --------------------------------------------------------------------------------------
      *           backwardMutatorGenerator: () => {
      *             // return Mutator
@@ -1114,11 +1120,10 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *         // instead of replacing it
      *         composite: 'accumulate',
      *       },
-     *       effectCompositionFrequency: 'on-first-play-only',
      *     },
      * 
      *     // Exactly equivalent to flyOutLeft
-     *     flyOutLeft_shortcut_1: {
+     *     flyOutLeft_shortcut: {
      *       composeEffect() {
      *         const computeTranslationStr = () => {
      *           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
@@ -1150,80 +1155,6 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *       immutableConfig: {
      *         composite: 'accumulate',
      *       },
-     *       effectCompositionFrequency: 'on-first-play-only',
-     *     },
-     * 
-     *     // Exactly equivalent to flyOutLeft
-     *     flyOutLeft_shortcut_2: {
-     *       composeEffect() {
-     *         const computeTranslationStr = () => {
-     *           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
-     *           const translationString = `${orthogonalDistance}px 0px`;
-     *           return translationString;
-     *         }
-     *   
-     *         // return ComposedEffect
-     *         return {
-     *           backwardKeyframesGenerator: () => {
-     *             // return Keyframes (Keyframe[])
-     *             return [
-     *               {translate: computeTranslationStr()},
-     *               {translate: `0 0`}
-     *             ];
-     *           },
-     * 
-     *           backwardMutatorGenerator: () => {
-     *             // return Mutator
-     *             return () => {
-     *               this.domElem.textContent = `${this.computeTween(100, 0)}%`;
-     *             };
-     *           },
-     *         };
-     *       },
-     *       defaultConfig: {
-     *         duration: 1000,
-     *         easing: "ease-in",
-     *       },
-     *       immutableConfig: {
-     *         composite: 'accumulate',
-     *       },
-     *       effectCompositionFrequency: 'on-first-play-only',
-     *     },
-     * 
-     *     // Exactly equivalent to flyOutLeft
-     *     flyOutLeft_shortcut_3: {
-     *       composeEffect() {
-     *         const computeTranslationStr = () => {
-     *           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
-     *           const translationString = `${orthogonalDistance}px 0px`;
-     *           return translationString;
-     *         }
-     *   
-     *         // return ComposedEffect
-     *         return {
-     *           forwardKeyframesGenerator: () => {
-     *             // return Keyframes (Keyframe[])
-     *             return [
-     *               {translate: computeTranslationStr()}
-     *             ];
-     *           },
-     * 
-     *           backwardMutatorGenerator: () => {
-     *             // return Mutator
-     *             return () => {
-     *               this.domElem.textContent = `${this.computeTween(100, 0)}%`;
-     *             };
-     *           },
-     *         };
-     *       },
-     *       defaultConfig: {
-     *         duration: 1000,
-     *         easing: "ease-in",
-     *       },
-     *       immutableConfig: {
-     *         composite: 'accumulate',
-     *       },
-     *       effectCompositionFrequency: 'on-first-play-only',
      *     },
      *   },
      * });
@@ -1233,7 +1164,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * @example
      * <!-- EX:S id="EffectComposer.composeEffect-2" code-type="ts" -->
      * ```ts
-     * // EXAMPLES WHERE OMISSIONS ARE INVALID
+     * // EXAMPLES WHERE BACKWARD GENERATORS CANNOT BE OMITTED
      * const clipFactories = webchalk.createAnimationClipFactories({
      *   customMotionEffects: {
      *     // a custom animation for translating a certain number of pixels to the right
@@ -1273,7 +1204,6 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *         // instead of replacing it
      *         composite: 'accumulate',
      *       },
-     *       effectCompositionFrequency: 'on-first-play-only',
      *     },
      * 
      *     // a custom animation for scrolling to a specific point on the page.
@@ -1313,7 +1243,6 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *           }
      *         };
      *       },
-     *       effectCompositionFrequency: 'on-every-play',
      *     },
      *   }
      * });

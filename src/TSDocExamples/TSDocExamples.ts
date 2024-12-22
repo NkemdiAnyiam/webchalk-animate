@@ -960,7 +960,7 @@ mot.play().then(mot.rewind);
 
 {
 /**** EX:S id="EffectComposer.composeEffect-1" */
-// EXAMPLES WHERE OMISSIONS ARE VALID
+// EXAMPLES WHERE BACKWARD GENERATORS CAN BE OMITTED
 const clipFactories = webchalk.createAnimationClipFactories({
   customEmphasisEffects: {
     // -----------------------------------------------------------------
@@ -976,20 +976,19 @@ const clipFactories = webchalk.createAnimationClipFactories({
             return [{opacity: 1}, {opacity: 0.5}];
           },
           // Notice how the backward generator would be equivalent to running the forward generator
-          // and reversing the effect of the keyframes. That means that the keyframes
-          // generators are invertible.
+          // and reversing the effect of the keyframes. That means that the forward keyframes
+          // generator is invertible, and the backward generator can be omitted.
           backwardKeyframesGenerator: () => {
             // return Keyframes (Keyframe[])
-            return [{opacity: 1}, {opacity: 0.5}];
+            return [{opacity: 0.5}, {opacity: 1}];
           },
         };
       },
-      effectCompositionFrequency: 'on-first-play-only',
     },
 
-    // Exactly equivalent to transparencyHalf because the keyframes generators
-    // are invertible
-    transparencyHalf_shortcut_1: {
+    // Exactly equivalent to transparencyHalf because the keyframe generator
+    // is invertible
+    transparencyHalf_shortcut: {
       composeEffect() {
         // return ComposedEffect
         return {
@@ -999,22 +998,6 @@ const clipFactories = webchalk.createAnimationClipFactories({
           },
         };
       },
-      effectCompositionFrequency: 'on-first-play-only',
-    },
-
-    // Exactly equivalent to transparencyHalf because the keyframes generators
-    // are invertible
-    transparencyHalf_shortcut_2: {
-      composeEffect() {
-        // return ComposedEffect
-        return {
-          backwardKeyframesGenerator: () => {
-            // return Keyframes (Keyframe[])
-            return [{opacity: 0.5}, {opacity: 1}];
-          },
-        };
-      },
-      effectCompositionFrequency: 'on-first-play-only',
     },
   },
 
@@ -1037,8 +1020,8 @@ const clipFactories = webchalk.createAnimationClipFactories({
             };
           },
           // Notice how the backward generator would be equivalent to running the forward generator
-          // and reversing the effect of the keyframes. That means that the keyframes
-          // generators are invertible.
+          // and reversing the effect of the keyframes. That means that the forward keyframes
+          // generator is invertible.
           backwardKeyframesGenerator: () => {
             // return Keyframes (PropertyIndexedKeyframes) 
             return {
@@ -1048,11 +1031,10 @@ const clipFactories = webchalk.createAnimationClipFactories({
           },
         };
       },
-      effectCompositionFrequency: 'on-first-play-only',
     },
 
-    // Exactly equivalent to shyIn because the keyframes generators are invertible
-    shyIn_shortcut_1: {
+    // Exactly equivalent to shyIn because the keyframes generator is invertible.
+    shyIn_shortcut: {
       composeEffect() {
         // return ComposedEffect
         return {
@@ -1065,24 +1047,6 @@ const clipFactories = webchalk.createAnimationClipFactories({
           },
         };
       },
-      effectCompositionFrequency: 'on-first-play-only',
-    },
-
-    // Exactly equivalent to shyIn because the keyframes generators are invertible
-    shyIn_shortcut_2: {
-      composeEffect() {
-        // return ComposedEffect
-        return {
-          backwardKeyframesGenerator: () => {
-            // return Keyframes (PropertyIndexedKeyframes) 
-            return {
-              opacity: [1, 0, 0.7, 0.1, 0.5, 0],
-              scale: [1, 0, 0.7, 0.1, 0.5, 0],
-            };
-          },
-        };
-      },
-      effectCompositionFrequency: 'on-first-play-only',
     },
 
     // -----------------------------------------------------------------
@@ -1130,7 +1094,6 @@ const clipFactories = webchalk.createAnimationClipFactories({
         composite: 'accumulate',
       },
       immutableConfig: {},
-      effectCompositionFrequency: 'on-first-play-only',
     },
   },
 
@@ -1146,9 +1109,8 @@ const clipFactories = webchalk.createAnimationClipFactories({
           // write flyOut; if you write slideOut, you'll probably write slideIn; if you write riseUp,
           // you'll probably write sinkDown. The beauty is that if riseUp and sinkDown are opposites,
           // then we know that playing riseUp should be the same as rewinding sinkDown. Therefore,
-          // we can copy-paste the logic from riseUp's forwardKeyframesGenerator() and use it for
-          // sinkDown's backwardKeyframesGenerator(). Since we know the effect is invertible already,
-          // we do not have to specify forwardKeyframesGenerator() here. Once again, we have gotten
+          // we can copy-paste the logic from riseUp's forwardKeyframesGenerator() and simply set
+          // reverseKeyframesEffect to true. Once again, we have gotten
           // away with just figuring out only 1 set of keyframes without having
           // to figure out what the other set looks like.
           // ---------------------------------------------------------------------------------------
@@ -1156,8 +1118,8 @@ const clipFactories = webchalk.createAnimationClipFactories({
           //   // return Keyframes (Keyframe[])
           //   return [] // ??????
           // },
-
-          backwardKeyframesGenerator: () => {
+          reverseKeyframesEffect: true,
+          forwardKeyframesGenerator: () => {
             // return Keyframes (Keyframe[])
             return [
               {
@@ -1183,7 +1145,6 @@ const clipFactories = webchalk.createAnimationClipFactories({
         composite: 'accumulate',
       },
       immutableConfig: {},
-      effectCompositionFrequency: 'on-first-play-only',
     },
 
     // -----------------------------------------------------------------
@@ -1212,7 +1173,7 @@ const clipFactories = webchalk.createAnimationClipFactories({
           // Notice how the backward generator would be equivalent to running the forward generator
           // and reversing the effect of the keyframes (even though the composite value is
           // 'accumulate', it's still invertible because exit effects' changes are never committed).
-          // That means that the keyframes generators are invertible.
+          // That means that the forward keyframes generator is invertible.
           // --------------------------------------------------------------------------------------
           backwardKeyframesGenerator: () => {
             // return Keyframes (Keyframe[])
@@ -1230,9 +1191,9 @@ const clipFactories = webchalk.createAnimationClipFactories({
           },
 
           // Notice how the backward generator would be equivalent to running the forward generator
-          // and reversing the effect of the mutator. That means that the mutator generators are
+          // and reversing the effect of the mutator. That means that the mutator generator is
           // invertible. (Note that it may not always be the case that BOTH the keyframes
-          // generators and the mutator generators are invertible).
+          // generators and the forward mutator generator are invertible).
           // --------------------------------------------------------------------------------------
           backwardMutatorGenerator: () => {
             // return Mutator
@@ -1251,11 +1212,10 @@ const clipFactories = webchalk.createAnimationClipFactories({
         // instead of replacing it
         composite: 'accumulate',
       },
-      effectCompositionFrequency: 'on-first-play-only',
     },
 
     // Exactly equivalent to flyOutLeft
-    flyOutLeft_shortcut_1: {
+    flyOutLeft_shortcut: {
       composeEffect() {
         const computeTranslationStr = () => {
           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
@@ -1287,80 +1247,6 @@ const clipFactories = webchalk.createAnimationClipFactories({
       immutableConfig: {
         composite: 'accumulate',
       },
-      effectCompositionFrequency: 'on-first-play-only',
-    },
-
-    // Exactly equivalent to flyOutLeft
-    flyOutLeft_shortcut_2: {
-      composeEffect() {
-        const computeTranslationStr = () => {
-          const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
-          const translationString = `${orthogonalDistance}px 0px`;
-          return translationString;
-        }
-  
-        // return ComposedEffect
-        return {
-          backwardKeyframesGenerator: () => {
-            // return Keyframes (Keyframe[])
-            return [
-              {translate: computeTranslationStr()},
-              {translate: `0 0`}
-            ];
-          },
-
-          backwardMutatorGenerator: () => {
-            // return Mutator
-            return () => {
-              this.domElem.textContent = `${this.computeTween(100, 0)}%`;
-            };
-          },
-        };
-      },
-      defaultConfig: {
-        duration: 1000,
-        easing: "ease-in",
-      },
-      immutableConfig: {
-        composite: 'accumulate',
-      },
-      effectCompositionFrequency: 'on-first-play-only',
-    },
-
-    // Exactly equivalent to flyOutLeft
-    flyOutLeft_shortcut_3: {
-      composeEffect() {
-        const computeTranslationStr = () => {
-          const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
-          const translationString = `${orthogonalDistance}px 0px`;
-          return translationString;
-        }
-  
-        // return ComposedEffect
-        return {
-          forwardKeyframesGenerator: () => {
-            // return Keyframes (Keyframe[])
-            return [
-              {translate: computeTranslationStr()}
-            ];
-          },
-
-          backwardMutatorGenerator: () => {
-            // return Mutator
-            return () => {
-              this.domElem.textContent = `${this.computeTween(100, 0)}%`;
-            };
-          },
-        };
-      },
-      defaultConfig: {
-        duration: 1000,
-        easing: "ease-in",
-      },
-      immutableConfig: {
-        composite: 'accumulate',
-      },
-      effectCompositionFrequency: 'on-first-play-only',
     },
   },
 });
@@ -1369,7 +1255,7 @@ const clipFactories = webchalk.createAnimationClipFactories({
 
 {
 /**** EX:S id="EffectComposer.composeEffect-2" */
-// EXAMPLES WHERE OMISSIONS ARE INVALID
+// EXAMPLES WHERE BACKWARD GENERATORS CANNOT BE OMITTED
 const clipFactories = webchalk.createAnimationClipFactories({
   customMotionEffects: {
     // a custom animation for translating a certain number of pixels to the right
@@ -1409,7 +1295,6 @@ const clipFactories = webchalk.createAnimationClipFactories({
         // instead of replacing it
         composite: 'accumulate',
       },
-      effectCompositionFrequency: 'on-first-play-only',
     },
 
     // a custom animation for scrolling to a specific point on the page.
@@ -1449,7 +1334,6 @@ const clipFactories = webchalk.createAnimationClipFactories({
           }
         };
       },
-      effectCompositionFrequency: 'on-every-play',
     },
   }
 });
@@ -1571,7 +1455,8 @@ const clipFactories = webchalk.createAnimationClipFactories({
     // the body of forwardKeyframesGenerator() remains the same.
     //
     // Thus, it makes no difference what effectCompositionFrequency is set to.
-    // For the sake of optimization, you decide to set it to 'on-first-play-only'.
+    // For the sake of optimization, you decide to set it to 'on-first-play-only'
+    // (which is the default value anyway, but it adds more clarity).
     fadeOut: {
       composeEffect() {
         return {
