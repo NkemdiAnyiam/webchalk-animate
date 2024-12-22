@@ -973,7 +973,7 @@ const clipFactories = webchalk.createAnimationClipFactories({
         return {
           forwardKeyframesGenerator: () => {
             // return Keyframes (Keyframe[])
-            return [{opacity: 0.5}, {opacity: 1}];
+            return [{opacity: 1}, {opacity: 0.5}];
           },
           // Notice how the backward generator would be equivalent to running the forward generator
           // and reversing the effect of the keyframes. That means that the keyframes
