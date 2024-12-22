@@ -769,11 +769,13 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * 
      * @remarks
      * **Overview**\
-     * Whenever {@link EffectComposer.composeEffect composeEffect} runs (how often it runs depends on
+     * Whenever {@link EffectComposer.composeEffect | composeEffect} runs (how often it runs depends on
      * {@link EffectComposer.effectCompositionFrequency | effectCompositionFrequency}), it returns a new {@link ComposedEffect} containing
      * callback functions—which can be referred to as "effect generators"—which the clip will use to generate the keyframes/mutators for the animation.
-     * Naturally, the generators have access to the
-     * closure created by the call to {@link EffectComposer.composeEffect composeEffect}, which is useful for storing stateful data.
+     * Naturally, the generators have access to the closure created by the call to
+     * {@link EffectComposer.composeEffect | composeEffect}, which is useful for storing stateful data.\
+     * For the sake of clear code, it is recommended that you keep all the computation logic at the top of
+     * {@link EffectComposer.composeEffect | composeEffect} and a single final return statement at the bottom.
      * 
      * **Forward Keyframes Generator**\
      * In a typical case, you will return a {@link ComposedEffect} containing the callback function {@link ComposedEffect.forwardKeyframesGenerator}.

@@ -1142,9 +1142,13 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
   protected async animate(direction: 'forward' | 'backward'): Promise<this> {
     if (this.inProgress) { return this; }
 
-    // if this is the first time running animate(), retrieve the generators and
-    // update animation effects' directions according to presence of keyframes generators
-    if (this.firstRun) {
+    // if this is the first time running animate() or the effect composition is set to repeat,
+    // retrieve the generators and update animation effects' directions according to presence
+    // of keyframes generators
+    if (
+      this.firstRun
+      || direction === 'forward' && this.effectComposer.effectCompositionFrequency === 'on-every-play'
+    ) {
       this.firstRun = false;
       this.retrieveGenerators();
       
@@ -1156,10 +1160,6 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
         // if no backward keyframes generator was specified, assume the reverse of the forward keyframes generator
         direction: xor(this.bFramesMirrored, this.composedEffect.reverseKeyframesEffect) ? 'reverse' : 'normal',
       });
-    }
-    // else, refresh the generators depending on the effect composition frequency
-    else if (direction === 'forward' && this.effectComposer.effectCompositionFrequency === 'on-every-play') {
-      this.refreshGenerators();
     }
 
     const config = this.config;
@@ -1380,29 +1380,29 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
     catch (err: unknown) { throw this.generateError(err as Error); }
   }
 
-  private refreshGenerators(): void {
-    try {
-      // retrieve generators
-      let {
-        forwardKeyframesGenerator,
-        backwardKeyframesGenerator,
-        forwardMutatorGenerator,
-        backwardMutatorGenerator,
-        reverseKeyframesEffect = false,
-        reverseMutatorEffect = false,
-      } = call(this.effectComposer.composeEffect, this, ...this.getEffectDetails().effectOptions);
+  // private refreshGenerators(): void {
+  //   try {
+  //     // retrieve generators
+  //     let {
+  //       forwardKeyframesGenerator,
+  //       backwardKeyframesGenerator,
+  //       forwardMutatorGenerator,
+  //       backwardMutatorGenerator,
+  //       reverseKeyframesEffect = false,
+  //       reverseMutatorEffect = false,
+  //     } = call(this.effectComposer.composeEffect, this, ...this.getEffectDetails().effectOptions);
 
-      this.composedEffect = {
-        forwardKeyframesGenerator: forwardKeyframesGenerator! ?? backwardKeyframesGenerator!,
-        backwardKeyframesGenerator: backwardKeyframesGenerator! ?? forwardKeyframesGenerator!,
-        forwardMutatorGenerator: forwardMutatorGenerator ?? backwardMutatorGenerator,
-        backwardMutatorGenerator: backwardMutatorGenerator ?? forwardMutatorGenerator,
-        reverseKeyframesEffect,
-        reverseMutatorEffect,
-      };
-    }
-    catch (err: unknown) { throw this.generateError(err as Error); }
-  }
+  //     this.composedEffect = {
+  //       forwardKeyframesGenerator: forwardKeyframesGenerator! ?? backwardKeyframesGenerator!,
+  //       backwardKeyframesGenerator: backwardKeyframesGenerator! ?? forwardKeyframesGenerator!,
+  //       forwardMutatorGenerator: forwardMutatorGenerator ?? backwardMutatorGenerator,
+  //       backwardMutatorGenerator: backwardMutatorGenerator ?? forwardMutatorGenerator,
+  //       reverseKeyframesEffect,
+  //       reverseMutatorEffect,
+  //     };
+  //   }
+  //   catch (err: unknown) { throw this.generateError(err as Error); }
+  // }
 
   private loop = (): void => {
     const rafMutators = this.rafMutators!;
