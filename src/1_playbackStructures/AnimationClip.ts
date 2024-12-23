@@ -503,42 +503,6 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
   }
  }
 
-//  private currStylesMap: Map<Element, {[key: string]: string}> = new Map();
-
-//  getInitialStyles(element: Element, styleProp: StyleProperty[]): {[key: string]: string};
-//  getInitialStyles(element: Element, styleProp: StyleProperty): string;
-//  getInitialStyles(element: Element, styleProp_s: StyleProperty[] | StyleProperty) {
-//   // if clip is rewinding, return previously stored values
-//   if (this.direction === 'backward') {
-//     const relevantProps = this.currStylesMap.get(element)
-//     if (!relevantProps) {
-//       // TODO: elaborate
-//       throw this.generateError(Error, 'Something WRONG');
-//     }
-//     return relevantProps;
-//   }
-  
-//   const currStylesMap = this.currStylesMap;
-//   // if entry for specified element doesn't exist, create one with style props object set to {}
-//   if (!currStylesMap.has(element)) { currStylesMap.set(element, {}); }
-//   // get object storing style props associated with element
-//   const relevantProps = currStylesMap.get(element) as any;
-//   // for each requested style property, set that property inside storage object
-//   const getPropertyValue = getComputedStyle(element).getPropertyValue;
-//   if (typeof styleProp_s === 'string') {
-//     relevantProps[styleProp_s] = getPropertyValue(styleProp_s);
-//   }
-//   else {
-//     for (const prop of styleProp_s) {
-//       relevantProps[prop] = getPropertyValue(prop as string);
-//     }
-//   }
-
-//   return relevantProps;
-// }
-
-
-
  protected animation!: WebChalkAnimation;
  /**@internal*/
  get rafLoopsProgress(): number {
