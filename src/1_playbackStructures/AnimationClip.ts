@@ -486,8 +486,6 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
   const props = elementSpecified ? styleProps : stylePropsOrEl as Exclude<typeof stylePropsOrEl, Element>;
   const element = elementSpecified ? stylePropsOrEl as Extract<typeof stylePropsOrEl, Element> : this.domElem;
 
-  // create object that will store style props
-  const subsetObj = {} as any;
   // for each requested style property, set that property inside result object
   const styleDec = getComputedStyle(element);
   if (typeof props === 'string') {
@@ -495,6 +493,8 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
     return props.startsWith('--') ? styleDec.getPropertyValue(props) : styleDec[props];
   }
   else {
+    // create object that will store style props
+    const subsetObj = {} as any;
     for (const prop of props) {
       // @ts-expect-error
       subsetObj[prop] = prop.startsWith('--') ? styleDec.getPropertyValue(prop) : styleDec[prop as string];
