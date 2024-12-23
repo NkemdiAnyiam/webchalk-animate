@@ -774,18 +774,30 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * callback functions—which can be referred to as "effect generators"—which the clip will use to generate the keyframes/mutators for the animation.
      * Naturally, the generators have access to the closure created by the call to
      * {@link EffectComposer.composeEffect | composeEffect}, which is useful for storing stateful data.\
-     * For the sake of clear code, it is recommended that you keep all the computation logic at the top of
-     * {@link EffectComposer.composeEffect | composeEffect} and a single final return statement at the bottom.
+     * For the sake of code clarity, it is recommended that you keep a final return statement at the bottom of
+     * {@link EffectComposer.composeEffect | composeEffect} (as opposed to several return statements scattered throughout).
+     * 
+     * **Special `this`**\
+     * For both convenience and utility, using `this` inside a call to {@link EffectComposer.composedEffect | composedEffect}
+     * gives access to a subset of useful properties and methods of the clip.
+     *  * {@link AnimClip.domElem}
+     *  * {@link AnimClip.computeTween}
+     *  * {@link AnimClip.getStyles}
+     *  * {@link AnimClip.getEffectDetails}
+     *  * {@link AnimClip.getStatus}
      * 
      * **Forward Keyframes Generator**\
      * In a typical case, you will return a {@link ComposedEffect} containing the callback function {@link ComposedEffect.forwardKeyframesGenerator}.
      * When the clip is played, the callback function will be called to produce the keyframes for the animation to play. When the clip
      * is rewound, the _same_ callback function will be called again to produce keyframes for the animation to play, but the direction will
-     * be reversed. When writing your keyframes you must _always_ define the _full_ course of the effect. For example, from the forward keyframes effect,
-     * do _not_ return `[{}, {backgroundColor: 'blue'}, {backgroundColor: 'red', opacity: '0.5'}]`. Instead, return
-     * `[{...this.getStyles(['backgroundColor', 'opacity'])}, {backgroundColor: 'blue'}, {backgroundColor: 'red', opacity: 0.5}]`. This ensures
+     * be reversed. This means that every time playback is initiated (playing or rewinding), a new set of keyframes is produced.
+     * When writing your keyframes you must _always_ define the _full_ course of the effect. For example, from the forward keyframes generator,
+     * do _not_ return `[{}, {backgroundColor: 'blue'}, {backgroundColor: 'red', opacity: '0.5'}]`.
+     * Instead, store the original styles—something like `const initialStyles = this.getStyles(['backgroundColor', 'opacity']);`, and return
+     * `[{...initialStyles}, {backgroundColor: 'blue'}, {backgroundColor: 'red', opacity: 0.5}]` (taking advantage of the fact that
+     * `initialStyles` will still be accessible even after the {@link ComposedEffect} is returned). This ensures
      * that the initial styles can be restored when the clip is rewound. The helper method {@link AnimClip.getStyles} is a convenient way
-     * to get current style properties of an element.
+     * to get the current style properties of an element.
      * 
      * **Forward Mutator Generator**\
      * You can also animate JavaScript values using {@link ComposedEffect.forwardMutatorGenerator}.
@@ -879,18 +891,20 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *     // -----------------------------------------------------------------
      *     transparencyHalf: {
      *       composeEffect() {
+     *         const initialOpacity = this.getStyles('opacity');
+     * 
      *         // return ComposedEffect
      *         return {
      *           forwardKeyframesGenerator: () => {
      *             // return Keyframes (Keyframe[])
-     *             return [{opacity: 1}, {opacity: 0.5}];
+     *             return [{opacity: initialOpacity}, {opacity: 0.5}];
      *           },
      *           // Notice how the backward generator would be equivalent to running the forward generator
      *           // and reversing the effect of the keyframes. That means that the forward keyframes
      *           // generator is invertible, and the backward generator can be omitted.
      *           backwardKeyframesGenerator: () => {
      *             // return Keyframes (Keyframe[])
-     *             return [{opacity: 0.5}, {opacity: 1}];
+     *             return [{opacity: 0.5}, {opacity: initialOpacity}];
      *           },
      *         };
      *       },
@@ -900,11 +914,13 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *     // is invertible
      *     transparencyHalf_shortcut: {
      *       composeEffect() {
+     *         const initialOpacity = this.getStyles('opacity');
+     * 
      *         // return ComposedEffect
      *         return {
      *           forwardKeyframesGenerator: () => {
      *             // return Keyframes (Keyframe[])
-     *             return [{opacity: 1}, {opacity: 0.5}];
+     *             return [{opacity: initialOpacity}, {opacity: 0.5}];
      *           },
      *         };
      *       },
@@ -968,13 +984,17 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *     // slightly too high, then settles down to its final position.
      *     riseUp: {
      *       composeEffect() {
+     *         const belowViewportDist = () => {
+     *           return window.innerHeight - this.domElem.getBoundingClientRect().top;
+     *         };
+     * 
      *         // return Composed Effect
      *         return {
      *           forwardKeyframesGenerator: () => {
      *             // return Keyframes (Keyframe[])
      *             return [
      *               {
-     *                 translate: `0 ${window.innerHeight - this.domElem.getBoundingClientRect().top}px`,
+     *                 translate: `0 ${belowViewportDist()}px`,
      *                 opacity: 0,
      *                 easing: useEasing('power2-out')
      *               },
@@ -1012,6 +1032,10 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *     // Element floats up slightly and then accelerates to the bottom of the screen.
      *     sinkDown: {
      *       composeEffect() {
+     *         const belowViewportDist = () => {
+     *           return window.innerHeight - this.domElem.getBoundingClientRect().top;
+     *         };
+     * 
      *         // return Composed Effect
      *         return {
      *           // Most of the time, when you write your own custom entrance/exit effect, you will want
@@ -1021,19 +1045,15 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *           // then we know that playing riseUp should be the same as rewinding sinkDown. Therefore,
      *           // we can copy-paste the logic from riseUp's forwardKeyframesGenerator() and simply set
      *           // reverseKeyframesEffect to true. Once again, we have gotten
-     *           // away with just figuring out only 1 set of keyframes without having
+     *           // away with just figuring out what the forward keyframes look like without having
      *           // to figure out what the other set looks like.
      *           // ---------------------------------------------------------------------------------------
-     *           // forwardKeyframesGenerator: () => {
-     *           //   // return Keyframes (Keyframe[])
-     *           //   return [] // ??????
-     *           // },
      *           reverseKeyframesEffect: true,
      *           forwardKeyframesGenerator: () => {
      *             // return Keyframes (Keyframe[])
      *             return [
      *               {
-     *                 translate: `0 ${window.innerHeight - this.domElem.getBoundingClientRect().top}px`,
+     *                 translate: `0 ${belowViewportDist()}px`,
      *                 opacity: 0,
      *                 easing: useEasing('power2-out')
      *               },
@@ -1049,6 +1069,11 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *               {translate: `0 0`},
      *             ];
      *           },
+     * 
+     *           // backwardKeyframesGenerator: () => {
+     *           //   // return Keyframes (Keyframe[])
+     *           //   return [] // ??????
+     *           // },
      *         };
      *       },
      *       defaultConfig: {
@@ -1272,7 +1297,11 @@ export type Layer3MutableClipConfig<TClipClass extends AnimClip> = Omit<ReturnTy
  * @category Effect Composition
  */
 export type EffectComposerBank<TClip extends AnimClip = AnimClip> = ReadonlyRecord<
-  string, EffectComposer<ReadonlyPick<TClip, 'domElem' | 'getEffectDetails' | 'getStatus' | 'getStyles'>, Layer3MutableClipConfig<TClip>>
+  string, // effect name
+  EffectComposer<
+    ReadonlyPick<TClip, 'domElem' | 'getEffectDetails' | 'getStatus' | 'getStyles'>,
+    Layer3MutableClipConfig<TClip>
+  >
 >;
 
 /**

@@ -1426,7 +1426,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
   /**
    * Calculates the value partway between two fixed numbers (an initial value and a final value)
    * based on the progress of the animation.
-   *  * Intended for use inside {@link ComposedEffect.forwardMutatorGenerator} and {@link ComposedEffect.backwardMutatorGenerator}).
+   *  * Intended for use inside {@link ComposedEffect.forwardMutatorGenerator} and {@link ComposedEffect.backwardMutatorGenerator}.
    * @param initialVal - the starting value
    * @param finalVal - the ending value
    * @returns The number that is a percentage of the way between `initialVal` and `finalVal` based on the percentage of completion of the animation (playing or rewinding).

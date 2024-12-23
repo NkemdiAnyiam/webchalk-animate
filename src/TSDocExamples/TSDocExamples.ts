@@ -969,18 +969,20 @@ const clipFactories = webchalk.createAnimationClipFactories({
     // -----------------------------------------------------------------
     transparencyHalf: {
       composeEffect() {
+        const initialOpacity = this.getStyles('opacity');
+
         // return ComposedEffect
         return {
           forwardKeyframesGenerator: () => {
             // return Keyframes (Keyframe[])
-            return [{opacity: 1}, {opacity: 0.5}];
+            return [{opacity: initialOpacity}, {opacity: 0.5}];
           },
           // Notice how the backward generator would be equivalent to running the forward generator
           // and reversing the effect of the keyframes. That means that the forward keyframes
           // generator is invertible, and the backward generator can be omitted.
           backwardKeyframesGenerator: () => {
             // return Keyframes (Keyframe[])
-            return [{opacity: 0.5}, {opacity: 1}];
+            return [{opacity: 0.5}, {opacity: initialOpacity}];
           },
         };
       },
@@ -990,11 +992,13 @@ const clipFactories = webchalk.createAnimationClipFactories({
     // is invertible
     transparencyHalf_shortcut: {
       composeEffect() {
+        const initialOpacity = this.getStyles('opacity');
+
         // return ComposedEffect
         return {
           forwardKeyframesGenerator: () => {
             // return Keyframes (Keyframe[])
-            return [{opacity: 1}, {opacity: 0.5}];
+            return [{opacity: initialOpacity}, {opacity: 0.5}];
           },
         };
       },
@@ -1058,13 +1062,17 @@ const clipFactories = webchalk.createAnimationClipFactories({
     // slightly too high, then settles down to its final position.
     riseUp: {
       composeEffect() {
+        const belowViewportDist = () => {
+          return window.innerHeight - this.domElem.getBoundingClientRect().top;
+        };
+
         // return Composed Effect
         return {
           forwardKeyframesGenerator: () => {
             // return Keyframes (Keyframe[])
             return [
               {
-                translate: `0 ${window.innerHeight - this.domElem.getBoundingClientRect().top}px`,
+                translate: `0 ${belowViewportDist()}px`,
                 opacity: 0,
                 easing: useEasing('power2-out')
               },
@@ -1102,6 +1110,10 @@ const clipFactories = webchalk.createAnimationClipFactories({
     // Element floats up slightly and then accelerates to the bottom of the screen.
     sinkDown: {
       composeEffect() {
+        const belowViewportDist = () => {
+          return window.innerHeight - this.domElem.getBoundingClientRect().top;
+        };
+
         // return Composed Effect
         return {
           // Most of the time, when you write your own custom entrance/exit effect, you will want
@@ -1111,19 +1123,15 @@ const clipFactories = webchalk.createAnimationClipFactories({
           // then we know that playing riseUp should be the same as rewinding sinkDown. Therefore,
           // we can copy-paste the logic from riseUp's forwardKeyframesGenerator() and simply set
           // reverseKeyframesEffect to true. Once again, we have gotten
-          // away with just figuring out only 1 set of keyframes without having
+          // away with just figuring out what the forward keyframes look like without having
           // to figure out what the other set looks like.
           // ---------------------------------------------------------------------------------------
-          // forwardKeyframesGenerator: () => {
-          //   // return Keyframes (Keyframe[])
-          //   return [] // ??????
-          // },
           reverseKeyframesEffect: true,
           forwardKeyframesGenerator: () => {
             // return Keyframes (Keyframe[])
             return [
               {
-                translate: `0 ${window.innerHeight - this.domElem.getBoundingClientRect().top}px`,
+                translate: `0 ${belowViewportDist()}px`,
                 opacity: 0,
                 easing: useEasing('power2-out')
               },
@@ -1139,6 +1147,11 @@ const clipFactories = webchalk.createAnimationClipFactories({
               {translate: `0 0`},
             ];
           },
+
+          // backwardKeyframesGenerator: () => {
+          //   // return Keyframes (Keyframe[])
+          //   return [] // ??????
+          // },
         };
       },
       defaultConfig: {
