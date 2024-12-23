@@ -47,6 +47,11 @@ export type EasingString = Union<
 /**
  * Map mapping custom preset easing strings to linear easing functions.
  * Keys are one-to-one with {@link PresetLinearEasingKey}.
+ * 
+ * @remarks
+ * This map is not intended to be used on its own—instead, you should use the provided {@link useEasing} function,
+ * which can be used to access the entries of this map, use your own `<easing-function>` strings, and invert
+ * easing.
  */
 export const easingMap = Object.freeze(new Map<PresetLinearEasingKey, string>([
   // CREDITS:
@@ -160,10 +165,10 @@ export function invertEasing(easingString: EasingString): string {
 
 /**
  * Accepts either a preset easing string or a CSS `<easing-function>` string and returns an `<easing-function>`
- * @param easingString - preset easing string or a CSS <easing-function> string
+ * @param easingString - preset easing string or a CSS `<easing-function>` string
  * @param options - options affecting the output based on {@link easingString}
  * @param options.inverted - If `true`, the returned easing function will be inverted.
- * @returns An `<easing-string>` corresponding to the provided {@link easingString}.
+ * @returns An `<easing-function>` corresponding to the provided {@link easingString}.
  *  * If {@link easingString} is a preset easing string (such as `"power1-in"` or `"bounce-out"`), the returned `<easing-function>`
  * will be a custom `<linear-easing-function>` coming from a map of preset strings to linear easing functions.
  *  * If {@link easingString} is a standard `<easing-function>` string (such as `"ease-in"` or `"cubic-bezier(...)"`), the string
