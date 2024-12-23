@@ -170,7 +170,8 @@ export const libPresetEntrances = {
 
       return {
         forwardKeyframesGenerator: () => [
-          {translate: `0 ${belowViewportDist()}px`, opacity: 0, easing: useEasing('power2-out')},
+          {opacity: 0, composite: 'replace'},
+          {translate: `0 ${belowViewportDist()}px`, offset: 0, easing: useEasing('power2-out')},
           {translate: `0 -25px`, offset: 0.83333},
           {translate: `0 -25px`, offset: 0.86, easing: useEasing('power1-in')},
           {translate: `0 0`},
@@ -412,12 +413,21 @@ export const libPresetExits = {
       const belowViewportDist = () => window.innerHeight - this.domElem.getBoundingClientRect().top;
 
       return {
+        reverseKeyframesEffect: true,
         forwardKeyframesGenerator: () => [
-          {translate: `0 0`, easing: useEasing('power1-out')},
-          {translate: `0 -25px`, offset: 0.14 },
-          {translate: `0 -25px`, easing: useEasing('power2-in'), offset: 0.16666666},
-          {translate: `0 ${belowViewportDist()}px`, opacity: 0},
+          {opacity: 0, composite: 'replace'},
+          {translate: `0 ${belowViewportDist()}px`, offset: 0, easing: useEasing('power2-out')},
+          {translate: `0 -25px`, offset: 0.83333},
+          {translate: `0 -25px`, offset: 0.86, easing: useEasing('power1-in')},
+          {translate: `0 0`},
         ],
+        // forwardKeyframesGenerator: () => [
+        //   {translate: `0 0`, easing: useEasing('power1-out')},
+        //   {translate: `0 -25px`, offset: 0.14 },
+        //   {translate: `0 -25px`, easing: useEasing('power2-in'), offset: 0.16666666},
+        //   {translate: `0 ${belowViewportDist()}px`, offset: 1},
+        //   {opacity: 0, composite: 'replace'},
+        // ],
       };
     },
     defaultConfig: {} as const,

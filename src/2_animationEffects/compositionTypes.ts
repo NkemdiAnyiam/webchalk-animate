@@ -994,8 +994,12 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *             // return Keyframes (Keyframe[])
      *             return [
      *               {
-     *                 translate: `0 ${belowViewportDist()}px`,
      *                 opacity: 0,
+     *                 composite: 'replace'
+     *               },
+     *               {
+     *                 translate: `0 ${belowViewportDist()}px`,
+     *                 offset: 0,
      *                 easing: useEasing('power2-out')
      *               },
      *               {
@@ -1053,9 +1057,13 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *             // return Keyframes (Keyframe[])
      *             return [
      *               {
-     *                 translate: `0 ${belowViewportDist()}px`,
      *                 opacity: 0,
-     *                 easing: useEasing('power2-out')
+     *                 composite: 'replace'
+     *               },
+     *               {
+     *                 translate: `0 ${belowViewportDist()}px`,
+     *                 offset: 0,
+     *                 easing: useEasing('power2-out'),
      *               },
      *               {
      *                 translate: `0 -25px`,

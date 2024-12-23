@@ -1072,8 +1072,12 @@ const clipFactories = webchalk.createAnimationClipFactories({
             // return Keyframes (Keyframe[])
             return [
               {
-                translate: `0 ${belowViewportDist()}px`,
                 opacity: 0,
+                composite: 'replace'
+              },
+              {
+                translate: `0 ${belowViewportDist()}px`,
+                offset: 0,
                 easing: useEasing('power2-out')
               },
               {
@@ -1131,9 +1135,13 @@ const clipFactories = webchalk.createAnimationClipFactories({
             // return Keyframes (Keyframe[])
             return [
               {
-                translate: `0 ${belowViewportDist()}px`,
                 opacity: 0,
-                easing: useEasing('power2-out')
+                composite: 'replace'
+              },
+              {
+                translate: `0 ${belowViewportDist()}px`,
+                offset: 0,
+                easing: useEasing('power2-out'),
               },
               {
                 translate: `0 -25px`,

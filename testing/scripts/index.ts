@@ -96,11 +96,14 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
      * @returns 
      */
     composeEffect() {
+      const belowViewportDist = () => window.innerHeight - this.domElem.getBoundingClientRect().top;
+
       return {
         forwardKeyframesGenerator: () => [
-          {translate: `0 ${window.innerHeight - this.domElem.getBoundingClientRect().top}px`, opacity: 0, easing: WebChalkEasing.useEasing('power2-out')},
-          {translate: `0 -25px`, offset: 0.83333, composite: 'accumulate'},
-          {translate: `0 -25px`, offset: 0.86, easing: WebChalkEasing.useEasing('power1-in'), composite: 'accumulate'},
+          {opacity: 0, composite: 'replace'},
+          {translate: `0 ${belowViewportDist()}px`, offset: 0, easing: WebChalkEasing.useEasing('power2-out')},
+          {translate: `0 -25px`, offset: 0.83333},
+          {translate: `0 -25px`, offset: 0.86, easing: WebChalkEasing.useEasing('power1-in')},
           {translate: `0 0`},
         ],
       };
@@ -227,26 +230,18 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
 
     sinkDown: {
       composeEffect() {
+        const belowViewportDist = () => window.innerHeight - this.domElem.getBoundingClientRect().top;
+
         // return Composed Effect
         return {
           reverseKeyframesEffect: true,
           forwardKeyframesGenerator: () => {
             // return Keyframes (Keyframe[])
             return [
-              {
-                translate: `0 ${window.innerHeight - this.domElem.getBoundingClientRect().top}px`,
-                opacity: 0,
-                easing: WebChalkEasing.useEasing('power2-out')
-              },
-              {
-                translate: `0 -25px`,
-                offset: 0.83333
-              },
-              {
-                translate: `0 -25px`,
-                offset: 0.86,
-                easing: WebChalkEasing.useEasing('power1-in')
-              },
+              {opacity: 0, composite: 'replace'},
+              {translate: `0 ${belowViewportDist()}px`, offset: 0, easing: WebChalkEasing.useEasing('power2-out')},
+              {translate: `0 -25px`, offset: 0.83333},
+              {translate: `0 -25px`, offset: 0.86, easing: WebChalkEasing.useEasing('power1-in')},
               {translate: `0 0`},
             ];
           },
@@ -457,8 +452,8 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   // await wait(1000);
   timeline.addSequences(seq);
   timeline.addSequences(webchalk.newSequence(
-    Exit(square, 'sinkDown', [], {}),
-    Entrance(square, 'riseUp', []),
+    Exit(square, 'sinkDown', [], {duration: 1000}),
+    Entrance(square, 'riseUp', [], {duration: 1000, delay: 500}),
     Exit(square, 'flyOutLeft', [], {duration: 2000})
   ))
   // await timeline.step('forward');
