@@ -276,6 +276,19 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
     },
   },
 
+  customEmphasisEffects: {
+    becomeGreen: {
+      composeEffect() {
+        return {
+          forwardMutatorGenerator: () => {
+            return () => { this.domElem.style.backgroundColor = `rgb(${this.computeTween(255, 0)} 255 ${this.computeTween(255, 0)})` }
+          },
+        }
+      },
+      defaultConfig: {},
+    }
+  },
+
   customMotionEffects: {
     translateRight: {
       composeEffect(numPixels: number) {

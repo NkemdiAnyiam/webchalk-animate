@@ -1208,7 +1208,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
     animation.onActiveFinish = () => {
       // CHANGE NOTE: Move hidden class stuff here
       try {
-        if (config.commitsStyles) {
+        if (config.commitsStyles && !this.rafOnly) {
           // Attempt to apply the styles to the element.
           try {
             animation.commitStyles();
