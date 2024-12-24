@@ -8,7 +8,7 @@ import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord } from
 import { AnimClipConfig } from "../1_playbackStructures/AnimationClip";
 
 /**
- * Contains up to 4 callback functions (at _least_ 1 must be specified) that will be called to
+ * Contains up to 4 callback functions that will be called to
  * produce the effect for an animation clip. Returned by {@link EffectComposer.composeEffect}.
  *  * {@link ComposedEffect.forwardKeyframesGenerator | forwardKeyframesGenerator} will run every time the clip is played,
  * producing a {@link Keyframes} object.

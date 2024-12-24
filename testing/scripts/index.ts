@@ -479,7 +479,8 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   timeline.addSequences(webchalk.newSequence(
     Exit(square, 'fade-out-red', [], {duration: 1000}),
     Entrance(square, 'riseUp', [], {duration: 1000, delay: 500}),
-    Exit(square, 'flyOutLeft', [], {duration: 2000})
+    Exit(square, 'flyOutLeft', [], {duration: 2000}),
+    Entrance(square, '~appear', [], {delay: 500})
   ))
   // await timeline.step('forward');
   // await timeline.step('backward');

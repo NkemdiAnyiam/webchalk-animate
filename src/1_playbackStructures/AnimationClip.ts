@@ -516,10 +516,15 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
 
   return prog;
  }
+
+ // true if both keyframes generators are undefined in composed effect
+ protected noKeyframes: boolean = false;
+ // true if both mutator generators are undefined in composed effect
+ protected noRaf: boolean = false;
+ // true if only backward keyframes generators is undefined in composed effect
  protected bFramesMirrored: boolean = false;
+ // true if only backward mutator generator is undefined in composed effect
  protected bRafMirrored: boolean = false;
- protected rafOnly: boolean = false;
- protected framesOnly: boolean = false;
 
   // GROUP: Effect Details
   protected abstract get category(): EffectCategory;
@@ -1208,7 +1213,8 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
     animation.onActiveFinish = () => {
       // CHANGE NOTE: Move hidden class stuff here
       try {
-        if (config.commitsStyles && !this.rafOnly) {
+        // if should commit styles, only try to use commitStyles() if there are meaningful keyframes
+        if (config.commitsStyles && !this.noKeyframes) {
           // Attempt to apply the styles to the element.
           try {
             animation.commitStyles();
@@ -1293,43 +1299,46 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
         reverseMutatorEffect = false,
       } = call(this.effectComposer.composeEffect, this, ...this.getEffectDetails().effectOptions);
 
-      // if no generators are specified, error
+      // if no generators are specified, make keyframes generators return empty keyframes array
       if (!(forwardKeyframesGenerator || backwardKeyframesGenerator || forwardMutatorGenerator || backwardMutatorGenerator)) {
-        throw new CustomErrors.InvalidEffectError(`No generators specified`);
-      }
-
-      // if both keyframe generators are unspecified, make them return empty keyframes array
-      if (!forwardKeyframesGenerator && !backwardKeyframesGenerator) {
-        this.rafOnly = true;
         forwardKeyframesGenerator = () => [];
         backwardKeyframesGenerator = () => [];
+        this.noKeyframes = this.noRaf = true;
       }
-      // if backward keyframes generator is unspecified, use forward generator and set mirrored to true
-      else if (!backwardKeyframesGenerator) {
-        backwardKeyframesGenerator = forwardKeyframesGenerator!;
-        this.bFramesMirrored = true;
-      }
-      // if forward keyframes generator is unspecified, throw error
-      else if (!forwardKeyframesGenerator) {
-        throw new CustomErrors.InvalidEffectError(
-          `The backward keyframes generator cannot be specified without the forward keyframes generator as well.`
-        );
-      }
-
-      // if both RAF generators are unspecified, do nothing
-      if (!forwardMutatorGenerator && !backwardMutatorGenerator) {
-        this.framesOnly = true;
-      }
-      // if backward RAF mutator generator is unspecified, use forward generator and set mirrored to true
-      else if (!backwardMutatorGenerator) {
-        backwardMutatorGenerator = forwardMutatorGenerator;
-        this.bRafMirrored = true;
-      }
-      // if forward RAF mutator generator is unspecified, throw error
-      else if (!forwardMutatorGenerator) {
-        throw new CustomErrors.InvalidEffectError(
-          `The backward mutator generator cannot be specified without the forward mutator generator as well.`
-        );
+      else {
+        // if both keyframe generators are unspecified, make them return empty keyframes array
+        if (!forwardKeyframesGenerator && !backwardKeyframesGenerator) {
+          this.noKeyframes = true;
+          forwardKeyframesGenerator = () => [];
+          backwardKeyframesGenerator = () => [];
+        }
+        // if backward keyframes generator is unspecified, use forward generator and set mirrored to true
+        else if (!backwardKeyframesGenerator) {
+          backwardKeyframesGenerator = forwardKeyframesGenerator!;
+          this.bFramesMirrored = true;
+        }
+        // if forward keyframes generator is unspecified, throw error
+        else if (!forwardKeyframesGenerator) {
+          throw new CustomErrors.InvalidEffectError(
+            `The backward keyframes generator cannot be specified without the forward keyframes generator as well.`
+          );
+        }
+  
+        // if both RAF generators are unspecified, do nothing
+        if (!forwardMutatorGenerator && !backwardMutatorGenerator) {
+          this.noRaf = true;
+        }
+        // if backward RAF mutator generator is unspecified, use forward generator and set mirrored to true
+        else if (!backwardMutatorGenerator) {
+          backwardMutatorGenerator = forwardMutatorGenerator;
+          this.bRafMirrored = true;
+        }
+        // if forward RAF mutator generator is unspecified, throw error
+        else if (!forwardMutatorGenerator) {
+          throw new CustomErrors.InvalidEffectError(
+            `The backward mutator generator cannot be specified without the forward mutator generator as well.`
+          );
+        }
       }
 
       this.composedEffect = {

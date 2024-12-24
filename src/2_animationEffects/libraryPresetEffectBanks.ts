@@ -51,9 +51,7 @@ export const libPresetEntrances = {
      * @returns 
      */
     composeEffect() {
-      return {
-        forwardKeyframesGenerator: () => [],
-      } as const;
+      return {} as const;
     },
     defaultConfig: {} as const,
     immutableConfig: {
@@ -303,7 +301,7 @@ export const libPresetExits = {
      * @returns 
      */
     composeEffect() {
-      return {forwardKeyframesGenerator: () => []} as const;
+      return {} as const;
     },
     defaultConfig: {} as const,
     immutableConfig: {
@@ -872,9 +870,7 @@ export const libPresetConnectorEntrances = {
      * @returns 
      */
     composeEffect() {
-      return {
-        forwardKeyframesGenerator: () => [],
-      } as const;
+      return {} as const;
     },
     defaultConfig: {} as const,
     immutableConfig: {
@@ -985,9 +981,7 @@ export const libPresetConnectorExits = {
      * @returns 
      */
     composeEffect() {
-      return {
-        forwardKeyframesGenerator: () => [],
-      } as const;
+      return {} as const;
     },
     defaultConfig: {} as const,
     immutableConfig: {
