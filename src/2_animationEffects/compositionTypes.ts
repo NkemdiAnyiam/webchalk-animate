@@ -766,7 +766,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      */
     effectCompositionFrequency?: 'on-first-play-only' | 'on-every-play';
     /**
-     * Runs when the clip is executed and returns a {@link ComposedEffect}, which contains callback functions that will produce the
+     * Runs when the clip is played and returns a {@link ComposedEffect}, which contains callback functions that will produce the
      * effects for both playing and rewinding the animation.
      * @param effectOptions - parameters used to set the behavior for the specific animation effect when calling the clip factory function
      * @returns An object containing 4 possible callback functions that return {@link Keyframes} and/or {@link Mutator}.
