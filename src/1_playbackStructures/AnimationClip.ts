@@ -65,7 +65,7 @@ type CustomKeyframeEffectOptions = {
    */
   startsWithPrevious: boolean;
 
-  // TODO: figure out best way to handle commitStyles behavior regarding A) RAF loops and B) effects that
+  // TODO: figure out best way to handle commitStyles behavior regarding effects that
   // don't actually need to use commitStyles()
   /**
    * Determines whether the effects of the animation will persist after the clip finishes.
@@ -1436,13 +1436,21 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
    * @group Helper Methods
    */
   computeTween(initialVal: number, finalVal: number): number {
-    // if using a mirror for the backward mutator, computeTween() should run the progress from 1 to 0
-    const usingMirror = this.animation.direction === 'backward' && this.bRafMirrored;
-    return initialVal + (finalVal - initialVal) * (
-      xor(usingMirror, this.composedEffect.reverseMutatorEffect)
-        ? 1 - this.rafLoopsProgress
-        : this.rafLoopsProgress
+    // if animation progress is complete and commitsStyles is false,
+    // return the initial value
+    if (this.rafLoopsProgress === 1 && this.config.commitsStyles === false) {
+      return initialVal;
+    }
+
+    // if using a mirror for the backward mutator, computeTween() should flip the progresss
+    // if mutators are reversed, computeTween() should flip the progress
+    const flipProgress = xor(
+      this.animation.direction === 'backward' && this.bRafMirrored,
+      this.composedEffect.reverseMutatorEffect
     );
+
+    // return linear interpolation between initial value and final value based on progress of animation
+    return initialVal + (finalVal - initialVal) * (flipProgress ? 1 - this.rafLoopsProgress : this.rafLoopsProgress);
   }
 
   /*-:**************************************************************************************************************************/

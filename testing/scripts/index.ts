@@ -228,6 +228,18 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
       }
     },
 
+    'fade-out-red': {
+      composeEffect() {
+        return {
+          reverseKeyframesEffect: true,
+          forwardKeyframesGenerator: () => [{opacity: 0}, {}],
+          forwardMutatorGenerator: () => () => {
+            this.domElem.style.backgroundColor = `rgb(255 ${this.computeTween(255, 0)} ${this.computeTween(255, 0)})`
+          }
+        }
+      }
+    },
+
     sinkDown: {
       composeEffect() {
         const belowViewportDist = () => window.innerHeight - this.domElem.getBoundingClientRect().top;
@@ -452,7 +464,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   // await wait(1000);
   timeline.addSequences(seq);
   timeline.addSequences(webchalk.newSequence(
-    Exit(square, 'sinkDown', [], {duration: 1000}),
+    Exit(square, 'fade-out-red', [], {duration: 1000}),
     Entrance(square, 'riseUp', [], {duration: 1000, delay: 500}),
     Exit(square, 'flyOutLeft', [], {duration: 2000})
   ))
