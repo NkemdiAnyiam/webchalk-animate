@@ -409,13 +409,17 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    */
   backwardMutatorGenerator?: () => Mutator;
   /**
-   * If true, the effect specified by the keyframes generators will be reversed.
+   * If `true`, the effect specified by the keyframes generators will be reversed.
    * * This is convenient when you want to create the opposite of another previously defined effect
+   * 
+   * @group Keyframes Generators
    */
   reverseKeyframesEffect?: boolean;
   /**
-   * If true, the effect specified by the mutator generators will be reversed.
+   * If `true`, the effect specified by the mutator generators will be reversed.
    * * This is convenient when you want to create the opposite of another previously defined effect
+   * 
+   * @group Mutator Generators
    */
   reverseMutatorEffect?: boolean;
 }>;
