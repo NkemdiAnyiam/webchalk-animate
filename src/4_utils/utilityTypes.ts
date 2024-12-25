@@ -10,9 +10,20 @@ export type Union<T, U> = T | (U & Nothing);
  * Prevents duplicate autocompletion for functions whose type union resolves to `Function` when `undefined` and `never` are excluded.
  * For functions, explicitly adding "& Function" seems to get rid of the version without the method signature.
  * @interface
- * @typeParam T - Object that presumably contains some methods that are potentially never 
+ * @typeParam T - Object type that presumably contains some methods that are potentially never/undefined
+ * 
+ * @remarks
+ * For each key `K` of `T`, see if `T[K]` extends `Function` when not `never` or `undefined`.
+ * * If so, return `T[K] & Function`
+ * * If not, return `T[K]` (unchanged)
  */
-export type StripDuplicateMethodAutocompletion<T> = { [K in keyof T]: Exclude<T[K], undefined | never> extends Function ? T[K] & Function : T[K] };
+export type StripDuplicateMethodAutocompletion<T> = {
+  [K in keyof T]: (
+    Exclude<T[K], undefined | never> extends Function
+      ? T[K] & Function
+      : T[K]
+  )
+};
 // export type StripDuplicateMethodAutocompletion<T> = { [K in keyof T]: T[K] extends infer H ? T[K] & (Exclude<H, undefined> extends Function ? Function : {}) : T[K] }
 
 
