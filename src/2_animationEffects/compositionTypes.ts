@@ -437,7 +437,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
  * 
  * @interface
  */
-export type EffectComposer<TClipContext extends unknown = unknown, TConfig extends unknown = unknown> = Readonly<
+export type EffectComposer<TClipContext extends unknown = unknown, TConfig extends unknown = unknown> = Readonly<StripDuplicateMethodAutocompletion<
   {
     /**
      * Default configuration options that are appropriate for the effect (and can be overwritten while calling the clip factory function).

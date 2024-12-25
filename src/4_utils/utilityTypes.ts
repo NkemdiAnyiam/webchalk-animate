@@ -7,12 +7,14 @@ export type Union<T, U> = T | (U & Nothing);
 // };
 
 /**
- * Prevents issue where "XOR"-like union of properties results in duplicated method names showing up in autocompletion.
+ * Prevents duplicate autocompletion for functions whose type union resolves to `Function` when `undefined` and `never` are excluded.
  * For functions, explicitly adding "& Function" seems to get rid of the version without the method signature.
  * @interface
  * @typeParam T - Object that presumably contains some methods that are potentially never 
  */
-export type StripDuplicateMethodAutocompletion<T> = { [K in keyof T]: T[K] extends Function ? T[K] & Function : T[K] }
+export type StripDuplicateMethodAutocompletion<T> = { [K in keyof T]: Exclude<T[K], undefined | never> extends Function ? T[K] & Function : T[K] };
+// export type StripDuplicateMethodAutocompletion<T> = { [K in keyof T]: T[K] extends infer H ? T[K] & (Exclude<H, undefined> extends Function ? Function : {}) : T[K] }
+
 
 export type KeyOf<T extends object> = Extract<keyof T, string>;
 export type KeysOf<T extends object> = (Extract<keyof T, string>)[];
