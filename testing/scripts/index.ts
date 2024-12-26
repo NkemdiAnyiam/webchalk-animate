@@ -3,6 +3,7 @@ import * as WebChalkTypes from 'webchalk-animate/types-and-interfaces';
 import * as WebChalkErrors from "webchalk-animate/error-handling";
 import * as WebChalkEasing from "webchalk-animate/easing";
 import * as WebChalkUtils from "webchalk-animate/utility-functions";
+import { createCustomEffectComposerBank } from 'webchalk-animate/custom-effect-creation';
 
 console.log(WebChalkTypes.AnimClip);
 
@@ -44,10 +45,9 @@ console.log(WebChalkTypes.AnimClip);
   }
 }
 `
-
-
-const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Transition} = webchalk.createAnimationClipFactories({
-  customEntranceEffects: {
+const customEntrances = createCustomEffectComposerBank(
+  'entrance',
+  {
     hello: {
       composeEffect() {
         return {};
@@ -86,37 +86,40 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
       }
     },
 
-  /**
-   * Element flies in from the bottom of the screen and ends up
-   * slightly too high, then settles down to its final position.
-   */
-  riseUp: {
     /**
-     * 
-     * @returns 
+     * Element flies in from the bottom of the screen and ends up
+     * slightly too high, then settles down to its final position.
      */
-    composeEffect() {
-      const belowViewportDist = () => window.innerHeight - this.domElem.getBoundingClientRect().top;
+    riseUp: {
+      /**
+       * 
+       * @returns 
+       */
+      composeEffect() {
+        const belowViewportDist = () => window.innerHeight - this.domElem.getBoundingClientRect().top;
 
-      return {
-        forwardKeyframesGenerator: () => [
-          {opacity: 0, composite: 'replace'},
-          {translate: `0 ${belowViewportDist()}px`, offset: 0, easing: WebChalkEasing.useEasing('power2-out')},
-          {translate: `0 -25px`, offset: 0.83333},
-          {translate: `0 -25px`, offset: 0.86, easing: WebChalkEasing.useEasing('power1-in')},
-          {translate: `0 0`},
-        ],
-      };
+        return {
+          forwardKeyframesGenerator: () => [
+            {opacity: 0, composite: 'replace'},
+            {translate: `0 ${belowViewportDist()}px`, offset: 0, easing: WebChalkEasing.useEasing('power2-out')},
+            {translate: `0 -25px`, offset: 0.83333},
+            {translate: `0 -25px`, offset: 0.86, easing: WebChalkEasing.useEasing('power1-in')},
+            {translate: `0 0`},
+          ],
+        };
+      },
+      defaultConfig: {
+        composite: 'accumulate',
+      } as const,
+      immutableConfig: {} as const,
+      effectCompositionFrequency: 'on-first-play-only',
     },
-    defaultConfig: {
-      composite: 'accumulate',
-    } as const,
-    immutableConfig: {} as const,
-    effectCompositionFrequency: 'on-first-play-only',
-  },
-  },
+  }
+);
 
-  customExitEffects: {
+const customExits = createCustomEffectComposerBank(
+  'exit',
+  {
     ['hinge']: {
       composeEffect() {
         return {
@@ -274,9 +277,12 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
       immutableConfig: {} as const,
       effectCompositionFrequency: 'on-first-play-only',
     },
-  },
+  }
+);
 
-  customEmphasisEffects: {
+const customEmphases = createCustomEffectComposerBank(
+  'emphasis',
+  {
     becomeGreen: {
       composeEffect() {
         return {
@@ -287,9 +293,12 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
       },
       defaultConfig: {},
     }
-  },
+  }
+);
 
-  customMotionEffects: {
+const customMotions = createCustomEffectComposerBank(
+  'motion',
+  {
     translateRight: {
       composeEffect(numPixels: number) {
         const createTranslationString = () => {
@@ -369,6 +378,13 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
       }
     },
   }
+);
+
+const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Transition} = webchalk.createAnimationClipFactories({
+  customEntranceEffects: customEntrances,
+  customExitEffects: customExits,
+  customEmphasisEffects: customEmphases,
+  customMotionEffects: customMotions
 });
 
 {

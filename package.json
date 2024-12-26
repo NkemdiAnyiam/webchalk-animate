@@ -18,7 +18,8 @@
     "./types-and-interfaces": "./dist/5_exports/types.js",
     "./error-handling": "./dist/5_exports/errorHandling.js",
     "./easing": "./dist/5_exports/easing.js",
-    "./utility-functions": "./dist/5_exports/utilityFunctions.js"
+    "./utility-functions": "./dist/5_exports/utilityFunctions.js",
+    "./custom-effect-creation": "./dist/5_exports/customEffectCreation.js"
   },
   "scripts": {
     "build": "tsup",
