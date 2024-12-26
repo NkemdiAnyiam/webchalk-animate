@@ -1336,11 +1336,11 @@ export type EffectNameIn<TComposerBank extends EffectComposerBank> = Exclude<key
 /**
  * Returns the {@link AnimClip} subclass corresponding the the specified category.
  */
-type CategoryToClipType<TCategory extends 'entrance' | 'exit' | 'emphasis' | 'motion'> = (
-  TCategory extends 'entrance' ? EntranceClip : (
-    TCategory extends 'exit' ? ExitClip : (
-      TCategory extends 'emphasis' ? EmphasisClip : (
-        TCategory extends 'motion' ? MotionClip : (
+type CategoryToClipType<TCategory extends 'Entrance' | 'Exit' | 'Emphasis' | 'Motion'> = (
+  TCategory extends 'Entrance' ? EntranceClip : (
+    TCategory extends 'Exit' ? ExitClip : (
+      TCategory extends 'Emphasis' ? EmphasisClip : (
+        TCategory extends 'Motion' ? MotionClip : (
           never
         )
       )
@@ -1373,7 +1373,7 @@ type CategoryToClipType<TCategory extends 'entrance' | 'exit' | 'emphasis' | 'mo
  * // CREATE CUSTOM EFFECT COMPOSERS
  * 
  * const zoomIn = createCustomEffectComposer(
- *   'entrance',
+ *   'Entrance',
  *   {
  *     composeEffect(initialScale: number) {
  *       // return ComposedEffect
@@ -1391,7 +1391,7 @@ type CategoryToClipType<TCategory extends 'entrance' | 'exit' | 'emphasis' | 'mo
  * );
  * 
  * const fadeIn = createCustomEffectComposer(
- *   'entrance',
+ *   'Entrance',
  *   {
  *     composeEffect() {
  *       return {
@@ -1405,7 +1405,7 @@ type CategoryToClipType<TCategory extends 'entrance' | 'exit' | 'emphasis' | 'mo
  * );
  * 
  * const flyOutLeft = createCustomEffectComposer(
- *   'exit',
+ *   'Exit',
  *   {
  *     composeEffect() {
  *       const computeTranslationStr = () => {
@@ -1457,9 +1457,18 @@ type CategoryToClipType<TCategory extends 'entrance' | 'exit' | 'emphasis' | 'mo
  * @category Effect Composition
  */
 export function createCustomEffectComposer<
-  TCategory extends 'entrance' | 'exit' | 'emphasis' | 'motion',
+  TCategory extends 'Entrance' | 'Exit' | 'Emphasis' | 'Motion',
   TEffectComposer extends EffectComposerBank<CategoryToClipType<TCategory>>[string]
 > (effectCategory: TCategory, effectComposer: TEffectComposer) {
+  switch(effectCategory) {
+    case 'Entrance':
+    case 'Exit':
+    case 'Emphasis':
+    case 'Motion':
+      break;
+    default:
+      throw new TypeError(`Invalid effect category "${effectCategory}". Must be 'Entrance', 'Exit', 'Emphasis', or 'Motion'.`);
+  }
   return effectComposer;
 }
 
@@ -1488,7 +1497,7 @@ export function createCustomEffectComposer<
  * 
  * // bank with 2 effect composers for a "zoomIn" effect and a "fadeIn" effect
  * const customEntrances = createCustomEffectComposerBank(
- *   'entrance',
+ *   'Entrance',
  *   {
  *     zoomIn: {
  *       composeEffect(initialScale: number) {
@@ -1520,7 +1529,7 @@ export function createCustomEffectComposer<
  * 
  * // bank with 1 effect composer for a "flyOutLeft" effect
  * const customExits = createCustomEffectComposerBank(
- *   'exit',
+ *   'Exit',
  *   {
  *     flyOutLeft: {
  *       composeEffect() {
@@ -1569,8 +1578,17 @@ export function createCustomEffectComposer<
  * @category Effect Composition
  */
 export function createCustomEffectComposerBank<
-  TCategory extends 'entrance' | 'exit' | 'emphasis' | 'motion',
+  TCategory extends 'Entrance' | 'Exit' | 'Emphasis' | 'Motion',
   TComposerBank extends {[key: string]: EffectComposerBank<CategoryToClipType<TCategory>>[string]}
-  >(effectCategory: TCategory, effectComposerBank: TComposerBank) {
+>(effectCategory: TCategory, effectComposerBank: TComposerBank) {
+  switch(effectCategory) {
+    case 'Entrance':
+    case 'Exit':
+    case 'Emphasis':
+    case 'Motion':
+      break;
+    default:
+      throw new TypeError(`Invalid effect category "${effectCategory}". Must be 'Entrance', 'Exit', 'Emphasis', or 'Motion'.`);
+  }
   return effectComposerBank;
 }

@@ -46,7 +46,7 @@ console.log(WebChalkTypes.AnimClip);
 }
 `
 const customEntrances = createCustomEffectComposerBank(
-  'entrance',
+  'Entrance',
   {
     hello: {
       composeEffect() {
@@ -118,7 +118,7 @@ const customEntrances = createCustomEffectComposerBank(
 );
 
 const customExits = createCustomEffectComposerBank(
-  'exit',
+  'Exit',
   {
     ['hinge']: {
       composeEffect() {
@@ -281,7 +281,7 @@ const customExits = createCustomEffectComposerBank(
 );
 
 const customEmphases = createCustomEffectComposerBank(
-  'emphasis',
+  'Emphasis',
   {
     becomeGreen: {
       composeEffect() {
@@ -297,7 +297,7 @@ const customEmphases = createCustomEffectComposerBank(
 );
 
 const customMotions = createCustomEffectComposerBank(
-  'motion',
+  'Motion',
   {
     translateRight: {
       composeEffect(numPixels: number) {

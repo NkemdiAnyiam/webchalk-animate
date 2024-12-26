@@ -1647,7 +1647,7 @@ const clipFactories = webchalk.createAnimationClipFactories({
 // CREATE CUSTOM EFFECT COMPOSERS
 
 const zoomIn = createCustomEffectComposer(
-  'entrance',
+  'Entrance',
   {
     composeEffect(initialScale: number) {
       // return ComposedEffect
@@ -1665,7 +1665,7 @@ const zoomIn = createCustomEffectComposer(
 );
 
 const fadeIn = createCustomEffectComposer(
-  'entrance',
+  'Entrance',
   {
     composeEffect() {
       return {
@@ -1679,7 +1679,7 @@ const fadeIn = createCustomEffectComposer(
 );
 
 const flyOutLeft = createCustomEffectComposer(
-  'exit',
+  'Exit',
   {
     composeEffect() {
       const computeTranslationStr = () => {
@@ -1734,7 +1734,7 @@ const ext2 = clipFactories.Exit(square, 'flyOutLeft', []);
 
 // bank with 2 effect composers for a "zoomIn" effect and a "fadeIn" effect
 const customEntrances = createCustomEffectComposerBank(
-  'entrance',
+  'Entrance',
   {
     zoomIn: {
       composeEffect(initialScale: number) {
@@ -1766,7 +1766,7 @@ const customEntrances = createCustomEffectComposerBank(
 
 // bank with 1 effect composer for a "flyOutLeft" effect
 const customExits = createCustomEffectComposerBank(
-  'exit',
+  'Exit',
   {
     flyOutLeft: {
       composeEffect() {
