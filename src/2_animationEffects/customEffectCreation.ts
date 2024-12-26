@@ -1369,90 +1369,90 @@ type CategoryToClipType<TCategory extends 'entrance' | 'exit' | 'emphasis' | 'mo
  * 
  * @example
  * <!-- EX:S id="createCustomEffectComposer" code-type="ts" -->
-* ```ts
-* // CREATE CUSTOM EFFECT COMPOSERS
-* 
-* const zoomIn = createCustomEffectComposer(
-*   'entrance',
-*   {
-*     composeEffect(initialScale: number) {
-*       // return ComposedEffect
-*       return {
-*         forwardKeyframesGenerator: () => {
-*           // return Keyframes (Keyframe[])
-*           return [
-*             {scale: initialScale, opacity: 0},
-*             {}
-*           ];
-*         },
-*       };
-*     }
-*   }
-* );
-* 
-* const fadeIn = createCustomEffectComposer(
-*   'entrance',
-*   {
-*     composeEffect() {
-*       return {
-*         forwardKeyframesGenerator: () => {
-*           return [{opacity: 0}, {}];
-*         }
-*       };
-*     },
-*     defaultConfig: { duration: 1000, easing: 'ease-in' },
-*   }
-* );
-* 
-* const flyOutLeft = createCustomEffectComposer(
-*   'exit',
-*   {
-*     composeEffect() {
-*       const computeTranslationStr = () => {
-*         const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
-*         const translationString = `${orthogonalDistance}px 0px`;
-*         return translationString;
-*       }
-* 
-*       // return ComposedEffect
-*       return {
-*         forwardKeyframesGenerator: () => {
-*           // return Keyframes (Keyframe[])
-*           return [
-*             {translate: computeTranslationStr()}
-*           ];
-*         },
-*       };
-*     },
-*     defaultConfig: {
-*       duration: 1000,
-*       easing: "ease-in",
-*     },
-*     immutableConfig: {
-*       composite: 'accumulate',
-*     },
-*   }
-* );
-* 
-* // CREATE CLIP FACTORIES AND PASS IN CUSTOM EFFECT COMPOSERS
-* const clipFactories = webchalk.createAnimationClipFactories({
-*   customEntranceEffects: {
-*     zoomIn,
-*     fadeIn,
-*   },
-*   customExitEffects: {
-*     flyOutLeft
-*   }
-* });
-* 
-* const square = document.querySelector('.square');
-* 
-* // your custom effects are now part of the presets (along with full Intellisense)
-* const ent1 = clipFactories.Entrance(square, 'zoomIn', [0.1]);
-* const ent2 = clipFactories.Entrance(square, 'fadeIn', []);
-* const ext2 = clipFactories.Exit(square, 'flyOutLeft', []);
-* ```
-* <!-- EX:E id="createCustomEffectComposer" -->
+ * ```ts
+ * // CREATE CUSTOM EFFECT COMPOSERS
+ * 
+ * const zoomIn = createCustomEffectComposer(
+ *   'entrance',
+ *   {
+ *     composeEffect(initialScale: number) {
+ *       // return ComposedEffect
+ *       return {
+ *         forwardKeyframesGenerator: () => {
+ *           // return Keyframes (Keyframe[])
+ *           return [
+ *             {scale: initialScale, opacity: 0},
+ *             {}
+ *           ];
+ *         },
+ *       };
+ *     }
+ *   }
+ * );
+ * 
+ * const fadeIn = createCustomEffectComposer(
+ *   'entrance',
+ *   {
+ *     composeEffect() {
+ *       return {
+ *         forwardKeyframesGenerator: () => {
+ *           return [{opacity: 0}, {}];
+ *         }
+ *       };
+ *     },
+ *     defaultConfig: { duration: 1000, easing: 'ease-in' },
+ *   }
+ * );
+ * 
+ * const flyOutLeft = createCustomEffectComposer(
+ *   'exit',
+ *   {
+ *     composeEffect() {
+ *       const computeTranslationStr = () => {
+ *         const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
+ *         const translationString = `${orthogonalDistance}px 0px`;
+ *         return translationString;
+ *       }
+ * 
+ *       // return ComposedEffect
+ *       return {
+ *         forwardKeyframesGenerator: () => {
+ *           // return Keyframes (Keyframe[])
+ *           return [
+ *             {translate: computeTranslationStr()}
+ *           ];
+ *         },
+ *       };
+ *     },
+ *     defaultConfig: {
+ *       duration: 1000,
+ *       easing: "ease-in",
+ *     },
+ *     immutableConfig: {
+ *       composite: 'accumulate',
+ *     },
+ *   }
+ * );
+ * 
+ * // CREATE CLIP FACTORIES AND PASS IN CUSTOM EFFECT COMPOSERS
+ * const clipFactories = webchalk.createAnimationClipFactories({
+ *   customEntranceEffects: {
+ *     zoomIn,
+ *     fadeIn,
+ *   },
+ *   customExitEffects: {
+ *     flyOutLeft
+ *   }
+ * });
+ * 
+ * const square = document.querySelector('.square');
+ * 
+ * // your custom effects are now part of the presets (along with full Intellisense)
+ * const ent1 = clipFactories.Entrance(square, 'zoomIn', [0.1]);
+ * const ent2 = clipFactories.Entrance(square, 'fadeIn', []);
+ * const ext2 = clipFactories.Exit(square, 'flyOutLeft', []);
+ * ```
+ * <!-- EX:E id="createCustomEffectComposer" -->
  * 
  * @category Effect Composition
  */

@@ -39,7 +39,7 @@ export async function writeBetweenText(filePath: string, options: WriteBetweenTe
   try {
     const fileContent = await fs.promises.readFile(filePath, 'utf-8');
 
-    const startTag = getTagMatches(fileContent.substring(searchStart), startMarker).find(tag => tag.includes(searchId));
+    const startTag = getTagMatches(fileContent.substring(searchStart), startMarker).find(tag => tag.includes(`id="${searchId}"`));
     if (!startTag) {
       throw new Error(`Start text "${startMarker}" with id "${searchId}" not found in the file.`);
     }
@@ -48,7 +48,7 @@ export async function writeBetweenText(filePath: string, options: WriteBetweenTe
     const possibleEndTags = getTagMatches(fileContent.substring(startIndex), endMarker);
     const endTag = startTag.includes('MD-G')
       ? possibleEndTags[0] // greedy
-      : possibleEndTags.find(tag => tag.includes(searchId)); // matching id
+      : possibleEndTags.find(tag => tag.includes(`id="${searchId}"`)); // matching id
     if (!endTag) {
       throw new Error(`End text "${endMarker}" with id "${searchId}" not found in the file.`);
     }

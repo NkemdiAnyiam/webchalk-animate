@@ -35,7 +35,7 @@ export function readTextBetween(filePath: string, options: ReadTextBetweenOption
 
   const startTag = searchId
     // if searchId is provided, find the general start tag that contains it
-    ? getTagMatches(fileContent.substring(searchStart), startMarker).find(tag => tag.includes(searchId))
+    ? getTagMatches(fileContent.substring(searchStart), startMarker).find(tag => tag.includes(`id="${searchId}"`))
     // otherwise, just find the first matching start tag (given searchStart)
     : getTagMatch(fileContent.substring(searchStart), startMarker);
   if (!startTag) { return null; }
@@ -63,9 +63,9 @@ export function readTextBetween(filePath: string, options: ReadTextBetweenOption
   // find actual matching end tag
   const endTag = startTag.includes('MD-G')
     ? possibleEndTags[0] // greedy
-    : possibleEndTags.find(tag => tag.includes(id)); // matching id
+    : possibleEndTags.find(tag => tag.includes(`id="${id}"`)); // matching id
   if (!endTag) {
-    throw new Error(`End tag for given end marker "${endMarker}" and id "${id}" could not be found.`)
+    throw new Error(`End tag for given end marker "${endMarker}" and id "${id}" could not be found.`);
   }
   const endReadIndex = fileContent.indexOf(endTag, startReadIndex);
   if (endReadIndex === -1) {
@@ -79,7 +79,8 @@ export function readTextBetween(filePath: string, options: ReadTextBetweenOption
   // if the id was read into a search result meta object,
   // compute the amount of space at the beginning of the line containing the id
   if (searchResultMeta && readId) {
-    const reg = new RegExp(`.*${escapeRegex(searchResultMeta.id)}`);
+    // TODO: this regular expression should definitely match the whole tag
+    const reg = new RegExp(`.*id="${escapeRegex(searchResultMeta.id)}"`);
     const startingLine = fileContent.match(reg)![0];
     searchResultMeta.spaceLength = startingLine.match(/^\s*/)?.[0].length ?? 0;
   }
