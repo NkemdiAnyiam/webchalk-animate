@@ -12,7 +12,7 @@ import {
   libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions
 } from "./2_animationEffects/libraryPresetEffectBanks";
 import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./4_utils/interfaces";
-import { EffectComposerBank, EffectNameIn, EffectComposer, EffectOptions } from "./2_animationEffects/compositionTypes";
+import { EffectComposerBank, EffectNameIn, EffectComposer, EffectOptions } from "./2_animationEffects/customEffectCreation";
 
 /**
  * @hideconstructor

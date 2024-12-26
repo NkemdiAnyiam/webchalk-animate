@@ -6,4 +6,4 @@ export {
   EffectOptions,
   createCustomEffectComposer,
   createCustomEffectComposerBank
-} from "../2_animationEffects/compositionTypes";
+} from "../2_animationEffects/customEffectCreation";

@@ -1,4 +1,4 @@
-import { createCustomEffectComposer, createCustomEffectComposerBank } from "../2_animationEffects/compositionTypes";
+import { createCustomEffectComposer, createCustomEffectComposerBank } from "../2_animationEffects/customEffectCreation";
 import { EasingString, PresetLinearEasingKey, useEasing } from "../2_animationEffects/easing";
 import { webchalk } from "../WebChalk";
 

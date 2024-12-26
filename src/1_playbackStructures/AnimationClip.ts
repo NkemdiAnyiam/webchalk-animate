@@ -2,7 +2,7 @@ import { AnimSequence } from "./AnimationSequence";
 import { AnimTimeline } from "./AnimationTimeline";
 import { EntranceClip, MotionClip, TransitionClip } from "./AnimationClipCategories";
 import { webchalk, WebChalk } from "../WebChalk";
-import { EffectOptions, EffectComposerBank, EffectComposer, ComposedEffect } from "../2_animationEffects/compositionTypes";
+import { EffectOptions, EffectComposerBank, EffectComposer, ComposedEffect } from "../2_animationEffects/customEffectCreation";
 import { call, detab, getPartial, mergeArrays, xor } from "../4_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
 import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "../4_utils/errors";

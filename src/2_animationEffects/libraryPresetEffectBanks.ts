@@ -9,7 +9,7 @@ import {
   ConnectorExitClip,
 } from "../1_playbackStructures/AnimationClipCategories";
 import { webchalk } from "../WebChalk";
-import { EffectComposerBank } from "./compositionTypes";
+import { EffectComposerBank } from "./customEffectCreation";
 import { computeSelfScrollingBounds, getBoundingClientRectOfHidden, negateNumString, parseXYAlignmentString, parseXYTupleString } from "../4_utils/helpers";
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions, Keyframes } from "../4_utils/interfaces";
 import { useEasing } from "./easing";

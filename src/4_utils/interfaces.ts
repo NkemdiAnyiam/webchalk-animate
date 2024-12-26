@@ -3,7 +3,7 @@
 // import { PrefixProps } from "./utilityTypes";
 
 import { AnimClip } from "../1_playbackStructures/AnimationClip";
-import { ComposedEffect } from "../2_animationEffects/compositionTypes";
+import { ComposedEffect } from "../2_animationEffects/customEffectCreation";
 import { Union } from "./utilityTypes";
 
 // type FrozenPrefix = '__';

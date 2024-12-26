@@ -1,6 +1,3 @@
-/**
- * @module 2_animationEffects/customEffectCreation
- */
 import { AnimClip } from "../1_playbackStructures/AnimationClip";
 import { EmphasisClip, EntranceClip, ExitClip, MotionClip } from "../1_playbackStructures/AnimationClipCategories";
 import { Keyframes, Mutator } from "../4_utils/interfaces";
