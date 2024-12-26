@@ -1,3 +1,4 @@
+import { createCustomEffectComposer, createCustomEffectComposerBank } from "../2_animationEffects/compositionTypes";
 import { EasingString, PresetLinearEasingKey, useEasing } from "../2_animationEffects/easing";
 import { webchalk } from "../WebChalk";
 
@@ -808,7 +809,7 @@ const clipFactories = webchalk.createAnimationClipFactories({
             // return Keyframes (Keyframe[])
             return [
               {scale: initialScale, opacity: 0}, // Keyframe 1
-              {scale: 1, opacity: 1}             // Keyframe 2
+              {}                                 // Keyframe 2
             ];
           },
           // backwardKeyframesGenerator() can be omitted in this case because
@@ -818,7 +819,7 @@ const clipFactories = webchalk.createAnimationClipFactories({
           // backwardKeyframesGenerator: () => {
           //   // return Keyframes (Keyframe[])
           //   return [
-          //     {scale: 1, opacity: 1},           // Keyframe 1
+          //     {},                               // Keyframe 1
           //     {scale: initialScale, opacity: 0} // Keyframe 2
           //   ];
           // },
@@ -889,9 +890,9 @@ const element = document.querySelector('.some-element');
   // ↑ Since backwardKeyframesGenerator() was not set, the clip will run forwardKeyframesGenerator()
   // again and just use its effect in reverse when rewinding (which would be exactly equivalent
   // to specifying backwardKeyframesGenerator() and having it return
-  // [{scale: 1, opacity: 1}, {scale: initialScale, opacity: 0}]).
+  // [{}, {scale: initialScale, opacity: 0}]).
   // In other words, forwardKeyframesGenerator() will run again to produce the Keyframe array
-  // [{scale: initialScale, opacity: 0}, {scale: 1, opacity: 1}], then
+  // [{scale: initialScale, opacity: 0}, {}], then
   // the Keyframe array is used for the animation effect but set to go in reverse,
   // and the effect is used as the clip rewinds.
 
@@ -1639,6 +1640,176 @@ const clipFactories = webchalk.createAnimationClipFactories({
   }
 });
 /**** EX:E id="EffectComposer.effectCompositionFrequency" */
+}
+
+{
+/**** EX:S id="createCustomEffectComposer" */
+// CREATE CUSTOM EFFECT COMPOSERS
+
+const zoomIn = createCustomEffectComposer(
+  'entrance',
+  {
+    composeEffect(initialScale: number) {
+      // return ComposedEffect
+      return {
+        forwardKeyframesGenerator: () => {
+          // return Keyframes (Keyframe[])
+          return [
+            {scale: initialScale, opacity: 0},
+            {}
+          ];
+        },
+      };
+    }
+  }
+);
+
+const fadeIn = createCustomEffectComposer(
+  'entrance',
+  {
+    composeEffect() {
+      return {
+        forwardKeyframesGenerator: () => {
+          return [{opacity: 0}, {}];
+        }
+      };
+    },
+    defaultConfig: { duration: 1000, easing: 'ease-in' },
+  }
+);
+
+const flyOutLeft = createCustomEffectComposer(
+  'exit',
+  {
+    composeEffect() {
+      const computeTranslationStr = () => {
+        const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
+        const translationString = `${orthogonalDistance}px 0px`;
+        return translationString;
+      }
+
+      // return ComposedEffect
+      return {
+        forwardKeyframesGenerator: () => {
+          // return Keyframes (Keyframe[])
+          return [
+            {translate: computeTranslationStr()}
+          ];
+        },
+      };
+    },
+    defaultConfig: {
+      duration: 1000,
+      easing: "ease-in",
+    },
+    immutableConfig: {
+      composite: 'accumulate',
+    },
+  }
+);
+
+// CREATE CLIP FACTORIES AND PASS IN CUSTOM EFFECT COMPOSERS
+const clipFactories = webchalk.createAnimationClipFactories({
+  customEntranceEffects: {
+    zoomIn,
+    fadeIn,
+  },
+  customExitEffects: {
+    flyOutLeft
+  }
+});
+
+const square = document.querySelector('.square');
+
+// your custom effects are now part of the presets (along with full Intellisense)
+const ent1 = clipFactories.Entrance(square, 'zoomIn', [0.1]);
+const ent2 = clipFactories.Entrance(square, 'fadeIn', []);
+const ext2 = clipFactories.Exit(square, 'flyOutLeft', []);
+/**** EX:E id="createCustomEffectComposer" */
+}
+
+{
+/**** EX:S id="createCustomEffectComposerBank" */
+// CREATE CUSTOM EFFECT COMPOSER BANKS
+
+// bank with 2 effect composers for a "zoomIn" effect and a "fadeIn" effect
+const customEntrances = createCustomEffectComposerBank(
+  'entrance',
+  {
+    zoomIn: {
+      composeEffect(initialScale: number) {
+        // return ComposedEffect
+        return {
+          forwardKeyframesGenerator: () => {
+            // return Keyframes (Keyframe[])
+            return [
+              {scale: initialScale, opacity: 0},
+              {}
+            ];
+          },
+        };
+      }
+    },
+
+    fadeIn: {
+      composeEffect() {
+        return {
+          forwardKeyframesGenerator: () => {
+            return [{opacity: 0}, {}];
+          }
+        };
+      },
+      defaultConfig: { duration: 1000, easing: 'ease-in' },
+    }
+  }
+);
+
+// bank with 1 effect composer for a "flyOutLeft" effect
+const customExits = createCustomEffectComposerBank(
+  'exit',
+  {
+    flyOutLeft: {
+      composeEffect() {
+        const computeTranslationStr = () => {
+          const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
+          const translationString = `${orthogonalDistance}px 0px`;
+          return translationString;
+        }
+  
+        // return ComposedEffect
+        return {
+          forwardKeyframesGenerator: () => {
+            // return Keyframes (Keyframe[])
+            return [
+              {translate: computeTranslationStr()}
+            ];
+          },
+        };
+      },
+      defaultConfig: {
+        duration: 1000,
+        easing: "ease-in",
+      },
+      immutableConfig: {
+        composite: 'accumulate',
+      },
+    }
+  }
+)
+
+// CREATE CLIP FACTORIES AND PASS IN CUSTOM EFFECT COMPOSER BANKS
+const clipFactories = webchalk.createAnimationClipFactories({
+  customEntranceEffects: customEntrances,
+  customExitEffects: customExits,
+});
+
+const square = document.querySelector('.square');
+
+// your custom effects are now part of the presets (along with full Intellisense)
+const ent1 = clipFactories.Entrance(square, 'zoomIn', [0.1]);
+const ent2 = clipFactories.Entrance(square, 'fadeIn', []);
+const ext2 = clipFactories.Exit(square, 'flyOutLeft', []);
+/**** EX:E id="createCustomEffectComposerBank" */
 }
 
 

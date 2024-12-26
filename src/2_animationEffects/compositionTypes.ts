@@ -2,10 +2,11 @@
  * @module 2_animationEffects/customEffectCreation
  */
 import { AnimClip } from "../1_playbackStructures/AnimationClip";
-import { ExitClip } from "../1_playbackStructures/AnimationClipCategories";
+import { EmphasisClip, EntranceClip, ExitClip, MotionClip } from "../1_playbackStructures/AnimationClipCategories";
 import { Keyframes, Mutator } from "../4_utils/interfaces";
 import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord } from "../4_utils/utilityTypes";
 import { AnimClipConfig } from "../1_playbackStructures/AnimationClip";
+import { webchalk } from "../WebChalk";
 
 /**
  * Contains up to 4 callback functions that will be called to
@@ -57,7 +58,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *             // return Keyframes (Keyframe[])
    *             return [
    *               {scale: initialScale, opacity: 0}, // Keyframe 1
-   *               {scale: 1, opacity: 1}             // Keyframe 2
+   *               {}                                 // Keyframe 2
    *             ];
    *           },
    *           // backwardKeyframesGenerator() can be omitted in this case because
@@ -67,7 +68,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *           // backwardKeyframesGenerator: () => {
    *           //   // return Keyframes (Keyframe[])
    *           //   return [
-   *           //     {scale: 1, opacity: 1},           // Keyframe 1
+   *           //     {},                               // Keyframe 1
    *           //     {scale: initialScale, opacity: 0} // Keyframe 2
    *           //   ];
    *           // },
@@ -138,9 +139,9 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *   // ↑ Since backwardKeyframesGenerator() was not set, the clip will run forwardKeyframesGenerator()
    *   // again and just use its effect in reverse when rewinding (which would be exactly equivalent
    *   // to specifying backwardKeyframesGenerator() and having it return
-   *   // [{scale: 1, opacity: 1}, {scale: initialScale, opacity: 0}]).
+   *   // [{}, {scale: initialScale, opacity: 0}]).
    *   // In other words, forwardKeyframesGenerator() will run again to produce the Keyframe array
-   *   // [{scale: initialScale, opacity: 0}, {scale: 1, opacity: 1}], then
+   *   // [{scale: initialScale, opacity: 0}, {}], then
    *   // the Keyframe array is used for the animation effect but set to go in reverse,
    *   // and the effect is used as the clip rewinds.
    * 
@@ -186,7 +187,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *             // return Keyframes (Keyframe[])
    *             return [
    *               {scale: initialScale, opacity: 0}, // Keyframe 1
-   *               {scale: 1, opacity: 1}             // Keyframe 2
+   *               {}                                 // Keyframe 2
    *             ];
    *           },
    *           // backwardKeyframesGenerator() can be omitted in this case because
@@ -196,7 +197,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *           // backwardKeyframesGenerator: () => {
    *           //   // return Keyframes (Keyframe[])
    *           //   return [
-   *           //     {scale: 1, opacity: 1},           // Keyframe 1
+   *           //     {},                               // Keyframe 1
    *           //     {scale: initialScale, opacity: 0} // Keyframe 2
    *           //   ];
    *           // },
@@ -267,9 +268,9 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    *   // ↑ Since backwardKeyframesGenerator() was not set, the clip will run forwardKeyframesGenerator()
    *   // again and just use its effect in reverse when rewinding (which would be exactly equivalent
    *   // to specifying backwardKeyframesGenerator() and having it return
-   *   // [{scale: 1, opacity: 1}, {scale: initialScale, opacity: 0}]).
+   *   // [{}, {scale: initialScale, opacity: 0}]).
    *   // In other words, forwardKeyframesGenerator() will run again to produce the Keyframe array
-   *   // [{scale: initialScale, opacity: 0}, {scale: 1, opacity: 1}], then
+   *   // [{scale: initialScale, opacity: 0}, {}], then
    *   // the Keyframe array is used for the animation effect but set to go in reverse,
    *   // and the effect is used as the clip rewinds.
    * 
@@ -1296,7 +1297,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
       ...effectOptions: unknown[]
     ): ComposedEffect;
   }
->;
+>>;
 
 /** @ignore */
 export type Layer3MutableClipConfig<TClipClass extends AnimClip> = Omit<ReturnType<TClipClass['getConfig']>, keyof TClipClass['categoryImmutableConfig']>;
@@ -1332,3 +1333,247 @@ export type EffectOptions<TEffectComposer extends EffectComposer> = Parameters<T
 export type EffectNameIn<TComposerBank extends EffectComposerBank> = Exclude<keyof {
   [key in keyof TComposerBank as TComposerBank[key] extends EffectComposer ? key : never]: TComposerBank[key];
 }, number | symbol>;/** @ignore */
+
+
+
+/**
+ * Returns the {@link AnimClip} subclass corresponding the the specified category.
+ */
+type CategoryToClipType<TCategory extends 'entrance' | 'exit' | 'emphasis' | 'motion'> = (
+  TCategory extends 'entrance' ? EntranceClip : (
+    TCategory extends 'exit' ? ExitClip : (
+      TCategory extends 'emphasis' ? EmphasisClip : (
+        TCategory extends 'motion' ? MotionClip : (
+          never
+        )
+      )
+    )
+  )
+);
+
+
+// function createCustomEffectComposer<TEffectComposer extends EffectComposerBank<EntranceClip>[string]> (effectCategory: 'entrance', effectComposer: TEffectComposer): TEffectComposer;
+// function createCustomEffectComposer<TEffectComposer extends EffectComposerBank<ExitClip>[string]> (effectCategory: 'exit', effectComposer: TEffectComposer): TEffectComposer;
+// function createCustomEffectComposer<TEffectComposer extends EffectComposerBank<EmphasisClip>[string]> (effectCategory: 'emphasis', effectComposer: TEffectComposer): TEffectComposer;
+// function createCustomEffectComposer<TEffectComposer extends EffectComposerBank<MotionClip>[string]> (effectCategory: 'motion', effectComposer: TEffectComposer): TEffectComposer;
+/**
+ * Allows the convenient creation of an object in the shape of an {@link EffectComposer} with full auto-completion.
+ * The resulting effect composer must be passed into {@link webchalk.createAnimationClipFactories} in order to be added to the
+ * preset effects registry.
+ * @param effectCategory - the category of the animation effect
+ * @param effectComposer - the effect composer object, where you will define {@link EffectComposer.composeEffect} among other properties
+ * @returns - The same {@link effectComposer} object you passed into the function.
+ * 
+ * @remarks
+ * This function is purely for convenience. You could create {@link EffectComposer} objects on your own without it, but there would
+ * be no autocompletion or hinting. Besides using this function or {@link createCustomEffectComposerBank}, the other way to
+ * contstruct effect composers while still having access to Intellisense is to define them directly within the call to
+ * {@link webchalk.createAnimationClipFactories}.
+ * 
+ * @example
+ * <!-- EX:S id="createCustomEffectComposer" code-type="ts" -->
+* ```ts
+* // CREATE CUSTOM EFFECT COMPOSERS
+* 
+* const zoomIn = createCustomEffectComposer(
+*   'entrance',
+*   {
+*     composeEffect(initialScale: number) {
+*       // return ComposedEffect
+*       return {
+*         forwardKeyframesGenerator: () => {
+*           // return Keyframes (Keyframe[])
+*           return [
+*             {scale: initialScale, opacity: 0},
+*             {}
+*           ];
+*         },
+*       };
+*     }
+*   }
+* );
+* 
+* const fadeIn = createCustomEffectComposer(
+*   'entrance',
+*   {
+*     composeEffect() {
+*       return {
+*         forwardKeyframesGenerator: () => {
+*           return [{opacity: 0}, {}];
+*         }
+*       };
+*     },
+*     defaultConfig: { duration: 1000, easing: 'ease-in' },
+*   }
+* );
+* 
+* const flyOutLeft = createCustomEffectComposer(
+*   'exit',
+*   {
+*     composeEffect() {
+*       const computeTranslationStr = () => {
+*         const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
+*         const translationString = `${orthogonalDistance}px 0px`;
+*         return translationString;
+*       }
+* 
+*       // return ComposedEffect
+*       return {
+*         forwardKeyframesGenerator: () => {
+*           // return Keyframes (Keyframe[])
+*           return [
+*             {translate: computeTranslationStr()}
+*           ];
+*         },
+*       };
+*     },
+*     defaultConfig: {
+*       duration: 1000,
+*       easing: "ease-in",
+*     },
+*     immutableConfig: {
+*       composite: 'accumulate',
+*     },
+*   }
+* );
+* 
+* // CREATE CLIP FACTORIES AND PASS IN CUSTOM EFFECT COMPOSERS
+* const clipFactories = webchalk.createAnimationClipFactories({
+*   customEntranceEffects: {
+*     zoomIn,
+*     fadeIn,
+*   },
+*   customExitEffects: {
+*     flyOutLeft
+*   }
+* });
+* 
+* const square = document.querySelector('.square');
+* 
+* // your custom effects are now part of the presets (along with full Intellisense)
+* const ent1 = clipFactories.Entrance(square, 'zoomIn', [0.1]);
+* const ent2 = clipFactories.Entrance(square, 'fadeIn', []);
+* const ext2 = clipFactories.Exit(square, 'flyOutLeft', []);
+* ```
+* <!-- EX:E id="createCustomEffectComposer" -->
+ * 
+ * @category Effect Composition
+ */
+export function createCustomEffectComposer<
+  TCategory extends 'entrance' | 'exit' | 'emphasis' | 'motion',
+  TEffectComposer extends EffectComposerBank<CategoryToClipType<TCategory>>[string]
+> (effectCategory: TCategory, effectComposer: TEffectComposer) {
+  return effectComposer;
+}
+
+// function createCustomEffectComposerBank<TComposerBank extends {[key: string]: EffectComposerBank<EntranceClip>[string]}>(effectCategory: 'entrance', bank: TComposerBank): TComposerBank;
+// function createCustomEffectComposerBank<TComposerBank extends {[key: string]: EffectComposerBank<ExitClip>[string]}>(effectCategory: 'exit', bank: TComposerBank): TComposerBank;
+// function createCustomEffectComposerBank<TComposerBank extends {[key: string]: EffectComposerBank<EmphasisClip>[string]}>(effectCategory: 'emphasis', bank: TComposerBank): TComposerBank;
+// function createCustomEffectComposerBank<TComposerBank extends {[key: string]: EffectComposerBank<MotionClip>[string]}>(effectCategory: 'motion', bank: TComposerBank): TComposerBank;
+/**
+ * Allows the convenient creation of an object in the shape of an {@link EffectComposerBank} with full auto-completion for each entry.
+ * The resulting effect composer bank must be passed into {@link webchalk.createAnimationClipFactories} in order for its composers to be
+ * added to the preset effects registry.
+ * @param effectCategory - the category of the animation effects
+ * @param effectComposerBank - object where every key is an effect name and every value is an {@link EffectComposer}
+ * @returns - The same {@link effectComposerBank} object you passed into the function.
+ * 
+ * @remarks
+ * This function is purely for convenience. You could create {@link EffectComposerBank} or individual {@link EffectComposer}
+ * objects on your own without it, but there would be no autocompletion or hinting. Besides using this function,
+ * the other way to contstruct effect composers while still having access to Intellisense is to define them directly
+ * within the call to {@link webchalk.createAnimationClipFactories}.
+ * 
+ * @example
+ * <!-- EX:S id="createCustomEffectComposerBank" code-type="ts" -->
+ * ```ts
+ * // CREATE CUSTOM EFFECT COMPOSER BANKS
+ * 
+ * // bank with 2 effect composers for a "zoomIn" effect and a "fadeIn" effect
+ * const customEntrances = createCustomEffectComposerBank(
+ *   'entrance',
+ *   {
+ *     zoomIn: {
+ *       composeEffect(initialScale: number) {
+ *         // return ComposedEffect
+ *         return {
+ *           forwardKeyframesGenerator: () => {
+ *             // return Keyframes (Keyframe[])
+ *             return [
+ *               {scale: initialScale, opacity: 0},
+ *               {}
+ *             ];
+ *           },
+ *         };
+ *       }
+ *     },
+ * 
+ *     fadeIn: {
+ *       composeEffect() {
+ *         return {
+ *           forwardKeyframesGenerator: () => {
+ *             return [{opacity: 0}, {}];
+ *           }
+ *         };
+ *       },
+ *       defaultConfig: { duration: 1000, easing: 'ease-in' },
+ *     }
+ *   }
+ * );
+ * 
+ * // bank with 1 effect composer for a "flyOutLeft" effect
+ * const customExits = createCustomEffectComposerBank(
+ *   'exit',
+ *   {
+ *     flyOutLeft: {
+ *       composeEffect() {
+ *         const computeTranslationStr = () => {
+ *           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
+ *           const translationString = `${orthogonalDistance}px 0px`;
+ *           return translationString;
+ *         }
+ *   
+ *         // return ComposedEffect
+ *         return {
+ *           forwardKeyframesGenerator: () => {
+ *             // return Keyframes (Keyframe[])
+ *             return [
+ *               {translate: computeTranslationStr()}
+ *             ];
+ *           },
+ *         };
+ *       },
+ *       defaultConfig: {
+ *         duration: 1000,
+ *         easing: "ease-in",
+ *       },
+ *       immutableConfig: {
+ *         composite: 'accumulate',
+ *       },
+ *     }
+ *   }
+ * )
+ * 
+ * // CREATE CLIP FACTORIES AND PASS IN CUSTOM EFFECT COMPOSER BANKS
+ * const clipFactories = webchalk.createAnimationClipFactories({
+ *   customEntranceEffects: customEntrances,
+ *   customExitEffects: customExits,
+ * });
+ * 
+ * const square = document.querySelector('.square');
+ * 
+ * // your custom effects are now part of the presets (along with full Intellisense)
+ * const ent1 = clipFactories.Entrance(square, 'zoomIn', [0.1]);
+ * const ent2 = clipFactories.Entrance(square, 'fadeIn', []);
+ * const ext2 = clipFactories.Exit(square, 'flyOutLeft', []);
+ * ```
+ * <!-- EX:E id="createCustomEffectComposerBank" -->
+ * 
+ * @category Effect Composition
+ */
+export function createCustomEffectComposerBank<
+  TCategory extends 'entrance' | 'exit' | 'emphasis' | 'motion',
+  TComposerBank extends {[key: string]: EffectComposerBank<CategoryToClipType<TCategory>>[string]}
+  >(effectCategory: TCategory, effectComposerBank: TComposerBank) {
+  return effectComposerBank;
+}
