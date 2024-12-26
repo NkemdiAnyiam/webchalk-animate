@@ -70,7 +70,7 @@ async function overwrite() {
     const searchResultMeta: SearchResultMeta = {indexCache: 0, spaceLength: 0, id: '', codeType: 'standard'};
     let foundTargetText: string | null;
     const targetMatches: {targetId: string, spaceLength: number, codeType: CodeType}[] = [];
-    // for each special tag in the given file, store the found target text an the target tag id
+    // for each special tag in the given file, store the found target text and the target tag id
     while (true) {
       foundTargetText = readTextBetween(
         targetPath,
