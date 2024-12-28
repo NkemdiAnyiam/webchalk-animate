@@ -690,7 +690,7 @@ export class ScrollerClip<TEffectComposer extends EffectComposer<ScrollerClip, S
   get categoryDefaultConfig() {
     return {
       ...AnimClip.baseDefaultConfig,
-      commitsStyles: false,
+      commitsStyles: true,
       ...this.categoryImmutableConfig,
     } satisfies ScrollerClipConfig;
   }
