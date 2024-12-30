@@ -773,14 +773,16 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * **Overview**\
      * Whenever {@link EffectComposer.composeEffect | composeEffect} runs (how often it runs depends on
      * {@link EffectComposer.effectCompositionFrequency | effectCompositionFrequency}), it returns a new {@link ComposedEffect} containing
-     * callback functions—which can be referred to as "effect generators"—which the clip will use to generate the keyframes/mutators for the animation.
-     * Naturally, the generators have access to the closure created by the call to
-     * {@link EffectComposer.composeEffect | composeEffect}, which is useful for storing stateful data.\
+     * callback functions, which we can refer to as "effect generators". The clip will call these effect generators to generate the
+     * keyframes/mutators for the animation as soon as the animation needs to be executed.
+     * Naturally, the generators have access to the closure created by the call to {@link EffectComposer.composeEffect | composeEffect}
+     * (in other words, its scope), which is useful for storing stateful data and helper functions that you can
+     * use within the generators.\
      * For the sake of code clarity, it is recommended that you keep a final return statement at the bottom of
-     * {@link EffectComposer.composeEffect | composeEffect} (as opposed to several return statements scattered throughout).
+     * {@link EffectComposer.composeEffect | composeEffect} (as opposed to several possible return statements scattered throughout).
      * 
      * **Special `this`**\
-     * For both convenience and utility, using `this` inside a call to {@link EffectComposer.composedEffect | composedEffect}
+     * For both convenience and utility, using `this` inside the scope of {@link EffectComposer.composedEffect | composedEffect}
      * gives access to a subset of useful properties and methods of the clip.
      *  * {@link AnimClip.domElem}
      *  * {@link AnimClip.computeTween}
