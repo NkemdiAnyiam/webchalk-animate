@@ -302,12 +302,12 @@ export class AnimTimeline {
   /*-:*********************************        CONSTRUCTOR & INITIALIZERS        ***********************************************/
   /*-:**************************************************************************************************************************/
   /**@internal*/
-  static createInstance(config: Partial<AnimTimelineConfig> | AnimSequence = {}, ...animSequences: AnimSequence[]): AnimTimeline {
-    return new AnimTimeline(config, ...animSequences);
+  static createInstance(config: Partial<AnimTimelineConfig> | AnimSequence[] = {}, animSequences?: AnimSequence[]): AnimTimeline {
+    return new AnimTimeline(config, animSequences);
   }
 
   /**@internal*/
-  constructor(configOrSequence: Partial<AnimTimelineConfig>| AnimSequence = {}, ...animSequence: AnimSequence[]) {
+  constructor(configOrSequences: Partial<AnimTimelineConfig> | AnimSequence[] = {}, animSequences?: AnimSequence[]) {
     if (webchalk.timelineCreatorLock) {
       throw this.generateError(TypeError, `Illegal constructor. Timelines can only be instantiated using webchalk.newTimeline().`);
     }
@@ -315,13 +315,15 @@ export class AnimTimeline {
     
     this.id = AnimTimeline.id++;
 
-    // if first argument is not an AnimSequqence (and thus is presumably a configuration object),
-    // assign its values to this timeline's configuration object
-    if (!(configOrSequence instanceof AnimSequence)) {
-      Object.assign<AnimTimelineConfig, Partial<AnimTimelineConfig>>(this.config, configOrSequence);
+    // If first argument is an AnimSequence[], add sequences to timeline.
+    // Else, it must be a configuration object. Assign its values to this timeline's configuration object
+    if (configOrSequences instanceof Array) {
+      this.addSequences(configOrSequences);
     }
-
-    this.addSequences(...(configOrSequence instanceof AnimSequence ? [configOrSequence, ...animSequence] : animSequence));
+    else {
+      Object.assign<AnimTimelineConfig, Partial<AnimTimelineConfig>>(this.config, configOrSequences);
+      this.addSequences(animSequences ?? [])
+    }
 
     if (this.config.autoLinksButtons) {
       this.linkPlaybackButtons();
@@ -561,12 +563,12 @@ export class AnimTimeline {
   /*-:*************************************        STRUCTURE        ****************************************************/
   /*-:**************************************************************************************************************************/
   /**
-   * Adds one or more {@link AnimSequence} objects to the end of the timeline.
-   * @param animSequences - comma-separated list of animation sequences
+   * Adds {@link AnimSequence} objects to the end of the timeline.
+   * @param animSequences - array of animation sequences to add
    * @returns 
    * @group Structure
    */
-  addSequences(...animSequences: AnimSequence[]): this {
+  addSequences(animSequences: AnimSequence[]): this {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.addSequences.name); }
 
     for(const animSequence of animSequences) {
@@ -591,13 +593,13 @@ export class AnimTimeline {
   }
 
   /**
-   * Adds one or more {@link AnimSequence} objects to the specified index of the sequence.
+   * Adds {@link AnimSequence} objects to the specified index of the sequence.
    * @param index - the index at which the sequences should be inserted
-   * @param animSequences - comma-separated list of animation sequences
+   * @param animSequences - array of animation sequences to add
    * @returns 
    * @group Structure
    */
-  addSequencesAt(index: number, ...animSequences: AnimSequence[]): this {
+  addSequencesAt(index: number, animSequences: AnimSequence[]): this {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.addSequencesAt.name); }
     if (index <= this.loadedSeqIndex - 1) {
       throw this.generateError(
@@ -635,12 +637,12 @@ export class AnimTimeline {
   }
 
   /**
-   * Removes one or more {@link AnimSequence} objects from the timeline.
-   * @param animSequences - comma-separated list of animation sequences
+   * Removes specified {@link AnimSequence} objects from the timeline.
+   * @param animSequences - array of animation sequences to remove
    * @returns 
    * @group Structure
    */
-  removeSequences(...animSequences: AnimSequence[]): this {
+  removeSequences(animSequences: AnimSequence[]): this {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeSequences.name); }
 
     for (const animSequence of animSequences) {
@@ -696,8 +698,8 @@ export class AnimTimeline {
       );
     }
 
-    const removalList = this.animSequences.splice(startIndex, endIndex - startIndex);
-    for (const sequence of removalList) {
+    const removalArray = this.animSequences.splice(startIndex, endIndex - startIndex);
+    for (const sequence of removalArray) {
       sequence.removeLineage();
     }
 
@@ -705,7 +707,7 @@ export class AnimTimeline {
       this.playbackButtons.forwardButton?.classList.add(DISABLED_FROM_EDGE);
     }
 
-    return removalList;
+    return removalArray;
   }
 
   /**
@@ -917,28 +919,36 @@ export class AnimTimeline {
    * const square = document.querySelector('.square');
    * 
    * const tLine = webchalk.newTimeline(
-   *   webchalk.newSequence(
-   *     {jumpTag: 'flickering'},
-   *     Entrance(square, '~appear', [], {endDelay: 500}),
-   *     Exit(square, '~disappear', [], {endDelay: 500}),
-   *     Entrance(square, '~appear', [], {endDelay: 500}),
-   *     Exit(square, '~disappear', [], {endDelay: 500}),
-   *     Entrance(square, '~appear', [], {endDelay: 500}),
-   *     Exit(square, '~disappear', [], {endDelay: 500}),
-   *   ),
+   *   [
+   *     webchalk.newSequence(
+   *       {jumpTag: 'flickering'},
+   *       [
+   *         Entrance(square, '~appear', [], {endDelay: 500}),
+   *         Exit(square, '~disappear', [], {endDelay: 500}),
+   *         Entrance(square, '~appear', [], {endDelay: 500}),
+   *         Exit(square, '~disappear', [], {endDelay: 500}),
+   *         Entrance(square, '~appear', [], {endDelay: 500}),
+   *         Exit(square, '~disappear', [], {endDelay: 500}),
+   *       ]
+   *     ),
    * 
-   *   webchalk.newSequence(
-   *     {jumpTag: 'move around'},
-   *     Motion(square, '~translate', [{translate: '200px 0px'}]),
-   *     Motion(square, '~translate', [{translate: '0px 200px'}]),
-   *     Motion(square, '~translate', [{translate: '-200px 0px'}]),
-   *     Motion(square, '~translate', [{translate: '0px -200px'}]),
-   *   ),
+   *     webchalk.newSequence(
+   *       {jumpTag: 'move around'},
+   *       [
+   *         Motion(square, '~translate', [{translate: '200px 0px'}]),
+   *         Motion(square, '~translate', [{translate: '0px 200px'}]),
+   *         Motion(square, '~translate', [{translate: '-200px 0px'}]),
+   *         Motion(square, '~translate', [{translate: '0px -200px'}]),
+   *       ]
+   *     ),
    * 
-   *   webchalk.newSequence(
-   *     {jumpTag: 'go away', autoplays: true},
-   *     Exit(square, '~pinwheel', []),
-   *   )
+   *     webchalk.newSequence(
+   *       {jumpTag: 'go away', autoplays: true},
+   *       [
+   *         Exit(square, '~pinwheel', []),
+   *       ]
+   *     ),
+   *   ]
    * );
    * 
    * // Promise-based timer

@@ -398,13 +398,13 @@ export class AnimSequence {
   /*-:*********************************        CONSTRUCTOR & INITIALIZERS        ***********************************************/
   /*-:**************************************************************************************************************************/
   /**@internal*/
-  static createInstance(config: Partial<AnimSequenceConfig> | AnimClip = {}, ...animClips: AnimClip[]): AnimSequence {
-    return new AnimSequence(config, ...animClips);
+  static createInstance(config: Partial<AnimSequenceConfig> | AnimClip[] = {}, animClips?: AnimClip[]): AnimSequence {
+    return new AnimSequence(config, animClips);
   }
 
   // constructor(config: Partial<AnimSequenceConfig>, ...animClips: AnimClip[]);
   // constructor(...animClips: AnimClip[]);
-  constructor(configOrClips: Partial<AnimSequenceConfig> | AnimClip = {}, ...animClips: AnimClip[]) {
+  constructor(configOrClips: Partial<AnimSequenceConfig> | AnimClip[], animClips?: AnimClip[]) {
     if (webchalk.sequenceCreatorLock) {
       throw this.generateError(TypeError, `Illegal constructor. Sequences can only be instantiated using webchalk.newSequence().`);
     }
@@ -412,13 +412,15 @@ export class AnimSequence {
     
     this.id = AnimSequence.id++;
 
-    // if first argument is not an AnimClip (and thus is presumably a configuration object),
-    // assign its values to this sequence's configuration object
-    if (!(configOrClips instanceof AnimClip)) {
-      Object.assign<AnimSequenceConfig, Partial<AnimSequenceConfig>>(this.config, configOrClips);
+    // If first argument is an AnimClip[], add clips to sequence.
+    // Else, it must be a configuration object. Assign its values to this sequence's configuration object
+    if (configOrClips instanceof Array) {
+      this.addClips(configOrClips);
     }
-    
-    this.addClips(...(configOrClips instanceof AnimClip ? [configOrClips, ...animClips] : animClips));
+    else {
+      Object.assign<AnimSequenceConfig, Partial<AnimSequenceConfig>>(this.config, configOrClips);
+      this.addClips(animClips ?? []);
+    }
   }
   
   /*-:**************************************************************************************************************************/
@@ -447,12 +449,12 @@ export class AnimSequence {
   }
 
   /**
-   * Adds one or more {@link AnimClip} objects to the end of the sequence.
-   * @param animClips - comma-separated list of animation clips
+   * Adds {@link AnimClip} objects to the end of the sequence.
+   * @param animClips - array of animation clips to add
    * @returns 
    * @group Structure
    */
-  addClips(...animClips: AnimClip[]): this {
+  addClips(animClips: AnimClip[]): this {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.addClips.name); }
 
     for (const animClip of animClips) {
@@ -471,13 +473,13 @@ export class AnimSequence {
 
   // TODO: prevent play() and rewind() when sequence contains undefined entries (I don't think this will ever happen?)
   /**
-   * Adds one or more {@link AnimClip} objects to the specified index of the sequence.
+   * Adds {@link AnimClip} objects to the specified index of the sequence.
    * @param index - the index at which the clips should be inserted
-   * @param animClips - comma-separated list of animation clips
+   * @param animClips - array of animation clips to add
    * @returns 
    * @group Structure
    */
-  addClipsAt(index: number, ...animClips: AnimClip[]): this {
+  addClipsAt(index: number, animClips: AnimClip[]): this {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.addClipsAt.name); }
 
     for (const animClip of animClips) {
@@ -495,12 +497,12 @@ export class AnimSequence {
   }
 
   /**
-   * Removes one or more {@link AnimClip} objects from the sequence.
-   * @param animClips - comma-separated list of animation clips
+   * Removes specified {@link AnimClip} objects from the sequence.
+   * @param animClips - array of animation clips to remove
    * @returns 
    * @group Structure
    */
-  removeClips(...animClips: AnimClip[]): this {
+  removeClips(animClips: AnimClip[]): this {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeClips.name); }
 
     for (const animClip of animClips) {
@@ -526,9 +528,9 @@ export class AnimSequence {
   removeClipsAt(startIndex: number, endIndex: number = startIndex + 1): AnimClip[] {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeClipsAt.name); }
 
-    const removalList = this.animClips.splice(startIndex, endIndex - startIndex);
-    for (const clip of removalList) { clip.removeLineage(); }
-    return removalList;
+    const removalArray = this.animClips.splice(startIndex, endIndex - startIndex);
+    for (const clip of removalArray) { clip.removeLineage(); }
+    return removalArray;
   }
 
   /**

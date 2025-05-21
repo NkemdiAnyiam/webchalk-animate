@@ -196,7 +196,7 @@ This is where the next playback structure—`AnimSequence`—comes in.
 
 An **"animation sequence"** is a number of animations that occur one after another in a particular order. In WebChalk, animation clips can be placed into sequences, which are their _own_ fully-fledged playback structures.
 
-To create an animation sequence, use <!--MD-S id="usage__create-sequence" code-type="inline-code" MD-G-->`webchalk.newSequence()`<!--MD-E-->. Without any arguments, the method just creates an empty sequence without any animation clips. You can add clips to the sequence upon its creation by passing a list of clips as arguments, or you can use <!--MD-S id="usage__add-clips" code-type="inline-code" MD-G-->`AnimSequence.prototype.addClips()`<!--MD-E-->:
+To create an animation sequence, use <!--MD-S id="usage__create-sequence" code-type="inline-code" MD-G-->`webchalk.newSequence()`<!--MD-E-->. Without any arguments, the method just creates an empty sequence without any animation clips. You can add clips to the sequence upon its creation by passing an array of clips as an argument, or you can use <!--MD-S id="usage__add-clips" code-type="inline-code" MD-G-->`AnimSequence.prototype.addClips([])`<!--MD-E-->:
 
 <!--MD-S id="usage__create-sequence-clips" code-type="ts"-->
 ```ts
@@ -217,23 +217,25 @@ const seq = webchalk.newSequence(
   // optional configuration object
   {playbackRate: 2, description: 'Enter all the shapes'},
   // 4 animation clips
-  enterSquare,
-  enterCircle,
-  Entrance(triEl, '~fly-in', ['from-bottom-left']),
-  Entrance(document.querySelector('.pentagon'), '~appear', []),
+  [
+    enterSquare,
+    enterCircle,
+    Entrance(triEl, '~fly-in', ['from-bottom-left']),
+    Entrance(document.querySelector('.pentagon'), '~appear', []),
+  ]
 );
 
 // add more clips to the sequence
-seq.addClips(
+seq.addClips([
   Motion(circEl, '~move-to', [sqrEl]),
   Exit(sqrEl, '~fade-out', []),
-);
+]);
 
 seq.play().then(() => seq.rewind());
 ```
 <!--MD-E id="usage__create-sequence-clips"-->
 
-In the example above, a new sequence is created with <!--MD-S id="usage__create-sequence" code-type="inline-code" MD-G-->`webchalk.newSequence()`<!--MD-E -->. However, the first object passed to it is not an animation clip. You are actually allowed to pass a set of configuration options as the first argument to <!--MD-S id="usage__create-sequence" code-type="inline-code" MD-G-->`webchalk.newSequence()`<!--MD-E--> and _then_ a list of clips (but if you do not want to set any configuration, you can just pass the list of clips only). Either way, the sequence contains four animation clips. Afterwards, two more clips are added to the sequence (for a total of six) using <!--MD-S id="usage__add-clips" code-type="inline-code" MD-G-->`AnimSequence.prototype.addClips()`<!--MD-E-->. Finally, the sequence is played and rewound. When playing, the animation clips will be played in order, each one starting _only_ after the previous one has finished. When rewinding, the clips are rewound in reverse order.
+In the example above, a new sequence is created with <!--MD-S id="usage__create-sequence" code-type="inline-code" MD-G-->`webchalk.newSequence()`<!--MD-E -->. However, the first object passed to it is not an array of clips. You are actually allowed to pass a set of configuration options as the first argument to <!--MD-S id="usage__create-sequence" code-type="inline-code" MD-G-->`webchalk.newSequence()`<!--MD-E--> and _then_ an array of clips (but if you do not want to set any configuration, you can just pass the array of clips only). Either way, the sequence contains four animation clips. Afterwards, two more clips are added to the sequence (for a total of six) using <!--MD-S id="usage__add-clips" code-type="inline-code" MD-G-->`AnimSequence.prototype.addClips([])`<!--MD-E-->. Finally, the sequence is played and rewound. When playing, the animation clips will be played in order, each one starting _only_ after the previous one has finished. When rewinding, the clips are rewound in reverse order.
 
 #### Changing Sequential Timing of Clips
 
@@ -246,16 +248,18 @@ const seq = webchalk.newSequence(
   // optional configuration object
   {description: 'No one likes Pentagon!'},
   // 6 animation clips
-  /** A */
-  Entrance(sqrEl, '~fade-in', []), // A + 0ms
-  Entrance(circEl, '~fade-in', [], {startsWithPrevious: true}), // A + 0ms
-  Entrance(triEl, '~fade-in', [], {startsWithPrevious: true}), // A + 0ms
-  /** B */
-  Entrance(pentaEl, '~fly-in', ['from-left']), // B + 0ms
-  /** C */
-  Exit(circEl, '~fade-out', [], {startsNextClipToo: true}), // C + 0ms
-  Exit(sqrEl, '~fade-out', [], {delay: 150, endDelay: 2}), // C + 150ms
-  Exit(triEl, '~fade-out', [], {delay: 300, startsWithPrevious: true}), // C + 452ms (NOT C + 300ms!!!)
+  [
+    /** A */
+    Entrance(sqrEl, '~fade-in', []), // A + 0ms
+    Entrance(circEl, '~fade-in', [], {startsWithPrevious: true}), // A + 0ms
+    Entrance(triEl, '~fade-in', [], {startsWithPrevious: true}), // A + 0ms
+    /** B */
+    Entrance(pentaEl, '~fly-in', ['from-left']), // B + 0ms
+    /** C */
+    Exit(circEl, '~fade-out', [], {startsNextClipToo: true}), // C + 0ms
+    Exit(sqrEl, '~fade-out', [], {delay: 150, endDelay: 2}), // C + 150ms
+    Exit(triEl, '~fade-out', [], {delay: 300, startsWithPrevious: true}), // C + 452ms (NOT C + 300ms!!!)
+  ]
 );
 
 seq.play().then(() => seq.rewind());
@@ -287,18 +291,20 @@ const circEl = document.querySelector('.circle');
 // create sequences
 const seq1 = webchalk.newSequence(
   {jumpTag: 'ABC'},
-  Entrance(sqrEl, '~fade-in', []),
-  Entrance(circEl, '~fade-in', []),
+  [
+    Entrance(sqrEl, '~fade-in', []),
+    Entrance(circEl, '~fade-in', []),
+  ]
 );
 
-const seq2 = webchalk.newSequence(
+const seq2 = webchalk.newSequence([
   Motion(sqrEl, '~move-to', [circEl]),
   Exit(circEl, '~sink-down', [], {startsWithPrevious: true}),
-);
+]);
 
 const seq3 = webchalk.newSequence(
   {autoplays: true},
-  Exit(circEl, '~fade-out', []),
+  [Exit(circEl, '~fade-out', [])]
 );
 
 // create new timeline
@@ -306,9 +312,11 @@ const tLine = webchalk.newTimeline(
   // optional config object
   {debugMode: true, timelineName: 'Basics'},
   // 3 sequences
-  seq1,
-  seq2,
-  seq3,
+  [
+    seq1,
+    seq2,
+    seq3,
+  ]
 );
 
 // first step() plays seq1

@@ -12,9 +12,11 @@ const squareEl = document.querySelector(".square");
 // create sequence with some configuration options and some animation clips
 const seq = webchalk.newSequence(
   { description: "Fade in square, move it, and fade out", playbackRate: 2 },
-  clipFactories.Entrance(squareEl, "~fade-in", []),
-  clipFactories.Motion(squareEl, "~translate", [{ translate: "200px 500px" }]),
-  clipFactories.Exit(squareEl, "~fade-out", [])
+  [
+    clipFactories.Entrance(squareEl, "~fade-in", []),
+    clipFactories.Motion(squareEl, "~translate", [{ translate: "200px 500px" }]),
+    clipFactories.Exit(squareEl, "~fade-out", []),
+  ]
 );
 // play sequence
 seq.play();
@@ -30,9 +32,11 @@ const squareEl = document.querySelector('.square');
 
 const seq = webchalk.newSequence(
   {description: 'Fade in square, move it, and fade out', playbackRate: 2},
-  Entrance(squareEl, '~fade-in', []),
-  Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
-  Exit(squareEl, '~fade-out', []),
+  [
+    Entrance(squareEl, '~fade-in', []),
+    Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
+    Exit(squareEl, '~fade-out', []),
+  ]
 );
 seq.play();
 /**** EX:E id="WebChalk.newSequence-1.2" */
@@ -47,9 +51,11 @@ const squareEl = document.querySelector('.square');
 
 // create sequence with some animation clips
 const seq = webchalk.newSequence(
-   clipFactories.Entrance(squareEl, '~fade-in', []),
-   clipFactories.Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
-   clipFactories.Exit(squareEl, '~fade-out', []),
+  [
+    clipFactories.Entrance(squareEl, '~fade-in', []),
+    clipFactories.Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
+    clipFactories.Exit(squareEl, '~fade-out', []),
+  ]
 );
 // play sequence
 seq.play();
@@ -64,9 +70,11 @@ const {Entrance, Exit, Motion} = webchalk.createAnimationClipFactories();
 const squareEl = document.querySelector('.square');
 
 const seq = webchalk.newSequence(
-   Entrance(squareEl, '~fade-in', []),
-   Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
-   Exit(squareEl, '~fade-out', []),
+  [
+    Entrance(squareEl, '~fade-in', []),
+    Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
+    Exit(squareEl, '~fade-out', []),
+  ]
 );
 seq.play();
 /**** EX:E id="WebChalk.newSequence-2.2" */
@@ -83,23 +91,26 @@ const circleEl = document.querySelector('.circle');
 // create first sequence
 const seq1 = webchalk.newSequence(
    {description: 'Fade in square, move it, and fade out', playbackRate: 2},
-   Entrance(squareEl, '~fade-in', []),
-   Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
-   Exit(squareEl, '~fade-out', []),
+   [
+     Entrance(squareEl, '~fade-in', []),
+     Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
+     Exit(squareEl, '~fade-out', []),
+   ]
 );
 
 // create second sequence
 const seq2 = webchalk.newSequence(
    {description: 'Fade in circle and move it'},
-   Entrance(circleEl, '~fly-in', ['from-left']),
-   Motion(circleEl, '~translate', [{translate: '250px 0px'}]),
+   [
+     Entrance(circleEl, '~fly-in', ['from-left']),
+     Motion(circleEl, '~translate', [{translate: '250px 0px'}]),
+   ]
 );
 
 // create timeline with some configuration and both sequences
 const timeline = webchalk.newTimeline(
    {timelineName: 'Moving Shapes', autoLinksButtons: true},
-   seq1,
-   seq2,
+   [seq1, seq2]
 );
 
 // step forward twice, playing both sequences
@@ -119,22 +130,25 @@ const circleEl = document.querySelector('.circle');
 // create first sequence
 const seq1 = webchalk.newSequence(
   {description: 'Fade in square, move it, and fade out', playbackRate: 2},
-  Entrance(squareEl, '~fade-in', []),
-  Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
-  Exit(squareEl, '~fade-out', []),
+  [
+    Entrance(squareEl, '~fade-in', []),
+    Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
+    Exit(squareEl, '~fade-out', []),
+  ]
 );
 
 // create second sequence
 const seq2 = webchalk.newSequence(
   {description: 'Fade in circle and move it'},
-  Entrance(circleEl, '~fly-in', ['from-left']),
-  Motion(circleEl, '~translate', [{translate: '250px 0px'}]),
+  [
+    Entrance(circleEl, '~fly-in', ['from-left']),
+    Motion(circleEl, '~translate', [{translate: '250px 0px'}]),
+  ]
 );
 
 // create timeline with both sequences
 const timeline = webchalk.newTimeline(
-   seq1,
-   seq2,
+  [seq1, seq2]
 );
 /**** EX:E id="WebChalk.newTimeline-2" */
 }
@@ -158,7 +172,7 @@ const ent = Entrance(square, '~fly-in', ['from-top'], {duration: 2000});
 const mot1 = Motion(square, '~translate', [{translate: '500px 0px'}], {duration: 1000});
 const mot2 = Motion(square, '~translate', [{translate: '0px 500px'}], {duration: 500});
 // clips are added to a sequence
-const seq = webchalk.newSequence(ent, mot1, mot2);
+const seq = webchalk.newSequence([ent, mot1, mot2]);
 seq.play();
 /**** EX:E id="WebChalk.createAnimationClipFactories-1.2" */
 }
@@ -698,28 +712,36 @@ const {Entrance, Motion, Exit} = webchalk.createAnimationClipFactories();
 const square = document.querySelector('.square');
 
 const tLine = webchalk.newTimeline(
-  webchalk.newSequence(
-    {jumpTag: 'flickering'},
-    Entrance(square, '~appear', [], {endDelay: 500}),
-    Exit(square, '~disappear', [], {endDelay: 500}),
-    Entrance(square, '~appear', [], {endDelay: 500}),
-    Exit(square, '~disappear', [], {endDelay: 500}),
-    Entrance(square, '~appear', [], {endDelay: 500}),
-    Exit(square, '~disappear', [], {endDelay: 500}),
-  ),
+  [
+    webchalk.newSequence(
+      {jumpTag: 'flickering'},
+      [
+        Entrance(square, '~appear', [], {endDelay: 500}),
+        Exit(square, '~disappear', [], {endDelay: 500}),
+        Entrance(square, '~appear', [], {endDelay: 500}),
+        Exit(square, '~disappear', [], {endDelay: 500}),
+        Entrance(square, '~appear', [], {endDelay: 500}),
+        Exit(square, '~disappear', [], {endDelay: 500}),
+      ]
+    ),
 
-  webchalk.newSequence(
-    {jumpTag: 'move around'},
-    Motion(square, '~translate', [{translate: '200px 0px'}]),
-    Motion(square, '~translate', [{translate: '0px 200px'}]),
-    Motion(square, '~translate', [{translate: '-200px 0px'}]),
-    Motion(square, '~translate', [{translate: '0px -200px'}]),
-  ),
+    webchalk.newSequence(
+      {jumpTag: 'move around'},
+      [
+        Motion(square, '~translate', [{translate: '200px 0px'}]),
+        Motion(square, '~translate', [{translate: '0px 200px'}]),
+        Motion(square, '~translate', [{translate: '-200px 0px'}]),
+        Motion(square, '~translate', [{translate: '0px -200px'}]),
+      ]
+    ),
 
-  webchalk.newSequence(
-    {jumpTag: 'go away', autoplays: true},
-    Exit(square, '~pinwheel', []),
-  )
+    webchalk.newSequence(
+      {jumpTag: 'go away', autoplays: true},
+      [
+        Exit(square, '~pinwheel', []),
+      ]
+    ),
+  ]
 );
 
 // Promise-based timer

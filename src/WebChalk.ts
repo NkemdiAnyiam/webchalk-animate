@@ -25,9 +25,9 @@ export class WebChalk {
 
   /**
    * Creates a new {@link AnimSequence} with configuration options specified in the {@link config} parameter
-   * followed by an optional list of animation clips.
+   * followed by an optional array of animation clips.
    * @param config - configuration options for the sequence
-   * @param animClips - optional comma-separated list of {@link AnimClip}s to add to the sequence
+   * @param animClips - array of {@link AnimClip}s to add to the sequence
    * @returns A new {@link AnimSequence} instance.
    * 
    * @example
@@ -41,9 +41,11 @@ export class WebChalk {
    * // create sequence with some configuration options and some animation clips
    * const seq = webchalk.newSequence(
    *   { description: "Fade in square, move it, and fade out", playbackRate: 2 },
-   *   clipFactories.Entrance(squareEl, "~fade-in", []),
-   *   clipFactories.Motion(squareEl, "~translate", [{ translate: "200px 500px" }]),
-   *   clipFactories.Exit(squareEl, "~fade-out", [])
+   *   [
+   *     clipFactories.Entrance(squareEl, "~fade-in", []),
+   *     clipFactories.Motion(squareEl, "~translate", [{ translate: "200px 500px" }]),
+   *     clipFactories.Exit(squareEl, "~fade-out", []),
+   *   ]
    * );
    * // play sequence
    * seq.play();
@@ -60,18 +62,20 @@ export class WebChalk {
    * 
    * const seq = webchalk.newSequence(
    *   {description: 'Fade in square, move it, and fade out', playbackRate: 2},
-   *   Entrance(squareEl, '~fade-in', []),
-   *   Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
-   *   Exit(squareEl, '~fade-out', []),
+   *   [
+   *     Entrance(squareEl, '~fade-in', []),
+   *     Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
+   *     Exit(squareEl, '~fade-out', []),
+   *   ]
    * );
    * seq.play();
    * ```
    * <!-- EX:E id="WebChalk.newSequence-1.2" -->
    */
-  newSequence(config: Partial<AnimSequenceConfig>, ...animClips: AnimClip[]): AnimSequence;
+  newSequence(config: Partial<AnimSequenceConfig>, animClips?: AnimClip[]): AnimSequence;
   /**
-   * Creates a new {@link AnimSequence} instance with an optional list of animation clips.
-   * @param animClips - optional comma-separated list of {@link AnimClip}s to add to the sequence
+   * Creates a new {@link AnimSequence} instance with an optional array of animation clips.
+   * @param animClips - array of {@link AnimClip}s to add to the sequence
    * @returns A new {@link AnimSequence} instance.
    * 
    * @example
@@ -84,9 +88,11 @@ export class WebChalk {
    * 
    * // create sequence with some animation clips
    * const seq = webchalk.newSequence(
-   *    clipFactories.Entrance(squareEl, '~fade-in', []),
-   *    clipFactories.Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
-   *    clipFactories.Exit(squareEl, '~fade-out', []),
+   *   [
+   *     clipFactories.Entrance(squareEl, '~fade-in', []),
+   *     clipFactories.Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
+   *     clipFactories.Exit(squareEl, '~fade-out', []),
+   *   ]
    * );
    * // play sequence
    * seq.play();
@@ -102,26 +108,28 @@ export class WebChalk {
    * const squareEl = document.querySelector('.square');
    * 
    * const seq = webchalk.newSequence(
-   *    Entrance(squareEl, '~fade-in', []),
-   *    Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
-   *    Exit(squareEl, '~fade-out', []),
+   *   [
+   *     Entrance(squareEl, '~fade-in', []),
+   *     Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
+   *     Exit(squareEl, '~fade-out', []),
+   *   ]
    * );
    * seq.play();
    * ```
    * <!-- EX:E id="WebChalk.newSequence-2.2" -->
    */
-  newSequence(...animClips: AnimClip[]): AnimSequence;
-  newSequence(config: Partial<AnimSequenceConfig> | AnimClip = {}, ...animClips: AnimClip[]): AnimSequence {
+  newSequence(animClips?: AnimClip[]): AnimSequence;
+  newSequence(config: Partial<AnimSequenceConfig> | AnimClip[] = {}, animClips?: AnimClip[]): AnimSequence {
     this.sequenceCreatorLock = false;
-    const sequence = new AnimSequence(config, ...animClips);
+    const sequence = new AnimSequence(config, animClips);
     return sequence;
   }
 
   /**
    * Creates a new {@link AnimTimeline} with configuration options specified in the {@link config} parameter
-   * followed by an optional list of animation sequences.
+   * followed by an optional array of animation sequences.
    * @param config - configuration options for the timeline
-   * @param animSequences - optional comma-separated list of {@link AnimSequence}s to add to the timeline
+   * @param animSequences - array of {@link AnimSequence}s to add to the timeline
    * @returns A new {@link AnimTimeline} instance.
    * 
    * @example
@@ -136,23 +144,26 @@ export class WebChalk {
    * // create first sequence
    * const seq1 = webchalk.newSequence(
    *    {description: 'Fade in square, move it, and fade out', playbackRate: 2},
-   *    Entrance(squareEl, '~fade-in', []),
-   *    Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
-   *    Exit(squareEl, '~fade-out', []),
+   *    [
+   *      Entrance(squareEl, '~fade-in', []),
+   *      Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
+   *      Exit(squareEl, '~fade-out', []),
+   *    ]
    * );
    * 
    * // create second sequence
    * const seq2 = webchalk.newSequence(
    *    {description: 'Fade in circle and move it'},
-   *    Entrance(circleEl, '~fly-in', ['from-left']),
-   *    Motion(circleEl, '~translate', [{translate: '250px 0px'}]),
+   *    [
+   *      Entrance(circleEl, '~fly-in', ['from-left']),
+   *      Motion(circleEl, '~translate', [{translate: '250px 0px'}]),
+   *    ]
    * );
    * 
    * // create timeline with some configuration and both sequences
    * const timeline = webchalk.newTimeline(
    *    {timelineName: 'Moving Shapes', autoLinksButtons: true},
-   *    seq1,
-   *    seq2,
+   *    [seq1, seq2]
    * );
    * 
    * // step forward twice, playing both sequences
@@ -161,10 +172,10 @@ export class WebChalk {
    * ```
    * <!-- EX:E id="WebChalk.newTimeline-1" -->
    */
-  newTimeline(config: Partial<AnimTimelineConfig>, ...animSequences: AnimSequence[]): AnimTimeline;
+  newTimeline(config: Partial<AnimTimelineConfig> | AnimSequence[], animSequences?: AnimSequence[]): AnimTimeline;
   /**
-   * Creates a new {@link AnimTimeline} with with an optional list of animation sequences.
-   * @param animSequences - optional comma-separated list of {@link AnimSequence}s to add to the timeline
+   * Creates a new {@link AnimTimeline} with with an optional array of animation sequences.
+   * @param animSequences - optional array of {@link AnimSequence}s to add to the timeline
    * @returns A new {@link AnimTimeline} instance.
    * 
    * @example
@@ -179,30 +190,33 @@ export class WebChalk {
    * // create first sequence
    * const seq1 = webchalk.newSequence(
    *   {description: 'Fade in square, move it, and fade out', playbackRate: 2},
-   *   Entrance(squareEl, '~fade-in', []),
-   *   Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
-   *   Exit(squareEl, '~fade-out', []),
+   *   [
+   *     Entrance(squareEl, '~fade-in', []),
+   *     Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
+   *     Exit(squareEl, '~fade-out', []),
+   *   ]
    * );
    * 
    * // create second sequence
    * const seq2 = webchalk.newSequence(
    *   {description: 'Fade in circle and move it'},
-   *   Entrance(circleEl, '~fly-in', ['from-left']),
-   *   Motion(circleEl, '~translate', [{translate: '250px 0px'}]),
+   *   [
+   *     Entrance(circleEl, '~fly-in', ['from-left']),
+   *     Motion(circleEl, '~translate', [{translate: '250px 0px'}]),
+   *   ]
    * );
    * 
    * // create timeline with both sequences
    * const timeline = webchalk.newTimeline(
-   *    seq1,
-   *    seq2,
+   *   [seq1, seq2]
    * );
    * ```
    * <!-- EX:E id="WebChalk.newTimeline-2" -->
    */
-  newTimeline(...animSequences: AnimSequence[]): AnimTimeline;
-  newTimeline(config: Partial<AnimTimelineConfig> | AnimSequence = {}, ...animSequences: AnimSequence[]): AnimTimeline {
+  newTimeline(animSequences?: AnimSequence[]): AnimTimeline;
+  newTimeline(config: Partial<AnimTimelineConfig> | AnimSequence[] = {}, animSequences?: AnimSequence[]): AnimTimeline {
     this.timelineCreatorLock = false;
-    const timeline = new AnimTimeline(config, ...animSequences);
+    const timeline = new AnimTimeline(config, animSequences);
     return timeline;
   }
 
@@ -242,7 +256,7 @@ export class WebChalk {
    * const mot1 = Motion(square, '~translate', [{translate: '500px 0px'}], {duration: 1000});
    * const mot2 = Motion(square, '~translate', [{translate: '0px 500px'}], {duration: 500});
    * // clips are added to a sequence
-   * const seq = webchalk.newSequence(ent, mot1, mot2);
+   * const seq = webchalk.newSequence([ent, mot1, mot2]);
    * seq.play();
    * ```
    * <!-- EX:E id="WebChalk.createAnimationClipFactories-1.2" -->

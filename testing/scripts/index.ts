@@ -456,18 +456,20 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   // console.log('HELLO WORLD')
 
   const seq = webchalk.newSequence(
-    entrance,
-    // Transition(square, '~from', [{opacity: '0', backgroundColor: 'red', width: '0'}], {duration: 2000}),
-    // Transition(square, '~to', [{width: '20rem'}], {}),
-    // Transition(square, '~to', [{width: '10rem'}], {removeInlineStylesOnFinish: true}),
-    motion,
-    Motion(square, '~translate', [{translate: '0 200px'}], {duration: 250}),
-    Emphasis(square, '~highlight', [], {}),
-    Emphasis(square, '~un-highlight', [], {}),
-    Emphasis(square, '~highlight', ['purple'], {}),
-    Emphasis(square, '~un-highlight', [], {}),
-    ConnectorSetter(document.querySelector('.connector--2'), [square, 'left', 'top'], [square, 'right', 'bottom']),
-    ConnectorEntrance(document.querySelector('.connector--2'), '~trace', ['from-A']),
+    [
+      entrance,
+      // Transition(square, '~from', [{opacity: '0', backgroundColor: 'red', width: '0'}], {duration: 2000}),
+      // Transition(square, '~to', [{width: '20rem'}], {}),
+      // Transition(square, '~to', [{width: '10rem'}], {removeInlineStylesOnFinish: true}),
+      motion,
+      Motion(square, '~translate', [{translate: '0 200px'}], {duration: 250}),
+      Emphasis(square, '~highlight', [], {}),
+      Emphasis(square, '~un-highlight', [], {}),
+      Emphasis(square, '~highlight', ['purple'], {}),
+      Emphasis(square, '~un-highlight', [], {}),
+      ConnectorSetter(document.querySelector('.connector--2'), [square, 'left', 'top'], [square, 'right', 'bottom']),
+      ConnectorEntrance(document.querySelector('.connector--2'), '~trace', ['from-A']),
+    ]
   );
   
 
@@ -491,13 +493,23 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   const timeline = webchalk.newTimeline({timelineName: 'Basic', autoLinksButtons: false, debugMode: true});
   timeline.linkPlaybackButtons();
   // await wait(1000);
-  timeline.addSequences(seq);
-  timeline.addSequences(webchalk.newSequence(
-    Exit(square, 'fade-out-red', [], {duration: 1000}),
-    Entrance(square, 'riseUp', [], {duration: 1000, delay: 500}),
-    Exit(square, 'flyOutLeft', [], {duration: 2000}),
-    Entrance(square, '~appear', [], {delay: 500})
-  ))
+  timeline.addSequences(
+    [
+      seq,
+
+      // webchalk.newSequence([
+      //   Motion(circle, '~move-to', [square, {alignment: 'center center'}]),
+      //   Motion(square, '~move-to', [circle, {alignment: 'center center'}], {startsWithPrevious: true, delay: 500}),
+      // ]),
+
+      webchalk.newSequence([
+        Exit(square, 'fade-out-red', [], {duration: 1000}),
+        Entrance(square, 'riseUp', [], {duration: 1000, delay: 500}),
+        Exit(square, 'flyOutLeft', [], {duration: 2000}),
+        Entrance(square, '~appear', [], {delay: 500})
+      ]),
+    ]
+  )
   // await timeline.step('forward');
   // await timeline.step('backward');
   // timeline.removeSequences(seq);
@@ -510,8 +522,10 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   //   console.log('HEY, EVERYONE!!!');
   // })
 
-  timeline.addSequences(webchalk.newSequence(
-    Motion(circle, '~translate', [{translate: '900px 0'}], {delay: 500}),
-    Motion(circle, 'translateRel', []),
-  ));
+  timeline.addSequences([
+    webchalk.newSequence([
+      Motion(circle, '~translate', [{translate: '900px 0'}], {delay: 500}),
+      Motion(circle, 'translateRel', []),
+    ]),
+  ]);
 })();

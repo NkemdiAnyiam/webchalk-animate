@@ -23,7 +23,7 @@ if (false) {
   webchalk.newSequence()
   /**** MD-E id="usage__create-sequence" */
   /**** MD-S id="usage__add-clips" */
-  AnimSequence.prototype.addClips()
+  AnimSequence.prototype.addClips([])
   /**** MD-E id="usage__add-clips" */
 }
 
@@ -85,17 +85,19 @@ const seq = webchalk.newSequence(
   // optional configuration object
   {playbackRate: 2, description: 'Enter all the shapes'},
   // 4 animation clips
-  enterSquare,
-  enterCircle,
-  Entrance(triEl, '~fly-in', ['from-bottom-left']),
-  Entrance(document.querySelector('.pentagon'), '~appear', []),
+  [
+    enterSquare,
+    enterCircle,
+    Entrance(triEl, '~fly-in', ['from-bottom-left']),
+    Entrance(document.querySelector('.pentagon'), '~appear', []),
+  ]
 );
 
 // add more clips to the sequence
-seq.addClips(
+seq.addClips([
   Motion(circEl, '~move-to', [sqrEl]),
   Exit(sqrEl, '~fade-out', []),
-);
+]);
 
 seq.play().then(() => seq.rewind());
 /**** MD-E id="usage__create-sequence-clips" --> */
@@ -124,16 +126,18 @@ const seq = webchalk.newSequence(
   // optional configuration object
   {description: 'No one likes Pentagon!'},
   // 6 animation clips
-  /** A */
-  Entrance(sqrEl, '~fade-in', []), // A + 0ms
-  Entrance(circEl, '~fade-in', [], {startsWithPrevious: true}), // A + 0ms
-  Entrance(triEl, '~fade-in', [], {startsWithPrevious: true}), // A + 0ms
-  /** B */
-  Entrance(pentaEl, '~fly-in', ['from-left']), // B + 0ms
-  /** C */
-  Exit(circEl, '~fade-out', [], {startsNextClipToo: true}), // C + 0ms
-  Exit(sqrEl, '~fade-out', [], {delay: 150, endDelay: 2}), // C + 150ms
-  Exit(triEl, '~fade-out', [], {delay: 300, startsWithPrevious: true}), // C + 452ms (NOT C + 300ms!!!)
+  [
+    /** A */
+    Entrance(sqrEl, '~fade-in', []), // A + 0ms
+    Entrance(circEl, '~fade-in', [], {startsWithPrevious: true}), // A + 0ms
+    Entrance(triEl, '~fade-in', [], {startsWithPrevious: true}), // A + 0ms
+    /** B */
+    Entrance(pentaEl, '~fly-in', ['from-left']), // B + 0ms
+    /** C */
+    Exit(circEl, '~fade-out', [], {startsNextClipToo: true}), // C + 0ms
+    Exit(sqrEl, '~fade-out', [], {delay: 150, endDelay: 2}), // C + 150ms
+    Exit(triEl, '~fade-out', [], {delay: 300, startsWithPrevious: true}), // C + 452ms (NOT C + 300ms!!!)
+  ]
 );
 
 seq.play().then(() => seq.rewind());
@@ -152,18 +156,20 @@ const circEl = document.querySelector('.circle');
 // create sequences
 const seq1 = webchalk.newSequence(
   {jumpTag: 'ABC'},
-  Entrance(sqrEl, '~fade-in', []),
-  Entrance(circEl, '~fade-in', []),
+  [
+    Entrance(sqrEl, '~fade-in', []),
+    Entrance(circEl, '~fade-in', []),
+  ]
 );
 
-const seq2 = webchalk.newSequence(
+const seq2 = webchalk.newSequence([
   Motion(sqrEl, '~move-to', [circEl]),
   Exit(circEl, '~sink-down', [], {startsWithPrevious: true}),
-);
+]);
 
 const seq3 = webchalk.newSequence(
   {autoplays: true},
-  Exit(circEl, '~fade-out', []),
+  [Exit(circEl, '~fade-out', [])]
 );
 
 // create new timeline
@@ -171,9 +177,11 @@ const /****MD-S id="usage__timeline" MD-G*/tLine/****MD-E*/ = webchalk.newTimeli
   // optional config object
   {debugMode: true, timelineName: /****MD-S id="usage__timeline-name" MD-G*/'Basics'/****MD-E*/},
   // 3 sequences
-  seq1,
-  seq2,
-  seq3,
+  [
+    seq1,
+    seq2,
+    seq3,
+  ]
 );
 
 // first step() plays seq1
