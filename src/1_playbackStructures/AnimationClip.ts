@@ -290,7 +290,7 @@ export type AnimClipStatus = {
  * 
  * @groupDescription Property Getter Methods
  * Methods that return objects that contain various internal fields of the clip (such as `duration` from `getTiming()`,
- * `inProgress` from `getStatus()`, etc.
+ * `inProgress` from `getStatus()`, etc.).
  * 
  * @groupDescription Playback Methods
  * Methods that control the playback of the animation clip.

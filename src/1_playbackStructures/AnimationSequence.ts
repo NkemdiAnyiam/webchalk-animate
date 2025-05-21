@@ -165,7 +165,7 @@ type FullyFinishedPromise<T> = {
  * 
  * @groupDescription Property Getter Methods
  * Methods that return objects that contain various internal fields of the sequence (such as `autoplays` from `getTiming()`,
- * `inProgress` from `getStatus()`, etc.
+ * `inProgress` from `getStatus()`, etc.).
  * 
  * @groupDescription Property Setter Methods
  * Methods that allow the modification of various internal fields of the sequence.
