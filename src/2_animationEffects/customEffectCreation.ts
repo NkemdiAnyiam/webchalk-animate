@@ -795,7 +795,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * When the clip is played, the callback function will be called to produce the keyframes for the animation to play. When the clip
      * is rewound, the _same_ callback function will be called again to produce keyframes for the animation to play, but the direction will
      * be reversed. This means that every time playback is initiated (playing or rewinding), a new set of keyframes is produced.
-     * When writing your keyframes you must _always_ define the _full_ course of the effect. For example, from the forward keyframes generator,
+     * When writing your keyframes, you must _always_ define the _full_ course of the effect. For example, from the forward keyframes generator,
      * do _not_ return `[{}, {backgroundColor: 'blue'}, {backgroundColor: 'red', opacity: '0.5'}]`.
      * Instead, store the original styles—something like `const initialStyles = this.getStyles(['backgroundColor', 'opacity']);`, and return
      * `[{...initialStyles}, {backgroundColor: 'blue'}, {backgroundColor: 'red', opacity: 0.5}]` (taking advantage of the fact that
