@@ -782,7 +782,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * {@link EffectComposer.composeEffect | composeEffect} (as opposed to several possible return statements scattered throughout).
      * 
      * **Special `this`**\
-     * For both convenience and utility, using `this` inside the scope of {@link EffectComposer.composedEffect | composedEffect}
+     * For both convenience and utility, using `this` inside the scope of {@link EffectComposer.composeEffect | composeEffect}
      * gives access to a subset of useful properties and methods of the clip.
      *  * {@link AnimClip.domElem}
      *  * {@link AnimClip.computeTween}
