@@ -133,6 +133,19 @@ type PlaybackButtons = {
 // TYPE
 type PlaybackButtonPurpose = `Step ${'Forward' | 'Backward'}` | 'Pause' | 'Fast Forward' | 'Toggle Skipping';
 
+// TYPE
+/**
+ * Used in {@link AnimTimeline.addSequences | addSequences}.
+ * Options specifying the location at which the sequences should be inserted {@link AnimTimeline.addSequences}.
+ * @category hidden
+ */
+export type AddSequencesOptions = {
+  /**
+   * Index at which the sequences should be added.
+   */
+  atIndex: number;
+};
+
 /**
  * @hideconstructor
  * 
@@ -568,10 +581,23 @@ export class AnimTimeline {
    * @returns 
    * @group Structure
    */
-  addSequences(animSequences: AnimSequence[]): this {
+  addSequences(animSequences: AnimSequence[]): this;
+  /**
+   * Adds {@link AnimSequence} objects to the specified location within the timeline.
+   * @param location - options specifying the location at which the sequences should be inserted
+   * @param animSequences - array of animation sequences to add
+   * @returns 
+   * @group Structure
+   */
+  addSequences(location: AddSequencesOptions, animSequences: AnimSequence[]): this;
+  addSequences(locationOrSequences: AddSequencesOptions | AnimSequence[], animSequences: AnimSequence[] = []): this {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.addSequences.name); }
 
-    for(const animSequence of animSequences) {
+    const [sequences, loc] = (locationOrSequences instanceof Array)
+      ? [locationOrSequences, undefined]
+      : [animSequences, locationOrSequences];
+
+    for(const animSequence of sequences) {
       if (!(animSequence instanceof AnimSequence)) {
         throw this.generateError(CustomErrors.InvalidChildError, `At least one of the objects being added is not an AnimSequence.`);
       }
@@ -584,54 +610,16 @@ export class AnimTimeline {
       }
       animSequence.setLineage(this);
     };
-    this.animSequences.push(...animSequences);
+    
+    if (loc) {
+      this.animSequences.splice(loc.atIndex, 0, ...sequences);
+    }
+    else {
+      this.animSequences.push(...sequences);
+    }
 
     // no need to worry about backward button because it's impossible to reach or leave index 0 by adding sequences
     this.playbackButtons.forwardButton?.classList.remove(DISABLED_FROM_EDGE);
-
-    return this;
-  }
-
-  /**
-   * Adds {@link AnimSequence} objects to the specified index of the sequence.
-   * @param index - the index at which the sequences should be inserted
-   * @param animSequences - array of animation sequences to add
-   * @returns 
-   * @group Structure
-   */
-  addSequencesAt(index: number, animSequences: AnimSequence[]): this {
-    if (this.lockedStructure) { throw this.generateLockedStructureError(this.addSequencesAt.name); }
-    if (index <= this.loadedSeqIndex - 1) {
-      throw this.generateError(
-        CustomErrors.TimeParadoxError,
-        `Adding new sequences behind sequences that have already been played is prohibited.` +
-        errorTip(
-          `Tip: Just as changing the past is not possible, changing parts of the timeline that have already passed is not allowed.` +
-          ` In order to add sequences to a part of the timeline that has already been played, the timeline must be rewound to before that point` +
-          ` (conceptually, it is always possible to change the future but never the past).`
-        ),
-      );
-    }
-
-    for (const animSequence of animSequences) {
-      if (!(animSequence instanceof AnimSequence)) {
-        throw this.generateError(CustomErrors.InvalidChildError, `At least one of the objects being added is not an AnimSequence.`);
-      }
-      if (animSequence.parentTimeline) {
-        // TODO: Improve error message
-        throw this.generateError(CustomErrors.InvalidChildError, `At least one of the sequences being added is already part of some timeline.`);
-      }
-      if (animSequence.getStatus('lockedStructure')) {
-        throw this.generateError(CustomErrors.InvalidChildError, `At least one of the sequences being added is in progress or in a forward finished state.`);
-      }
-      animSequence.setLineage(this);
-    }
-    this.animSequences.splice(index, 0, ...animSequences);
-
-    // no need to worry about atBeginning because it's impossible to reach or leave index 0 by adding sequences
-    if (!this.atEnd) {
-      this.playbackButtons.forwardButton?.classList.remove(DISABLED_FROM_EDGE);
-    }
 
     return this;
   }

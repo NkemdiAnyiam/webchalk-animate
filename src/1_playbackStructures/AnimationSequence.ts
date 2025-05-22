@@ -160,6 +160,19 @@ type FullyFinishedPromise<T> = {
   resolve: (value: T | PromiseLike<T>) => void;
 };
 
+// TYPE
+/**
+ * Options specifying the location at which the clips should be inserted in {@link AnimSequence.addClips}.
+ * @category hidden
+ */
+export type AddClipsOptions = {
+  /**
+   * Index at which the clips should be added.
+   */
+  atIndex: number;
+};
+
+// CLASS
 /**
  * @hideconstructor
  * 
@@ -454,35 +467,24 @@ export class AnimSequence {
    * @returns 
    * @group Structure
    */
-  addClips(animClips: AnimClip[]): this {
-    if (this.lockedStructure) { throw this.generateLockedStructureError(this.addClips.name); }
-
-    for (const animClip of animClips) {
-      if (!(animClip instanceof AnimClip)) {
-        throw this.generateError(CustomErrors.InvalidChildError, `At least one of the objects being added is not an AnimClip.`);
-      }
-      if (animClip.parentSequence) {
-        // TODO: Improve error message
-        throw this.generateError(CustomErrors.InvalidChildError, `At least one of the clips being added is already part of some sequence.`);
-      }
-      animClip.setLineage(this, this._parentTimeline);
-    }
-    this.animClips.push(...animClips);
-    return this;
-  }
-
+  addClips(animClips: AnimClip[]): this;
   // TODO: prevent play() and rewind() when sequence contains undefined entries (I don't think this will ever happen?)
   /**
-   * Adds {@link AnimClip} objects to the specified index of the sequence.
-   * @param index - the index at which the clips should be inserted
+   * Adds {@link AnimClip} objects to the specified location within the sequence.
+   * @param location - options specifying the location at which the clips should be inserted
    * @param animClips - array of animation clips to add
    * @returns 
    * @group Structure
    */
-  addClipsAt(index: number, animClips: AnimClip[]): this {
-    if (this.lockedStructure) { throw this.generateLockedStructureError(this.addClipsAt.name); }
+  addClips(location: AddClipsOptions, animClips: AnimClip[]): this;
+  addClips(locationOrClips: AddClipsOptions | AnimClip[], animClips: AnimClip[] = []): this {
+    if (this.lockedStructure) { throw this.generateLockedStructureError(this.addClips.name); }
 
-    for (const animClip of animClips) {
+    const [clips, loc] = (locationOrClips instanceof Array)
+      ? [locationOrClips, undefined]
+      : [animClips, locationOrClips];
+
+    for (const animClip of clips) {
       if (!(animClip instanceof AnimClip)) {
         throw this.generateError(CustomErrors.InvalidChildError, `At least one of the objects being added is not an AnimClip.`);
       }
@@ -492,7 +494,12 @@ export class AnimSequence {
       }
       animClip.setLineage(this, this._parentTimeline);
     }
-    this.animClips.splice(index, 0, ...animClips);
+    if (loc) {
+      this.animClips.splice(loc.atIndex, 0, ...clips);
+    }
+    else {
+      this.animClips.push(...clips);
+    }
     return this;
   }
 
