@@ -1,11 +1,12 @@
 import { webchalk } from 'webchalk-animate';
 import * as WebChalkTypes from 'webchalk-animate/types-and-interfaces';
+import * as WebChalkClasses from 'webchalk-animate/classes';
 import * as WebChalkErrors from "webchalk-animate/error-handling";
 import * as WebChalkEasing from "webchalk-animate/easing";
 import * as WebChalkUtils from "webchalk-animate/utility-functions";
 import { createCustomEffectComposerBank } from 'webchalk-animate/custom-effect-creation';
 
-console.log(WebChalkTypes.AnimClip);
+console.log(WebChalkClasses.AnimClip);
 
 /* css */`
 @keyframes roll-in-blurred-left {
@@ -398,9 +399,9 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
 
 
   const connector = document.querySelector<WebChalkTypes.WebChalkConnectorElement>('.connector--1');
-  console.log('is connector (should true): ', connector instanceof WebChalkTypes.WebChalkConnectorElement);
+  console.log('is connector (should true): ', connector instanceof WebChalkClasses.WebChalkConnectorElement);
 
-  console.log('is sequence (should true): ', webchalk.newSequence() instanceof WebChalkTypes.AnimSequence);
+  console.log('is sequence (should true): ', webchalk.newSequence() instanceof WebChalkClasses.AnimSequence);
 }
 
 const square = document.querySelector('.square');
@@ -509,7 +510,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
         Entrance(square, '~appear', [], {delay: 500})
       ]),
     ]
-  )
+  );
   // await timeline.step('forward');
   // await timeline.step('backward');
   // timeline.removeSequences(seq);
