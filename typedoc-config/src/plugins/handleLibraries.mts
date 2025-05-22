@@ -1,4 +1,4 @@
-import td, { JSX, Application } from "typedoc";
+import { JSX, Application } from "typedoc";
 
 const hider = (function hider() {
   // // remove property sections and navigation links associated with doscScriptRunner

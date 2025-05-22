@@ -180,6 +180,13 @@ a.tsd-signature-type.external {
   background-color: var(--code-inline-background);
 }
 
+.tsd-accordion-summary {
+  svg {
+    // fixes material theme graphical bug where chevron is set off to the far right
+    position: unset !important;
+  }
+}
+
 .tsd-accordion-summary:has(h2) {
   color: var(--code-background);
   background-color: var(--color-member-name);
@@ -287,6 +294,17 @@ h3.tsd-anchor-link {
 .tsd-signatures {
   margin-bottom: 0;
 
+  & > li {
+    &:not(:last-child) {
+      margin-bottom: 16px;
+      border-bottom: 2px dashed var(--color-member-name);
+      padding-bottom: 1rem;
+    }
+    &:not(:first-child) {
+      padding-top: 1rem;
+    }
+  }
+
   .tsd-signature {
     background-color: var(--md-sys-color-surface-container-high);
     border-width: 2px;
@@ -297,11 +315,6 @@ h3.tsd-anchor-link {
   }
 
   .tsd-description {
-    &:not(:last-child) {
-      margin-bottom: 16px;
-      border-bottom: 2px dashed var(--color-text);
-    }
-
     .tsd-parameters {
       .tsd-parameter-list {
         display: flex;

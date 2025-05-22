@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ESNext", // TODO: change to ES2024 when available
-    "module": "commonjs",
+    "target": "ES2024", // TODO: change to ES2024 when available
+    "module": "Node18",
     "outDir": "../assets/plugins",
     "strict": true,
     "stripInternal": true,

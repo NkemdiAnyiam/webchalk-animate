@@ -1,4 +1,4 @@
-import td, { JSX, Application } from "typedoc";
+import { JSX, Application } from "typedoc";
 
 const reduceClutter = function reduceClutter() {
   const members = [...document.querySelectorAll('.tsd-panel.tsd-member')];

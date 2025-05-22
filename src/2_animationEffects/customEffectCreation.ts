@@ -24,10 +24,8 @@ import { webchalk } from "../WebChalk";
  * @see {@link EffectComposer.composeEffect}
  * 
  * @category Effect Composition
- * 
- * @interface
  */
-export type ComposedEffect = StripDuplicateMethodAutocompletion<{
+export interface ComposedEffect extends StripDuplicateMethodAutocompletion<{
   /**
    * Performs any necessary operations/computations and then returns keyframes ({@link Keyframes}).
    * @returns Keyframes, either in the form of a {@link PropertyIndexedKeyframes} object or—more commonly—an array of {@link Keyframe} objects.
@@ -420,7 +418,7 @@ export type ComposedEffect = StripDuplicateMethodAutocompletion<{
    * @group Mutator Generators
    */
   reverseMutatorEffect?: boolean;
-}>;
+}> {}
 
 // TODO: add code examples
 /**
