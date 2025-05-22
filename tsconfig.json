@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ESNext", // TODO: change to ES2024 when available
+    "target": "ES2024",
     "module": "commonjs",
     "declaration": true,
     "outDir": "./dist",
