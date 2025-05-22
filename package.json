@@ -15,6 +15,7 @@
   ],
   "exports": {
     ".": "./dist/index.js",
+    "./classes": "./dist/5_exports/classes.js",
     "./types-and-interfaces": "./dist/5_exports/types.js",
     "./error-handling": "./dist/5_exports/errorHandling.js",
     "./easing": "./dist/5_exports/easing.js",
