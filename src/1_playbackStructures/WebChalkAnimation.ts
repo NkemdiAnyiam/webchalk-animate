@@ -327,7 +327,7 @@ export class WebChalkAnimation extends Animation {
     this.addAwaiteds(direction, phase, timePosition, 'integrityblock', promises);
   }
 
-  addRoadblocks<T extends Parameters<AnimClip['addIntegrityblocks']>>(
+  addRoadblocks<T extends Parameters<AnimClip['addRoadblocks']>>(
     direction: T[0],
     phase: T[1],
     timePosition: T[2],
