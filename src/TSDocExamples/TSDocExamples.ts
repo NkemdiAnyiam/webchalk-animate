@@ -638,32 +638,45 @@ testFunc();
 }
 
 {
-/**** EX:S id="AnimClip.addRoadblocks-1" */
+/**** EX:S id="AnimClip.scheduleTasks-1" */
 async function wait(milliseconds: number) { // Promise-based timer
    return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 
 const square = document.querySelector('.square');
 const { Entrance } = webchalk.createAnimationClipFactories();
-const ent = Entrance(square, '~fade-in', []);
+const ent = Entrance(square, '~fade-in', [], {endDelay: 1500});
 
-// adds 1 roadblock that will pause the clip once the clip is 15% through the delay phase
-ent.addRoadblocks('forward', 'activePhase', '15%', [function(){ return wait(2000); }]);
-// adds 2 more roadblocks at the same point.
-const someOtherPromise = Promise.resolve(); // instantly resolved promise
-ent.addRoadblocks('forward', 'activePhase', '15%', [function(){ return wait(3000); }, someOtherPromise]);
-// adds 1 roadblock at 40% into the endDelay phase
-ent.addRoadblocks('forward', 'endDelayPhase', '40%', [new Promise(resolve => {})]);
+// adds 1 task that will pause the clip for 2 seconds once the clip is 15% through the active phase
+ent.scheduleTask('activePhase', '15%', {onPlay: () => wait(2000)});
+// adds 1 more task at the same point that will pause the clip for 3 seconds.
+ent.scheduleTask('activePhase', '15%', {onPlay: () => wait(3000)});
+// adds 1 task at 40% into the endDelay phase that will...
+// ... log 'HELLO' if the clip is playing forward
+// ... log 'WORLD' if the clip is rewinding
+ent.scheduleTask('endDelayPhase', '40%', {
+  onPlay: () => console.log('HELLO'),
+  onRewind: () => console.log('WORLD')
+});
 
-ent.play();
-// ↑ Once ent is 15% through the active phase, it will pause and handle its roadblocks.
-// "wait(2000)" resolves after 2 seconds.
-// "wait(3000)" resolves after 3 seconds.
-// someOtherPromise blocks the clip's playback. Presumably, its resolver is eventually called from somewhere outside.
-// Once someOtherPromise is resolved, there are no more roadblocks at this point, so playback is resumed.
-// Once ent is 40% through the endDelay phase, it will pause and handle its roadblocks
-// The newly created promise obviously has no way to be resolved, so the clip is unfortunately stuck.
-/**** EX:E id="AnimClip.addRoadblocks-1" */
+(async () => {
+  await ent.play();
+  // ↑
+  // Once ent is 15% through the active phase, it will pause and handle its scheduled tasks.
+  // -- "wait(2000)" resolves after 2 seconds.
+  // -- "wait(3000)" resolves after 3 seconds.
+  // There are no more tasks at this point, so playback is resumed.
+  // Once ent is 40% through the endDelay phase, it will pause and handle its tasks
+  // -- 'HELLO' is logged to the console
+  // There are no more tasks at this point, so playback is resumed.
+  await ent.rewind();
+  // ↑
+  // Once ent rewinds back to the 40% point of the endDelay phase, it will pause and...
+  // ... handle its scheduled tasks
+  // -- 'WORLD' is logged to the console
+  // There are no more tasks at this point, so playback is resumed.
+})();
+/**** EX:E id="AnimClip.scheduleTasks-1" */
 }
 
 {

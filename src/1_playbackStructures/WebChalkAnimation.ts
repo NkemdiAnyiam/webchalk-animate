@@ -4,9 +4,9 @@ import { Keyframes } from "../4_utils/interfaces";
 
 type Segment = [
   endDelay: number,
-  callbacks: ((...args: any[]) => void)[],
-  roadblocks: (Promise<unknown> | (() => Promise<unknown>))[],
-  integrityblocks: (Promise<unknown> | (() => Promise<unknown>))[],
+  callbacks: Function[],
+  tasks: {id: string, callback: Function}[],
+  integrityblocks: {id: string, callback: Function}[],
   // true when awaiting delay/endDelay periods while the awaited delay/endDelay duration is 0
   skipEndDelayUpdation: boolean,
   header: Partial<{
@@ -40,9 +40,9 @@ export class WebChalkAnimation extends Animation {
   onDelayFinish: Function = () => {};
   onActiveFinish: Function = () => {};
   onEndDelayFinish: Function = () => {};
-  // FIXME: The behavior for pausing for roadblocks while expedition is in act is undefined
-  pauseForRoadblocks: Function = () => { throw new Error(`This should never be called before being defined by parent clip`); };
-  unpauseFromRoadblocks: Function = () => { throw new Error(`This should never be called before being defined by parent clip`); };
+  // FIXME: The behavior for pausing for tasks while expedition is in act is undefined
+  pauseForTasks: Function = () => { throw new Error(`This should never be called before being defined by parent clip`); };
+  unpauseFromTasks: Function = () => { throw new Error(`This should never be called before being defined by parent clip`); };
 
   constructor(public forwardEffect: KeyframeEffect, public backwardEffect: KeyframeEffect, private errorGenerator: ClipErrorGenerator) {
     super();
@@ -161,19 +161,19 @@ export class WebChalkAnimation extends Animation {
 
     const effect = super.effect!;
     const segments = this.direction === 'forward' ? this.segmentsForward : this.segmentsBackward;
-    let roadblocked: boolean | null = null;
+    let blockedForTasks: boolean | null = null;
     // Traverse live array instead of static length since entries could be added mid-loop
     for (const segment of segments) {
-      const [ endDelay, callbacks, roadblocks, integrityblocks, skipEndDelayUpdation, header ]: Segment = segment;
+      const [ endDelay, callbacks, tasks, integrityblocks, skipEndDelayUpdation, header ]: Segment = segment;
       header.activated = true;
 
       if (!skipEndDelayUpdation) {
         // Set animation to stop at a certain time using endDelay.
         effect.updateTiming({ endDelay });
         // if playback was paused from, resume playback
-        if (roadblocked === true) {
-          this.unpauseFromRoadblocks();
-          roadblocked = false;
+        if (blockedForTasks === true) {
+          this.unpauseFromTasks();
+          blockedForTasks = false;
         }
         if (this.isExpediting) { super.finish(); }
         await super.finished;
@@ -186,15 +186,15 @@ export class WebChalkAnimation extends Animation {
       header.completed = true;
 
       // Await any blockers for the completion of this phase
-      if (roadblocks.length > 0) {
-        this.pauseForRoadblocks();
-        roadblocked = true;
+      if (tasks.length > 0) {
+        this.pauseForTasks();
+        blockedForTasks = true;
         // for any functions, replace the entry with the return value (a promise)
-        await Promise.all(roadblocks.map(rBlock => typeof rBlock === 'function' ? rBlock() : rBlock));
+        await Promise.all(tasks.map(rBlock => rBlock.callback()));
       }
       if (integrityblocks.length > 0) {
         // for any functions, replace the entry with the return value (a promise)
-        await Promise.all(integrityblocks.map(iBlock => typeof iBlock === 'function' ? iBlock() : iBlock));
+        await Promise.all(integrityblocks.map(iBlock => iBlock.callback()));
       }
       // Call all callbacks that awaited the completion of this phase
       for (const callback of callbacks) { callback(); }
@@ -318,30 +318,32 @@ export class WebChalkAnimation extends Animation {
   }
 
   /**@internal*/
-  addIntegrityblocks<T extends Parameters<AnimClip['addIntegrityblocks']>>(
-    direction: T[0],
-    phase: T[1],
-    timePosition: T[2],
-    promises: T[3]
+  addIntegrityblock<T extends Parameters<AnimClip['addIntegrityblock']>>(
+    phase: T[0],
+    timePosition: T[1],
+    event: T[2]
   ): void {
-    this.addAwaiteds(direction, phase, timePosition, 'integrityblock', promises);
+    const id = Math.random().toString(20).substring(2, 32) + String(Date.now());
+    if (event.onPlay) this.addAwaiteds('forward', phase, timePosition, 'integrityblock', {id, callback: event.onPlay});
+    if (event.onRewind) this.addAwaiteds('backward', phase, timePosition, 'integrityblock', {id, callback: event.onRewind});
   }
 
-  addRoadblocks<T extends Parameters<AnimClip['addRoadblocks']>>(
-    direction: T[0],
-    phase: T[1],
-    timePosition: T[2],
-    promises: T[3]
+  scheduleTask<T extends Parameters<AnimClip['scheduleTask']>>(
+    phase: T[0],
+    timePosition: T[1],
+    event: T[2]
   ): void {
-    this.addAwaiteds(direction, phase, timePosition, 'roadblock', promises);
+    const id = Math.random().toString(20).substring(2, 32) + String(Date.now());
+    if (event.onPlay) this.addAwaiteds('forward', phase, timePosition, 'task', {id, callback: event.onPlay});
+    if (event.onRewind) this.addAwaiteds('backward', phase, timePosition, 'task', {id, callback: event.onRewind});
   }
 
   private addAwaiteds(
     direction: 'forward' | 'backward',
     phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
     timePosition: number | 'beginning' | 'end' | `${number}%`,
-    awaitedType: 'integrityblock' | 'roadblock',
-    promises: (Promise<unknown> | (() => Promise<unknown>))[]
+    awaitedType: 'integrityblock' | 'task',
+    event: {id: string, callback: Function},
   ): void {
     // if the animation is already finished in the given direction, do nothing
     if (this.isFinished && this.direction === direction) {
@@ -380,8 +382,8 @@ export class WebChalkAnimation extends Animation {
         segments.splice(i, 0, [
           endDelay,
           [],
-          (awaitedType === 'roadblock' ? [...promises] : []),
-          (awaitedType === 'integrityblock' ? [...promises] : []),
+          (awaitedType === 'task' ? [event] : []),
+          (awaitedType === 'integrityblock' ? [event] : []),
           phaseTimePosition === 0,
           {}
         ]);
@@ -397,7 +399,7 @@ export class WebChalkAnimation extends Animation {
         }
 
         // add promises to current segment
-        currSegment[awaitedType === 'roadblock' ? 2 : 3].push(...promises);
+        currSegment[awaitedType === 'task' ? 2 : 3].push(event);
         return;
       }
     }
