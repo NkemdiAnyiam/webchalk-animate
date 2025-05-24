@@ -332,9 +332,11 @@ const customMotions = createCustomEffectComposerBank(
 
     translateRel: {
       composeEffect() {
+        const initPos = {...this.getStyles(['translate'])};
+        
         return {
           forwardKeyframesGenerator: () => {
-            return [{...this.getStyles(['translate'])}, {translate: '200px 500px'}]
+            return [initPos, {translate: '200px 500px'}]
           },
         }
       },
