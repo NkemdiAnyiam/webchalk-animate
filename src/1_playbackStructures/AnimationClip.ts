@@ -239,6 +239,22 @@ export type AnimClipStatus = {
   direction: 'forward' | 'backward';
 };
 
+// TYPE
+/**
+ * Used in {@link AnimClip.scheduleTask}.
+ * An object that contains functions that will be called at
+ * a certain time during an {@link AnimClip}'s playback.
+ * 
+ * @category Subtypes
+ */
+export type ScheduledTask = {
+  /** a function that will be called at the specified time when the clip is playing */
+  onPlay?: Function;
+  /** a function that will be called at the specified time when the clip is rewinding */
+  onRewind?: Function;
+};
+
+// CLASS
 /**
  * <!-- EX:S id="AnimClip.desc" code-type="comment-block" -->
  * A "clip" is the smallest building block of a timeline. It is essentially a [DOM element, effect] pair,
@@ -1048,11 +1064,9 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
    * @param phase - the phase of the animation to place the blocks in
    * @param timePosition - the time position within the phase when the task should be performed
    * @param task - an object that contains the functions that should be called when {@link timePosition} is reached
-   * @param task.onPlay - the function that will be called at the specified time when the clip is playing
-   * @param task.onRewind - the function that will be called at the specified time when the clip is rewinding
    * @param schedulingOptions - options defining the behavior of the scheduling
    * @param schedulingOptions.frequencyLimit - the maximum number of times the task can be performed
-   * @returns {string}
+   * @returns The string id (auto-generated) referring to the task and its spot in the schedule.
    * 
    * @example
    * <!-- EX:S id="AnimClip.scheduleTasks-1" code-type="ts" -->
@@ -1102,12 +1116,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
   scheduleTask(
     phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
     timePosition: number | 'beginning' | 'end' | `${number}%`,
-    task: {
-      /** the function that will be called at the specified time when the clip is playing */
-      onPlay?: Function;
-      /** the function that will be called at the specified time when the clip is rewinding */
-      onRewind?: Function;
-    },
+    task: ScheduledTask,
     schedulingOptions: {
       /**
        * the maximum number of times the task can be performed
@@ -1120,6 +1129,17 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
     } = {}
   ): string {
     return this.animation.scheduleTask(phase, timePosition, task, schedulingOptions);
+  }
+
+  /**
+   * Removes the task represented by the string id (id obtained from {@link AnimClip.scheduleTask | scheduleTask()}).
+   * @param taskId - string id of the task to remove
+   * @returns The removed task.
+   * 
+   * @group Timing Event Methods
+   */
+  unscheduleTask(taskId: string): ScheduledTask {
+    return this.animation.unscheduleTask(taskId);
   }
 
   /**

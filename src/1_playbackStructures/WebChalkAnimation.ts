@@ -1,4 +1,4 @@
-import { AnimClip } from "./AnimationClip";
+import { AnimClip, ScheduledTask } from "./AnimationClip";
 import { CustomErrors, ClipErrorGenerator } from "../4_utils/errors";
 import { Keyframes } from "../4_utils/interfaces";
 
@@ -372,6 +372,40 @@ export class WebChalkAnimation extends Animation {
     this.addAwaiteds('forward', phase, timePosition, 'task', {id, callback: task.onPlay || function(){}, frequencyLimit});
     this.addAwaiteds('backward', phase, timePosition, 'task', {id, callback: task.onRewind || function(){}, frequencyLimit});
     return id;
+  }
+
+  unscheduleTask<T extends Parameters<AnimClip['unscheduleTask']>>(taskId: T[0]): ScheduledTask {
+    let taskF: Segment[2][number] | undefined = undefined;
+    let taskB: Segment[2][number] | undefined = undefined;
+
+    // find segment containing the task with matching id, then remove task
+    for (let i = 0; i < this.segmentsForward.length; ++i) {
+      const tasks = this.segmentsForward[i][2];
+      for (let j = 0; j < tasks.length; ++j) {
+        const task = tasks[j];
+        if (task.id === taskId) {
+          [taskF] = tasks.splice(j, 1);
+          break;
+        }
+      }
+    }
+
+    for (let i = 0; i < this.segmentsBackward.length; ++i) {
+      const tasks = this.segmentsBackward[i][2];
+      for (let j = 0; j < tasks.length; ++j) {
+        const task = tasks[j];
+        if (task.id === taskId) {
+          [taskB] = tasks.splice(j, 1);
+          break;
+        }
+      }
+    }
+
+    if (!taskF || !taskB) {
+      throw this.errorGenerator(RangeError, `Task with id "${taskId}" was not found within this clip's scheduled tasks.`);
+    }
+
+    return { onPlay: taskF.callback, onRewind: taskB.callback };
   }
 
   rescheduleTask<T extends Parameters<AnimClip['scheduleTask']>>(
