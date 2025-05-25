@@ -845,7 +845,7 @@ export class AnimTimeline {
         case 'pause': this.isPaused = true; break;
         case 'unpause': this.isPaused = false; break;
         default: {
-          throw this.generateError(RangeError, `Invalid force value ${options.forceState}. Use "pause" to pause or "unpause" to unpause.`);
+          throw this.generateError(RangeError, `Invalid force value "${options.forceState}". Use "pause" to pause or "unpause" to unpause.`);
         }
       }
       // if toggling did nothing, just return
@@ -1236,7 +1236,7 @@ export class AnimTimeline {
         case "on": this.skippingOn = true; break;
         case "off": this.skippingOn = false; break;
         default: {
-          throw this.generateError(RangeError, `Invalid force value ${options.forceState}. Use "on" to turn on skipping or "off" to turn off skipping.`);
+          throw this.generateError(RangeError, `Invalid force value "${options.forceState}". Use "on" to turn on skipping or "off" to turn off skipping.`);
         }
       }
       // if toggling did nothing, just return
