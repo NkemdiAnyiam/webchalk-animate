@@ -170,7 +170,7 @@ export class WebChalkAnimation extends Animation {
       if (!skipEndDelayUpdation) {
         // Set animation to stop at a certain time using endDelay.
         effect.updateTiming({ endDelay });
-        // if playback was paused from, resume playback
+        // if playback was paused for tasks, resume playback
         if (blockedForTasks === true) {
           this.unpauseFromTasks();
           blockedForTasks = false;
@@ -203,6 +203,9 @@ export class WebChalkAnimation extends Animation {
       await Promise.resolve();
     }
     
+    // accounts for the possibility of the very last segment pausing for a task...
+    // ... in which case unpauseFromTasks() can't be called since the loop terminates
+    if (blockedForTasks) { this.unpauseFromTasks(); }
     this.inProgress = false;
     this.isFinished = true;
     this.isExpediting = false;
