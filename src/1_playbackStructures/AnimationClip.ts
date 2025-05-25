@@ -1052,7 +1052,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
    * @param task.onRewind - the function that will be called at the specified time when the clip is rewinding
    * @param schedulingOptions - options defining the behavior of the scheduling
    * @param schedulingOptions.frequencyLimit - the maximum number of times the task can be performed
-   * @returns {void}
+   * @returns {string}
    * 
    * @example
    * <!-- EX:S id="AnimClip.scheduleTasks-1" code-type="ts" -->
