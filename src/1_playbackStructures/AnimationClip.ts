@@ -1048,8 +1048,10 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
    * @param phase - the phase of the animation to place the blocks in
    * @param timePosition - the time position within the phase when the task should be performed
    * @param task - an object that contains the functions that should be called when {@link timePosition} is reached
-   * @param task.onPlay - the function that will be called if the clip is playing
-   * @param task.onRewind - the function that will be called if the clip is rewinding
+   * @param task.onPlay - the function that will be called at the specified time when the clip is playing
+   * @param task.onRewind - the function that will be called at the specified time when the clip is rewinding
+   * @param schedulingOptions - options defining the behavior of the scheduling
+   * @param schedulingOptions.frequencyLimit - the maximum number of times the task can be performed
    * @returns {void}
    * 
    * @example
@@ -1100,9 +1102,24 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
   scheduleTask(
     phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
     timePosition: number | 'beginning' | 'end' | `${number}%`,
-    task: {onPlay?: Function, onRewind?: Function}
-  ): void {
-    return this.animation.scheduleTask(phase, timePosition, task);
+    task: {
+      /** the function that will be called at the specified time when the clip is playing */
+      onPlay?: Function;
+      /** the function that will be called at the specified time when the clip is rewinding */
+      onRewind?: Function;
+    },
+    schedulingOptions: {
+      /**
+       * the maximum number of times the task can be performed
+       * @defaultValue
+       * ```ts
+       * Infinity
+       * ```
+       */
+      frequencyLimit?: number;
+    } = {}
+  ): string {
+    return this.animation.scheduleTask(phase, timePosition, task, schedulingOptions);
   }
 
   /**

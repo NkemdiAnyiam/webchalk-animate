@@ -5,13 +5,15 @@ import { Keyframes } from "../4_utils/interfaces";
 type Segment = [
   endDelay: number,
   callbacks: Function[],
-  tasks: {id: string, callback: Function}[],
+  tasks: {id: string; callback: Function; frequencyLimit: number}[],
   integrityblocks: {id: string, callback: Function}[],
   // true when awaiting delay/endDelay periods while the awaited delay/endDelay duration is 0
   skipEndDelayUpdation: boolean,
   header: Partial<{
-    completed: boolean,
-    activated: boolean,
+    completed: boolean;
+    activated: boolean;
+    phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole';
+    timePosition: number | 'beginning' | 'end' | `${number}%`;
   }>,
 ];
 
@@ -233,26 +235,49 @@ export class WebChalkAnimation extends Animation {
   private resetPhases(direction: 'forward' | 'backward' | 'both'): void {
     const resetForwardPhases = () => {
       const { delay, duration, endDelay } = this.forwardEffect.getTiming() as {[prop: string]: number};
+
+      // set up segments for end of delay phase, end of active phase, and end of endDelay phase
       const segmentsForward: Segment[] = [
-        [ -duration, [() => this.onDelayFinish()], [], [], delay === 0, {} ],
-        [ 0, [() => this.onActiveFinish()], [], [], false, {} ],
-        [ endDelay, [() => this.onEndDelayFinish()], [], [], endDelay === 0, {} ],
+        [ -duration, [() => this.onDelayFinish()], [], [], delay === 0, {phase: 'delayPhase', timePosition: 'end'} ],
+        [ 0, [() => this.onActiveFinish()], [], [], false, {phase: 'activePhase', timePosition: 'end'} ],
+        [ endDelay, [() => this.onEndDelayFinish()], [], [], endDelay === 0, {phase: 'endDelayPhase',  timePosition: 'end'} ],
       ];
+
+      // for tasks that are scheduled to reoccur, schedule them again
+      const tempSegments = this.segmentsForward;
       this.segmentsForward = segmentsForward;
       this.segmentsForwardCache = [...segmentsForward] as SegmentsCache;
+      for (const segment of tempSegments) {
+        for (const task of segment[2]) {
+          if (--task.frequencyLimit > 0) {
+            this.rescheduleTask('forward', segment[5].phase!, segment[5].timePosition!, task);
+          }
+        }
+      }
     };
 
     // NEXT REMINDER: Reimplement so that delayPhase for backwards direction corresponds to endDelayPhase
     // TODO: Determine if the NEXT REMINDER above has been correctly fulfilled
     const resetBackwardPhases = () => {
       const { delay, duration, endDelay } = this.backwardEffect.getTiming() as {[prop: string]: number};
+
+      // set up segments for beginning of endDelay phase, beginning of active phase, and beginning of delay phase
       const segmentsBackward: Segment[] = [
-        [ -duration, [() => this.onDelayFinish()], [], [], delay === 0, {} ],
-        [ 0, [() => this.onActiveFinish()], [], [], false, {} ],
-        [ endDelay, [() => this.onEndDelayFinish()], [], [], endDelay === 0, {} ],
+        [ -duration, [() => this.onDelayFinish()], [], [], delay === 0, {phase: 'endDelayPhase', timePosition: 'beginning'} ],
+        [ 0, [() => this.onActiveFinish()], [], [], false, {phase: 'activePhase', timePosition: 'beginning'} ],
+        [ endDelay, [() => this.onEndDelayFinish()], [], [], endDelay === 0, {phase: 'delayPhase', timePosition: 'beginning'} ],
       ];
+      
+      const tempSegments = this.segmentsBackward;
       this.segmentsBackward = segmentsBackward;
       this.segmentsBackwardCache = [...segmentsBackward] as SegmentsCache;
+      for (const segment of tempSegments) {
+        for (const task of segment[2]) {
+          if (--task.frequencyLimit > 0) {
+            this.rescheduleTask('backward', segment[5].phase!, segment[5].timePosition!, task);
+          }
+        }
+      }
     };
 
     switch(direction) {
@@ -324,21 +349,33 @@ export class WebChalkAnimation extends Animation {
   addIntegrityblock<T extends Parameters<AnimClip['addIntegrityblock']>>(
     phase: T[0],
     timePosition: T[1],
-    event: T[2]
+    task: T[2]
   ): void {
     const id = Math.random().toString(20).substring(2, 32) + String(Date.now());
-    if (event.onPlay) this.addAwaiteds('forward', phase, timePosition, 'integrityblock', {id, callback: event.onPlay});
-    if (event.onRewind) this.addAwaiteds('backward', phase, timePosition, 'integrityblock', {id, callback: event.onRewind});
+    if (task.onPlay) this.addAwaiteds('forward', phase, timePosition, 'integrityblock', {id, callback: task.onPlay, frequencyLimit: 1});
+    if (task.onRewind) this.addAwaiteds('backward', phase, timePosition, 'integrityblock', {id, callback: task.onRewind, frequencyLimit: 1});
   }
 
   scheduleTask<T extends Parameters<AnimClip['scheduleTask']>>(
     phase: T[0],
     timePosition: T[1],
-    event: T[2]
-  ): void {
+    task: T[2],
+    schedulingOptions: T[3]
+  ): string {
     const id = Math.random().toString(20).substring(2, 32) + String(Date.now());
-    if (event.onPlay) this.addAwaiteds('forward', phase, timePosition, 'task', {id, callback: event.onPlay});
-    if (event.onRewind) this.addAwaiteds('backward', phase, timePosition, 'task', {id, callback: event.onRewind});
+    const frequencyLimit = schedulingOptions?.frequencyLimit ?? Infinity;
+    this.addAwaiteds('forward', phase, timePosition, 'task', {id, callback: task.onPlay || function(){}, frequencyLimit});
+    this.addAwaiteds('backward', phase, timePosition, 'task', {id, callback: task.onRewind || function(){}, frequencyLimit});
+    return id;
+  }
+
+  rescheduleTask<T extends Parameters<AnimClip['scheduleTask']>>(
+    direction: 'forward' | 'backward',
+    phase: T[0],
+    timePosition: T[1],
+    task: {id: string; callback: Function; frequencyLimit: number}
+  ): void {
+    this.addAwaiteds(direction, phase, timePosition, 'task', task);
   }
 
   private addAwaiteds(
@@ -346,8 +383,12 @@ export class WebChalkAnimation extends Animation {
     phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
     timePosition: number | 'beginning' | 'end' | `${number}%`,
     awaitedType: 'integrityblock' | 'task',
-    event: {id: string, callback: Function},
+    task: {id: string, callback: Function, frequencyLimit: number},
   ): void {
+    if (task.frequencyLimit < 1) {
+      throw this.errorGenerator(RangeError, `Invalid frequencyLimit ${task.frequencyLimit}. Must be greater than 0.`);
+    }
+
     // if the animation is already finished in the given direction, do nothing
     if (this.isFinished && this.direction === direction) {
       console.warn(this.errorGenerator(Error, `The new ${awaitedType}s set for time position "${timePosition}" will not be used because the time "${timePosition}" has already passed.`).message);
@@ -375,7 +416,7 @@ export class WebChalkAnimation extends Animation {
       // if new endDelay is less than curr, new segment should be inserted to list
       if (endDelay < currSegment[0]) {
         // but if the proceeding segement has already been reached in the loop, then the time at which the new promises
-        // should be awaited as already passed
+        // should be awaited has already passed
         if (currSegment[5].activated) {
           console.warn(this.errorGenerator(Error, `The new ${awaitedType}s set for time position "${timePosition}" will not be used because the time "${timePosition}" has already passed.`).message);
           return;
@@ -385,10 +426,10 @@ export class WebChalkAnimation extends Animation {
         segments.splice(i, 0, [
           endDelay,
           [],
-          (awaitedType === 'task' ? [event] : []),
-          (awaitedType === 'integrityblock' ? [event] : []),
+          (awaitedType === 'task' ? [task] : []),
+          (awaitedType === 'integrityblock' ? [task] : []),
           phaseTimePosition === 0,
-          {}
+          {phase, timePosition}
         ]);
         return;
       }
@@ -402,7 +443,7 @@ export class WebChalkAnimation extends Animation {
         }
 
         // add promises to current segment
-        currSegment[awaitedType === 'task' ? 2 : 3].push(event);
+        currSegment[awaitedType === 'task' ? 2 : 3].push(task);
         return;
       }
     }
