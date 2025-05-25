@@ -1004,45 +1004,45 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
    * @returns A Promise that is resolved at the specific time point of the animation.
    * 
    * @example
-   * <!-- EX:S id="AnimClip.generateTimePromise-1" code-type="ts" -->
+   * <!-- EX:S id="AnimClip.schedulePromise-1" code-type="ts" -->
    * ```ts
    * async function testFunc() {
    *   const { Entrance } = webchalk.createAnimationClipFactories();
    *   const square = document.querySelector('.square');
    *   const ent = Entrance(square, '~fade-in', []);
    *   // wait until ent is played and gets 1/5 of the way through the active phase of the animation
-   *   await ent.generateTimePromise('forward', 'activePhase', '20%');
+   *   await ent.schedulePromise('forward', 'activePhase', '20%');
    *   console.log('1/5 done playing!');
    * }
    * 
    * testFunc();
    * ```
-   * <!-- EX:E id="AnimClip.generateTimePromise-1" -->
+   * <!-- EX:E id="AnimClip.schedulePromise-1" -->
    * 
    * @example
-   * <!-- EX:S id="AnimClip.generateTimePromise-2" code-type="ts" -->
+   * <!-- EX:S id="AnimClip.schedulePromise-2" code-type="ts" -->
    * ```ts
    * async function testFunc() {
    *   const { Entrance } = webchalk.createAnimationClipFactories();
    *   const square = document.querySelector('.square');
    *   const ent = Entrance(square, '~fade-in', []);
    *    // wait until ent is eventually rewound and gets 4/5 of the way through rewinding the active phase of the animation
-   *    await ent.generateTimePromise('backward', 'activePhase', '20%');
+   *    await ent.schedulePromise('backward', 'activePhase', '20%');
    *    console.log('4/5 done rewinding!');
    * }
    * 
    * testFunc();
    * ```
-   * <!-- EX:E id="AnimClip.generateTimePromise-2" -->
+   * <!-- EX:E id="AnimClip.schedulePromise-2" -->
    * 
    * @group Timing Event Methods
    */
-  generateTimePromise(
+  schedulePromise(
     direction: 'forward' | 'backward',
     phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
     timePosition: number | 'beginning' | 'end' | `${number}%`
   ): Promise<void> {
-    return this.animation.generateTimePromise(direction, phase, timePosition);
+    return this.animation.schedulePromise(direction, phase, timePosition);
   }
 
   /**
