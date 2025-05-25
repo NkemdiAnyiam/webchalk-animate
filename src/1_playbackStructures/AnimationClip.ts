@@ -1069,7 +1069,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
    * @returns The string id (auto-generated) referring to the task and its spot in the schedule.
    * 
    * @example
-   * <!-- EX:S id="AnimClip.scheduleTasks-1" code-type="ts" -->
+   * <!-- EX:S id="AnimClip.scheduleTask-1" code-type="ts" -->
    * ```ts
    * async function wait(milliseconds: number) { // Promise-based timer
    *    return new Promise(resolve => setTimeout(resolve, milliseconds));
@@ -1109,7 +1109,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
    *   // There are no more tasks at this point, so playback is resumed.
    * })();
    * ```
-   * <!-- EX:E id="AnimClip.scheduleTasks-1" -->
+   * <!-- EX:E id="AnimClip.scheduleTask-1" -->
    * 
    * @group Timing Event Methods
    */

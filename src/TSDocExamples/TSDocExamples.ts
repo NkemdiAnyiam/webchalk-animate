@@ -638,7 +638,7 @@ testFunc();
 }
 
 {
-/**** EX:S id="AnimClip.scheduleTasks-1" */
+/**** EX:S id="AnimClip.scheduleTask-1" */
 async function wait(milliseconds: number) { // Promise-based timer
    return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
@@ -676,7 +676,7 @@ ent.scheduleTask('endDelayPhase', '40%', {
   // -- 'WORLD' is logged to the console
   // There are no more tasks at this point, so playback is resumed.
 })();
-/**** EX:E id="AnimClip.scheduleTasks-1" */
+/**** EX:E id="AnimClip.scheduleTask-1" */
 }
 
 {
