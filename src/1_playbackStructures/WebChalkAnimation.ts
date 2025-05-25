@@ -191,8 +191,13 @@ export class WebChalkAnimation extends Animation {
       if (tasks.length > 0) {
         this.pauseForTasks();
         blockedForTasks = true;
-        // for any functions, replace the entry with the return value (a promise)
-        await Promise.all(tasks.map(rBlock => rBlock.callback()));
+        // For any functions, replace the entry with the return value (a promise)
+        // If animation is "rewinding", tasks should be processed in reverse order...
+        // ... to ensure that side-effects from tasks are stable
+        await Promise.all(
+          (this.direction === 'forward' ? tasks: tasks.toReversed())
+            .map(rBlock => rBlock.callback())
+        );
       }
       if (integrityblocks.length > 0) {
         // for any functions, replace the entry with the return value (a promise)
