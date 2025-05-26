@@ -1090,9 +1090,10 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
    * ent.scheduleTask('endDelayPhase', '40%', {
    *   onPlay: () => console.log('HELLO'),
    *   onRewind: () => console.log('WORLD')
-   * });
+   * }, {frequencyLimit: 2});
    * 
    * (async () => {
+   *   // 1) First play
    *   await ent.play();
    *   // ↑
    *   // Once ent is 15% through the active phase, it will pause and handle its scheduled tasks.
@@ -1102,12 +1103,36 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
    *   // Once ent is 40% through the endDelay phase, it will pause and handle its tasks
    *   // -- 'HELLO' is logged to the console
    *   // There are no more tasks at this point, so playback is resumed.
+   * 
+   *   // 2) First rewind
    *   await ent.rewind();
    *   // ↑
    *   // Once ent rewinds back to the 40% point of the endDelay phase, it will pause and...
    *   // ... handle its scheduled tasks
    *   // -- 'WORLD' is logged to the console
    *   // There are no more tasks at this point, so playback is resumed.
+   * 
+   *   // 3) Second play
+   *   await ent.play();
+   *   // ↑
+   *   // Once ent is 40% through the endDelay phase, it will pause and handle its tasks
+   *   // -- 'HELLO' is logged to the console
+   *   // -- -- Since the frequency limit was 2, this subtask is removed
+   *   // There are no more tasks at this point, so playback is resumed.
+   * 
+   *   // 4) Second rewind
+   *   await ent.rewind();
+   *   // ↑
+   *   // Once ent rewinds back to the 40% point of the endDelay phase, it will pause and...
+   *   // ... handle its scheduled tasks
+   *   // -- 'WORLD' is logged to the console
+   *   // -- -- Since the frequency limit was 2, this subtask is removed
+   *   // There are no more tasks at this point, so playback is resumed.
+   * 
+   *   await ent.play();
+   *   // ↑ No scheduled tasks, so playback runs uninterrupted
+   *   await ent.rewind();
+   *   // ↑ No scheduled tasks, so playback runs uninterrupted
    * })();
    * ```
    * <!-- EX:E id="AnimClip.scheduleTask-1" -->
