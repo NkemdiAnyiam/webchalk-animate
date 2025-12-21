@@ -682,6 +682,10 @@ ent.scheduleTask('endDelayPhase', '40%', {
   // 3) Second play
   await ent.play();
   // ↑
+  // Once ent is 15% through the active phase, it will pause and handle its scheduled tasks.
+  // -- "wait(2000)" resolves after 2 seconds.
+  // -- "wait(3000)" resolves after 3 seconds.
+  // There are no more tasks at this point, so playback is resumed.
   // Once ent is 40% through the endDelay phase, it will pause and handle its tasks
   // -- 'HELLO' is logged to the console
   // -- -- Since the frequency limit was 2, this subtask is removed
@@ -696,8 +700,15 @@ ent.scheduleTask('endDelayPhase', '40%', {
   // -- -- Since the frequency limit was 2, this subtask is removed
   // There are no more tasks at this point, so playback is resumed.
 
+  // 5) Third play
   await ent.play();
-  // ↑ No scheduled tasks, so playback runs uninterrupted
+  // ↑
+  // Once ent is 15% through the active phase, it will pause and handle its scheduled tasks.
+  // -- "wait(2000)" resolves after 2 seconds.
+  // -- "wait(3000)" resolves after 3 seconds.
+  // There are no more tasks at this point, so playback is resumed.
+
+  // 6) Third rewind
   await ent.rewind();
   // ↑ No scheduled tasks, so playback runs uninterrupted
 })();
