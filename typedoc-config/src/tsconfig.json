@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2024", // TODO: change to ES2024 when available
+    "target": "ES2024",
     "module": "Node18",
     "outDir": "../assets/plugins",
     "strict": true,
