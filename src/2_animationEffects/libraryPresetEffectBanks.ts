@@ -555,24 +555,35 @@ export const libPresetEmphases = {
       //   prevVal = getComputedStyle(this.domElem).getPropertyValue('--webchalk-highlight-color');
       // };
 
-      // TODO: Prevent highlighting an element that is already highlighted
       // get the previous highlight color of the element (if none, it naturally uses the value from :root)
       const prevColor = this.getStyles('--webchalk-highlight-color');
       // if color is 'default', use :root's highlight color
       const finalColor = color === 'default' ? this.getStyles(document.documentElement, '--webchalk-highlight-color') : color;
+      
       return {
-        forwardKeyframesGenerator: () => [
-          {['--webchalk-highlight-color']: prevColor, easing: 'step-start'}, // step-start -> steps(1, jump-start)
-          {backgroundPositionX: '100%', offset: 0},
-          {backgroundPositionX: '0%', offset: 1},
-          {['--webchalk-highlight-color']: finalColor}
-        ],
-        backwardKeyframesGenerator: () => [
-          {['--webchalk-highlight-color']: finalColor, easing: 'step-end'}, // step-end -> steps(1, jump-end)
-          {backgroundPositionX: '0%', offset: 0},
-          {backgroundPositionX: '100%', offset: 1},
-          {['--webchalk-highlight-color']: prevColor}
-        ],
+        forwardKeyframesGenerator: () => {
+          if (this.domElem.dataset.webchalkHighlighted) {
+            throw new CustomErrors.InvalidEffectError(`Cannot highlight an element that is already highlighted.`);
+          }
+          this.domElem.dataset.webchalkHighlighted = String(true);
+
+          return [
+            {['--webchalk-highlight-color']: prevColor, easing: 'step-start'}, // step-start -> steps(1, jump-start)
+            {backgroundPositionX: '100%', offset: 0},
+            {backgroundPositionX: '0%', offset: 1},
+            {['--webchalk-highlight-color']: finalColor}
+          ];
+        },
+        backwardKeyframesGenerator: () => {
+          delete this.domElem.dataset.webchalkHighlighted;
+
+          return [
+            {['--webchalk-highlight-color']: finalColor, easing: 'step-end'}, // step-end -> steps(1, jump-end)
+            {backgroundPositionX: '0%', offset: 0},
+            {backgroundPositionX: '100%', offset: 1},
+            {['--webchalk-highlight-color']: prevColor}
+          ];
+        },
       };
     },
     defaultConfig: {
@@ -595,8 +606,23 @@ export const libPresetEmphases = {
       if (!this.domElem.classList.contains(`webchalk-highlightable`)) {
         throw new CustomErrors.InvalidEffectError(`Cannot un-highlight an element that was not already highlighted.`);
       }
+
       return {
-        forwardKeyframesGenerator: () => [ {backgroundPositionX: '0%'}, {backgroundPositionX: '100%'}],
+        forwardKeyframesGenerator: () => {
+          switch (this.getStatus('direction')) {
+            // if playing, dataset highlighted should become false
+            case 'forward':
+              delete this.domElem.dataset.webchalkHighlighted;
+              break;
+            // if rewinding, dataset highlighted should become true
+            case 'backward':
+              this.domElem.dataset.webchalkHighlighted = String(true);
+              break;
+            default: throw new Error(`Something very wrong occurred for an error to arise here.`);
+          }
+
+          return [ {backgroundPositionX: '0%'}, {backgroundPositionX: '100%'}];
+        },
       } as const;
     },
     defaultConfig: {
