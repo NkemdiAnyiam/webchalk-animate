@@ -275,7 +275,7 @@ export interface ComposedEffect extends StripDuplicateMethodAutocompletion<{
    *   // That Keyframe array is used for the animation effect as the clip plays.
    * 
    *   await mot.rewind();
-   *   // ↑ backwawrdFramesGenerator() will run and produce the Keyframe array [{translate: '-756px'}].
+   *   // ↑ backwardFramesGenerator() will run and produce the Keyframe array [{translate: '-756px'}].
    *   // That Keyframe array is used for the animation effect as the clip rewinds.
    * })();
    * ```
