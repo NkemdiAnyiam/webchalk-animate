@@ -315,7 +315,7 @@ export type ScheduledTask = {
  * Methods that involve listening to the progress of the animation clip to perform tasks at specific times.
  * 
  * @groupDescription Structure
- * Methods and/or fields related to the stucture of the clip, including the element it targets
+ * Methods and/or fields related to the structure of the clip, including the element it targets
  * and any parent structures it belongs to.
  * 
  * @groupDescription Configuration
@@ -1462,7 +1462,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
         case "backward":
           rafMutators.backwardMutator!();
           break;
-        default: throw this.generateError(Error, `Something very wrong occured for there to be an error here.`);
+        default: throw this.generateError(Error, `Something very wrong occurred for there to be an error here.`);
       }
     }
     catch (err: unknown) { throw this.generateError(err as Error); }
@@ -1526,7 +1526,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
       return initialVal;
     }
 
-    // if using a mirror for the backward mutator, computeTween() should flip the progresss
+    // if using a mirror for the backward mutator, computeTween() should flip the progress
     // if mutators are reversed, computeTween() should flip the progress
     const flipProgress = xor(
       this.animation.direction === 'backward' && this.bRafMirrored,
