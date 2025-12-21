@@ -456,7 +456,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
    * The DOM element that is to be animated.
    * @group Structure
    */
- readonly domElem: DOMElement;
+  readonly domElem: DOMElement;
 
  /**
   * Returns an object containing the specified style properties of the specified element.
