@@ -190,7 +190,7 @@ export type AddClipsOptions = {
  * Methods that involve listening to the progress of the animation sequence to perform tasks at specific times.
  * 
  * @groupDescription Structure
- * Methods and/or fields related to the stucture of the sequence, including methods related to the clips that make up
+ * Methods and/or fields related to the structure of the sequence, including methods related to the clips that make up
  * the sequence and what timeline the sequence belongs to (if any).
  * 
  * @groupDescription Configuration

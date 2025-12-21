@@ -35,7 +35,7 @@ export type DOMElement = HTMLElement | SVGElement | MathMLElement;
 // TODO: maybe move CssLength-based examples to be injected
 
 /**
- * Options for determing the offset to add to an element's translation.
+ * Options for determining the offset to add to an element's translation.
  */
 interface TranslationOffset {
   /**

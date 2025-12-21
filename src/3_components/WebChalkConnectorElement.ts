@@ -203,7 +203,7 @@ export class WebChalkConnectorElement extends HTMLElement {
     // CHANGE NOTE: Use offsetParent instead of direct parent to properly get nearest positioned ancestor
     const offsetParent = this.offsetParent;
 
-    // if offsetParent is null, then the connector or an ancestory is invisible (so no point in updating)
+    // if offsetParent is null, then the connector or an ancestry is invisible (so no point in updating)
     if (!offsetParent) {
       return;
       // this.clearTrackingInterval();
@@ -214,7 +214,7 @@ export class WebChalkConnectorElement extends HTMLElement {
       //   && (getComputedStyle(parentElement).position !== 'fixed');
       // const errorArr = [
       //   `Cannot call updateEndpoints() while the connector or its parent element is invisible.${parentInvisible ? ` In this case, the parent was found to be hidden.` : ''}`,
-      //   this.pointTrackingEnabled ? `\nThis connector also has points-tracking enabled (which allows it to continuously update its endpoings), so we have disabled it.` : '',
+      //   this.pointTrackingEnabled ? `\nThis connector also has points-tracking enabled (which allows it to continuously update its endpoints), so we have disabled it.` : '',
       //   this.pointTrackingEnabled ? `If this connector does not need to continuously update its endpoints, you can set its 'pointTrackingEnabled' config setting to false to prevent this error.` : '',
       //   this.pointTrackingEnabled && parentInvisible ?
       //     `If this connector needs to continuously update its endpoints, make sure to Exit it if its parent is about to be hidden—this safely pauses the tracking until the connector is visible again.` : '',
@@ -275,7 +275,7 @@ export class WebChalkConnectorElement extends HTMLElement {
     }
   }
 
-  // CHANGE NOTE: Use requestAnimationFrame() loop instead of setInterval() to laglessly update endpoints
+  // CHANGE NOTE: Use requestAnimationFrame() loop instead of setInterval() to update endpoints without lag
   continuouslyUpdateEndpoints = (): void => {
     this.updateEndpoints();
     this.continuousTrackingReqId = window.requestAnimationFrame(this.continuouslyUpdateEndpoints);

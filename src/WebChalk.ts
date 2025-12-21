@@ -390,7 +390,7 @@ export class WebChalk {
 
     const mergeBanks = <L, U>(libraryBank: L, customBank: U) => {
       const combinedBank = {...(includeLibraryPresets ? libraryBank : {}), ...(customBank ?? {})} as EffectComposerBank;
-      // // set effectName and sourceBank properties of each generator to thier obviously corresponding values
+      // // set effectName and sourceBank properties of each generator to their obviously corresponding values
       // // Object.assign circumvents the Readonly<>, preventing a TS error
       // for (const key in combinedBank) {
       //   const extras = { effectName: key, sourceBank: combinedBank } satisfies Partial<EffectComposer>;

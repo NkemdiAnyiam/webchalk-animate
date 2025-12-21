@@ -23,7 +23,7 @@ export type TrivialCssEasingFunction = `linear` | 'ease' | 'ease-in' | 'ease-out
 
 /**
  * Autocompleted custom preset easing strings and trivial `<easing-function>`s
- * (but still allowing any `string` to account for non-trivial `<easing-function>`s such as cubier-bezier functions).
+ * (but still allowing any `string` to account for non-trivial `<easing-function>`s such as cubic-bezier functions).
  * @example
  * <!-- EX:S id="EasingString-1" code-type="ts" -->
  * ```ts
@@ -122,7 +122,7 @@ export function invertEasing(easingString: EasingString): string {
       // if (str.match(/^ease(-(in-out))?$/)) { return str; }
       if (str === 'ease-in') { return 'ease-out'; }
       if (str === 'ease-out') { return 'ease-in'; }
-      return str; // either ease or ease-in-ouot
+      return str; // either ease or ease-in-out
     }
   
     // INVERT LINEAR()

@@ -146,7 +146,7 @@ export interface ComposedEffect extends StripDuplicateMethodAutocompletion<{
    *   // That Keyframe array is used for the animation effect as the clip plays.
    * 
    *   await mot.rewind();
-   *   // ↑ backwawrdFramesGenerator() will run and produce the Keyframe array [{translate: '-756px'}].
+   *   // ↑ backwardFramesGenerator() will run and produce the Keyframe array [{translate: '-756px'}].
    *   // That Keyframe array is used for the animation effect as the clip rewinds.
    * })();
    * ```
@@ -1364,7 +1364,7 @@ type CategoryToClipType<TCategory extends 'Entrance' | 'Exit' | 'Emphasis' | 'Mo
  * @remarks
  * This function is purely for convenience. You could create {@link EffectComposer} objects on your own without it, but there would
  * be no autocompletion or hinting. Besides using this function or {@link createCustomEffectComposerBank}, the other way to
- * contstruct effect composers while still having access to Intellisense is to define them directly within the call to
+ * construct effect composers while still having access to Intellisense is to define them directly within the call to
  * {@link webchalk.createAnimationClipFactories}.
  * 
  * @example
@@ -1487,7 +1487,7 @@ export function createCustomEffectComposer<
  * @remarks
  * This function is purely for convenience. You could create {@link EffectComposerBank} or individual {@link EffectComposer}
  * objects on your own without it, but there would be no autocompletion or hinting. Besides using this function,
- * the other way to contstruct effect composers while still having access to Intellisense is to define them directly
+ * the other way to construct effect composers while still having access to Intellisense is to define them directly
  * within the call to {@link webchalk.createAnimationClipFactories}.
  * 
  * @example

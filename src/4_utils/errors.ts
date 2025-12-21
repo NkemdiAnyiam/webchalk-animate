@@ -23,7 +23,7 @@ export type ClipErrorGenerator = {
     /** The error message that will appear before the location information */
     msg: string,
     /**
-     * Used to explicitly set the DOM elem in the edgecase where the error occurs in the clip's constructor
+     * Used to explicitly set the DOM elem in the edge case where the error occurs in the clip's constructor
      * (where the field containing the DOM element is not yet set)
      */
     elementOverride?: DOMElement
@@ -206,7 +206,7 @@ export const errorTip = (tip: string) => {
  * @param components.clip - The {@link AnimClip} involved in the error
  * @param components.element - The DOM element involved in the error
  * 
- * @returns An Error containing details about where exactly in the timeline and/or sequence and/or clip the error occured.
+ * @returns An Error containing details about where exactly in the timeline and/or sequence and/or clip the error occurred.
  */
 export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg = '<unspecified error>', components = {}) => {
   const {timeline, sequence, clip, element} = components;

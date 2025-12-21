@@ -326,7 +326,7 @@ export class WebChalkAnimation extends Animation {
         
         // if new endDelay is less than curr, new segment should be inserted to list
         if (endDelay < currSegment[0]) {
-          // but if the proceeding segement has already been reached in the loop, then the awaited time has already passed
+          // but if the proceeding segment has already been reached in the loop, then the awaited time has already passed
           if (currSegment[5].activated) { resolve(); return; }
 
           // insert new segment to list
@@ -346,7 +346,7 @@ export class WebChalkAnimation extends Animation {
       }
 
       // note: this error should never be reached
-      throw this.errorGenerator(Error, 'Something very wrong occured for addAwaited() to not be completed.');
+      throw this.errorGenerator(Error, 'Something very wrong occurred for addAwaited() to not be completed.');
     });
   }
 
@@ -454,7 +454,7 @@ export class WebChalkAnimation extends Animation {
       
       // if new endDelay is less than curr, new segment should be inserted to list
       if (endDelay < currSegment[0]) {
-        // but if the proceeding segement has already been reached in the loop, then the time at which the new promises
+        // but if the proceeding segment has already been reached in the loop, then the time at which the new promises
         // should be awaited has already passed
         if (currSegment[5].activated) {
           console.warn(this.errorGenerator(Error, `The new ${awaitedType}s set for time position "${timePosition}" will not be used because the time "${timePosition}" has already passed.`).message);
@@ -488,7 +488,7 @@ export class WebChalkAnimation extends Animation {
     }
 
     // note: this error should never be reached
-    throw this.errorGenerator(Error, 'Something very wrong occured for addAwaited() to not be completed.');
+    throw this.errorGenerator(Error, 'Something very wrong occurred for addAwaited() to not be completed.');
   }
 
   private static computePhaseEmplacement(

@@ -131,7 +131,7 @@ export function parseMultiUnitPlacement(offset: number | MultiUnitPlacementX | M
         alignmentPerc = 0.5;
         break;
       default:
-        throw new RangeError(`Something wrong occured for ${val1} to be ${val1}`);
+        throw new RangeError(`Something wrong occurred for ${val1} to be ${val1}`);
     }
 
     // if second value is a percentage
@@ -232,7 +232,7 @@ export function call<TFunction extends ([...args]: unknown[]) => unknown>(
 
 /**
  * Returns either an object containing a subset of properties of the specified source object
- * or the value of a singluar property of the source object.
+ * or the value of a singular property of the source object.
  * @param source - the object whose properties should be targeted
  * @param props - a singular property name or an array of property names
  * @returns A singular value if {@link props} is a string or an object containing a subset of properties if {@link props} is an array of strings.
@@ -279,7 +279,7 @@ export function detab(text: TemplateStringsArray | string): string {
 /**
  * Gets the bounding rectangle of an element even if it is unrendered.
  * @param element - the element on which to call `getBoundingClientRect()`
- * @returns The bounding client rectange of {@link element}.
+ * @returns The bounding client rectangle of {@link element}.
  */
 export function getBoundingClientRectOfHidden(element: Element | null): DOMRect {
   if (!element) { throw new TypeError(`Element must not be null or undefined.`); }

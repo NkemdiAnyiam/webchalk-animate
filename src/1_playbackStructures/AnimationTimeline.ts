@@ -826,7 +826,7 @@ export class AnimTimeline {
   // pauses or unpauses playback
   /**
    * Pauses the animation timeline if it is unpaused or unpauses it if it is currently paused.
-   * @param options - options for the bevior of the toggle
+   * @param options - options for the behavior of the toggle
    * @returns 
    * @group Playback Methods
    */
@@ -1141,7 +1141,7 @@ export class AnimTimeline {
       const errorPrefixString = `Jumping to ${jumpTag ? `tag "${jumpTag}"` : `position "${position}"`} with offset "${targetOffset}" goes`;
       const errorPostfixString = `but requested index was ${targetIndex}.`;
       if (targetIndex < 0)
-      { throw new RangeError(`${errorPrefixString} before timeline bounds. Minimium index = 0, ${errorPostfixString}`); }
+      { throw new RangeError(`${errorPrefixString} before timeline bounds. Minimum index = 0, ${errorPostfixString}`); }
       if (targetIndex > this.numSequences)
         { throw new RangeError(`${errorPrefixString} ahead of timeline bounds. Max index = ${this.numSequences}, ${errorPostfixString}`); }
     }
