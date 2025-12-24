@@ -4,6 +4,7 @@ import { Keyframes, Mutator } from "../4_utils/interfaces";
 import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord } from "../4_utils/utilityTypes";
 import { AnimClipConfig } from "../1_playbackStructures/AnimationClip";
 import { webchalk } from "../WebChalk";
+import { deepFreeze } from "../4_utils/helpers";
 
 /**
  * Contains up to 4 callback functions that will be called to
@@ -1454,7 +1455,7 @@ export function createCustomEffectComposer<
     default:
       throw new TypeError(`Invalid effect category "${effectCategory}". Must be 'Entrance', 'Exit', 'Emphasis', or 'Motion'.`);
   }
-  return effectComposer;
+  return deepFreeze(effectComposer as typeof effectComposer);
 }
 
 /**
@@ -1573,7 +1574,7 @@ export function createCustomEffectComposerBank<
       throw new TypeError(`Invalid effect category "${effectCategory}". Must be 'Entrance', 'Exit', 'Emphasis', or 'Motion'.`);
   }
 
-  return effectComposerBank as typeof effectComposerBank & ClipTypeToHiddenBankCategorizer<ExtendableBankCategoryToClipType<TCategory>>;
+  return deepFreeze(effectComposerBank as typeof effectComposerBank & ClipTypeToHiddenBankCategorizer<ExtendableBankCategoryToClipType<TCategory>>);
 }
 
 /**

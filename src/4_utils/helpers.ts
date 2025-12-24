@@ -29,6 +29,26 @@ export function findLastIndex<T>(array: Array<T>, predicate: (value: T, index: n
 }
 export const negateNumString = (str: string): string => str[0] === '-' ? str.slice(1) : `-${str}`;
 
+/**
+ * Deep freezes an object.
+ * @param obj - The object to be deep-frozen.
+ * @returns The now frozen {@link obj}.
+ * @remarks
+ * CREDITS: https://decipher.dev/30-seconds-of-typescript/docs/deepFreeze/
+ */
+export const deepFreeze = <T extends object>(obj: T) => {
+  Object.keys(obj).forEach((prop) => {
+    if (
+      typeof obj[prop as keyof T] === 'object' &&
+      !Object.isFrozen(obj[prop as keyof T])
+    ) {
+      /**@ts-ignore*/
+      deepFreeze(obj[prop as keyof T]);
+    }
+  });
+  return Object.freeze(obj);
+};
+
 export function numToOrdinal(value: number | `${number}`) {
   const suffixes = ["th", "st", "nd", "rd"];
   

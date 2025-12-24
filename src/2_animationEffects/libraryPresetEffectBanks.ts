@@ -10,7 +10,7 @@ import {
 } from "../1_playbackStructures/AnimationClipCategories";
 import { webchalk } from "../WebChalk";
 import { createCustomEffectComposerBank, EffectComposerBank } from "./customEffectCreation";
-import { computeSelfScrollingBounds, getBoundingClientRectOfHidden, negateNumString, parseXYAlignmentString, parseXYTupleString } from "../4_utils/helpers";
+import { computeSelfScrollingBounds, deepFreeze, getBoundingClientRectOfHidden, negateNumString, parseXYAlignmentString, parseXYTupleString } from "../4_utils/helpers";
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions, Keyframes } from "../4_utils/interfaces";
 import { useEasing } from "./easing";
 import { CustomErrors } from "../4_utils/errors";
@@ -752,7 +752,7 @@ export const libPresetMotions = createCustomEffectComposerBank('Motion', {
 /**
  * @category hidden
  */
-export const libPresetTransitions = {
+export const libPresetTransitions = deepFreeze({
   /** Element transitions from the specified {@link Keyframe} to its current state. */
   ['~from']: {
     /**
@@ -880,7 +880,7 @@ export const libPresetTransitions = {
     immutableConfig: {} as const,
     effectCompositionFrequency: 'on-every-play',
   },
-} satisfies EffectComposerBank<TransitionClip>;
+}) satisfies EffectComposerBank<TransitionClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:***********************************        CONNECTOR ENTRANCES      ******************************************************/
@@ -888,7 +888,7 @@ export const libPresetTransitions = {
 /**
  * @category hidden
  */
-export const libPresetConnectorEntrances = {
+export const libPresetConnectorEntrances = deepFreeze({
   /** Connector appears instantaneously. */
   [`~appear`]: {
     /**
@@ -991,7 +991,7 @@ export const libPresetConnectorEntrances = {
     } as const,
     effectCompositionFrequency: 'on-every-play',
   },
-} satisfies EffectComposerBank<ConnectorEntranceClip>;
+}) satisfies EffectComposerBank<ConnectorEntranceClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:*************************************        CONNECTOR EXITS        ******************************************************/
@@ -999,7 +999,7 @@ export const libPresetConnectorEntrances = {
 /**
  * @category hidden
  */
-export const libPresetConnectorExits = {
+export const libPresetConnectorExits = deepFreeze({
   /** Connector disappears instantaneously. */
   [`~disappear`]: {
     /**
@@ -1099,7 +1099,7 @@ export const libPresetConnectorExits = {
     } as const,
     effectCompositionFrequency: 'on-every-play',
   },
-} satisfies EffectComposerBank<ConnectorExitClip>;
+}) satisfies EffectComposerBank<ConnectorExitClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:*****************************************        SCROLLS        **********************************************************/
@@ -1107,7 +1107,7 @@ export const libPresetConnectorExits = {
 /**
  * @category hidden
  */
-export const libPresetScrolls = {
+export const libPresetScrolls = deepFreeze({
   // [`~scroll-self`]: {
   //   generateRafMutators(target: Element | null | undefined, scrollOptions: Partial<ScrollingOptions> = {}) {
   //     if (!target) { throw new TypeError(`Target for ~scroll-self must not be null`); }
@@ -1228,4 +1228,4 @@ export const libPresetScrolls = {
     } as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
-} satisfies EffectComposerBank<ScrollerClip>;
+}) satisfies EffectComposerBank<ScrollerClip>;
