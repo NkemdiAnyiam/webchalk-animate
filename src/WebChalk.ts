@@ -12,7 +12,8 @@ import {
   libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions
 } from "./2_animationEffects/libraryPresetEffectBanks";
 import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./4_utils/interfaces";
-import { EffectComposerBank, EffectNameIn, EffectComposer, EffectOptions } from "./2_animationEffects/customEffectCreation";
+import { EffectComposerBank, EffectNameIn, EffectComposer, EffectOptions, createCustomEffectComposerBank, ExtendableBankCategoryToClipType, EffectComposerBankToCategory } from "./2_animationEffects/customEffectCreation";
+import { StrictPropertyCheck } from "./4_utils/utilityTypes";
 
 /**
  * @hideconstructor
@@ -902,7 +903,55 @@ export class WebChalk {
       );
     }
   }
+
+  copyEffectComposer<
+    TEffectComposerBank extends EffectComposerBank,
+    TClipType extends ExtendableBankCategoryToClipType<EffectComposerBankToCategory<TEffectComposerBank>>,
+    TEffectName extends EffectNameIn<TEffectComposerBank>,
+    TEffectComposer extends TEffectComposerBank[TEffectName],
+    TDefaultConfig extends Partial<Layer4MutableConfig<TClipType, TEffectComposer>>,
+    TImmutableConfig extends Partial<Layer4MutableConfig<TClipType, TEffectComposer>>,
+  >(
+    sourceComposerBank: TEffectComposerBank,
+    effectName: TEffectName,
+    addedConfiguration: {
+      addedDefaultConfig?: TDefaultConfig & StrictPropertyCheck<
+        TDefaultConfig,
+        Partial<Layer4MutableConfig<TClipType, TEffectComposer>>,
+        DEFAULT_CONFIG_ERROR
+      >,
+      addedImmutableConfig?: TImmutableConfig & StrictPropertyCheck<
+        TImmutableConfig,
+        Partial<Layer4MutableConfig<TClipType, TEffectComposer>>,
+        IMMUTABLE_CONFIG_ERROR
+      >,
+    }
+  ) {
+    const sourceComposer = sourceComposerBank[effectName];
+    const {
+      addedDefaultConfig = {},
+      addedImmutableConfig = {},
+    } = addedConfiguration;
+
+    return {
+      // new default configuration takes priority over source default config
+      ...sourceComposer,
+      defaultConfig: {
+        ...sourceComposer.defaultConfig,
+        ...addedDefaultConfig
+      } as TDefaultConfig,
+      // source immutable configuration takes priority over new immutable config
+      immutableConfig: {
+        ...addedImmutableConfig,
+        ...sourceComposer.immutableConfig
+        // "& TEffectComposer['immutableConfig]" ensures that type constraints from source immutable config are respected after returning
+      } as TImmutableConfig & TEffectComposer['immutableConfig'],
+    };
+  }
 }
+
+type DEFAULT_CONFIG_ERROR = `Only default configuration that is A) valid for this effect category and B) not excluded by pre-existing immutable configuration is allowed. Remove the invalid properties and then press 'CTRL + Space' within the object braces to view the allowed properties.`;
+type IMMUTABLE_CONFIG_ERROR = `Only immutable configuration that is A) valid for this effect category and B) not excluded by pre-existing immutable configuration is allowed (pre-existing immutable configuration CANNOT be overwritten). Remove the invalid properties and then press 'CTRL + Space' within the object braces to view the allowed properties.`;
 
 /**
  * @ignore
@@ -910,26 +959,16 @@ export class WebChalk {
 export const webchalk = new WebChalk();
 
 // const thing =  webchalk.createAnimationClipFactories({
-//   customEntranceEffects: {
+//   customEntranceEffects: createCustomEffectComposerBank('Entrance', {
 //     hello: {
-//       generateEffect() {
-//         return {
-//           forwardKeyframesGenerator: () => [],
-//           backwardKeyframesGenerator: () => [],
-//           forwardMutatorGenerator: () => {
-//             return () => {};
-//           },
-//           backwardMutatorGenerator: () => {
-//             return () => {};
-//           }
-//         }
-//       },
+//       composeEffect() {return []},
 //       defaultConfig: {
         
 //       },
 //       immutableConfig: {
 //         duration: 0
 //       }
-//     }
-//   }
-// }).Entrance(new HTMLElement(), '~appear', [], {}).getModifiers();
+//     },
+//     '~ad': webchalk.copyEffectComposer(libPresetEntrances, '~appear', {addedDefaultConfig: {}, addedImmutableConfig: {}}),
+//   }),
+// }).Entrance(new HTMLElement(), '~ad', [], {}).getModifiers();

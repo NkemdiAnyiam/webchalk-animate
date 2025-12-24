@@ -9,7 +9,7 @@ import {
   ConnectorExitClip,
 } from "../1_playbackStructures/AnimationClipCategories";
 import { webchalk } from "../WebChalk";
-import { EffectComposerBank } from "./customEffectCreation";
+import { createCustomEffectComposerBank, EffectComposerBank } from "./customEffectCreation";
 import { computeSelfScrollingBounds, getBoundingClientRectOfHidden, negateNumString, parseXYAlignmentString, parseXYTupleString } from "../4_utils/helpers";
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions, Keyframes } from "../4_utils/interfaces";
 import { useEasing } from "./easing";
@@ -43,7 +43,7 @@ const clipOpened = 'polygon(0 0%, 100% 0%, 100% 100%, 0 100%)';
 /**
  * @category hidden
  */
-export const libPresetEntrances = {
+export const libPresetEntrances = createCustomEffectComposerBank('Entrance', {
   /** Element appears instantaneously. */
   [`~appear`]: {
     /**
@@ -285,7 +285,7 @@ export const libPresetEntrances = {
   },
 
   // invalidProperty: 5,
-} satisfies EffectComposerBank<EntranceClip>;
+}); // satisfies EffectComposerBank<EntranceClip> & {[`__EFFECT_CATEGORY: Entrance`]?: never};
 
 /*-:**************************************************************************************************************************/
 /*-:******************************************        EXITS        ***********************************************************/
@@ -293,7 +293,7 @@ export const libPresetEntrances = {
 /**
  * @category hidden
  */
-export const libPresetExits = {
+export const libPresetExits = createCustomEffectComposerBank('Exit', {
   /** Element disappears instantaneously. */
   [`~disappear`]: {
     /**
@@ -529,8 +529,8 @@ export const libPresetExits = {
       composite: 'accumulate',
     } as const,
     effectCompositionFrequency: 'on-first-play-only',
-  }
-} satisfies EffectComposerBank<ExitClip>;
+  },
+}); // satisfies EffectComposerBank<ExitClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:*****************************************        EMPHASES        *********************************************************/
@@ -538,7 +538,7 @@ export const libPresetExits = {
 /**
  * @category hidden
  */
-export const libPresetEmphases = {
+export const libPresetEmphases = createCustomEffectComposerBank('Emphasis', {
   /**
    * Element is highlighted in the specified color.
    */
@@ -633,7 +633,7 @@ export const libPresetEmphases = {
     } as const,
     effectCompositionFrequency: 'on-every-play',
   },
-} satisfies EffectComposerBank<EmphasisClip>;
+}); // satisfies EffectComposerBank<EmphasisClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:*****************************************        MOTIONS        **********************************************************/
@@ -641,7 +641,7 @@ export const libPresetEmphases = {
 /**
  * @category hidden
  */
-export const libPresetMotions = {
+export const libPresetMotions = createCustomEffectComposerBank('Motion', {
   /** Element is moved with respect to another element. */
   ['~move-to']: {
     /**
@@ -744,7 +744,7 @@ export const libPresetMotions = {
     immutableConfig: {} as const,
     effectCompositionFrequency: 'on-first-play-only',
   },
-} satisfies EffectComposerBank<MotionClip>;
+}); // satisfies EffectComposerBank<MotionClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:***************************************        TRANSITIONS        ********************************************************/

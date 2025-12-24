@@ -5,6 +5,7 @@ import * as WebChalkErrors from "webchalk-animate/error-handling";
 import * as WebChalkEasing from "webchalk-animate/easing";
 import * as WebChalkUtils from "webchalk-animate/utility-functions";
 import { createCustomEffectComposerBank } from 'webchalk-animate/custom-effect-creation';
+import { libPresetEntrances } from 'webchalk-animate/lib-preset-effect-banks';
 
 console.log(WebChalkClasses.AnimClip);
 
@@ -46,6 +47,7 @@ console.log(WebChalkClasses.AnimClip);
   }
 }
 `
+
 const customEntrances = createCustomEffectComposerBank(
   'Entrance',
   {
@@ -75,6 +77,18 @@ const customEntrances = createCustomEffectComposerBank(
         easing: 'cubic-bezier(0.230, 1.000, 0.320, 1.000)',
       },
     },
+
+    '~fly-in': webchalk.copyEffectComposer(libPresetEntrances, '~fly-in', {
+        addedDefaultConfig: {},
+        addedImmutableConfig: {
+          duration: 1000,
+          playbackRate: 1,
+          delay: 0,
+          endDelay: 0,
+          easing: 'linear'
+        }
+      }
+    ),
 
     'fade-in-red': {
       composeEffect() {
@@ -413,7 +427,7 @@ const ent = Entrance(square, '~appear', []);
 
 // console.log(ent.schedulePromise === ent.schedulePromise);
 
-const entrance: WebChalkTypes.EntranceClip = Entrance(square, '~fly-in', ['from-bottom'], {duration: 1000, hideNowType: 'display-none'});
+const entrance: WebChalkTypes.EntranceClip = Entrance(square, '~fly-in', ['from-bottom'], {hideNowType: 'display-none'});
 const motion = Motion(square, '~translate', [{translate: '200px 200px'}], {duration: 1000, easing: 'bounce-out'});
 // const entrance: WebChalkTypes.EntranceClip = Entrance(square, '~fly-in', ['from-bottom'], {duration: 1000});
 // const motion = Motion(square, 'translateRight', [500], {duration: 1000, easing: 'bounce-out'});

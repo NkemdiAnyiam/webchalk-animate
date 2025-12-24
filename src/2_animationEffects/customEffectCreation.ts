@@ -1328,25 +1328,10 @@ export type EffectOptions<TEffectComposer extends EffectComposer> = Parameters<T
  * @category Utility Types
  */
 export type EffectNameIn<TComposerBank extends EffectComposerBank> = Exclude<keyof {
-  [key in keyof TComposerBank as TComposerBank[key] extends EffectComposer ? key : never]: TComposerBank[key];
+  // extra constraint on key prevents hidden bank categorizers from appearing...
+  // ... whenever EffectNameIn is used as a string type constraint)
+  [key in keyof TComposerBank as TComposerBank[key] extends EffectComposer ? (key extends ExtendableBankCategoryToHiddenBankCategorizer<any> ? never : key) : never]: TComposerBank[key];
 }, number | symbol>;/** @ignore */
-
-
-
-/**
- * Returns the {@link AnimClip} subclass corresponding the the specified category.
- */
-type CategoryToClipType<TCategory extends 'Entrance' | 'Exit' | 'Emphasis' | 'Motion'> = (
-  TCategory extends 'Entrance' ? EntranceClip : (
-    TCategory extends 'Exit' ? ExitClip : (
-      TCategory extends 'Emphasis' ? EmphasisClip : (
-        TCategory extends 'Motion' ? MotionClip : (
-          never
-        )
-      )
-    )
-  )
-);
 
 
 // function createCustomEffectComposer<TEffectComposer extends EffectComposerBank<EntranceClip>[string]> (effectCategory: 'entrance', effectComposer: TEffectComposer): TEffectComposer;
@@ -1457,8 +1442,8 @@ type CategoryToClipType<TCategory extends 'Entrance' | 'Exit' | 'Emphasis' | 'Mo
  * @category Effect Composition
  */
 export function createCustomEffectComposer<
-  TCategory extends 'Entrance' | 'Exit' | 'Emphasis' | 'Motion',
-  TEffectComposer extends EffectComposerBank<CategoryToClipType<TCategory>>[string]
+  TCategory extends ExtendableBankCategory,
+  TEffectComposer extends EffectComposerBank<ExtendableBankCategoryToClipType<TCategory>>[string]
 > (effectCategory: TCategory, effectComposer: TEffectComposer) {
   switch(effectCategory) {
     case 'Entrance':
@@ -1472,10 +1457,6 @@ export function createCustomEffectComposer<
   return effectComposer;
 }
 
-// function createCustomEffectComposerBank<TComposerBank extends {[key: string]: EffectComposerBank<EntranceClip>[string]}>(effectCategory: 'entrance', bank: TComposerBank): TComposerBank;
-// function createCustomEffectComposerBank<TComposerBank extends {[key: string]: EffectComposerBank<ExitClip>[string]}>(effectCategory: 'exit', bank: TComposerBank): TComposerBank;
-// function createCustomEffectComposerBank<TComposerBank extends {[key: string]: EffectComposerBank<EmphasisClip>[string]}>(effectCategory: 'emphasis', bank: TComposerBank): TComposerBank;
-// function createCustomEffectComposerBank<TComposerBank extends {[key: string]: EffectComposerBank<MotionClip>[string]}>(effectCategory: 'motion', bank: TComposerBank): TComposerBank;
 /**
  * Allows the convenient creation of an object in the shape of an {@link EffectComposerBank} with full auto-completion for each entry.
  * The resulting effect composer bank must be passed into {@link webchalk.createAnimationClipFactories} in order for its composers to be
@@ -1578,8 +1559,8 @@ export function createCustomEffectComposer<
  * @category Effect Composition
  */
 export function createCustomEffectComposerBank<
-  TCategory extends 'Entrance' | 'Exit' | 'Emphasis' | 'Motion',
-  TComposerBank extends {[key: string]: EffectComposerBank<CategoryToClipType<TCategory>>[string]}
+  TCategory extends ExtendableBankCategory,
+  TComposerBank extends {[key: string]: EffectComposerBank<ExtendableBankCategoryToClipType<TCategory>>[string]}
 >(effectCategory: TCategory, effectComposerBank: TComposerBank) {
   switch(effectCategory) {
     case 'Entrance':
@@ -1590,5 +1571,66 @@ export function createCustomEffectComposerBank<
     default:
       throw new TypeError(`Invalid effect category "${effectCategory}". Must be 'Entrance', 'Exit', 'Emphasis', or 'Motion'.`);
   }
-  return effectComposerBank;
+
+  return effectComposerBank as typeof effectComposerBank & ClipTypeToHiddenBankCategorizer<ExtendableBankCategoryToClipType<TCategory>>;
 }
+
+/**
+ * Represents the categories that users are allowed to create their own custom effects for.
+ * @ignore
+ */
+export type ExtendableBankCategory = 'Entrance' | 'Exit' | 'Emphasis' | 'Motion'; 
+
+/**
+ * Returns a special string based on the specified effect category.
+ * The string is used to identify effect composer banks by their effect category.
+ * @ignore
+ */
+export type ExtendableBankCategoryToHiddenBankCategorizer<TCategory extends ExtendableBankCategory> = Uppercase<`__EFFECT_CATEGORY=${TCategory}`>;
+
+/**
+ * Returns a special unassignable property corresponding to the specified clip type.
+ * @ignore
+ */
+type ClipTypeToHiddenBankCategorizer<TClipType extends AnimClip> = 
+  TClipType extends EntranceClip ? {/**@internal*/ [`__EFFECT_CATEGORY=ENTRANCE`]: never} : (
+    TClipType extends ExitClip ? {/**@internal*/ [`__EFFECT_CATEGORY=EXIT`]: never} : (
+      TClipType extends EmphasisClip ? {/**@internal*/ [`__EFFECT_CATEGORY=EMPHASIS`]: never} : (
+        TClipType extends MotionClip ? {/**@internal*/ [`__EFFECT_CATEGORY=MOTION`]: never} : (
+          never
+        )
+      )
+    )
+  );
+
+/**
+ * Returns the {@link ExtendableBankCategory} corresponding to the specified effect composer bank.
+ * @ignore
+ */
+export type EffectComposerBankToCategory<TEffectComposerBank extends EffectComposerBank> = (
+  ExtendableBankCategoryToHiddenBankCategorizer<'Entrance'> extends keyof TEffectComposerBank ? 'Entrance' : (
+    ExtendableBankCategoryToHiddenBankCategorizer<'Exit'> extends keyof TEffectComposerBank ? 'Exit' : (
+      ExtendableBankCategoryToHiddenBankCategorizer<'Emphasis'> extends keyof TEffectComposerBank ? 'Emphasis' : (
+        ExtendableBankCategoryToHiddenBankCategorizer<'Motion'> extends keyof TEffectComposerBank ? 'Motion' : (
+          never
+        )
+      )
+    )
+  )
+);
+
+/**
+ * Returns the {@link AnimClip} subclass corresponding the the specified category.
+ * @ignore
+ */
+export type ExtendableBankCategoryToClipType<TCategory extends ExtendableBankCategory> = (
+  TCategory extends 'Entrance' ? EntranceClip : (
+    TCategory extends 'Exit' ? ExitClip : (
+      TCategory extends 'Emphasis' ? EmphasisClip : (
+        TCategory extends 'Motion' ? MotionClip : (
+          never
+        )
+      )
+    )
+  )
+);
