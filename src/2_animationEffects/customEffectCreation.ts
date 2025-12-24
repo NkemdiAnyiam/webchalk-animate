@@ -1297,7 +1297,13 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
   }
 >>;
 
-/** @ignore */
+/**
+ * Returns an object type that includes only the effect configuration properties that are allowed to
+ * be modified inside the definition of a given {@link EffectComposer}.
+ * Constraints are based on the immutable effect configuration of layer 2
+ * (the specified {@link AnimClip} subclass).
+ * @ignore
+ */
 export type Layer3MutableClipConfig<TClipClass extends AnimClip> = Omit<ReturnType<TClipClass['getConfig']>, keyof TClipClass['categoryImmutableConfig']>;
 
 // represents an object where every string key is paired with a EffectComposer value

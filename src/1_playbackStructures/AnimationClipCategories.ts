@@ -8,7 +8,12 @@ import { WebChalkConnectorElement, WebChalkConnectorElementConfig } from "../3_c
 import { EffectComposer, EffectComposerBank, EffectOptions, Layer3MutableClipConfig } from "../2_animationEffects/customEffectCreation";
 import { libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions, libPresetConnectorEntrances, libPresetConnectorExits, libPresetTransitions, libPresetScrolls } from "../2_animationEffects/libraryPresetEffectBanks";
 
-/** @ignore */
+/**
+ * Returns an object type that includes only the effect configuration properties that are allowed to
+ * be modified during a call to a given animation clip factory. Constraints are based on the
+ * immutable effect configuration of layer 3 (the specified {@link EffectComposer}).
+ * @ignore
+ */
 export type Layer4MutableConfig<TClipClass extends AnimClip, TEffectComposer extends EffectComposer> = Omit<Layer3MutableClipConfig<TClipClass>, keyof TEffectComposer['immutableConfig']>;
 
 /*-:***************************************************************************************************************************/
