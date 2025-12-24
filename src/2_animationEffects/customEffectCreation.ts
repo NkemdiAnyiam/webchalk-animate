@@ -1560,7 +1560,8 @@ export function createCustomEffectComposer<
  */
 export function createCustomEffectComposerBank<
   TCategory extends ExtendableBankCategory,
-  TComposerBank extends {[key: string]: EffectComposerBank<ExtendableBankCategoryToClipType<TCategory>>[string]}
+  // TComposerBank extends {[key: string]: EffectComposerBank<ExtendableBankCategoryToClipType<TCategory>>[string]}
+  TComposerBank extends EffectComposerBank<ExtendableBankCategoryToClipType<TCategory>>
 >(effectCategory: TCategory, effectComposerBank: TComposerBank) {
   switch(effectCategory) {
     case 'Entrance':
