@@ -60,6 +60,6 @@ export type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }
  * @typeParam TError - The error string that will be returned if T does not respect TExpected
  */
 export type StrictPropertyCheck<T extends object, TExpected extends object, TError extends string> = Exclude<keyof T, keyof TExpected> extends never ? {} : (
-  `ERROR: Invalid property '${Exclude<keyof T, keyof TExpected | number | symbol>}'. ${TError}`
+  `******************************************************************************************************                                      ***ERROR: Invalid property '${Exclude<keyof T, keyof TExpected | number | symbol>}'. ${TError}                                      ______________________________________________________________________________________________________`
 );
 
