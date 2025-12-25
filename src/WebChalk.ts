@@ -14,6 +14,7 @@ import {
 import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./4_utils/interfaces";
 import { EffectComposerBank, EffectNameIn, EffectComposer, EffectOptions, createCustomEffectComposerBank, ExtendableBankCategoryToClipType, EffectComposerBankToCategory } from "./2_animationEffects/customEffectCreation";
 import { StrictPropertyCheck } from "./4_utils/utilityTypes";
+import { DEFAULT_CONFIG_ERROR, IMMUTABLE_CONFIG_ERROR } from "./4_utils/errors";
 
 /**
  * @hideconstructor
@@ -906,11 +907,14 @@ export class WebChalk {
 
   copyEffectComposer<
     TEffectComposerBank extends EffectComposerBank,
-    TClipType extends ExtendableBankCategoryToClipType<EffectComposerBankToCategory<TEffectComposerBank>>,
+    TCategory extends EffectComposerBankToCategory<TEffectComposerBank>,
+    TClipType extends ExtendableBankCategoryToClipType<TCategory>,
     TEffectName extends EffectNameIn<TEffectComposerBank>,
     TEffectComposer extends TEffectComposerBank[TEffectName],
-    TDefaultConfig extends Partial<Layer4MutableConfig<TClipType, TEffectComposer>>,
-    TImmutableConfig extends Partial<Layer4MutableConfig<TClipType, TEffectComposer>>,
+    // "& object" for some reason ensures that the custom error will display...
+    // ... for cases where ONLY invalid properties are provided
+    TDefaultConfig extends Partial<Layer4MutableConfig<TClipType, TEffectComposer>> & object,
+    TImmutableConfig extends Partial<Layer4MutableConfig<TClipType, TEffectComposer>> & object,
   >(
     sourceComposerBank: TEffectComposerBank,
     effectName: TEffectName,
@@ -918,12 +922,12 @@ export class WebChalk {
       addedDefaultConfig?: TDefaultConfig & StrictPropertyCheck<
         TDefaultConfig,
         Partial<Layer4MutableConfig<TClipType, TEffectComposer>>,
-        DEFAULT_CONFIG_ERROR
+        DEFAULT_CONFIG_ERROR<TCategory>
       >,
       addedImmutableConfig?: TImmutableConfig & StrictPropertyCheck<
         TImmutableConfig,
         Partial<Layer4MutableConfig<TClipType, TEffectComposer>>,
-        IMMUTABLE_CONFIG_ERROR
+        IMMUTABLE_CONFIG_ERROR<TCategory>
       >,
     }
   ) {
@@ -949,9 +953,6 @@ export class WebChalk {
     };
   }
 }
-
-type DEFAULT_CONFIG_ERROR = `Only default configuration that is A) valid for this effect category and B) not excluded by pre-existing immutable configuration is allowed. Remove the invalid properties and then press 'CTRL + Space' within the object braces to view the allowed properties.`;
-type IMMUTABLE_CONFIG_ERROR = `Only immutable configuration that is A) valid for this effect category and B) not excluded by pre-existing immutable configuration is allowed (pre-existing immutable configuration CANNOT be overwritten). Remove the invalid properties and then press 'CTRL + Space' within the object braces to view the allowed properties.`;
 
 /**
  * @ignore

@@ -1,6 +1,7 @@
 import { AnimClip } from "../1_playbackStructures/AnimationClip";
 import { AnimSequence } from "../1_playbackStructures/AnimationSequence";
 import { AnimTimeline } from "../1_playbackStructures/AnimationTimeline";
+import { ExtendableBankCategory } from "../2_animationEffects/customEffectCreation";
 import { getOpeningTag, indexToOrdinal } from "./helpers";
 import { DOMElement } from "./interfaces";
 
@@ -238,3 +239,6 @@ export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg =
   }
   return new ErrorClassOrInstance(`${msg}` + locationPostfix);
 };
+
+export type DEFAULT_CONFIG_ERROR<TCategory extends ExtendableBankCategory> = `Only default configuration that is A) valid for ${TCategory} effects and B) not excluded by pre-existing immutable configuration is allowed. Remove the invalid properties and then press 'CTRL + Space' within the object braces to view the allowed properties.`;
+export type IMMUTABLE_CONFIG_ERROR<TCategory extends ExtendableBankCategory> = `Only immutable configuration that is A) valid for ${TCategory} effects and B) not excluded by pre-existing immutable configuration is allowed (pre-existing immutable configuration CANNOT be overwritten). Remove the invalid properties and then press 'CTRL + Space' within the object braces to view the allowed properties.`;
