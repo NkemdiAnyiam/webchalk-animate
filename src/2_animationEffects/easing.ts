@@ -15,7 +15,7 @@ export type PresetLinearEasingKey = `${`power${'1' | '2' | '3' | '4'}` | `quad` 
 // type EasingFunction<funcName extends string> = `${funcName}(${string})`;
 
 /**
- * Trivial CSS `<easing-function>`s.
+ * Trivial CSS `<easing-function>` strings.
  * 
  * @see [\<easing-function\>](https://developer.mozilla.org/en-US/docs/Web/CSS/easing-function)
  */

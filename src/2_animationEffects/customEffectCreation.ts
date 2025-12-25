@@ -8,7 +8,7 @@ import { deepFreeze } from "../4_utils/helpers";
 import { DEFAULT_CONFIG_ERROR, IMMUTABLE_CONFIG_ERROR, COMPOSED_EFFECT_RETURN_ERROR_PRIMITIVE, COMPOSED_EFFECT_RETURN_ERROR_PROPERTIES } from "../4_utils/errors";
 
 /**
- * Contains up to 4 callback functions that will be called to
+ * Object containing up to 4 callback functions that will be called to
  * produce the effect for an animation clip. Returned by {@link EffectComposer.composeEffect}.
  *  * {@link ComposedEffect.forwardKeyframesGenerator | forwardKeyframesGenerator} will run every time the clip is played,
  * producing a {@link Keyframes} object.
@@ -438,8 +438,9 @@ export interface ComposedEffect extends StripDuplicateMethodAutocompletion<{
 export type EffectComposer<TClipContext extends unknown = unknown, TConfig extends unknown = unknown> = Readonly<StripDuplicateMethodAutocompletion<
   {
     /**
-     * Default configuration options that are appropriate for the effect (and can be overwritten while calling the clip factory function).
-     * This makes it convenient to rely on some preset behaviors that make sense without having to set them in a clip factory function.
+     * Object containing default configuration options that are appropriate for the effect. These options can be overwritten
+     * while calling the clip factory function. This makes it convenient to rely on some preset behaviors that make sense
+     * without having to set them in a clip factory function.
      * 
      * When creating custom effects, the configuration options that you are allowed to set here may be limited by the {@link AnimClip}
      * value for {@link AnimClip.categoryImmutableConfig} (which you cannot modify). For example, for exit animation clips,
@@ -497,8 +498,8 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      */
     defaultConfig?: Partial<TConfig> & object; // "& object" for some reason ensures custom errors will display for cases where ONLY invalid properties are provided
     /**
-     * Immutable configuration options for the effect that are appropriate for the effect (but _cannot_ be overwritten
-     * while calling the clip factory function). 
+     * Object containing immutable configuration options for the effect that are appropriate for the effect.
+     * These options _cannot_ be overwritten while calling the clip factory function). 
      * This makes it possible to set in stone some expected behaviors of clips that use certain effects.
      * 
      * When creating custom effects, the configuration options that you are allowed to set here may be limited by the {@link AnimClip}
@@ -558,7 +559,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      */
     immutableConfig?: Partial<TConfig> & object; // "& object" for some reason ensures custom errors will display for cases where ONLY invalid properties are provided
     /**
-     * Determines how frequently the effect will be composed (i.e., how often {@link EffectComposer.composeEffect | composeEffect} will be run).
+     * String that determines how frequently the effect will be composed (i.e., how often {@link EffectComposer.composeEffect | composeEffect} will be run).
      * **SUGGESTION:** Read the documentation for {@link EffectComposer.composeEffect | composeEffect} first.
      *  * if `on-first-play-only`, {@link EffectComposer.composeEffect | composeEffect} will run the first time
      * `play()` is called and never again. The one {@link ComposedEffect} object's functions and the closure created during the one call to
@@ -764,7 +765,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      */
     effectCompositionFrequency?: 'on-first-play-only' | 'on-every-play';
     /**
-     * Runs when the clip is played and returns a {@link ComposedEffect}, which contains callback functions that will produce the
+     * Function that runs when the clip is played. Returns a {@link ComposedEffect} object, which contains callback functions that will produce the
      * effects for both playing and rewinding the animation.
      * @param effectOptions - parameters used to set the behavior for the specific animation effect when calling the clip factory function
      * @returns An object containing 4 possible callback functions that return {@link Keyframes} and/or {@link Mutator}.
@@ -1323,7 +1324,7 @@ export type EffectComposerBank<TClip extends AnimClip = AnimClip> = ReadonlyReco
 >;
 
 /**
- * The parameters for a specific {@link EffectComposer}'s composer function ({@link EffectComposer.composeEffect}).
+ * Tuple containing the parameters for a specific {@link EffectComposer}'s composer function ({@link EffectComposer.composeEffect}).
  * 
  * @category Effect Composition
  */
@@ -1332,7 +1333,9 @@ export type EffectOptions<TEffectComposer extends EffectComposer> = Parameters<T
 // CHANGE NOTE: EffectNameIn now handles keyof and Extract
 // extracts only those strings in an object whose paired value is an EffectComposer
 /**
- * Detects the keys corresponding to {@link EffectComposer} entries within an {@link EffectComposerBank}. 
+ * Detects the keys corresponding to {@link EffectComposer} entries within an {@link EffectComposerBank}.
+ * Any property within the specified bank that is not associated with an effect composer is not considered
+ * an "effect" name and is thus excluded.
  * @category Utility Types
  */
 export type EffectNameIn<TComposerBank extends EffectComposerBank> = Exclude<keyof {
@@ -1650,7 +1653,7 @@ export function createCustomEffectComposerBank<
 }
 
 /**
- * Represents the categories that users are allowed to create their own custom effects for.
+ * String that represents the categories that users are allowed to create their own custom effects for.
  * @ignore
  */
 export type ExtendableBankCategory = 'Entrance' | 'Exit' | 'Emphasis' | 'Motion'; 
