@@ -240,7 +240,11 @@ export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg =
   return new ErrorClassOrInstance(`${msg}` + locationPostfix);
 };
 
+/**@ignore*/
 export type DEFAULT_CONFIG_ERROR<TCategory extends ExtendableBankCategory> = `Only default configuration that is A) valid for ${TCategory} effects and B) not excluded by pre-existing immutable configuration is allowed. Remove the invalid properties and then press 'CTRL + Space' within the object braces to view the allowed properties.`;
+/**@ignore*/
 export type IMMUTABLE_CONFIG_ERROR<TCategory extends ExtendableBankCategory> = `Only immutable configuration that is A) valid for ${TCategory} effects and B) not excluded by pre-existing immutable configuration is allowed (pre-existing immutable configuration CANNOT be overwritten). Remove the invalid properties and then press 'CTRL + Space' within the object braces to view the allowed properties.`;
+/**@ignore*/
 export type COMPOSED_EFFECT_RETURN_ERROR_PRIMITIVE = `The ComposedEffect returned from composeEffect() must be an object {} (and it must contain only effect generator functions and configuration options).`;
+/**@ignore*/
 export type COMPOSED_EFFECT_RETURN_ERROR_PROPERTIES = `The object returned by composeEffect() may only contain effect generator functions and valid configuration options. Remove the invalid properties and then press 'CTRL + Space' within the object braces to view the allowed properties.`;

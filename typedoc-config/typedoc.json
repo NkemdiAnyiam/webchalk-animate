@@ -7,6 +7,7 @@
   ],
   "themeColor": "#99ffff",
   "customCss": "./assets/styles/typedoc-styles.css",
+  "customJs": "./assets/customScript.js",
   "exclude": ["**/WebChalkAnimation.ts", "**/index.ts", "**/globalSideEffects.ts", "**/TSDocExamples.ts"],
   "entryPoints": ["../src"],
   "entryPointStrategy": "expand",

@@ -53,6 +53,9 @@ export type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }
 //         : [...Union2Tuple<Exclude<T, U>>, U]
 //     : never;
 
+/**
+ * @ignore
+ */
 type PrettifyCustomError<TError extends string> = `**************************************************************************************************************                                      ${TError}                                      ______________________________________________________________________________________________________________`;
 
 /**
@@ -60,6 +63,7 @@ type PrettifyCustomError<TError extends string> = `*****************************
  * @template TObj - Object type that should have NO additional properties beyond what is specified by TExpected
  * @template TExpected - Object type that restricts what is allowed to show up in {@link TObj}
  * @template TError - The error string that will be returned if {@link TObj} does not respect {@link TExpected}
+ * @ignore
  */
 export type StrictPropertyCheck<TObj extends object, TExpected extends object, TError extends string = 'ERROR'> =
   Exclude<keyof TObj, keyof TExpected> extends never
@@ -73,6 +77,7 @@ export type StrictPropertyCheck<TObj extends object, TExpected extends object, T
  * @template TExpectedReturn - Object type that restricts what is allowed to show up in the return type of {@link TFunc}
  * @template TErrorPrimitive - The error string that will be returned if {@link TFunc} returns a primitive or array
  * @template TErrorProperties - The error string that will be returned if {@link TFunc}'s return type does not respect {@link TExpectedReturn}
+ * @ignore
  */
 export type StrictReturnPropertyCheck<
   TFunc extends (...args: unknown[]) => object,
