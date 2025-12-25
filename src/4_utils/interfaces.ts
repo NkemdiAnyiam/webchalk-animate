@@ -15,10 +15,10 @@ import { Union } from "./utilityTypes";
 // export type AddFreezableConfig<TClipConfig extends AnimClipConfig> = PrefixProps<TClipConfig, FrozenPrefix> & TClipConfig;
 
 // /**
-//  * Returns TClipConfig without any props marked as frozen in TEffectComposer's config.
+//  * Returns {@link TClipConfig} without any props marked as frozen in {@link TEffectComposer}'s config.
 //  * @interface StripFrozenConfig
-//  * @typeParam TClipConfig - Configuration interface for AnimClip or an AnimClip subclass.
-//  * @typeParam TEffectComposer - An effect composer defined in any composer bank.
+//  * @template TClipConfig - Configuration interface for AnimClip or an AnimClip subclass.
+//  * @template TEffectComposer - An effect composer defined in any composer bank.
 //  */
 // export type StripFrozenConfig<
 //   TClipConfig extends AnimClipConfig,

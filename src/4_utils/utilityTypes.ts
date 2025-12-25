@@ -10,7 +10,7 @@ export type Union<T, U> = T | (U & Nothing);
  * Prevents duplicate autocompletion for functions whose type union resolves to `Function` when `undefined` and `never` are excluded.
  * For functions, explicitly adding "& Function" seems to get rid of the version without the method signature.
  * @interface
- * @typeParam T - Object type that presumably contains some methods that are potentially never/undefined
+ * @template T - Object type that presumably contains some methods that are potentially never/undefined
  * 
  * @remarks
  * For each key `K` of `T`, see if `T[K]` extends `Function` when not `never` or `undefined`.
@@ -56,22 +56,22 @@ export type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }
 type PrettifyCustomError<TError extends string> = `**************************************************************************************************************                                      ${TError}                                      ______________________________________________________________________________________________________________`;
 
 /**
- * Returns the specified error if T contains additional properties beyond what is allowed by TExpected.
- * @typeParam T - Object type that should have NO additional properties beyond what is specified by TExpected
- * @typeParam TExpected - Object type that restricts what is allowed to show up in T
- * @typeParam TError - The error string that will be returned if T does not respect {@link TExpected}
+ * Returns the specified error if {@link TObj} contains additional properties beyond what is allowed by {@link TExpected}.
+ * @template TObj - Object type that should have NO additional properties beyond what is specified by TExpected
+ * @template TExpected - Object type that restricts what is allowed to show up in {@link TObj}
+ * @template TError - The error string that will be returned if {@link TObj} does not respect {@link TExpected}
  */
-export type StrictPropertyCheck<T extends object, TExpected extends object, TError extends string = 'ERROR'> =
-  Exclude<keyof T, keyof TExpected> extends never
+export type StrictPropertyCheck<TObj extends object, TExpected extends object, TError extends string = 'ERROR'> =
+  Exclude<keyof TObj, keyof TExpected> extends never
     ? {}
-    : PrettifyCustomError<`***ERROR: Invalid property '${Exclude<keyof T, keyof TExpected | number | symbol>}'. ${TError}`>
+    : PrettifyCustomError<`***ERROR: Invalid property '${Exclude<keyof TObj, keyof TExpected | number | symbol>}'. ${TError}`>
 ;
 
 /**
  * Returns the specified error if 
- * @typeParam TFunc - Function type that should have the expected object return type
- * @typeParam TExpectedReturn - Object type that restricts what is allowed to show up in the return type of {@link TFunc}
- * @typeParam TErrorPrimitive - The error string that will be returned if {@link TFunc} returns a primitive or array
+ * @template TFunc - Function type that should have the expected object return type
+ * @template TExpectedReturn - Object type that restricts what is allowed to show up in the return type of {@link TFunc}
+ * @template TErrorPrimitive - The error string that will be returned if {@link TFunc} returns a primitive or array
  * @template TErrorProperties - The error string that will be returned if {@link TFunc}'s return type does not respect {@link TExpectedReturn}
  */
 export type StrictReturnPropertyCheck<
