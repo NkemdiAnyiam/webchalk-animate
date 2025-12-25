@@ -1,7 +1,7 @@
 import { JSX, Application } from "typedoc";
 
 const hider = (function hider() {
-  // // remove property sections and navigation links associated with doscScriptRunner
+  // // remove property sections and navigation links associated with docsScriptRunner
   // document.querySelector('a#______')?.closest('.tsd-panel.tsd-member')?.remove();
   // [...document.querySelectorAll('a[href$="#______"]')].forEach((elem) => elem.remove());
 
