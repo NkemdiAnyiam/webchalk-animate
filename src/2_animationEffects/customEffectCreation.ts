@@ -1,10 +1,11 @@
 import { AnimClip } from "../1_playbackStructures/AnimationClip";
 import { EmphasisClip, EntranceClip, ExitClip, MotionClip } from "../1_playbackStructures/AnimationClipCategories";
 import { Keyframes, Mutator } from "../4_utils/interfaces";
-import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord } from "../4_utils/utilityTypes";
+import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord, StrictPropertyCheck, StrictReturnPropertyCheck } from "../4_utils/utilityTypes";
 import { AnimClipConfig } from "../1_playbackStructures/AnimationClip";
 import { webchalk } from "../WebChalk";
 import { deepFreeze } from "../4_utils/helpers";
+import { DEFAULT_CONFIG_ERROR, IMMUTABLE_CONFIG_ERROR, COMPOSED_EFFECT_RETURN_ERROR_PRIMITIVE, COMPOSED_EFFECT_RETURN_ERROR_PROPERTIES } from "../4_utils/errors";
 
 /**
  * Contains up to 4 callback functions that will be called to
@@ -494,7 +495,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * 
      * @group Clip Configuration
      */
-    defaultConfig?: Partial<TConfig>;
+    defaultConfig?: Partial<TConfig> & object; // "& object" for some reason ensures custom errors will display for cases where ONLY invalid properties are provided
     /**
      * Immutable configuration options for the effect that are appropriate for the effect (but _cannot_ be overwritten
      * while calling the clip factory function). 
@@ -555,7 +556,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * 
      * @group Clip Configuration
      */
-    immutableConfig?: Partial<TConfig>;
+    immutableConfig?: Partial<TConfig> & object; // "& object" for some reason ensures custom errors will display for cases where ONLY invalid properties are provided
     /**
      * Determines how frequently the effect will be composed (i.e., how often {@link EffectComposer.composeEffect | composeEffect} will be run).
      * **SUGGESTION:** Read the documentation for {@link EffectComposer.composeEffect | composeEffect} first.
@@ -1451,7 +1452,26 @@ export type EffectNameIn<TComposerBank extends EffectComposerBank> = Exclude<key
 export function createCustomEffectComposer<
   TCategory extends ExtendableBankCategory,
   TEffectComposer extends EffectComposerBank<ExtendableBankCategoryToClipType<TCategory>>[string]
-> (effectCategory: TCategory, effectComposer: TEffectComposer) {
+> (effectCategory: TCategory, effectComposer: TEffectComposer
+  & {
+    defaultConfig?: StrictPropertyCheck<
+      Exclude<TEffectComposer['defaultConfig'], undefined>,
+      Layer3MutableClipConfig<ExtendableBankCategoryToClipType<TCategory>>,
+      DEFAULT_CONFIG_ERROR<TCategory>
+    >;
+    immutableConfig?: StrictPropertyCheck<
+      Exclude<TEffectComposer['immutableConfig'], undefined>,
+      Layer3MutableClipConfig<ExtendableBankCategoryToClipType<TCategory>>,
+      IMMUTABLE_CONFIG_ERROR<TCategory>
+    >;
+    composeEffect: StrictReturnPropertyCheck<
+      TEffectComposer['composeEffect'],
+      ComposedEffect,
+      COMPOSED_EFFECT_RETURN_ERROR_PRIMITIVE,
+      COMPOSED_EFFECT_RETURN_ERROR_PROPERTIES
+    >;
+  }
+) {
   switch(effectCategory) {
     case 'Entrance':
     case 'Exit':
@@ -1569,7 +1589,53 @@ export function createCustomEffectComposerBank<
   TCategory extends ExtendableBankCategory,
   // TComposerBank extends {[key: string]: EffectComposerBank<ExtendableBankCategoryToClipType<TCategory>>[string]}
   TComposerBank extends EffectComposerBank<ExtendableBankCategoryToClipType<TCategory>>
->(effectCategory: TCategory, effectComposerBank: TComposerBank) {
+>(
+  effectCategory: TCategory,
+  effectComposerBank: TComposerBank & {
+    // forces errors to show up on defaultConfig when invalid properties are provided...
+    // ... while defining the effect composer bank
+    [effectName in EffectNameIn<TComposerBank>]: TComposerBank[effectName] & {
+      [prop in keyof TComposerBank[effectName]]: TComposerBank[effectName][prop] & (
+        prop extends 'defaultConfig'
+          ? StrictPropertyCheck<
+              Exclude<TComposerBank[effectName]['defaultConfig'], undefined>,
+              Layer3MutableClipConfig<ExtendableBankCategoryToClipType<TCategory>>,
+              DEFAULT_CONFIG_ERROR<TCategory>
+            >
+          : {}
+      )
+    }
+  } & {
+    // forces errors to show up on immutableConfig when invalid properties are provided...
+    // ... while defining the effect composer bank
+    [effectName in EffectNameIn<TComposerBank>]: TComposerBank[effectName] & {
+      [prop in keyof TComposerBank[effectName]]: TComposerBank[effectName][prop] & (
+        prop extends 'immutableConfig'
+          ? StrictPropertyCheck<
+              Exclude<TComposerBank[effectName]['immutableConfig'], undefined>,
+              Layer3MutableClipConfig<ExtendableBankCategoryToClipType<TCategory>>,
+              IMMUTABLE_CONFIG_ERROR<TCategory>
+            >
+          : {}
+      )
+    }
+  } & {
+    // forces errors to show up on composeEffect() when returned value is invalid...
+    // ... while defining the effect composer bank
+    [effectName in EffectNameIn<TComposerBank>]: TComposerBank[effectName] & {
+      [prop in keyof TComposerBank[effectName]]: TComposerBank[effectName][prop] & (
+        prop extends 'composeEffect'
+          ? StrictReturnPropertyCheck<
+              TComposerBank[effectName]['composeEffect'],
+              ComposedEffect,
+              COMPOSED_EFFECT_RETURN_ERROR_PRIMITIVE,
+              COMPOSED_EFFECT_RETURN_ERROR_PROPERTIES
+            >
+          : {}
+      )
+    }
+  }
+) {
   switch(effectCategory) {
     case 'Entrance':
     case 'Exit':

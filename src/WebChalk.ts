@@ -12,7 +12,7 @@ import {
   libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions
 } from "./2_animationEffects/libraryPresetEffectBanks";
 import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./4_utils/interfaces";
-import { EffectComposerBank, EffectNameIn, EffectComposer, EffectOptions, createCustomEffectComposerBank, ExtendableBankCategoryToClipType, EffectComposerBankToCategory } from "./2_animationEffects/customEffectCreation";
+import { EffectComposerBank, EffectNameIn, EffectComposer, EffectOptions, createCustomEffectComposerBank, ExtendableBankCategoryToClipType, EffectComposerBankToCategory, createCustomEffectComposer } from "./2_animationEffects/customEffectCreation";
 import { StrictPropertyCheck } from "./4_utils/utilityTypes";
 import { DEFAULT_CONFIG_ERROR, IMMUTABLE_CONFIG_ERROR } from "./4_utils/errors";
 
@@ -961,8 +961,17 @@ export const webchalk = new WebChalk();
 
 // const thing =  webchalk.createAnimationClipFactories({
 //   customEntranceEffects: createCustomEffectComposerBank('Entrance', {
-//     hello: {
-//       composeEffect() {return []},
+//     hello: createCustomEffectComposer('Entrance', {
+//       composeEffect() {return {}},
+//       defaultConfig: {
+        
+//       },
+//       immutableConfig: {
+//         duration: 0
+//       }
+//     }),
+//     hello2: {
+//       composeEffect() {return {}},
 //       defaultConfig: {
         
 //       },

@@ -26,6 +26,7 @@ export type StripDuplicateMethodAutocompletion<T> = {
 };
 // export type StripDuplicateMethodAutocompletion<T> = { [K in keyof T]: T[K] extends infer H ? T[K] & (Exclude<H, undefined> extends Function ? Function : {}) : T[K] }
 
+type Primitive = boolean | string | bigint | number | string | symbol | undefined | null | void;
 
 export type KeyOf<T extends object> = Extract<keyof T, string>;
 export type KeysOf<T extends object> = (Extract<keyof T, string>)[];
@@ -52,14 +53,33 @@ export type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }
 //         : [...Union2Tuple<Exclude<T, U>>, U]
 //     : never;
 
+type PrettifyCustomError<TError extends string> = `**************************************************************************************************************                                      ${TError}                                      ______________________________________________________________________________________________________________`;
 
 /**
  * Returns the specified error if T contains additional properties beyond what is allowed by TExpected.
  * @typeParam T - Object type that should have NO additional properties beyond what is specified by TExpected
  * @typeParam TExpected - Object type that restricts what is allowed to show up in T
- * @typeParam TError - The error string that will be returned if T does not respect TExpected
+ * @typeParam TError - The error string that will be returned if T does not respect {@link TExpected}
  */
-export type StrictPropertyCheck<T extends object, TExpected extends object, TError extends string> = Exclude<keyof T, keyof TExpected> extends never ? {} : (
-  `******************************************************************************************************                                      ***ERROR: Invalid property '${Exclude<keyof T, keyof TExpected | number | symbol>}'. ${TError}                                      ______________________________________________________________________________________________________`
-);
+export type StrictPropertyCheck<T extends object, TExpected extends object, TError extends string = 'ERROR'> =
+  Exclude<keyof T, keyof TExpected> extends never
+    ? {}
+    : PrettifyCustomError<`***ERROR: Invalid property '${Exclude<keyof T, keyof TExpected | number | symbol>}'. ${TError}`>
+;
 
+/**
+ * Returns the specified error if 
+ * @typeParam TFunc - Function type that should have the expected object return type
+ * @typeParam TExpectedReturn - Object type that restricts what is allowed to show up in the return type of {@link TFunc}
+ * @typeParam TErrorPrimitive - The error string that will be returned if {@link TFunc} returns a primitive or array
+ * @template TErrorProperties - The error string that will be returned if {@link TFunc}'s return type does not respect {@link TExpectedReturn}
+ */
+export type StrictReturnPropertyCheck<
+  TFunc extends (...args: unknown[]) => object,
+  TExpectedReturn extends object,
+  TErrorPrimitive extends string,
+  TErrorProperties extends string
+> = ReturnType<TFunc> extends Primitive | Array<any>
+  ? PrettifyCustomError<`***ERROR: Invalid return value '${ReturnType<TFunc> extends Primitive ? ReturnType<TFunc> : '<Array>'}'. ${TErrorPrimitive}`>
+  : StrictPropertyCheck<ReturnType<TFunc>, TExpectedReturn, TErrorProperties>
+;

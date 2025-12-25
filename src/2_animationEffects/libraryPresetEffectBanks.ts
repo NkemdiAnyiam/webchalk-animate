@@ -51,9 +51,16 @@ export const libPresetEntrances = createCustomEffectComposerBank('Entrance', {
      * @returns 
      */
     composeEffect() {
+      // return 4 as const; // error-checking
+      // return {invalid: 4}; // error-checking
+      // return [345, 5, 4]; // error-checking
       return {} as const;
     },
-    defaultConfig: {} as const,
+    defaultConfig: {
+      // invalid: 3, // error-checking
+      delay: 0,
+      // commitsStyles: true, // error-checking
+    } as const,
     immutableConfig: {
       easing: 'linear',
       duration: 0,
