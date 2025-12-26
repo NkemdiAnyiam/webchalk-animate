@@ -195,7 +195,7 @@ export class WebChalkAnimation extends Animation {
         // If animation is "rewinding", tasks should be processed in reverse order...
         // ... to ensure that side-effects from tasks are stable
         await Promise.all(
-          (this.direction === 'forward' ? tasks: tasks.toReversed())
+          (this.direction === 'forward' ? tasks : tasks.toReversed())
             .map(rBlock => rBlock.callback())
         );
       }
