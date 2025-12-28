@@ -566,8 +566,9 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
      * {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators} will be used for the clip's entire lifetime.
      *    * This should be set to `on-first-play-only` when code in the closure of {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators}
      * only needs to (or perhaps _must only_) run once for the returned generators to be correct.
-     *  * if `on-every-play`, {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators} will run every time
-     * the clip plays forward, which creates a new closure and returns a new {@link EffectFrameGeneratorSet} each time.
+     *  * if `on-every-play`, {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators} will run _every_ time
+     * the clip is about to play forward rather than just the first time,
+     * thus creating a new closure and returning a new {@link EffectFrameGeneratorSet} each time.
      * 
      * @defaultValue
      * ```ts
