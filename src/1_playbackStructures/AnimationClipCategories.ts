@@ -5,16 +5,16 @@ import { WebChalk } from "../WebChalk";
 import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { WebChalkConnectorElement, WebChalkConnectorElementConfig } from "../3_components/WebChalkConnectorElement";
-import { EffectComposer, EffectComposerBank, EffectOptions, Layer3MutableClipConfig } from "../2_animationEffects/customEffectCreation";
+import { PresetEffectDefinition, PresetEffectBank, EffectOptions, Layer3MutableClipConfig } from "../2_animationEffects/customEffectCreation";
 import { libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions, libPresetConnectorEntrances, libPresetConnectorExits, libPresetTransitions, libPresetScrolls } from "../2_animationEffects/libraryPresetEffectBanks";
 
 /**
  * Returns an object type that includes only the effect configuration properties that are allowed to
  * be modified during a call to a given animation clip factory. Constraints are based on the
- * immutable effect configuration of layer 3 (the specified {@link EffectComposer}).
+ * immutable effect configuration of layer 3 (the specified {@link PresetEffectDefinition}).
  * @ignore
  */
-export type Layer4MutableConfig<TClipClass extends AnimClip, TEffectComposer extends EffectComposer> = Omit<Layer3MutableClipConfig<TClipClass>, keyof TEffectComposer['immutableConfig']>;
+export type Layer4MutableConfig<TClipClass extends AnimClip, TPresetEffectDefinition extends PresetEffectDefinition> = Omit<Layer3MutableClipConfig<TClipClass>, keyof TPresetEffectDefinition['immutableConfig']>;
 
 /*-:***************************************************************************************************************************/
 /*-:*******************************************        ENTRANCE        ********************************************************/
@@ -102,7 +102,7 @@ export interface EntranceClipModifiers extends AnimClipModifiers, Pick<EntranceC
  * @category Entrance
  * @hideconstructor
  */
-export class EntranceClip<TEffectComposer extends EffectComposer<EntranceClip, EntranceClipConfig> = EffectComposer> extends AnimClip<TEffectComposer, EntranceClipConfig> {
+export class EntranceClip<TPresetEffectDefinition extends PresetEffectDefinition<EntranceClip, EntranceClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, EntranceClipConfig> {
   protected get category(): 'Entrance' { return 'Entrance'; }
   private backwardsHidingMethod: ExitClipConfig['exitType'] = '' as ExitClipConfig['exitType'];
 
@@ -164,16 +164,16 @@ export class EntranceClip<TEffectComposer extends EffectComposer<EntranceClip, E
   }
 
   /**@internal*/
-  constructor(domElem: DOMElement | null | undefined, effectName: string, effectComposerBank: EffectComposerBank) {
-    super(domElem, effectName, effectComposerBank);
+  constructor(domElem: DOMElement | null | undefined, effectName: string, PresetEffectBank: PresetEffectBank) {
+    super(domElem, effectName, PresetEffectBank);
     super.preventConnector();
   }
 
   /**@internal*/
-  initialize(effectOptions: EffectOptions<TEffectComposer>, effectConfig: Partial<Layer4MutableConfig<EntranceClip, TEffectComposer>> = {}) {
+  initialize(effectOptions: EffectOptions<TPresetEffectDefinition>, effectConfig: Partial<Layer4MutableConfig<EntranceClip, TPresetEffectDefinition>> = {}) {
     super.initialize(effectOptions, effectConfig);
 
-    const hideNow = (effectConfig as Partial<EntranceClipConfig>).hideNowType ?? this.effectComposer.defaultConfig?.hideNowType ?? this.categoryDefaultConfig.hideNowType!;
+    const hideNow = (effectConfig as Partial<EntranceClipConfig>).hideNowType ?? this.presetEffectDefinition.defaultConfig?.hideNowType ?? this.categoryDefaultConfig.hideNowType!;
     switch(hideNow) {
       case "display-none":
         this.domElem.classList.add('webchalk-display-none');
@@ -323,7 +323,7 @@ interface ExitClipModifiers extends AnimClipModifiers, Pick<ExitClipConfig, 'exi
  * @category Exit
  * @hideconstructor
  */
-export class ExitClip<TEffectComposer extends EffectComposer<ExitClip, ExitClipConfig> = EffectComposer> extends AnimClip<TEffectComposer, ExitClipConfig> {
+export class ExitClip<TPresetEffectDefinition extends PresetEffectDefinition<ExitClip, ExitClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, ExitClipConfig> {
   protected get category(): 'Exit' { return 'Exit'; }
   private exitType: ExitClipConfig['exitType'] = '' as ExitClipConfig['exitType'];
 
@@ -385,15 +385,15 @@ export class ExitClip<TEffectComposer extends EffectComposer<ExitClip, ExitClipC
   }
 
   /**@internal*/
-  constructor(domElem: DOMElement | null | undefined, effectName: string, effectComposerBank: EffectComposerBank) {
-    super(domElem, effectName, effectComposerBank);
+  constructor(domElem: DOMElement | null | undefined, effectName: string, PresetEffectBank: PresetEffectBank) {
+    super(domElem, effectName, PresetEffectBank);
     super.preventConnector();
   }
 
-  /**@internal*/initialize(effectOptions: EffectOptions<TEffectComposer>, effectConfig: Partial<Layer4MutableConfig<ExitClip, TEffectComposer>> = {}) {
+  /**@internal*/initialize(effectOptions: EffectOptions<TPresetEffectDefinition>, effectConfig: Partial<Layer4MutableConfig<ExitClip, TPresetEffectDefinition>> = {}) {
     super.initialize(effectOptions, effectConfig);
 
-    const exitType = (effectConfig as ExitClipConfig).exitType ?? this.effectComposer.defaultConfig?.exitType ?? this.categoryDefaultConfig.exitType!;
+    const exitType = (effectConfig as ExitClipConfig).exitType ?? this.presetEffectDefinition.defaultConfig?.exitType ?? this.categoryDefaultConfig.exitType!;
     if (exitType !== 'display-none' && exitType !== 'visibility-hidden') {
       throw this.generateError(RangeError, `Invalid 'exitType' config value "${exitType}". Must be "display-none" or "visibility-hidden".`);
     }
@@ -500,7 +500,7 @@ export interface EmphasisClipConfig extends AnimClipConfig {
  * @category Emphasis
  * @hideconstructor
  */
-export class EmphasisClip<TEffectComposer extends EffectComposer<EmphasisClip, EmphasisClipConfig> = EffectComposer> extends AnimClip<TEffectComposer, EmphasisClipConfig> {
+export class EmphasisClip<TPresetEffectDefinition extends PresetEffectDefinition<EmphasisClip, EmphasisClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, EmphasisClipConfig> {
   protected get category(): 'Emphasis' { return 'Emphasis'; }
   get categoryImmutableConfig() {
     return {
@@ -584,7 +584,7 @@ export interface MotionClipConfig extends AnimClipConfig {
  * @category Motion
  * @hideconstructor
  */
-export class MotionClip<TEffectComposer extends EffectComposer<MotionClip, MotionClipConfig> = EffectComposer> extends AnimClip<TEffectComposer, MotionClipConfig> {
+export class MotionClip<TPresetEffectDefinition extends PresetEffectDefinition<MotionClip, MotionClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, MotionClipConfig> {
   protected get category(): 'Motion' { return 'Motion'; }
   get categoryImmutableConfig() {
     return {
@@ -685,7 +685,7 @@ export interface ScrollerClipConfig extends AnimClipConfig {
  * @hideconstructor
  */
 // TODO: implement rewindScrollBehavior: 'prior-user-position' | 'prior-scroll-target' = 'prior-scroll-target'
-export class ScrollerClip<TEffectComposer extends EffectComposer<ScrollerClip, ScrollerClipConfig> = EffectComposer> extends AnimClip<TEffectComposer, ScrollerClipConfig> {
+export class ScrollerClip<TPresetEffectDefinition extends PresetEffectDefinition<ScrollerClip, ScrollerClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, ScrollerClipConfig> {
   protected get category(): 'Scroller' { return 'Scroller'; }
   get categoryImmutableConfig() {
     return {
@@ -795,7 +795,7 @@ export interface TransitionClipModifiers extends AnimClipModifiers, Pick<Transit
  * @category Transition
  * @hideconstructor
  */
-export class TransitionClip<TEffectComposer extends EffectComposer<TransitionClip, TransitionClipConfig> = EffectComposer> extends AnimClip<TEffectComposer, TransitionClipConfig> {
+export class TransitionClip<TPresetEffectDefinition extends PresetEffectDefinition<TransitionClip, TransitionClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, TransitionClipConfig> {
   protected get category(): 'Transition' { return 'Transition'; }
   // determines whether properties affected by this transition should be removed from inline style upon finishing animation
   private removeInlineStyleOnFinish: boolean = false;
@@ -857,9 +857,9 @@ export class TransitionClip<TEffectComposer extends EffectComposer<TransitionCli
     return specifics ? getPartial(result, specifics) : result;
   }
 
-  /**@internal*/initialize(effectOptions: EffectOptions<TEffectComposer>, effectConfig: Partial<Layer4MutableConfig<TransitionClip, TEffectComposer>> = {}) {
+  /**@internal*/initialize(effectOptions: EffectOptions<TPresetEffectDefinition>, effectConfig: Partial<Layer4MutableConfig<TransitionClip, TPresetEffectDefinition>> = {}) {
     super.initialize(effectOptions, effectConfig);
-    this.removeInlineStyleOnFinish = (effectConfig as TransitionClipConfig).removeInlineStylesOnFinish ?? this.effectComposer.defaultConfig?.removeInlineStylesOnFinish ?? this.categoryDefaultConfig.removeInlineStylesOnFinish!;
+    this.removeInlineStyleOnFinish = (effectConfig as TransitionClipConfig).removeInlineStylesOnFinish ?? this.presetEffectDefinition.defaultConfig?.removeInlineStylesOnFinish ?? this.categoryDefaultConfig.removeInlineStylesOnFinish!;
     return this;
   }
 
@@ -962,7 +962,7 @@ export interface ConnectorSetterClipConfig extends AnimClipConfig {
  * @category Connector Setter
  * @hideconstructor
  */
-export class ConnectorSetterClip extends AnimClip<EffectComposer, ConnectorSetterClipConfig> {
+export class ConnectorSetterClip extends AnimClip<PresetEffectDefinition, ConnectorSetterClipConfig> {
   protected get category(): 'Connector Setter' { return 'Connector Setter'; }
   domElem: WebChalkConnectorElement;
   previousPointA?: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
@@ -998,10 +998,10 @@ export class ConnectorSetterClip extends AnimClip<EffectComposer, ConnectorSette
     pointA: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
     pointB: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
     effectName: string,
-    effectComposerBank: EffectComposerBank,
+    PresetEffectBank: PresetEffectBank,
     connectorConfig: Partial<WebChalkConnectorElementConfig> = {},
     ) {
-    super(connectorElem, effectName, effectComposerBank);
+    super(connectorElem, effectName, PresetEffectBank);
 
     if (!(connectorElem instanceof WebChalkConnectorElement)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass WebChalkConnectorElement element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
 
@@ -1131,7 +1131,7 @@ export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<
  * @category Connector Entrance
  * @hideconstructor
  */
-export class ConnectorEntranceClip<TEffectComposer extends EffectComposer<ConnectorEntranceClip, ConnectorEntranceClipConfig> = EffectComposer> extends AnimClip<TEffectComposer, ConnectorEntranceClipConfig> {
+export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectDefinition<ConnectorEntranceClip, ConnectorEntranceClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, ConnectorEntranceClipConfig> {
   protected get category(): 'Connector Entrance' { return 'Connector Entrance'; }
   domElem: WebChalkConnectorElement;
 
@@ -1193,18 +1193,18 @@ export class ConnectorEntranceClip<TEffectComposer extends EffectComposer<Connec
   }
 
   /**@internal*/
-  constructor(connectorElem: WebChalkConnectorElement | null | undefined, effectName: string, effectComposerBank: EffectComposerBank) {
-    super(connectorElem, effectName, effectComposerBank);
+  constructor(connectorElem: WebChalkConnectorElement | null | undefined, effectName: string, PresetEffectBank: PresetEffectBank) {
+    super(connectorElem, effectName, PresetEffectBank);
 
     if (!(connectorElem instanceof WebChalkConnectorElement)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WebChalkConnectorElement.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
     this.domElem = connectorElem;
   }
 
   /**@internal*/
-  initialize(effectOptions: EffectOptions<TEffectComposer>, effectConfig: Partial<Layer4MutableConfig<ConnectorEntranceClip, TEffectComposer>> = {}) {
+  initialize(effectOptions: EffectOptions<TPresetEffectDefinition>, effectConfig: Partial<Layer4MutableConfig<ConnectorEntranceClip, TPresetEffectDefinition>> = {}) {
     super.initialize(effectOptions, effectConfig);
 
-    const hideNow = (effectConfig as ConnectorEntranceClipConfig).hideNowType ?? this.effectComposer.defaultConfig?.hideNowType ?? this.categoryDefaultConfig.hideNowType!;
+    const hideNow = (effectConfig as ConnectorEntranceClipConfig).hideNowType ?? this.presetEffectDefinition.defaultConfig?.hideNowType ?? this.categoryDefaultConfig.hideNowType!;
     switch(hideNow) {
       case "display-none":
         this.domElem.classList.add('webchalk-display-none');
@@ -1327,7 +1327,7 @@ export interface ConnectorExitClipConfig extends AnimClipConfig {
  * @category Connector Exit
  * @hideconstructor
  */
-export class ConnectorExitClip<TEffectComposer extends EffectComposer<ConnectorExitClip, ConnectorExitClipConfig> = EffectComposer> extends AnimClip<TEffectComposer, ConnectorExitClipConfig> {
+export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefinition<ConnectorExitClip, ConnectorExitClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, ConnectorExitClipConfig> {
   protected get category(): 'Connector Exit' { return 'Connector Exit'; }
   domElem: WebChalkConnectorElement;
 
@@ -1349,8 +1349,8 @@ export class ConnectorExitClip<TEffectComposer extends EffectComposer<ConnectorE
   }
 
   /**@internal*/
-  constructor(connectorElem: WebChalkConnectorElement | null | undefined, effectName: string, effectComposerBank: EffectComposerBank) {
-    super(connectorElem, effectName, effectComposerBank);
+  constructor(connectorElem: WebChalkConnectorElement | null | undefined, effectName: string, PresetEffectBank: PresetEffectBank) {
+    super(connectorElem, effectName, PresetEffectBank);
 
     if (!(connectorElem instanceof WebChalkConnectorElement)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WebChalkConnectorElement.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
 

@@ -9,7 +9,7 @@ import {
   ConnectorExitClip,
 } from "../1_playbackStructures/AnimationClipCategories";
 import { webchalk } from "../WebChalk";
-import { createCustomEffectComposerBank, EffectComposerBank } from "./customEffectCreation";
+import { definePresetEffectBank, PresetEffectBank } from "./customEffectCreation";
 import { computeSelfScrollingBounds, deepFreeze, getBoundingClientRectOfHidden, negateNumString, parseXYAlignmentString, parseXYTupleString } from "../4_utils/helpers";
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions, Keyframes } from "../4_utils/interfaces";
 import { useEasing } from "./easing";
@@ -43,14 +43,14 @@ const clipOpened = 'polygon(0 0%, 100% 0%, 100% 100%, 0 100%)';
 /**
  * @category hidden
  */
-export const libPresetEntrances = createCustomEffectComposerBank('Entrance', {
+export const libPresetEntrances = definePresetEffectBank('Entrance', {
   /** Element appears instantaneously. */
   [`~appear`]: {
     /**
      * 
      * @returns 
      */
-    composeEffect() {
+    buildFrameGenerators() {
       // return 4 as const; // error-checking
       // return {invalid: 4}; // error-checking
       // return [345, 5, 4]; // error-checking
@@ -66,7 +66,7 @@ export const libPresetEntrances = createCustomEffectComposerBank('Entrance', {
       duration: 0,
       composite: 'replace',
     } as const,
-    effectCompositionFrequency: 'on-first-play-only',
+    howOftenBuildGenerators: 'on-first-play-only',
   },
 
   /** Element fades in, starting from 0 opacity. */
@@ -75,16 +75,16 @@ export const libPresetEntrances = createCustomEffectComposerBank('Entrance', {
      * 
      * @returns 
      */
-    composeEffect() {
+    buildFrameGenerators() {
       return {
-        forwardKeyframesGenerator: () => [ {opacity: '0'}, {} ],
+        keyframesGenerator_play: () => [ {opacity: '0'}, {} ],
       } as const;
     },
     defaultConfig: {} as const,
     immutableConfig: {
       composite: 'replace',
     } as const,
-    effectCompositionFrequency: 'on-first-play-only',
+    howOftenBuildGenerators: 'on-first-play-only',
   },
 
   /**
@@ -96,7 +96,7 @@ export const libPresetEntrances = createCustomEffectComposerBank('Entrance', {
      * @param direction - direction from which the element should enter
      * @returns 
      */
-    composeEffect(direction: `from-${Direction}` = 'from-bottom') {
+    buildFrameGenerators(direction: `from-${Direction}` = 'from-bottom') {
       const computeOrthoDist = (dir: `from-${OrthoDirection}`) => {
         const {left, right, top, bottom} = this.domElem.getBoundingClientRect();
         switch(dir) {
@@ -123,15 +123,15 @@ export const libPresetEntrances = createCustomEffectComposerBank('Entrance', {
       };
 
       return {
-        forwardKeyframesGenerator: () => [ {translate: computeTranslationStr()}, {translate: `0 0`} ],
-        // backwardKeyframesGenerator () => [ {translate: computeTranslationStr()} ]
+        keyframesGenerator_play: () => [ {translate: computeTranslationStr()}, {translate: `0 0`} ],
+        // keyframesGenerator_rewind () => [ {translate: computeTranslationStr()} ]
       };
     },
     defaultConfig: {
       composite: 'accumulate',
     } as const,
     immutableConfig: {},
-    effectCompositionFrequency: 'on-first-play-only',
+    howOftenBuildGenerators: 'on-first-play-only',
   },
 
   /**
@@ -144,9 +144,9 @@ export const libPresetEntrances = createCustomEffectComposerBank('Entrance', {
      * @param direction - direction of the rotation
      * @returns 
      */
-    composeEffect(numSpins: number = 2, direction: 'clockwise' | 'counterclockwise' = 'counterclockwise') {
+    buildFrameGenerators(numSpins: number = 2, direction: 'clockwise' | 'counterclockwise' = 'counterclockwise') {
       return {
-        forwardKeyframesGenerator: () => [
+        keyframesGenerator_play: () => [
           {
             rotate: `z ${360 * numSpins * (direction === 'clockwise' ? -1 : 1)}deg`,
             scale: 0,
@@ -158,7 +158,7 @@ export const libPresetEntrances = createCustomEffectComposerBank('Entrance', {
     },
     defaultConfig: {} as const,
     immutableConfig: {} as const,
-    effectCompositionFrequency: 'on-first-play-only',
+    howOftenBuildGenerators: 'on-first-play-only',
   },
 
   /**
@@ -170,11 +170,11 @@ export const libPresetEntrances = createCustomEffectComposerBank('Entrance', {
      * 
      * @returns 
      */
-    composeEffect() {
+    buildFrameGenerators() {
       const belowViewportDist = () => window.innerHeight - this.domElem.getBoundingClientRect().top;
 
       return {
-        forwardKeyframesGenerator: () => [
+        keyframesGenerator_play: () => [
           {opacity: 0, composite: 'replace'},
           {translate: `0 ${belowViewportDist()}px`, offset: 0, easing: useEasing('power2-out')},
           {translate: `0 -25px`, offset: 0.83333},
@@ -187,7 +187,7 @@ export const libPresetEntrances = createCustomEffectComposerBank('Entrance', {
       composite: 'accumulate',
     } as const,
     immutableConfig: {} as const,
-    effectCompositionFrequency: 'on-first-play-only',
+    howOftenBuildGenerators: 'on-first-play-only',
   },
 
   /**
@@ -199,7 +199,7 @@ export const libPresetEntrances = createCustomEffectComposerBank('Entrance', {
      * @param direction - direction from which to begin the wipe
      * @returns 
      */
-    composeEffect(direction: 'from-bottom' | 'from-left' | 'from-top' | 'from-right' = 'from-bottom') {
+    buildFrameGenerators(direction: 'from-bottom' | 'from-left' | 'from-top' | 'from-right' = 'from-bottom') {
       let keyframes: Keyframes;
       switch(direction) {
         case 'from-bottom':
@@ -223,14 +223,14 @@ export const libPresetEntrances = createCustomEffectComposerBank('Entrance', {
       }
 
       return {
-        forwardKeyframesGenerator: () => keyframes,
+        keyframesGenerator_play: () => keyframes,
       };
     },
     defaultConfig: {} as const,
     immutableConfig: {
       composite: 'replace',
     } as const,
-    effectCompositionFrequency: 'on-first-play-only',
+    howOftenBuildGenerators: 'on-first-play-only',
   },
 
   /**
@@ -244,7 +244,7 @@ export const libPresetEntrances = createCustomEffectComposerBank('Entrance', {
      * @param direction - direction from which to slide
      * @returns 
      */
-    composeEffect(direction: 'from-left' | 'from-top' | 'from-right' | 'from-bottom' = 'from-top') {
+    buildFrameGenerators(direction: 'from-left' | 'from-top' | 'from-right' | 'from-bottom' = 'from-top') {
       const genStartFrames = (dir: typeof direction) => {
         switch(dir) {
           case 'from-left':
@@ -276,7 +276,7 @@ export const libPresetEntrances = createCustomEffectComposerBank('Entrance', {
       };
 
       return {
-        forwardKeyframesGenerator: () => [
+        keyframesGenerator_play: () => [
           genStartFrames(direction),
           { clipPath: clipOpened },
         ],
@@ -288,11 +288,11 @@ export const libPresetEntrances = createCustomEffectComposerBank('Entrance', {
     immutableConfig: {
       composite: 'accumulate',
     } as const,
-    effectCompositionFrequency: 'on-first-play-only',
+    howOftenBuildGenerators: 'on-first-play-only',
   },
 
   // invalidProperty: 5,
-}); // satisfies EffectComposerBank<EntranceClip> & {[`__EFFECT_CATEGORY: Entrance`]?: never};
+}); // satisfies PresetEffectBank<EntranceClip> & {[`__EFFECT_CATEGORY: Entrance`]?: never};
 
 /*-:**************************************************************************************************************************/
 /*-:******************************************        EXITS        ***********************************************************/
@@ -300,14 +300,14 @@ export const libPresetEntrances = createCustomEffectComposerBank('Entrance', {
 /**
  * @category hidden
  */
-export const libPresetExits = createCustomEffectComposerBank('Exit', {
+export const libPresetExits = definePresetEffectBank('Exit', {
   /** Element disappears instantaneously. */
   [`~disappear`]: {
     /**
      * 
      * @returns 
      */
-    composeEffect() {
+    buildFrameGenerators() {
       return {} as const;
     },
     defaultConfig: {} as const,
@@ -316,7 +316,7 @@ export const libPresetExits = createCustomEffectComposerBank('Exit', {
       easing: 'linear',
       composite: 'replace',
     } as const,
-    effectCompositionFrequency: 'on-first-play-only',
+    howOftenBuildGenerators: 'on-first-play-only',
   },
 
   /** Element fades out to 0 opacity. */
@@ -325,16 +325,16 @@ export const libPresetExits = createCustomEffectComposerBank('Exit', {
      * 
      * @returns 
      */
-    composeEffect() {
+    buildFrameGenerators() {
       return {
-        forwardKeyframesGenerator: () => [{}, {opacity: '0'}],
+        keyframesGenerator_play: () => [{}, {opacity: '0'}],
       } as const;
     },
     defaultConfig: {} as const,
     immutableConfig: {
       composite: 'replace',
     } as const,
-    effectCompositionFrequency: 'on-first-play-only',
+    howOftenBuildGenerators: 'on-first-play-only',
   },
 
   /** Element flies offscreen towards the specified direction */
@@ -344,7 +344,7 @@ export const libPresetExits = createCustomEffectComposerBank('Exit', {
      * @param direction - direction to which the element should exit
      * @returns 
      */
-    composeEffect(direction: `to-${OrthoDirection | DiagDirection}` = 'to-bottom') {
+    buildFrameGenerators(direction: `to-${OrthoDirection | DiagDirection}` = 'to-bottom') {
       const computeOrthoDist = (dir: `to-${OrthoDirection}`) => {
         const {left, right, top, bottom} = this.domElem.getBoundingClientRect();
         switch(dir) {
@@ -370,15 +370,15 @@ export const libPresetExits = createCustomEffectComposerBank('Exit', {
       };
 
       return {
-        forwardKeyframesGenerator: () => [ {translate: computeTranslationStr()} ],
-        // backwardKeyframesGenerator: () => [ {translate: computeTranslationStr()}, {translate: `0 0`} ]
+        keyframesGenerator_play: () => [ {translate: computeTranslationStr()} ],
+        // keyframesGenerator_rewind: () => [ {translate: computeTranslationStr()}, {translate: `0 0`} ]
       };
     },
     defaultConfig: {} as const,
     immutableConfig: {
       composite: 'accumulate',
     } as const,
-    effectCompositionFrequency: 'on-first-play-only',
+    howOftenBuildGenerators: 'on-first-play-only',
   },
 
   /** Element spins and shrinks while fading out. */
@@ -389,9 +389,9 @@ export const libPresetExits = createCustomEffectComposerBank('Exit', {
      * @param direction - direction of the spin
      * @returns 
      */
-    composeEffect(numSpins: number = 2, direction: 'clockwise' | 'counterclockwise' = 'clockwise') {
+    buildFrameGenerators(numSpins: number = 2, direction: 'clockwise' | 'counterclockwise' = 'clockwise') {
       return {
-        forwardKeyframesGenerator: () => [
+        keyframesGenerator_play: () => [
           {},
           {
             rotate: `z ${360 * numSpins * (direction === 'clockwise' ? 1 : -1)}deg`,
@@ -403,7 +403,7 @@ export const libPresetExits = createCustomEffectComposerBank('Exit', {
     },
      defaultConfig: {} as const,
      immutableConfig: {} as const, // TODO: figure out good way to set composite
-     effectCompositionFrequency: 'on-first-play-only',
+     howOftenBuildGenerators: 'on-first-play-only',
   },
 
   /**
@@ -414,19 +414,19 @@ export const libPresetExits = createCustomEffectComposerBank('Exit', {
      * 
      * @returns 
      */
-    composeEffect() {
+    buildFrameGenerators() {
       const belowViewportDist = () => window.innerHeight - this.domElem.getBoundingClientRect().top;
 
       return {
         reverseKeyframesEffect: true,
-        forwardKeyframesGenerator: () => [
+        keyframesGenerator_play: () => [
           {opacity: 0, composite: 'replace'},
           {translate: `0 ${belowViewportDist()}px`, offset: 0, easing: useEasing('power2-out')},
           {translate: `0 -25px`, offset: 0.83333},
           {translate: `0 -25px`, offset: 0.86, easing: useEasing('power1-in')},
           {translate: `0 0`},
         ],
-        // forwardKeyframesGenerator: () => [
+        // keyframesGenerator_play: () => [
         //   {translate: `0 0`, easing: useEasing('power1-out')},
         //   {translate: `0 -25px`, offset: 0.14 },
         //   {translate: `0 -25px`, easing: useEasing('power2-in'), offset: 0.16666666},
@@ -439,7 +439,7 @@ export const libPresetExits = createCustomEffectComposerBank('Exit', {
     immutableConfig: {
       composite: 'accumulate',
     } as const,
-    effectCompositionFrequency: 'on-first-play-only',
+    howOftenBuildGenerators: 'on-first-play-only',
   },
   
   /** Element is wiped off, starting from the specified direction. */
@@ -449,7 +449,7 @@ export const libPresetExits = createCustomEffectComposerBank('Exit', {
      * @param direction 
      * @returns 
      */
-    composeEffect(direction: 'from-bottom' | 'from-left' | 'from-top' | 'from-right' = 'from-bottom') {
+    buildFrameGenerators(direction: 'from-bottom' | 'from-left' | 'from-top' | 'from-right' = 'from-bottom') {
       let keyframes: Keyframes;
 
       switch(direction) {
@@ -470,14 +470,14 @@ export const libPresetExits = createCustomEffectComposerBank('Exit', {
       }
 
       return {
-        forwardKeyframesGenerator: () => keyframes,
+        keyframesGenerator_play: () => keyframes,
       };
     },
     defaultConfig: {} as const,
     immutableConfig: {
       composite: 'replace',
     } as const,
-    effectCompositionFrequency: 'on-first-play-only',
+    howOftenBuildGenerators: 'on-first-play-only',
   },
 
   /**
@@ -491,7 +491,7 @@ export const libPresetExits = createCustomEffectComposerBank('Exit', {
      * @param direction - direction to which to slide
      * @returns 
      */
-    composeEffect(direction: 'to-left' | 'to-top' | 'to-right' | 'to-bottom' = 'to-top') {
+    buildFrameGenerators(direction: 'to-left' | 'to-top' | 'to-right' | 'to-bottom' = 'to-top') {
       const genEndFrames = (dir: typeof direction) => {
         switch(dir) {
           case 'to-left':
@@ -523,7 +523,7 @@ export const libPresetExits = createCustomEffectComposerBank('Exit', {
       };
 
       return {
-        forwardKeyframesGenerator: () => [
+        keyframesGenerator_play: () => [
           { clipPath: clipOpened },
           genEndFrames(direction),
         ],
@@ -535,9 +535,9 @@ export const libPresetExits = createCustomEffectComposerBank('Exit', {
     immutableConfig: {
       composite: 'accumulate',
     } as const,
-    effectCompositionFrequency: 'on-first-play-only',
+    howOftenBuildGenerators: 'on-first-play-only',
   },
-}); // satisfies EffectComposerBank<ExitClip>;
+}); // satisfies PresetEffectBank<ExitClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:*****************************************        EMPHASES        *********************************************************/
@@ -545,7 +545,7 @@ export const libPresetExits = createCustomEffectComposerBank('Exit', {
 /**
  * @category hidden
  */
-export const libPresetEmphases = createCustomEffectComposerBank('Emphasis', {
+export const libPresetEmphases = definePresetEffectBank('Emphasis', {
   /**
    * Element is highlighted in the specified color.
    */
@@ -555,7 +555,7 @@ export const libPresetEmphases = createCustomEffectComposerBank('Emphasis', {
      * @param color - color to use for the highlight
      * @returns 
      */
-    composeEffect(color: string = 'default') {
+    buildFrameGenerators(color: string = 'default') {
       // this.domElem.style.setProperty(`--webchalk-highlight-color`, 'red');
       // let prevVal = '';
       // if (this.domElem.getAttribute('style')?.includes('--webchalk-highlight-color')) {
@@ -568,7 +568,7 @@ export const libPresetEmphases = createCustomEffectComposerBank('Emphasis', {
       const finalColor = color === 'default' ? this.getStyles(document.documentElement, '--webchalk-highlight-color') : color;
       
       return {
-        forwardKeyframesGenerator: () => {
+        keyframesGenerator_play: () => {
           if (this.domElem.dataset.webchalkHighlighted) {
             throw new CustomErrors.InvalidEffectError(`Cannot highlight an element that is already highlighted.`);
           }
@@ -581,7 +581,7 @@ export const libPresetEmphases = createCustomEffectComposerBank('Emphasis', {
             {['--webchalk-highlight-color']: finalColor}
           ];
         },
-        backwardKeyframesGenerator: () => {
+        keyframesGenerator_rewind: () => {
           delete this.domElem.dataset.webchalkHighlighted;
 
           return [
@@ -600,7 +600,7 @@ export const libPresetEmphases = createCustomEffectComposerBank('Emphasis', {
     immutableConfig: {
       composite: 'replace',
     } as const,
-    effectCompositionFrequency: 'on-every-play',
+    howOftenBuildGenerators: 'on-every-play',
   },
 
   /** Element is unhighlighted. */
@@ -609,13 +609,13 @@ export const libPresetEmphases = createCustomEffectComposerBank('Emphasis', {
      * 
      * @returns 
      */
-    composeEffect() {
+    buildFrameGenerators() {
       if (!this.domElem.classList.contains(`webchalk-highlightable`)) {
         throw new CustomErrors.InvalidEffectError(`Cannot un-highlight an element that was not already highlighted.`);
       }
 
       return {
-        forwardKeyframesGenerator: () => {
+        keyframesGenerator_play: () => {
           switch (this.getStatus('direction')) {
             // if playing, dataset highlighted should become false
             case 'forward':
@@ -638,9 +638,9 @@ export const libPresetEmphases = createCustomEffectComposerBank('Emphasis', {
     immutableConfig: {
       composite: 'replace',
     } as const,
-    effectCompositionFrequency: 'on-every-play',
+    howOftenBuildGenerators: 'on-every-play',
   },
-}); // satisfies EffectComposerBank<EmphasisClip>;
+}); // satisfies PresetEffectBank<EmphasisClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:*****************************************        MOTIONS        **********************************************************/
@@ -648,7 +648,7 @@ export const libPresetEmphases = createCustomEffectComposerBank('Emphasis', {
 /**
  * @category hidden
  */
-export const libPresetMotions = createCustomEffectComposerBank('Motion', {
+export const libPresetMotions = definePresetEffectBank('Motion', {
   /** Element is moved with respect to another element. */
   ['~move-to']: {
     /**
@@ -657,7 +657,7 @@ export const libPresetMotions = createCustomEffectComposerBank('Motion', {
      * @param translationOptions - options defining the behavior of the motion
      * @returns 
      */
-    composeEffect(targetElem: Element | null | undefined, translationOptions: Partial<MoveToOptions> = {}) {
+    buildFrameGenerators(targetElem: Element | null | undefined, translationOptions: Partial<MoveToOptions> = {}) {
       if (!targetElem) {
         throw new TypeError(`Target for ~move-to must not be null`);
       }
@@ -708,10 +708,10 @@ export const libPresetMotions = createCustomEffectComposerBank('Motion', {
       }
       
       return {
-        forwardKeyframesGenerator: () => [
+        keyframesGenerator_play: () => [
           {translate: `calc(${baseXTrans}px + ${selfOffsetX} + ${targetOffsetXTrans}) calc(${baseYTrans}px + ${selfOffsetY} + ${targetOffsetYTrans})`}
         ],
-        backwardKeyframesGenerator: () => [
+        keyframesGenerator_rewind: () => [
           {translate: `calc(${-baseXTrans}px + ${negateNumString(selfOffsetX)} + ${negateNumString(targetOffsetXTrans)}) calc(${-baseYTrans}px + ${negateNumString(selfOffsetY)} + ${negateNumString(targetOffsetYTrans)})`}
         ],
       };
@@ -720,7 +720,7 @@ export const libPresetMotions = createCustomEffectComposerBank('Motion', {
     immutableConfig: {
       composite: 'accumulate',
     } as const,
-    effectCompositionFrequency: 'on-every-play',
+    howOftenBuildGenerators: 'on-every-play',
   },
 
   /** Element moves based on the specified translation options. */
@@ -730,7 +730,7 @@ export const libPresetMotions = createCustomEffectComposerBank('Motion', {
      * @param translationOptions - options defining the behavior of the motion
      * @returns 
      */
-    composeEffect(translationOptions: Partial<TranslateOptions> = {}) {
+    buildFrameGenerators(translationOptions: Partial<TranslateOptions> = {}) {
       const translationComponents = parseXYTupleString(translationOptions.translate);
       const selfOffsetComponents =  parseXYTupleString(translationOptions.selfOffset);
 
@@ -740,8 +740,8 @@ export const libPresetMotions = createCustomEffectComposerBank('Motion', {
       const selfOffsetY = selfOffsetComponents?.[1] ?? '0px';
       
       return {
-        forwardKeyframesGenerator: () => [{translate: `calc(${translateX} + ${selfOffsetX}) calc(${translateY} + ${selfOffsetY})`}],
-        backwardKeyframesGenerator: () => [{translate: `calc(${negateNumString(translateX)} + ${negateNumString(selfOffsetX)})`
+        keyframesGenerator_play: () => [{translate: `calc(${translateX} + ${selfOffsetX}) calc(${translateY} + ${selfOffsetY})`}],
+        keyframesGenerator_rewind: () => [{translate: `calc(${negateNumString(translateX)} + ${negateNumString(selfOffsetX)})`
                             + ` calc(${negateNumString(translateY)} + ${negateNumString(selfOffsetY)})`}],
       };
     },
@@ -749,9 +749,9 @@ export const libPresetMotions = createCustomEffectComposerBank('Motion', {
       composite: 'accumulate',
     } as const,
     immutableConfig: {} as const,
-    effectCompositionFrequency: 'on-first-play-only',
+    howOftenBuildGenerators: 'on-first-play-only',
   },
-}); // satisfies EffectComposerBank<MotionClip>;
+}); // satisfies PresetEffectBank<MotionClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:***************************************        TRANSITIONS        ********************************************************/
@@ -798,16 +798,16 @@ export const libPresetTransitions = deepFreeze({
      * ```
      * <!-- EX:E id="Transition.~from" -->
      */
-    composeEffect(keyframe: Keyframe) {
+    buildFrameGenerators(keyframe: Keyframe) {
       return {
-        forwardKeyframesGenerator: () => [{...keyframe}, {}],
+        keyframesGenerator_play: () => [{...keyframe}, {}],
       };
     },
     defaultConfig: {} as const,
     immutableConfig: {
       commitsStyles: false,
     } as const,
-    effectCompositionFrequency: 'on-first-play-only',
+    howOftenBuildGenerators: 'on-first-play-only',
   },
 
   /** Element transitions from its current state to the specified {@link Keyframe}. */
@@ -854,7 +854,7 @@ export const libPresetTransitions = deepFreeze({
      * ```
      * <!-- EX:E id="Transition.~to" -->
      */
-    composeEffect(keyframe: Keyframe) {
+    buildFrameGenerators(keyframe: Keyframe) {
       const computedStyles = getComputedStyle(this.domElem);
       const original = Object.keys(keyframe).reduce((acc, key) => {
         // when longhand properties are set in CSS (like border-right), the corresponding shorthand property is NOT set in the
@@ -880,14 +880,14 @@ export const libPresetTransitions = deepFreeze({
       }, {});
       
       return {
-        forwardKeyframesGenerator: () => [original, {...keyframe}],
+        keyframesGenerator_play: () => [original, {...keyframe}],
       };
     },
     defaultConfig: {} as const,
     immutableConfig: {} as const,
-    effectCompositionFrequency: 'on-every-play',
+    howOftenBuildGenerators: 'on-every-play',
   },
-}) satisfies EffectComposerBank<TransitionClip>;
+}) satisfies PresetEffectBank<TransitionClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:***********************************        CONNECTOR ENTRANCES      ******************************************************/
@@ -902,7 +902,7 @@ export const libPresetConnectorEntrances = deepFreeze({
      * 
      * @returns 
      */
-    composeEffect() {
+    buildFrameGenerators() {
       return {} as const;
     },
     defaultConfig: {} as const,
@@ -911,7 +911,7 @@ export const libPresetConnectorEntrances = deepFreeze({
       duration: 0,
       easing: 'linear',
     } as const,
-    effectCompositionFrequency: 'on-first-play-only',
+    howOftenBuildGenerators: 'on-first-play-only',
   },
 
   /** Connector fades in, starting from 0 opacity. */
@@ -920,16 +920,16 @@ export const libPresetConnectorEntrances = deepFreeze({
      * 
      * @returns 
      */
-    composeEffect() {
+    buildFrameGenerators() {
       return {
-        forwardKeyframesGenerator: () => [ {opacity: '0'}, {}],
+        keyframesGenerator_play: () => [ {opacity: '0'}, {}],
       } as const;
     },
     defaultConfig: {},
     immutableConfig: {
       composite: 'replace',
     } as const,
-    effectCompositionFrequency: 'on-first-play-only',
+    howOftenBuildGenerators: 'on-first-play-only',
   },
 
   // TODO: Fix new bugs surrounding animating custom variables
@@ -940,7 +940,7 @@ export const libPresetConnectorEntrances = deepFreeze({
      * @param direction - direction from which the connector should be traced
      * @returns 
      */
-    composeEffect(direction: 'from-A' | 'from-B' | 'from-top' | 'from-bottom' | 'from-left' | 'from-right' = 'from-A') {
+    buildFrameGenerators(direction: 'from-A' | 'from-B' | 'from-top' | 'from-bottom' | 'from-left' | 'from-right' = 'from-A') {
       // using CSS variables to control marker-end or marker-start opacity with easing step-end
       // makes it possible to instantly hide a marker and re-reveal it at the end
       const fromAFrames = [
@@ -989,16 +989,16 @@ export const libPresetConnectorEntrances = deepFreeze({
       }
 
       return {
-        forwardKeyframesGenerator: () => keyframes,
+        keyframesGenerator_play: () => keyframes,
       };
     },
     defaultConfig: {} as const,
     immutableConfig: {
       composite: 'replace',
     } as const,
-    effectCompositionFrequency: 'on-every-play',
+    howOftenBuildGenerators: 'on-every-play',
   },
-}) satisfies EffectComposerBank<ConnectorEntranceClip>;
+}) satisfies PresetEffectBank<ConnectorEntranceClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:*************************************        CONNECTOR EXITS        ******************************************************/
@@ -1013,7 +1013,7 @@ export const libPresetConnectorExits = deepFreeze({
      * 
      * @returns 
      */
-    composeEffect() {
+    buildFrameGenerators() {
       return {} as const;
     },
     defaultConfig: {} as const,
@@ -1022,7 +1022,7 @@ export const libPresetConnectorExits = deepFreeze({
       duration: 0,
       easing: 'linear',
     } as const,
-    effectCompositionFrequency: 'on-first-play-only',
+    howOftenBuildGenerators: 'on-first-play-only',
   },
 
   /** Connector fades out to 0 opacity. */
@@ -1031,16 +1031,16 @@ export const libPresetConnectorExits = deepFreeze({
      * 
      * @returns 
      */
-    composeEffect() {
+    buildFrameGenerators() {
       return {
-        forwardKeyframesGenerator: () => [ {}, {opacity: '0'} ],
+        keyframesGenerator_play: () => [ {}, {opacity: '0'} ],
       } as const;
     },
     defaultConfig: {} as const,
     immutableConfig: {
       composite: 'replace',
     } as const,
-    effectCompositionFrequency: 'on-first-play-only',
+    howOftenBuildGenerators: 'on-first-play-only',
   },
 
   /** Connector is wiped off from the specified direction as if being erased. */
@@ -1050,7 +1050,7 @@ export const libPresetConnectorExits = deepFreeze({
      * @param direction - direction from which the connector should be traced
      * @returns 
      */
-    composeEffect(direction: 'from-A' | 'from-B' | 'from-top' | 'from-bottom' | 'from-left' | 'from-right' = 'from-A') {
+    buildFrameGenerators(direction: 'from-A' | 'from-B' | 'from-top' | 'from-bottom' | 'from-left' | 'from-right' = 'from-A') {
       const fromStartFrames = [
         {['--a-marker-opacity']: 1, easing: 'step-start'},
         {strokeDashoffset: 0, offset: 0},
@@ -1097,16 +1097,16 @@ export const libPresetConnectorExits = deepFreeze({
       }
 
       return {
-        forwardKeyframesGenerator: () => keyframes,
+        keyframesGenerator_play: () => keyframes,
       }
     },
     defaultConfig: {} as const,
     immutableConfig: {
       composite: 'replace',
     } as const,
-    effectCompositionFrequency: 'on-every-play',
+    howOftenBuildGenerators: 'on-every-play',
   },
-}) satisfies EffectComposerBank<ConnectorExitClip>;
+}) satisfies PresetEffectBank<ConnectorExitClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:*****************************************        SCROLLS        **********************************************************/
@@ -1160,7 +1160,7 @@ export const libPresetScrolls = deepFreeze({
      * @param scrollOptions - options defining the behavior of the scroll
      * @returns 
      */
-    composeEffect(target: Element | null | undefined, scrollOptions: Partial<ScrollingOptions> = {}) {
+    buildFrameGenerators(target: Element | null | undefined, scrollOptions: Partial<ScrollingOptions> = {}) {
       if (!target) { throw new TypeError(`Target for ~scroll-self must not be null`); }
       const {
         preserveX = false,
@@ -1169,7 +1169,7 @@ export const libPresetScrolls = deepFreeze({
 
       let [x_from, y_from, x_to, y_to] = [0, 0, 0, 0];
 
-      const forwardMutatorGenerator = () => {
+      const mutatorGenerator_play = () => {
         const {
           fromXY,
           toXY
@@ -1193,7 +1193,7 @@ export const libPresetScrolls = deepFreeze({
         }
       };
 
-      const backwardMutatorGenerator = () => {
+      const mutatorGenerator_rewind = () => {
         webchalk.scrollAnchorsStack.pop();
         if (webchalk.scrollAnchorsStack.length > 0) {
           const [anchor, anchorOptions] = webchalk.scrollAnchorsStack[webchalk.scrollAnchorsStack.length - 1];
@@ -1225,14 +1225,14 @@ export const libPresetScrolls = deepFreeze({
       };
 
       return {
-        forwardMutatorGenerator,
-        backwardMutatorGenerator,
+        mutatorGenerator_play,
+        mutatorGenerator_rewind,
       };
     },
     defaultConfig: {} as const,
     immutableConfig: {
       composite: 'replace',
     } as const,
-    effectCompositionFrequency: 'on-first-play-only',
+    howOftenBuildGenerators: 'on-first-play-only',
   },
-}) satisfies EffectComposerBank<ScrollerClip>;
+}) satisfies PresetEffectBank<ScrollerClip>;

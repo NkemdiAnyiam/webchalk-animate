@@ -1,9 +1,9 @@
 export {
-  ComposedEffect,
-  EffectComposer,
-  EffectComposerBank,
+  EffectFrameGeneratorSet,
+  PresetEffectDefinition,
+  PresetEffectBank,
   EffectNameIn,
   EffectOptions,
-  createCustomEffectComposer,
-  createCustomEffectComposerBank
+  definePresetEffect,
+  definePresetEffectBank
 } from "../2_animationEffects/customEffectCreation";

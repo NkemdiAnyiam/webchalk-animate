@@ -12,7 +12,7 @@ import {
   libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions
 } from "./2_animationEffects/libraryPresetEffectBanks";
 import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./4_utils/interfaces";
-import { EffectComposerBank, EffectNameIn, EffectComposer, EffectOptions, createCustomEffectComposerBank, ExtendableBankCategoryToClipType, EffectComposerBankToCategory, createCustomEffectComposer } from "./2_animationEffects/customEffectCreation";
+import { PresetEffectBank, EffectNameIn, PresetEffectDefinition, EffectOptions, definePresetEffectBank, ExtendableBankCategoryToClipType, PresetEffectBankToCategory, definePresetEffect } from "./2_animationEffects/customEffectCreation";
 import { StrictPropertyCheck } from "./4_utils/utilityTypes";
 import { DEFAULT_CONFIG_ERROR, IMMUTABLE_CONFIG_ERROR } from "./4_utils/errors";
 
@@ -228,13 +228,13 @@ export class WebChalk {
    * `createAnimationClipFactories().Entrance(someElement, '~appear', [])` will use the "\~appear" animation effect from the
    * bank of entrance animation effects, but the "\~appear" animation will obviously not be found in the bank of exit animation
    * effects, so `createAnimationClipFactories().Exit(someElement, '~appear', [])` will throw an error.
-   *  * Developers may add their own custom animations to the Entrance, Exit, Emphasis, and Motion categories by using the
-   * {@link customPresetEffectBanks} parameter.
-   * @param customPresetEffectBanks - optional object containing additional banks that the developer can use to add their own custom preset effects
-   * @param customPresetEffectBanks.customEntranceEffects - objects of type {@link EffectComposerBank}, containing keys that represent effect names and values that are {@link EffectComposer}s to be used with the `Entrance()` clip factory function
-   * @param customPresetEffectBanks.customExitEffects - objects of type {@link EffectComposerBank}, containing keys that represent effect names and values that are {@link EffectComposer}s to be used with the `Exit()` clip factory function
-   * @param customPresetEffectBanks.customEmphasisEffects - objects of type {@link EffectComposerBank}, containing keys that represent effect names and values that are {@link EffectComposer}s to be used with the `Emphasis()` clip factory function
-   * @param customPresetEffectBanks.customMotionEffects - objects of type {@link EffectComposerBank}, containing keys that represent effect names and values that are {@link EffectComposer}s to be used with the `Motion()` clip factory function
+   *  * Developers may add their own preset animation effects to the Entrance, Exit, Emphasis, and Motion categories by using the
+   * {@link additionalPresetEffectBanks} parameter.
+   * @param additionalPresetEffectBanks - optional object containing additional banks that the developer can use to add their own preset effects
+   * @param additionalPresetEffectBanks.additionalEntranceEffects - objects of type {@link PresetEffectBank}, containing keys that represent effect names and values that are {@link PresetEffectDefinition}s to be used with the `Entrance()` clip factory function
+   * @param additionalPresetEffectBanks.additionalExitEffects - objects of type {@link PresetEffectBank}, containing keys that represent effect names and values that are {@link PresetEffectDefinition}s to be used with the `Exit()` clip factory function
+   * @param additionalPresetEffectBanks.additionalEmphasisEffects - objects of type {@link PresetEffectBank}, containing keys that represent effect names and values that are {@link PresetEffectDefinition}s to be used with the `Emphasis()` clip factory function
+   * @param additionalPresetEffectBanks.additionalMotionEffects - objects of type {@link PresetEffectBank}, containing keys that represent effect names and values that are {@link PresetEffectDefinition}s to be used with the `Motion()` clip factory function
    * @returns Factory functions that return category-specific {@link AnimClip}s, each with intellisense for their category-specific effects banks.
    * 
    * @example
@@ -266,20 +266,20 @@ export class WebChalk {
    * @example
    * <!-- EX:S id="WebChalk.createAnimationClipFactories-1.3" code-type="ts" -->
    * ```ts
-   * // Extending the preset entrances and motions banks with custom effects
+   * // Extending the preset entrances and motions banks with additional preset effects
    * const clipFactories = webchalk.createAnimationClipFactories({
-   *   // CUSTOM ENTRANCES
-   *   customEntranceEffects: {
+   *   // PRESET ENTRANCES
+   *   additionalEntranceEffects: {
    *     coolZoomIn: {
-   *       composeEffect(initialScale: number) {
+   *       buildFrameGenerators(initialScale: number) {
    *         return {
-   *           forwardKeyframesGenerator: () => [
+   *           keyframesGenerator_play: () => [
    *             {scale: initialScale, opacity: 0},
    *             {scale: 1, opacity: 1}
    *           ],
    *           // (backwardFrames could have been omitted in this case because
    *           // the reversal of forwardFrames is exactly equivalent)
-   *           backwardKeyframesGenerator: () => [
+   *           keyframesGenerator_rewind: () => [
    *             {scale: 1, opacity: 1},
    *             {scale: initialScale, opacity: 0}
    *           ]
@@ -288,23 +288,23 @@ export class WebChalk {
    *     },
    * 
    *     blinkIn: {
-   *       composeEffect() {
+   *       buildFrameGenerators() {
    *         return {
-   *           forwardKeyframesGenerator: () => [
+   *           keyframesGenerator_play: () => [
    *             {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}
    *           ],
-   *           // (backwardKeyframesGenerator() omitted because the reversal of
-   *           // forwardKeyframesGenerator() is exactly equivalent)
+   *           // (keyframesGenerator_rewind() omitted because the reversal of
+   *           // keyframesGenerator_play() is exactly equivalent)
    *         };
    *       }
    *     }
    *   },
    * 
-   *   // CUSTOM EXITS
-   *   customExitEffects: {
-   *     // a custom animation effect for flying out to the left side of the screen
+   *   // PRESET EXITS
+   *   additionalExitEffects: {
+   *     // a preset animation effect for flying out to the left side of the screen
    *     flyOutLeft: {
-   *       composeEffect() {
+   *       buildFrameGenerators() {
    *         const computeTranslationStr = () => {
    *           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
    *           const translationString = `${orthogonalDistance}px 0px`;
@@ -312,15 +312,15 @@ export class WebChalk {
    *         }
    *   
    *         return {
-   *           forwardKeyframesGenerator: () => {
+   *           keyframesGenerator_play: () => {
    *             return [
    *               {translate: computeTranslationStr()}
    *             ];
    *           },
-   *           // backwardKeyframesGenerator could have been omitted because the result
-   *           // of running forwardKeyframesGenerator() again and reversing the keyframes
+   *           // keyframesGenerator_rewind could have been omitted because the result
+   *           // of running keyframesGenerator_play() again and reversing the keyframes
    *           // produces the same desired rewinding effect in this case
-   *           backwardKeyframesGenerator: () => {
+   *           keyframesGenerator_rewind: () => {
    *             return [
    *               {translate: computeTranslationStr()},
    *               {translate: `0 0`}
@@ -339,7 +339,7 @@ export class WebChalk {
    * });
    * 
    * const square = document.querySelector('.square');
-   * // the custom animations you created are now valid as well as detected by TypeScript
+   * // the preset animation effects you created are now valid as well as detected by TypeScript
    * const ent1 = clipFactories.Entrance(square, 'coolZoomIn', [0.2]);
    * const ent2 = clipFactories.Entrance(square, 'blinkIn', []);
    * const ext = clipFactories.Exit(square, 'flyOutLeft', []);
@@ -350,26 +350,26 @@ export class WebChalk {
   <
    // default = {} ensures intellisense for a given bank still works
    // without specifying the field (why? not sure)
-    CustomEntranceBank extends EffectComposerBank<EntranceClip> = {},
-    CustomExitBank extends EffectComposerBank<ExitClip> = {},
-    CustomEmphasisBank extends EffectComposerBank<EmphasisClip> = {},
-    CustomMotionBank extends EffectComposerBank<MotionClip> = {},
-    _EmptyTransitionBank extends EffectComposerBank<TransitionClip> = {},
-    _EmptyConnectorEntranceBank extends EffectComposerBank<ConnectorEntranceClip> = {},
-    _EmptyConnectorExitBank extends EffectComposerBank<ConnectorExitClip> = {},
-    _EmptyScrollerBank extends EffectComposerBank<ScrollerClip> = {},
+    AdditionalEntranceBank extends PresetEffectBank<EntranceClip> = {},
+    AdditionalExitBank extends PresetEffectBank<ExitClip> = {},
+    AdditionalEmphasisBank extends PresetEffectBank<EmphasisClip> = {},
+    AdditionalMotionBank extends PresetEffectBank<MotionClip> = {},
+    _EmptyTransitionBank extends PresetEffectBank<TransitionClip> = {},
+    _EmptyConnectorEntranceBank extends PresetEffectBank<ConnectorEntranceClip> = {},
+    _EmptyConnectorExitBank extends PresetEffectBank<ConnectorExitClip> = {},
+    _EmptyScrollerBank extends PresetEffectBank<ScrollerClip> = {},
     IncludeLibPresets extends boolean = true
   >
   (
-    customPresetEffectBanks: {
-      /** object of type {@link EffectComposerBank}, containing keys that represent effect names and values that are {@link EffectComposer}s to be used with `Entrance()` clip factory function */
-      customEntranceEffects?: CustomEntranceBank & EffectComposerBank<EntranceClip>;
-      /** object of type {@link EffectComposerBank}, containing keys that represent effect names and values that are {@link EffectComposer}s to be used with the `Exit()` clip factory function */
-      customExitEffects?: CustomExitBank & EffectComposerBank<ExitClip>;
-      /** object of type {@link EffectComposerBank}, containing keys that represent effect names and values that are {@link EffectComposer}s to be used with the `Emphasis()` clip factory function */
-      customEmphasisEffects?: CustomEmphasisBank & EffectComposerBank<EmphasisClip>;
-      /** object of type {@link EffectComposerBank}, containing keys that represent effect names and values that are {@link EffectComposer}s to be used with the `Motion()` clip factory function */
-      customMotionEffects?: CustomMotionBank & EffectComposerBank<MotionClip>;
+    additionalPresetEffectBanks: {
+      /** object of type {@link PresetEffectBank}, containing keys that represent effect names and values that are {@link PresetEffectDefinition}s to be used with `Entrance()` clip factory function */
+      additionalEntranceEffects?: AdditionalEntranceBank & PresetEffectBank<EntranceClip>;
+      /** object of type {@link PresetEffectBank}, containing keys that represent effect names and values that are {@link PresetEffectDefinition}s to be used with the `Exit()` clip factory function */
+      additionalExitEffects?: AdditionalExitBank & PresetEffectBank<ExitClip>;
+      /** object of type {@link PresetEffectBank}, containing keys that represent effect names and values that are {@link PresetEffectDefinition}s to be used with the `Emphasis()` clip factory function */
+      additionalEmphasisEffects?: AdditionalEmphasisBank & PresetEffectBank<EmphasisClip>;
+      /** object of type {@link PresetEffectBank}, containing keys that represent effect names and values that are {@link PresetEffectDefinition}s to be used with the `Motion()` clip factory function */
+      additionalMotionEffects?: AdditionalMotionBank & PresetEffectBank<MotionClip>;
     } = {},
     /**
      * if `false`, the preset effects that normally come with the framework will be excluded
@@ -380,32 +380,32 @@ export class WebChalk {
      */
     includeLibraryPresets: IncludeLibPresets | void = true as IncludeLibPresets
   ) {
-    const {customEntranceEffects, customExitEffects, customEmphasisEffects, customMotionEffects} = customPresetEffectBanks as {
-      customEntranceEffects?: CustomEntranceBank & EffectComposerBank<EntranceClip>;
-      customExitEffects?: CustomExitBank & EffectComposerBank<ExitClip>;
-      customEmphasisEffects?: CustomEmphasisBank & EffectComposerBank<EmphasisClip>;
-      customMotionEffects?: CustomMotionBank & EffectComposerBank<MotionClip>;
+    const {additionalEntranceEffects, additionalExitEffects, additionalEmphasisEffects, additionalMotionEffects} = additionalPresetEffectBanks as {
+      additionalEntranceEffects?: AdditionalEntranceBank & PresetEffectBank<EntranceClip>;
+      additionalExitEffects?: AdditionalExitBank & PresetEffectBank<ExitClip>;
+      additionalEmphasisEffects?: AdditionalEmphasisBank & PresetEffectBank<EmphasisClip>;
+      additionalMotionEffects?: AdditionalMotionBank & PresetEffectBank<MotionClip>;
     };
-    WebChalk.formatBanks(customEntranceEffects, customExitEffects, customEmphasisEffects, customMotionEffects);
+    WebChalk.formatBanks(additionalEntranceEffects, additionalExitEffects, additionalEmphasisEffects, additionalMotionEffects);
 
-    type TogglePresets<TLibBank, TCustomBank> = Readonly<(IncludeLibPresets extends true ? TLibBank : {}) & TCustomBank>;
+    type TogglePresets<TLibBank, TAdditionalBank> = Readonly<(IncludeLibPresets extends true ? TLibBank : {}) & TAdditionalBank>;
 
-    const mergeBanks = <L, U>(libraryBank: L, customBank: U) => {
-      const combinedBank = {...(includeLibraryPresets ? libraryBank : {}), ...(customBank ?? {})} as EffectComposerBank;
+    const mergeBanks = <L, U>(libraryBank: L, additionalBank: U) => {
+      const combinedBank = {...(includeLibraryPresets ? libraryBank : {}), ...(additionalBank ?? {})} as PresetEffectBank;
       // // set effectName and sourceBank properties of each generator to their obviously corresponding values
       // // Object.assign circumvents the Readonly<>, preventing a TS error
       // for (const key in combinedBank) {
-      //   const extras = { effectName: key, sourceBank: combinedBank } satisfies Partial<EffectComposer>;
+      //   const extras = { effectName: key, sourceBank: combinedBank } satisfies Partial<PresetEffectDefinition>;
       //   Object.assign(combinedBank[key], extras);
       // }
       return combinedBank as TogglePresets<L, U>;
     }
     
-    // Merge the library preset banks with any custom banks addons from layer 4
-    const combinedEntranceBank = mergeBanks(libPresetEntrances, customEntranceEffects as CustomEntranceBank);
-    const combinedExitBank = mergeBanks(libPresetExits, customExitEffects as CustomExitBank);
-    const combinedEmphasisBank = mergeBanks(libPresetEmphases, customEmphasisEffects as CustomEmphasisBank);
-    const combinedMotionBank = mergeBanks(libPresetMotions, customMotionEffects as CustomMotionBank);
+    // Merge the library preset banks with any additional banks added from layer 4
+    const combinedEntranceBank = mergeBanks(libPresetEntrances, additionalEntranceEffects as AdditionalEntranceBank);
+    const combinedExitBank = mergeBanks(libPresetExits, additionalExitEffects as AdditionalExitBank);
+    const combinedEmphasisBank = mergeBanks(libPresetEmphases, additionalEmphasisEffects as AdditionalEmphasisBank);
+    const combinedMotionBank = mergeBanks(libPresetMotions, additionalMotionEffects as AdditionalMotionBank);
     const combinedTransitionBank = mergeBanks(libPresetTransitions, {} as _EmptyTransitionBank);
     const combinedConnectorEntranceBank = mergeBanks(libPresetConnectorEntrances, {} as _EmptyConnectorEntranceBank);
     const combinedConnectorExitBank = mergeBanks(libPresetConnectorExits, {} as _EmptyConnectorExitBank);
@@ -450,14 +450,14 @@ export class WebChalk {
        * ```
        * <!-- EX:E id="EntranceClip.example" -->
        */
-      Entrance: function<TComposerBank extends typeof combinedEntranceBank, TEffectName extends EffectNameIn<TComposerBank>, TEffectComposer extends TComposerBank[TEffectName]>(
+      Entrance: function<TEffectBank extends typeof combinedEntranceBank, TEffectName extends EffectNameIn<TEffectBank>, TPresetEffectDefinition extends TEffectBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        effectOptions: EffectOptions<TEffectComposer>,
-        effectConfig: Partial<Layer4MutableConfig<EntranceClip, TEffectComposer>> = {},
+        effectOptions: EffectOptions<TPresetEffectDefinition>,
+        effectConfig: Partial<Layer4MutableConfig<EntranceClip, TPresetEffectDefinition>> = {},
       ) {
         self.clipCreatorLock = false;
-        return new EntranceClip<TEffectComposer>(domElem as DOMElement, effectName, combinedEntranceBank).initialize(effectOptions, effectConfig);
+        return new EntranceClip<TPresetEffectDefinition>(domElem as DOMElement, effectName, combinedEntranceBank).initialize(effectOptions, effectConfig);
       },
 
       /**
@@ -495,14 +495,14 @@ export class WebChalk {
        * ```
        * <!-- EX:E id="ExitClip.example" -->
        */
-      Exit: function<TComposerBank extends typeof combinedExitBank, TEffectName extends EffectNameIn<TComposerBank>, TEffectComposer extends TComposerBank[TEffectName]>(
+      Exit: function<TEffectBank extends typeof combinedExitBank, TEffectName extends EffectNameIn<TEffectBank>, TPresetEffectDefinition extends TEffectBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        effectOptions: EffectOptions<TEffectComposer>,
-        effectConfig: Partial<Layer4MutableConfig<ExitClip, TEffectComposer>> = {},
+        effectOptions: EffectOptions<TPresetEffectDefinition>,
+        effectConfig: Partial<Layer4MutableConfig<ExitClip, TPresetEffectDefinition>> = {},
       ) {
         self.clipCreatorLock = false;
-        return new ExitClip<TEffectComposer>(domElem as DOMElement, effectName, combinedExitBank).initialize(effectOptions, effectConfig);
+        return new ExitClip<TPresetEffectDefinition>(domElem as DOMElement, effectName, combinedExitBank).initialize(effectOptions, effectConfig);
       },
 
       /**
@@ -539,14 +539,14 @@ export class WebChalk {
        * ```
        * <!-- EX:E id="EmphasisClip.example" -->
        */
-      Emphasis: function<TComposerBank extends typeof combinedEmphasisBank, TEffectName extends EffectNameIn<TComposerBank>, TEffectComposer extends TComposerBank[TEffectName]>(
+      Emphasis: function<TEffectBank extends typeof combinedEmphasisBank, TEffectName extends EffectNameIn<TEffectBank>, TPresetEffectDefinition extends TEffectBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        effectOptions: EffectOptions<TEffectComposer>,
-        effectConfig: Partial<Layer4MutableConfig<EmphasisClip, TEffectComposer>> = {},
+        effectOptions: EffectOptions<TPresetEffectDefinition>,
+        effectConfig: Partial<Layer4MutableConfig<EmphasisClip, TPresetEffectDefinition>> = {},
       ) {
         self.clipCreatorLock = false;
-        return new EmphasisClip<TEffectComposer>(domElem as DOMElement, effectName, combinedEmphasisBank).initialize(effectOptions, effectConfig);
+        return new EmphasisClip<TPresetEffectDefinition>(domElem as DOMElement, effectName, combinedEmphasisBank).initialize(effectOptions, effectConfig);
       },
 
       /**
@@ -586,14 +586,14 @@ export class WebChalk {
        * ```
        * <!-- EX:E id="MotionClip.example" -->
        */
-      Motion: function<TComposerBank extends typeof combinedMotionBank, TEffectName extends EffectNameIn<TComposerBank>, TEffectComposer extends TComposerBank[TEffectName]>(
+      Motion: function<TEffectBank extends typeof combinedMotionBank, TEffectName extends EffectNameIn<TEffectBank>, TPresetEffectDefinition extends TEffectBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        effectOptions: EffectOptions<TEffectComposer>,
-        effectConfig: Partial<Layer4MutableConfig<MotionClip, TEffectComposer>> = {},
+        effectOptions: EffectOptions<TPresetEffectDefinition>,
+        effectConfig: Partial<Layer4MutableConfig<MotionClip, TPresetEffectDefinition>> = {},
       ) {
         self.clipCreatorLock = false;
-        return new MotionClip<TEffectComposer>(domElem as DOMElement, effectName, combinedMotionBank).initialize(effectOptions, effectConfig);
+        return new MotionClip<TPresetEffectDefinition>(domElem as DOMElement, effectName, combinedMotionBank).initialize(effectOptions, effectConfig);
       },
 
       /**
@@ -631,14 +631,14 @@ export class WebChalk {
        * ```
        * <!-- EX:E id="TransitionClip.example" -->
        */
-      Transition: function<TComposerBank extends typeof combinedTransitionBank, TEffectName extends EffectNameIn<TComposerBank>, TEffectComposer extends TComposerBank[TEffectName]>(
+      Transition: function<TEffectBank extends typeof combinedTransitionBank, TEffectName extends EffectNameIn<TEffectBank>, TPresetEffectDefinition extends TEffectBank[TEffectName]>(
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        effectOptions: EffectOptions<TEffectComposer>,
-        effectConfig: Partial<Layer4MutableConfig<TransitionClip, TEffectComposer>> = {},
+        effectOptions: EffectOptions<TPresetEffectDefinition>,
+        effectConfig: Partial<Layer4MutableConfig<TransitionClip, TPresetEffectDefinition>> = {},
       ) {
         self.clipCreatorLock = false;
-        return new TransitionClip<TEffectComposer>(domElem as DOMElement, effectName, combinedTransitionBank).initialize(effectOptions, effectConfig);
+        return new TransitionClip<TPresetEffectDefinition>(domElem as DOMElement, effectName, combinedTransitionBank).initialize(effectOptions, effectConfig);
       },
 
       /**
@@ -707,7 +707,7 @@ export class WebChalk {
         self.clipCreatorLock = false;
         const effectName = `~set-line-points`;
         return new ConnectorSetterClip(
-          connectorElem as Exclude<typeof connectorElem, Element>, pointA, pointB, effectName, {[effectName]: {...AnimClip.createNoOpEffectComposer(), /*effectName*/}}, connectorConfig
+          connectorElem as Exclude<typeof connectorElem, Element>, pointA, pointB, effectName, {[effectName]: {...AnimClip.createNoOpPresetEffectDefinition(), /*effectName*/}}, connectorConfig
         ).initialize([]);
       },
 
@@ -751,15 +751,15 @@ export class WebChalk {
        * <!-- EX:E id="ConnectorEntranceClip.example" -->
        */
       ConnectorEntrance: function<
-        TComposerBank extends typeof combinedConnectorEntranceBank, TEffectName extends EffectNameIn<TComposerBank>, TEffectComposer extends TComposerBank[TEffectName]
+        TEffectBank extends typeof combinedConnectorEntranceBank, TEffectName extends EffectNameIn<TEffectBank>, TPresetEffectDefinition extends TEffectBank[TEffectName]
       >(
         connectorElem: WebChalkConnectorElement | Element | null | undefined,
         effectName: TEffectName,
-        effectOptions: EffectOptions<TEffectComposer>,
-        effectConfig: Partial<Layer4MutableConfig<ConnectorEntranceClip, TEffectComposer>> = {},
+        effectOptions: EffectOptions<TPresetEffectDefinition>,
+        effectConfig: Partial<Layer4MutableConfig<ConnectorEntranceClip, TPresetEffectDefinition>> = {},
       ) {
         self.clipCreatorLock = false;
-        return new ConnectorEntranceClip<TEffectComposer>(connectorElem as Exclude<typeof connectorElem, Element>, effectName, combinedConnectorEntranceBank).initialize(effectOptions, effectConfig);
+        return new ConnectorEntranceClip<TPresetEffectDefinition>(connectorElem as Exclude<typeof connectorElem, Element>, effectName, combinedConnectorEntranceBank).initialize(effectOptions, effectConfig);
       },
 
       /**
@@ -801,14 +801,14 @@ export class WebChalk {
        * ```
        * <!-- EX:E id="ConnectorExitClip.example" -->
        */
-      ConnectorExit: function<TComposerBank extends typeof combinedConnectorExitBank, TEffectName extends EffectNameIn<TComposerBank>, TEffectComposer extends TComposerBank[TEffectName]>(
+      ConnectorExit: function<TEffectBank extends typeof combinedConnectorExitBank, TEffectName extends EffectNameIn<TEffectBank>, TPresetEffectDefinition extends TEffectBank[TEffectName]>(
         connectorElem: WebChalkConnectorElement | Element | null | undefined,
         effectName: TEffectName,
-        effectOptions: EffectOptions<TEffectComposer>,
-        effectConfig: Partial<Layer4MutableConfig<ConnectorExitClip, TEffectComposer>> = {},
+        effectOptions: EffectOptions<TPresetEffectDefinition>,
+        effectConfig: Partial<Layer4MutableConfig<ConnectorExitClip, TPresetEffectDefinition>> = {},
       ) { 
         self.clipCreatorLock = false;
-        return new ConnectorExitClip<TEffectComposer>(connectorElem as Exclude<typeof connectorElem, Element>, effectName, combinedConnectorExitBank).initialize(effectOptions, effectConfig);
+        return new ConnectorExitClip<TPresetEffectDefinition>(connectorElem as Exclude<typeof connectorElem, Element>, effectName, combinedConnectorExitBank).initialize(effectOptions, effectConfig);
       },
       
       /**
@@ -860,15 +860,15 @@ export class WebChalk {
        * ```
        * <!-- EX:E id="ScrollerClip.example" -->
        */
-      Scroller: function<TComposerBank extends typeof combinedScrollerBank, TEffectName extends EffectNameIn<TComposerBank>, TEffectComposer extends TComposerBank[TEffectName]>
+      Scroller: function<TEffectBank extends typeof combinedScrollerBank, TEffectName extends EffectNameIn<TEffectBank>, TPresetEffectDefinition extends TEffectBank[TEffectName]>
       (
         domElem: Element | null | undefined,
         effectName: TEffectName,
-        effectOptions: EffectOptions<TEffectComposer>,
-        effectConfig: Partial<Layer4MutableConfig<ScrollerClip, TEffectComposer>> = {},
+        effectOptions: EffectOptions<TPresetEffectDefinition>,
+        effectConfig: Partial<Layer4MutableConfig<ScrollerClip, TPresetEffectDefinition>> = {},
       ) {
         self.clipCreatorLock = false;
-        return new ScrollerClip<TEffectComposer>(domElem as DOMElement, effectName, combinedScrollerBank).initialize(effectOptions, effectConfig);
+        return new ScrollerClip<TPresetEffectDefinition>(domElem as DOMElement, effectName, combinedScrollerBank).initialize(effectOptions, effectConfig);
       },
     };
   }
@@ -876,62 +876,64 @@ export class WebChalk {
   /**@internal*/
   scrollAnchorsStack: [target: Element, scrollOptions: ScrollingOptions][] = [];
 
-  private static formatBanks(...banks: (EffectComposerBank | undefined)[]) {
+  private static formatBanks(...banks: (PresetEffectBank | undefined)[]) {
     const errors: string[] = [];
 
     // for each bank...
     for (const bank of banks) {
       if (!bank) { continue; }
       // for each entry in the bank...
-      for (const animName in bank) {
-        const entry = bank[animName];
-        // make sure composers are NOT arrow functions
-        if (entry.composeEffect.toString().match(/^\(.*\) => .*/)) {
-          errors.push(`"${animName}"`);
+      for (const effectName in bank) {
+        const entry = bank[effectName];
+        // make sure generator builder functions are NOT arrow functions
+        if (entry.buildFrameGenerators.toString().match(/^\(.*\) => .*/)) {
+          errors.push(`"${effectName}"`);
           continue;
         }
-        // set the effect composition frequency to be on every play by default (if no value is already specified)
+        // TODO: maybe set to never by default
+        // BUG: can't assign now that banks are frozen
+        // set the effect frame generator build frequency to be on every play by default (if no value is already specified)
         Object.assign<typeof entry, Partial<typeof entry>>(
           entry,
-          {effectCompositionFrequency: entry.effectCompositionFrequency ?? 'on-every-play'}
+          {howOftenBuildGenerators: entry.howOftenBuildGenerators ?? 'on-every-play'}
         );
       }
     }
 
     if (errors.length > 0) {
       throw new SyntaxError(
-        `Arrow functions are not allowed to be used as effect composers. Detected in the following animation definitions:${errors.map(msg => `\n${msg}`)}`
+        `Arrow functions are not allowed to be used for buildFrameGenerators() because this function provides a special \`this\` context. Detected in the following animation definitions:${errors.map(msg => `\n${msg}`)}`
       );
     }
   }
 
-  copyEffectComposer<
-    TEffectComposerBank extends EffectComposerBank,
-    TCategory extends EffectComposerBankToCategory<TEffectComposerBank>,
+  copyPresetEffect<
+    TPresetEffectBank extends PresetEffectBank,
+    TCategory extends PresetEffectBankToCategory<TPresetEffectBank>,
     TClipType extends ExtendableBankCategoryToClipType<TCategory>,
-    TEffectName extends EffectNameIn<TEffectComposerBank>,
-    TEffectComposer extends TEffectComposerBank[TEffectName],
+    TEffectName extends EffectNameIn<TPresetEffectBank>,
+    TPresetEffectDefinition extends TPresetEffectBank[TEffectName],
     // "& object" for some reason ensures that the custom error will display...
     // ... for cases where ONLY invalid properties are provided
-    TDefaultConfig extends Partial<Layer4MutableConfig<TClipType, TEffectComposer>> & object,
-    TImmutableConfig extends Partial<Layer4MutableConfig<TClipType, TEffectComposer>> & object,
+    TDefaultConfig extends Partial<Layer4MutableConfig<TClipType, TPresetEffectDefinition>> & object,
+    TImmutableConfig extends Partial<Layer4MutableConfig<TClipType, TPresetEffectDefinition>> & object,
   >(
-    sourceComposerBank: TEffectComposerBank,
+    sourceEffectBank: TPresetEffectBank,
     effectName: TEffectName,
     addedConfiguration: {
       addedDefaultConfig?: TDefaultConfig & StrictPropertyCheck<
         TDefaultConfig,
-        Partial<Layer4MutableConfig<TClipType, TEffectComposer>>,
+        Partial<Layer4MutableConfig<TClipType, TPresetEffectDefinition>>,
         DEFAULT_CONFIG_ERROR<TCategory>
       >,
       addedImmutableConfig?: TImmutableConfig & StrictPropertyCheck<
         TImmutableConfig,
-        Partial<Layer4MutableConfig<TClipType, TEffectComposer>>,
+        Partial<Layer4MutableConfig<TClipType, TPresetEffectDefinition>>,
         IMMUTABLE_CONFIG_ERROR<TCategory>
       >,
     }
   ) {
-    const sourceComposer = sourceComposerBank[effectName];
+    const sourceEffectDefinition = sourceEffectBank[effectName];
     const {
       addedDefaultConfig = {},
       addedImmutableConfig = {},
@@ -939,17 +941,17 @@ export class WebChalk {
 
     return {
       // new default configuration takes priority over source default config
-      ...sourceComposer,
+      ...sourceEffectDefinition,
       defaultConfig: {
-        ...sourceComposer.defaultConfig,
+        ...sourceEffectDefinition.defaultConfig,
         ...addedDefaultConfig
       } as TDefaultConfig,
       // source immutable configuration takes priority over new immutable config
       immutableConfig: {
         ...addedImmutableConfig,
-        ...sourceComposer.immutableConfig
-        // "& TEffectComposer['immutableConfig]" ensures that type constraints from source immutable config are respected after returning
-      } as TImmutableConfig & TEffectComposer['immutableConfig'],
+        ...sourceEffectDefinition.immutableConfig
+        // "& TPresetEffectDefinition['immutableConfig]" ensures that type constraints from source immutable config are respected after returning
+      } as TImmutableConfig & TPresetEffectDefinition['immutableConfig'],
     };
   }
 }
@@ -960,9 +962,9 @@ export class WebChalk {
 export const webchalk = new WebChalk();
 
 // const thing =  webchalk.createAnimationClipFactories({
-//   customEntranceEffects: createCustomEffectComposerBank('Entrance', {
-//     hello: createCustomEffectComposer('Entrance', {
-//       composeEffect() {return {}},
+//   additionalEntranceEffects: definePresetEffectBank('Entrance', {
+//     hello: definePresetEffect('Entrance', {
+//       buildFrameGenerators() {return {}},
 //       defaultConfig: {
         
 //       },
@@ -971,7 +973,7 @@ export const webchalk = new WebChalk();
 //       }
 //     }),
 //     hello2: {
-//       composeEffect() {return {}},
+//       buildFrameGenerators() {return {}},
 //       defaultConfig: {
         
 //       },
@@ -979,6 +981,33 @@ export const webchalk = new WebChalk();
 //         duration: 0
 //       }
 //     },
-//     '~ad': webchalk.copyEffectComposer(libPresetEntrances, '~appear', {addedDefaultConfig: {}, addedImmutableConfig: {}}),
+//     '~ad': webchalk.copyPresetEffect(libPresetEntrances, '~appear', {addedDefaultConfig: {}, addedImmutableConfig: {}}),
 //   }),
 // }).Entrance(new HTMLElement(), '~ad', [], {}).getModifiers();
+
+// const thing2 = webchalk.createAnimationClipFactories({
+//   additionalPresetEntrances: definePresetEffectBank('Entrance', {
+//     appear: {
+//       buildFrameGenerators() {
+//         console.log('Here is EXACTLY what is going on!');
+
+//         return {
+//           keyframesGenerator_play: () => { return []; },
+//           keyframesGenerator_rewind: 'exact-reverse',
+
+//           mutatorGenerator_play: () => { return () => { this.computeTween(); } },
+//           mutatorGenerator_rewind: () => { return () => { this.computeTween(); } }
+//         }
+//       },
+//       defaultConfig: {
+//         duration: 1000,
+//         delay: 300,
+//       },
+//       immutableConfig: {
+//         easing: 'linear',
+//       },
+//       rerunBuildFrameGenerators: 'on-every-play'
+//     }
+//   })
+// });
+

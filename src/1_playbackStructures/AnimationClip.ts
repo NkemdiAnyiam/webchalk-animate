@@ -2,7 +2,7 @@ import { AnimSequence } from "./AnimationSequence";
 import { AnimTimeline } from "./AnimationTimeline";
 import { EntranceClip, MotionClip, TransitionClip } from "./AnimationClipCategories";
 import { webchalk, WebChalk } from "../WebChalk";
-import { EffectOptions, EffectComposerBank, EffectComposer, ComposedEffect } from "../2_animationEffects/customEffectCreation";
+import { EffectOptions, PresetEffectBank, PresetEffectDefinition, EffectFrameGeneratorSet } from "../2_animationEffects/customEffectCreation";
 import { call, detab, getPartial, mergeArrays, xor } from "../4_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
 import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "../4_utils/errors";
@@ -183,10 +183,10 @@ export type AnimClipEffectDetails = {
   effectName: AnimClip['effectName'];
 
   /**
-   * Object containing both the function used to compose the effect and
+   * Object containing both the function used to build the effect frame generators and
    * possibly a set of default configuration options for the effect.
    */
-  effectComposer: AnimClip['effectComposer'];
+  presetEffectDefinition: AnimClip['presetEffectDefinition'];
 
   /**
    * An array containing the effect options used to set the behavior of the animation effect.
@@ -325,12 +325,12 @@ export type ScheduledTask = {
  * @groupDescription Helper Methods
  * Methods to help with the functionality of clip operations.
  */
-export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectComposer, TClipConfig extends AnimClipConfig = AnimClipConfig> {
+export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefinition = PresetEffectDefinition, TClipConfig extends AnimClipConfig = AnimClipConfig> {
   private static id: number = 0;
 
   /**
    * The base default configuration for any animation clip before any category-specific
-   * configuration, effect composer configuration, or configuration passed in through
+   * configuration, preset effect definition configuration, or configuration passed in through
    * clip factory functions are applied.
    * @group Configuration
    */
@@ -355,19 +355,19 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
   }
 
   /**
-   * @returns An effect composer with a function that returns empty arrays (so no actual keyframes).
+   * @returns An effect definition with a function that returns empty arrays (so no actual keyframes).
    * @remarks
    * This static method is purely for convenience.
    * @group Helper Methods
    */
-  public static createNoOpEffectComposer() { return {composeEffect() { return {forwardKeyframesGenerator: () => [], backwardKeyframesGenerator: () => []}; }} as EffectComposer; }
+  public static createNoOpPresetEffectDefinition() { return {buildFrameGenerators() { return {keyframesGenerator_play: () => [], keyframesGenerator_rewind: () => []}; }} as PresetEffectDefinition; }
 
   /**
    * The default configuration for clips in a specific effect category, which includes
    * any additional configuration options that are specific to the effect category.
    *  * This never changes, and it available mostly just for reference. Consider it a
    * static property.
-   *  * This does NOT include any default configuration from effect composers or
+   *  * This does NOT include any default configuration from preset effect definitions or
    * configurations passed in from clip factory functions.
    * @group Configuration
    */
@@ -377,7 +377,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
    * The unchangeable default configuration for clips in a specific effect category.
    *  * This never changes, and it is available mostly just for reference. Consider it a static
    * property.
-   *  * This does NOT include any immutable configuration from effect composers.
+   *  * This does NOT include any immutable configuration from preset effect definitions.
    * @group Configuration
    */
   abstract get categoryImmutableConfig(): Partial<TClipConfig>;
@@ -385,12 +385,12 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
   /**
    * All the unchangeable default configuration settings for the clip (both category-specific
    * immutable configurations and immutable configurations that come from the specific
-   * effect composer).
+   * preset effect definition).
    * @group Configuration
    */
-  get immutableConfig(): this['categoryImmutableConfig'] & TEffectComposer['immutableConfig'] {
+  get immutableConfig(): this['categoryImmutableConfig'] & TPresetEffectDefinition['immutableConfig'] {
     return {
-      ...this.effectComposer.immutableConfig,
+      ...this.presetEffectDefinition.immutableConfig,
       ...this.categoryImmutableConfig,
     };
   }
@@ -533,23 +533,23 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
   return prog;
  }
 
- // true if both keyframes generators are undefined in composed effect
+ // true if both keyframes generators are undefined in frame generators
  protected noKeyframes: boolean = false;
- // true if both mutator generators are undefined in composed effect
+ // true if both mutator generators are undefined in frame generators
  protected noRaf: boolean = false;
- // true if only backward keyframes generators is undefined in composed effect
+ // true if only backward keyframes generators is undefined in frame generators
  protected bFramesMirrored: boolean = false;
- // true if only backward mutator generator is undefined in composed effect
+ // true if only backward mutator generator is undefined in frame generators
  protected bRafMirrored: boolean = false;
 
   // GROUP: Effect Details
   protected abstract get category(): EffectCategory;
   protected effectName: string;
-  protected effectComposer: TEffectComposer;
-  protected effectOptions: EffectOptions<TEffectComposer> = {} as EffectOptions<TEffectComposer>;
+  protected presetEffectDefinition: TPresetEffectDefinition;
+  protected effectOptions: EffectOptions<TPresetEffectDefinition> = {} as EffectOptions<TPresetEffectDefinition>;
   
   /**@internal*/
-  composedEffect = {} as WithRequired<ComposedEffect, 'forwardKeyframesGenerator' | 'backwardKeyframesGenerator'>;
+  EffectFrameGeneratorSet = {} as WithRequired<EffectFrameGeneratorSet, 'keyframesGenerator_play' | 'keyframesGenerator_rewind'>;
   /**@internal*/
   rafMutators: {
     forwardMutator?: () => void;
@@ -561,7 +561,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
    * @returns An object containing
    *  * {@link AnimClipEffectDetails.category|category},
    *  * {@link AnimClipEffectDetails.effectName|effectName},
-   *  * {@link AnimClipEffectDetails.effectComposer|effectComposer},
+   *  * {@link AnimClipEffectDetails.presetEffectDefinition|presetEffectDefinition},
    *  * {@link AnimClipEffectDetails.effectOptions|effectOptions},
    */
   getEffectDetails(): AnimClipEffectDetails;
@@ -588,7 +588,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
     const result: AnimClipEffectDetails = {
       category: this.category,
       effectName: this.effectName,
-      effectComposer: this.effectComposer,
+      presetEffectDefinition: this.presetEffectDefinition,
       effectOptions: this.effectOptions
     };
 
@@ -759,7 +759,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
     return this;
   }
 
-  constructor(domElem: DOMElement | null | undefined, effectName: string, bank: EffectComposerBank) {
+  constructor(domElem: DOMElement | null | undefined, effectName: string, bank: PresetEffectBank) {
     if (webchalk.clipCreatorLock) {
       throw this.generateError(
         TypeError,
@@ -781,20 +781,20 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
     this.domElem = domElem;
     this.effectName = effectName;
     
-    this.effectComposer = bank[effectName] as TEffectComposer;
+    this.presetEffectDefinition = bank[effectName] as TPresetEffectDefinition;
 
-    // checking if this.effectComposer exists is deferred until initialize()
+    // checking if this.presetEffectDefinition exists is deferred until initialize()
   }
 
   /**@internal*/
-  initialize(effectOptions: EffectOptions<TEffectComposer>, effectConfig: Partial<TClipConfig> = {}): this {
+  initialize(effectOptions: EffectOptions<TPresetEffectDefinition>, effectConfig: Partial<TClipConfig> = {}): this {
     // Throw error if invalid effectName
     // Deferred until initialize() so that this.category has actually been initialized by derived class by now
-    if (!this.effectComposer) { throw this.generateError(RangeError, `Invalid effect name: "${this.effectName}" does not exists in the "${this.category}" category.`); }
+    if (!this.presetEffectDefinition) { throw this.generateError(RangeError, `Invalid effect name: "${this.effectName}" does not exists in the "${this.category}" category.`); }
 
     this.effectOptions = effectOptions;
 
-    this.config = this.mergeConfigs(effectConfig, this.effectComposer.defaultConfig ?? {}, this.effectComposer.immutableConfig ?? {});
+    this.config = this.mergeConfigs(effectConfig, this.presetEffectDefinition.defaultConfig ?? {}, this.presetEffectDefinition.immutableConfig ?? {});
     // cannot be exactly 0 because that causes some Animation-related bugs that can't be easily worked around
     this.config.duration = Math.max(this.getTiming('duration') as number, 0.01);
 
@@ -859,8 +859,8 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
 
   protected mergeConfigs(
     usageConfig: Partial<TClipConfig>,
-    effectComposerDefaultConfig: Partial<TClipConfig>,
-    effectComposerImmutableConfig: Partial<TClipConfig>,
+    effectDefinitionDefaultConfig: Partial<TClipConfig>,
+    effectDefinitionImmutableConfig: Partial<TClipConfig>,
   ): TClipConfig {
     return {
       ...AnimClip.baseDefaultConfig,
@@ -868,22 +868,22 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
       // layer 2 subclass defaults take priority
       ...this.categoryDefaultConfig,
 
-      // layer 3 config defined in effect composer takes priority over default
-      ...effectComposerDefaultConfig,
+      // layer 3 config defined in preset effect definition takes priority over default
+      ...effectDefinitionDefaultConfig,
 
-      // layer 4 config (person using WebChalk) takes priority over composer
+      // layer 4 config (person using WebChalk) takes priority over preset definition
       ...usageConfig,
 
       // mergeable properties
       cssClasses: AnimClip.mergeCssClassesConfig<PartialPick<AnimClipConfig, 'cssClasses'>>(
         AnimClip.baseDefaultConfig,
         this.categoryDefaultConfig,
-        effectComposerDefaultConfig,
+        effectDefinitionDefaultConfig,
         usageConfig,
       ),
 
       // layer 3 immutable config take priority over layer 4 config
-      ...effectComposerImmutableConfig,
+      ...effectDefinitionImmutableConfig,
 
       // layer 2 subclass immutable config takes priority over layer 3 immutable config
       ...this.categoryImmutableConfig,
@@ -1197,23 +1197,23 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
   protected async animate(direction: 'forward' | 'backward'): Promise<this> {
     if (this.inProgress) { return this; }
 
-    // if this is the first time running animate() or the effect composition is set to repeat,
+    // if this is the first time running animate() or the generator building is set to repeat,
     // retrieve the generators and update animation effects' directions according to presence
     // of keyframes generators
     if (
       this.firstRun
-      || direction === 'forward' && this.effectComposer.effectCompositionFrequency === 'on-every-play'
+      || direction === 'forward' && this.presetEffectDefinition.howOftenBuildGenerators === 'on-every-play'
     ) {
       this.firstRun = false;
       this.retrieveGenerators();
       
       this.animation.forwardEffect.updateTiming({
-        direction: this.composedEffect.reverseKeyframesEffect ? 'reverse' : 'normal',
+        direction: this.EffectFrameGeneratorSet.reverseKeyframesEffect ? 'reverse' : 'normal',
       });
 
       this.animation.backwardEffect.updateTiming({
         // if no backward keyframes generator was specified, assume the reverse of the forward keyframes generator
-        direction: xor(this.bFramesMirrored, this.composedEffect.reverseKeyframesEffect) ? 'reverse' : 'normal',
+        direction: xor(this.bFramesMirrored, this.EffectFrameGeneratorSet.reverseKeyframesEffect) ? 'reverse' : 'normal',
       });
     }
 
@@ -1254,8 +1254,8 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
             // Keyframe generation is done here so that generations operations that rely on the side effects of class modifications and _onStartForward()...
             // ...can function properly.
             try {
-              animation.setForwardFrames(this.composedEffect.forwardKeyframesGenerator(), this.composedEffect.reverseKeyframesEffect);
-              this.rafMutators.forwardMutator = this.composedEffect.forwardMutatorGenerator?.();
+              animation.setForwardFrames(this.EffectFrameGeneratorSet.keyframesGenerator_play(), this.EffectFrameGeneratorSet.reverseKeyframesEffect);
+              this.rafMutators.forwardMutator = this.EffectFrameGeneratorSet.mutatorGenerator_play?.();
             }
             catch (err: unknown) {
               throw this.generateError(err as Error);
@@ -1277,8 +1277,8 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
 
             // Generate keyframes
             try {
-              this.animation.setBackwardFrames(this.composedEffect.backwardKeyframesGenerator(), this.bFramesMirrored, this.composedEffect.reverseKeyframesEffect);
-              this.rafMutators.backwardMutator = this.composedEffect.backwardMutatorGenerator?.();
+              this.animation.setBackwardFrames(this.EffectFrameGeneratorSet.keyframesGenerator_rewind(), this.bFramesMirrored, this.EffectFrameGeneratorSet.reverseKeyframesEffect);
+              this.rafMutators.backwardMutator = this.EffectFrameGeneratorSet.mutatorGenerator_rewind?.();
             }
             catch (err: unknown) { throw this.generateError(err as Error); }
 
@@ -1377,61 +1377,61 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
     try {
       // retrieve generators
       let {
-        forwardKeyframesGenerator,
-        backwardKeyframesGenerator,
-        forwardMutatorGenerator,
-        backwardMutatorGenerator,
+        keyframesGenerator_play,
+        keyframesGenerator_rewind,
+        mutatorGenerator_play,
+        mutatorGenerator_rewind,
         reverseKeyframesEffect = false,
         reverseMutatorEffect = false,
-      } = call(this.effectComposer.composeEffect, this, ...this.getEffectDetails().effectOptions);
+      } = call(this.presetEffectDefinition.buildFrameGenerators, this, ...this.getEffectDetails().effectOptions);
 
       // if no generators are specified, make keyframes generators return empty keyframes array
-      if (!(forwardKeyframesGenerator || backwardKeyframesGenerator || forwardMutatorGenerator || backwardMutatorGenerator)) {
-        forwardKeyframesGenerator = () => [];
-        backwardKeyframesGenerator = () => [];
+      if (!(keyframesGenerator_play || keyframesGenerator_rewind || mutatorGenerator_play || mutatorGenerator_rewind)) {
+        keyframesGenerator_play = () => [];
+        keyframesGenerator_rewind = () => [];
         this.noKeyframes = this.noRaf = true;
       }
       else {
         // if both keyframe generators are unspecified, make them return empty keyframes array
-        if (!forwardKeyframesGenerator && !backwardKeyframesGenerator) {
+        if (!keyframesGenerator_play && !keyframesGenerator_rewind) {
           this.noKeyframes = true;
-          forwardKeyframesGenerator = () => [];
-          backwardKeyframesGenerator = () => [];
+          keyframesGenerator_play = () => [];
+          keyframesGenerator_rewind = () => [];
         }
         // if backward keyframes generator is unspecified, use forward generator and set mirrored to true
-        else if (!backwardKeyframesGenerator) {
-          backwardKeyframesGenerator = forwardKeyframesGenerator!;
+        else if (!keyframesGenerator_rewind) {
+          keyframesGenerator_rewind = keyframesGenerator_play!;
           this.bFramesMirrored = true;
         }
         // if forward keyframes generator is unspecified, throw error
-        else if (!forwardKeyframesGenerator) {
+        else if (!keyframesGenerator_play) {
           throw new CustomErrors.InvalidEffectError(
             `The backward keyframes generator cannot be specified without the forward keyframes generator as well.`
           );
         }
   
         // if both RAF generators are unspecified, do nothing
-        if (!forwardMutatorGenerator && !backwardMutatorGenerator) {
+        if (!mutatorGenerator_play && !mutatorGenerator_rewind) {
           this.noRaf = true;
         }
         // if backward RAF mutator generator is unspecified, use forward generator and set mirrored to true
-        else if (!backwardMutatorGenerator) {
-          backwardMutatorGenerator = forwardMutatorGenerator;
+        else if (!mutatorGenerator_rewind) {
+          mutatorGenerator_rewind = mutatorGenerator_play;
           this.bRafMirrored = true;
         }
         // if forward RAF mutator generator is unspecified, throw error
-        else if (!forwardMutatorGenerator) {
+        else if (!mutatorGenerator_play) {
           throw new CustomErrors.InvalidEffectError(
             `The backward mutator generator cannot be specified without the forward mutator generator as well.`
           );
         }
       }
 
-      this.composedEffect = {
-        forwardKeyframesGenerator: forwardKeyframesGenerator!,
-        backwardKeyframesGenerator,
-        forwardMutatorGenerator,
-        backwardMutatorGenerator,
+      this.EffectFrameGeneratorSet = {
+        keyframesGenerator_play: keyframesGenerator_play!,
+        keyframesGenerator_rewind,
+        mutatorGenerator_play,
+        mutatorGenerator_rewind,
         reverseKeyframesEffect,
         reverseMutatorEffect,
       };
@@ -1443,19 +1443,19 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
   //   try {
   //     // retrieve generators
   //     let {
-  //       forwardKeyframesGenerator,
-  //       backwardKeyframesGenerator,
-  //       forwardMutatorGenerator,
-  //       backwardMutatorGenerator,
+  //       keyframesGenerator_play,
+  //       keyframesGenerator_rewind,
+  //       mutatorGenerator_play,
+  //       mutatorGenerator_rewind,
   //       reverseKeyframesEffect = false,
   //       reverseMutatorEffect = false,
-  //     } = call(this.effectComposer.composeEffect, this, ...this.getEffectDetails().effectOptions);
+  //     } = call(this.presetEffectDefinition.buildFrameGenerators, this, ...this.getEffectDetails().effectOptions);
 
-  //     this.composedEffect = {
-  //       forwardKeyframesGenerator: forwardKeyframesGenerator! ?? backwardKeyframesGenerator!,
-  //       backwardKeyframesGenerator: backwardKeyframesGenerator! ?? forwardKeyframesGenerator!,
-  //       forwardMutatorGenerator: forwardMutatorGenerator ?? backwardMutatorGenerator,
-  //       backwardMutatorGenerator: backwardMutatorGenerator ?? forwardMutatorGenerator,
+  //     this.EffectFrameGeneratorSet = {
+  //       keyframesGenerator_play: keyframesGenerator_play! ?? keyframesGenerator_rewind!,
+  //       keyframesGenerator_rewind: keyframesGenerator_rewind! ?? keyframesGenerator_play!,
+  //       mutatorGenerator_play: mutatorGenerator_play ?? mutatorGenerator_rewind,
+  //       mutatorGenerator_rewind: mutatorGenerator_rewind ?? mutatorGenerator_play,
   //       reverseKeyframesEffect,
   //       reverseMutatorEffect,
   //     };
@@ -1485,25 +1485,25 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
   /**
    * Calculates the value partway between two fixed numbers (an initial value and a final value)
    * based on the progress of the animation.
-   *  * Intended for use inside {@link ComposedEffect.forwardMutatorGenerator} and {@link ComposedEffect.backwardMutatorGenerator}.
+   *  * Intended for use inside {@link EffectFrameGeneratorSet.mutatorGenerator_play} and {@link EffectFrameGeneratorSet.mutatorGenerator_rewind}.
    * @param initialVal - the starting value
    * @param finalVal - the ending value
    * @returns The number that is a percentage of the way between `initialVal` and `finalVal` based on the percentage of completion of the animation (playing or rewinding).
    * 
-   * @see {@link ComposedEffect}
+   * @see {@link EffectFrameGeneratorSet}
    * 
    * @example
    * <!-- EX:S id="AnimClip.computeTween-1" code-type="ts" -->
    * ```ts
    * const {Entrance} = webchalk.createAnimationClipFactories({
-   *   customEntranceEffects: {
+   *   additionalEntranceEffects: {
    *     rotate: {
-   *       composeEffect(degrees: number) {
+   *       buildFrameGenerators(degrees: number) {
    *         return {
    *           // when playing, keep computing the value between 0 and 'degrees'
-   *           forwardMutatorGenerator: () => () => { this.domElem.style.rotate = this.computeTween(0, degrees)+'deg'; },
+   *           mutatorGenerator_play: () => () => { this.domElem.style.rotate = this.computeTween(0, degrees)+'deg'; },
    *           // when rewinding, keep computing the value between 'degrees' and 0
-   *           backwardMutatorGenerator: () => () => { this.domElem.style.rotate = this.computeTween(degrees, 0)+'deg'; }
+   *           mutatorGenerator_rewind: () => () => { this.domElem.style.rotate = this.computeTween(degrees, 0)+'deg'; }
    *         };
    *       }
    *     }
@@ -1541,7 +1541,7 @@ export abstract class AnimClip<TEffectComposer extends EffectComposer = EffectCo
     // if mutators are reversed, computeTween() should flip the progress
     const flipProgress = xor(
       this.animation.direction === 'backward' && this.bRafMirrored,
-      this.composedEffect.reverseMutatorEffect
+      this.EffectFrameGeneratorSet.reverseMutatorEffect
     );
 
     // return linear interpolation between initial value and final value based on progress of animation

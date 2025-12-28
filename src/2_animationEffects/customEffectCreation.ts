@@ -5,52 +5,52 @@ import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord, Stric
 import { AnimClipConfig } from "../1_playbackStructures/AnimationClip";
 import { webchalk } from "../WebChalk";
 import { deepFreeze } from "../4_utils/helpers";
-import { DEFAULT_CONFIG_ERROR, IMMUTABLE_CONFIG_ERROR, COMPOSED_EFFECT_RETURN_ERROR_PRIMITIVE, COMPOSED_EFFECT_RETURN_ERROR_PROPERTIES } from "../4_utils/errors";
+import { DEFAULT_CONFIG_ERROR, IMMUTABLE_CONFIG_ERROR, EFFECT_FRAME_GENERATORS_RETURN_ERROR_PRIMITIVE, EFFECT_FRAME_GENERATORS_RETURN_ERROR_PROPERTIES } from "../4_utils/errors";
 
 /**
  * Object containing up to 4 callback functions that will be called to
- * produce the effect for an animation clip. Returned by {@link EffectComposer.composeEffect}.
- *  * {@link ComposedEffect.forwardKeyframesGenerator | forwardKeyframesGenerator} will run every time the clip is played,
+ * produce the effect for an animation clip. Returned by {@link PresetEffectDefinition.buildFrameGenerators}.
+ *  * {@link EffectFrameGeneratorSet.keyframesGenerator_play | keyframesGenerator_play} will run every time the clip is played,
  * producing a {@link Keyframes} object.
- *  * {@link ComposedEffect.backwardKeyframesGenerator | backwardKeyframesGenerator} will run every time the clip is rewound,
+ *  * {@link EffectFrameGeneratorSet.keyframesGenerator_rewind | keyframesGenerator_rewind} will run every time the clip is rewound,
  * producing a {@link Keyframes} object.
  *    * If the backward generator is omitted, the forward generator will be used again instead, and the result will just be played in reverse.
  * It is up to you to check whether the animation effect is valid if this shortcut is taken.
- *  * {@link ComposedEffect.forwardMutatorGenerator | forwardMutatorGenerator} will run every time the clip is played,
+ *  * {@link EffectFrameGeneratorSet.mutatorGenerator_play | mutatorGenerator_play} will run every time the clip is played,
  * producing a {@link Mutator} function.
- *  * {@link ComposedEffect.backwardMutatorGenerator | backwardMutatorGenerator} will run every time the clip is rewound,
+ *  * {@link EffectFrameGeneratorSet.mutatorGenerator_rewind | mutatorGenerator_rewind} will run every time the clip is rewound,
  * producing a {@link Mutator} function.
  *    * If the backward generator is omitted, the backward generator will be used again instead, and the result will just be reversed.
  * It is up to you to check whether the animation effect is valid if this shortcut is taken.
  * 
- * @see {@link EffectComposer.composeEffect}
+ * @see {@link PresetEffectDefinition.buildFrameGenerators}
  * 
- * @category Effect Composition
+ * @category Effect Definition
  */
-export interface ComposedEffect extends StripDuplicateMethodAutocompletion<{
+export interface EffectFrameGeneratorSet extends StripDuplicateMethodAutocompletion<{
   /**
    * Performs any necessary operations/computations and then returns keyframes ({@link Keyframes}).
    * @returns Keyframes, either in the form of a {@link PropertyIndexedKeyframes} object or—more commonly—an array of {@link Keyframe} objects.
    * @see [Keyframe Formats](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Keyframe_Formats)
    * 
    * @example
-   * <!-- EX:S id="ComposedEffect.keyframes-generators" code-type="ts" -->
+   * <!-- EX:S id="EffectFrameGeneratorSet.keyframes-generators" code-type="ts" -->
    * ```ts
    * const clipFactories = webchalk.createAnimationClipFactories({
-   *   customEntranceEffects: {
+   *   additionalEntranceEffects: {
    *     // -----------------------------------------------------------------
    *     // ----------------------------EXAMPLE 1----------------------------
    *     // -----------------------------------------------------------------
-   *     // Let us pretend you made this custom entrance animation effect named 'zoomIn'.
+   *     // Let us pretend you made this preset entrance animation effect named 'zoomIn'.
    *     // For this animation, you wrote the forward keyframes generator and
    *     // then verified that the desired rewinding effect is exactly equivalent
-   *     // to playing the keyframes produced by forwardKeyframesGenerator() in reverse,
-   *     // so you omit backwardKeyframesGenerator.
+   *     // to playing the keyframes produced by keyframesGenerator_play() in reverse,
+   *     // so you omit keyframesGenerator_rewind.
    *     zoomIn: {
-   *       composeEffect(initialScale: number) {
-   *         // return ComposedEffect
+   *       buildFrameGenerators(initialScale: number) {
+   *         // return EffectFrameGeneratorSet
    *         return {
-   *           forwardKeyframesGenerator: () => {
+   *           keyframesGenerator_play: () => {
    *             console.log('About to return keyframes!');
    *             // return Keyframes (Keyframe[])
    *             return [
@@ -58,11 +58,11 @@ export interface ComposedEffect extends StripDuplicateMethodAutocompletion<{
    *               {}                                 // Keyframe 2
    *             ];
    *           },
-   *           // backwardKeyframesGenerator() can be omitted in this case because
+   *           // keyframesGenerator_rewind() can be omitted in this case because
    *           // the reversal of the forward keyframes is exactly equivalent.
    *           // It is written below for demonstration purposes but commented out.
    *           // -----------------------------------------------------------------------
-   *           // backwardKeyframesGenerator: () => {
+   *           // keyframesGenerator_rewind: () => {
    *           //   // return Keyframes (Keyframe[])
    *           //   return [
    *           //     {},                               // Keyframe 1
@@ -74,39 +74,39 @@ export interface ComposedEffect extends StripDuplicateMethodAutocompletion<{
    *     },
    *   },
    * 
-   *   customMotionEffects: {
+   *   additionalMotionEffects: {
    *     // -----------------------------------------------------------------
    *     // ----------------------------EXAMPLE 2----------------------------
    *     // -----------------------------------------------------------------
-   *     // Let us pretend you made this custom animation effect for moving an element rightward.
+   *     // Let us pretend you made this preset animation effect for moving an element rightward.
    *     // For this animation, you wrote the forward keyframes generator and then
    *     // checked to see if the desired rewinding effect could be achieved by just reusing
-   *     // forwardKeyframesGenerator() and reversing the result. You realize that this effect is NOT
+   *     // keyframesGenerator_play() and reversing the result. You realize that this effect is NOT
    *     // a candidate for that shortcut, so you write backwardKeyframesEffect.
    *     translateRight: {
-   *       composeEffect(numPixels: number) {
-   *         // a helper function you wrote that will exist within a closure scoped to composeEffect()
+   *       buildFrameGenerators(numPixels: number) {
+   *         // a helper function you wrote that will exist within a closure scoped to buildFrameGenerators()
    *         const createTranslationString = () => {
    *           if (numPixels <= 0) { throw RangeError(`Number of pixels must exceed 0.`) }
    *           const translationString = `${numPixels}px`;
    *           return translationString;
    *         }
    *   
-   *         // return ComposedEffect
+   *         // return EffectFrameGeneratorSet
    *         return {
-   *           forwardKeyframesGenerator: () => {
+   *           keyframesGenerator_play: () => {
    *             // return Keyframes (Keyframe[])
    *             return [
    *               {translate: createTranslationString()} // Keyframe
    *             ];
    *           },
-   *           // backwardKeyframesGenerator() must be specified because reversing the keyframes produced
-   *           // by forwardKeyframesGenerator() would not have the intended effect (because of
+   *           // keyframesGenerator_rewind() must be specified because reversing the keyframes produced
+   *           // by keyframesGenerator_play() would not have the intended effect (because of
    *           // {composite: accumulate}, trying to simply use the reversal of
-   *           // {translate: createTranslationString()} from forwardKeyframesGenerator() would actually
+   *           // {translate: createTranslationString()} from keyframesGenerator_play() would actually
    *           // cause the target element to jump an additional numPixels pixels to the right
    *           // before sliding left, which is not the intended rewinding effect).
-   *           backwardKeyframesGenerator: () => {
+   *           keyframesGenerator_rewind: () => {
    *             // return Keyframes (Keyframe[])
    *             return [
    *               {translate: '-'+createTranslationString()}, // Keyframe
@@ -119,7 +119,7 @@ export interface ComposedEffect extends StripDuplicateMethodAutocompletion<{
    *         // instead of replacing it
    *         composite: 'accumulate',
    *       },
-   *       effectCompositionFrequency: 'on-first-play-only',
+   *       howOftenBuildGenerators: 'on-first-play-only',
    *     },
    *   }
    * });
@@ -128,23 +128,23 @@ export interface ComposedEffect extends StripDuplicateMethodAutocompletion<{
    * (async () => {
    *   const ent = clipFactories.Entrance(element, 'zoomIn', [0.2]);
    *   await ent.play();
-   *   // ↑ forwardKeyframesGenerator() will run and produce the Keyframe array
+   *   // ↑ keyframesGenerator_play() will run and produce the Keyframe array
    *   // [{scale: initialScale, opacity: 0}, {scale: 1, opacity: 1}].
    *   // That Keyframe array is used for the animation effect as the clip plays forward.
    * 
    *   await ent.rewind();
-   *   // ↑ Since backwardKeyframesGenerator() was not set, the clip will run forwardKeyframesGenerator()
+   *   // ↑ Since keyframesGenerator_rewind() was not set, the clip will run keyframesGenerator_play()
    *   // again and just use its effect in reverse when rewinding (which would be exactly equivalent
-   *   // to specifying backwardKeyframesGenerator() and having it return
+   *   // to specifying keyframesGenerator_rewind() and having it return
    *   // [{}, {scale: initialScale, opacity: 0}]).
-   *   // In other words, forwardKeyframesGenerator() will run again to produce the Keyframe array
+   *   // In other words, keyframesGenerator_play() will run again to produce the Keyframe array
    *   // [{scale: initialScale, opacity: 0}, {}], then
    *   // the Keyframe array is used for the animation effect but set to go in reverse,
    *   // and the effect is used as the clip rewinds.
    * 
    *   const mot = clipFactories.Motion(element, 'translateRight', [756]);
    *   await mot.play();
-   *   // ↑ forwardKeyframesGenerator() will run and produce the Keyframes array [{translate: '756px'}].
+   *   // ↑ keyframesGenerator_play() will run and produce the Keyframes array [{translate: '756px'}].
    *   // That Keyframe array is used for the animation effect as the clip plays.
    * 
    *   await mot.rewind();
@@ -152,34 +152,34 @@ export interface ComposedEffect extends StripDuplicateMethodAutocompletion<{
    *   // That Keyframe array is used for the animation effect as the clip rewinds.
    * })();
    * ```
-   * <!-- EX:E id="ComposedEffect.keyframes-generators" -->
+   * <!-- EX:E id="EffectFrameGeneratorSet.keyframes-generators" -->
    * 
    * @group Keyframes Generators
    */
-  forwardKeyframesGenerator?: () => Keyframes;
+  keyframesGenerator_play?: () => Keyframes;
   /**
    * Performs any necessary operations/computations and then returns keyframes ({@link Keyframes}).
    * @returns Keyframes, either in the form of a {@link PropertyIndexedKeyframes} object or—more commonly—an array of {@link Keyframe} objects.
    * @see [Keyframe Formats](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Keyframe_Formats)
    * 
    * @example
-   * <!-- EX:S id="ComposedEffect.keyframes-generators" code-type="ts" -->
+   * <!-- EX:S id="EffectFrameGeneratorSet.keyframes-generators" code-type="ts" -->
    * ```ts
    * const clipFactories = webchalk.createAnimationClipFactories({
-   *   customEntranceEffects: {
+   *   additionalEntranceEffects: {
    *     // -----------------------------------------------------------------
    *     // ----------------------------EXAMPLE 1----------------------------
    *     // -----------------------------------------------------------------
-   *     // Let us pretend you made this custom entrance animation effect named 'zoomIn'.
+   *     // Let us pretend you made this preset entrance animation effect named 'zoomIn'.
    *     // For this animation, you wrote the forward keyframes generator and
    *     // then verified that the desired rewinding effect is exactly equivalent
-   *     // to playing the keyframes produced by forwardKeyframesGenerator() in reverse,
-   *     // so you omit backwardKeyframesGenerator.
+   *     // to playing the keyframes produced by keyframesGenerator_play() in reverse,
+   *     // so you omit keyframesGenerator_rewind.
    *     zoomIn: {
-   *       composeEffect(initialScale: number) {
-   *         // return ComposedEffect
+   *       buildFrameGenerators(initialScale: number) {
+   *         // return EffectFrameGeneratorSet
    *         return {
-   *           forwardKeyframesGenerator: () => {
+   *           keyframesGenerator_play: () => {
    *             console.log('About to return keyframes!');
    *             // return Keyframes (Keyframe[])
    *             return [
@@ -187,11 +187,11 @@ export interface ComposedEffect extends StripDuplicateMethodAutocompletion<{
    *               {}                                 // Keyframe 2
    *             ];
    *           },
-   *           // backwardKeyframesGenerator() can be omitted in this case because
+   *           // keyframesGenerator_rewind() can be omitted in this case because
    *           // the reversal of the forward keyframes is exactly equivalent.
    *           // It is written below for demonstration purposes but commented out.
    *           // -----------------------------------------------------------------------
-   *           // backwardKeyframesGenerator: () => {
+   *           // keyframesGenerator_rewind: () => {
    *           //   // return Keyframes (Keyframe[])
    *           //   return [
    *           //     {},                               // Keyframe 1
@@ -203,39 +203,39 @@ export interface ComposedEffect extends StripDuplicateMethodAutocompletion<{
    *     },
    *   },
    * 
-   *   customMotionEffects: {
+   *   additionalMotionEffects: {
    *     // -----------------------------------------------------------------
    *     // ----------------------------EXAMPLE 2----------------------------
    *     // -----------------------------------------------------------------
-   *     // Let us pretend you made this custom animation effect for moving an element rightward.
+   *     // Let us pretend you made this preset animation effect for moving an element rightward.
    *     // For this animation, you wrote the forward keyframes generator and then
    *     // checked to see if the desired rewinding effect could be achieved by just reusing
-   *     // forwardKeyframesGenerator() and reversing the result. You realize that this effect is NOT
+   *     // keyframesGenerator_play() and reversing the result. You realize that this effect is NOT
    *     // a candidate for that shortcut, so you write backwardKeyframesEffect.
    *     translateRight: {
-   *       composeEffect(numPixels: number) {
-   *         // a helper function you wrote that will exist within a closure scoped to composeEffect()
+   *       buildFrameGenerators(numPixels: number) {
+   *         // a helper function you wrote that will exist within a closure scoped to buildFrameGenerators()
    *         const createTranslationString = () => {
    *           if (numPixels <= 0) { throw RangeError(`Number of pixels must exceed 0.`) }
    *           const translationString = `${numPixels}px`;
    *           return translationString;
    *         }
    *   
-   *         // return ComposedEffect
+   *         // return EffectFrameGeneratorSet
    *         return {
-   *           forwardKeyframesGenerator: () => {
+   *           keyframesGenerator_play: () => {
    *             // return Keyframes (Keyframe[])
    *             return [
    *               {translate: createTranslationString()} // Keyframe
    *             ];
    *           },
-   *           // backwardKeyframesGenerator() must be specified because reversing the keyframes produced
-   *           // by forwardKeyframesGenerator() would not have the intended effect (because of
+   *           // keyframesGenerator_rewind() must be specified because reversing the keyframes produced
+   *           // by keyframesGenerator_play() would not have the intended effect (because of
    *           // {composite: accumulate}, trying to simply use the reversal of
-   *           // {translate: createTranslationString()} from forwardKeyframesGenerator() would actually
+   *           // {translate: createTranslationString()} from keyframesGenerator_play() would actually
    *           // cause the target element to jump an additional numPixels pixels to the right
    *           // before sliding left, which is not the intended rewinding effect).
-   *           backwardKeyframesGenerator: () => {
+   *           keyframesGenerator_rewind: () => {
    *             // return Keyframes (Keyframe[])
    *             return [
    *               {translate: '-'+createTranslationString()}, // Keyframe
@@ -248,7 +248,7 @@ export interface ComposedEffect extends StripDuplicateMethodAutocompletion<{
    *         // instead of replacing it
    *         composite: 'accumulate',
    *       },
-   *       effectCompositionFrequency: 'on-first-play-only',
+   *       howOftenBuildGenerators: 'on-first-play-only',
    *     },
    *   }
    * });
@@ -257,23 +257,23 @@ export interface ComposedEffect extends StripDuplicateMethodAutocompletion<{
    * (async () => {
    *   const ent = clipFactories.Entrance(element, 'zoomIn', [0.2]);
    *   await ent.play();
-   *   // ↑ forwardKeyframesGenerator() will run and produce the Keyframe array
+   *   // ↑ keyframesGenerator_play() will run and produce the Keyframe array
    *   // [{scale: initialScale, opacity: 0}, {scale: 1, opacity: 1}].
    *   // That Keyframe array is used for the animation effect as the clip plays forward.
    * 
    *   await ent.rewind();
-   *   // ↑ Since backwardKeyframesGenerator() was not set, the clip will run forwardKeyframesGenerator()
+   *   // ↑ Since keyframesGenerator_rewind() was not set, the clip will run keyframesGenerator_play()
    *   // again and just use its effect in reverse when rewinding (which would be exactly equivalent
-   *   // to specifying backwardKeyframesGenerator() and having it return
+   *   // to specifying keyframesGenerator_rewind() and having it return
    *   // [{}, {scale: initialScale, opacity: 0}]).
-   *   // In other words, forwardKeyframesGenerator() will run again to produce the Keyframe array
+   *   // In other words, keyframesGenerator_play() will run again to produce the Keyframe array
    *   // [{scale: initialScale, opacity: 0}, {}], then
    *   // the Keyframe array is used for the animation effect but set to go in reverse,
    *   // and the effect is used as the clip rewinds.
    * 
    *   const mot = clipFactories.Motion(element, 'translateRight', [756]);
    *   await mot.play();
-   *   // ↑ forwardKeyframesGenerator() will run and produce the Keyframes array [{translate: '756px'}].
+   *   // ↑ keyframesGenerator_play() will run and produce the Keyframes array [{translate: '756px'}].
    *   // That Keyframe array is used for the animation effect as the clip plays.
    * 
    *   await mot.rewind();
@@ -281,32 +281,32 @@ export interface ComposedEffect extends StripDuplicateMethodAutocompletion<{
    *   // That Keyframe array is used for the animation effect as the clip rewinds.
    * })();
    * ```
-   * <!-- EX:E id="ComposedEffect.keyframes-generators" -->
+   * <!-- EX:E id="EffectFrameGeneratorSet.keyframes-generators" -->
    * 
    * @group Keyframes Generators
    */
-  backwardKeyframesGenerator?: () => Keyframes;
+  keyframesGenerator_rewind?: () => Keyframes;
   /**
    * Performs any necessary operations/computations and then returns a function that will be run on every frame.
    * @returns A function that presumably mutates the target element in some way (possibly with the help of {@link AnimClip.computeTween}) and will automatically be run on every frame. Since it will be run on every frame, it will create the illusion of a smooth animation.
    * @see {@link AnimClip.computeTween}
    * 
    * @example
-   * <!-- EX:S id="ComposedEffect.mutator-generators" code-type="ts" -->
+   * <!-- EX:S id="EffectFrameGeneratorSet.mutator-generators" code-type="ts" -->
    * ```ts
    * const clipFactories = webchalk.createAnimationClipFactories({
-   *   customMotionEffects: {
-   *     // a custom animation for scrolling to a specific point on the page.
+   *   additionalMotionEffects: {
+   *     // a preset animation effect for scrolling to a specific point on the page.
    *     scrollTo: {
-   *       composeEffect(yPosition: number) {
+   *       buildFrameGenerators(yPosition: number) {
    *         const initialPosition = this.domElem.scrollTop;
    *   
-   *         // return ComposedEffect
+   *         // return EffectFrameGeneratorSet
    *         return {
    *           // The mutation is to use the scrollTo() method on the element.
    *           // Thanks to computeTween(), there will be a smooth scroll
    *           // from initialPosition to yPosition
-   *           forwardMutatorGenerator: () => {
+   *           mutatorGenerator_play: () => {
    *             // return Mutator
    *             return () => {
    *               this.domElem.scrollTo({
@@ -319,9 +319,9 @@ export interface ComposedEffect extends StripDuplicateMethodAutocompletion<{
    *           // The forward mutation loop is not invertible because reversing it requires
    *           // re-computing the element's scroll position at the time of rewinding
    *           // (which may have since changed for any number of reasons, including user
-   *           // scrolling, size changes, etc.). So we must define backwardMutatorGenerator()
+   *           // scrolling, size changes, etc.). So we must define mutatorGenerator_rewind()
    *           // to do exactly that.
-   *           backwardMutatorGenerator: () => {
+   *           mutatorGenerator_rewind: () => {
    *             // return Mutator
    *             return () => {
    *               const currentPosition = this.domElem.scrollTop;
@@ -341,32 +341,32 @@ export interface ComposedEffect extends StripDuplicateMethodAutocompletion<{
    * const mot = clipFactories.Motion(element, 'scrollTo', [1020]);
    * mot.play().then(mot.rewind);
    * ```
-   * <!-- EX:E id="ComposedEffect.mutator-generators" -->
+   * <!-- EX:E id="EffectFrameGeneratorSet.mutator-generators" -->
    * 
    * @group Mutator Generators
    */
-  forwardMutatorGenerator?: () => Mutator;
+  mutatorGenerator_play?: () => Mutator;
   /**
    * Performs any necessary operations/computations and then returns a function that will be run on every frame.
    * @returns A function that presumably mutates the target element in some way (possibly with the help of {@link AnimClip.computeTween}) and will automatically be run on every frame. Since it will be run on every frame, it will create the illusion of a smooth animation.
    * @see {@link AnimClip.computeTween}
    * 
    * @example
-   * <!-- EX:S id="ComposedEffect.mutator-generators" code-type="ts" -->
+   * <!-- EX:S id="EffectFrameGeneratorSet.mutator-generators" code-type="ts" -->
    * ```ts
    * const clipFactories = webchalk.createAnimationClipFactories({
-   *   customMotionEffects: {
-   *     // a custom animation for scrolling to a specific point on the page.
+   *   additionalMotionEffects: {
+   *     // a preset animation effect for scrolling to a specific point on the page.
    *     scrollTo: {
-   *       composeEffect(yPosition: number) {
+   *       buildFrameGenerators(yPosition: number) {
    *         const initialPosition = this.domElem.scrollTop;
    *   
-   *         // return ComposedEffect
+   *         // return EffectFrameGeneratorSet
    *         return {
    *           // The mutation is to use the scrollTo() method on the element.
    *           // Thanks to computeTween(), there will be a smooth scroll
    *           // from initialPosition to yPosition
-   *           forwardMutatorGenerator: () => {
+   *           mutatorGenerator_play: () => {
    *             // return Mutator
    *             return () => {
    *               this.domElem.scrollTo({
@@ -379,9 +379,9 @@ export interface ComposedEffect extends StripDuplicateMethodAutocompletion<{
    *           // The forward mutation loop is not invertible because reversing it requires
    *           // re-computing the element's scroll position at the time of rewinding
    *           // (which may have since changed for any number of reasons, including user
-   *           // scrolling, size changes, etc.). So we must define backwardMutatorGenerator()
+   *           // scrolling, size changes, etc.). So we must define mutatorGenerator_rewind()
    *           // to do exactly that.
-   *           backwardMutatorGenerator: () => {
+   *           mutatorGenerator_rewind: () => {
    *             // return Mutator
    *             return () => {
    *               const currentPosition = this.domElem.scrollTop;
@@ -401,11 +401,11 @@ export interface ComposedEffect extends StripDuplicateMethodAutocompletion<{
    * const mot = clipFactories.Motion(element, 'scrollTo', [1020]);
    * mot.play().then(mot.rewind);
    * ```
-   * <!-- EX:E id="ComposedEffect.mutator-generators" -->
+   * <!-- EX:E id="EffectFrameGeneratorSet.mutator-generators" -->
    * 
    * @group Mutator Generators
    */
-  backwardMutatorGenerator?: () => Mutator;
+  mutatorGenerator_rewind?: () => Mutator;
   /**
    * If `true`, the effect specified by the keyframes generators will be reversed.
    * * This is convenient when you want to create the opposite of another previously defined effect
@@ -424,39 +424,39 @@ export interface ComposedEffect extends StripDuplicateMethodAutocompletion<{
 
 // TODO: add code examples
 /**
- * Object representing an entry in an {@link EffectComposerBank}. It contains
+ * Object representing an entry in an {@link PresetEffectBank}. It contains
  *  * a function for composing an animation effect
  *  * two properties that can be used to specify clip configuration settings
  *    * one property contains default configuration settings
  *    * the other property contains immutable configuration settings
- *  * a property that sets how often the effect composition function should be run
+ *  * a property that sets how often the effect frame generator builder should be run
  * 
- * @category Effect Composition
+ * @category Effect Definition
  * 
  * @interface
  */
-export type EffectComposer<TClipContext extends unknown = unknown, TConfig extends unknown = unknown> = Readonly<StripDuplicateMethodAutocompletion<
+export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConfig extends unknown = unknown> = Readonly<StripDuplicateMethodAutocompletion<
   {
     /**
      * Object containing default configuration options that are appropriate for the effect. These options can be overwritten
      * while calling the clip factory function. This makes it convenient to rely on some preset behaviors that make sense
      * without having to set them in a clip factory function.
      * 
-     * When creating custom effects, the configuration options that you are allowed to set here may be limited by the {@link AnimClip}
+     * When defining preset effects, the configuration options that you are allowed to set here may be limited by the {@link AnimClip}
      * value for {@link AnimClip.categoryImmutableConfig} (which you cannot modify). For example, for exit animation clips,
      * {@link ExitClip.categoryImmutableConfig} sets a value for `commitsStyles`, so you cannot set a value for `commitsStyles` in
-     * {@link EffectComposer.defaultConfig | defaultConfig} for any entries in the exit effects bank.
+     * {@link PresetEffectDefinition.defaultConfig | defaultConfig} for any entries in the exit effects bank.
      * 
      * @example
-     * <!-- EX:S id="EffectComposer.defaultConfig" code-type="ts" -->
+     * <!-- EX:S id="PresetEffectDefinition.defaultConfig" code-type="ts" -->
      * ```ts
      * const clipFactories = webchalk.createAnimationClipFactories({
-     *   customEntranceEffects: {
+     *   additionalEntranceEffects: {
      *     // Element fades in, starting from 0 opacity.
      *     fadeIn: {
-     *       composeEffect() {
+     *       buildFrameGenerators() {
      *         return {
-     *           forwardKeyframesGenerator: () => {
+     *           keyframesGenerator_play: () => {
      *             return [ {opacity: '0'}, {} ];
      *           },
      *         } as const;
@@ -464,8 +464,8 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *     },
      * 
      *     fadeIn_default: {
-     *       composeEffect() {
-     *         return {forwardKeyframesGenerator: () => {
+     *       buildFrameGenerators() {
+     *         return {keyframesGenerator_play: () => {
      *           return [ {opacity: '0'}, {} ];
      *         },
      *         } as const;
@@ -492,7 +492,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * // ↑ duration will be set to 1000 because configuration settings set in the
      * // clip factory function call will overwrite any default settings
      * ```
-     * <!-- EX:E id="EffectComposer.defaultConfig" -->
+     * <!-- EX:E id="PresetEffectDefinition.defaultConfig" -->
      * 
      * @group Clip Configuration
      */
@@ -505,17 +505,17 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * When creating custom effects, the configuration options that you are allowed to set here may be limited by the {@link AnimClip}
      * value for {@link AnimClip.categoryImmutableConfig} (which you cannot modify). For example, for exit animation clips,
      * {@link ExitClip.categoryImmutableConfig} sets a value for `commitsStyles`, so you cannot set a value for `commitsStyles` in
-     * {@link EffectComposer.immutableConfig | immutableConfig} for any entries in the exit effects bank.
+     * {@link PresetEffectDefinition.immutableConfig | immutableConfig} for any entries in the exit effects bank.
      * 
      * @example
-     * <!-- EX:S id="EffectComposer.immutableConfig" code-type="ts" -->
+     * <!-- EX:S id="PresetEffectDefinition.immutableConfig" code-type="ts" -->
      * ```ts
      * const clipFactories = webchalk.createAnimationClipFactories({
-     *   customEntranceEffects: {
+     *   additionalEntranceEffects: {
      *     appear: {
-     *       composeEffect() {
+     *       buildFrameGenerators() {
      *         return {
-     *           forwardKeyframesGenerator: () => {
+     *           keyframesGenerator_play: () => {
      *             return [];
      *           },
      *         };
@@ -523,9 +523,9 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *     },
      * 
      *     appear_immutable: {
-     *       composeEffect() {
+     *       buildFrameGenerators() {
      *         return {
-     *           forwardKeyframesGenerator: () => {
+     *           keyframesGenerator_play: () => {
      *             return [];
      *           },
      *         };
@@ -553,21 +553,21 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * // when using the 'appear_immutable' effect. When running the code, this duration will
      * // simply be ignored in favor of the immutable duration setting.
      * ```
-     * <!-- EX:E id="EffectComposer.immutableConfig" -->
+     * <!-- EX:E id="PresetEffectDefinition.immutableConfig" -->
      * 
      * @group Clip Configuration
      */
     immutableConfig?: Partial<TConfig> & object; // "& object" for some reason ensures custom errors will display for cases where ONLY invalid properties are provided
     /**
-     * String that determines how frequently the effect will be composed (i.e., how often {@link EffectComposer.composeEffect | composeEffect} will be run).
-     * **SUGGESTION:** Read the documentation for {@link EffectComposer.composeEffect | composeEffect} first.
-     *  * if `on-first-play-only`, {@link EffectComposer.composeEffect | composeEffect} will run the first time
-     * `play()` is called and never again. The one {@link ComposedEffect} object's functions and the closure created during the one call to
-     * {@link EffectComposer.composeEffect | composeEffect} will be used for the clip's entire lifetime.
-     *    * This should be set to `on-first-play-only` when code in the closure of {@link EffectComposer.composeEffect | composeEffect}
+     * String that determines how frequently {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators} will be run.
+     * **SUGGESTION:** Read the documentation for {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators} first.
+     *  * if `on-first-play-only`, {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators} will run the first time
+     * `play()` is called and never again. The first-made {@link EffectFrameGeneratorSet} object's functions and the closure created during the first call to
+     * {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators} will be used for the clip's entire lifetime.
+     *    * This should be set to `on-first-play-only` when code in the closure of {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators}
      * only needs to (or perhaps _must only_) run once for the returned generators to be correct.
-     *  * if `on-every-play`, {@link EffectComposer.composeEffect | composeEffect} will run every time
-     * the clip plays forward, which creates a new closure and returns a new {@link ComposedEffect} each time.
+     *  * if `on-every-play`, {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators} will run every time
+     * the clip plays forward, which creates a new closure and returns a new {@link EffectFrameGeneratorSet} each time.
      * 
      * @defaultValue
      * ```ts
@@ -575,54 +575,54 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * ```
      * 
      * @example
-     * <!-- EX:S id="EffectComposer.effectCompositionFrequency" code-type="ts" -->
+     * <!-- EX:S id="PresetEffectDefinition.howOftenBuildGenerators" code-type="ts" -->
      * ```ts
      * // global variable that will be used in the fadeOut_exclusive effect.
      * let usedFadeOutEx = false;
      * 
      * const clipFactories = webchalk.createAnimationClipFactories({
-     *   customExitEffects: {
-     *     // A custom effect you wrote for fading an element out.
-     *     // Here, it makes no difference what effectCompositionFrequency is set to.
+     *   additionalExitEffects: {
+     *     // A preset effect you wrote for fading an element out.
+     *     // Here, it makes no difference what howOftenBuildGenerators is set to.
      *     //
-     *     // - If set to 'on-first-play-only', then composeEffect() will run only once
-     *     // (on the first play()). Thus, forwardKeyframesGenerator() is defined
+     *     // - If set to 'on-first-play-only', then buildFrameGenerators() will run only once
+     *     // (on the first play()). Thus, keyframesGenerator_play() is defined
      *     // only once and is set to return [{}, {opacity: 0}].
      *     //
      *     // - If set to 'on-every-play', then EVERY time the clip
-     *     // plays, composeEffect() plays. Thus, forwardKeyframesGenerator()
+     *     // plays, buildFrameGenerators() plays. Thus, keyframesGenerator_play()
      *     // will keep being redefined and set to be a function that
      *     // returns [{}, {opacity: 0}]. It made no difference because 
-     *     // the body of forwardKeyframesGenerator() remains the same.
+     *     // the body of keyframesGenerator_play() remains the same.
      *     //
-     *     // Thus, it makes no difference what effectCompositionFrequency is set to.
+     *     // Thus, it makes no difference what howOftenBuildGenerators is set to.
      *     // For the sake of optimization, you decide to set it to 'on-first-play-only'
      *     // (which is the default value anyway, but it adds more clarity).
      *     fadeOut: {
-     *       composeEffect() {
+     *       buildFrameGenerators() {
      *         return {
-     *           forwardKeyframesGenerator: () => {
+     *           keyframesGenerator_play: () => {
      *             return [{}, {opacity: 0}];
      *           },
      *         };
      *       },
      *       
-     *       effectCompositionFrequency: 'on-first-play-only',
+     *       howOftenBuildGenerators: 'on-first-play-only',
      *     },
      * 
-     *     // A custom animation effect you made that can only be used by one animation clip
+     *     // A preset animation effect you made that can only be used by one animation clip
      *     // (Why you would ever do something this is unclear, but the reason does not matter.)
-     *     // Here, effectCompositionFrequency must be set to 'on-first-play-only'.
+     *     // Here, howOftenBuildGenerators must be set to 'on-first-play-only'.
      *     //
      *     // - If set to 'on-first-play-only', then the global variable usedFadeOutEx is
      *     // checked for truthiness and then set to true on the first (and only) running of
-     *     // composeEffect(). On subsequent calls to play(), composeEffect() does not re-run, so
+     *     // buildFrameGenerators(). On subsequent calls to play(), buildFrameGenerators() does not re-run, so
      *     // the if-condition is not run again. However, any OTHER clip that uses the fadeOut_exclusive
-     *     // effect will fail on their first play() because they need to run composeEffect() for
+     *     // effect will fail on their first play() because they need to run buildFrameGenerators() for
      *     // the first time and will throw the error (because usedFadeOutEx is already set to true).
      *     // This is the desired behavior.
      *     //
-     *     // - If set to 'on-every-play', then composeEffect() will run on every play(). Thus,
+     *     // - If set to 'on-every-play', then buildFrameGenerators() will run on every play(). Thus,
      *     // playing the same clip twice will always cause an error because it will run into
      *     // the if-conditional again after usedFadeOutEx is already set to true, which is
      *     // NOT the desired behavior.
@@ -630,45 +630,45 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *     // The difference is that 'on-first-play-only' causes the if-conditional to run
      *     // only once, while 'on-every-play' causes it to be encountered a second time.
      *     fadeOut_exclusive: {
-     *       composeEffect() {
+     *       buildFrameGenerators() {
      *         if (usedFadeOutEx) {
      *           throw new Error(`Only one clip is allowed to use the 'fadeOut_exclusive' effect.`);
      *         }
      *         usedFadeOutEx = true;
      *   
      *         return {
-     *           forwardKeyframesGenerator: () => {
+     *           keyframesGenerator_play: () => {
      *             return [ {}, {opacity: 0} ];
      *           },
      *         };
      *       },
      * 
-     *       effectCompositionFrequency: 'on-first-play-only',
+     *       howOftenBuildGenerators: 'on-first-play-only',
      *     },
      * 
-     *     // A custom animation effect you made for flying out to the left side of the screen.
-     *     // Here, it makes no difference what effectCompositionFrequency is set to.
+     *     // A preset animation effect you made for flying out to the left side of the screen.
+     *     // Here, it makes no difference what howOftenBuildGenerators is set to.
      *     //
-     *     // - If set to 'on-first-play-only', then composeEffect() will run only once. Thus,
-     *     // forwardKeyframesGenerator() is defined only once, and the closure containing
+     *     // - If set to 'on-first-play-only', then buildFrameGenerators() will run only once. Thus,
+     *     // keyframesGenerator_play() is defined only once, and the closure containing
      *     // computeTranslationStr() will also only be made once. On every play(),
-     *     // forwardKeyframesGenerator() uses computeTranslationStr() to compute
+     *     // keyframesGenerator_play() uses computeTranslationStr() to compute
      *     // the translation, so the translation will always be recomputed.
      *     // This is the desired behavior.
      *     //
      *     // - If set to 'on-every-play', then every time play() is called to play the clip,
-     *     // composeEffect() is called again, creating a new closure containing a function
-     *     // called computeTranslationStr() and returning a new forwardKeyframesGenerator()
+     *     // buildFrameGenerators() is called again, creating a new closure containing a function
+     *     // called computeTranslationStr() and returning a new keyframesGenerator_play()
      *     // that uses computeTranslationStr() to compute the translation. It makes no
      *     // difference since the bodies of computeTranslationStr() and
-     *     // forwardKeyframesGenerator() remain the same, so this is functionally the
+     *     // keyframesGenerator_play() remain the same, so this is functionally the
      *     // same as the previous paragraph.
      *     // This is the desired behavior.
      *     //
-     *     // Thus, it makes no difference what effectCompositionFrequency is set to.
+     *     // Thus, it makes no difference what howOftenBuildGenerators is set to.
      *     // For the sake of optimization, you decide to set it to 'on-first-play-only'.
      *     flyOutLeft1: {
-     *       composeEffect() {
+     *       buildFrameGenerators() {
      *         const computeTranslationStr = () => {
      *           // compute distance between right side of element and left side of viewport
      *           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
@@ -678,14 +678,14 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *         }
      *   
      *         return {
-     *           forwardKeyframesGenerator: () => {
+     *           keyframesGenerator_play: () => {
      *             return [
      *               {translate: computeTranslationStr()}
      *             ];
      *           },
-     *           // backwardKeyframesGenerator could have been omitted, but for ease of
+     *           // keyframesGenerator_rewind could have been omitted, but for ease of
      *           // visual understanding, they are kept for the flyOut effects
-     *           backwardKeyframesGenerator: () => {
+     *           keyframesGenerator_rewind: () => {
      *             return [
      *               {translate: computeTranslationStr()},
      *               {translate: `0 0`}
@@ -698,20 +698,20 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *         composite: 'accumulate',
      *       },
      * 
-     *       effectCompositionFrequency: 'on-first-play-only',
+     *       howOftenBuildGenerators: 'on-first-play-only',
      *     },
      * 
-     *     // A custom animation effect for flying out either left or right (random).
-     *     // Here, effectCompositionFrequency must be set to 'on-every-play'.
+     *     // A preset animation effect for flying out either left or right (random).
+     *     // Here, howOftenBuildGenerators must be set to 'on-every-play'.
      *     //
      *     // - If set to 'on-first-play-only', then leftOrRight is defined only once. Thus,
      *     // once the clip plays for the first time, leftOrRight will be permanently set
-     *     // to 'go left' or 'go right' within the closure created by composeEffect(),
+     *     // to 'go left' or 'go right' within the closure created by buildFrameGenerators(),
      *     // so the element's direction will not be randomized each time.
      *     // This is NOT the desired effect.
      *     //
      *     // - If set to 'on-every-play', then every time play() is called to play the clip,
-     *     // composeEffect() is called again. The variable leftOrRight is thus recomputed, so
+     *     // buildFrameGenerators() is called again. The variable leftOrRight is thus recomputed, so
      *     // the result of computeTranslationStr() will be randomly left or right every time
      *     // the clip is played.
      *     // This is the desired behavior.
@@ -719,7 +719,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *     // The difference is that 'on-every-play' causes the effect to use a fresh
      *     // leftOrRight on each play, while 'on-first-play-only' does not.
      *     flyOutRandom: {
-     *       composeEffect() {
+     *       buildFrameGenerators() {
      *         // 50% change of going left or right
      *         const leftOrRight = Math.random() < 0.5 ? 'go left' : 'go right';
      * 
@@ -736,12 +736,12 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *         }
      *   
      *         return {
-     *           forwardKeyframesGenerator: () => {
+     *           keyframesGenerator_play: () => {
      *             return [
      *               {translate: computeTranslationStr()}
      *             ];
      *           },
-     *           backwardKeyframesGenerator: () => {
+     *           keyframesGenerator_rewind: () => {
      *             return [
      *               {translate: computeTranslationStr()},
      *               {translate: `0 0`}
@@ -754,36 +754,36 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *         composite: 'accumulate',
      *       },
      * 
-     *       effectCompositionFrequency: 'on-every-play',
+     *       howOftenBuildGenerators: 'on-every-play',
      *     },
      *   }
      * });
      * ```
-     * <!-- EX:E id="EffectComposer.effectCompositionFrequency" -->
+     * <!-- EX:E id="PresetEffectDefinition.howOftenBuildGenerators" -->
      * 
-     * @group Effect Composition
+     * @group Effect Definition
      */
-    effectCompositionFrequency?: 'on-first-play-only' | 'on-every-play';
+    howOftenBuildGenerators?: 'on-first-play-only' | 'on-every-play';
     /**
-     * Function that runs when the clip is played. Returns a {@link ComposedEffect} object, which contains callback functions that will produce the
+     * Function that runs when the clip is played. Returns a {@link EffectFrameGeneratorSet} object, which contains callback functions that will produce the
      * effects for both playing and rewinding the animation.
      * @param effectOptions - parameters used to set the behavior for the specific animation effect when calling the clip factory function
      * @returns An object containing 4 possible callback functions that return {@link Keyframes} and/or {@link Mutator}.
      * 
      * @remarks
      * **Overview**\
-     * Whenever {@link EffectComposer.composeEffect | composeEffect} runs (how often it runs depends on
-     * {@link EffectComposer.effectCompositionFrequency | effectCompositionFrequency}), it returns a new {@link ComposedEffect} containing
+     * Whenever {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators} runs (how often it runs depends on
+     * {@link PresetEffectDefinition.howOftenBuildGenerators | howOftenBuildGenerators}), it returns a new {@link EffectFrameGeneratorSet} containing
      * callback functions, which we can refer to as "effect generators". The clip will call these effect generators to generate the
      * keyframes/mutators for the animation as soon as the animation needs to be executed.
-     * Naturally, the generators have access to the closure created by the call to {@link EffectComposer.composeEffect | composeEffect}
+     * Naturally, the generators have access to the closure created by the call to {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators}
      * (in other words, its scope), which is useful for storing stateful data and helper functions that you can
      * use within the generators.\
      * For the sake of code clarity, it is recommended that you keep a final return statement at the bottom of
-     * {@link EffectComposer.composeEffect | composeEffect} (as opposed to several possible return statements scattered throughout).
+     * {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators} (as opposed to several possible return statements scattered throughout).
      * 
      * **Special `this`**\
-     * For both convenience and utility, using `this` inside the scope of {@link EffectComposer.composeEffect | composeEffect}
+     * For both convenience and utility, using `this` inside the scope of {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators}
      * gives access to a subset of useful properties and methods of the clip.
      *  * {@link AnimClip.domElem}
      *  * {@link AnimClip.computeTween}
@@ -792,7 +792,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *  * {@link AnimClip.getStatus}
      * 
      * **Forward Keyframes Generator**\
-     * In a typical case, you will return a {@link ComposedEffect} containing the callback function {@link ComposedEffect.forwardKeyframesGenerator}.
+     * In a typical case, you will return a {@link EffectFrameGeneratorSet} containing the callback function {@link EffectFrameGeneratorSet.keyframesGenerator_play}.
      * When the clip is played, the callback function will be called to produce the keyframes for the animation to play. When the clip
      * is rewound, the _same_ callback function will be called again to produce keyframes for the animation to play, but the direction will
      * be reversed. This means that every time playback is initiated (playing or rewinding), a new set of keyframes is produced.
@@ -800,33 +800,33 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * do _not_ return `[{}, {backgroundColor: 'blue'}, {backgroundColor: 'red', opacity: '0.5'}]`.
      * Instead, store the original styles—something like `const initialStyles = this.getStyles(['backgroundColor', 'opacity']);`, and return
      * `[{...initialStyles}, {backgroundColor: 'blue'}, {backgroundColor: 'red', opacity: 0.5}]` (taking advantage of the fact that
-     * `initialStyles` will still be accessible even after the {@link ComposedEffect} is returned). This ensures
+     * `initialStyles` will still be accessible even after the {@link EffectFrameGeneratorSet} is returned). This ensures
      * that the initial styles can be restored when the clip is rewound. The helper method {@link AnimClip.getStyles} is a convenient way
      * to get the current style properties of an element.
      * 
      * **Forward Mutator Generator**\
-     * You can also animate JavaScript values using {@link ComposedEffect.forwardMutatorGenerator}.
+     * You can also animate JavaScript values using {@link EffectFrameGeneratorSet.mutatorGenerator_play}.
      * Like the keyframes generator, it is a callback function that will be called when the clip is played, and when the clip is rewound,
      * it will be called again with its effect being reversed this time. The difference is that instead of returning
      * a {@link Keyframes}, it will return a {@link Mutator}—a function that will be repeatedly called at the device's framerate.
      * If some JavaScript value is changed within the mutator with respect to the clip's progress, then the result is the illusion of a
      * smooth animation that couldn't be achieved using normal CSS-based animations (since CSS cannot animate JavaScript values).
      * (Under the hood, {@link requestAnimationFrame} loops are being used.)
-     * See the documentation of {@link ComposedEffect} for details on how to use mutator generators.
+     * See the documentation of {@link EffectFrameGeneratorSet} for details on how to use mutator generators.
      * 
      * **Backward Effect Generators**\
-     * In addition to the forward keyframes/mutator generators, you may also define {@link ComposedEffect.backwardKeyframesGenerator} and/or
-     * {@link ComposedEffect.backwardMutatorGenerator}, giving you the ability to define more complex effects. When the clip is played,
-     * the full {@link ComposedEffect} will be produced. Only the forward keyframes/mutator generators will be called at first since they will be used for
+     * In addition to the forward keyframes/mutator generators, you may also define {@link EffectFrameGeneratorSet.keyframesGenerator_rewind} and/or
+     * {@link EffectFrameGeneratorSet.mutatorGenerator_rewind}, giving you the ability to define more complex effects. When the clip is played,
+     * the full {@link EffectFrameGeneratorSet} will be produced. Only the forward keyframes/mutator generators will be called at first since they will be used for
      * playing a clip (just as before). When the clip is eventually rewound, then the backward keyframes/mutator generators will be called and
      * used for the animation (_instead_ of reusing the forward generators). When the clip is eventually played again, the forward generators
      * will be called to produce the effect again. Then when the clip is eventually rewound again, the backward generators will once again
      * be called to produce the effect—so on and so forth.
      * 
-     * **Composition Frequency**\
-     * By default, {@link EffectComposer.composeEffect | composeEffect} only runs the first time the clip is played, so the
-     * resulting generators will exist for the lifetime of the clip. To allow {@link EffectComposer.composeEffect | composeEffect}
-     * to re-run and remake the {@link ComposedEffect}, set {@link EffectComposer.effectCompositionFrequency} to `'on-every-play'`.
+     * **Generator Rebuild Frequency**\
+     * By default, {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators} only runs the first time the clip is played, so the
+     * resulting generators will be reused for the lifetime of the clip. To allow {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators}
+     * to rerun and remake the {@link EffectFrameGeneratorSet}, set {@link PresetEffectDefinition.howOftenBuildGenerators} to `'on-every-play'`.
      * 
      * <!--
      * **_LONG, DETAILED EXPLANATION_**\
@@ -834,17 +834,17 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * and one set that will be used when the clip is rewound (the backward set). This means that you can define two distinct
      * effects for a clip's forward and backward animations, though you will most likely just want to define backward keyframes
      * that undo the effect of the forward keyframes.\
-     * The forward keyframes will be returned by {@link ComposedEffect.forwardKeyframesGenerator}—which is called _every_ time the clip is played—and
+     * The forward keyframes will be returned by {@link EffectFrameGeneratorSet.keyframesGenerator_play}—which is called _every_ time the clip is played—and
      * then the animation will play using those keyframes.
-     * Similarly, the backward keyframes will be returned by {@link ComposedEffect.backwardKeyframesGenerator}—which is called _every_ time the
+     * Similarly, the backward keyframes will be returned by {@link EffectFrameGeneratorSet.keyframesGenerator_rewind}—which is called _every_ time the
      * clip is rewound—and the animation will play using those keyframes (effectively accomplishing a "rewind" since the backward keyframes
      * are most likely designed to undo the effect of the forward keyframes).
      * 
      * An animation clip uses two separate mutation functions—one that will be used when the clip is played (the forward mutator)
      * and one that will be used when the clip is rewound (the backward mutator).\
-     * The forward mutation function will be returned by {@link ComposedEffect.forwardMutatorGenerator}—which is called _every_ time the clip is played—and
+     * The forward mutation function will be returned by {@link EffectFrameGeneratorSet.mutatorGenerator_play}—which is called _every_ time the clip is played—and
      * then the mutation will repeatedly run at the device's frame rate (giving the illusion of a smooth transition) for the clip's duration.
-     * Similarly, the backward mutation function will be returned by {@link ComposedEffect.backwardMutatorGenerator}—which is called _every_ time the
+     * Similarly, the backward mutation function will be returned by {@link EffectFrameGeneratorSet.mutatorGenerator_rewind}—which is called _every_ time the
      * clip is rewound—and the mutation will repeatedly run at the device's frame rate.
      * 
      * **REASONING**: Sometimes, the semantics of an animation are impossible to express by playing and rewinding only one set of keyframes.
@@ -855,7 +855,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * keyframes—the forward set sends the target to B, and the backward set sends the target to A.\
      * That is why we allow the backward effect to be generated independently—this design makes it possible to define more sophisticated animations that
      * can account for dynamic factors like screen size, shifting elements, etc. (especially when paired with the possible values for
-     * {@link EffectComposer.effectCompositionFrequency | effectCompositionFrequency}).
+     * {@link PresetEffectDefinition.howOftenBuildGenerators | howOftenBuildGenerators}).
      * 
      * **OPTIONAL SHORTCUT:** For most effects, the semantic expectations will likely be trivial (i.e., effects where the rewind is simply just the reverse
      * of the forward keyframes). For example, suppose you make an emphasis effect where the element's opacity changes from 1 to 0.5. The semantic
@@ -869,12 +869,12 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * Then, because the backward generator was filled in, the clip will reverse the effect of the keyframes it produces,
      * resulting in an animation that changes the opacity from 1 to 0.5 when the clip is rewound (which is the desired rewinding effect).
      * The same shortcut allowance holds true for the mutator generators.\
-     * **NOTE:** Using the shortcut has _no_ impact on {@link EffectComposer.effectCompositionFrequency | effectCompositionFrequency}.
+     * **NOTE:** Using the shortcut has _no_ impact on {@link PresetEffectDefinition.howOftenBuildGenerators | howOftenBuildGenerators}.
      * Do not concern yourself with whether or not using the shortcut will change the behavior of
-     * {@link EffectComposer.effectCompositionFrequency | effectCompositionFrequency}—it makes absolutely no difference. In other words,
+     * {@link PresetEffectDefinition.howOftenBuildGenerators | howOftenBuildGenerators}—it makes absolutely no difference. In other words,
      * if you fully write an effect and then later realize that one or both forward generators are invertible,
      * you can utilize the shortcut without even a second thought on how it may affect the behavior
-     * of {@link EffectComposer.effectCompositionFrequency | effectCompositionFrequency}.
+     * of {@link PresetEffectDefinition.howOftenBuildGenerators | howOftenBuildGenerators}.
      * -->
      * 
      * **Caution with `composite`**\
@@ -885,29 +885,29 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * emphasis effects, you should be especially cognizant of potential logic errors.
      * 
      * @example
-     * <!-- EX:S id="EffectComposer.composeEffect-1" code-type="ts" -->
+     * <!-- EX:S id="PresetEffectDefinition.buildFrameGenerators-1" code-type="ts" -->
      * ```ts
      * // EXAMPLES WHERE BACKWARD GENERATORS CAN BE OMITTED
      * const clipFactories = webchalk.createAnimationClipFactories({
-     *   customEmphasisEffects: {
+     *   additionalEmphasisEffects: {
      *     // -----------------------------------------------------------------
      *     // ----------------------------EXAMPLE 1----------------------------
      *     // -------------------------transparencyHalf------------------------
      *     // -----------------------------------------------------------------
      *     transparencyHalf: {
-     *       composeEffect() {
+     *       buildFrameGenerators() {
      *         const initialOpacity = this.getStyles('opacity');
      * 
-     *         // return ComposedEffect
+     *         // return EffectFrameGeneratorSet
      *         return {
-     *           forwardKeyframesGenerator: () => {
+     *           keyframesGenerator_play: () => {
      *             // return Keyframes (Keyframe[])
      *             return [{opacity: initialOpacity}, {opacity: 0.5}];
      *           },
      *           // Notice how the backward generator would be equivalent to running the forward generator
      *           // and reversing the effect of the keyframes. That means that the forward keyframes
      *           // generator is invertible, and the backward generator can be omitted.
-     *           backwardKeyframesGenerator: () => {
+     *           keyframesGenerator_rewind: () => {
      *             // return Keyframes (Keyframe[])
      *             return [{opacity: 0.5}, {opacity: initialOpacity}];
      *           },
@@ -918,12 +918,12 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *     // Exactly equivalent to transparencyHalf because the keyframe generator
      *     // is invertible
      *     transparencyHalf_shortcut: {
-     *       composeEffect() {
+     *       buildFrameGenerators() {
      *         const initialOpacity = this.getStyles('opacity');
      * 
-     *         // return ComposedEffect
+     *         // return EffectFrameGeneratorSet
      *         return {
-     *           forwardKeyframesGenerator: () => {
+     *           keyframesGenerator_play: () => {
      *             // return Keyframes (Keyframe[])
      *             return [{opacity: initialOpacity}, {opacity: 0.5}];
      *           },
@@ -932,7 +932,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *     },
      *   },
      * 
-     *   customEntranceEffects: {
+     *   additionalEntranceEffects: {
      *     // -----------------------------------------------------------------
      *     // ----------------------------EXAMPLE 2----------------------------
      *     // ------------------------------shyIn------------------------------
@@ -940,10 +940,10 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *     // Element shyly enters, hesitantly fading and scaling in and out until it
      *     // reaches full opacity and scale
      *     shyIn: {
-     *       composeEffect() {
-     *         // return ComposedEffect
+     *       buildFrameGenerators() {
+     *         // return EffectFrameGeneratorSet
      *         return {
-     *           forwardKeyframesGenerator: () => {
+     *           keyframesGenerator_play: () => {
      *             // return Keyframes (PropertyIndexedKeyframes)
      *             return {
      *               opacity: [0, 0.5, 0.1, 0.7, 0, 1],
@@ -953,7 +953,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *           // Notice how the backward generator would be equivalent to running the forward generator
      *           // and reversing the effect of the keyframes. That means that the forward keyframes
      *           // generator is invertible.
-     *           backwardKeyframesGenerator: () => {
+     *           keyframesGenerator_rewind: () => {
      *             // return Keyframes (PropertyIndexedKeyframes) 
      *             return {
      *               opacity: [1, 0, 0.7, 0.1, 0.5, 0],
@@ -966,10 +966,10 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * 
      *     // Exactly equivalent to shyIn because the keyframes generator is invertible.
      *     shyIn_shortcut: {
-     *       composeEffect() {
-     *         // return ComposedEffect
+     *       buildFrameGenerators() {
+     *         // return EffectFrameGeneratorSet
      *         return {
-     *           forwardKeyframesGenerator: () => {
+     *           keyframesGenerator_play: () => {
      *             // return Keyframes (PropertyIndexedKeyframes)
      *             return {
      *               opacity: [0, 0.5, 0.1, 0.7, 0, 1],
@@ -988,14 +988,14 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *     // Element flies in from the bottom of the screen and ends up
      *     // slightly too high, then settles down to its final position.
      *     riseUp: {
-     *       composeEffect() {
+     *       buildFrameGenerators() {
      *         const belowViewportDist = () => {
      *           return window.innerHeight - this.domElem.getBoundingClientRect().top;
      *         };
      * 
-     *         // return Composed Effect
+     *         // return frame generator set
      *         return {
-     *           forwardKeyframesGenerator: () => {
+     *           keyframesGenerator_play: () => {
      *             // return Keyframes (Keyframe[])
      *             return [
      *               {
@@ -1021,9 +1021,9 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *           },
      *           // It would be a pain to figure out what the backward keyframes should look like 
      *           // for rewinding this effect. Fortunately, the forward generator is invertible,
-     *           // (trust me—it is true) so backwardKeyframesGenerator() can be omitted.
+     *           // (trust me—it is true) so keyframesGenerator_rewind() can be omitted.
      *           // ---------------------------------------------------------------------------------------
-     *           // backwardKeyframesGenerator: () => {
+     *           // keyframesGenerator_rewind: () => {
      *           //   // return Keyframes (Keyframe[])
      *           //   return [] // ??????
      *           // },
@@ -1036,29 +1036,29 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *     },
      *   },
      * 
-     *   customExitEffects: {
+     *   additionalExitEffects: {
      *     // Replicates PowerPoint's Sink Down animation, which is the opposite of Rise Up.
      *     // Element floats up slightly and then accelerates to the bottom of the screen.
      *     sinkDown: {
-     *       composeEffect() {
+     *       buildFrameGenerators() {
      *         const belowViewportDist = () => {
      *           return window.innerHeight - this.domElem.getBoundingClientRect().top;
      *         };
      * 
-     *         // return Composed Effect
+     *         // return frame generator set
      *         return {
-     *           // Most of the time, when you write your own custom entrance/exit effect, you will want
+     *           // Most of the time, when you write your own preset entrance/exit effect, you will want
      *           // to write the corresponding exit/entrance effect. If you write flyIn, you'll probably
      *           // write flyOut; if you write slideOut, you'll probably write slideIn; if you write riseUp,
      *           // you'll probably write sinkDown. The beauty is that if riseUp and sinkDown are opposites,
      *           // then we know that playing riseUp should be the same as rewinding sinkDown. Therefore,
-     *           // we can copy-paste the logic from riseUp's forwardKeyframesGenerator() and simply set
+     *           // we can copy-paste the logic from riseUp's keyframesGenerator_play() and simply set
      *           // reverseKeyframesEffect to true. Once again, we have gotten
      *           // away with just figuring out what the forward keyframes look like without having
      *           // to figure out what the other set looks like.
      *           // ---------------------------------------------------------------------------------------
      *           reverseKeyframesEffect: true,
-     *           forwardKeyframesGenerator: () => {
+     *           keyframesGenerator_play: () => {
      *             // return Keyframes (Keyframe[])
      *             return [
      *               {
@@ -1083,7 +1083,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *             ];
      *           },
      * 
-     *           // backwardKeyframesGenerator: () => {
+     *           // keyframesGenerator_rewind: () => {
      *           //   // return Keyframes (Keyframe[])
      *           //   return [] // ??????
      *           // },
@@ -1099,19 +1099,19 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *     // ----------------------------EXAMPLE 4----------------------------
      *     // ----------------------------flyOutLeft---------------------------
      *     // -----------------------------------------------------------------
-     *     // a custom animation effect for flying out to the left side of the screen
+     *     // a preset animation effect for flying out to the left side of the screen
      *     // while displaying the percentage progress in the element's text content
      *     flyOutLeft: {
-     *       composeEffect() {
+     *       buildFrameGenerators() {
      *         const computeTranslationStr = () => {
      *           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
      *           const translationString = `${orthogonalDistance}px 0px`;
      *           return translationString;
      *         }
      *   
-     *         // return ComposedEffect
+     *         // return EffectFrameGeneratorSet
      *         return {
-     *           forwardKeyframesGenerator: () => {
+     *           keyframesGenerator_play: () => {
      *             // return Keyframes (Keyframe[])
      *             return [
      *               {translate: computeTranslationStr()}
@@ -1123,7 +1123,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *           // 'accumulate', it's still invertible because exit effects' changes are never committed).
      *           // That means that the forward keyframes generator is invertible.
      *           // --------------------------------------------------------------------------------------
-     *           backwardKeyframesGenerator: () => {
+     *           keyframesGenerator_rewind: () => {
      *             // return Keyframes (Keyframe[])
      *             return [
      *               {translate: computeTranslationStr()},
@@ -1131,7 +1131,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *             ];
      *           },
      * 
-     *           forwardMutatorGenerator: () => {
+     *           mutatorGenerator_play: () => {
      *             // return Mutator
      *             return () => {
      *               this.domElem.textContent = `${this.computeTween(0, 100)}%`;
@@ -1143,7 +1143,7 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *           // invertible. (Note that it may not always be the case that BOTH the keyframes
      *           // generators and the forward mutator generator are invertible).
      *           // --------------------------------------------------------------------------------------
-     *           backwardMutatorGenerator: () => {
+     *           mutatorGenerator_rewind: () => {
      *             // return Mutator
      *             return () => {
      *               this.domElem.textContent = `${this.computeTween(100, 0)}%`;
@@ -1164,23 +1164,23 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      * 
      *     // Exactly equivalent to flyOutLeft
      *     flyOutLeft_shortcut: {
-     *       composeEffect() {
+     *       buildFrameGenerators() {
      *         const computeTranslationStr = () => {
      *           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
      *           const translationString = `${orthogonalDistance}px 0px`;
      *           return translationString;
      *         }
      *   
-     *         // return ComposedEffect
+     *         // return EffectFrameGeneratorSet
      *         return {
-     *           forwardKeyframesGenerator: () => {
+     *           keyframesGenerator_play: () => {
      *             // return Keyframes (Keyframe[])
      *             return [
      *               {translate: computeTranslationStr()}
      *             ];
      *           },
      * 
-     *           forwardMutatorGenerator: () => {
+     *           mutatorGenerator_play: () => {
      *             // return Mutator
      *             return () => {
      *               this.domElem.textContent = `${this.computeTween(0, 100)}%`;
@@ -1199,39 +1199,39 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *   },
      * });
      * ```
-     * <!-- EX:E id="EffectComposer.composeEffect-1" -->
+     * <!-- EX:E id="PresetEffectDefinition.buildFrameGenerators-1" -->
      * 
      * @example
-     * <!-- EX:S id="EffectComposer.composeEffect-2" code-type="ts" -->
+     * <!-- EX:S id="PresetEffectDefinition.buildFrameGenerators-2" code-type="ts" -->
      * ```ts
      * // EXAMPLES WHERE BACKWARD GENERATORS CANNOT BE OMITTED
      * const clipFactories = webchalk.createAnimationClipFactories({
-     *   customMotionEffects: {
-     *     // a custom animation for translating a certain number of pixels to the right
+     *   additionalMotionEffects: {
+     *     // a preset animation effect for translating a certain number of pixels to the right
      *     translateRight: {
-     *       composeEffect(numPixels: number) {
-     *         // a helper function you wrote that will exist within a closure scoped to composeEffect()
+     *       buildFrameGenerators(numPixels: number) {
+     *         // a helper function you wrote that will exist within a closure scoped to buildFrameGenerators()
      *         const createTranslationString = () => {
      *           if (numPixels <= 0) { throw RangeError(`Number of pixels must exceed 0.`) }
      *           const translationString = `${numPixels}px`;
      *           return translationString;
      *         }
      *   
-     *         // return ComposedEffect
+     *         // return EffectFrameGeneratorSet
      *         return {
-     *           forwardKeyframesGenerator: () => {
+     *           keyframesGenerator_play: () => {
      *             // return Keyframes (Keyframe][])
      *             return [
      *               {translate: createTranslationString()} // Keyframe
      *             ];
      *           },
-     *           // backwardKeyframesGenerator() must be specified because reversing the keyframes produced
-     *           // by forwardKeyframesGenerator() would not have the intended effect (due to
+     *           // keyframesGenerator_rewind() must be specified because reversing the keyframes produced
+     *           // by keyframesGenerator_play() would not have the intended effect (due to
      *           // {composite: 'accumulate'}, trying to simply use the reversal of
-     *           // {translate: createTranslationString()} from forwardKeyframesGenerator() would actually
+     *           // {translate: createTranslationString()} from keyframesGenerator_play() would actually
      *           // cause the target element to jump an additional numPixels pixels to the right
      *           // before sliding left, which is not the intended rewinding effect).
-     *           backwardKeyframesGenerator: () => {
+     *           keyframesGenerator_rewind: () => {
      *             // return Keyframes (Keyframe[])
      *             return [
      *               {translate: '-'+createTranslationString()}, // Keyframe
@@ -1246,17 +1246,17 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *       },
      *     },
      * 
-     *     // a custom animation for scrolling to a specific point on the page.
+     *     // a preset animation effect for scrolling to a specific point on the page.
      *     scrollTo: {
-     *       composeEffect(yPosition: number) {
+     *       buildFrameGenerators(yPosition: number) {
      *         const initialPosition = this.domElem.scrollTop;
      *   
-     *         // return ComposedEffect
+     *         // return EffectFrameGeneratorSet
      *         return {
      *           // The mutation is to use the scrollTo() method on the element.
      *           // Thanks to computeTween(), there will be a smooth scroll
      *           // from initialPosition to yPosition
-     *           forwardMutatorGenerator: () => {
+     *           mutatorGenerator_play: () => {
      *             // return Mutator
      *             return () => {
      *               this.domElem.scrollTo({
@@ -1269,9 +1269,9 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *           // The forward mutation loop is not invertible because reversing it requires
      *           // re-computing the element's scroll position at the time of rewinding
      *           // (which may have since changed for any number of reasons, including user
-     *           // scrolling, size changes, etc.). So we must define backwardMutatorGenerator()
+     *           // scrolling, size changes, etc.). So we must define mutatorGenerator_rewind()
      *           // to do exactly that.
-     *           backwardMutatorGenerator: () => {
+     *           mutatorGenerator_rewind: () => {
      *             // return Mutator
      *             return () => {
      *               const currentPosition = this.domElem.scrollTop;
@@ -1287,94 +1287,96 @@ export type EffectComposer<TClipContext extends unknown = unknown, TConfig exten
      *   }
      * });
      * ```
-     * <!-- EX:E id="EffectComposer.composeEffect-2" -->
+     * <!-- EX:E id="PresetEffectDefinition.buildFrameGenerators-2" -->
      * 
-     * @group Effect Composition
+     * @group Effect Definition
      */
-    composeEffect(
+    buildFrameGenerators(
       /**@ignore*/
       this: TClipContext & ReadonlyPick<AnimClip, 'computeTween'>,
       ...effectOptions: unknown[]
-    ): ComposedEffect;
+    ): EffectFrameGeneratorSet;
   }
 >>;
 
 /**
  * Returns an object type that includes only the effect configuration properties that are allowed to
- * be modified inside the definition of a given {@link EffectComposer}.
+ * be modified inside the definition of a given {@link PresetEffectDefinition}.
  * Constraints are based on the immutable effect configuration of layer 2
  * (the specified {@link AnimClip} subclass).
  * @ignore
  */
 export type Layer3MutableClipConfig<TClipClass extends AnimClip> = Omit<ReturnType<TClipClass['getConfig']>, keyof TClipClass['categoryImmutableConfig']>;
 
-// represents an object where every string key is paired with a EffectComposer value
+// represents an object where every string key is paired with a PresetEffectDefinition value
 /**
- * Object containing {@link EffectComposer} entries for a specific category of animation effects.
- * For example, there is an effect composer bank containing composers for entrance animation effects.
+ * Object containing {@link PresetEffectDefinition} entries for a specific category of animation effects.
+ * For example, there is a preset effect bank containing definition for entrance animation effects.
  * 
- * @category Effect Composition
+ * @category Effect Definition
  */
-export type EffectComposerBank<TClip extends AnimClip = AnimClip> = ReadonlyRecord<
+export type PresetEffectBank<TClip extends AnimClip = AnimClip> = ReadonlyRecord<
   string, // effect name
-  EffectComposer<
+  PresetEffectDefinition<
     ReadonlyPick<TClip, 'domElem' | 'getEffectDetails' | 'getStatus' | 'getStyles'>,
     Layer3MutableClipConfig<TClip>
   >
 >;
 
 /**
- * Tuple containing the parameters for a specific {@link EffectComposer}'s composer function ({@link EffectComposer.composeEffect}).
+ * Tuple containing the parameters for a specific {@link PresetEffectDefinition}'s {@link PresetEffectDefinition.buildFrameGenerators} function.
  * 
- * @category Effect Composition
+ * @category Effect Definition
  */
-export type EffectOptions<TEffectComposer extends EffectComposer> = Parameters<TEffectComposer['composeEffect']>;
+export type EffectOptions<TPresetEffectDefinition extends PresetEffectDefinition> = Parameters<TPresetEffectDefinition['buildFrameGenerators']>;
 
 // CHANGE NOTE: EffectNameIn now handles keyof and Extract
-// extracts only those strings in an object whose paired value is an EffectComposer
+// extracts only those strings in an object whose paired value is an PresetEffectDefinition
 /**
- * Detects the keys corresponding to {@link EffectComposer} entries within an {@link EffectComposerBank}.
- * Any property within the specified bank that is not associated with an effect composer is not considered
+ * Detects the keys corresponding to {@link PresetEffectDefinition} entries within an {@link PresetEffectBank}.
+ * Any property within the specified bank that does not hold an effect definition is not considered
  * an "effect" name and is thus excluded.
  * @category Utility Types
  */
-export type EffectNameIn<TComposerBank extends EffectComposerBank> = Exclude<keyof {
+export type EffectNameIn<TEffectBank extends PresetEffectBank> = Exclude<keyof {
   // extra constraint on key prevents hidden bank categorizers from appearing...
   // ... whenever EffectNameIn is used as a string type constraint)
-  [key in keyof TComposerBank as TComposerBank[key] extends EffectComposer ? (key extends ExtendableBankCategoryToHiddenBankCategorizer<any> ? never : key) : never]: TComposerBank[key];
+  [key in keyof TEffectBank as TEffectBank[key] extends PresetEffectDefinition ? (key extends ExtendableBankCategoryToHiddenBankCategorizer<any> ? never : key) : never]: TEffectBank[key];
 }, number | symbol>;/** @ignore */
 
 
-// function createCustomEffectComposer<TEffectComposer extends EffectComposerBank<EntranceClip>[string]> (effectCategory: 'entrance', effectComposer: TEffectComposer): TEffectComposer;
-// function createCustomEffectComposer<TEffectComposer extends EffectComposerBank<ExitClip>[string]> (effectCategory: 'exit', effectComposer: TEffectComposer): TEffectComposer;
-// function createCustomEffectComposer<TEffectComposer extends EffectComposerBank<EmphasisClip>[string]> (effectCategory: 'emphasis', effectComposer: TEffectComposer): TEffectComposer;
-// function createCustomEffectComposer<TEffectComposer extends EffectComposerBank<MotionClip>[string]> (effectCategory: 'motion', effectComposer: TEffectComposer): TEffectComposer;
+// function definePresetEffect<TPresetEffectDefinition extends PresetEffectBank<EntranceClip>[string]> (effectCategory: 'entrance', effectDefinition: TPresetEffectDefinition): TPresetEffectDefinition;
+// function definePresetEffect<TPresetEffectDefinition extends PresetEffectBank<ExitClip>[string]> (effectCategory: 'exit', effectDefinition: TPresetEffectDefinition): TPresetEffectDefinition;
+// function definePresetEffect<TPresetEffectDefinition extends PresetEffectBank<EmphasisClip>[string]> (effectCategory: 'emphasis', effectDefinition: TPresetEffectDefinition): TPresetEffectDefinition;
+// function definePresetEffect<TPresetEffectDefinition extends PresetEffectBank<MotionClip>[string]> (effectCategory: 'motion', effectDefinition: TPresetEffectDefinition): TPresetEffectDefinition;
 /**
- * Allows the convenient creation of an object in the shape of an {@link EffectComposer} with full auto-completion.
- * The resulting effect composer must be passed into {@link webchalk.createAnimationClipFactories} in order to be added to the
+ * Allows the convenient creation of an object in the shape of an {@link PresetEffectDefinition} with full auto-completion.
+ * The resulting effect definition must be passed into {@link webchalk.createAnimationClipFactories} in order to be added to the
  * preset effects registry.
  * @param effectCategory - the category of the animation effect
- * @param effectComposer - the effect composer object, where you will define {@link EffectComposer.composeEffect} among other properties
- * @returns - The same {@link effectComposer} object you passed into the function.
+ * @param effectDefinition - the effect definition object, where you will define {@link PresetEffectDefinition.buildFrameGenerators} among other properties
+ * @returns - The same {@link effectDefinition} object you passed into the function.
  * 
  * @remarks
- * This function is purely for convenience. You could create {@link EffectComposer} objects on your own without it, but there would
- * be no autocompletion or hinting. Besides using this function or {@link createCustomEffectComposerBank}, the other way to
- * construct effect composers while still having access to Intellisense is to define them directly within the call to
+ * // TODO: come back to this remark
+ * This function is purely for convenience. You could create {@link PresetEffectDefinition} objects on your own without it,
+ * but this is highly ill-advised because there would
+ * be no autocompletion or hinting. Besides using this function or {@link definePresetEffectBank}, the other way to
+ * define preset effects while still having access to Intellisense is to define them directly within the call to
  * {@link webchalk.createAnimationClipFactories}.
  * 
  * @example
- * <!-- EX:S id="createCustomEffectComposer" code-type="ts" -->
+ * <!-- EX:S id="definePresetEffect" code-type="ts" -->
  * ```ts
- * // CREATE CUSTOM EFFECT COMPOSERS
+ * // CREATE NEW PRESET EFFECTS
  * 
- * const zoomIn = createCustomEffectComposer(
+ * const zoomIn = definePresetEffect(
  *   'Entrance',
  *   {
- *     composeEffect(initialScale: number) {
- *       // return ComposedEffect
+ *     buildFrameGenerators(initialScale: number) {
+ *       // return EffectFrameGeneratorSet
  *       return {
- *         forwardKeyframesGenerator: () => {
+ *         keyframesGenerator_play: () => {
  *           // return Keyframes (Keyframe[])
  *           return [
  *             {scale: initialScale, opacity: 0},
@@ -1386,12 +1388,12 @@ export type EffectNameIn<TComposerBank extends EffectComposerBank> = Exclude<key
  *   }
  * );
  * 
- * const fadeIn = createCustomEffectComposer(
+ * const fadeIn = definePresetEffect(
  *   'Entrance',
  *   {
- *     composeEffect() {
+ *     buildFrameGenerators() {
  *       return {
- *         forwardKeyframesGenerator: () => {
+ *         keyframesGenerator_play: () => {
  *           return [{opacity: 0}, {}];
  *         }
  *       };
@@ -1400,19 +1402,19 @@ export type EffectNameIn<TComposerBank extends EffectComposerBank> = Exclude<key
  *   }
  * );
  * 
- * const flyOutLeft = createCustomEffectComposer(
+ * const flyOutLeft = definePresetEffect(
  *   'Exit',
  *   {
- *     composeEffect() {
+ *     buildFrameGenerators() {
  *       const computeTranslationStr = () => {
  *         const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
  *         const translationString = `${orthogonalDistance}px 0px`;
  *         return translationString;
  *       }
  * 
- *       // return ComposedEffect
+ *       // return EffectFrameGeneratorSet
  *       return {
- *         forwardKeyframesGenerator: () => {
+ *         keyframesGenerator_play: () => {
  *           // return Keyframes (Keyframe[])
  *           return [
  *             {translate: computeTranslationStr()}
@@ -1430,48 +1432,48 @@ export type EffectNameIn<TComposerBank extends EffectComposerBank> = Exclude<key
  *   }
  * );
  * 
- * // CREATE CLIP FACTORIES AND PASS IN CUSTOM EFFECT COMPOSERS
+ * // CREATE CLIP FACTORIES AND PASS IN PRESET EFFECT DEFINITIONS
  * const clipFactories = webchalk.createAnimationClipFactories({
- *   customEntranceEffects: {
+ *   additionalEntranceEffects: {
  *     zoomIn,
  *     fadeIn,
  *   },
- *   customExitEffects: {
+ *   additionalExitEffects: {
  *     flyOutLeft
  *   }
  * });
  * 
  * const square = document.querySelector('.square');
  * 
- * // your custom effects are now part of the presets (along with full Intellisense)
+ * // your preset effects are now part of the preset effect banks (along with full Intellisense)
  * const ent1 = clipFactories.Entrance(square, 'zoomIn', [0.1]);
  * const ent2 = clipFactories.Entrance(square, 'fadeIn', []);
  * const ext2 = clipFactories.Exit(square, 'flyOutLeft', []);
  * ```
- * <!-- EX:E id="createCustomEffectComposer" -->
+ * <!-- EX:E id="definePresetEffect" -->
  * 
- * @category Effect Composition
+ * @category Effect Definition
  */
-export function createCustomEffectComposer<
+export function definePresetEffect<
   TCategory extends ExtendableBankCategory,
-  TEffectComposer extends EffectComposerBank<ExtendableBankCategoryToClipType<TCategory>>[string]
-> (effectCategory: TCategory, effectComposer: TEffectComposer
+  TPresetEffectDefinition extends PresetEffectBank<ExtendableBankCategoryToClipType<TCategory>>[string]
+> (effectCategory: TCategory, effectDefinition: TPresetEffectDefinition
   & {
     defaultConfig?: StrictPropertyCheck<
-      Exclude<TEffectComposer['defaultConfig'], undefined>,
+      Exclude<TPresetEffectDefinition['defaultConfig'], undefined>,
       Layer3MutableClipConfig<ExtendableBankCategoryToClipType<TCategory>>,
       DEFAULT_CONFIG_ERROR<TCategory>
     >;
     immutableConfig?: StrictPropertyCheck<
-      Exclude<TEffectComposer['immutableConfig'], undefined>,
+      Exclude<TPresetEffectDefinition['immutableConfig'], undefined>,
       Layer3MutableClipConfig<ExtendableBankCategoryToClipType<TCategory>>,
       IMMUTABLE_CONFIG_ERROR<TCategory>
     >;
-    composeEffect: StrictReturnPropertyCheck<
-      TEffectComposer['composeEffect'],
-      ComposedEffect,
-      COMPOSED_EFFECT_RETURN_ERROR_PRIMITIVE,
-      COMPOSED_EFFECT_RETURN_ERROR_PROPERTIES
+    buildFrameGenerators: StrictReturnPropertyCheck<
+      TPresetEffectDefinition['buildFrameGenerators'],
+      EffectFrameGeneratorSet,
+      EFFECT_FRAME_GENERATORS_RETURN_ERROR_PRIMITIVE,
+      EFFECT_FRAME_GENERATORS_RETURN_ERROR_PROPERTIES
     >;
   }
 ) {
@@ -1484,37 +1486,38 @@ export function createCustomEffectComposer<
     default:
       throw new TypeError(`Invalid effect category "${effectCategory}". Must be 'Entrance', 'Exit', 'Emphasis', or 'Motion'.`);
   }
-  return deepFreeze(effectComposer as typeof effectComposer);
+  return deepFreeze(effectDefinition as typeof effectDefinition);
 }
 
 /**
- * Allows the convenient creation of an object in the shape of an {@link EffectComposerBank} with full auto-completion for each entry.
- * The resulting effect composer bank must be passed into {@link webchalk.createAnimationClipFactories} in order for its composers to be
+ * Allows the convenient creation of an object in the shape of a {@link PresetEffectBank} with full auto-completion for each entry.
+ * The resulting effect bank must be passed into {@link webchalk.createAnimationClipFactories} in order for its effect definitions to be
  * added to the preset effects registry.
  * @param effectCategory - the category of the animation effects
- * @param effectComposerBank - object where every key is an effect name and every value is an {@link EffectComposer}
- * @returns - The same {@link effectComposerBank} object you passed into the function.
+ * @param presetEffectBank - object where every key is an effect name and every value is an {@link PresetEffectDefinition}
+ * @returns - The same {@link presetEffectBank} object you passed into the function.
  * 
  * @remarks
- * This function is purely for convenience. You could create {@link EffectComposerBank} or individual {@link EffectComposer}
- * objects on your own without it, but there would be no autocompletion or hinting. Besides using this function,
- * the other way to construct effect composers while still having access to Intellisense is to define them directly
+ * This function is purely for convenience. You could create {@link presetEffectBank}'s or individual {@link PresetEffectDefinition}
+ * objects on your own without it, but this is highly ill-advised because there would be
+ * there would be no autocompletion or hinting. Besides using this function,
+ * the other way define preset effects while still having access to Intellisense is to define them directly
  * within the call to {@link webchalk.createAnimationClipFactories}.
  * 
  * @example
- * <!-- EX:S id="createCustomEffectComposerBank" code-type="ts" -->
+ * <!-- EX:S id="definePresetEffectBank" code-type="ts" -->
  * ```ts
- * // CREATE CUSTOM EFFECT COMPOSER BANKS
+ * // CREATE NEW PRESET EFFECT BANK
  * 
- * // bank with 2 effect composers for a "zoomIn" effect and a "fadeIn" effect
- * const customEntrances = createCustomEffectComposerBank(
+ * // bank with 2 preset effect definitions for a "zoomIn" effect and a "fadeIn" effect
+ * const myPresetEntrances = definePresetEffectBank(
  *   'Entrance',
  *   {
  *     zoomIn: {
- *       composeEffect(initialScale: number) {
- *         // return ComposedEffect
+ *       buildFrameGenerators(initialScale: number) {
+ *         // return EffectFrameGeneratorSet
  *         return {
- *           forwardKeyframesGenerator: () => {
+ *           keyframesGenerator_play: () => {
  *             // return Keyframes (Keyframe[])
  *             return [
  *               {scale: initialScale, opacity: 0},
@@ -1526,9 +1529,9 @@ export function createCustomEffectComposer<
  *     },
  * 
  *     fadeIn: {
- *       composeEffect() {
+ *       buildFrameGenerators() {
  *         return {
- *           forwardKeyframesGenerator: () => {
+ *           keyframesGenerator_play: () => {
  *             return [{opacity: 0}, {}];
  *           }
  *         };
@@ -1538,21 +1541,21 @@ export function createCustomEffectComposer<
  *   }
  * );
  * 
- * // bank with 1 effect composer for a "flyOutLeft" effect
- * const customExits = createCustomEffectComposerBank(
+ * // bank with 1 preset effect definition for a "flyOutLeft" effect
+ * const myPresetExits = definePresetEffectBank(
  *   'Exit',
  *   {
  *     flyOutLeft: {
- *       composeEffect() {
+ *       buildFrameGenerators() {
  *         const computeTranslationStr = () => {
  *           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
  *           const translationString = `${orthogonalDistance}px 0px`;
  *           return translationString;
  *         }
  *   
- *         // return ComposedEffect
+ *         // return EffectFrameGeneratorSet
  *         return {
- *           forwardKeyframesGenerator: () => {
+ *           keyframesGenerator_play: () => {
  *             // return Keyframes (Keyframe[])
  *             return [
  *               {translate: computeTranslationStr()}
@@ -1571,37 +1574,37 @@ export function createCustomEffectComposer<
  *   }
  * )
  * 
- * // CREATE CLIP FACTORIES AND PASS IN CUSTOM EFFECT COMPOSER BANKS
+ * // CREATE CLIP FACTORIES AND PASS IN PRESET EFFECT BANKS
  * const clipFactories = webchalk.createAnimationClipFactories({
- *   customEntranceEffects: customEntrances,
- *   customExitEffects: customExits,
+ *   additionalEntranceEffects: myPresetEntrances,
+ *   additionalExitEffects: myPresetExits,
  * });
  * 
  * const square = document.querySelector('.square');
  * 
- * // your custom effects are now part of the presets (along with full Intellisense)
+ * // your preset effects are now part of the preset effect banks (along with full Intellisense)
  * const ent1 = clipFactories.Entrance(square, 'zoomIn', [0.1]);
  * const ent2 = clipFactories.Entrance(square, 'fadeIn', []);
  * const ext2 = clipFactories.Exit(square, 'flyOutLeft', []);
  * ```
- * <!-- EX:E id="createCustomEffectComposerBank" -->
+ * <!-- EX:E id="definePresetEffectBank" -->
  * 
- * @category Effect Composition
+ * @category Effect Definition
  */
-export function createCustomEffectComposerBank<
+export function definePresetEffectBank<
   TCategory extends ExtendableBankCategory,
-  // TComposerBank extends {[key: string]: EffectComposerBank<ExtendableBankCategoryToClipType<TCategory>>[string]}
-  TComposerBank extends EffectComposerBank<ExtendableBankCategoryToClipType<TCategory>>
+  // TEffectBank extends {[key: string]: PresetEffectBank<ExtendableBankCategoryToClipType<TCategory>>[string]}
+  TEffectBank extends PresetEffectBank<ExtendableBankCategoryToClipType<TCategory>>
 >(
   effectCategory: TCategory,
-  effectComposerBank: TComposerBank & {
+  presetEffectBank: TEffectBank & {
     // forces errors to show up on defaultConfig when invalid properties are provided...
-    // ... while defining the effect composer bank
-    [effectName in EffectNameIn<TComposerBank>]: TComposerBank[effectName] & {
-      [prop in keyof TComposerBank[effectName]]: TComposerBank[effectName][prop] & (
+    // ... while defining the preset effect bank
+    [effectName in EffectNameIn<TEffectBank>]: TEffectBank[effectName] & {
+      [prop in keyof TEffectBank[effectName]]: TEffectBank[effectName][prop] & (
         prop extends 'defaultConfig'
           ? StrictPropertyCheck<
-              Exclude<TComposerBank[effectName]['defaultConfig'], undefined>,
+              Exclude<TEffectBank[effectName]['defaultConfig'], undefined>,
               Layer3MutableClipConfig<ExtendableBankCategoryToClipType<TCategory>>,
               DEFAULT_CONFIG_ERROR<TCategory>
             >
@@ -1610,12 +1613,12 @@ export function createCustomEffectComposerBank<
     }
   } & {
     // forces errors to show up on immutableConfig when invalid properties are provided...
-    // ... while defining the effect composer bank
-    [effectName in EffectNameIn<TComposerBank>]: TComposerBank[effectName] & {
-      [prop in keyof TComposerBank[effectName]]: TComposerBank[effectName][prop] & (
+    // ... while defining the preset effect bank
+    [effectName in EffectNameIn<TEffectBank>]: TEffectBank[effectName] & {
+      [prop in keyof TEffectBank[effectName]]: TEffectBank[effectName][prop] & (
         prop extends 'immutableConfig'
           ? StrictPropertyCheck<
-              Exclude<TComposerBank[effectName]['immutableConfig'], undefined>,
+              Exclude<TEffectBank[effectName]['immutableConfig'], undefined>,
               Layer3MutableClipConfig<ExtendableBankCategoryToClipType<TCategory>>,
               IMMUTABLE_CONFIG_ERROR<TCategory>
             >
@@ -1623,17 +1626,31 @@ export function createCustomEffectComposerBank<
       )
     }
   } & {
-    // forces errors to show up on composeEffect() when returned value is invalid...
-    // ... while defining the effect composer bank
-    [effectName in EffectNameIn<TComposerBank>]: TComposerBank[effectName] & {
-      [prop in keyof TComposerBank[effectName]]: TComposerBank[effectName][prop] & (
-        prop extends 'composeEffect'
+    // forces errors to show up on buildFrameGenerators() when returned value is invalid...
+    // ... while defining the preset effect bank
+    [effectName in EffectNameIn<TEffectBank>]: TEffectBank[effectName] & {
+      [prop in keyof TEffectBank[effectName]]: TEffectBank[effectName][prop] & (
+        prop extends 'buildFrameGenerators'
           ? StrictReturnPropertyCheck<
-              TComposerBank[effectName]['composeEffect'],
-              ComposedEffect,
-              COMPOSED_EFFECT_RETURN_ERROR_PRIMITIVE,
-              COMPOSED_EFFECT_RETURN_ERROR_PROPERTIES
+              TEffectBank[effectName]['buildFrameGenerators'],
+              EffectFrameGeneratorSet,
+              EFFECT_FRAME_GENERATORS_RETURN_ERROR_PRIMITIVE,
+              EFFECT_FRAME_GENERATORS_RETURN_ERROR_PROPERTIES
             >
+            // TODO: Finish implementing checking that backward generators are not defined without forward counterparts
+            // & (
+            //     Extract<keyof ReturnType<TEffectBank[effectName]['buildFrameGenerators']>, `keyframesGenerator_rewind`> extends never ? {} : (
+            //       Exclude<keyof ReturnType<TEffectBank[effectName]['buildFrameGenerators']>, 'keyframesGenerator_rewind' | 'reverseKeyframesEffect' | 'reverseMutatorEffect'> extends never
+            //       ? 'TRHUGBSUKVNLSKNGBVLSNDFVLINSDV'
+            //       : {}
+            //     )
+            // ) & (
+            //     Extract<keyof ReturnType<TEffectBank[effectName]['buildFrameGenerators']>, `mutatorGenerator_rewind`> extends never ? {} : (
+            //       Exclude<keyof ReturnType<TEffectBank[effectName]['buildFrameGenerators']>, 'mutatorGenerator_rewind' | 'reverseKeyframesEffect' | 'reverseMutatorEffect'> extends never
+            //       ? 'TRHUGBSUKVNLSKNGBVLSNDFVLINSDV'
+            //       : {}
+            //     )
+            // )
           : {}
       )
     }
@@ -1649,7 +1666,7 @@ export function createCustomEffectComposerBank<
       throw new TypeError(`Invalid effect category "${effectCategory}". Must be 'Entrance', 'Exit', 'Emphasis', or 'Motion'.`);
   }
 
-  return deepFreeze(effectComposerBank as typeof effectComposerBank & ClipTypeToHiddenBankCategorizer<ExtendableBankCategoryToClipType<TCategory>>);
+  return deepFreeze(presetEffectBank as typeof presetEffectBank & ClipTypeToHiddenBankCategorizer<ExtendableBankCategoryToClipType<TCategory>>);
 }
 
 /**
@@ -1660,7 +1677,7 @@ export type ExtendableBankCategory = 'Entrance' | 'Exit' | 'Emphasis' | 'Motion'
 
 /**
  * Returns a special string based on the specified effect category.
- * The string is used to identify effect composer banks by their effect category.
+ * The string is used to identify preset effect banks by their effect category.
  * @ignore
  */
 export type ExtendableBankCategoryToHiddenBankCategorizer<TCategory extends ExtendableBankCategory> = Uppercase<`__EFFECT_CATEGORY=${TCategory}`>;
@@ -1681,14 +1698,14 @@ type ClipTypeToHiddenBankCategorizer<TClipType extends AnimClip> =
   );
 
 /**
- * Returns the {@link ExtendableBankCategory} corresponding to the specified effect composer bank.
+ * Returns the {@link ExtendableBankCategory} corresponding to the specified preset effect bank.
  * @ignore
  */
-export type EffectComposerBankToCategory<TEffectComposerBank extends EffectComposerBank> = (
-  ExtendableBankCategoryToHiddenBankCategorizer<'Entrance'> extends keyof TEffectComposerBank ? 'Entrance' : (
-    ExtendableBankCategoryToHiddenBankCategorizer<'Exit'> extends keyof TEffectComposerBank ? 'Exit' : (
-      ExtendableBankCategoryToHiddenBankCategorizer<'Emphasis'> extends keyof TEffectComposerBank ? 'Emphasis' : (
-        ExtendableBankCategoryToHiddenBankCategorizer<'Motion'> extends keyof TEffectComposerBank ? 'Motion' : (
+export type PresetEffectBankToCategory<TPresetEffectBank extends PresetEffectBank> = (
+  ExtendableBankCategoryToHiddenBankCategorizer<'Entrance'> extends keyof TPresetEffectBank ? 'Entrance' : (
+    ExtendableBankCategoryToHiddenBankCategorizer<'Exit'> extends keyof TPresetEffectBank ? 'Exit' : (
+      ExtendableBankCategoryToHiddenBankCategorizer<'Emphasis'> extends keyof TPresetEffectBank ? 'Emphasis' : (
+        ExtendableBankCategoryToHiddenBankCategorizer<'Motion'> extends keyof TPresetEffectBank ? 'Motion' : (
           never
         )
       )

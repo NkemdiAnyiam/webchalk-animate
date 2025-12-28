@@ -5,7 +5,7 @@ export type * from "../1_playbackStructures/AnimationTimeline";
 export type * from "../3_components/WebChalkConnectorElement";
 export type * from "../3_components/WebChalkPlaybackButtonElement";
 export type * from "../4_utils/interfaces";
-export type { ComposedEffect, EffectComposer, EffectComposerBank, EffectNameIn, EffectOptions } from "../2_animationEffects/customEffectCreation";
+export type { EffectFrameGeneratorSet, PresetEffectDefinition, PresetEffectBank, EffectNameIn, EffectOptions } from "../2_animationEffects/customEffectCreation";
 export type { PresetLinearEasingKey, EasingString, TrivialCssEasingFunction } from "../2_animationEffects/easing";
 export type {
   ClipErrorGenerator,

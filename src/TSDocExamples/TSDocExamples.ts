@@ -1,4 +1,4 @@
-import { createCustomEffectComposer, createCustomEffectComposerBank } from "../2_animationEffects/customEffectCreation";
+import { definePresetEffect, definePresetEffectBank } from "../2_animationEffects/customEffectCreation";
 import { EasingString, PresetLinearEasingKey, useEasing } from "../2_animationEffects/easing";
 import { webchalk } from "../WebChalk";
 
@@ -179,20 +179,20 @@ seq.play();
 
 {
 /**** EX:S id="WebChalk.createAnimationClipFactories-1.3" */
-// Extending the preset entrances and motions banks with custom effects
+// Extending the preset entrances and motions banks with additional preset effects
 const clipFactories = webchalk.createAnimationClipFactories({
-  // CUSTOM ENTRANCES
-  customEntranceEffects: {
+  // PRESET ENTRANCES
+  additionalEntranceEffects: {
     coolZoomIn: {
-      composeEffect(initialScale: number) {
+      buildFrameGenerators(initialScale: number) {
         return {
-          forwardKeyframesGenerator: () => [
+          keyframesGenerator_play: () => [
             {scale: initialScale, opacity: 0},
             {scale: 1, opacity: 1}
           ],
           // (backwardFrames could have been omitted in this case because
           // the reversal of forwardFrames is exactly equivalent)
-          backwardKeyframesGenerator: () => [
+          keyframesGenerator_rewind: () => [
             {scale: 1, opacity: 1},
             {scale: initialScale, opacity: 0}
           ]
@@ -201,23 +201,23 @@ const clipFactories = webchalk.createAnimationClipFactories({
     },
 
     blinkIn: {
-      composeEffect() {
+      buildFrameGenerators() {
         return {
-          forwardKeyframesGenerator: () => [
+          keyframesGenerator_play: () => [
             {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}, {opacity: 0}, {opacity: 1}
           ],
-          // (backwardKeyframesGenerator() omitted because the reversal of
-          // forwardKeyframesGenerator() is exactly equivalent)
+          // (keyframesGenerator_rewind() omitted because the reversal of
+          // keyframesGenerator_play() is exactly equivalent)
         };
       }
     }
   },
 
-  // CUSTOM EXITS
-  customExitEffects: {
-    // a custom animation effect for flying out to the left side of the screen
+  // PRESET EXITS
+  additionalExitEffects: {
+    // a preset animation effect for flying out to the left side of the screen
     flyOutLeft: {
-      composeEffect() {
+      buildFrameGenerators() {
         const computeTranslationStr = () => {
           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
           const translationString = `${orthogonalDistance}px 0px`;
@@ -225,15 +225,15 @@ const clipFactories = webchalk.createAnimationClipFactories({
         }
   
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             return [
               {translate: computeTranslationStr()}
             ];
           },
-          // backwardKeyframesGenerator could have been omitted because the result
-          // of running forwardKeyframesGenerator() again and reversing the keyframes
+          // keyframesGenerator_rewind could have been omitted because the result
+          // of running keyframesGenerator_play() again and reversing the keyframes
           // produces the same desired rewinding effect in this case
-          backwardKeyframesGenerator: () => {
+          keyframesGenerator_rewind: () => {
             return [
               {translate: computeTranslationStr()},
               {translate: `0 0`}
@@ -252,7 +252,7 @@ const clipFactories = webchalk.createAnimationClipFactories({
 });
 
 const square = document.querySelector('.square');
-// the custom animations you created are now valid as well as detected by TypeScript
+// the preset animation effects you created are now valid as well as detected by TypeScript
 const ent1 = clipFactories.Entrance(square, 'coolZoomIn', [0.2]);
 const ent2 = clipFactories.Entrance(square, 'blinkIn', []);
 const ext = clipFactories.Exit(square, 'flyOutLeft', []);
@@ -718,14 +718,14 @@ ent.scheduleTask('endDelayPhase', '40%', {
 {
 /**** EX:S id="AnimClip.computeTween-1" */
 const {Entrance} = webchalk.createAnimationClipFactories({
-  customEntranceEffects: {
+  additionalEntranceEffects: {
     rotate: {
-      composeEffect(degrees: number) {
+      buildFrameGenerators(degrees: number) {
         return {
           // when playing, keep computing the value between 0 and 'degrees'
-          forwardMutatorGenerator: () => () => { this.domElem.style.rotate = this.computeTween(0, degrees)+'deg'; },
+          mutatorGenerator_play: () => () => { this.domElem.style.rotate = this.computeTween(0, degrees)+'deg'; },
           // when rewinding, keep computing the value between 'degrees' and 0
-          backwardMutatorGenerator: () => () => { this.domElem.style.rotate = this.computeTween(degrees, 0)+'deg'; }
+          mutatorGenerator_rewind: () => () => { this.domElem.style.rotate = this.computeTween(degrees, 0)+'deg'; }
         };
       }
     }
@@ -860,22 +860,22 @@ const str6: EasingString = 'cubic-bezier(0.25, 0.1, 0.25)'; // valid (matches st
 
 
 {
-/**** EX:S id="ComposedEffect.keyframes-generators" */
+/**** EX:S id="EffectFrameGeneratorSet.keyframes-generators" */
 const clipFactories = webchalk.createAnimationClipFactories({
-  customEntranceEffects: {
+  additionalEntranceEffects: {
     // -----------------------------------------------------------------
     // ----------------------------EXAMPLE 1----------------------------
     // -----------------------------------------------------------------
-    // Let us pretend you made this custom entrance animation effect named 'zoomIn'.
+    // Let us pretend you made this preset entrance animation effect named 'zoomIn'.
     // For this animation, you wrote the forward keyframes generator and
     // then verified that the desired rewinding effect is exactly equivalent
-    // to playing the keyframes produced by forwardKeyframesGenerator() in reverse,
-    // so you omit backwardKeyframesGenerator.
+    // to playing the keyframes produced by keyframesGenerator_play() in reverse,
+    // so you omit keyframesGenerator_rewind.
     zoomIn: {
-      composeEffect(initialScale: number) {
-        // return ComposedEffect
+      buildFrameGenerators(initialScale: number) {
+        // return EffectFrameGeneratorSet
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             console.log('About to return keyframes!');
             // return Keyframes (Keyframe[])
             return [
@@ -883,11 +883,11 @@ const clipFactories = webchalk.createAnimationClipFactories({
               {}                                 // Keyframe 2
             ];
           },
-          // backwardKeyframesGenerator() can be omitted in this case because
+          // keyframesGenerator_rewind() can be omitted in this case because
           // the reversal of the forward keyframes is exactly equivalent.
           // It is written below for demonstration purposes but commented out.
           // -----------------------------------------------------------------------
-          // backwardKeyframesGenerator: () => {
+          // keyframesGenerator_rewind: () => {
           //   // return Keyframes (Keyframe[])
           //   return [
           //     {},                               // Keyframe 1
@@ -899,39 +899,39 @@ const clipFactories = webchalk.createAnimationClipFactories({
     },
   },
 
-  customMotionEffects: {
+  additionalMotionEffects: {
     // -----------------------------------------------------------------
     // ----------------------------EXAMPLE 2----------------------------
     // -----------------------------------------------------------------
-    // Let us pretend you made this custom animation effect for moving an element rightward.
+    // Let us pretend you made this preset animation effect for moving an element rightward.
     // For this animation, you wrote the forward keyframes generator and then
     // checked to see if the desired rewinding effect could be achieved by just reusing
-    // forwardKeyframesGenerator() and reversing the result. You realize that this effect is NOT
+    // keyframesGenerator_play() and reversing the result. You realize that this effect is NOT
     // a candidate for that shortcut, so you write backwardKeyframesEffect.
     translateRight: {
-      composeEffect(numPixels: number) {
-        // a helper function you wrote that will exist within a closure scoped to composeEffect()
+      buildFrameGenerators(numPixels: number) {
+        // a helper function you wrote that will exist within a closure scoped to buildFrameGenerators()
         const createTranslationString = () => {
           if (numPixels <= 0) { throw RangeError(`Number of pixels must exceed 0.`) }
           const translationString = `${numPixels}px`;
           return translationString;
         }
   
-        // return ComposedEffect
+        // return EffectFrameGeneratorSet
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             // return Keyframes (Keyframe[])
             return [
               {translate: createTranslationString()} // Keyframe
             ];
           },
-          // backwardKeyframesGenerator() must be specified because reversing the keyframes produced
-          // by forwardKeyframesGenerator() would not have the intended effect (because of
+          // keyframesGenerator_rewind() must be specified because reversing the keyframes produced
+          // by keyframesGenerator_play() would not have the intended effect (because of
           // {composite: accumulate}, trying to simply use the reversal of
-          // {translate: createTranslationString()} from forwardKeyframesGenerator() would actually
+          // {translate: createTranslationString()} from keyframesGenerator_play() would actually
           // cause the target element to jump an additional numPixels pixels to the right
           // before sliding left, which is not the intended rewinding effect).
-          backwardKeyframesGenerator: () => {
+          keyframesGenerator_rewind: () => {
             // return Keyframes (Keyframe[])
             return [
               {translate: '-'+createTranslationString()}, // Keyframe
@@ -944,7 +944,7 @@ const clipFactories = webchalk.createAnimationClipFactories({
         // instead of replacing it
         composite: 'accumulate',
       },
-      effectCompositionFrequency: 'on-first-play-only',
+      howOftenBuildGenerators: 'on-first-play-only',
     },
   }
 });
@@ -953,47 +953,47 @@ const element = document.querySelector('.some-element');
 (async () => {
   const ent = clipFactories.Entrance(element, 'zoomIn', [0.2]);
   await ent.play();
-  // ↑ forwardKeyframesGenerator() will run and produce the Keyframe array
+  // ↑ keyframesGenerator_play() will run and produce the Keyframe array
   // [{scale: initialScale, opacity: 0}, {scale: 1, opacity: 1}].
   // That Keyframe array is used for the animation effect as the clip plays forward.
 
   await ent.rewind();
-  // ↑ Since backwardKeyframesGenerator() was not set, the clip will run forwardKeyframesGenerator()
+  // ↑ Since keyframesGenerator_rewind() was not set, the clip will run keyframesGenerator_play()
   // again and just use its effect in reverse when rewinding (which would be exactly equivalent
-  // to specifying backwardKeyframesGenerator() and having it return
+  // to specifying keyframesGenerator_rewind() and having it return
   // [{}, {scale: initialScale, opacity: 0}]).
-  // In other words, forwardKeyframesGenerator() will run again to produce the Keyframe array
+  // In other words, keyframesGenerator_play() will run again to produce the Keyframe array
   // [{scale: initialScale, opacity: 0}, {}], then
   // the Keyframe array is used for the animation effect but set to go in reverse,
   // and the effect is used as the clip rewinds.
 
   const mot = clipFactories.Motion(element, 'translateRight', [756]);
   await mot.play();
-  // ↑ forwardKeyframesGenerator() will run and produce the Keyframes array [{translate: '756px'}].
+  // ↑ keyframesGenerator_play() will run and produce the Keyframes array [{translate: '756px'}].
   // That Keyframe array is used for the animation effect as the clip plays.
 
   await mot.rewind();
   // ↑ backwardFramesGenerator() will run and produce the Keyframe array [{translate: '-756px'}].
   // That Keyframe array is used for the animation effect as the clip rewinds.
 })();
-/**** EX:E id="ComposedEffect.keyframes-generators" */
+/**** EX:E id="EffectFrameGeneratorSet.keyframes-generators" */
 }
 
 {
-/**** EX:S id="ComposedEffect.mutator-generators" */
+/**** EX:S id="EffectFrameGeneratorSet.mutator-generators" */
 const clipFactories = webchalk.createAnimationClipFactories({
-  customMotionEffects: {
-    // a custom animation for scrolling to a specific point on the page.
+  additionalMotionEffects: {
+    // a preset animation effect for scrolling to a specific point on the page.
     scrollTo: {
-      composeEffect(yPosition: number) {
+      buildFrameGenerators(yPosition: number) {
         const initialPosition = this.domElem.scrollTop;
   
-        // return ComposedEffect
+        // return EffectFrameGeneratorSet
         return {
           // The mutation is to use the scrollTo() method on the element.
           // Thanks to computeTween(), there will be a smooth scroll
           // from initialPosition to yPosition
-          forwardMutatorGenerator: () => {
+          mutatorGenerator_play: () => {
             // return Mutator
             return () => {
               this.domElem.scrollTo({
@@ -1006,9 +1006,9 @@ const clipFactories = webchalk.createAnimationClipFactories({
           // The forward mutation loop is not invertible because reversing it requires
           // re-computing the element's scroll position at the time of rewinding
           // (which may have since changed for any number of reasons, including user
-          // scrolling, size changes, etc.). So we must define backwardMutatorGenerator()
+          // scrolling, size changes, etc.). So we must define mutatorGenerator_rewind()
           // to do exactly that.
-          backwardMutatorGenerator: () => {
+          mutatorGenerator_rewind: () => {
             // return Mutator
             return () => {
               const currentPosition = this.domElem.scrollTop;
@@ -1027,32 +1027,32 @@ const clipFactories = webchalk.createAnimationClipFactories({
 const element = document.querySelector('.some-element');
 const mot = clipFactories.Motion(element, 'scrollTo', [1020]);
 mot.play().then(mot.rewind);
-/**** EX:E id="ComposedEffect.mutator-generators" */
+/**** EX:E id="EffectFrameGeneratorSet.mutator-generators" */
 }
 
 {
-/**** EX:S id="EffectComposer.composeEffect-1" */
+/**** EX:S id="PresetEffectDefinition.buildFrameGenerators-1" */
 // EXAMPLES WHERE BACKWARD GENERATORS CAN BE OMITTED
 const clipFactories = webchalk.createAnimationClipFactories({
-  customEmphasisEffects: {
+  additionalEmphasisEffects: {
     // -----------------------------------------------------------------
     // ----------------------------EXAMPLE 1----------------------------
     // -------------------------transparencyHalf------------------------
     // -----------------------------------------------------------------
     transparencyHalf: {
-      composeEffect() {
+      buildFrameGenerators() {
         const initialOpacity = this.getStyles('opacity');
 
-        // return ComposedEffect
+        // return EffectFrameGeneratorSet
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             // return Keyframes (Keyframe[])
             return [{opacity: initialOpacity}, {opacity: 0.5}];
           },
           // Notice how the backward generator would be equivalent to running the forward generator
           // and reversing the effect of the keyframes. That means that the forward keyframes
           // generator is invertible, and the backward generator can be omitted.
-          backwardKeyframesGenerator: () => {
+          keyframesGenerator_rewind: () => {
             // return Keyframes (Keyframe[])
             return [{opacity: 0.5}, {opacity: initialOpacity}];
           },
@@ -1063,12 +1063,12 @@ const clipFactories = webchalk.createAnimationClipFactories({
     // Exactly equivalent to transparencyHalf because the keyframe generator
     // is invertible
     transparencyHalf_shortcut: {
-      composeEffect() {
+      buildFrameGenerators() {
         const initialOpacity = this.getStyles('opacity');
 
-        // return ComposedEffect
+        // return EffectFrameGeneratorSet
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             // return Keyframes (Keyframe[])
             return [{opacity: initialOpacity}, {opacity: 0.5}];
           },
@@ -1077,7 +1077,7 @@ const clipFactories = webchalk.createAnimationClipFactories({
     },
   },
 
-  customEntranceEffects: {
+  additionalEntranceEffects: {
     // -----------------------------------------------------------------
     // ----------------------------EXAMPLE 2----------------------------
     // ------------------------------shyIn------------------------------
@@ -1085,10 +1085,10 @@ const clipFactories = webchalk.createAnimationClipFactories({
     // Element shyly enters, hesitantly fading and scaling in and out until it
     // reaches full opacity and scale
     shyIn: {
-      composeEffect() {
-        // return ComposedEffect
+      buildFrameGenerators() {
+        // return EffectFrameGeneratorSet
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             // return Keyframes (PropertyIndexedKeyframes)
             return {
               opacity: [0, 0.5, 0.1, 0.7, 0, 1],
@@ -1098,7 +1098,7 @@ const clipFactories = webchalk.createAnimationClipFactories({
           // Notice how the backward generator would be equivalent to running the forward generator
           // and reversing the effect of the keyframes. That means that the forward keyframes
           // generator is invertible.
-          backwardKeyframesGenerator: () => {
+          keyframesGenerator_rewind: () => {
             // return Keyframes (PropertyIndexedKeyframes) 
             return {
               opacity: [1, 0, 0.7, 0.1, 0.5, 0],
@@ -1111,10 +1111,10 @@ const clipFactories = webchalk.createAnimationClipFactories({
 
     // Exactly equivalent to shyIn because the keyframes generator is invertible.
     shyIn_shortcut: {
-      composeEffect() {
-        // return ComposedEffect
+      buildFrameGenerators() {
+        // return EffectFrameGeneratorSet
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             // return Keyframes (PropertyIndexedKeyframes)
             return {
               opacity: [0, 0.5, 0.1, 0.7, 0, 1],
@@ -1133,14 +1133,14 @@ const clipFactories = webchalk.createAnimationClipFactories({
     // Element flies in from the bottom of the screen and ends up
     // slightly too high, then settles down to its final position.
     riseUp: {
-      composeEffect() {
+      buildFrameGenerators() {
         const belowViewportDist = () => {
           return window.innerHeight - this.domElem.getBoundingClientRect().top;
         };
 
-        // return Composed Effect
+        // return frame generator set
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             // return Keyframes (Keyframe[])
             return [
               {
@@ -1166,9 +1166,9 @@ const clipFactories = webchalk.createAnimationClipFactories({
           },
           // It would be a pain to figure out what the backward keyframes should look like 
           // for rewinding this effect. Fortunately, the forward generator is invertible,
-          // (trust me—it is true) so backwardKeyframesGenerator() can be omitted.
+          // (trust me—it is true) so keyframesGenerator_rewind() can be omitted.
           // ---------------------------------------------------------------------------------------
-          // backwardKeyframesGenerator: () => {
+          // keyframesGenerator_rewind: () => {
           //   // return Keyframes (Keyframe[])
           //   return [] // ??????
           // },
@@ -1181,29 +1181,29 @@ const clipFactories = webchalk.createAnimationClipFactories({
     },
   },
 
-  customExitEffects: {
+  additionalExitEffects: {
     // Replicates PowerPoint's Sink Down animation, which is the opposite of Rise Up.
     // Element floats up slightly and then accelerates to the bottom of the screen.
     sinkDown: {
-      composeEffect() {
+      buildFrameGenerators() {
         const belowViewportDist = () => {
           return window.innerHeight - this.domElem.getBoundingClientRect().top;
         };
 
-        // return Composed Effect
+        // return frame generator set
         return {
-          // Most of the time, when you write your own custom entrance/exit effect, you will want
+          // Most of the time, when you write your own preset entrance/exit effect, you will want
           // to write the corresponding exit/entrance effect. If you write flyIn, you'll probably
           // write flyOut; if you write slideOut, you'll probably write slideIn; if you write riseUp,
           // you'll probably write sinkDown. The beauty is that if riseUp and sinkDown are opposites,
           // then we know that playing riseUp should be the same as rewinding sinkDown. Therefore,
-          // we can copy-paste the logic from riseUp's forwardKeyframesGenerator() and simply set
+          // we can copy-paste the logic from riseUp's keyframesGenerator_play() and simply set
           // reverseKeyframesEffect to true. Once again, we have gotten
           // away with just figuring out what the forward keyframes look like without having
           // to figure out what the other set looks like.
           // ---------------------------------------------------------------------------------------
           reverseKeyframesEffect: true,
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             // return Keyframes (Keyframe[])
             return [
               {
@@ -1228,7 +1228,7 @@ const clipFactories = webchalk.createAnimationClipFactories({
             ];
           },
 
-          // backwardKeyframesGenerator: () => {
+          // keyframesGenerator_rewind: () => {
           //   // return Keyframes (Keyframe[])
           //   return [] // ??????
           // },
@@ -1244,19 +1244,19 @@ const clipFactories = webchalk.createAnimationClipFactories({
     // ----------------------------EXAMPLE 4----------------------------
     // ----------------------------flyOutLeft---------------------------
     // -----------------------------------------------------------------
-    // a custom animation effect for flying out to the left side of the screen
+    // a preset animation effect for flying out to the left side of the screen
     // while displaying the percentage progress in the element's text content
     flyOutLeft: {
-      composeEffect() {
+      buildFrameGenerators() {
         const computeTranslationStr = () => {
           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
           const translationString = `${orthogonalDistance}px 0px`;
           return translationString;
         }
   
-        // return ComposedEffect
+        // return EffectFrameGeneratorSet
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             // return Keyframes (Keyframe[])
             return [
               {translate: computeTranslationStr()}
@@ -1268,7 +1268,7 @@ const clipFactories = webchalk.createAnimationClipFactories({
           // 'accumulate', it's still invertible because exit effects' changes are never committed).
           // That means that the forward keyframes generator is invertible.
           // --------------------------------------------------------------------------------------
-          backwardKeyframesGenerator: () => {
+          keyframesGenerator_rewind: () => {
             // return Keyframes (Keyframe[])
             return [
               {translate: computeTranslationStr()},
@@ -1276,7 +1276,7 @@ const clipFactories = webchalk.createAnimationClipFactories({
             ];
           },
 
-          forwardMutatorGenerator: () => {
+          mutatorGenerator_play: () => {
             // return Mutator
             return () => {
               this.domElem.textContent = `${this.computeTween(0, 100)}%`;
@@ -1288,7 +1288,7 @@ const clipFactories = webchalk.createAnimationClipFactories({
           // invertible. (Note that it may not always be the case that BOTH the keyframes
           // generators and the forward mutator generator are invertible).
           // --------------------------------------------------------------------------------------
-          backwardMutatorGenerator: () => {
+          mutatorGenerator_rewind: () => {
             // return Mutator
             return () => {
               this.domElem.textContent = `${this.computeTween(100, 0)}%`;
@@ -1309,23 +1309,23 @@ const clipFactories = webchalk.createAnimationClipFactories({
 
     // Exactly equivalent to flyOutLeft
     flyOutLeft_shortcut: {
-      composeEffect() {
+      buildFrameGenerators() {
         const computeTranslationStr = () => {
           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
           const translationString = `${orthogonalDistance}px 0px`;
           return translationString;
         }
   
-        // return ComposedEffect
+        // return EffectFrameGeneratorSet
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             // return Keyframes (Keyframe[])
             return [
               {translate: computeTranslationStr()}
             ];
           },
 
-          forwardMutatorGenerator: () => {
+          mutatorGenerator_play: () => {
             // return Mutator
             return () => {
               this.domElem.textContent = `${this.computeTween(0, 100)}%`;
@@ -1343,39 +1343,39 @@ const clipFactories = webchalk.createAnimationClipFactories({
     },
   },
 });
-/**** EX:E id="EffectComposer.composeEffect-1" */
+/**** EX:E id="PresetEffectDefinition.buildFrameGenerators-1" */
 }
 
 {
-/**** EX:S id="EffectComposer.composeEffect-2" */
+/**** EX:S id="PresetEffectDefinition.buildFrameGenerators-2" */
 // EXAMPLES WHERE BACKWARD GENERATORS CANNOT BE OMITTED
 const clipFactories = webchalk.createAnimationClipFactories({
-  customMotionEffects: {
-    // a custom animation for translating a certain number of pixels to the right
+  additionalMotionEffects: {
+    // a preset animation effect for translating a certain number of pixels to the right
     translateRight: {
-      composeEffect(numPixels: number) {
-        // a helper function you wrote that will exist within a closure scoped to composeEffect()
+      buildFrameGenerators(numPixels: number) {
+        // a helper function you wrote that will exist within a closure scoped to buildFrameGenerators()
         const createTranslationString = () => {
           if (numPixels <= 0) { throw RangeError(`Number of pixels must exceed 0.`) }
           const translationString = `${numPixels}px`;
           return translationString;
         }
   
-        // return ComposedEffect
+        // return EffectFrameGeneratorSet
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             // return Keyframes (Keyframe][])
             return [
               {translate: createTranslationString()} // Keyframe
             ];
           },
-          // backwardKeyframesGenerator() must be specified because reversing the keyframes produced
-          // by forwardKeyframesGenerator() would not have the intended effect (due to
+          // keyframesGenerator_rewind() must be specified because reversing the keyframes produced
+          // by keyframesGenerator_play() would not have the intended effect (due to
           // {composite: 'accumulate'}, trying to simply use the reversal of
-          // {translate: createTranslationString()} from forwardKeyframesGenerator() would actually
+          // {translate: createTranslationString()} from keyframesGenerator_play() would actually
           // cause the target element to jump an additional numPixels pixels to the right
           // before sliding left, which is not the intended rewinding effect).
-          backwardKeyframesGenerator: () => {
+          keyframesGenerator_rewind: () => {
             // return Keyframes (Keyframe[])
             return [
               {translate: '-'+createTranslationString()}, // Keyframe
@@ -1390,17 +1390,17 @@ const clipFactories = webchalk.createAnimationClipFactories({
       },
     },
 
-    // a custom animation for scrolling to a specific point on the page.
+    // a preset animation effect for scrolling to a specific point on the page.
     scrollTo: {
-      composeEffect(yPosition: number) {
+      buildFrameGenerators(yPosition: number) {
         const initialPosition = this.domElem.scrollTop;
   
-        // return ComposedEffect
+        // return EffectFrameGeneratorSet
         return {
           // The mutation is to use the scrollTo() method on the element.
           // Thanks to computeTween(), there will be a smooth scroll
           // from initialPosition to yPosition
-          forwardMutatorGenerator: () => {
+          mutatorGenerator_play: () => {
             // return Mutator
             return () => {
               this.domElem.scrollTo({
@@ -1413,9 +1413,9 @@ const clipFactories = webchalk.createAnimationClipFactories({
           // The forward mutation loop is not invertible because reversing it requires
           // re-computing the element's scroll position at the time of rewinding
           // (which may have since changed for any number of reasons, including user
-          // scrolling, size changes, etc.). So we must define backwardMutatorGenerator()
+          // scrolling, size changes, etc.). So we must define mutatorGenerator_rewind()
           // to do exactly that.
-          backwardMutatorGenerator: () => {
+          mutatorGenerator_rewind: () => {
             // return Mutator
             return () => {
               const currentPosition = this.domElem.scrollTop;
@@ -1430,18 +1430,18 @@ const clipFactories = webchalk.createAnimationClipFactories({
     },
   }
 });
-/**** EX:E id="EffectComposer.composeEffect-2" */
+/**** EX:E id="PresetEffectDefinition.buildFrameGenerators-2" */
 }
 
 {
-/**** EX:S id="EffectComposer.defaultConfig" */
+/**** EX:S id="PresetEffectDefinition.defaultConfig" */
 const clipFactories = webchalk.createAnimationClipFactories({
-  customEntranceEffects: {
+  additionalEntranceEffects: {
     // Element fades in, starting from 0 opacity.
     fadeIn: {
-      composeEffect() {
+      buildFrameGenerators() {
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             return [ {opacity: '0'}, {} ];
           },
         } as const;
@@ -1449,8 +1449,8 @@ const clipFactories = webchalk.createAnimationClipFactories({
     },
 
     fadeIn_default: {
-      composeEffect() {
-        return {forwardKeyframesGenerator: () => {
+      buildFrameGenerators() {
+        return {keyframesGenerator_play: () => {
           return [ {opacity: '0'}, {} ];
         },
         } as const;
@@ -1476,17 +1476,17 @@ const ent2 = clipFactories.Entrance(element, 'fadeIn_default', [], {});
 const ent3 = clipFactories.Entrance(element, 'fadeIn_default', [], {duration: 1000});
 // ↑ duration will be set to 1000 because configuration settings set in the
 // clip factory function call will overwrite any default settings
-/**** EX:E id="EffectComposer.defaultConfig" */
+/**** EX:E id="PresetEffectDefinition.defaultConfig" */
 }
 
 {
-/**** EX:S id="EffectComposer.immutableConfig" */
+/**** EX:S id="PresetEffectDefinition.immutableConfig" */
 const clipFactories = webchalk.createAnimationClipFactories({
-  customEntranceEffects: {
+  additionalEntranceEffects: {
     appear: {
-      composeEffect() {
+      buildFrameGenerators() {
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             return [];
           },
         };
@@ -1494,9 +1494,9 @@ const clipFactories = webchalk.createAnimationClipFactories({
     },
 
     appear_immutable: {
-      composeEffect() {
+      buildFrameGenerators() {
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             return [];
           },
         };
@@ -1524,57 +1524,57 @@ const ent3 = clipFactories.Entrance(element, 'appear_immutable', [], {duration: 
 // ↑ TypeScript compiler error will be thrown because duration is not allowed to be set
 // when using the 'appear_immutable' effect. When running the code, this duration will
 // simply be ignored in favor of the immutable duration setting.
-/**** EX:E id="EffectComposer.immutableConfig" */
+/**** EX:E id="PresetEffectDefinition.immutableConfig" */
 }
 
 {
-/**** EX:S id="EffectComposer.effectCompositionFrequency" */
+/**** EX:S id="PresetEffectDefinition.howOftenBuildGenerators" */
 // global variable that will be used in the fadeOut_exclusive effect.
 let usedFadeOutEx = false;
 
 const clipFactories = webchalk.createAnimationClipFactories({
-  customExitEffects: {
-    // A custom effect you wrote for fading an element out.
-    // Here, it makes no difference what effectCompositionFrequency is set to.
+  additionalExitEffects: {
+    // A preset effect you wrote for fading an element out.
+    // Here, it makes no difference what howOftenBuildGenerators is set to.
     //
-    // - If set to 'on-first-play-only', then composeEffect() will run only once
-    // (on the first play()). Thus, forwardKeyframesGenerator() is defined
+    // - If set to 'on-first-play-only', then buildFrameGenerators() will run only once
+    // (on the first play()). Thus, keyframesGenerator_play() is defined
     // only once and is set to return [{}, {opacity: 0}].
     //
     // - If set to 'on-every-play', then EVERY time the clip
-    // plays, composeEffect() plays. Thus, forwardKeyframesGenerator()
+    // plays, buildFrameGenerators() plays. Thus, keyframesGenerator_play()
     // will keep being redefined and set to be a function that
     // returns [{}, {opacity: 0}]. It made no difference because 
-    // the body of forwardKeyframesGenerator() remains the same.
+    // the body of keyframesGenerator_play() remains the same.
     //
-    // Thus, it makes no difference what effectCompositionFrequency is set to.
+    // Thus, it makes no difference what howOftenBuildGenerators is set to.
     // For the sake of optimization, you decide to set it to 'on-first-play-only'
     // (which is the default value anyway, but it adds more clarity).
     fadeOut: {
-      composeEffect() {
+      buildFrameGenerators() {
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             return [{}, {opacity: 0}];
           },
         };
       },
       
-      effectCompositionFrequency: 'on-first-play-only',
+      howOftenBuildGenerators: 'on-first-play-only',
     },
 
-    // A custom animation effect you made that can only be used by one animation clip
+    // A preset animation effect you made that can only be used by one animation clip
     // (Why you would ever do something this is unclear, but the reason does not matter.)
-    // Here, effectCompositionFrequency must be set to 'on-first-play-only'.
+    // Here, howOftenBuildGenerators must be set to 'on-first-play-only'.
     //
     // - If set to 'on-first-play-only', then the global variable usedFadeOutEx is
     // checked for truthiness and then set to true on the first (and only) running of
-    // composeEffect(). On subsequent calls to play(), composeEffect() does not re-run, so
+    // buildFrameGenerators(). On subsequent calls to play(), buildFrameGenerators() does not re-run, so
     // the if-condition is not run again. However, any OTHER clip that uses the fadeOut_exclusive
-    // effect will fail on their first play() because they need to run composeEffect() for
+    // effect will fail on their first play() because they need to run buildFrameGenerators() for
     // the first time and will throw the error (because usedFadeOutEx is already set to true).
     // This is the desired behavior.
     //
-    // - If set to 'on-every-play', then composeEffect() will run on every play(). Thus,
+    // - If set to 'on-every-play', then buildFrameGenerators() will run on every play(). Thus,
     // playing the same clip twice will always cause an error because it will run into
     // the if-conditional again after usedFadeOutEx is already set to true, which is
     // NOT the desired behavior.
@@ -1582,45 +1582,45 @@ const clipFactories = webchalk.createAnimationClipFactories({
     // The difference is that 'on-first-play-only' causes the if-conditional to run
     // only once, while 'on-every-play' causes it to be encountered a second time.
     fadeOut_exclusive: {
-      composeEffect() {
+      buildFrameGenerators() {
         if (usedFadeOutEx) {
           throw new Error(`Only one clip is allowed to use the 'fadeOut_exclusive' effect.`);
         }
         usedFadeOutEx = true;
   
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             return [ {}, {opacity: 0} ];
           },
         };
       },
 
-      effectCompositionFrequency: 'on-first-play-only',
+      howOftenBuildGenerators: 'on-first-play-only',
     },
 
-    // A custom animation effect you made for flying out to the left side of the screen.
-    // Here, it makes no difference what effectCompositionFrequency is set to.
+    // A preset animation effect you made for flying out to the left side of the screen.
+    // Here, it makes no difference what howOftenBuildGenerators is set to.
     //
-    // - If set to 'on-first-play-only', then composeEffect() will run only once. Thus,
-    // forwardKeyframesGenerator() is defined only once, and the closure containing
+    // - If set to 'on-first-play-only', then buildFrameGenerators() will run only once. Thus,
+    // keyframesGenerator_play() is defined only once, and the closure containing
     // computeTranslationStr() will also only be made once. On every play(),
-    // forwardKeyframesGenerator() uses computeTranslationStr() to compute
+    // keyframesGenerator_play() uses computeTranslationStr() to compute
     // the translation, so the translation will always be recomputed.
     // This is the desired behavior.
     //
     // - If set to 'on-every-play', then every time play() is called to play the clip,
-    // composeEffect() is called again, creating a new closure containing a function
-    // called computeTranslationStr() and returning a new forwardKeyframesGenerator()
+    // buildFrameGenerators() is called again, creating a new closure containing a function
+    // called computeTranslationStr() and returning a new keyframesGenerator_play()
     // that uses computeTranslationStr() to compute the translation. It makes no
     // difference since the bodies of computeTranslationStr() and
-    // forwardKeyframesGenerator() remain the same, so this is functionally the
+    // keyframesGenerator_play() remain the same, so this is functionally the
     // same as the previous paragraph.
     // This is the desired behavior.
     //
-    // Thus, it makes no difference what effectCompositionFrequency is set to.
+    // Thus, it makes no difference what howOftenBuildGenerators is set to.
     // For the sake of optimization, you decide to set it to 'on-first-play-only'.
     flyOutLeft1: {
-      composeEffect() {
+      buildFrameGenerators() {
         const computeTranslationStr = () => {
           // compute distance between right side of element and left side of viewport
           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
@@ -1630,14 +1630,14 @@ const clipFactories = webchalk.createAnimationClipFactories({
         }
   
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             return [
               {translate: computeTranslationStr()}
             ];
           },
-          // backwardKeyframesGenerator could have been omitted, but for ease of
+          // keyframesGenerator_rewind could have been omitted, but for ease of
           // visual understanding, they are kept for the flyOut effects
-          backwardKeyframesGenerator: () => {
+          keyframesGenerator_rewind: () => {
             return [
               {translate: computeTranslationStr()},
               {translate: `0 0`}
@@ -1650,20 +1650,20 @@ const clipFactories = webchalk.createAnimationClipFactories({
         composite: 'accumulate',
       },
 
-      effectCompositionFrequency: 'on-first-play-only',
+      howOftenBuildGenerators: 'on-first-play-only',
     },
 
-    // A custom animation effect for flying out either left or right (random).
-    // Here, effectCompositionFrequency must be set to 'on-every-play'.
+    // A preset animation effect for flying out either left or right (random).
+    // Here, howOftenBuildGenerators must be set to 'on-every-play'.
     //
     // - If set to 'on-first-play-only', then leftOrRight is defined only once. Thus,
     // once the clip plays for the first time, leftOrRight will be permanently set
-    // to 'go left' or 'go right' within the closure created by composeEffect(),
+    // to 'go left' or 'go right' within the closure created by buildFrameGenerators(),
     // so the element's direction will not be randomized each time.
     // This is NOT the desired effect.
     //
     // - If set to 'on-every-play', then every time play() is called to play the clip,
-    // composeEffect() is called again. The variable leftOrRight is thus recomputed, so
+    // buildFrameGenerators() is called again. The variable leftOrRight is thus recomputed, so
     // the result of computeTranslationStr() will be randomly left or right every time
     // the clip is played.
     // This is the desired behavior.
@@ -1671,7 +1671,7 @@ const clipFactories = webchalk.createAnimationClipFactories({
     // The difference is that 'on-every-play' causes the effect to use a fresh
     // leftOrRight on each play, while 'on-first-play-only' does not.
     flyOutRandom: {
-      composeEffect() {
+      buildFrameGenerators() {
         // 50% change of going left or right
         const leftOrRight = Math.random() < 0.5 ? 'go left' : 'go right';
 
@@ -1688,12 +1688,12 @@ const clipFactories = webchalk.createAnimationClipFactories({
         }
   
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             return [
               {translate: computeTranslationStr()}
             ];
           },
-          backwardKeyframesGenerator: () => {
+          keyframesGenerator_rewind: () => {
             return [
               {translate: computeTranslationStr()},
               {translate: `0 0`}
@@ -1706,24 +1706,24 @@ const clipFactories = webchalk.createAnimationClipFactories({
         composite: 'accumulate',
       },
 
-      effectCompositionFrequency: 'on-every-play',
+      howOftenBuildGenerators: 'on-every-play',
     },
   }
 });
-/**** EX:E id="EffectComposer.effectCompositionFrequency" */
+/**** EX:E id="PresetEffectDefinition.howOftenBuildGenerators" */
 }
 
 {
-/**** EX:S id="createCustomEffectComposer" */
-// CREATE CUSTOM EFFECT COMPOSERS
+/**** EX:S id="definePresetEffect" */
+// CREATE NEW PRESET EFFECTS
 
-const zoomIn = createCustomEffectComposer(
+const zoomIn = definePresetEffect(
   'Entrance',
   {
-    composeEffect(initialScale: number) {
-      // return ComposedEffect
+    buildFrameGenerators(initialScale: number) {
+      // return EffectFrameGeneratorSet
       return {
-        forwardKeyframesGenerator: () => {
+        keyframesGenerator_play: () => {
           // return Keyframes (Keyframe[])
           return [
             {scale: initialScale, opacity: 0},
@@ -1735,12 +1735,12 @@ const zoomIn = createCustomEffectComposer(
   }
 );
 
-const fadeIn = createCustomEffectComposer(
+const fadeIn = definePresetEffect(
   'Entrance',
   {
-    composeEffect() {
+    buildFrameGenerators() {
       return {
-        forwardKeyframesGenerator: () => {
+        keyframesGenerator_play: () => {
           return [{opacity: 0}, {}];
         }
       };
@@ -1749,19 +1749,19 @@ const fadeIn = createCustomEffectComposer(
   }
 );
 
-const flyOutLeft = createCustomEffectComposer(
+const flyOutLeft = definePresetEffect(
   'Exit',
   {
-    composeEffect() {
+    buildFrameGenerators() {
       const computeTranslationStr = () => {
         const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
         const translationString = `${orthogonalDistance}px 0px`;
         return translationString;
       }
 
-      // return ComposedEffect
+      // return EffectFrameGeneratorSet
       return {
-        forwardKeyframesGenerator: () => {
+        keyframesGenerator_play: () => {
           // return Keyframes (Keyframe[])
           return [
             {translate: computeTranslationStr()}
@@ -1779,39 +1779,39 @@ const flyOutLeft = createCustomEffectComposer(
   }
 );
 
-// CREATE CLIP FACTORIES AND PASS IN CUSTOM EFFECT COMPOSERS
+// CREATE CLIP FACTORIES AND PASS IN PRESET EFFECT DEFINITIONS
 const clipFactories = webchalk.createAnimationClipFactories({
-  customEntranceEffects: {
+  additionalEntranceEffects: {
     zoomIn,
     fadeIn,
   },
-  customExitEffects: {
+  additionalExitEffects: {
     flyOutLeft
   }
 });
 
 const square = document.querySelector('.square');
 
-// your custom effects are now part of the presets (along with full Intellisense)
+// your preset effects are now part of the preset effect banks (along with full Intellisense)
 const ent1 = clipFactories.Entrance(square, 'zoomIn', [0.1]);
 const ent2 = clipFactories.Entrance(square, 'fadeIn', []);
 const ext2 = clipFactories.Exit(square, 'flyOutLeft', []);
-/**** EX:E id="createCustomEffectComposer" */
+/**** EX:E id="definePresetEffect" */
 }
 
 {
-/**** EX:S id="createCustomEffectComposerBank" */
-// CREATE CUSTOM EFFECT COMPOSER BANKS
+/**** EX:S id="definePresetEffectBank" */
+// CREATE NEW PRESET EFFECT BANK
 
-// bank with 2 effect composers for a "zoomIn" effect and a "fadeIn" effect
-const customEntrances = createCustomEffectComposerBank(
+// bank with 2 preset effect definitions for a "zoomIn" effect and a "fadeIn" effect
+const myPresetEntrances = definePresetEffectBank(
   'Entrance',
   {
     zoomIn: {
-      composeEffect(initialScale: number) {
-        // return ComposedEffect
+      buildFrameGenerators(initialScale: number) {
+        // return EffectFrameGeneratorSet
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             // return Keyframes (Keyframe[])
             return [
               {scale: initialScale, opacity: 0},
@@ -1823,9 +1823,9 @@ const customEntrances = createCustomEffectComposerBank(
     },
 
     fadeIn: {
-      composeEffect() {
+      buildFrameGenerators() {
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             return [{opacity: 0}, {}];
           }
         };
@@ -1835,21 +1835,21 @@ const customEntrances = createCustomEffectComposerBank(
   }
 );
 
-// bank with 1 effect composer for a "flyOutLeft" effect
-const customExits = createCustomEffectComposerBank(
+// bank with 1 preset effect definition for a "flyOutLeft" effect
+const myPresetExits = definePresetEffectBank(
   'Exit',
   {
     flyOutLeft: {
-      composeEffect() {
+      buildFrameGenerators() {
         const computeTranslationStr = () => {
           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
           const translationString = `${orthogonalDistance}px 0px`;
           return translationString;
         }
   
-        // return ComposedEffect
+        // return EffectFrameGeneratorSet
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             // return Keyframes (Keyframe[])
             return [
               {translate: computeTranslationStr()}
@@ -1868,19 +1868,19 @@ const customExits = createCustomEffectComposerBank(
   }
 )
 
-// CREATE CLIP FACTORIES AND PASS IN CUSTOM EFFECT COMPOSER BANKS
+// CREATE CLIP FACTORIES AND PASS IN PRESET EFFECT BANKS
 const clipFactories = webchalk.createAnimationClipFactories({
-  customEntranceEffects: customEntrances,
-  customExitEffects: customExits,
+  additionalEntranceEffects: myPresetEntrances,
+  additionalExitEffects: myPresetExits,
 });
 
 const square = document.querySelector('.square');
 
-// your custom effects are now part of the presets (along with full Intellisense)
+// your preset effects are now part of the preset effect banks (along with full Intellisense)
 const ent1 = clipFactories.Entrance(square, 'zoomIn', [0.1]);
 const ent2 = clipFactories.Entrance(square, 'fadeIn', []);
 const ext2 = clipFactories.Exit(square, 'flyOutLeft', []);
-/**** EX:E id="createCustomEffectComposerBank" */
+/**** EX:E id="definePresetEffectBank" */
 }
 
 

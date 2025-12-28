@@ -4,7 +4,7 @@ import * as WebChalkClasses from 'webchalk-animate/classes';
 import * as WebChalkErrors from "webchalk-animate/error-handling";
 import * as WebChalkEasing from "webchalk-animate/easing";
 import * as WebChalkUtils from "webchalk-animate/utility-functions";
-import { createCustomEffectComposerBank } from 'webchalk-animate/custom-effect-creation';
+import { definePresetEffectBank } from 'webchalk-animate/custom-effect-creation';
 import { libPresetEntrances } from 'webchalk-animate/lib-preset-effect-banks';
 
 console.log(WebChalkClasses.AnimClip);
@@ -48,11 +48,11 @@ console.log(WebChalkClasses.AnimClip);
 }
 `
 
-const customEntrances = createCustomEffectComposerBank(
+const customEntrances = definePresetEffectBank(
   'Entrance',
   {
     hello: {
-      composeEffect() {
+      buildFrameGenerators() {
         return {};
       },
       defaultConfig: {
@@ -61,9 +61,9 @@ const customEntrances = createCustomEffectComposerBank(
     },
 
     ['roll-in-blurred-left']: {
-      composeEffect() {
+      buildFrameGenerators() {
         return {
-          forwardKeyframesGenerator: () => [
+          keyframesGenerator_play: () => [
             {
               transform: `translateX(-1000px) rotate(-720deg)`,
               filter: `blur(50px)`,
@@ -78,7 +78,7 @@ const customEntrances = createCustomEffectComposerBank(
       },
     },
 
-    '~fly-in': webchalk.copyEffectComposer(libPresetEntrances, '~fly-in', {
+    '~fly-in': webchalk.copyPresetEffect(libPresetEntrances, '~fly-in', {
         addedDefaultConfig: {},
         addedImmutableConfig: {
           duration: 1000,
@@ -91,10 +91,10 @@ const customEntrances = createCustomEffectComposerBank(
     ),
 
     'fade-in-red': {
-      composeEffect() {
+      buildFrameGenerators() {
         return {
-          forwardKeyframesGenerator: () => [{opacity: 0}, {}],
-          forwardMutatorGenerator: () => () => {
+          keyframesGenerator_play: () => [{opacity: 0}, {}],
+          mutatorGenerator_play: () => () => {
             this.domElem.style.backgroundColor = `rgb(255 ${this.computeTween(255, 0)} ${this.computeTween(255, 0)})`
           }
         }
@@ -110,11 +110,11 @@ const customEntrances = createCustomEffectComposerBank(
        * 
        * @returns 
        */
-      composeEffect() {
+      buildFrameGenerators() {
         const belowViewportDist = () => window.innerHeight - this.domElem.getBoundingClientRect().top;
 
         return {
-          forwardKeyframesGenerator: () => [
+          keyframesGenerator_play: () => [
             {opacity: 0, composite: 'replace'},
             {translate: `0 ${belowViewportDist()}px`, offset: 0, easing: WebChalkEasing.useEasing('power2-out')},
             {translate: `0 -25px`, offset: 0.83333},
@@ -127,83 +127,41 @@ const customEntrances = createCustomEffectComposerBank(
         composite: 'accumulate',
       } as const,
       immutableConfig: {} as const,
-      effectCompositionFrequency: 'on-first-play-only',
+      howOftenBuildGenerators: 'on-first-play-only',
     },
   }
 );
 
-const customExits = createCustomEffectComposerBank(
+const customExits = definePresetEffectBank(
   'Exit',
   {
     ['hinge']: {
-      composeEffect() {
+      buildFrameGenerators() {
         return {
-          forwardKeyframesGenerator: () => [
-            {
-                "offset": 0,
-                "easing": "ease-in-out",
-                "composite": "auto",
-                transformOrigin: "top left"
-            },
-            {
-                "offset": 0,
-                "easing": "ease",
-                "composite": "replace",
-                "transform": "none",
-                "opacity": "1",
-            },
-            {
-                "offset": 0.2,
-                "easing": "ease-in-out",
-                "composite": "auto",
-                "transform": "rotate3d(0, 0, 1, 80deg)",
-            },
-            {
-                "offset": 0.4,
-                "easing": "ease-in-out",
-                "composite": "auto",
-                "transform": "rotate3d(0, 0, 1, 60deg)",
-                "opacity": "1",
-            },
-            {
-                "offset": 0.6,
-                "easing": "ease-in-out",
-                "composite": "auto",
-                "transform": "rotate3d(0, 0, 1, 80deg)",
-            },
-            {
-                "offset": 0.8,
-                "easing": "ease-in-out",
-                "composite": "auto",
-                "transform": "rotate3d(0, 0, 1, 60deg)",
-                "opacity": "1",
-            },
-            {
-                "offset": 1,
-                "easing": "ease",
-                "composite": "auto",
-                "transform": "translate3d(0px, 700px, 0px)",
-                "opacity": "0",
-                transformOrigin: "top left"
-            }
-          ]
+          // keyframesPlayedGenerator: () => [],
+          // keyframesRewoundGenerator: () => [],
+          // mutatorPlayedGenerator: () => () => {},
+          // mutatorRewoundGenerator: () => () => {},
+          
         };
-      }
+      },
+      defaultConfig: {},
+      immutableConfig: {},
     },
 
     // a custom animation effect for flying out to the left side of the screen
     // while displaying the percentage progress in the element's text content
     flyOutLeft: {
-      composeEffect() {
+      buildFrameGenerators() {
         const computeTranslationStr = () => {
           const orthogonalDistance = -(this.domElem.getBoundingClientRect().right);
           const translationString = `${orthogonalDistance}px 0px`;
           return translationString;
         }
   
-        // return ComposedEffect
+        // return EffectFrameGeneratorSet
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             // return Keyframes (Keyframe[])
             return [
               {translate: computeTranslationStr()}
@@ -211,7 +169,7 @@ const customExits = createCustomEffectComposerBank(
           },
 
           // not needed
-          // backwardKeyframesGenerator: () => {
+          // keyframesGenerator_rewind: () => {
           //   // return Keyframes (Keyframe[])
           //   return [
           //     {translate: computeTranslationStr()},
@@ -219,7 +177,7 @@ const customExits = createCustomEffectComposerBank(
           //   ];
           // },
 
-          forwardMutatorGenerator: () => {
+          mutatorGenerator_play: () => {
             // return Mutator
             return () => {
               this.domElem.textContent = `${this.computeTween(0, 100)}%`;
@@ -227,7 +185,7 @@ const customExits = createCustomEffectComposerBank(
           },
 
           // not needed
-          // backwardMutatorGenerator: () => {
+          // mutatorGenerator_rewind: () => {
           //   // return Mutator
           //   return () => {
           //     this.domElem.textContent = `${this.computeTween(100, 0)}%`;
@@ -247,11 +205,11 @@ const customExits = createCustomEffectComposerBank(
     },
 
     'fade-out-red': {
-      composeEffect() {
+      buildFrameGenerators() {
         return {
           reverseKeyframesEffect: true,
-          forwardKeyframesGenerator: () => [{opacity: 0}, {}],
-          forwardMutatorGenerator: () => () => {
+          keyframesGenerator_play: () => [{opacity: 0}, {}],
+          mutatorGenerator_play: () => () => {
             this.domElem.style.backgroundColor = `rgb(255 ${this.computeTween(255, 0)} ${this.computeTween(255, 0)})`
           }
         }
@@ -259,13 +217,13 @@ const customExits = createCustomEffectComposerBank(
     },
 
     sinkDown: {
-      composeEffect() {
+      buildFrameGenerators() {
         const belowViewportDist = () => window.innerHeight - this.domElem.getBoundingClientRect().top;
 
-        // return Composed Effect
+        // return frame generator set
         return {
           reverseKeyframesEffect: true,
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             // return Keyframes (Keyframe[])
             return [
               {opacity: 0, composite: 'replace'},
@@ -277,10 +235,10 @@ const customExits = createCustomEffectComposerBank(
           },
           // It would be a pain to figure out what the backward keyframes should look like 
           // for rewinding this effect. Fortunately, the desired rewinding effect happens to
-          // be equivalent to re-using forwardKeyframesGenerator() and using its reverse,
-          // so backwardKeyframesGenerator can be omitted.
+          // be equivalent to re-using keyframesGenerator_play() and using its reverse,
+          // so keyframesGenerator_rewind can be omitted.
           // ---------------------------------------------------------------------------------------
-          // backwardKeyframesGenerator: () => {
+          // keyframesGenerator_rewind: () => {
           //   // return Keyframes (Keyframe[])
           //   return [] // ??????
           // },
@@ -290,18 +248,18 @@ const customExits = createCustomEffectComposerBank(
         composite: 'accumulate',
       } as const,
       immutableConfig: {} as const,
-      effectCompositionFrequency: 'on-first-play-only',
+      howOftenBuildGenerators: 'on-first-play-only',
     },
   }
 );
 
-const customEmphases = createCustomEffectComposerBank(
+const customEmphases = definePresetEffectBank(
   'Emphasis',
   {
     becomeGreen: {
-      composeEffect() {
+      buildFrameGenerators() {
         return {
-          forwardMutatorGenerator: () => {
+          mutatorGenerator_play: () => {
             return () => { this.domElem.style.backgroundColor = `rgb(${this.computeTween(255, 0)} 255 ${this.computeTween(255, 0)})` }
           },
         }
@@ -311,11 +269,11 @@ const customEmphases = createCustomEffectComposerBank(
   }
 );
 
-const customMotions = createCustomEffectComposerBank(
+const customMotions = definePresetEffectBank(
   'Motion',
   {
     translateRight: {
-      composeEffect(numPixels: number) {
+      buildFrameGenerators(numPixels: number) {
         const createTranslationString = () => {
           if (numPixels <= 0) { throw RangeError(`Number of pixels must exceed 0.`) }
           const translationString = `${numPixels}px`;
@@ -323,14 +281,14 @@ const customMotions = createCustomEffectComposerBank(
         }
   
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             return [
               {translate: createTranslationString()}
             ];
           },
-          // backwardKeyframesGenerator could have been omitted because the result of running forwardKeyframesGenerator()
+          // keyframesGenerator_rewind could have been omitted because the result of running keyframesGenerator_play()
           // again and reversing the keyframes produces the same desired rewinding effect in this case
-          backwardKeyframesGenerator: () => {
+          keyframesGenerator_rewind: () => {
             return [
               {translate: '-'+createTranslationString()},
             ];
@@ -345,11 +303,11 @@ const customMotions = createCustomEffectComposerBank(
     },
 
     translateRel: {
-      composeEffect() {
+      buildFrameGenerators() {
         const initPos = {...this.getStyles(['translate'])};
         
         return {
-          forwardKeyframesGenerator: () => {
+          keyframesGenerator_play: () => {
             return [initPos, {translate: '200px 500px'}]
           },
         }
@@ -358,15 +316,15 @@ const customMotions = createCustomEffectComposerBank(
     },
     
     scrollTo: {
-      composeEffect(yPosition: number) {
+      buildFrameGenerators(yPosition: number) {
         const initialPosition = this.domElem.scrollTop;
   
-        // return ComposedEffect
+        // return EffectFrameGeneratorSet
         return {
           // The mutation is to use the scrollTo() method on the element.
           // Thanks to computeTween(), there will be a smooth scroll
           // from initialPosition to yPosition
-          forwardMutatorGenerator: () => {
+          mutatorGenerator_play: () => {
             // return Mutator
             return () => {
               this.domElem.scrollTo({
@@ -379,9 +337,9 @@ const customMotions = createCustomEffectComposerBank(
           // The forward mutation loop is not invertible because reversing it requires
           // re-computing the element's scroll position at the time of rewinding
           // (which may have since changed for any number of reasons, including user
-          // scrolling, size changes, etc.). So we must define backwardMutatorGenerator()
+          // scrolling, size changes, etc.). So we must define mutatorGenerator_rewind()
           // to do exactly that.
-          backwardMutatorGenerator: () => {
+          mutatorGenerator_rewind: () => {
             // return Mutator
             return () => {
               const currentPosition = this.domElem.scrollTop;
@@ -397,11 +355,15 @@ const customMotions = createCustomEffectComposerBank(
   }
 );
 
+// webchalk.initializeEffectPlayers({
+//   additionalEntranceEffects:
+// });
+
 const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Transition} = webchalk.createAnimationClipFactories({
-  customEntranceEffects: customEntrances,
-  customExitEffects: customExits,
-  customEmphasisEffects: customEmphases,
-  customMotionEffects: customMotions
+  additionalEntranceEffects: customEntrances,
+  additionalExitEffects: customExits,
+  additionalEmphasisEffects: customEmphases,
+  additionalMotionEffects: customMotions
 });
 
 {

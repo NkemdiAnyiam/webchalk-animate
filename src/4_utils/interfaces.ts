@@ -1,9 +1,9 @@
 // import { AnimClipConfig } from "../AnimClip";
-// import { EffectComposer } from "../WebChalk";
+// import { PresetEffectDefinition } from "../WebChalk";
 // import { PrefixProps } from "./utilityTypes";
 
 import { AnimClip } from "../1_playbackStructures/AnimationClip";
-import { ComposedEffect } from "../2_animationEffects/customEffectCreation";
+import { EffectFrameGeneratorSet } from "../2_animationEffects/customEffectCreation";
 import { Union } from "./utilityTypes";
 
 // type FrozenPrefix = '__';
@@ -15,15 +15,15 @@ import { Union } from "./utilityTypes";
 // export type AddFreezableConfig<TClipConfig extends AnimClipConfig> = PrefixProps<TClipConfig, FrozenPrefix> & TClipConfig;
 
 // /**
-//  * Returns {@link TClipConfig} without any props marked as frozen in {@link TEffectComposer}'s config.
+//  * Returns {@link TClipConfig} without any props marked as frozen in {@link TPresetEffectDefinition}'s config.
 //  * @interface StripFrozenConfig
 //  * @template TClipConfig - Configuration interface for AnimClip or an AnimClip subclass.
-//  * @template TEffectComposer - An effect composer defined in any composer bank.
+//  * @template TPresetEffectDefinition - An effect definition in any preset effect bank.
 //  */
 // export type StripFrozenConfig<
 //   TClipConfig extends AnimClipConfig,
-//   TEffectComposer extends EffectComposer
-// > = Omit<TClipConfig, FromFrozenKeys<TEffectComposer['defaultConfig']>>;
+//   TPresetEffectDefinition extends PresetEffectDefinition
+// > = Omit<TClipConfig, FromFrozenKeys<TPresetEffectDefinition['defaultConfig']>>;
 
 /**
  * Practical union of the 3 subclasses of {@link Element}.
@@ -181,7 +181,7 @@ export type EffectCategory =
  * The possible formats for writing keyframes. The two accepted forms
  * are {@link PropertyIndexedKeyframes} and—more commonly used—{@link Keyframe}[].
  * 
- * Used in {@link ComposedEffect}.
+ * Used in {@link EffectFrameGeneratorSet}.
  * 
  * @see [Keyframe Formats](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Keyframe_Formats)
  */
@@ -197,13 +197,13 @@ export type Keyframes = PropertyIndexedKeyframes | Keyframe[];
  * smooth animation because the target JavaScript properties will change
  * at the device's frame rate.
  * 
- * Used in {@link ComposedEffect}.
+ * Used in {@link EffectFrameGeneratorSet}.
  * 
  * @remarks
  * The reason the return type is `void` is because there is no need to return any value since the mutation should occur directly within the function.
  * 
  * @see {@link AnimClip.computeTween}
- * @see {@link ComposedEffect}
+ * @see {@link EffectFrameGeneratorSet}
  */
 export type Mutator = () => void;
 
