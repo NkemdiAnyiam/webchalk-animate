@@ -572,7 +572,7 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
      * 
      * @defaultValue
      * ```ts
-     * 'on-every-play'
+     * 'on-first-play-only'
      * ```
      * 
      * @example
@@ -1692,11 +1692,10 @@ export function formatBank(presetEffectBank: PresetEffectBank) {
       errors.push(`"${effectName}"`);
       continue;
     }
-    // TODO: maybe set to never by default
     // set the effect frame generator build frequency to be on every play by default (if no value is already specified)
     Object.assign<typeof entry, Partial<typeof entry>>(
       entry,
-      {howOftenBuildGenerators: entry.howOftenBuildGenerators ?? 'on-every-play'}
+      {howOftenBuildGenerators: entry.howOftenBuildGenerators ?? 'on-first-play-only'}
     );
   }
 
