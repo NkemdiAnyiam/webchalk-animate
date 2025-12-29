@@ -1223,8 +1223,14 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     animation.setDirection(direction);
     this.direction = direction;
     // Clear the current keyframes to prevent interference with generators
-    animation.setForwardFrames([{fontFeatureSettings: 'normal'}]);
-    animation.setBackwardFrames([]);
+    switch(direction) {
+      case 'forward':
+        animation.setForwardFrames([{fontFeatureSettings: 'normal'}]);
+        break;
+      case 'backward':
+        animation.setBackwardFrames([]);
+        break;
+    }
     this.useCompoundedPlaybackRate();
 
     // used as resolve() and reject() in the eventually returned promise
