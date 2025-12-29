@@ -9,7 +9,7 @@ import {
   ConnectorExitClip,
 } from "../1_playbackStructures/AnimationClipCategories";
 import { webchalk } from "../WebChalk";
-import { definePresetEffectBank, PresetEffectBank } from "./customEffectCreation";
+import { definePresetEffectBank, formatBank, PresetEffectBank } from "./customEffectCreation";
 import { computeSelfScrollingBounds, deepFreeze, getBoundingClientRectOfHidden, negateNumString, parseXYAlignmentString, parseXYTupleString } from "../4_utils/helpers";
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions, Keyframes } from "../4_utils/interfaces";
 import { useEasing } from "./easing";
@@ -759,7 +759,7 @@ export const libPresetMotions = definePresetEffectBank('Motion', {
 /**
  * @category hidden
  */
-export const libPresetTransitions = deepFreeze({
+export const libPresetTransitions = {
   /** Element transitions from the specified {@link Keyframe} to its current state. */
   ['~from']: {
     /**
@@ -887,7 +887,7 @@ export const libPresetTransitions = deepFreeze({
     immutableConfig: {} as const,
     howOftenBuildGenerators: 'on-every-play',
   },
-}) satisfies PresetEffectBank<TransitionClip>;
+} satisfies PresetEffectBank<TransitionClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:***********************************        CONNECTOR ENTRANCES      ******************************************************/
@@ -895,7 +895,7 @@ export const libPresetTransitions = deepFreeze({
 /**
  * @category hidden
  */
-export const libPresetConnectorEntrances = deepFreeze({
+export const libPresetConnectorEntrances = {
   /** Connector appears instantaneously. */
   [`~appear`]: {
     /**
@@ -998,7 +998,7 @@ export const libPresetConnectorEntrances = deepFreeze({
     } as const,
     howOftenBuildGenerators: 'on-every-play',
   },
-}) satisfies PresetEffectBank<ConnectorEntranceClip>;
+} satisfies PresetEffectBank<ConnectorEntranceClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:*************************************        CONNECTOR EXITS        ******************************************************/
@@ -1006,7 +1006,7 @@ export const libPresetConnectorEntrances = deepFreeze({
 /**
  * @category hidden
  */
-export const libPresetConnectorExits = deepFreeze({
+export const libPresetConnectorExits = {
   /** Connector disappears instantaneously. */
   [`~disappear`]: {
     /**
@@ -1106,7 +1106,7 @@ export const libPresetConnectorExits = deepFreeze({
     } as const,
     howOftenBuildGenerators: 'on-every-play',
   },
-}) satisfies PresetEffectBank<ConnectorExitClip>;
+} satisfies PresetEffectBank<ConnectorExitClip>;
 
 /*-:**************************************************************************************************************************/
 /*-:*****************************************        SCROLLS        **********************************************************/
@@ -1114,7 +1114,7 @@ export const libPresetConnectorExits = deepFreeze({
 /**
  * @category hidden
  */
-export const libPresetScrolls = deepFreeze({
+export const libPresetScrolls = {
   // [`~scroll-self`]: {
   //   generateRafMutators(target: Element | null | undefined, scrollOptions: Partial<ScrollingOptions> = {}) {
   //     if (!target) { throw new TypeError(`Target for ~scroll-self must not be null`); }
@@ -1235,4 +1235,11 @@ export const libPresetScrolls = deepFreeze({
     } as const,
     howOftenBuildGenerators: 'on-first-play-only',
   },
-}) satisfies PresetEffectBank<ScrollerClip>;
+} satisfies PresetEffectBank<ScrollerClip>;
+
+[
+  libPresetConnectorEntrances,
+  libPresetConnectorExits,
+  libPresetScrolls,
+  libPresetTransitions,
+].forEach(bank => formatBank(bank));

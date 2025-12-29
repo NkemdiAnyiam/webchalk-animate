@@ -386,7 +386,6 @@ export class WebChalk {
       additionalEmphasisEffects?: AdditionalEmphasisBank & PresetEffectBank<EmphasisClip>;
       additionalMotionEffects?: AdditionalMotionBank & PresetEffectBank<MotionClip>;
     };
-    WebChalk.formatBanks(additionalEntranceEffects, additionalExitEffects, additionalEmphasisEffects, additionalMotionEffects);
 
     type TogglePresets<TLibBank, TAdditionalBank> = Readonly<(IncludeLibPresets extends true ? TLibBank : {}) & TAdditionalBank>;
 
@@ -398,7 +397,7 @@ export class WebChalk {
       //   const extras = { effectName: key, sourceBank: combinedBank } satisfies Partial<PresetEffectDefinition>;
       //   Object.assign(combinedBank[key], extras);
       // }
-      return combinedBank as TogglePresets<L, U>;
+      return Object.freeze(combinedBank) as TogglePresets<L, U>;
     }
     
     // Merge the library preset banks with any additional banks added from layer 4
@@ -706,6 +705,7 @@ export class WebChalk {
       ) {
         self.clipCreatorLock = false;
         const effectName = `~set-line-points`;
+        // TODO: define the bank outside like all the other banks
         return new ConnectorSetterClip(
           connectorElem as Exclude<typeof connectorElem, Element>, pointA, pointB, effectName, {[effectName]: {...AnimClip.createNoOpPresetEffectDefinition(), /*effectName*/}}, connectorConfig
         ).initialize([]);
@@ -875,37 +875,6 @@ export class WebChalk {
 
   /**@internal*/
   scrollAnchorsStack: [target: Element, scrollOptions: ScrollingOptions][] = [];
-
-  private static formatBanks(...banks: (PresetEffectBank | undefined)[]) {
-    const errors: string[] = [];
-
-    // for each bank...
-    for (const bank of banks) {
-      if (!bank) { continue; }
-      // for each entry in the bank...
-      for (const effectName in bank) {
-        const entry = bank[effectName];
-        // make sure generator builder functions are NOT arrow functions
-        if (entry.buildFrameGenerators.toString().match(/^\(.*\) => .*/)) {
-          errors.push(`"${effectName}"`);
-          continue;
-        }
-        // TODO: maybe set to never by default
-        // BUG: can't assign now that banks are frozen
-        // set the effect frame generator build frequency to be on every play by default (if no value is already specified)
-        Object.assign<typeof entry, Partial<typeof entry>>(
-          entry,
-          {howOftenBuildGenerators: entry.howOftenBuildGenerators ?? 'on-every-play'}
-        );
-      }
-    }
-
-    if (errors.length > 0) {
-      throw new SyntaxError(
-        `Arrow functions are not allowed to be used for buildFrameGenerators() because this function provides a special \`this\` context. Detected in the following animation definitions:${errors.map(msg => `\n${msg}`)}`
-      );
-    }
-  }
 
   copyPresetEffect<
     TPresetEffectBank extends PresetEffectBank,

@@ -1346,6 +1346,7 @@ export type EffectNameIn<TEffectBank extends PresetEffectBank> = Exclude<keyof {
 }, number | symbol>;/** @ignore */
 
 
+// TODO: Probably delete this function
 // function definePresetEffect<TPresetEffectDefinition extends PresetEffectBank<EntranceClip>[string]> (effectCategory: 'entrance', effectDefinition: TPresetEffectDefinition): TPresetEffectDefinition;
 // function definePresetEffect<TPresetEffectDefinition extends PresetEffectBank<ExitClip>[string]> (effectCategory: 'exit', effectDefinition: TPresetEffectDefinition): TPresetEffectDefinition;
 // function definePresetEffect<TPresetEffectDefinition extends PresetEffectBank<EmphasisClip>[string]> (effectCategory: 'emphasis', effectDefinition: TPresetEffectDefinition): TPresetEffectDefinition;
@@ -1667,7 +1668,46 @@ export function definePresetEffectBank<
       throw new TypeError(`Invalid effect category "${effectCategory}". Must be 'Entrance', 'Exit', 'Emphasis', or 'Motion'.`);
   }
 
-  return deepFreeze(presetEffectBank as typeof presetEffectBank & ClipTypeToHiddenBankCategorizer<ExtendableBankCategoryToClipType<TCategory>>);
+  formatBank(presetEffectBank);
+  return presetEffectBank as typeof presetEffectBank & ClipTypeToHiddenBankCategorizer<ExtendableBankCategoryToClipType<TCategory>>;
+}
+
+/**
+ * Formats the provide preset effect bank to ensure the following:
+ * - Each effect definition does not use an arrow function to define {@link PresetEffectDefinition.buildFrameGenerators}
+ * - Each effect definition has a value set for {@link PresetEffectDefinition.howOftenBuildGenerators}
+ * - The bank is deep-frozen (cannot be mutated in any way)
+ * @param presetEffectBank - the bank to format
+ * @returns The same {@link presetEffectBank} passed into the function.
+ * @ignore
+ */
+export function formatBank(presetEffectBank: PresetEffectBank) {
+  const errors: string[] = [];
+
+  // for each entry in the bank...
+  for (const effectName in presetEffectBank) {
+    const entry = presetEffectBank[effectName];
+    // make sure generator builder functions are NOT arrow functions
+    if (entry.buildFrameGenerators.toString().match(/^\(.*\) => .*/)) {
+      errors.push(`"${effectName}"`);
+      continue;
+    }
+    // TODO: maybe set to never by default
+    // set the effect frame generator build frequency to be on every play by default (if no value is already specified)
+    Object.assign<typeof entry, Partial<typeof entry>>(
+      entry,
+      {howOftenBuildGenerators: entry.howOftenBuildGenerators ?? 'on-every-play'}
+    );
+  }
+
+  if (errors.length > 0) {
+    throw new SyntaxError(
+      `Arrow functions are not allowed to be used for buildFrameGenerators() because this function provides a special \`this\` context. Detected in the following animation definitions:${errors.map(msg => `\n${msg}`)}`
+    );
+  }
+
+  deepFreeze(presetEffectBank);
+  return presetEffectBank;
 }
 
 /**
