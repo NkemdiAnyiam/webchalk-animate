@@ -231,10 +231,10 @@ export class WebChalk {
    *  * Developers may add their own preset animation effects to the Entrance, Exit, Emphasis, and Motion categories by using the
    * {@link additionalPresetEffectBanks} parameter.
    * @param additionalPresetEffectBanks - optional object containing additional banks that the developer can use to add their own preset effects
-   * @param additionalPresetEffectBanks.additionalEntranceEffects - objects of type {@link PresetEffectBank}, containing keys that represent effect names and values that are {@link PresetEffectDefinition}s to be used with the `Entrance()` clip factory function
-   * @param additionalPresetEffectBanks.additionalExitEffects - objects of type {@link PresetEffectBank}, containing keys that represent effect names and values that are {@link PresetEffectDefinition}s to be used with the `Exit()` clip factory function
-   * @param additionalPresetEffectBanks.additionalEmphasisEffects - objects of type {@link PresetEffectBank}, containing keys that represent effect names and values that are {@link PresetEffectDefinition}s to be used with the `Emphasis()` clip factory function
-   * @param additionalPresetEffectBanks.additionalMotionEffects - objects of type {@link PresetEffectBank}, containing keys that represent effect names and values that are {@link PresetEffectDefinition}s to be used with the `Motion()` clip factory function
+   * @param additionalPresetEffectBanks.additionalEntranceEffects - objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Entrance()` clip factory function
+   * @param additionalPresetEffectBanks.additionalExitEffects - objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Exit()` clip factory function
+   * @param additionalPresetEffectBanks.additionalEmphasisEffects - objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Emphasis()` clip factory function
+   * @param additionalPresetEffectBanks.additionalMotionEffects - objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Motion()` clip factory function
    * @returns Factory functions that return category-specific {@link AnimClip}s, each with intellisense for their category-specific effects banks.
    * 
    * @example
@@ -348,8 +348,8 @@ export class WebChalk {
    */
   createAnimationClipFactories
   <
-   // default = {} ensures intellisense for a given bank still works
-   // without specifying the field (why? not sure)
+   // default = {} ensures intellisense for a given bank still works...
+   // ...without specifying the field (why? not sure)
     AdditionalEntranceBank extends PresetEffectBank<EntranceClip> = {},
     AdditionalExitBank extends PresetEffectBank<ExitClip> = {},
     AdditionalEmphasisBank extends PresetEffectBank<EmphasisClip> = {},
@@ -362,13 +362,13 @@ export class WebChalk {
   >
   (
     additionalPresetEffectBanks: {
-      /** object of type {@link PresetEffectBank}, containing keys that represent effect names and values that are {@link PresetEffectDefinition}s to be used with `Entrance()` clip factory function */
+      /** object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with `Entrance()` clip factory function */
       additionalEntranceEffects?: AdditionalEntranceBank & PresetEffectBank<EntranceClip>;
-      /** object of type {@link PresetEffectBank}, containing keys that represent effect names and values that are {@link PresetEffectDefinition}s to be used with the `Exit()` clip factory function */
+      /** object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Exit()` clip factory function */
       additionalExitEffects?: AdditionalExitBank & PresetEffectBank<ExitClip>;
-      /** object of type {@link PresetEffectBank}, containing keys that represent effect names and values that are {@link PresetEffectDefinition}s to be used with the `Emphasis()` clip factory function */
+      /** object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Emphasis()` clip factory function */
       additionalEmphasisEffects?: AdditionalEmphasisBank & PresetEffectBank<EmphasisClip>;
-      /** object of type {@link PresetEffectBank}, containing keys that represent effect names and values that are {@link PresetEffectDefinition}s to be used with the `Motion()` clip factory function */
+      /** object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Motion()` clip factory function */
       additionalMotionEffects?: AdditionalMotionBank & PresetEffectBank<MotionClip>;
     } = {},
     /**
