@@ -549,7 +549,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   protected effectOptions: EffectOptions<TPresetEffectDefinition> = {} as EffectOptions<TPresetEffectDefinition>;
   
   /**@internal*/
-  EffectFrameGeneratorSet = {} as WithRequired<EffectFrameGeneratorSet, 'keyframesGenerator_play' | 'keyframesGenerator_rewind'>;
+  effectFrameGeneratorSet = {} as WithRequired<EffectFrameGeneratorSet, 'keyframesGenerator_play' | 'keyframesGenerator_rewind'>;
   /**@internal*/
   rafMutators: {
     forwardMutator?: () => void;
@@ -1208,12 +1208,12 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       this.retrieveGenerators();
       
       this.animation.forwardEffect.updateTiming({
-        direction: this.EffectFrameGeneratorSet.reverseKeyframesEffect ? 'reverse' : 'normal',
+        direction: this.effectFrameGeneratorSet.reverseKeyframesEffect ? 'reverse' : 'normal',
       });
 
       this.animation.backwardEffect.updateTiming({
         // if no backward keyframes generator was specified, assume the reverse of the forward keyframes generator
-        direction: xor(this.bFramesMirrored, this.EffectFrameGeneratorSet.reverseKeyframesEffect) ? 'reverse' : 'normal',
+        direction: xor(this.bFramesMirrored, this.effectFrameGeneratorSet.reverseKeyframesEffect) ? 'reverse' : 'normal',
       });
     }
 
@@ -1254,8 +1254,8 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
             // Keyframe generation is done here so that generations operations that rely on the side effects of class modifications and _onStartForward()...
             // ...can function properly.
             try {
-              animation.setForwardFrames(this.EffectFrameGeneratorSet.keyframesGenerator_play(), this.EffectFrameGeneratorSet.reverseKeyframesEffect);
-              this.rafMutators.forwardMutator = this.EffectFrameGeneratorSet.mutatorGenerator_play?.();
+              animation.setForwardFrames(this.effectFrameGeneratorSet.keyframesGenerator_play(), this.effectFrameGeneratorSet.reverseKeyframesEffect);
+              this.rafMutators.forwardMutator = this.effectFrameGeneratorSet.mutatorGenerator_play?.();
             }
             catch (err: unknown) {
               throw this.generateError(err as Error);
@@ -1277,8 +1277,8 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
 
             // Generate keyframes
             try {
-              this.animation.setBackwardFrames(this.EffectFrameGeneratorSet.keyframesGenerator_rewind(), this.bFramesMirrored, this.EffectFrameGeneratorSet.reverseKeyframesEffect);
-              this.rafMutators.backwardMutator = this.EffectFrameGeneratorSet.mutatorGenerator_rewind?.();
+              this.animation.setBackwardFrames(this.effectFrameGeneratorSet.keyframesGenerator_rewind(), this.bFramesMirrored, this.effectFrameGeneratorSet.reverseKeyframesEffect);
+              this.rafMutators.backwardMutator = this.effectFrameGeneratorSet.mutatorGenerator_rewind?.();
             }
             catch (err: unknown) { throw this.generateError(err as Error); }
 
@@ -1427,7 +1427,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
         }
       }
 
-      this.EffectFrameGeneratorSet = {
+      this.effectFrameGeneratorSet = {
         keyframesGenerator_play: keyframesGenerator_play!,
         keyframesGenerator_rewind,
         mutatorGenerator_play,
@@ -1451,7 +1451,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   //       reverseMutatorEffect = false,
   //     } = call(this.presetEffectDefinition.buildFrameGenerators, this, ...this.getEffectDetails().effectOptions);
 
-  //     this.EffectFrameGeneratorSet = {
+  //     this.effectFrameGeneratorSet = {
   //       keyframesGenerator_play: keyframesGenerator_play! ?? keyframesGenerator_rewind!,
   //       keyframesGenerator_rewind: keyframesGenerator_rewind! ?? keyframesGenerator_play!,
   //       mutatorGenerator_play: mutatorGenerator_play ?? mutatorGenerator_rewind,
@@ -1541,7 +1541,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     // if mutators are reversed, computeTween() should flip the progress
     const flipProgress = xor(
       this.animation.direction === 'backward' && this.bRafMirrored,
-      this.EffectFrameGeneratorSet.reverseMutatorEffect
+      this.effectFrameGeneratorSet.reverseMutatorEffect
     );
 
     // return linear interpolation between initial value and final value based on progress of animation
