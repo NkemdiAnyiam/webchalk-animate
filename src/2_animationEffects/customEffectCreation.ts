@@ -1455,6 +1455,7 @@ export type EffectNameIn<TEffectBank extends PresetEffectBank> = Exclude<keyof {
  * <!-- EX:E id="definePresetEffect" -->
  * 
  * @category Effect Definition
+ * @ignore
  */
 export function definePresetEffect<
   TCategory extends ExtendableBankCategory,
