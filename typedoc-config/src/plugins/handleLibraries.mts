@@ -19,7 +19,7 @@ const hider = (function hider() {
       member.querySelector('.tsd-description h5')?.closest('ul.tsd-parameters')?.remove();
       const h5List = [...member.querySelectorAll('h5')];
       for (const h5 of h5List) { h5.classList.add('custom-color'); }
-      // remove return title for ComposeEffect object returned by composeEffect()
+      // remove return title for EffectFrameGeneratorSet object returned by buildFrameGenerators()
       member.querySelector('.tsd-returns-title')?.remove();
       // remove duplicate list of config objects' properties
       member.querySelector('li.tsd-parameter ul.tsd-parameters:has(> li.tsd-parameter > h5')?.remove();

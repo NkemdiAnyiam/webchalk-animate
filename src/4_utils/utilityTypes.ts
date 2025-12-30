@@ -101,3 +101,11 @@ export type ErrorCheckJoiner<TErrorChecks extends any[]> =
     : TErrorChecks[0] extends object
       ? ErrorCheckJoiner<TErrorChecks extends [any, ...infer R] ? R : []>
       : [TErrorChecks[0], ErrorCheckJoiner<TErrorChecks extends [any, ...infer R] ? R : []>];
+
+
+/**
+ * Does absolutely nothing except demarcate type extensions that are purely for validation
+ * and that would unnecessarily bloat the rendered HTML documentation.
+ * @ignore
+ */
+export type ValidationBloat<T extends any> = T extends any ? T : T;

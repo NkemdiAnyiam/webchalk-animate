@@ -1,7 +1,7 @@
 import { AnimClip } from "../1_playbackStructures/AnimationClip";
 import { EmphasisClip, EntranceClip, ExitClip, MotionClip } from "../1_playbackStructures/AnimationClipCategories";
 import { Keyframes, Mutator } from "../4_utils/interfaces";
-import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord, StrictPropertyCheck, StrictReturnPropertyCheck, PrettifyCustomError, ErrorCheckJoiner } from "../4_utils/utilityTypes";
+import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord, StrictPropertyCheck, StrictReturnPropertyCheck, PrettifyCustomError, ErrorCheckJoiner, ValidationBloat } from "../4_utils/utilityTypes";
 import { AnimClipConfig } from "../1_playbackStructures/AnimationClip";
 import { webchalk } from "../WebChalk";
 import { deepFreeze } from "../4_utils/helpers";
@@ -1600,7 +1600,7 @@ export function definePresetEffectBank<
   TPresetEffectBank extends PresetEffectBank<ExtendableBankCategoryToClipType<TCategory>>
 >(
   effectCategory: TCategory,
-  presetEffectBank: TPresetEffectBank & {
+  presetEffectBank: TPresetEffectBank & ValidationBloat<{
     // forces errors to show up on defaultConfig when invalid properties are provided...
     // ... while defining the preset effect bank
     [effectName in EffectNameIn<TPresetEffectBank>]: TPresetEffectBank[effectName] & {
@@ -1665,7 +1665,7 @@ export function definePresetEffectBank<
           : {}
       )
     }
-  }
+  }>
 ) {
   switch(effectCategory) {
     case 'Entrance':
@@ -1720,6 +1720,7 @@ export function formatBank(presetEffectBank: PresetEffectBank) {
 
 /**
  * String that represents the categories that users are allowed to create their own custom effects for.
+ * @inline
  * @ignore
  */
 export type ExtendableBankCategory = 'Entrance' | 'Exit' | 'Emphasis' | 'Motion'; 

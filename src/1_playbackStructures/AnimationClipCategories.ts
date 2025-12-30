@@ -5,7 +5,7 @@ import { WebChalk } from "../WebChalk";
 import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { WebChalkConnectorElement, WebChalkConnectorElementConfig } from "../3_components/WebChalkConnectorElement";
-import { PresetEffectDefinition, PresetEffectBank, EffectOptions, Layer3MutableClipConfig } from "../2_animationEffects/customEffectCreation";
+import { PresetEffectDefinition, PresetEffectBank, EffectOptions, Layer3MutableClipConfig, EffectNameIn } from "../2_animationEffects/customEffectCreation";
 import { libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions, libPresetConnectorEntrances, libPresetConnectorExits, libPresetTransitions, libPresetScrolls } from "../2_animationEffects/libraryPresetEffectBanks";
 
 /**
@@ -1390,13 +1390,15 @@ export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefin
   }
 }
 
+type PickEffects<TBank extends PresetEffectBank> = Pick<TBank, EffectNameIn<TBank>>;
+
 /**
  * Typings for the preset entrance animation effects that come with the library's entrance effect bank.
  * 
  * @category Entrance
  * @interface
  */
-export type LibraryPresetEntranceEffects = typeof libPresetEntrances;
+export type LibraryPresetEntranceEffects = PickEffects<typeof libPresetEntrances>;
 
 /**
  * Typings for the preset exit animation effects that come with the library's exit effect bank.
@@ -1404,7 +1406,7 @@ export type LibraryPresetEntranceEffects = typeof libPresetEntrances;
  * @category Exit
  * @interface
  */
-export type LibraryPresetExitEffects = typeof libPresetExits;
+export type LibraryPresetExitEffects = PickEffects<typeof libPresetExits>;
 
 /**
  * Typings for the preset emphasis animation effects that come with the library's emphasis bank.
@@ -1412,7 +1414,7 @@ export type LibraryPresetExitEffects = typeof libPresetExits;
  * @category Emphasis
  * @interface
  */
-export type LibraryPresetEmphasisEffects = typeof libPresetEmphases;
+export type LibraryPresetEmphasisEffects = PickEffects<typeof libPresetEmphases>;
 
 /**
  * Typings for the preset motion animation effects that come with the library's motion effect bank.
@@ -1420,7 +1422,7 @@ export type LibraryPresetEmphasisEffects = typeof libPresetEmphases;
  * @category Motion
  * @interface
  */
-export type LibraryPresetMotionEffects = typeof libPresetMotions;
+export type LibraryPresetMotionEffects = PickEffects<typeof libPresetMotions>;
 
 /**
  * Typings for the preset connector entrance animation effects that come with the library's connector entrance effect bank.
@@ -1428,7 +1430,7 @@ export type LibraryPresetMotionEffects = typeof libPresetMotions;
  * @category Connector Entrance
  * @interface
  */
-export type LibraryPresetConnectorEntranceEffects = typeof libPresetConnectorEntrances;
+export type LibraryPresetConnectorEntranceEffects = PickEffects<typeof libPresetConnectorEntrances>;
 
 /**
  * Typings for the preset connector exit animation effects that come with the library's connector exit effect bank.
@@ -1436,7 +1438,7 @@ export type LibraryPresetConnectorEntranceEffects = typeof libPresetConnectorEnt
  * @category Connector Exit
  * @interface
  */
-export type LibraryPresetConnectorExitEffects = typeof libPresetConnectorExits;
+export type LibraryPresetConnectorExitEffects = PickEffects<typeof libPresetConnectorExits>;
 
 /**
  * Typings for the preset transition animation effects that come with the library's transition effect bank.
@@ -1444,7 +1446,7 @@ export type LibraryPresetConnectorExitEffects = typeof libPresetConnectorExits;
  * @category Transition
  * @interface
  */
-export type LibraryPresetTransitionEffects = typeof libPresetTransitions;
+export type LibraryPresetTransitionEffects = PickEffects<typeof libPresetTransitions>;
 
 /**
  * Typings for the preset scroller animation effects that come with the library's scroller effect bank.
@@ -1452,4 +1454,4 @@ export type LibraryPresetTransitionEffects = typeof libPresetTransitions;
  * @category Scroller
  * @interface
  */
-export type LibraryPresetScrollEffects = typeof libPresetScrolls;
+export type LibraryPresetScrollEffects = PickEffects<typeof libPresetScrolls>;
