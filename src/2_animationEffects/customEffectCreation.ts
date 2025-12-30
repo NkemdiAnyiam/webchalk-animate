@@ -1,11 +1,11 @@
 import { AnimClip } from "../1_playbackStructures/AnimationClip";
 import { EmphasisClip, EntranceClip, ExitClip, MotionClip } from "../1_playbackStructures/AnimationClipCategories";
 import { Keyframes, Mutator } from "../4_utils/interfaces";
-import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord, StrictPropertyCheck, StrictReturnPropertyCheck } from "../4_utils/utilityTypes";
+import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord, StrictPropertyCheck, StrictReturnPropertyCheck, PrettifyCustomError, ErrorCheckJoiner } from "../4_utils/utilityTypes";
 import { AnimClipConfig } from "../1_playbackStructures/AnimationClip";
 import { webchalk } from "../WebChalk";
 import { deepFreeze } from "../4_utils/helpers";
-import { DEFAULT_CONFIG_ERROR, IMMUTABLE_CONFIG_ERROR, EFFECT_FRAME_GENERATORS_RETURN_ERROR_PRIMITIVE, EFFECT_FRAME_GENERATORS_RETURN_ERROR_PROPERTIES } from "../4_utils/errors";
+import { DEFAULT_CONFIG_ERROR, IMMUTABLE_CONFIG_ERROR, EFFECT_FRAME_GENERATORS_RETURN_ERROR_PRIMITIVE, EFFECT_FRAME_GENERATORS_RETURN_ERROR_PROPERTIES, EFFECT_FRAME_GENERATORS_RETURN_ERROR_KEYFRAMES_RW, EFFECT_FRAME_GENERATORS_RETURN_ERROR_MUTATOR_RW } from "../4_utils/errors";
 
 /**
  * Object containing up to 4 callback functions that will be called to
@@ -1605,11 +1605,11 @@ export function definePresetEffectBank<
     [effectName in EffectNameIn<TEffectBank>]: TEffectBank[effectName] & {
       [prop in keyof TEffectBank[effectName]]: TEffectBank[effectName][prop] & (
         prop extends 'defaultConfig'
-          ? StrictPropertyCheck<
+          ? ErrorCheckJoiner<[StrictPropertyCheck<
               Exclude<TEffectBank[effectName]['defaultConfig'], undefined>,
               Layer3MutableClipConfig<ExtendableBankCategoryToClipType<TCategory>>,
               DEFAULT_CONFIG_ERROR<TCategory>
-            >
+            >]>
           : {}
       )
     }
@@ -1619,11 +1619,11 @@ export function definePresetEffectBank<
     [effectName in EffectNameIn<TEffectBank>]: TEffectBank[effectName] & {
       [prop in keyof TEffectBank[effectName]]: TEffectBank[effectName][prop] & (
         prop extends 'immutableConfig'
-          ? StrictPropertyCheck<
+          ? ErrorCheckJoiner<[StrictPropertyCheck<
               Exclude<TEffectBank[effectName]['immutableConfig'], undefined>,
               Layer3MutableClipConfig<ExtendableBankCategoryToClipType<TCategory>>,
               IMMUTABLE_CONFIG_ERROR<TCategory>
-            >
+            >]>
           : {}
       )
     }
@@ -1633,26 +1633,34 @@ export function definePresetEffectBank<
     [effectName in EffectNameIn<TEffectBank>]: TEffectBank[effectName] & {
       [prop in keyof TEffectBank[effectName]]: TEffectBank[effectName][prop] & (
         prop extends 'buildFrameGenerators'
-          ? StrictReturnPropertyCheck<
-              TEffectBank[effectName]['buildFrameGenerators'],
-              EffectFrameGeneratorSet,
-              EFFECT_FRAME_GENERATORS_RETURN_ERROR_PRIMITIVE,
-              EFFECT_FRAME_GENERATORS_RETURN_ERROR_PROPERTIES
-            >
-            // TODO: Finish implementing checking that backward generators are not defined without forward counterparts
-            // & (
-            //     Extract<keyof ReturnType<TEffectBank[effectName]['buildFrameGenerators']>, `keyframesGenerator_rewind`> extends never ? {} : (
-            //       Exclude<keyof ReturnType<TEffectBank[effectName]['buildFrameGenerators']>, 'keyframesGenerator_rewind' | 'reverseKeyframesEffect' | 'reverseMutatorEffect'> extends never
-            //       ? 'TRHUGBSUKVNLSKNGBVLSNDFVLINSDV'
-            //       : {}
-            //     )
-            // ) & (
-            //     Extract<keyof ReturnType<TEffectBank[effectName]['buildFrameGenerators']>, `mutatorGenerator_rewind`> extends never ? {} : (
-            //       Exclude<keyof ReturnType<TEffectBank[effectName]['buildFrameGenerators']>, 'mutatorGenerator_rewind' | 'reverseKeyframesEffect' | 'reverseMutatorEffect'> extends never
-            //       ? 'TRHUGBSUKVNLSKNGBVLSNDFVLINSDV'
-            //       : {}
-            //     )
-            // )
+          ? ErrorCheckJoiner<[
+              (
+                StrictReturnPropertyCheck<
+                  TEffectBank[effectName]['buildFrameGenerators'],
+                  EffectFrameGeneratorSet,
+                  EFFECT_FRAME_GENERATORS_RETURN_ERROR_PRIMITIVE,
+                  EFFECT_FRAME_GENERATORS_RETURN_ERROR_PROPERTIES
+                >
+              ),
+              (
+                Extract<keyof ReturnType<TEffectBank[effectName]['buildFrameGenerators']>, `keyframesGenerator_rewind`> extends never
+                  ? {}
+                  : (
+                    Extract<keyof ReturnType<TEffectBank[effectName]['buildFrameGenerators']>, 'keyframesGenerator_play'> extends never
+                    ? PrettifyCustomError<EFFECT_FRAME_GENERATORS_RETURN_ERROR_KEYFRAMES_RW>
+                    : {}
+                )
+              ),
+              (
+                Extract<keyof ReturnType<TEffectBank[effectName]['buildFrameGenerators']>, `mutatorGenerator_rewind`> extends never
+                  ? {}
+                  : (
+                    Extract<keyof ReturnType<TEffectBank[effectName]['buildFrameGenerators']>, 'mutatorGenerator_play'> extends never
+                    ? PrettifyCustomError<EFFECT_FRAME_GENERATORS_RETURN_ERROR_MUTATOR_RW>
+                    : {}
+                )
+              )
+            ]>
           : {}
       )
     }

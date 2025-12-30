@@ -56,7 +56,7 @@ export type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }
 /**
  * @ignore
  */
-type PrettifyCustomError<TError extends string> = `**************************************************************************************************************                                      ${TError}                                      ______________________________________________________________________________________________________________`;
+export type PrettifyCustomError<TError extends string> = `**************************************************************************************************************                                      ${TError}                                      ______________________________________________________________________________________________________________`;
 
 /**
  * Returns the specified error if {@link TObj} contains additional properties beyond what is allowed by {@link TExpected}.
@@ -72,7 +72,8 @@ export type StrictPropertyCheck<TObj extends object, TExpected extends object, T
 ;
 
 /**
- * Returns the specified error if 
+ * Returns the specified corresponding error if the return type of {@link TFunc} is either a primitive value / array
+ * (instead of an object) or is an object containing extraneous properties.
  * @template TFunc - Function type that should have the expected object return type
  * @template TExpectedReturn - Object type that restricts what is allowed to show up in the return type of {@link TFunc}
  * @template TErrorPrimitive - The error string that will be returned if {@link TFunc} returns a primitive or array
@@ -88,3 +89,15 @@ export type StrictReturnPropertyCheck<
   ? PrettifyCustomError<`***ERROR: Invalid return value '${ReturnType<TFunc> extends Primitive ? ReturnType<TFunc> : '<Array>'}'. ${TErrorPrimitive}`>
   : StrictPropertyCheck<ReturnType<TFunc>, TExpectedReturn, TErrorProperties>
 ;
+
+/**
+ * Combines any errors (indicated by not extending `object`) into an array.
+ * @template TErrorChecks - Array containing error checks, each of which presumably
+ * returns `{}` when passed or a `string` when failed (which fails to extend `object`)
+ */
+export type ErrorCheckJoiner<TErrorChecks extends any[]> =
+  TErrorChecks['length'] extends 0
+    ? {}
+    : TErrorChecks[0] extends object
+      ? ErrorCheckJoiner<TErrorChecks extends [any, ...infer R] ? R : []>
+      : [TErrorChecks[0], ErrorCheckJoiner<TErrorChecks extends [any, ...infer R] ? R : []>];

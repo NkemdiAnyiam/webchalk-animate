@@ -248,3 +248,7 @@ export type IMMUTABLE_CONFIG_ERROR<TCategory extends ExtendableBankCategory> = `
 export type EFFECT_FRAME_GENERATORS_RETURN_ERROR_PRIMITIVE = `The EffectFrameGeneratorSet returned from buildFrameGenerators() must be an object {} (and it must contain only effect generator functions and configuration options).`;
 /**@ignore*/
 export type EFFECT_FRAME_GENERATORS_RETURN_ERROR_PROPERTIES = `The object returned by buildFrameGenerators() may only contain effect generator functions and valid configuration options. Remove the invalid properties and then press 'CTRL + Space' within the object braces to view the allowed properties.`;
+/**@ignore*/
+export type EFFECT_FRAME_GENERATORS_RETURN_ERROR_KEYFRAMES_RW = `***ERROR: Invalid frame generator set. The object returned by buildFrameGenerators() cannot define keyframesGenerator_rewind() without also defining keyframesGenerator_play() (though vice versa is allowed).`
+/**@ignore*/
+export type EFFECT_FRAME_GENERATORS_RETURN_ERROR_MUTATOR_RW = `***ERROR: Invalid frame generator set. The object returned by buildFrameGenerators() cannot define mutatorGenerator_rewind() without also defining mutatorGenerator_play() (though vice versa is allowed).`
