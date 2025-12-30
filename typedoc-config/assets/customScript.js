@@ -20,7 +20,7 @@ window.addEventListener('DOMContentLoaded', () => {
     while (true) {
       const startElems = [...document.querySelectorAll('.tsd-signature-type')]
         .filter(elem =>
-            (elem.textContent === 'TComposerBank' || elem.textContent === 'TEffectComposer')
+            (elem.textContent === 'TPresetEffectDefinition' || elem.textContent === 'TPresetEffectBank')
             && (elem.nextSibling?.nextSibling?.textContent?.trim() === '&')
         );
       if (startElems.length === 0) { break; }

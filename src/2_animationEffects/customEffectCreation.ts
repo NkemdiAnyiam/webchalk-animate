@@ -1596,17 +1596,17 @@ export function definePresetEffect<
 export function definePresetEffectBank<
   TCategory extends ExtendableBankCategory,
   // TEffectBank extends {[key: string]: PresetEffectBank<ExtendableBankCategoryToClipType<TCategory>>[string]}
-  TEffectBank extends PresetEffectBank<ExtendableBankCategoryToClipType<TCategory>>
+  TPresetEffectBank extends PresetEffectBank<ExtendableBankCategoryToClipType<TCategory>>
 >(
   effectCategory: TCategory,
-  presetEffectBank: TEffectBank & {
+  presetEffectBank: TPresetEffectBank & {
     // forces errors to show up on defaultConfig when invalid properties are provided...
     // ... while defining the preset effect bank
-    [effectName in EffectNameIn<TEffectBank>]: TEffectBank[effectName] & {
-      [prop in keyof TEffectBank[effectName]]: TEffectBank[effectName][prop] & (
+    [effectName in EffectNameIn<TPresetEffectBank>]: TPresetEffectBank[effectName] & {
+      [prop in keyof TPresetEffectBank[effectName]]: TPresetEffectBank[effectName][prop] & (
         prop extends 'defaultConfig'
           ? ErrorCheckJoiner<[StrictPropertyCheck<
-              Exclude<TEffectBank[effectName]['defaultConfig'], undefined>,
+              Exclude<TPresetEffectBank[effectName]['defaultConfig'], undefined>,
               Layer3MutableClipConfig<ExtendableBankCategoryToClipType<TCategory>>,
               DEFAULT_CONFIG_ERROR<TCategory>
             >]>
@@ -1616,11 +1616,11 @@ export function definePresetEffectBank<
   } & {
     // forces errors to show up on immutableConfig when invalid properties are provided...
     // ... while defining the preset effect bank
-    [effectName in EffectNameIn<TEffectBank>]: TEffectBank[effectName] & {
-      [prop in keyof TEffectBank[effectName]]: TEffectBank[effectName][prop] & (
+    [effectName in EffectNameIn<TPresetEffectBank>]: TPresetEffectBank[effectName] & {
+      [prop in keyof TPresetEffectBank[effectName]]: TPresetEffectBank[effectName][prop] & (
         prop extends 'immutableConfig'
           ? ErrorCheckJoiner<[StrictPropertyCheck<
-              Exclude<TEffectBank[effectName]['immutableConfig'], undefined>,
+              Exclude<TPresetEffectBank[effectName]['immutableConfig'], undefined>,
               Layer3MutableClipConfig<ExtendableBankCategoryToClipType<TCategory>>,
               IMMUTABLE_CONFIG_ERROR<TCategory>
             >]>
@@ -1630,32 +1630,32 @@ export function definePresetEffectBank<
   } & {
     // forces errors to show up on buildFrameGenerators() when returned value is invalid...
     // ... while defining the preset effect bank
-    [effectName in EffectNameIn<TEffectBank>]: TEffectBank[effectName] & {
-      [prop in keyof TEffectBank[effectName]]: TEffectBank[effectName][prop] & (
+    [effectName in EffectNameIn<TPresetEffectBank>]: TPresetEffectBank[effectName] & {
+      [prop in keyof TPresetEffectBank[effectName]]: TPresetEffectBank[effectName][prop] & (
         prop extends 'buildFrameGenerators'
           ? ErrorCheckJoiner<[
               (
                 StrictReturnPropertyCheck<
-                  TEffectBank[effectName]['buildFrameGenerators'],
+                  TPresetEffectBank[effectName]['buildFrameGenerators'],
                   EffectFrameGeneratorSet,
                   EFFECT_FRAME_GENERATORS_RETURN_ERROR_PRIMITIVE,
                   EFFECT_FRAME_GENERATORS_RETURN_ERROR_PROPERTIES
                 >
               ),
               (
-                Extract<keyof ReturnType<TEffectBank[effectName]['buildFrameGenerators']>, `keyframesGenerator_rewind`> extends never
+                Extract<keyof ReturnType<TPresetEffectBank[effectName]['buildFrameGenerators']>, `keyframesGenerator_rewind`> extends never
                   ? {}
                   : (
-                    Extract<keyof ReturnType<TEffectBank[effectName]['buildFrameGenerators']>, 'keyframesGenerator_play'> extends never
+                    Extract<keyof ReturnType<TPresetEffectBank[effectName]['buildFrameGenerators']>, 'keyframesGenerator_play'> extends never
                     ? PrettifyCustomError<EFFECT_FRAME_GENERATORS_RETURN_ERROR_KEYFRAMES_RW>
                     : {}
                 )
               ),
               (
-                Extract<keyof ReturnType<TEffectBank[effectName]['buildFrameGenerators']>, `mutatorGenerator_rewind`> extends never
+                Extract<keyof ReturnType<TPresetEffectBank[effectName]['buildFrameGenerators']>, `mutatorGenerator_rewind`> extends never
                   ? {}
                   : (
-                    Extract<keyof ReturnType<TEffectBank[effectName]['buildFrameGenerators']>, 'mutatorGenerator_play'> extends never
+                    Extract<keyof ReturnType<TPresetEffectBank[effectName]['buildFrameGenerators']>, 'mutatorGenerator_play'> extends never
                     ? PrettifyCustomError<EFFECT_FRAME_GENERATORS_RETURN_ERROR_MUTATOR_RW>
                     : {}
                 )
