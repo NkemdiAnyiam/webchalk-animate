@@ -424,7 +424,7 @@ export interface EffectFrameGeneratorSet extends StripDuplicateMethodAutocomplet
 
 // TODO: add code examples
 /**
- * Object representing an entry in an {@link PresetEffectBank}. It contains
+ * Object representing an entry in a {@link PresetEffectBank}. It contains
  *  * a function for composing an animation effect
  *  * two properties that can be used to specify clip configuration settings
  *    * one property contains default configuration settings
@@ -1352,7 +1352,7 @@ export type EffectNameIn<TEffectBank extends PresetEffectBank> = Exclude<keyof {
 // function definePresetEffect<TPresetEffectDefinition extends PresetEffectBank<EmphasisClip>[string]> (effectCategory: 'emphasis', effectDefinition: TPresetEffectDefinition): TPresetEffectDefinition;
 // function definePresetEffect<TPresetEffectDefinition extends PresetEffectBank<MotionClip>[string]> (effectCategory: 'motion', effectDefinition: TPresetEffectDefinition): TPresetEffectDefinition;
 /**
- * Allows the convenient creation of an object in the shape of an {@link PresetEffectDefinition} with full auto-completion.
+ * Allows the convenient creation of an object in the shape of a {@link PresetEffectDefinition} with full auto-completion.
  * The resulting effect definition must be passed into {@link webchalk.createAnimationClipFactories} in order to be added to the
  * preset effects registry.
  * @param effectCategory - the category of the animation effect
@@ -1496,7 +1496,7 @@ export function definePresetEffect<
  * The resulting effect bank must be passed into {@link webchalk.createAnimationClipFactories} in order for its effect definitions to be
  * added to the preset effects registry.
  * @param effectCategory - the category of the animation effects
- * @param presetEffectBank - object where every key is an effect name and every value is an {@link PresetEffectDefinition}
+ * @param presetEffectBank - object where every key is an effect name and every value is a {@link PresetEffectDefinition}
  * @returns - The same {@link presetEffectBank} object you passed into the function.
  * 
  * @remarks
