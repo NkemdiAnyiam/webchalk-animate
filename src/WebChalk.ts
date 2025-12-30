@@ -955,17 +955,17 @@ export const webchalk = new WebChalk();
 // }).Entrance(new HTMLElement(), '~ad', [], {}).getModifiers();
 
 // const thing2 = webchalk.createAnimationClipFactories({
-//   additionalPresetEntrances: definePresetEffectBank('Entrance', {
+//   additionalEntranceEffects: definePresetEffectBank('Entrance', {
 //     appear: {
 //       buildFrameGenerators() {
 //         console.log('Here is EXACTLY what is going on!');
 
 //         return {
 //           keyframesGenerator_play: () => { return []; },
-//           keyframesGenerator_rewind: 'exact-reverse',
+//           // keyframesGenerator_rewind: 'exact-reverse',
 
-//           mutatorGenerator_play: () => { return () => { this.computeTween(); } },
-//           mutatorGenerator_rewind: () => { return () => { this.computeTween(); } }
+//           mutatorGenerator_play: () => { return () => {  } },
+//           mutatorGenerator_rewind: () => { return () => {  } }
 //         }
 //       },
 //       defaultConfig: {
