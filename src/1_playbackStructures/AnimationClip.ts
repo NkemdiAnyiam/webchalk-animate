@@ -823,7 +823,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       ),
       new KeyframeEffect(
         this.domElem,
-        [],
+        [{fontFeatureSettings: 'normal'}],
         {
           ...keyframeOptions,
           easing: useEasing(easing, {inverted: true}),
@@ -1228,7 +1228,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
         animation.setForwardFrames([{fontFeatureSettings: 'normal'}]);
         break;
       case 'backward':
-        animation.setBackwardFrames([]);
+        animation.setBackwardFrames([{fontFeatureSettings: 'normal'}]);
         break;
     }
     this.useCompoundedPlaybackRate();
