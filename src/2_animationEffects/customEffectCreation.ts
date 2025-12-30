@@ -1332,9 +1332,9 @@ export type PresetEffectBank<TClip extends AnimClip = AnimClip> = ReadonlyRecord
 export type EffectOptions<TPresetEffectDefinition extends PresetEffectDefinition> = Parameters<TPresetEffectDefinition['buildFrameGenerators']>;
 
 // CHANGE NOTE: EffectNameIn now handles keyof and Extract
-// extracts only those strings in an object whose paired value is an PresetEffectDefinition
+// extracts only those strings in an object whose paired value is a PresetEffectDefinition
 /**
- * Detects the keys corresponding to {@link PresetEffectDefinition} entries within an {@link PresetEffectBank}.
+ * Detects the keys corresponding to {@link PresetEffectDefinition} entries within a {@link PresetEffectBank}.
  * Any property within the specified bank that does not hold an effect definition is not considered
  * an "effect" name and is thus excluded.
  * @category Utility Types
