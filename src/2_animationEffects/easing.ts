@@ -164,12 +164,13 @@ export function invertEasing(easingString: EasingString): string {
 }
 
 /**
- * Accepts either a preset easing string or a CSS `<easing-function>` string and returns an `<easing-function>`
- * @param easingString - preset easing string or a CSS `<easing-function>` string
+ * Accepts either a preset easing alias (such as `"bounce-out"`) or a CSS `<easing-function>`
+ * string (such as `"ease-in"` or `"cubic-bezier(...)"`) and returns an `<easing-function>`.
+ * @param easingString - preset easing alias or a CSS `<easing-function>` string
  * @param options - options affecting the output based on {@link easingString}
  * @param options.inverted - If `true`, the returned easing function will be inverted.
  * @returns An `<easing-function>` corresponding to the provided {@link easingString}.
- *  * If {@link easingString} is a preset easing string (such as `"power1-in"` or `"bounce-out"`), the returned `<easing-function>`
+ *  * If {@link easingString} is a preset easing alias (such as `"power1-in"` or `"bounce-out"`), the returned `<easing-function>`
  * will be a custom `<linear-easing-function>` coming from a map of preset strings to linear easing functions.
  *  * If {@link easingString} is a standard `<easing-function>` string (such as `"ease-in"` or `"cubic-bezier(...)"`), the string
  * itself will be returned with no modifications since it is obviously already a valid CSS easing function string.
