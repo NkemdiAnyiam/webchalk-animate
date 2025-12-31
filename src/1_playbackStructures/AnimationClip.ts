@@ -765,9 +765,9 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
         TypeError,
         `Illegal constructor. Clips can only be instantiated using clip factory functions.` +
         errorTip(
-          `Tip: Clip factory functions are created by webchalk.createAnimationClipFactories(),` +
-          ` a method that returns an object containing factory functions like Entrance(), Motion(), etc.` +
-          ` (A factory function is just a function that returns an instance of a class without using 'new').`
+          `Tip: A "factory function" is just a function that returns an instance of a class without using 'new'.` +
+          ` Our "clip" factory functions are created by webchalk.createAnimationClipFactories(),` +
+          ` a method that returns an object containing factory functions like Entrance(), Motion(), etc.`
         )
       );
     }
