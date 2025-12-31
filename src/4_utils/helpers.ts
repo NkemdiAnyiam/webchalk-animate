@@ -2,24 +2,73 @@ import { CustomErrors } from "./errors";
 import { CssLength, CssXAlignment, CssYAlignment, ScrollingOptions, ParsedMultiUnitPlacement, MultiUnitPlacementX, MultiUnitPlacementY, StyleProperty } from "./interfaces";
 import { KeyOf, PickFromArray } from "./utilityTypes";
 
+/**
+ * 
+ * @param val 
+ * @param tar 
+ * @returns 
+ * 
+ * @ignore
+ */
 export function asserter<T extends unknown>(val: T, tar: any): T | undefined {
   return val === tar ? val : undefined;
 }
 
+/**
+ * 
+ * @param a 
+ * @param b 
+ * @returns 
+ * 
+ * @ignore
+ */
 export function xor(a: unknown, b: unknown) {
   return ( a || b ) && !( a && b );
 }
 
+/**
+ * 
+ * @param a 
+ * @param b 
+ * @returns 
+ * 
+ * @ignore
+ */
 export function xnor(a: unknown, b: unknown) {
   return !xor(a, b);
 }
 
+/**
+ * 
+ * @param a 
+ * @param b 
+ * @returns 
+ * 
+ * @ignore
+ */
 export function nor(a: unknown, b: unknown) {
   return !(a || b);
 }
 
 export const equalWithinTol = (numA: number, numB: number): boolean => Math.abs(numA - numB) < 0.001;
+
+/**
+ * 
+ * @param arrays 
+ * @returns
+ *  
+ * @ignore
+ */
 export const mergeArrays = <T>(...arrays: (Array<T> | undefined)[]): Array<T> => Array.from(new Set(new Array<T>().concat(...arrays.filter(arr => arr !== undefined))));
+
+/**
+ * 
+ * @param array 
+ * @param predicate 
+ * @returns
+ *  
+ * @ignore
+ */
 export function findLastIndex<T>(array: Array<T>, predicate: (value: T, index: number, obj: T[]) => boolean): number {
   let l = array.length;
   while (l--) {
@@ -27,6 +76,14 @@ export function findLastIndex<T>(array: Array<T>, predicate: (value: T, index: n
   }
   return -1;
 }
+
+/**
+ * 
+ * @param str 
+ * @returns 
+ * 
+ * @ignore
+ */
 export const negateNumString = (str: string): string => str[0] === '-' ? str.slice(1) : `-${str}`;
 
 /**
@@ -35,6 +92,8 @@ export const negateNumString = (str: string): string => str[0] === '-' ? str.sli
  * @returns The now frozen {@link obj}.
  * @remarks
  * CREDITS: https://decipher.dev/30-seconds-of-typescript/docs/deepFreeze/
+ * 
+ * @ignore
  */
 export const deepFreeze = <T extends object>(obj: T) => {
   Object.keys(obj).forEach((prop) => {
@@ -49,6 +108,13 @@ export const deepFreeze = <T extends object>(obj: T) => {
   return Object.freeze(obj);
 };
 
+/**
+ * 
+ * @param value 
+ * @returns 
+ * 
+ * @ignore
+ */
 export function numToOrdinal(value: number | `${number}`) {
   const suffixes = ["th", "st", "nd", "rd"];
   
@@ -66,10 +132,23 @@ export function numToOrdinal(value: number | `${number}`) {
   })(Number(value));
 }
 
+/**
+ * 
+ * @param value 
+ * @returns 
+ * 
+ * @ignore
+ */
 export function indexToOrdinal(value: number | `${number}`) {
   return numToOrdinal(Number(value) + 1);
 }
 
+/**
+ * 
+ * @param rules 
+ * 
+ * @ignore
+ */
 export const createStyles = (rules: string = ''): void => {
   const sheet = document.createElement('style');
   sheet.id = `webchalk-global-styles`;
@@ -85,7 +164,20 @@ export const getOpeningTag = (element: Element | null | undefined): string => {
   return htmlText.substring(start, end + 1);
 };
 
+/**
+ * 
+ * @param elements 
+ * 
+ * @ignore
+ */
 export const overrideHidden = (...elements: Element[]): void => { for (const element of elements) {element.classList.value += ` webchalk-force-show`} };
+
+/**
+ * 
+ * @param elements 
+ * 
+ * @ignore
+ */
 export const unOverrideHidden = (...elements: Element[]): void => { for (const element of elements) {element.classList.value = element.classList.value.replace(` webchalk-force-show`, '')} };
 
 export const parseXYTupleString = (tupleStr: `${CssLength} ${CssLength}` | undefined): [x: CssLength, y: CssLength] | undefined => {
@@ -165,6 +257,15 @@ export function parseMultiUnitPlacement(offset: number | MultiUnitPlacementX | M
   }
 }
 
+/**
+ * 
+ * @param scrollable 
+ * @param target 
+ * @param scrollOptions 
+ * @returns 
+ * 
+ * @ignore
+ */
 export const computeSelfScrollingBounds = (scrollable: Element, target: Element, scrollOptions: ScrollingOptions): {fromXY: [number, number], toXY: [number, number]} => {
   // determines the intersection point of the target
   const [offsetPercX, offsetPixelsX] = parseMultiUnitPlacement(scrollOptions.targetOffset?.[0] ?? '0px', 'horizontal');
@@ -241,6 +342,8 @@ export const computeSelfScrollingBounds = (scrollable: Element, target: Element,
  * @param thisArg - value to use for the `thisArg` parameter for `callableFunction.call()`
  * @param args - arguments to pass to the `args` parameter for `callableFunction.call()`
  * @returns The result of `callableFunction.call(thisArg, ...args)`.
+ * 
+ * @ignore
  */
 export function call<TFunction extends ([...args]: unknown[]) => unknown>(
   callableFunction: TFunction,
@@ -267,6 +370,14 @@ export function getPartial<Source extends object, T extends (keyof Source)[] = (
   ) as Pick<Source, keyof Source>;
 }
 
+/**
+ * 
+ * @param text 
+ * @param tabLength 
+ * @returns 
+ * 
+ * @ignore
+ */
 export function dedent(text: string, tabLength: number = 2): string {
   // split lines by carriage return + newline or newline
   // then replace all leading tabs (or leading tabs mixed with leading spaces) with spaces
@@ -291,6 +402,13 @@ export function dedent(text: string, tabLength: number = 2): string {
     .join('\n');
 }
 
+/**
+ * 
+ * @param text 
+ * @returns 
+ * 
+ * @ignore
+ */
 export function detab(text: TemplateStringsArray | string): string {
   if (typeof text === 'string') { return text.replace(/\n +/g, '\n').replace(/ +/g, ' '); /*return text.replaceAll(/(\t|\s)/g, ' ');*/ }
   return text.map(str => str.replace(/\n +/g, '\n').replace(/ +/g, ' ')).join(' ');
