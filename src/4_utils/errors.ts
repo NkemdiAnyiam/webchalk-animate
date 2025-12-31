@@ -140,7 +140,7 @@ class LockedOperationError extends Error {
 class TimeParadoxError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'LockedOperationError';
+    this.name = 'TimeParadoxError';
   }
 }
 
