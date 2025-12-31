@@ -1,9 +1,9 @@
 import { definePresetEffect, definePresetEffectBank } from "../2_animationEffects/customEffectCreation";
 import { EasingString, PresetLinearEasingKey, useEasing } from "../2_animationEffects/easing";
-import { webchalk } from "../WebChalk";
+import { webchalk } from "../Webchalk";
 
 {
-/**** EX:S id="WebChalk.newSequence-1.1" */
+/**** EX:S id="Webchalk.newSequence-1.1" */
 // retrieve clip factory functions
 const clipFactories = webchalk.createAnimationClipFactories();
 // select a (presumable) square-shaped element from the DOM
@@ -20,11 +20,11 @@ const seq = webchalk.newSequence(
 );
 // play sequence
 seq.play();
-/**** EX:E id="WebChalk.newSequence-1.1" */
+/**** EX:E id="Webchalk.newSequence-1.1" */
 }
 
 {
-/**** EX:S id="WebChalk.newSequence-1.2" */
+/**** EX:S id="Webchalk.newSequence-1.2" */
 // SAME EXAMPLE BUT WITH DESTRUCTURING ASSIGNMENT FOR THE CLIP FACTORY FUNCTIONS
 
 const {Entrance, Exit, Motion} = webchalk.createAnimationClipFactories();
@@ -39,11 +39,11 @@ const seq = webchalk.newSequence(
   ]
 );
 seq.play();
-/**** EX:E id="WebChalk.newSequence-1.2" */
+/**** EX:E id="Webchalk.newSequence-1.2" */
 }
 
 {
-/**** EX:S id="WebChalk.newSequence-2.1" */
+/**** EX:S id="Webchalk.newSequence-2.1" */
 // retrieve clip factory functions
 const clipFactories = webchalk.createAnimationClipFactories();
 // select a (presumable) square-shaped element from the DOM
@@ -59,11 +59,11 @@ const seq = webchalk.newSequence(
 );
 // play sequence
 seq.play();
-/**** EX:E id="WebChalk.newSequence-2.1" */
+/**** EX:E id="Webchalk.newSequence-2.1" */
 }
 
 {
-/**** EX:S id="WebChalk.newSequence-2.2" */
+/**** EX:S id="Webchalk.newSequence-2.2" */
 // SAME EXAMPLE BUT WITH DESTRUCTURING ASSIGNMENT FOR THE CLIP FACTORY FUNCTIONS
 
 const {Entrance, Exit, Motion} = webchalk.createAnimationClipFactories();
@@ -77,11 +77,11 @@ const seq = webchalk.newSequence(
   ]
 );
 seq.play();
-/**** EX:E id="WebChalk.newSequence-2.2" */
+/**** EX:E id="Webchalk.newSequence-2.2" */
 }
 
 {
-/**** EX:S id="WebChalk.newTimeline-1" */
+/**** EX:S id="Webchalk.newTimeline-1" */
 // retrieve some clip factory functions
 const {Entrance, Exit, Motion} = webchalk.createAnimationClipFactories();
 // select presumably a square element and a circle element from the DOM
@@ -116,11 +116,11 @@ const timeline = webchalk.newTimeline(
 // step forward twice, playing both sequences
 timeline.step('forward')
   .then(() => timeline.step('forward'));
-/**** EX:E id="WebChalk.newTimeline-1" */
+/**** EX:E id="Webchalk.newTimeline-1" */
 }
 
 {
-/**** EX:S id="WebChalk.newTimeline-2" */
+/**** EX:S id="Webchalk.newTimeline-2" */
 // retrieve some clip factory functions
 const {Entrance, Exit, Motion} = webchalk.createAnimationClipFactories();
 // select presumably a square element and a circle element from the DOM
@@ -150,21 +150,21 @@ const seq2 = webchalk.newSequence(
 const timeline = webchalk.newTimeline(
   [seq1, seq2]
 );
-/**** EX:E id="WebChalk.newTimeline-2" */
+/**** EX:E id="Webchalk.newTimeline-2" */
 }
 
 {
-/**** EX:S id="WebChalk.createAnimationClipFactories-1.1" */
+/**** EX:S id="Webchalk.createAnimationClipFactories-1.1" */
 const square = document.querySelector('.square');
 // Using the method and using one of the `Entrance()` factory function
 const clipFactories = webchalk.createAnimationClipFactories();
 const ent = clipFactories.Entrance(square, '~fly-in', ['from-top'], {duration: 2000});
 ent.play();
-/**** EX:E id="WebChalk.createAnimationClipFactories-1.1" */
+/**** EX:E id="Webchalk.createAnimationClipFactories-1.1" */
 }
 
 {
-/**** EX:S id="WebChalk.createAnimationClipFactories-1.2" */
+/**** EX:S id="Webchalk.createAnimationClipFactories-1.2" */
 const square = document.querySelector('.square');
 // Using destructuring assignment to conveniently extract the `Entrance()` and `Motion()` factory functions
 const {Entrance, Motion} = webchalk.createAnimationClipFactories();
@@ -174,11 +174,11 @@ const mot2 = Motion(square, '~translate', [{translate: '0px 500px'}], {duration:
 // clips are added to a sequence
 const seq = webchalk.newSequence([ent, mot1, mot2]);
 seq.play();
-/**** EX:E id="WebChalk.createAnimationClipFactories-1.2" */
+/**** EX:E id="Webchalk.createAnimationClipFactories-1.2" */
 }
 
 {
-/**** EX:S id="WebChalk.createAnimationClipFactories-1.3" */
+/**** EX:S id="Webchalk.createAnimationClipFactories-1.3" */
 // Extending the preset entrances and motions banks with additional preset effects
 const clipFactories = webchalk.createAnimationClipFactories({
   // PRESET ENTRANCES
@@ -256,7 +256,7 @@ const square = document.querySelector('.square');
 const ent1 = clipFactories.Entrance(square, 'coolZoomIn', [0.2]);
 const ent2 = clipFactories.Entrance(square, 'blinkIn', []);
 const ext = clipFactories.Exit(square, 'flyOutLeft', []);
-/**** EX:E id="WebChalk.createAnimationClipFactories-1.3" */
+/**** EX:E id="Webchalk.createAnimationClipFactories-1.3" */
 }
 
 
@@ -279,8 +279,8 @@ where a "DOM element" is some HTML element on the page and the effect is the ani
 will be applied to it (asynchronously).
 
 The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
-{@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
-that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
+{@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webchalk provides convenient factory functions
+that can be used to create such clips—the factory functions can be obtained from {@link Webchalk.createAnimationClipFactories}.
 Examples are shown below.
 
 Generally (with some exceptions), using a clip factory function follows this format:

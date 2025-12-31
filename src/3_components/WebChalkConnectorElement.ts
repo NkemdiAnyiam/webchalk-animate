@@ -1,13 +1,13 @@
 import { equalWithinTol, getBoundingClientRectOfHidden } from "../4_utils/helpers";
 import { DOMElement, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
 
-export type WebChalkConnectorElementConfig = {
+export type WebchalkConnectorElementConfig = {
   pointTrackingEnabled: boolean;
 };
 
 // CHANGE NOTE: Completely get rid of obsolete AnimClipLineUpdater
-export class WebChalkConnectorElement extends HTMLElement {
-  /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-connector', WebChalkConnectorElement); }
+export class WebchalkConnectorElement extends HTMLElement {
+  /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-connector', WebchalkConnectorElement); }
   private static staticId: number = 0;
 
   private connectorId: number = 0;
@@ -53,7 +53,7 @@ export class WebChalkConnectorElement extends HTMLElement {
   
   constructor() {
     super();
-    this.connectorId = WebChalkConnectorElement.staticId++;
+    this.connectorId = WebchalkConnectorElement.staticId++;
     const shadow = this.attachShadow({mode: 'open'});
 
     const markerIdPrefix = `markerArrow--${this.connectorId}`;

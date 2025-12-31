@@ -1,10 +1,10 @@
 import { AnimClip, AnimClipConfig, AnimClipModifiers } from "./AnimationClip";
 import { CustomErrors, errorTip } from "../4_utils/errors";
 import { getPartial, parseMultiUnitPlacement } from "../4_utils/helpers";
-import { WebChalk } from "../WebChalk";
+import { Webchalk } from "../Webchalk";
 import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
 import { PickFromArray } from "../4_utils/utilityTypes";
-import { WebChalkConnectorElement, WebChalkConnectorElementConfig } from "../3_components/WebChalkConnectorElement";
+import { WebchalkConnectorElement, WebchalkConnectorElementConfig } from "../3_components/WebchalkConnectorElement";
 import { PresetEffectDefinition, PresetEffectBank, EffectOptions, Layer3MutableClipConfig, EffectNameIn } from "../2_animationEffects/customEffectCreation";
 import { libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions, libPresetConnectorEntrances, libPresetConnectorExits, libPresetTransitions, libPresetScrolls } from "../2_animationEffects/webchalkPresetEffectBanks";
 
@@ -21,7 +21,7 @@ export type Layer4MutableConfig<TClipClass extends AnimClip, TPresetEffectDefini
 /*-:***************************************************************************************************************************/
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
- * Used as the last argument in the `Entrance()` factory function created by {@link WebChalk.createAnimationClipFactories}.
+ * Used as the last argument in the `Entrance()` factory function created by {@link Webchalk.createAnimationClipFactories}.
  * Also returned by {@link EntranceClip.getConfig}.
  *  * Contains additional properties:
  *    * {@link EntranceClipModifiers.hideNowType | hideNowType}
@@ -63,8 +63,8 @@ export interface EntranceClipModifiers extends AnimClipModifiers, Pick<EntranceC
  * will be applied to it (asynchronously).
  * 
  * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
- * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
- * that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webchalk provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link Webchalk.createAnimationClipFactories}.
  * Examples are shown below.
  * 
  * Generally (with some exceptions), using a clip factory function follows this format:
@@ -245,7 +245,7 @@ export class EntranceClip<TPresetEffectDefinition extends PresetEffectDefinition
 /*-:***************************************************************************************************************************/
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
- * Used as the last argument in the `Exit()` factory function created by {@link WebChalk.createAnimationClipFactories}.
+ * Used as the last argument in the `Exit()` factory function created by {@link Webchalk.createAnimationClipFactories}.
  * Also returned by {@link ExitClip.getConfig}.
  *  * Contains additional properties:
  *    * {@link ExitClipModifiers.exitType | exitType}
@@ -284,8 +284,8 @@ interface ExitClipModifiers extends AnimClipModifiers, Pick<ExitClipConfig, 'exi
  * will be applied to it (asynchronously).
  * 
  * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
- * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
- * that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webchalk provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link Webchalk.createAnimationClipFactories}.
  * Examples are shown below.
  * 
  * Generally (with some exceptions), using a clip factory function follows this format:
@@ -415,7 +415,7 @@ export class ExitClip<TPresetEffectDefinition extends PresetEffectDefinition<Exi
 
     throw this.generateError(CustomErrors.InvalidExitAttempt,
       `Exit() can only play on elements that are not already hidden. The element here is already hidden by the following:`
-      + (hidingClassName ? `\n - WebChalk's CSS hiding class "${hidingClassName}"` : '')
+      + (hidingClassName ? `\n - Webchalk's CSS hiding class "${hidingClassName}"` : '')
       + ((hidingClassName !== 'webchalk-display-none' && hiddenDisplay) ? `\n - CSS property 'display: none'` : '')
       + ((hidingClassName !== 'webchalk-visibility-hidden' && hiddenVisibility) ? `\n - CSS property 'visibility: hidden'` : '')
     );
@@ -441,7 +441,7 @@ export class ExitClip<TPresetEffectDefinition extends PresetEffectDefinition<Exi
 /*-:***************************************************************************************************************************/
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
- * Used as the last argument in the `Emphasis()` factory function created by {@link WebChalk.createAnimationClipFactories}.
+ * Used as the last argument in the `Emphasis()` factory function created by {@link Webchalk.createAnimationClipFactories}.
  * Also returned by {@link EmphasisClip.getConfig}.
  *  * Contains additional properties:
  *    * (none)
@@ -462,8 +462,8 @@ export interface EmphasisClipConfig extends AnimClipConfig {
  * will be applied to it (asynchronously).
  * 
  * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
- * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
- * that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webchalk provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link Webchalk.createAnimationClipFactories}.
  * Examples are shown below.
  * 
  * Generally (with some exceptions), using a clip factory function follows this format:
@@ -524,7 +524,7 @@ export class EmphasisClip<TPresetEffectDefinition extends PresetEffectDefinition
 /*-:***************************************************************************************************************************/
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
- * Used as the last argument in the `Motion()` factory function created by {@link WebChalk.createAnimationClipFactories}.
+ * Used as the last argument in the `Motion()` factory function created by {@link Webchalk.createAnimationClipFactories}.
  * Also returned by {@link MotionClip.getConfig}.
  *  * Contains additional properties:
  *    * (none)
@@ -543,8 +543,8 @@ export interface MotionClipConfig extends AnimClipConfig {
  * will be applied to it (asynchronously).
  * 
  * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
- * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
- * that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webchalk provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link Webchalk.createAnimationClipFactories}.
  * Examples are shown below.
  * 
  * Generally (with some exceptions), using a clip factory function follows this format:
@@ -610,7 +610,7 @@ export class MotionClip<TPresetEffectDefinition extends PresetEffectDefinition<M
 /*-:***************************************************************************************************************************/
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
- * Used as the last argument in the `Scroller()` factory function created by {@link WebChalk.createAnimationClipFactories}.
+ * Used as the last argument in the `Scroller()` factory function created by {@link Webchalk.createAnimationClipFactories}.
  * Also returned by {@link ScrollerClip.getConfig}.
  *  * Contains additional properties:
  *    * (none)
@@ -631,8 +631,8 @@ export interface ScrollerClipConfig extends AnimClipConfig {
  * will be applied to it (asynchronously).
  * 
  * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
- * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
- * that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webchalk provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link Webchalk.createAnimationClipFactories}.
  * Examples are shown below.
  * 
  * Generally (with some exceptions), using a clip factory function follows this format:
@@ -710,7 +710,7 @@ export class ScrollerClip<TPresetEffectDefinition extends PresetEffectDefinition
 /*-:***************************************************************************************************************************/
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
- * Used as the last argument in the `Transition()` factory function created by {@link WebChalk.createAnimationClipFactories}.
+ * Used as the last argument in the `Transition()` factory function created by {@link Webchalk.createAnimationClipFactories}.
  * Also returned by {@link TransitionClip.getConfig}.
  *  * Contains additional properties:
  *    * {@link TransitionClipModifiers.removeInlineStylesOnFinish | removeInlineStylesOnFinish}
@@ -756,8 +756,8 @@ export interface TransitionClipModifiers extends AnimClipModifiers, Pick<Transit
  * will be applied to it (asynchronously).
  * 
  * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
- * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
- * that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webchalk provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link Webchalk.createAnimationClipFactories}.
  * Examples are shown below.
  * 
  * Generally (with some exceptions), using a clip factory function follows this format:
@@ -877,7 +877,7 @@ export class TransitionClip<TPresetEffectDefinition extends PresetEffectDefiniti
 /*-:***************************************        CONNECTOR SETTER        ****************************************************/
 /*-:***************************************************************************************************************************/
 /**
- * Used to set the endpoints of a {@link WebChalkConnectorElement}.
+ * Used to set the endpoints of a {@link WebchalkConnectorElement}.
  * 
  * Contains configuration options used to define both the timing and effects of the animation clip.
  * Returned by {@link ConnectorSetterClip.getConfig}.
@@ -898,8 +898,8 @@ export interface ConnectorSetterClipConfig extends AnimClipConfig {
  * will be applied to it (asynchronously).
  * 
  * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
- * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
- * that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webchalk provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link Webchalk.createAnimationClipFactories}.
  * Examples are shown below.
  * 
  * Generally (with some exceptions), using a clip factory function follows this format:
@@ -907,7 +907,7 @@ export interface ConnectorSetterClipConfig extends AnimClipConfig {
  * <!-- EX:E id="AnimClip.desc" -->
  * The factory function for creating {@link ConnectorSetterClip}s is one such exception.
  * It follows the form `<factory func>(<connector element>, [<point A>], [<point B>], {<optional configuration>})`.
- * Additionally, "\<some element\>" must be of type {@link WebChalkConnectorElement} (our custom `<webchalk-connector>` HTML element).
+ * Additionally, "\<some element\>" must be of type {@link WebchalkConnectorElement} (our custom `<webchalk-connector>` HTML element).
  * 
  * @example
  * <!-- EX:S id="ConnectorSetterClip.example" code-type="ts" -->
@@ -964,14 +964,14 @@ export interface ConnectorSetterClipConfig extends AnimClipConfig {
  */
 export class ConnectorSetterClip extends AnimClip<PresetEffectDefinition, ConnectorSetterClipConfig> {
   protected get category(): 'Connector Setter' { return 'Connector Setter'; }
-  domElem: WebChalkConnectorElement;
+  domElem: WebchalkConnectorElement;
   previousPointA?: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
   previousPointB?: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
   pointA: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | 'use-preserved';
   pointB: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | 'use-preserved';
 
-  connectorConfig: WebChalkConnectorElementConfig = {} as WebChalkConnectorElementConfig;
-  previousConnectorConfig: WebChalkConnectorElementConfig = {} as WebChalkConnectorElementConfig;
+  connectorConfig: WebchalkConnectorElementConfig = {} as WebchalkConnectorElementConfig;
+  previousConnectorConfig: WebchalkConnectorElementConfig = {} as WebchalkConnectorElementConfig;
 
   get categoryImmutableConfig() {
     return {
@@ -994,16 +994,16 @@ export class ConnectorSetterClip extends AnimClip<PresetEffectDefinition, Connec
   
   /**@internal*/
   constructor(
-    connectorElem: WebChalkConnectorElement | null | undefined,
+    connectorElem: WebchalkConnectorElement | null | undefined,
     pointA: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
     pointB: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
     effectName: string,
     PresetEffectBank: PresetEffectBank,
-    connectorConfig: Partial<WebChalkConnectorElementConfig> = {},
+    connectorConfig: Partial<WebchalkConnectorElementConfig> = {},
     ) {
     super(connectorElem, effectName, PresetEffectBank);
 
-    if (!(connectorElem instanceof WebChalkConnectorElement)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass WebChalkConnectorElement element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
+    if (!(connectorElem instanceof WebchalkConnectorElement)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass WebchalkConnectorElement element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
 
     const pointAElement = pointA[0] === 'preserve' ? connectorElem!.pointA?.[0] : pointA?.[0];
     if (!(pointAElement instanceof Element)) {
@@ -1036,7 +1036,7 @@ export class ConnectorSetterClip extends AnimClip<PresetEffectDefinition, Connec
     this.domElem.pointTrackingEnabled = this.previousConnectorConfig.pointTrackingEnabled;
   }
 
-  applyLineConfig(connectorConfig: Partial<WebChalkConnectorElementConfig>): WebChalkConnectorElementConfig {
+  applyLineConfig(connectorConfig: Partial<WebchalkConnectorElementConfig>): WebchalkConnectorElementConfig {
     return {
       pointTrackingEnabled: this.domElem.pointTrackingEnabled,
       ...connectorConfig,
@@ -1049,7 +1049,7 @@ export class ConnectorSetterClip extends AnimClip<PresetEffectDefinition, Connec
 /*-:***************************************************************************************************************************/
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
- * Used as the last argument in the `ConnectorEntrance()` factory function created by {@link WebChalk.createAnimationClipFactories}.
+ * Used as the last argument in the `ConnectorEntrance()` factory function created by {@link Webchalk.createAnimationClipFactories}.
  * Also returned by {@link ConnectorEntranceClip.getConfig}.
  *  * Contains additional properties:
  *    * {@link ConnectorEntranceClipModifiers.hideNowType | hideNowType}
@@ -1074,7 +1074,7 @@ export interface ConnectorEntranceClipConfig extends AnimClipConfig {
 export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<ConnectorEntranceClipConfig, 'hideNowType'> {}
 
 /**
- * Used to reveal a {@link WebChalkConnectorElement} that was hidden.
+ * Used to reveal a {@link WebchalkConnectorElement} that was hidden.
  * 
  * <!-- EX:S id="AnimClip.desc" code-type="comment-block" -->
  * A "clip" is the smallest building block of a timeline. It is essentially a [DOM element, effect] pair,
@@ -1082,15 +1082,15 @@ export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<
  * will be applied to it (asynchronously).
  * 
  * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
- * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
- * that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webchalk provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link Webchalk.createAnimationClipFactories}.
  * Examples are shown below.
  * 
  * Generally (with some exceptions), using a clip factory function follows this format:
  * `const clip = <factory func>(<some element>, <effect name>, [<effect options>], {<optional clip configuration>});`
  * <!-- EX:E id="AnimClip.desc" -->
  * 
- * "\<some element\>" here must be of type {@link WebChalkConnectorElement} (our custom `<webchalk-connector>` HTML element).
+ * "\<some element\>" here must be of type {@link WebchalkConnectorElement} (our custom `<webchalk-connector>` HTML element).
  * 
  * Note that {@link ConnectorEntranceClip}s are merely for _entering_ connectors, not setting their endpoints.
  * A connector's endpoints must be set (using a {@link ConnectorSetterClip}), and then a {@link ConnectorEntranceClip}
@@ -1133,7 +1133,7 @@ export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<
  */
 export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectDefinition<ConnectorEntranceClip, ConnectorEntranceClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, ConnectorEntranceClipConfig> {
   protected get category(): 'Connector Entrance' { return 'Connector Entrance'; }
-  domElem: WebChalkConnectorElement;
+  domElem: WebchalkConnectorElement;
 
   get categoryImmutableConfig() {
     return {
@@ -1193,10 +1193,10 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
   }
 
   /**@internal*/
-  constructor(connectorElem: WebChalkConnectorElement | null | undefined, effectName: string, PresetEffectBank: PresetEffectBank) {
+  constructor(connectorElem: WebchalkConnectorElement | null | undefined, effectName: string, PresetEffectBank: PresetEffectBank) {
     super(connectorElem, effectName, PresetEffectBank);
 
-    if (!(connectorElem instanceof WebChalkConnectorElement)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WebChalkConnectorElement.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
+    if (!(connectorElem instanceof WebchalkConnectorElement)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WebchalkConnectorElement.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
     this.domElem = connectorElem;
   }
 
@@ -1225,7 +1225,7 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
         ` A connector element needs to be unrendered using the class "webchalk-display-none" in order for ConnectorEntrance() to act on it.`;
       }
       else if (this.domElem.classList.contains('webchalk-visibility-hidden')) {
-        str = `The connector element being entered is hidden with the WebChalk CSS class "webchalk-visibility-hidden",` +
+        str = `The connector element being entered is hidden with the Webchalk CSS class "webchalk-visibility-hidden",` +
         ` but connectors must only be hidden using the class "webchalk-display-none".`;
       }
       else {
@@ -1262,7 +1262,7 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
 /*-:***************************************************************************************************************************/
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
- * Used as the last argument in the `ConnectorExit()` factory function created by {@link WebChalk.createAnimationClipFactories}.
+ * Used as the last argument in the `ConnectorExit()` factory function created by {@link Webchalk.createAnimationClipFactories}.
  * Also returned by {@link ConnectorExitClip.getConfig}.
  *  * Contains additional properties:
  *    * (none)
@@ -1275,7 +1275,7 @@ export interface ConnectorExitClipConfig extends AnimClipConfig {
 };
 
 /**
- * Used to unrender a {@link WebChalkConnectorElement}.
+ * Used to unrender a {@link WebchalkConnectorElement}.
  * 
  * <!-- EX:S id="AnimClip.desc" code-type="comment-block" -->
  * A "clip" is the smallest building block of a timeline. It is essentially a [DOM element, effect] pair,
@@ -1283,14 +1283,14 @@ export interface ConnectorExitClipConfig extends AnimClipConfig {
  * will be applied to it (asynchronously).
  * 
  * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
- * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
- * that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webchalk provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link Webchalk.createAnimationClipFactories}.
  * Examples are shown below.
  * 
  * Generally (with some exceptions), using a clip factory function follows this format:
  * `const clip = <factory func>(<some element>, <effect name>, [<effect options>], {<optional clip configuration>});`
  * <!-- EX:E id="AnimClip.desc" -->
- * "\<some element\>" must be of type {@link WebChalkConnectorElement} (our custom `<webchalk-connector>` HTML element).
+ * "\<some element\>" must be of type {@link WebchalkConnectorElement} (our custom `<webchalk-connector>` HTML element).
  * 
  * @example
  * <!-- EX:S id="ConnectorEntranceClip.example" code-type="ts" -->
@@ -1329,7 +1329,7 @@ export interface ConnectorExitClipConfig extends AnimClipConfig {
  */
 export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefinition<ConnectorExitClip, ConnectorExitClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, ConnectorExitClipConfig> {
   protected get category(): 'Connector Exit' { return 'Connector Exit'; }
-  domElem: WebChalkConnectorElement;
+  domElem: WebchalkConnectorElement;
 
   get categoryImmutableConfig() {
     return {
@@ -1349,10 +1349,10 @@ export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefin
   }
 
   /**@internal*/
-  constructor(connectorElem: WebChalkConnectorElement | null | undefined, effectName: string, PresetEffectBank: PresetEffectBank) {
+  constructor(connectorElem: WebchalkConnectorElement | null | undefined, effectName: string, PresetEffectBank: PresetEffectBank) {
     super(connectorElem, effectName, PresetEffectBank);
 
-    if (!(connectorElem instanceof WebChalkConnectorElement)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WebChalkConnectorElement.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
+    if (!(connectorElem instanceof WebchalkConnectorElement)) { throw this.generateError(CustomErrors.InvalidElementError, `Must pass ${WebchalkConnectorElement.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
 
     this.domElem = connectorElem;
   }
@@ -1370,7 +1370,7 @@ export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefin
 
     throw this.generateError(CustomErrors.InvalidExitAttempt,
       `ConnectorExit() can only play on elements that are not already hidden. The connector here is already hidden by the following:`
-      + (hidingClassName ? `\n - WebChalk's CSS hiding class "${hidingClassName}"` : '')
+      + (hidingClassName ? `\n - Webchalk's CSS hiding class "${hidingClassName}"` : '')
       + ((hidingClassName !== 'webchalk-display-none' && hiddenDisplay) ? `\n - CSS property 'display: none'` : '')
       + ((hidingClassName !== 'webchalk-visibility-hidden' && hiddenVisibility) ? `\n - CSS property 'visibility: hidden'` : '')
     );

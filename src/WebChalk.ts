@@ -6,7 +6,7 @@ import {
 } from "./1_playbackStructures/AnimationClipCategories";
 import { AnimSequence, AnimSequenceConfig } from "./1_playbackStructures/AnimationSequence";
 import { AnimTimeline, AnimTimelineConfig } from "./1_playbackStructures/AnimationTimeline";
-import { WebChalkConnectorElement, WebChalkConnectorElementConfig } from "./3_components/WebChalkConnectorElement";
+import { WebchalkConnectorElement, WebchalkConnectorElementConfig } from "./3_components/WebchalkConnectorElement";
 import {
   libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions,
   libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions
@@ -19,7 +19,7 @@ import { DEFAULT_CONFIG_ERROR, IMMUTABLE_CONFIG_ERROR } from "./4_utils/errors";
 /**
  * @hideconstructor
  */
-export class WebChalk {
+export class Webchalk {
   // used to prevent direct calls to playback structures' constructors
   /**@internal*/ sequenceCreatorLock = true;
   /**@internal*/ timelineCreatorLock = true;
@@ -33,7 +33,7 @@ export class WebChalk {
    * @returns A new {@link AnimSequence} instance.
    * 
    * @example
-   * <!-- EX:S id="WebChalk.newSequence-1.1" code-type="ts" -->
+   * <!-- EX:S id="Webchalk.newSequence-1.1" code-type="ts" -->
    * ```ts
    * // retrieve clip factory functions
    * const clipFactories = webchalk.createAnimationClipFactories();
@@ -52,10 +52,10 @@ export class WebChalk {
    * // play sequence
    * seq.play();
    * ```
-   * <!-- EX:E id="WebChalk.newSequence-1.1" -->
+   * <!-- EX:E id="Webchalk.newSequence-1.1" -->
    *
    * @example
-   * <!-- EX:S id="WebChalk.newSequence-1.2" code-type="ts" -->
+   * <!-- EX:S id="Webchalk.newSequence-1.2" code-type="ts" -->
    * ```ts
    * // SAME EXAMPLE BUT WITH DESTRUCTURING ASSIGNMENT FOR THE CLIP FACTORY FUNCTIONS
    * 
@@ -72,7 +72,7 @@ export class WebChalk {
    * );
    * seq.play();
    * ```
-   * <!-- EX:E id="WebChalk.newSequence-1.2" -->
+   * <!-- EX:E id="Webchalk.newSequence-1.2" -->
    */
   newSequence(config: Partial<AnimSequenceConfig>, animClips?: AnimClip[]): AnimSequence;
   /**
@@ -81,7 +81,7 @@ export class WebChalk {
    * @returns A new {@link AnimSequence} instance.
    * 
    * @example
-   * <!-- EX:S id="WebChalk.newSequence-2.1" code-type="ts" -->
+   * <!-- EX:S id="Webchalk.newSequence-2.1" code-type="ts" -->
    * ```ts
    * // retrieve clip factory functions
    * const clipFactories = webchalk.createAnimationClipFactories();
@@ -99,10 +99,10 @@ export class WebChalk {
    * // play sequence
    * seq.play();
    * ```
-   * <!-- EX:E id="WebChalk.newSequence-2.1" -->
+   * <!-- EX:E id="Webchalk.newSequence-2.1" -->
    *
    * @example
-   * <!-- EX:S id="WebChalk.newSequence-2.2" code-type="ts" -->
+   * <!-- EX:S id="Webchalk.newSequence-2.2" code-type="ts" -->
    * ```ts
    * // SAME EXAMPLE BUT WITH DESTRUCTURING ASSIGNMENT FOR THE CLIP FACTORY FUNCTIONS
    * 
@@ -118,7 +118,7 @@ export class WebChalk {
    * );
    * seq.play();
    * ```
-   * <!-- EX:E id="WebChalk.newSequence-2.2" -->
+   * <!-- EX:E id="Webchalk.newSequence-2.2" -->
    */
   newSequence(animClips?: AnimClip[]): AnimSequence;
   newSequence(config: Partial<AnimSequenceConfig> | AnimClip[] = {}, animClips?: AnimClip[]): AnimSequence {
@@ -135,7 +135,7 @@ export class WebChalk {
    * @returns A new {@link AnimTimeline} instance.
    * 
    * @example
-   * <!-- EX:S id="WebChalk.newTimeline-1" code-type="ts" -->
+   * <!-- EX:S id="Webchalk.newTimeline-1" code-type="ts" -->
    * ```ts
    * // retrieve some clip factory functions
    * const {Entrance, Exit, Motion} = webchalk.createAnimationClipFactories();
@@ -172,7 +172,7 @@ export class WebChalk {
    * timeline.step('forward')
    *   .then(() => timeline.step('forward'));
    * ```
-   * <!-- EX:E id="WebChalk.newTimeline-1" -->
+   * <!-- EX:E id="Webchalk.newTimeline-1" -->
    */
   newTimeline(config: Partial<AnimTimelineConfig> | AnimSequence[], animSequences?: AnimSequence[]): AnimTimeline;
   /**
@@ -181,7 +181,7 @@ export class WebChalk {
    * @returns A new {@link AnimTimeline} instance.
    * 
    * @example
-   * <!-- EX:S id="WebChalk.newTimeline-2" code-type="ts" -->
+   * <!-- EX:S id="Webchalk.newTimeline-2" code-type="ts" -->
    * ```ts
    * // retrieve some clip factory functions
    * const {Entrance, Exit, Motion} = webchalk.createAnimationClipFactories();
@@ -213,7 +213,7 @@ export class WebChalk {
    *   [seq1, seq2]
    * );
    * ```
-   * <!-- EX:E id="WebChalk.newTimeline-2" -->
+   * <!-- EX:E id="Webchalk.newTimeline-2" -->
    */
   newTimeline(animSequences?: AnimSequence[]): AnimTimeline;
   newTimeline(config: Partial<AnimTimelineConfig> | AnimSequence[] = {}, animSequences?: AnimSequence[]): AnimTimeline {
@@ -239,7 +239,7 @@ export class WebChalk {
    * @returns Factory functions that return category-specific {@link AnimClip}s, each with intellisense for their category-specific effects banks.
    * 
    * @example
-   * <!-- EX:S id="WebChalk.createAnimationClipFactories-1.1" code-type="ts" -->
+   * <!-- EX:S id="Webchalk.createAnimationClipFactories-1.1" code-type="ts" -->
    * ```ts
    * const square = document.querySelector('.square');
    * // Using the method and using one of the `Entrance()` factory function
@@ -247,10 +247,10 @@ export class WebChalk {
    * const ent = clipFactories.Entrance(square, '~fly-in', ['from-top'], {duration: 2000});
    * ent.play();
    * ```
-   * <!-- EX:E id="WebChalk.createAnimationClipFactories-1.1" -->
+   * <!-- EX:E id="Webchalk.createAnimationClipFactories-1.1" -->
    * 
    * @example
-   * <!-- EX:S id="WebChalk.createAnimationClipFactories-1.2" code-type="ts" -->
+   * <!-- EX:S id="Webchalk.createAnimationClipFactories-1.2" code-type="ts" -->
    * ```ts
    * const square = document.querySelector('.square');
    * // Using destructuring assignment to conveniently extract the `Entrance()` and `Motion()` factory functions
@@ -262,10 +262,10 @@ export class WebChalk {
    * const seq = webchalk.newSequence([ent, mot1, mot2]);
    * seq.play();
    * ```
-   * <!-- EX:E id="WebChalk.createAnimationClipFactories-1.2" -->
+   * <!-- EX:E id="Webchalk.createAnimationClipFactories-1.2" -->
    * 
    * @example
-   * <!-- EX:S id="WebChalk.createAnimationClipFactories-1.3" code-type="ts" -->
+   * <!-- EX:S id="Webchalk.createAnimationClipFactories-1.3" code-type="ts" -->
    * ```ts
    * // Extending the preset entrances and motions banks with additional preset effects
    * const clipFactories = webchalk.createAnimationClipFactories({
@@ -345,7 +345,7 @@ export class WebChalk {
    * const ent2 = clipFactories.Entrance(square, 'blinkIn', []);
    * const ext = clipFactories.Exit(square, 'flyOutLeft', []);
    * ```
-   * <!-- EX:E id="WebChalk.createAnimationClipFactories-1.3" -->
+   * <!-- EX:E id="Webchalk.createAnimationClipFactories-1.3" -->
    */
   createAnimationClipFactories
   <
@@ -642,11 +642,11 @@ export class WebChalk {
       },
 
       /**
-       * Creates a {@link ConnectorSetterClip}, which can be used to set the endpoints of a {@link WebChalkConnectorElement}.
-       * @param connectorElem - the {@link WebChalkConnectorElement} element to which the animation effect will be applied
+       * Creates a {@link ConnectorSetterClip}, which can be used to set the endpoints of a {@link WebchalkConnectorElement}.
+       * @param connectorElem - the {@link WebchalkConnectorElement} element to which the animation effect will be applied
        * @param pointA - the new target of endpoint A (or `"preserve"` if it should not change)
        * @param pointB - the new target of endpoint B (or `"preserve"` if it should not change)
-       * @param connectorConfig A {@link WebChalkConnectorElementConfig} object.
+       * @param connectorConfig A {@link WebchalkConnectorElementConfig} object.
        * @returns A {@link ConnectorSetter} object.
        * 
        * <!-- EX:S id="ConnectorSetterClip.example" code-type="ts" -->
@@ -699,10 +699,10 @@ export class WebChalk {
        * <!-- EX:E id="ConnectorSetterClip.example" -->
        */
       ConnectorSetter: function(
-        connectorElem: WebChalkConnectorElement | Element | null | undefined,
+        connectorElem: WebchalkConnectorElement | Element | null | undefined,
         pointA: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
         pointB: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
-        connectorConfig: WebChalkConnectorElementConfig = {} as WebChalkConnectorElementConfig,
+        connectorConfig: WebchalkConnectorElementConfig = {} as WebchalkConnectorElementConfig,
       ) {
         self.clipCreatorLock = false;
         const effectName = `~set-line-points`;
@@ -713,8 +713,8 @@ export class WebChalk {
       },
 
       /**
-       * Creates a {@link ConnectorEntranceClip}, which can be used to reveal a {@link WebChalkConnectorElement} that was hidden.
-       * @param domElem - the {@link WebChalkConnectorElement} element to which the animation effect will be applied
+       * Creates a {@link ConnectorEntranceClip}, which can be used to reveal a {@link WebchalkConnectorElement} that was hidden.
+       * @param domElem - the {@link WebchalkConnectorElement} element to which the animation effect will be applied
        * @param effectName - the name of the preset animation effect
        * @param effectOptions - array of arguments that can be used to customize the appearance of the chosen animation effect
        * @param effectConfig - configuration options object ({@link ConnectorEntranceClipConfig}) that defines the behavior of the clip
@@ -754,7 +754,7 @@ export class WebChalk {
       ConnectorEntrance: function<
         TEffectBank extends typeof combinedConnectorEntranceBank, TEffectName extends EffectNameIn<TEffectBank>, TPresetEffectDefinition extends TEffectBank[TEffectName]
       >(
-        connectorElem: WebChalkConnectorElement | Element | null | undefined,
+        connectorElem: WebchalkConnectorElement | Element | null | undefined,
         effectName: TEffectName,
         effectOptions: EffectOptions<TPresetEffectDefinition>,
         effectConfig: Partial<Layer4MutableConfig<ConnectorEntranceClip, TPresetEffectDefinition>> = {},
@@ -764,8 +764,8 @@ export class WebChalk {
       },
 
       /**
-       * Creates a {@link ConnectorExitClip}, which can be used to unrender a {@link WebChalkConnectorElement}.
-       * @param domElem - the {@link WebChalkConnectorElement} element to which the animation effect will be applied
+       * Creates a {@link ConnectorExitClip}, which can be used to unrender a {@link WebchalkConnectorElement}.
+       * @param domElem - the {@link WebchalkConnectorElement} element to which the animation effect will be applied
        * @param effectName - the name of the preset animation effect
        * @param effectOptions - array of arguments that can be used to customize the appearance of the chosen animation effect
        * @param effectConfig - configuration options object ({@link ConnectorExitClipConfig}) that defines the behavior of the clip
@@ -803,7 +803,7 @@ export class WebChalk {
        * <!-- EX:E id="ConnectorExitClip.example" -->
        */
       ConnectorExit: function<TEffectBank extends typeof combinedConnectorExitBank, TEffectName extends EffectNameIn<TEffectBank>, TPresetEffectDefinition extends TEffectBank[TEffectName]>(
-        connectorElem: WebChalkConnectorElement | Element | null | undefined,
+        connectorElem: WebchalkConnectorElement | Element | null | undefined,
         effectName: TEffectName,
         effectOptions: EffectOptions<TPresetEffectDefinition>,
         effectConfig: Partial<Layer4MutableConfig<ConnectorExitClip, TPresetEffectDefinition>> = {},
@@ -929,7 +929,7 @@ export class WebChalk {
 /**
  * @ignore
  */
-export const webchalk = new WebChalk();
+export const webchalk = new Webchalk();
 
 // const thing =  webchalk.createAnimationClipFactories({
 //   additionalEntranceEffects: definePresetEffectBank('Entrance', {

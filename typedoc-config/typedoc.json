@@ -9,7 +9,7 @@
   "customCss": "./assets/styles/typedoc-styles.css",
   "customJs": "./assets/customScript.js",
   "exclude": [
-    "**/WebChalkAnimation.ts",
+    "**/WebchalkAnimation.ts",
     "**/index.ts",
     "**/globalSideEffects.ts",
     "**/TSDocExamples.ts",

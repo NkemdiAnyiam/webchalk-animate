@@ -1,14 +1,14 @@
 import { AnimSequence } from "./AnimationSequence";
 import { AnimTimeline } from "./AnimationTimeline";
 import { EntranceClip, MotionClip, TransitionClip } from "./AnimationClipCategories";
-import { webchalk, WebChalk } from "../WebChalk";
+import { webchalk, Webchalk } from "../Webchalk";
 import { EffectOptions, PresetEffectBank, PresetEffectDefinition, EffectFrameGeneratorSet } from "../2_animationEffects/customEffectCreation";
 import { call, detab, getPartial, mergeArrays, xor } from "../4_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
 import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "../4_utils/errors";
 import { DOMElement, EffectCategory, Keyframes, StyleProperty } from "../4_utils/interfaces";
-import { WebChalkConnectorElement } from "../3_components/WebChalkConnectorElement";
-import { WebChalkAnimation } from "./WebChalkAnimation";
+import { WebchalkConnectorElement } from "../3_components/WebchalkConnectorElement";
+import { WebchalkAnimation } from "./WebchalkAnimation";
 import { PartialPick, PickFromArray, WithRequired } from "../4_utils/utilityTypes";
 
 // /**
@@ -133,7 +133,7 @@ type KeyframeTimingOptions = {
 // TYPE
 /**
  * Contains configuration options used to define both the timing and effects of the animation clip.
- * Used as the last argument in most clip factory functions created by {@link WebChalk.createAnimationClipFactories}.
+ * Used as the last argument in most clip factory functions created by {@link Webchalk.createAnimationClipFactories}.
  * Returned by {@link AnimClip.getConfig}.
  * @see {@link AnimClip.getConfig}.
  * 
@@ -262,8 +262,8 @@ export type ScheduledTask = {
  * will be applied to it (asynchronously).
  * 
  * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
- * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. WebChalk provides convenient factory functions
- * that can be used to create such clips—the factory functions can be obtained from {@link WebChalk.createAnimationClipFactories}.
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webchalk provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link Webchalk.createAnimationClipFactories}.
  * Examples are shown below.
  * 
  * Generally (with some exceptions), using a clip factory function follows this format:
@@ -519,7 +519,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   }
  }
 
- protected animation!: WebChalkAnimation;
+ protected animation!: WebchalkAnimation;
  /**@internal*/
  get rafLoopsProgress(): number {
   const { progress, direction } = this.animation.effect!.getComputedTiming();
@@ -809,7 +809,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       composite: composite,
     };
 
-    this.animation = new WebChalkAnimation(
+    this.animation = new WebchalkAnimation(
       new KeyframeEffect(
         this.domElem,
         // Using fontFeatureSettings handles a very strange Firefox bug that causes animations to run without any visual changes
@@ -871,7 +871,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       // layer 3 config defined in preset effect definition takes priority over default
       ...effectDefinitionDefaultConfig,
 
-      // layer 4 config (person using WebChalk) takes priority over preset definition
+      // layer 4 config (person using Webchalk) takes priority over preset definition
       ...usageConfig,
 
       // mergeable properties
@@ -1337,7 +1337,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
               }
               throw this.generateError(CustomErrors.CommitStylesError,
                 detab`Failed to commit styles on the element while it was unrendered.\
-                Animation styles normally cannot be saved on unrendered elements in JavaScript, but WebChalk allows it ONLY IF\
+                Animation styles normally cannot be saved on unrendered elements in JavaScript, but Webchalk allows it ONLY IF\
                 the element is unrendered due to having the CSS class "webchalk-display-none". If there is ANY other reason\
                 for the element not being rendered, the styles cannot be committed.
                 Detected reasons:\n`
@@ -1571,10 +1571,10 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   }
 
   protected preventConnector() {
-    if (this.domElem instanceof WebChalkConnectorElement) {
+    if (this.domElem instanceof WebchalkConnectorElement) {
       throw this.generateError(CustomErrors.InvalidElementError,
         `Connectors cannot be animated using ${this.category}().` +
-        `${errorTip(`Tip: WebChalkConnectorElement elements cannot be animated using Entrance() or Exit() because many of the animations are not really applicable.` +
+        `${errorTip(`Tip: WebchalkConnectorElement elements cannot be animated using Entrance() or Exit() because many of the animations are not really applicable.` +
           ` Instead, any entrance or exit effects that make sense for connectors are defined in ConnectorEntrance() and ConnectorExit().`
         )}`,
         this.domElem

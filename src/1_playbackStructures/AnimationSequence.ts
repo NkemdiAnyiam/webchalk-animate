@@ -3,7 +3,7 @@ import { AnimTimeline } from "./AnimationTimeline";
 import { CustomErrors, errorTip, generateError, SequenceErrorGenerator } from "../4_utils/errors";
 import { getPartial } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
-import { webchalk } from "../WebChalk";
+import { webchalk } from "../Webchalk";
 
 // TYPE
 /**

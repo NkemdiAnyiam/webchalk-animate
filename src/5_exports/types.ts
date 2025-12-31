@@ -60,15 +60,15 @@ export {
 
 
 export type {
-  WebChalkConnectorElementConfig,
-} from "../3_components/WebChalkConnectorElement";
+  WebchalkConnectorElementConfig,
+} from "../3_components/WebchalkConnectorElement";
 export {
-  WebChalkConnectorElement,
-} from "../3_components/WebChalkConnectorElement";
+  WebchalkConnectorElement,
+} from "../3_components/WebchalkConnectorElement";
 
 export {
-  WebChalkPlaybackButtonElement,
-} from "../3_components/WebChalkPlaybackButtonElement";
+  WebchalkPlaybackButtonElement,
+} from "../3_components/WebchalkPlaybackButtonElement";
 
 export type * from "../4_utils/interfaces";
 

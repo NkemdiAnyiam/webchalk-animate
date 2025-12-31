@@ -12,5 +12,5 @@
 //   ScrollerClip,
 //   TransitionClip,
 // } from '../1_playbackStructures/AnimationClipCategories';
-// export { WebChalkConnectorElement } from '../3_components/WebChalkConnectorElement';
-// export { WebChalkPlaybackButtonElement } from '../3_components/WebChalkPlaybackButtonElement';
+// export { WebchalkConnectorElement } from '../3_components/WebchalkConnectorElement';
+// export { WebchalkPlaybackButtonElement } from '../3_components/WebchalkPlaybackButtonElement';

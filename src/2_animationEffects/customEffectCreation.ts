@@ -3,7 +3,7 @@ import { EmphasisClip, EntranceClip, ExitClip, MotionClip } from "../1_playbackS
 import { Keyframes, Mutator } from "../4_utils/interfaces";
 import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord, StrictPropertyCheck, StrictReturnPropertyCheck, PrettifyCustomError, ErrorCheckJoiner, ValidationBloat } from "../4_utils/utilityTypes";
 import { AnimClipConfig } from "../1_playbackStructures/AnimationClip";
-import { webchalk } from "../WebChalk";
+import { webchalk } from "../Webchalk";
 import { deepFreeze } from "../4_utils/helpers";
 import { DEFAULT_CONFIG_ERROR, IMMUTABLE_CONFIG_ERROR, EFFECT_FRAME_GENERATORS_RETURN_ERROR_PRIMITIVE, EFFECT_FRAME_GENERATORS_RETURN_ERROR_PROPERTIES, EFFECT_FRAME_GENERATORS_RETURN_ERROR_KEYFRAMES_RW, EFFECT_FRAME_GENERATORS_RETURN_ERROR_MUTATOR_RW } from "../4_utils/errors";
 

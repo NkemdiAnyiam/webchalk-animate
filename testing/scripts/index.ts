@@ -1,11 +1,11 @@
 import { webchalk } from 'webchalk-animate';
-import * as WebChalkTypes from 'webchalk-animate/types';
-import * as WebChalkErrors from "webchalk-animate/error-handling";
-import * as WebChalkEasing from "webchalk-animate/easing";
-import * as WebChalkUtils from "webchalk-animate/utility-functions";
+import * as WebchalkTypes from 'webchalk-animate/types';
+import * as WebchalkErrors from "webchalk-animate/error-handling";
+import * as WebchalkEasing from "webchalk-animate/easing";
+import * as WebchalkUtils from "webchalk-animate/utility-functions";
 import { definePresetEffectBank, webchalkPresetEffectBanks } from 'webchalk-animate/custom-effect-creation';
 
-console.log(WebChalkTypes.AnimClip);
+console.log(WebchalkTypes.AnimClip);
 
 /* css */`
 @keyframes roll-in-blurred-left {
@@ -114,9 +114,9 @@ const customEntrances = definePresetEffectBank(
         return {
           keyframesGenerator_play: () => [
             {opacity: 0, composite: 'replace'},
-            {translate: `0 ${belowViewportDist()}px`, offset: 0, easing: WebChalkEasing.useEasing('power2-out')},
+            {translate: `0 ${belowViewportDist()}px`, offset: 0, easing: WebchalkEasing.useEasing('power2-out')},
             {translate: `0 -25px`, offset: 0.83333},
-            {translate: `0 -25px`, offset: 0.86, easing: WebChalkEasing.useEasing('power1-in')},
+            {translate: `0 -25px`, offset: 0.86, easing: WebchalkEasing.useEasing('power1-in')},
             {translate: `0 0`},
           ],
         };
@@ -225,9 +225,9 @@ const customExits = definePresetEffectBank(
             // return Keyframes (Keyframe[])
             return [
               {opacity: 0, composite: 'replace'},
-              {translate: `0 ${belowViewportDist()}px`, offset: 0, easing: WebChalkEasing.useEasing('power2-out')},
+              {translate: `0 ${belowViewportDist()}px`, offset: 0, easing: WebchalkEasing.useEasing('power2-out')},
               {translate: `0 -25px`, offset: 0.83333},
-              {translate: `0 -25px`, offset: 0.86, easing: WebChalkEasing.useEasing('power1-in')},
+              {translate: `0 -25px`, offset: 0.86, easing: WebchalkEasing.useEasing('power1-in')},
               {translate: `0 0`},
             ];
           },
@@ -365,19 +365,19 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
 });
 
 {
-  const thing: WebChalkTypes.AnimSequence = webchalk.newSequence();
+  const thing: WebchalkTypes.AnimSequence = webchalk.newSequence();
 
-  const func = function(sequence: WebChalkTypes.AnimSequence) {
+  const func = function(sequence: WebchalkTypes.AnimSequence) {
 
   }
 
   func(webchalk.newSequence())
 
 
-  const connector = document.querySelector<WebChalkTypes.WebChalkConnectorElement>('.connector--1');
-  console.log('is connector (should true): ', connector instanceof WebChalkTypes.WebChalkConnectorElement);
+  const connector = document.querySelector<WebchalkTypes.WebchalkConnectorElement>('.connector--1');
+  console.log('is connector (should true): ', connector instanceof WebchalkTypes.WebchalkConnectorElement);
 
-  console.log('is sequence (should true): ', webchalk.newSequence() instanceof WebChalkTypes.AnimSequence);
+  console.log('is sequence (should true): ', webchalk.newSequence() instanceof WebchalkTypes.AnimSequence);
 }
 
 const square = document.querySelector('.square');
@@ -387,9 +387,9 @@ const ent = Entrance(square, '~appear', []);
 
 // console.log(ent.schedulePromise === ent.schedulePromise);
 
-const entrance: WebChalkTypes.EntranceClip = Entrance(square, '~fly-in', ['from-bottom'], {hideNowType: 'display-none'});
+const entrance: WebchalkTypes.EntranceClip = Entrance(square, '~fly-in', ['from-bottom'], {hideNowType: 'display-none'});
 const motion = Motion(square, '~translate', [{translate: '200px 200px'}], {duration: 1000, easing: 'bounce-out'});
-// const entrance: WebChalkTypes.EntranceClip = Entrance(square, '~fly-in', ['from-bottom'], {duration: 1000});
+// const entrance: WebchalkTypes.EntranceClip = Entrance(square, '~fly-in', ['from-bottom'], {duration: 1000});
 // const motion = Motion(square, 'translateRight', [500], {duration: 1000, easing: 'bounce-out'});
 console.log(entrance.getModifiers());
 console.log(entrance.getModifiers('hideNowType'));

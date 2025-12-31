@@ -182,7 +182,7 @@ export const CustomErrors = {
 };
 
 /**
- * Object containing WebChalk's custom Error classes.
+ * Object containing Webchalk's custom Error classes.
  * 
  * @interface
  */

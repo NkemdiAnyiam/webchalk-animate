@@ -2,12 +2,12 @@
 import { webchalk } from 'webchalk-animate';
 /**** MD-E id="import webchalk" */
 /**** MD-S id="import paths" */
-import * as WebChalkTypes from 'webchalk-animate/types-and-interfaces';
-import * as WebChalkErrors from "webchalk-animate/error-handling";
-import * as WebChalkEasing from "webchalk-animate/easing";
+import * as WebchalkTypes from 'webchalk-animate/types-and-interfaces';
+import * as WebchalkErrors from "webchalk-animate/error-handling";
+import * as WebchalkEasing from "webchalk-animate/easing";
 /**** MD-E id="import paths" */
 
-const { AnimSequence, AnimClip } = WebChalkTypes;
+const { AnimSequence, AnimClip } = WebchalkTypes;
 
 /**** MD-S id="usage__webchalk.createAnimationClipFactories()" */
 const clipFactories = webchalk.createAnimationClipFactories();

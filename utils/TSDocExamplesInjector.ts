@@ -11,7 +11,7 @@ const sources = {
 
 const targets = {
   filePaths: [
-    `${directoryPrefix}/WebChalk.ts`,
+    `${directoryPrefix}/Webchalk.ts`,
     `${directoryPrefix}/1_playbackStructures/AnimationClip.ts`,
     `${directoryPrefix}/1_playbackStructures/AnimationClipCategories.ts`,
     `${directoryPrefix}/1_playbackStructures/AnimationTimeline.ts`,

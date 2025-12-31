@@ -2,8 +2,8 @@ import { AnimSequence } from "./AnimationSequence";
 import { CustomErrors, errorTip, generateError, TimelineErrorGenerator } from "../4_utils/errors";
 import { getPartial } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
-import { WebChalkPlaybackButtonElement } from "../3_components/WebChalkPlaybackButtonElement";
-import { webchalk } from "../WebChalk";
+import { WebchalkPlaybackButtonElement } from "../3_components/WebchalkPlaybackButtonElement";
+import { webchalk } from "../Webchalk";
 
 // TYPE
 /**
@@ -128,7 +128,7 @@ const DISABLED_FROM_PAUSE = 'playback-button--disabledFromPause';
 
 // TYPE
 type PlaybackButtons = {
-  [key in `${'forward' | 'backward' | 'pause' | 'toggleSkipping' | 'fastForward'}Button`]: WebChalkPlaybackButtonElement | null | undefined;
+  [key in `${'forward' | 'backward' | 'pause' | 'toggleSkipping' | 'fastForward'}Button`]: WebchalkPlaybackButtonElement | null | undefined;
 };
 // TYPE
 type PlaybackButtonPurpose = `Step ${'Forward' | 'Backward'}` | 'Pause' | 'Fast Forward' | 'Toggle Skipping';
@@ -385,11 +385,11 @@ export class AnimTimeline {
     const potentialButtonsContainer = (searchRoot ?? document).querySelector(`[timeline-name="${this.config.timelineName}"]`);
 
     // find the button if it has the correct timeline-name directly on it
-    const getButtonDirect = (action: WebChalkPlaybackButtonElement['action']) => (searchRoot ?? document).querySelector<WebChalkPlaybackButtonElement>(`webchalk-playback-button[action="${action}"][timeline-name="${this.config.timelineName}"]`);
+    const getButtonDirect = (action: WebchalkPlaybackButtonElement['action']) => (searchRoot ?? document).querySelector<WebchalkPlaybackButtonElement>(`webchalk-playback-button[action="${action}"][timeline-name="${this.config.timelineName}"]`);
     // find the button if it is nested in a container with the correct timeline-name and does not have a timeline-name of its own
-    const getButtonGroupChild = (action: WebChalkPlaybackButtonElement['action']) => potentialButtonsContainer?.querySelector<WebChalkPlaybackButtonElement>(`webchalk-playback-button[action="${action}"]:not([timeline-name])`);
+    const getButtonGroupChild = (action: WebchalkPlaybackButtonElement['action']) => potentialButtonsContainer?.querySelector<WebchalkPlaybackButtonElement>(`webchalk-playback-button[action="${action}"]:not([timeline-name])`);
     // search for button directly, then search for child of button group
-    const getButton = (action: WebChalkPlaybackButtonElement['action']) => getButtonDirect(action) ?? getButtonGroupChild(action);
+    const getButton = (action: WebchalkPlaybackButtonElement['action']) => getButtonDirect(action) ?? getButtonGroupChild(action);
 
     const forwardButton = buttonsSubset.includes('Step Forward') ? getButton("step-forward") : undefined;
     const backwardButton = buttonsSubset.includes('Step Backward') ? getButton("step-backward") : undefined;
@@ -522,7 +522,7 @@ export class AnimTimeline {
     let wasWarned = false;
     const warnedList: string[] = [];
 
-    const warnButton = (button: WebChalkPlaybackButtonElement | null | undefined, purpose: PlaybackButtonPurpose) => {
+    const warnButton = (button: WebchalkPlaybackButtonElement | null | undefined, purpose: PlaybackButtonPurpose) => {
       if (!button && buttonsSubset.includes(purpose)) {
         warnedList.push(purpose);
         wasWarned = true;

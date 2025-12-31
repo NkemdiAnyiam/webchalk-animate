@@ -20,11 +20,11 @@ type Segment = [
 type SegmentsCache = [delayPhaseEnd: Segment, activePhaseEnd: Segment, endDelayPhaseEnd: Segment];
 
 type FullyFinishedPromise = {
-  promise: Promise<WebChalkAnimation>;
-  resolve: (value: WebChalkAnimation | PromiseLike<WebChalkAnimation>) => void;
+  promise: Promise<WebchalkAnimation>;
+  resolve: (value: WebchalkAnimation | PromiseLike<WebchalkAnimation>) => void;
 };
 
-export class WebChalkAnimation extends Animation {
+export class WebchalkAnimation extends Animation {
   direction: 'forward' | 'backward' = 'forward';
   private getEffect(direction: 'forward' | 'backward'): KeyframeEffect { return direction === 'forward' ? this.forwardEffect : this.backwardEffect; }
   private inProgress = false;
@@ -134,7 +134,7 @@ export class WebChalkAnimation extends Animation {
   }
 
   private getNewFullyFinished(): FullyFinishedPromise {
-    const {resolve, promise} = Promise.withResolvers<WebChalkAnimation>();
+    const {resolve, promise} = Promise.withResolvers<WebchalkAnimation>();
     return {resolve, promise};
   }
   
@@ -306,7 +306,7 @@ export class WebChalkAnimation extends Animation {
       // if the animation is already finished in the given direction, resolve immediately
       if (this.isFinished && this.direction === direction) { resolve(); return; }
 
-      const [segments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition] = WebChalkAnimation.computePhaseEmplacement(this, direction, phase, timePosition);
+      const [segments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition] = WebchalkAnimation.computePhaseEmplacement(this, direction, phase, timePosition);
 
       // check for out of bounds time positions
       if (phaseTimePosition < 0) {
@@ -434,7 +434,7 @@ export class WebChalkAnimation extends Animation {
       return;
     }
     
-    const [segments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition] = WebChalkAnimation.computePhaseEmplacement(this, direction, phase, timePosition);
+    const [segments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition] = WebchalkAnimation.computePhaseEmplacement(this, direction, phase, timePosition);
 
     // check for out of bounds time positions
     if (phaseTimePosition < 0) {
@@ -492,7 +492,7 @@ export class WebChalkAnimation extends Animation {
   }
 
   private static computePhaseEmplacement(
-    anim: WebChalkAnimation,
+    anim: WebchalkAnimation,
     direction: 'forward' | 'backward',
     phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
     timePosition: number | 'beginning' | 'end' | `${number}%`,

@@ -1,5 +1,5 @@
 // import { AnimClipConfig } from "../AnimClip";
-// import { PresetEffectDefinition } from "../WebChalk";
+// import { PresetEffectDefinition } from "../Webchalk";
 // import { PrefixProps } from "./utilityTypes";
 
 import { AnimClip } from "../1_playbackStructures/AnimationClip";
