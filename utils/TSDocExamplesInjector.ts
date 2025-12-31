@@ -17,7 +17,7 @@ const targets = {
     `${directoryPrefix}/1_playbackStructures/AnimationTimeline.ts`,
     `${directoryPrefix}/2_animationEffects/easing.ts`,
     `${directoryPrefix}/2_animationEffects/customEffectCreation.ts`,
-    `${directoryPrefix}/2_animationEffects/libraryPresetEffectBanks.ts`,
+    `${directoryPrefix}/2_animationEffects/webchalkPresetEffectBanks.ts`,
   ],
   startMarker: /\* \<\!-- EX:S .*? --\>/,
   endMarker: /\* \<\!-- EX:E .*? --\>/,
