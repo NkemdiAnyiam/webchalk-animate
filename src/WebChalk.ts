@@ -224,12 +224,13 @@ export class WebChalk {
 
   /**
    * Creates functions that return {@link AnimClip}s for specific effect categories. A clip for a given category can use
-   *  a single preset animation effect from the effects bank of the same category. For example,
+   *  a single preset animation effect from the effect bank of the same category. For example,
    * `createAnimationClipFactories().Entrance(someElement, '~appear', [])` will use the "\~appear" animation effect from the
    * bank of entrance animation effects, but the "\~appear" animation will obviously not be found in the bank of exit animation
    * effects, so `createAnimationClipFactories().Exit(someElement, '~appear', [])` will throw an error.
    *  * Developers may add their own preset animation effects to the Entrance, Exit, Emphasis, and Motion categories by using the
-   * {@link additionalPresetEffectBanks} parameter.
+   * {@link additionalPresetEffectBanks} parameter. **WEBCHALK'S OWN PRESET EFFECT BANKS ARE AUTOMATICALLY INCLUDED. YOU DO NOT
+   * NEED TO ADD THEM MANUALLY.**
    * @param additionalPresetEffectBanks - optional object containing additional banks that the developer can use to add their own preset effects
    * @param additionalPresetEffectBanks.additionalEntranceEffects - objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Entrance()` clip factory function
    * @param additionalPresetEffectBanks.additionalExitEffects - objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Exit()` clip factory function
