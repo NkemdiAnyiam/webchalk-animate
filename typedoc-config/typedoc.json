@@ -14,6 +14,7 @@
     "**/globalSideEffects.ts",
     "**/TSDocExamples.ts",
     "**/utilityTypes.ts",
+    "**/color.ts",
   ],
   "entryPoints": ["../src"],
   "entryPointStrategy": "expand",
