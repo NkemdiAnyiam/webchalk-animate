@@ -58,7 +58,7 @@ window.addEventListener('DOMContentLoaded', () => {
     //   }
     // }
 
-    const bloatList = ['ValidationBloat'];
+    const bloatList = ['ValidationBloat', 'ClipTypeToHiddenBankCategorizer'];
     const tmiList = ['AnimClip'];
 
     while (true) {
