@@ -15,14 +15,14 @@ import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions, Keyfr
 import { useEasing } from "./easing";
 import { CustomErrors } from "../4_utils/errors";
 export type {
-  LibraryPresetEntranceEffects as EntranceEffects,
-  LibraryPresetConnectorEntranceEffects as ConnectorEntranceEffects,
-  LibraryPresetConnectorExitEffects as ConnectorExitEffects,
-  LibraryPresetMotionEffects as MotionEffects,
-  LibraryPresetEmphasisEffects as EmphasisEffects,
-  LibraryPresetExitEffects as ExitEffects,
-  LibraryPresetScrollEffects as ScrollEffects,
-  LibraryPresetTransitionEffects as TransitionEffects
+  WebchalkPresetEntranceEffects as EntranceEffects,
+  WebchalkPresetConnectorEntranceEffects as ConnectorEntranceEffects,
+  WebchalkPresetConnectorExitEffects as ConnectorExitEffects,
+  WebchalkPresetMotionEffects as MotionEffects,
+  WebchalkPresetEmphasisEffects as EmphasisEffects,
+  WebchalkPresetExitEffects as ExitEffects,
+  WebchalkPresetScrollEffects as ScrollEffects,
+  WebchalkPresetTransitionEffects as TransitionEffects
 } from "../1_playbackStructures/AnimationClipCategories";
 
 // type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }

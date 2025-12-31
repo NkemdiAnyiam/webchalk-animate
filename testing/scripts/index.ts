@@ -1,13 +1,11 @@
 import { webchalk } from 'webchalk-animate';
-import * as WebChalkTypes from 'webchalk-animate/types-and-interfaces';
-import * as WebChalkClasses from 'webchalk-animate/classes';
+import * as WebChalkTypes from 'webchalk-animate/types';
 import * as WebChalkErrors from "webchalk-animate/error-handling";
 import * as WebChalkEasing from "webchalk-animate/easing";
 import * as WebChalkUtils from "webchalk-animate/utility-functions";
-import { definePresetEffectBank } from 'webchalk-animate/custom-effect-creation';
-import { libPresetEntrances } from 'webchalk-animate/lib-preset-effect-banks';
+import { definePresetEffectBank, webchalkPresetEffectBanks } from 'webchalk-animate/custom-effect-creation';
 
-console.log(WebChalkClasses.AnimClip);
+console.log(WebChalkTypes.AnimClip);
 
 /* css */`
 @keyframes roll-in-blurred-left {
@@ -78,7 +76,7 @@ const customEntrances = definePresetEffectBank(
       },
     },
 
-    '~fly-in': webchalk.copyPresetEffect(libPresetEntrances, '~fly-in', {
+    '~fly-in': webchalk.copyPresetEffect(webchalkPresetEffectBanks.entranceBank, '~fly-in', {
         addedDefaultConfig: {},
         addedImmutableConfig: {
           duration: 1000,
@@ -377,9 +375,9 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
 
 
   const connector = document.querySelector<WebChalkTypes.WebChalkConnectorElement>('.connector--1');
-  console.log('is connector (should true): ', connector instanceof WebChalkClasses.WebChalkConnectorElement);
+  console.log('is connector (should true): ', connector instanceof WebChalkTypes.WebChalkConnectorElement);
 
-  console.log('is sequence (should true): ', webchalk.newSequence() instanceof WebChalkClasses.AnimSequence);
+  console.log('is sequence (should true): ', webchalk.newSequence() instanceof WebChalkTypes.AnimSequence);
 }
 
 const square = document.querySelector('.square');

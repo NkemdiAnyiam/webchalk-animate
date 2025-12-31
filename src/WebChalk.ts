@@ -10,7 +10,7 @@ import { WebChalkConnectorElement, WebChalkConnectorElementConfig } from "./3_co
 import {
   libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions,
   libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions
-} from "./2_animationEffects/libraryPresetEffectBanks";
+} from "./2_animationEffects/webchalkPresetEffectBanks";
 import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./4_utils/interfaces";
 import { PresetEffectBank, EffectNameIn, PresetEffectDefinition, EffectOptions, definePresetEffectBank, ExtendableBankCategoryToClipType, PresetEffectBankToCategory, definePresetEffect } from "./2_animationEffects/customEffectCreation";
 import { StrictPropertyCheck } from "./4_utils/utilityTypes";
