@@ -3,7 +3,7 @@ import * as WebchalkTypes from 'webchalk-animate/types';
 import * as WebchalkErrors from "webchalk-animate/error-handling";
 import * as WebchalkEasing from "webchalk-animate/easing";
 import * as WebchalkUtils from "webchalk-animate/utility-functions";
-import { definePresetEffectBank, webchalkPresetEffectBanks } from 'webchalk-animate/custom-effect-creation';
+import { definePresetEffectBank, webchalkPresetEffectBanks } from 'webchalk-animate/preset-effect-suite';
 
 console.log(WebchalkTypes.AnimClip);
 

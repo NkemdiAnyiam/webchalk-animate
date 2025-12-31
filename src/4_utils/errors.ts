@@ -1,7 +1,7 @@
 import { AnimClip } from "../1_playbackStructures/AnimationClip";
 import { AnimSequence } from "../1_playbackStructures/AnimationSequence";
 import { AnimTimeline } from "../1_playbackStructures/AnimationTimeline";
-import { ExtendableBankCategory } from "../2_animationEffects/customEffectCreation";
+import { ExtendableBankCategory } from "../2_animationEffects/presetEffectCreation";
 import { getOpeningTag, indexToOrdinal } from "./helpers";
 import { DOMElement } from "./interfaces";
 

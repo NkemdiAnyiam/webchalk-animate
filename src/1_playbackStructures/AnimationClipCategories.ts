@@ -5,7 +5,7 @@ import { Webchalk } from "../Webchalk";
 import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { WebchalkConnectorElement, WebchalkConnectorElementConfig } from "../3_components/WebchalkConnectorElement";
-import { PresetEffectDefinition, PresetEffectBank, EffectOptions, Layer3MutableClipConfig, EffectNameIn } from "../2_animationEffects/customEffectCreation";
+import { PresetEffectDefinition, PresetEffectBank, EffectOptions, Layer3MutableClipConfig, EffectNameIn } from "../2_animationEffects/presetEffectCreation";
 import { libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions, libPresetConnectorEntrances, libPresetConnectorExits, libPresetTransitions, libPresetScrolls } from "../2_animationEffects/webchalkPresetEffectBanks";
 
 /**

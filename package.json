@@ -19,7 +19,7 @@
     "./error-handling": "./dist/5_exports/errorHandling.js",
     "./easing": "./dist/5_exports/easing.js",
     "./utility-functions": "./dist/5_exports/utilityFunctions.js",
-    "./custom-effect-creation": "./dist/5_exports/customEffectCreation.js"
+    "./preset-effect-suite": "./dist/5_exports/presetEffectSuite.js"
   },
   "scripts": {
     "build": "tsup",

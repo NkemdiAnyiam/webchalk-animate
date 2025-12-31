@@ -1,4 +1,4 @@
-import { definePresetEffect, definePresetEffectBank } from "../2_animationEffects/customEffectCreation";
+import { definePresetEffect, definePresetEffectBank } from "../2_animationEffects/presetEffectCreation";
 import { EasingString, PresetLinearEasingKey, useEasing } from "../2_animationEffects/easing";
 import { webchalk } from "../Webchalk";
 

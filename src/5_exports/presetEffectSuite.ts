@@ -6,7 +6,7 @@ export {
   EffectOptions,
   // definePresetEffect,
   definePresetEffectBank
-} from "../2_animationEffects/customEffectCreation";
+} from "../2_animationEffects/presetEffectCreation";
 
 import {
   libPresetEntrances,

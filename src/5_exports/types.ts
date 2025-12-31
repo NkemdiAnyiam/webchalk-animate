@@ -72,7 +72,7 @@ export {
 
 export type * from "../4_utils/interfaces";
 
-export type { EffectFrameGeneratorSet, PresetEffectDefinition, PresetEffectBank, EffectNameIn, EffectOptions } from "../2_animationEffects/customEffectCreation";
+export type { EffectFrameGeneratorSet, PresetEffectDefinition, PresetEffectBank, EffectNameIn, EffectOptions } from "../2_animationEffects/presetEffectCreation";
 
 export type { PresetLinearEasingKey, EasingString, TrivialCssEasingFunction } from "../2_animationEffects/easing";
 

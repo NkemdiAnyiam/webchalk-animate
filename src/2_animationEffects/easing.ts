@@ -163,6 +163,7 @@ export function invertEasing(easingString: EasingString): string {
   }
 }
 
+// TODO: Add code examples
 /**
  * Accepts either a preset easing alias (such as `"bounce-out"`) or a CSS `<easing-function>`
  * string (such as `"ease-in"` or `"cubic-bezier(...)"`) and returns an `<easing-function>`.
