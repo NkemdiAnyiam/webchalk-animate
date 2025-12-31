@@ -49,9 +49,9 @@ export type EasingString = Union<
  * Keys are one-to-one with {@link PresetLinearEasingKey}.
  * 
  * @remarks
- * This map is not intended to be used on its own—instead, you should use the provided {@link useEasing} function,
- * which can be used to access the entries of this map, use your own `<easing-function>` strings, and invert
- * easing.
+ * This map is not intended to be used—this is just for the sake of printing and seeing
+ * what each option is. You should use the provided {@link useEasing} function,
+ * which accesses the entries of this map and provides other functionalities.
  */
 export const easingMap = Object.freeze(new Map<PresetLinearEasingKey, string>([
   // CREDITS:
