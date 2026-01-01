@@ -7,14 +7,6 @@ import {
   ScrollerClip,
   ConnectorEntranceClip,
   ConnectorExitClip,
-  WebchalkPresetEntranceEffects,
-  WebchalkPresetExitEffects,
-  WebchalkPresetEmphasisEffects,
-  WebchalkPresetMotionEffects,
-  WebchalkPresetConnectorEntranceEffects,
-  WebchalkPresetConnectorExitEffects,
-  WebchalkPresetScrollEffects,
-  WebchalkPresetTransitionEffects,
 } from "../1_playbackStructures/AnimationClipCategories";
 import { webchalk } from "../Webchalk";
 import { definePresetEffectBank, formatBank, PresetEffectBank } from "./presetEffectCreation";
@@ -22,6 +14,16 @@ import { computeSelfScrollingBounds, deepFreeze, getBoundingClientRectOfHidden, 
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions, Keyframes } from "../4_utils/interfaces";
 import { useEasing } from "./easing";
 import { CustomErrors } from "../4_utils/errors";
+export type {
+  WebchalkPresetEntranceEffects as EntranceEffects,
+  WebchalkPresetConnectorEntranceEffects as ConnectorEntranceEffects,
+  WebchalkPresetConnectorExitEffects as ConnectorExitEffects,
+  WebchalkPresetMotionEffects as MotionEffects,
+  WebchalkPresetEmphasisEffects as EmphasisEffects,
+  WebchalkPresetExitEffects as ExitEffects,
+  WebchalkPresetScrollEffects as ScrollEffects,
+  WebchalkPresetTransitionEffects as TransitionEffects
+} from "../1_playbackStructures/AnimationClipCategories";
 
 // type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }
 
@@ -1246,12 +1248,12 @@ export const libPresetScrolls = {
  * Object containing the various preset effect banks that Webchalk provides.
  */
 export const webchalkPresetEffectBanks = {
-  entranceBank: libPresetEntrances as WebchalkPresetEntranceEffects,
-  exitBank: libPresetExits as WebchalkPresetExitEffects,
-  emphasisBank: libPresetEmphases as WebchalkPresetEmphasisEffects,
-  motionBank: libPresetMotions as WebchalkPresetMotionEffects,
-  connectorEntranceBank: libPresetConnectorEntrances as WebchalkPresetConnectorEntranceEffects,
-  connectorExitBank: libPresetConnectorExits as WebchalkPresetConnectorExitEffects,
-  scrollBank: libPresetScrolls as WebchalkPresetScrollEffects,
-  transitionBank: libPresetTransitions as WebchalkPresetTransitionEffects,
+  entranceBank: libPresetEntrances,
+  exitBank: libPresetExits,
+  emphasisBank: libPresetEmphases,
+  motionBank: libPresetMotions,
+  connectorEntranceBank: libPresetConnectorEntrances,
+  connectorExitBank: libPresetConnectorExits,
+  scrollBank: libPresetScrolls,
+  transitionBank: libPresetTransitions
 };
