@@ -1,6 +1,7 @@
 export {
   // definePresetEffect,
-  definePresetEffectBank
+  definePresetEffectBank,
+  copyPresetEffectFromBank
 } from "../2_animationEffects/presetEffectCreation";
 
 export { webchalkPresetEffectBanks } from "../2_animationEffects/webchalkPresetEffectBanks";

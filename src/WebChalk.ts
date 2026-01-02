@@ -876,54 +876,6 @@ export class Webchalk {
 
   /**@internal*/
   scrollAnchorsStack: [target: Element, scrollOptions: ScrollingOptions][] = [];
-
-  copyPresetEffect<
-    TPresetEffectBank extends PresetEffectBank,
-    TCategory extends PresetEffectBankToCategory<TPresetEffectBank>,
-    TClipType extends ExtendableBankCategoryToClipType<TCategory>,
-    TEffectName extends EffectNameIn<TPresetEffectBank>,
-    TPresetEffectDefinition extends TPresetEffectBank[TEffectName],
-    // "& object" for some reason ensures that the custom error will display...
-    // ... for cases where ONLY invalid properties are provided
-    TDefaultConfig extends Partial<Layer4MutableConfig<TClipType, TPresetEffectDefinition>> & object,
-    TImmutableConfig extends Partial<Layer4MutableConfig<TClipType, TPresetEffectDefinition>> & object,
-  >(
-    sourceEffectBank: TPresetEffectBank,
-    effectName: TEffectName,
-    addedConfiguration: {
-      addedDefaultConfig?: TDefaultConfig & StrictPropertyCheck<
-        TDefaultConfig,
-        Partial<Layer4MutableConfig<TClipType, TPresetEffectDefinition>>,
-        DEFAULT_CONFIG_ERROR<TCategory>
-      >,
-      addedImmutableConfig?: TImmutableConfig & StrictPropertyCheck<
-        TImmutableConfig,
-        Partial<Layer4MutableConfig<TClipType, TPresetEffectDefinition>>,
-        IMMUTABLE_CONFIG_ERROR<TCategory>
-      >,
-    }
-  ) {
-    const sourceEffectDefinition = sourceEffectBank[effectName];
-    const {
-      addedDefaultConfig = {},
-      addedImmutableConfig = {},
-    } = addedConfiguration;
-
-    return {
-      // new default configuration takes priority over source default config
-      ...sourceEffectDefinition,
-      defaultConfig: {
-        ...sourceEffectDefinition.defaultConfig,
-        ...addedDefaultConfig
-      } as TDefaultConfig,
-      // source immutable configuration takes priority over new immutable config
-      immutableConfig: {
-        ...addedImmutableConfig,
-        ...sourceEffectDefinition.immutableConfig
-        // "& TPresetEffectDefinition['immutableConfig]" ensures that type constraints from source immutable config are respected after returning
-      } as TImmutableConfig & TPresetEffectDefinition['immutableConfig'],
-    };
-  }
 }
 
 /**

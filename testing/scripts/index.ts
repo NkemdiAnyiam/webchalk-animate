@@ -2,7 +2,7 @@ import { webchalk } from 'webchalk-animate';
 import * as WebchalkTypes from 'webchalk-animate/types';
 import * as WebchalkErrors from "webchalk-animate/error-handling";
 import * as WebchalkUtils from "webchalk-animate/utility-functions";
-import { definePresetEffectBank, webchalkPresetEffectBanks, useEasing } from 'webchalk-animate/preset-effect-suite';
+import { definePresetEffectBank, webchalkPresetEffectBanks, useEasing, copyPresetEffectFromBank } from 'webchalk-animate/preset-effect-suite';
 
 console.log(WebchalkTypes.AnimClip);
 
@@ -75,7 +75,7 @@ const customEntrances = definePresetEffectBank(
       },
     },
 
-    '~fly-in': webchalk.copyPresetEffect(webchalkPresetEffectBanks.entranceBank, '~fly-in', {
+    '~fly-in': copyPresetEffectFromBank(webchalkPresetEffectBanks.entranceBank, '~fly-in', {
         addedDefaultConfig: {},
         addedImmutableConfig: {
           duration: 1000,
