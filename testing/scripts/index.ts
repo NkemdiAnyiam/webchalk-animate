@@ -1,9 +1,8 @@
 import { webchalk } from 'webchalk-animate';
 import * as WebchalkTypes from 'webchalk-animate/types';
 import * as WebchalkErrors from "webchalk-animate/error-handling";
-import * as WebchalkEasing from "webchalk-animate/easing";
 import * as WebchalkUtils from "webchalk-animate/utility-functions";
-import { definePresetEffectBank, webchalkPresetEffectBanks } from 'webchalk-animate/preset-effect-suite';
+import { definePresetEffectBank, webchalkPresetEffectBanks, useEasing } from 'webchalk-animate/preset-effect-suite';
 
 console.log(WebchalkTypes.AnimClip);
 
@@ -114,9 +113,9 @@ const customEntrances = definePresetEffectBank(
         return {
           keyframesGenerator_play: () => [
             {opacity: 0, composite: 'replace'},
-            {translate: `0 ${belowViewportDist()}px`, offset: 0, easing: WebchalkEasing.useEasing('power2-out')},
+            {translate: `0 ${belowViewportDist()}px`, offset: 0, easing: useEasing('power2-out')},
             {translate: `0 -25px`, offset: 0.83333},
-            {translate: `0 -25px`, offset: 0.86, easing: WebchalkEasing.useEasing('power1-in')},
+            {translate: `0 -25px`, offset: 0.86, easing: useEasing('power1-in')},
             {translate: `0 0`},
           ],
         };
@@ -225,9 +224,9 @@ const customExits = definePresetEffectBank(
             // return Keyframes (Keyframe[])
             return [
               {opacity: 0, composite: 'replace'},
-              {translate: `0 ${belowViewportDist()}px`, offset: 0, easing: WebchalkEasing.useEasing('power2-out')},
+              {translate: `0 ${belowViewportDist()}px`, offset: 0, easing: useEasing('power2-out')},
               {translate: `0 -25px`, offset: 0.83333},
-              {translate: `0 -25px`, offset: 0.86, easing: WebchalkEasing.useEasing('power1-in')},
+              {translate: `0 -25px`, offset: 0.86, easing: useEasing('power1-in')},
               {translate: `0 0`},
             ];
           },

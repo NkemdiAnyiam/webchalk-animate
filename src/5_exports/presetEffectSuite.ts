@@ -9,3 +9,12 @@ export {
 } from "../2_animationEffects/presetEffectCreation";
 
 export { webchalkPresetEffectBanks } from "../2_animationEffects/webchalkPresetEffectBanks";
+
+export {
+  PresetLinearEasingKey,
+  TrivialCssEasingFunction,
+  EasingString,
+  easingMap,
+  useEasing,
+} from "../2_animationEffects/easing";
+

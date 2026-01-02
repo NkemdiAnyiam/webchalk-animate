@@ -17,7 +17,6 @@
     ".": "./dist/index.js",
     "./types": "./dist/5_exports/types.js",
     "./error-handling": "./dist/5_exports/errorHandling.js",
-    "./easing": "./dist/5_exports/easing.js",
     "./utility-functions": "./dist/5_exports/utilityFunctions.js",
     "./preset-effect-suite": "./dist/5_exports/presetEffectSuite.js"
   },
