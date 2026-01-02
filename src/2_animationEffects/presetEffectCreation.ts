@@ -1682,6 +1682,112 @@ export function definePresetEffectBank<
 }
 
 // TODO: document
+/**
+ * Duplicates the specified effect from the specified preset effect bank and
+ * changes the default configuration options using {@link addedConfiguration}.
+ * @param sourceEffectBank - the preset effect bank you want to copy an effect from
+ * @param effectName - string name of the specific preset effect definition to be copied
+ * @param addedConfiguration - object containing additional configuration options to extend those of
+ * the original effect
+ * @param addedConfiguration.addedDefaultConfig - default configuration for the
+ * new copy of {@link sourceEffectBank}.{@link effectName} that adds onto and/or overwrites the
+ * default configuration options that came from the original effect
+ * @param addedConfiguration.addedImmutableConfig - immutable configuration for the
+ * new copy of {@link sourceEffectBank}.{@link effectName} that adds onto (but _cannot_ overwrite) the immutable
+ * configuration options that came from the original effect
+ * @returns A new {@link PresetEffectDefinition} object that can be used as an entry in a {@link PresetEffectBank}.
+ * 
+ * @remarks
+ * - When passing additional banks to {@link Webchalk.createAnimationClipFactories}, if the name of
+ * this effect copy is the same as the original effect it is copying from {@link effectName}, the original
+ * effect definition will be overwritten.
+ * - New default configuration options specified in {@link addedConfiguration.addedDefaultConfig}
+ * and new immutable configuration options specified in {@link addedConfiguration.addedImmutableConfig}
+ * _cannot_ overwrite existing immutable configuration from the original effect.
+ * 
+ * @example
+ * <!-- EX:S id="copyPresetEffectFromBank" code-type="ts" -->
+ * ```ts
+ * // RETRIEVE ORIGINAL BANK
+ * const origEntrances = webchalkPresetEffectBanks.entranceBank;
+ * 
+ * // CREATE NEW PRESET EFFECT BANK
+ * const myPresetEntrances = definePresetEffectBank(
+ *   'Entrance',
+ *   {
+ *     // a normal preset effect definition that you wrote. Nothing special here
+ *     zoomIn: {
+ *       buildFrameGenerators(initialScale: number) {
+ *         // return EffectFrameGeneratorSet
+ *         return {
+ *           keyframesGenerator_play: () => {
+ *             // return Keyframes (Keyframe[])
+ *             return [
+ *               {scale: initialScale, opacity: 0},
+ *               {}
+ *             ];
+ *           },
+ *         };
+ *       }
+ *     },
+ * 
+ *     // a new preset effect definition that you based off of the '~appear' effect...
+ *     // ... from the Webchalk preset entrance bank
+ *     myAppear: copyPresetEffectFromBank(origEntrances, '~appear', {
+ *       addedDefaultConfig: { endDelay: 4000 },
+ *       addedImmutableConfig: {
+ *         playbackRate: 3,
+ *         // duration: 1000, // not allowed because duration is immutable in '~appear'
+ *       },
+ *     }),
+ * 
+ *     // a new preset effect definition that you based off of the '~rise-up' effect...
+ *     // ... from the Webchalk preset entrance bank. The names match, so your copy
+ *     // of '~rise-up' will be used anytime `Entrance(<element>, '~rise-up')` is
+ *     // used (instead of the original '~rise-up')
+ *     ['~rise-up']: copyPresetEffectFromBank(origEntrances, '~rise-up', {
+ *       addedDefaultConfig: { easing: 'ease' },
+ *     }),
+ *   }
+ * );
+ * 
+ * // CREATE CLIP FACTORIES AND PASS IN PRESET EFFECT BANKS
+ * const clipFactories = webchalk.createAnimationClipFactories({
+ *   additionalEntranceEffectBank: myPresetEntrances,
+ * });
+ * 
+ * // SELECT AN ELEMENT FROM THE SCREEN
+ * const square = document.querySelector('.square');
+ * 
+ * // CREATE CLIPS
+ * // 1) nothing special here
+ * const ent1 = clipFactories.Entrance(square, 'zoomIn', [0.1]);
+ * 
+ * // 2.1) identical to '~appear' except endDelay = 4s and playback rate = 3x
+ * const ent2 = clipFactories.Entrance(square, 'myAppear', []);
+ * 
+ * // 2.2) same as the above, but endDelay has been set to 1s, which is allowed since...
+ * // ... you added endDelay as merely a default suggestion of 4s
+ * const ent3 = clipFactories.Entrance(square, 'myAppear', [], {endDelay: 1000});
+ * 
+ * // 2.3) same as the above, but a TypeScript compiler error will be thrown because you...
+ * // ... added playbackRate as an immutable configuration, meaning it cannot be changed
+ * const ent4 = clipFactories.Entrance(square, 'myAppear', [], {playbackRate: 1}); // ERROR
+ * 
+ * // 2.4) same as the above, but a TypeScript compiler error will be thrown because...
+ * // ... duration is immutable in the original '~appear' effect definition
+ * const ent5 = clipFactories.Entrance(square, 'myAppear', [], {duration: 1000}); // ERROR
+ * 
+ * // 3.1) Webchalk's '~rise-up' was replaced with your own, which you happened to...
+ * // ... copy from Webchalk's '~rise-up' effect. This is useful for overriding...
+ * // ... configuration options from Webchalk's (or other banks') effects without...
+ * // ... having to write new effect names
+ * const ent6 = clipFactories.Entrance(square, '~rise-up', []); // default easing = 'ease'
+ * ```
+ * <!-- EX:E id="copyPresetEffectFromBank" -->
+ * 
+ * @category Effect Definition
+ */
 export function copyPresetEffectFromBank<
   TPresetEffectBank extends PresetEffectBank,
   TCategory extends PresetEffectBankToCategory<TPresetEffectBank>,
@@ -1696,16 +1802,16 @@ export function copyPresetEffectFromBank<
   sourceEffectBank: TPresetEffectBank,
   effectName: TEffectName,
   addedConfiguration: {
-    addedDefaultConfig?: TDefaultConfig & StrictPropertyCheck<
+    addedDefaultConfig?: TDefaultConfig & ValidationBloat<StrictPropertyCheck<
       TDefaultConfig,
       Partial<Layer4MutableConfig<TClipType, TPresetEffectDefinition>>,
       DEFAULT_CONFIG_ERROR<TCategory>
-    >,
-    addedImmutableConfig?: TImmutableConfig & StrictPropertyCheck<
+    >>,
+    addedImmutableConfig?: TImmutableConfig & ValidationBloat<StrictPropertyCheck<
       TImmutableConfig,
       Partial<Layer4MutableConfig<TClipType, TPresetEffectDefinition>>,
       IMMUTABLE_CONFIG_ERROR<TCategory>
-    >,
+    >>,
   }
 ) {
   const sourceEffectDefinition = sourceEffectBank[effectName];

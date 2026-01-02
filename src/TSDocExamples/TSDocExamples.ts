@@ -1,6 +1,7 @@
-import { definePresetEffect, definePresetEffectBank } from "../2_animationEffects/presetEffectCreation";
+import { copyPresetEffectFromBank, definePresetEffect, definePresetEffectBank } from "../2_animationEffects/presetEffectCreation";
 import { EasingString, PresetLinearEasingKey, useEasing } from "../2_animationEffects/easing";
 import { webchalk } from "../Webchalk";
+import { webchalkPresetEffectBanks } from "../2_animationEffects/webchalkPresetEffectBanks";
 
 {
 /**** EX:S id="Webchalk.newSequence-1.1" */
@@ -1883,10 +1884,87 @@ const ext2 = clipFactories.Exit(square, 'flyOutLeft', []);
 /**** EX:E id="definePresetEffectBank" */
 }
 
+{
+/**** EX:S id="copyPresetEffectFromBank" */
+// RETRIEVE ORIGINAL BANK
+const origEntrances = webchalkPresetEffectBanks.entranceBank;
 
+// CREATE NEW PRESET EFFECT BANK
+const myPresetEntrances = definePresetEffectBank(
+  'Entrance',
+  {
+    // a normal preset effect definition that you wrote. Nothing special here
+    zoomIn: {
+      buildFrameGenerators(initialScale: number) {
+        // return EffectFrameGeneratorSet
+        return {
+          keyframesGenerator_play: () => {
+            // return Keyframes (Keyframe[])
+            return [
+              {scale: initialScale, opacity: 0},
+              {}
+            ];
+          },
+        };
+      }
+    },
 
+    // a new preset effect definition that you based off of the '~appear' effect...
+    // ... from the Webchalk preset entrance bank
+    myAppear: copyPresetEffectFromBank(origEntrances, '~appear', {
+      addedDefaultConfig: { endDelay: 4000 },
+      addedImmutableConfig: {
+        playbackRate: 3,
+        // duration: 1000, // not allowed because duration is immutable in '~appear'
+      },
+    }),
 
+    // a new preset effect definition that you based off of the '~rise-up' effect...
+    // ... from the Webchalk preset entrance bank. The names match, so your copy
+    // of '~rise-up' will be used anytime `Entrance(<element>, '~rise-up')` is
+    // used (instead of the original '~rise-up')
+    ['~rise-up']: copyPresetEffectFromBank(origEntrances, '~rise-up', {
+      addedDefaultConfig: { easing: 'ease' },
+    }),
+  }
+);
 
+// CREATE CLIP FACTORIES AND PASS IN PRESET EFFECT BANKS
+const clipFactories = webchalk.createAnimationClipFactories({
+  additionalEntranceEffectBank: myPresetEntrances,
+});
+
+// SELECT AN ELEMENT FROM THE SCREEN
+const square = document.querySelector('.square');
+
+// CREATE CLIPS
+// 1) nothing special here
+const ent1 = clipFactories.Entrance(square, 'zoomIn', [0.1]);
+
+// 2.1) identical to '~appear' except endDelay = 4s and playback rate = 3x
+const ent2 = clipFactories.Entrance(square, 'myAppear', []);
+
+// 2.2) same as the above, but endDelay has been set to 1s, which is allowed since...
+// ... you added endDelay as merely a default suggestion of 4s
+const ent3 = clipFactories.Entrance(square, 'myAppear', [], {endDelay: 1000});
+
+/** @ts-ignore */
+// 2.3) same as the above, but a TypeScript compiler error will be thrown because you...
+// ... added playbackRate as an immutable configuration, meaning it cannot be changed
+const ent4 = clipFactories.Entrance(square, 'myAppear', [], {playbackRate: 1}); // ERROR
+
+/** @ts-ignore */
+// 2.4) same as the above, but a TypeScript compiler error will be thrown because...
+// ... duration is immutable in the original '~appear' effect definition
+const ent5 = clipFactories.Entrance(square, 'myAppear', [], {duration: 1000}); // ERROR
+
+// 3.1) Webchalk's '~rise-up' was replaced with your own, which you happened to...
+// ... copy from Webchalk's '~rise-up' effect. This is useful for overriding...
+// ... configuration options from Webchalk's (or other banks') effects without...
+// ... having to write new effect names
+const ent6 = clipFactories.Entrance(square, '~rise-up', []); // default easing = 'ease'
+/**** EX:E id="copyPresetEffectFromBank" */
+}
 
 
 
