@@ -1,4 +1,4 @@
-import { CustomErrors } from "./errors";
+import { CustomErrorClasses } from "./errors";
 import { CssLength, CssXAlignment, CssYAlignment, ScrollingOptions, ParsedMultiUnitPlacement, MultiUnitPlacementX, MultiUnitPlacementY, StyleProperty } from "./interfaces";
 import { KeyOf, PickFromArray } from "./utilityTypes";
 

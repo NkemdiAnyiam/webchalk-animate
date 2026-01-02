@@ -1,5 +1,5 @@
 import { AnimSequence } from "./AnimationSequence";
-import { CustomErrors, errorTip, generateError, TimelineErrorGenerator } from "../4_utils/errors";
+import { CustomErrorClasses, errorTip, generateError, TimelineErrorGenerator } from "../4_utils/errors";
 import { getPartial } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { WebchalkPlaybackButtonElement } from "../3_components/WebchalkPlaybackButtonElement";
@@ -599,14 +599,14 @@ export class AnimTimeline {
 
     for(const animSequence of sequences) {
       if (!(animSequence instanceof AnimSequence)) {
-        throw this.generateError(CustomErrors.InvalidChildError, `At least one of the objects being added is not an AnimSequence.`);
+        throw this.generateError(CustomErrorClasses.InvalidChildError, `At least one of the objects being added is not an AnimSequence.`);
       }
       if (animSequence.parentTimeline) {
         // TODO: Improve error message
-        throw this.generateError(CustomErrors.InvalidChildError, `At least one of the sequences being added is already part of some timeline.`);
+        throw this.generateError(CustomErrorClasses.InvalidChildError, `At least one of the sequences being added is already part of some timeline.`);
       }
       if (animSequence.getStatus('lockedStructure')) {
-        throw this.generateError(CustomErrors.InvalidChildError, `At least one of the sequences being added is in progress or in a forward finished state.`);
+        throw this.generateError(CustomErrorClasses.InvalidChildError, `At least one of the sequences being added is in progress or in a forward finished state.`);
       }
       animSequence.setLineage(this);
     };
@@ -642,7 +642,7 @@ export class AnimTimeline {
       }
       if (index <= this.loadedSeqIndex - 1) {
         throw this.generateError(
-          CustomErrors.TimeParadoxError,
+          CustomErrorClasses.TimeParadoxError,
           `Removing sequences that have already been played is prohibited.` +
           errorTip(
             `Tip: Just as changing the past is not possible, changing parts of the timeline that have already passed is not allowed.` +
@@ -675,7 +675,7 @@ export class AnimTimeline {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeSequencesAt.name); }
     if (startIndex <= this.loadedSeqIndex - 1) {
       throw this.generateError(
-        CustomErrors.TimeParadoxError,
+        CustomErrorClasses.TimeParadoxError,
         `startIndex '${startIndex}' is falls within the range of sequences that have already been played,` +
         ` but removing sequences that have already been played is prohibited.` +
         errorTip(
@@ -1320,7 +1320,7 @@ export class AnimTimeline {
 
   protected generateLockedStructureError = (methodName: string) => {
     return generateError(
-      CustomErrors.LockedOperationError,
+      CustomErrorClasses.LockedOperationError,
       `Cannot use ${methodName}() while the timeline is in progress.`
     );
   }

@@ -76,10 +76,12 @@ export type { EffectFrameGeneratorSet, PresetEffectDefinition, PresetEffectBank,
 
 export type { PresetLinearEasingKey, EasingString, TrivialCssEasingFunction } from "../2_animationEffects/easing";
 
-// export type {
-//   ClipErrorGenerator,
-//   SequenceErrorGenerator,
-//   TimelineErrorGenerator,
-//   GeneralErrorGenerator,
-//   CustomErrors,
-// } from "../4_utils/errors";
+export type {
+  ClipErrorGenerator,
+  SequenceErrorGenerator,
+  TimelineErrorGenerator,
+  GeneralErrorGenerator,
+} from "../4_utils/errors";
+export {
+  CustomErrorClasses,
+} from "../4_utils/errors";

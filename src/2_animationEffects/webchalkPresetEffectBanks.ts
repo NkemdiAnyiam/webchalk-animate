@@ -13,7 +13,7 @@ import { definePresetEffectBank, formatBank, PresetEffectBank } from "./presetEf
 import { computeSelfScrollingBounds, deepFreeze, getBoundingClientRectOfHidden, negateNumString, parseXYAlignmentString, parseXYTupleString } from "../4_utils/helpers";
 import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions, Keyframes } from "../4_utils/interfaces";
 import { useEasing } from "./easing";
-import { CustomErrors } from "../4_utils/errors";
+import { CustomErrorClasses } from "../4_utils/errors";
 export type {
   WebchalkPresetEntranceEffects as EntranceEffects,
   WebchalkPresetConnectorEntranceEffects as ConnectorEntranceEffects,
@@ -570,7 +570,7 @@ export const libPresetEmphases = definePresetEffectBank('Emphasis', {
       return {
         keyframesGenerator_play: () => {
           if (this.domElem.dataset.webchalkHighlighted) {
-            throw new CustomErrors.InvalidEffectError(`Cannot highlight an element that is already highlighted.`);
+            throw new CustomErrorClasses.InvalidEffectError(`Cannot highlight an element that is already highlighted.`);
           }
           this.domElem.dataset.webchalkHighlighted = String(true);
 
@@ -611,7 +611,7 @@ export const libPresetEmphases = definePresetEffectBank('Emphasis', {
      */
     buildFrameGenerators() {
       if (!this.domElem.classList.contains(`webchalk-highlightable`)) {
-        throw new CustomErrors.InvalidEffectError(`Cannot un-highlight an element that was not already highlighted.`);
+        throw new CustomErrorClasses.InvalidEffectError(`Cannot un-highlight an element that was not already highlighted.`);
       }
 
       return {

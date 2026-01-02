@@ -1,8 +1,4 @@
 export {
-  ClipErrorGenerator,
-  CustomErrors,
-  GeneralErrorGenerator,
-  SequenceErrorGenerator,
-  TimelineErrorGenerator,
+  CustomErrorClasses,
   generateError,
 } from "../4_utils/errors";

@@ -1,6 +1,6 @@
 import { AnimClip } from "./AnimationClip";
 import { AnimTimeline } from "./AnimationTimeline";
-import { CustomErrors, errorTip, generateError, SequenceErrorGenerator } from "../4_utils/errors";
+import { CustomErrorClasses, errorTip, generateError, SequenceErrorGenerator } from "../4_utils/errors";
 import { getPartial } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { webchalk } from "../Webchalk";
@@ -486,11 +486,11 @@ export class AnimSequence {
 
     for (const animClip of clips) {
       if (!(animClip instanceof AnimClip)) {
-        throw this.generateError(CustomErrors.InvalidChildError, `At least one of the objects being added is not an AnimClip.`);
+        throw this.generateError(CustomErrorClasses.InvalidChildError, `At least one of the objects being added is not an AnimClip.`);
       }
       if (animClip.parentSequence) {
         // TODO: Improve error message
-        throw this.generateError(CustomErrors.InvalidChildError, `At least one of the clips being added is already part of some sequence.`);
+        throw this.generateError(CustomErrorClasses.InvalidChildError, `At least one of the clips being added is already part of some sequence.`);
       }
       animClip.setLineage(this, this._parentTimeline);
     }
@@ -912,7 +912,7 @@ export class AnimSequence {
 
   protected generateLockedStructureError = (methodName: string) => {
     return generateError(
-      CustomErrors.LockedOperationError,
+      CustomErrorClasses.LockedOperationError,
       `Cannot use ${methodName}() while the sequence is in progress or in a forward finished state.`
       + errorTip(
         `Tip: Generally, changes cannot be made to the structure of a sequence once it has left its starting point.`

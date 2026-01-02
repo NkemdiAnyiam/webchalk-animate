@@ -5,7 +5,7 @@ import { webchalk, Webchalk } from "../Webchalk";
 import { EffectOptions, PresetEffectBank, PresetEffectDefinition, EffectFrameGeneratorSet } from "../2_animationEffects/presetEffectCreation";
 import { call, detab, getPartial, mergeArrays, xor } from "../4_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
-import { CustomErrors, ClipErrorGenerator, errorTip, generateError } from "../4_utils/errors";
+import { CustomErrorClasses, ClipErrorGenerator, errorTip, generateError } from "../4_utils/errors";
 import { DOMElement, EffectCategory, Keyframes, StyleProperty } from "../4_utils/interfaces";
 import { WebchalkConnectorElement } from "../3_components/WebchalkConnectorElement";
 import { WebchalkAnimation } from "./WebchalkAnimation";
@@ -776,7 +776,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     this.id = AnimClip.id++;
     
     if (!domElem) {
-      throw this.generateError(CustomErrors.InvalidElementError, `Element must not be null or undefined.`);
+      throw this.generateError(CustomErrorClasses.InvalidElementError, `Element must not be null or undefined.`);
     }
     this.domElem = domElem;
     this.effectName = effectName;
@@ -1335,7 +1335,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
                   reasons.push(detab`One of the parent elements of the element is unrendered.`);
                 }
               }
-              throw this.generateError(CustomErrors.CommitStylesError,
+              throw this.generateError(CustomErrorClasses.CommitStylesError,
                 detab`Failed to commit styles on the element while it was unrendered.\
                 Animation styles normally cannot be saved on unrendered elements in JavaScript, but Webchalk allows it ONLY IF\
                 the element is unrendered due to having the CSS class "webchalk-display-none". If there is ANY other reason\
@@ -1411,7 +1411,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
         }
         // if forward keyframes generator is unspecified, throw error
         else if (!keyframesGenerator_play) {
-          throw new CustomErrors.InvalidEffectError(
+          throw new CustomErrorClasses.InvalidEffectError(
             `The backward keyframes generator cannot be specified without the forward keyframes generator as well.`
           );
         }
@@ -1427,7 +1427,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
         }
         // if forward RAF mutator generator is unspecified, throw error
         else if (!mutatorGenerator_play) {
-          throw new CustomErrors.InvalidEffectError(
+          throw new CustomErrorClasses.InvalidEffectError(
             `The backward mutator generator cannot be specified without the forward mutator generator as well.`
           );
         }
@@ -1567,12 +1567,12 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   }
 
   private throwChildPlaybackError(funcName: string): never {
-    throw this.generateError(CustomErrors.ChildPlaybackError, `Cannot directly call ${funcName}() on an animation clip while it is part of a sequence.`);
+    throw this.generateError(CustomErrorClasses.ChildPlaybackError, `Cannot directly call ${funcName}() on an animation clip while it is part of a sequence.`);
   }
 
   protected preventConnector() {
     if (this.domElem instanceof WebchalkConnectorElement) {
-      throw this.generateError(CustomErrors.InvalidElementError,
+      throw this.generateError(CustomErrorClasses.InvalidElementError,
         `Connectors cannot be animated using ${this.category}().` +
         `${errorTip(`Tip: WebchalkConnectorElement elements cannot be animated using Entrance() or Exit() because many of the animations are not really applicable.` +
           ` Instead, any entrance or exit effects that make sense for connectors are defined in ConnectorEntrance() and ConnectorExit().`

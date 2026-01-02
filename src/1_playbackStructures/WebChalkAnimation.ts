@@ -1,5 +1,5 @@
 import { AnimClip, ScheduledTask } from "./AnimationClip";
-import { CustomErrors, ClipErrorGenerator } from "../4_utils/errors";
+import { CustomErrorClasses, ClipErrorGenerator } from "../4_utils/errors";
 import { Keyframes } from "../4_utils/interfaces";
 
 type Segment = [
@@ -49,7 +49,7 @@ export class WebchalkAnimation extends Animation {
   constructor(public forwardEffect: KeyframeEffect, public backwardEffect: KeyframeEffect, private errorGenerator: ClipErrorGenerator) {
     super();
 
-    if (!this.forwardEffect.target) { throw this.errorGenerator(CustomErrors.InvalidElementError, `Animation target must not be null or undefined`); }
+    if (!this.forwardEffect.target) { throw this.errorGenerator(CustomErrorClasses.InvalidElementError, `Animation target must not be null or undefined`); }
     if (this.forwardEffect.target !== backwardEffect.target) { this.errorGenerator(Error, `Forward and backward keyframe effects must target the same element`); }
     
     this.setDirection('forward');
@@ -310,12 +310,12 @@ export class WebchalkAnimation extends Animation {
 
       // check for out of bounds time positions
       if (phaseTimePosition < 0) {
-        if (typeof timePosition === 'number') { throw this.errorGenerator(CustomErrors.InvalidPhasePositionError, `Negative timePosition ${timePosition} for phase "${phase}" resulted in invalid time ${phaseTimePosition}. Must be in the range [0, ${phaseDuration}] for this "${phase}".`);}
-        else { throw this.errorGenerator(CustomErrors.InvalidPhasePositionError, `Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`); }
+        if (typeof timePosition === 'number') { throw this.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Negative timePosition ${timePosition} for phase "${phase}" resulted in invalid time ${phaseTimePosition}. Must be in the range [0, ${phaseDuration}] for this "${phase}".`);}
+        else { throw this.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`); }
       }
       if (phaseTimePosition > phaseDuration) {
-        if (typeof timePosition === 'number') { throw this.errorGenerator(CustomErrors.InvalidPhasePositionError, `Invalid timePosition value ${timePosition} for phase "${phase}". Must be in the range [0, ${phaseDuration}] for this "${phase}".`); }
-        else { throw this.errorGenerator(CustomErrors.InvalidPhasePositionError, `Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`); }
+        if (typeof timePosition === 'number') { throw this.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Invalid timePosition value ${timePosition} for phase "${phase}". Must be in the range [0, ${phaseDuration}] for this "${phase}".`); }
+        else { throw this.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`); }
       }
 
       const endDelay: number = phaseEndDelayOffset + phaseTimePosition;
@@ -438,12 +438,12 @@ export class WebchalkAnimation extends Animation {
 
     // check for out of bounds time positions
     if (phaseTimePosition < 0) {
-      if (typeof timePosition === 'number') { throw this.errorGenerator(CustomErrors.InvalidPhasePositionError, `Negative timePosition ${timePosition} for phase "${phase}" resulted in invalid time ${phaseTimePosition}. Must be in the range [0, ${phaseDuration}] for this "${phase}".`);}
-      else { throw this.errorGenerator(CustomErrors.InvalidPhasePositionError, `Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`); }
+      if (typeof timePosition === 'number') { throw this.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Negative timePosition ${timePosition} for phase "${phase}" resulted in invalid time ${phaseTimePosition}. Must be in the range [0, ${phaseDuration}] for this "${phase}".`);}
+      else { throw this.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`); }
     }
     if (phaseTimePosition > phaseDuration) {
-      if (typeof timePosition === 'number') { throw this.errorGenerator(CustomErrors.InvalidPhasePositionError, `Invalid timePosition value ${timePosition} for phase "${phase}". Must be in the range [0, ${phaseDuration}] for this "${phase}".`); }
-      else { throw this.errorGenerator(CustomErrors.InvalidPhasePositionError, `Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`); }
+      if (typeof timePosition === 'number') { throw this.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Invalid timePosition value ${timePosition} for phase "${phase}". Must be in the range [0, ${phaseDuration}] for this "${phase}".`); }
+      else { throw this.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`); }
     }
 
     const endDelay: number = phaseEndDelayOffset + phaseTimePosition;
@@ -508,7 +508,7 @@ export class WebchalkAnimation extends Animation {
         [segments, segmentsCache] = [anim.segmentsBackward, anim.segmentsBackwardCache];
         break;
       default:
-        throw anim.errorGenerator(CustomErrors.InvalidPhasePositionError, `Invalid direction "${direction}". Must be "forward" or "backward".`);
+        throw anim.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Invalid direction "${direction}". Must be "forward" or "backward".`);
     }
     const effect = anim.getEffect(direction);
     const { duration, delay } = effect.getTiming() as {duration: number, delay: number};
@@ -543,7 +543,7 @@ export class WebchalkAnimation extends Animation {
         phaseEndDelayOffset = -(delay + duration);
         break;
       default:
-        throw anim.errorGenerator(CustomErrors.InvalidPhasePositionError, `Invalid phase "${phase}". Must be "delayPhase", "activePhase", "endDelayPhase", or "whole".`);
+        throw anim.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Invalid phase "${phase}". Must be "delayPhase", "activePhase", "endDelayPhase", or "whole".`);
     }
 
     // COMPUTE TIME POSITION RELATIVE TO PHASE
@@ -556,7 +556,7 @@ export class WebchalkAnimation extends Animation {
       // if timePosition is in percent format, convert to correct time value based on phase
       const match = timePosition.toString().match(/^(-?\d+(\.\d*)?)%$/);
       // note: this error should never occur
-      if (!match) { throw anim.errorGenerator(CustomErrors.InvalidPhasePositionError, `Invalid timePosition value "${timePosition}".`); }
+      if (!match) { throw anim.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Invalid timePosition value "${timePosition}".`); }
 
       initialPhaseTimePos = phaseDuration * (Number(match[1]) / 100);
     }

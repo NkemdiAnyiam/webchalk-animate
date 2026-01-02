@@ -168,7 +168,7 @@ class InvalidEffectError extends Error {
 /**
  * @category hidden
  */
-export const CustomErrors = {
+export const CustomErrorClasses = {
   CommitStylesError,
   InvalidElementError,
   InvalidEntranceAttempt,
@@ -186,7 +186,7 @@ export const CustomErrors = {
  * 
  * @interface
  */
-export type CustomErrors = typeof CustomErrors;
+export type CustomErrorClasses = typeof CustomErrorClasses;
 
 /**
  * Wraps the specified string in newlines and asterisks.
