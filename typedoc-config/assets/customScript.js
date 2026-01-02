@@ -7,9 +7,11 @@ window.addEventListener('DOMContentLoaded', () => {
   ];
   const arr30 = [
     '.tsd-tag-example pre',
+    '.tsd-type-parameter-list'
   ];
 
   setTimeout(() => {
+    // RESIZING
     for (const selector of arr15) {
       const elems = [...document.querySelectorAll(selector)];
       for (const elem of elems) {
@@ -58,6 +60,7 @@ window.addEventListener('DOMContentLoaded', () => {
     //   }
     // }
 
+    // DEBLOATING
     const bloatList = ['ValidationBloat', 'ClipTypeToHiddenBankCategorizer'];
     const tmiList = ['AnimClip'];
 

@@ -282,9 +282,11 @@ h3.tsd-anchor-link {
 }
 
 .tsd-type-parameter-list {
+  border: 1px solid var(--color-accent);
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  @include resizable-vert;
 
   .tsd-comment p {
     margin: 0;
