@@ -768,6 +768,7 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
     /**
      * Function that runs when the clip is played. Returns a {@link EffectFrameGeneratorSet} object, which contains callback functions that will produce the
      * effects for both playing and rewinding the animation.
+     * @this {AnimClip} A subset of properties of the {@link AnimClip} storing the effect at runtime
      * @param effectOptions - parameters used to set the behavior for the specific animation effect when calling the clip factory function
      * @returns An object containing 4 possible callback functions that return {@link Keyframes} and/or {@link Mutator}.
      * 
@@ -1293,7 +1294,6 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
      * @group Effect Definition
      */
     buildFrameGenerators(
-      /**@ignore*/
       this: TClipContext & ReadonlyPick<AnimClip, 'computeTween'>,
       ...effectOptions: unknown[]
     ): EffectFrameGeneratorSet;
