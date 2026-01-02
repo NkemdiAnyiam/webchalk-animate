@@ -182,7 +182,7 @@ seq.play();
 // Extending the preset entrances and motions banks with additional preset effects
 const clipFactories = webchalk.createAnimationClipFactories({
   // PRESET ENTRANCES
-  additionalEntranceEffects: {
+  additionalEntranceEffectBank: {
     coolZoomIn: {
       buildFrameGenerators(initialScale: number) {
         return {
@@ -214,7 +214,7 @@ const clipFactories = webchalk.createAnimationClipFactories({
   },
 
   // PRESET EXITS
-  additionalExitEffects: {
+  additionalExitEffectBank: {
     // a preset animation effect for flying out to the left side of the screen
     flyOutLeft: {
       buildFrameGenerators() {
@@ -718,7 +718,7 @@ ent.scheduleTask('endDelayPhase', '40%', {
 {
 /**** EX:S id="AnimClip.computeTween-1" */
 const {Entrance} = webchalk.createAnimationClipFactories({
-  additionalEntranceEffects: {
+  additionalEntranceEffectBank: {
     rotate: {
       buildFrameGenerators(degrees: number) {
         return {
@@ -862,7 +862,7 @@ const str6: EasingString = 'cubic-bezier(0.25, 0.1, 0.25)'; // valid (matches st
 {
 /**** EX:S id="EffectFrameGeneratorSet.keyframes-generators" */
 const clipFactories = webchalk.createAnimationClipFactories({
-  additionalEntranceEffects: {
+  additionalEntranceEffectBank: {
     // -----------------------------------------------------------------
     // ----------------------------EXAMPLE 1----------------------------
     // -----------------------------------------------------------------
@@ -899,7 +899,7 @@ const clipFactories = webchalk.createAnimationClipFactories({
     },
   },
 
-  additionalMotionEffects: {
+  additionalMotionEffectBank: {
     // -----------------------------------------------------------------
     // ----------------------------EXAMPLE 2----------------------------
     // -----------------------------------------------------------------
@@ -982,7 +982,7 @@ const element = document.querySelector('.some-element');
 {
 /**** EX:S id="EffectFrameGeneratorSet.mutator-generators" */
 const clipFactories = webchalk.createAnimationClipFactories({
-  additionalMotionEffects: {
+  additionalMotionEffectBank: {
     // a preset animation effect for scrolling to a specific point on the page.
     scrollTo: {
       buildFrameGenerators(yPosition: number) {
@@ -1034,7 +1034,7 @@ mot.play().then(mot.rewind);
 /**** EX:S id="PresetEffectDefinition.buildFrameGenerators-1" */
 // EXAMPLES WHERE BACKWARD GENERATORS CAN BE OMITTED
 const clipFactories = webchalk.createAnimationClipFactories({
-  additionalEmphasisEffects: {
+  additionalEmphasisEffectBank: {
     // -----------------------------------------------------------------
     // ----------------------------EXAMPLE 1----------------------------
     // -------------------------transparencyHalf------------------------
@@ -1077,7 +1077,7 @@ const clipFactories = webchalk.createAnimationClipFactories({
     },
   },
 
-  additionalEntranceEffects: {
+  additionalEntranceEffectBank: {
     // -----------------------------------------------------------------
     // ----------------------------EXAMPLE 2----------------------------
     // ------------------------------shyIn------------------------------
@@ -1181,7 +1181,7 @@ const clipFactories = webchalk.createAnimationClipFactories({
     },
   },
 
-  additionalExitEffects: {
+  additionalExitEffectBank: {
     // Replicates PowerPoint's Sink Down animation, which is the opposite of Rise Up.
     // Element floats up slightly and then accelerates to the bottom of the screen.
     sinkDown: {
@@ -1350,7 +1350,7 @@ const clipFactories = webchalk.createAnimationClipFactories({
 /**** EX:S id="PresetEffectDefinition.buildFrameGenerators-2" */
 // EXAMPLES WHERE BACKWARD GENERATORS CANNOT BE OMITTED
 const clipFactories = webchalk.createAnimationClipFactories({
-  additionalMotionEffects: {
+  additionalMotionEffectBank: {
     // a preset animation effect for translating a certain number of pixels to the right
     translateRight: {
       buildFrameGenerators(numPixels: number) {
@@ -1436,7 +1436,7 @@ const clipFactories = webchalk.createAnimationClipFactories({
 {
 /**** EX:S id="PresetEffectDefinition.defaultConfig" */
 const clipFactories = webchalk.createAnimationClipFactories({
-  additionalEntranceEffects: {
+  additionalEntranceEffectBank: {
     // Element fades in, starting from 0 opacity.
     fadeIn: {
       buildFrameGenerators() {
@@ -1482,7 +1482,7 @@ const ent3 = clipFactories.Entrance(element, 'fadeIn_default', [], {duration: 10
 {
 /**** EX:S id="PresetEffectDefinition.immutableConfig" */
 const clipFactories = webchalk.createAnimationClipFactories({
-  additionalEntranceEffects: {
+  additionalEntranceEffectBank: {
     appear: {
       buildFrameGenerators() {
         return {
@@ -1533,7 +1533,7 @@ const ent3 = clipFactories.Entrance(element, 'appear_immutable', [], {duration: 
 let usedFadeOutEx = false;
 
 const clipFactories = webchalk.createAnimationClipFactories({
-  additionalExitEffects: {
+  additionalExitEffectBank: {
     // A preset effect you wrote for fading an element out.
     // Here, it makes no difference what howOftenBuildGenerators is set to.
     //
@@ -1781,11 +1781,11 @@ const flyOutLeft = definePresetEffect(
 
 // CREATE CLIP FACTORIES AND PASS IN PRESET EFFECT DEFINITIONS
 const clipFactories = webchalk.createAnimationClipFactories({
-  additionalEntranceEffects: {
+  additionalEntranceEffectBank: {
     zoomIn,
     fadeIn,
   },
-  additionalExitEffects: {
+  additionalExitEffectBank: {
     flyOutLeft
   }
 });
@@ -1870,8 +1870,8 @@ const myPresetExits = definePresetEffectBank(
 
 // CREATE CLIP FACTORIES AND PASS IN PRESET EFFECT BANKS
 const clipFactories = webchalk.createAnimationClipFactories({
-  additionalEntranceEffects: myPresetEntrances,
-  additionalExitEffects: myPresetExits,
+  additionalEntranceEffectBank: myPresetEntrances,
+  additionalExitEffectBank: myPresetExits,
 });
 
 const square = document.querySelector('.square');

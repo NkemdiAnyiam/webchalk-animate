@@ -353,14 +353,14 @@ const customMotions = definePresetEffectBank(
 );
 
 // webchalk.initializeEffectPlayers({
-//   additionalEntranceEffects:
+//   additionalEntranceEffectBank:
 // });
 
 const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Transition} = webchalk.createAnimationClipFactories({
-  additionalEntranceEffects: customEntrances,
-  additionalExitEffects: customExits,
-  additionalEmphasisEffects: customEmphases,
-  additionalMotionEffects: customMotions
+  additionalEntranceEffectBank: customEntrances,
+  additionalExitEffectBank: customExits,
+  additionalEmphasisEffectBank: customEmphases,
+  additionalMotionEffectBank: customMotions
 });
 
 {

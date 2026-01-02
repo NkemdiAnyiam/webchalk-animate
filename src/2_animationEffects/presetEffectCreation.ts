@@ -37,7 +37,7 @@ export interface EffectFrameGeneratorSet extends StripDuplicateMethodAutocomplet
    * <!-- EX:S id="EffectFrameGeneratorSet.keyframes-generators" code-type="ts" -->
    * ```ts
    * const clipFactories = webchalk.createAnimationClipFactories({
-   *   additionalEntranceEffects: {
+   *   additionalEntranceEffectBank: {
    *     // -----------------------------------------------------------------
    *     // ----------------------------EXAMPLE 1----------------------------
    *     // -----------------------------------------------------------------
@@ -74,7 +74,7 @@ export interface EffectFrameGeneratorSet extends StripDuplicateMethodAutocomplet
    *     },
    *   },
    * 
-   *   additionalMotionEffects: {
+   *   additionalMotionEffectBank: {
    *     // -----------------------------------------------------------------
    *     // ----------------------------EXAMPLE 2----------------------------
    *     // -----------------------------------------------------------------
@@ -166,7 +166,7 @@ export interface EffectFrameGeneratorSet extends StripDuplicateMethodAutocomplet
    * <!-- EX:S id="EffectFrameGeneratorSet.keyframes-generators" code-type="ts" -->
    * ```ts
    * const clipFactories = webchalk.createAnimationClipFactories({
-   *   additionalEntranceEffects: {
+   *   additionalEntranceEffectBank: {
    *     // -----------------------------------------------------------------
    *     // ----------------------------EXAMPLE 1----------------------------
    *     // -----------------------------------------------------------------
@@ -203,7 +203,7 @@ export interface EffectFrameGeneratorSet extends StripDuplicateMethodAutocomplet
    *     },
    *   },
    * 
-   *   additionalMotionEffects: {
+   *   additionalMotionEffectBank: {
    *     // -----------------------------------------------------------------
    *     // ----------------------------EXAMPLE 2----------------------------
    *     // -----------------------------------------------------------------
@@ -295,7 +295,7 @@ export interface EffectFrameGeneratorSet extends StripDuplicateMethodAutocomplet
    * <!-- EX:S id="EffectFrameGeneratorSet.mutator-generators" code-type="ts" -->
    * ```ts
    * const clipFactories = webchalk.createAnimationClipFactories({
-   *   additionalMotionEffects: {
+   *   additionalMotionEffectBank: {
    *     // a preset animation effect for scrolling to a specific point on the page.
    *     scrollTo: {
    *       buildFrameGenerators(yPosition: number) {
@@ -355,7 +355,7 @@ export interface EffectFrameGeneratorSet extends StripDuplicateMethodAutocomplet
    * <!-- EX:S id="EffectFrameGeneratorSet.mutator-generators" code-type="ts" -->
    * ```ts
    * const clipFactories = webchalk.createAnimationClipFactories({
-   *   additionalMotionEffects: {
+   *   additionalMotionEffectBank: {
    *     // a preset animation effect for scrolling to a specific point on the page.
    *     scrollTo: {
    *       buildFrameGenerators(yPosition: number) {
@@ -451,7 +451,7 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
      * <!-- EX:S id="PresetEffectDefinition.defaultConfig" code-type="ts" -->
      * ```ts
      * const clipFactories = webchalk.createAnimationClipFactories({
-     *   additionalEntranceEffects: {
+     *   additionalEntranceEffectBank: {
      *     // Element fades in, starting from 0 opacity.
      *     fadeIn: {
      *       buildFrameGenerators() {
@@ -511,7 +511,7 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
      * <!-- EX:S id="PresetEffectDefinition.immutableConfig" code-type="ts" -->
      * ```ts
      * const clipFactories = webchalk.createAnimationClipFactories({
-     *   additionalEntranceEffects: {
+     *   additionalEntranceEffectBank: {
      *     appear: {
      *       buildFrameGenerators() {
      *         return {
@@ -582,7 +582,7 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
      * let usedFadeOutEx = false;
      * 
      * const clipFactories = webchalk.createAnimationClipFactories({
-     *   additionalExitEffects: {
+     *   additionalExitEffectBank: {
      *     // A preset effect you wrote for fading an element out.
      *     // Here, it makes no difference what howOftenBuildGenerators is set to.
      *     //
@@ -890,7 +890,7 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
      * ```ts
      * // EXAMPLES WHERE BACKWARD GENERATORS CAN BE OMITTED
      * const clipFactories = webchalk.createAnimationClipFactories({
-     *   additionalEmphasisEffects: {
+     *   additionalEmphasisEffectBank: {
      *     // -----------------------------------------------------------------
      *     // ----------------------------EXAMPLE 1----------------------------
      *     // -------------------------transparencyHalf------------------------
@@ -933,7 +933,7 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
      *     },
      *   },
      * 
-     *   additionalEntranceEffects: {
+     *   additionalEntranceEffectBank: {
      *     // -----------------------------------------------------------------
      *     // ----------------------------EXAMPLE 2----------------------------
      *     // ------------------------------shyIn------------------------------
@@ -1037,7 +1037,7 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
      *     },
      *   },
      * 
-     *   additionalExitEffects: {
+     *   additionalExitEffectBank: {
      *     // Replicates PowerPoint's Sink Down animation, which is the opposite of Rise Up.
      *     // Element floats up slightly and then accelerates to the bottom of the screen.
      *     sinkDown: {
@@ -1207,7 +1207,7 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
      * ```ts
      * // EXAMPLES WHERE BACKWARD GENERATORS CANNOT BE OMITTED
      * const clipFactories = webchalk.createAnimationClipFactories({
-     *   additionalMotionEffects: {
+     *   additionalMotionEffectBank: {
      *     // a preset animation effect for translating a certain number of pixels to the right
      *     translateRight: {
      *       buildFrameGenerators(numPixels: number) {
@@ -1436,11 +1436,11 @@ export type EffectNameIn<TEffectBank extends PresetEffectBank> = Exclude<keyof {
  * 
  * // CREATE CLIP FACTORIES AND PASS IN PRESET EFFECT DEFINITIONS
  * const clipFactories = webchalk.createAnimationClipFactories({
- *   additionalEntranceEffects: {
+ *   additionalEntranceEffectBank: {
  *     zoomIn,
  *     fadeIn,
  *   },
- *   additionalExitEffects: {
+ *   additionalExitEffectBank: {
  *     flyOutLeft
  *   }
  * });
@@ -1579,8 +1579,8 @@ export function definePresetEffect<
  * 
  * // CREATE CLIP FACTORIES AND PASS IN PRESET EFFECT BANKS
  * const clipFactories = webchalk.createAnimationClipFactories({
- *   additionalEntranceEffects: myPresetEntrances,
- *   additionalExitEffects: myPresetExits,
+ *   additionalEntranceEffectBank: myPresetEntrances,
+ *   additionalExitEffectBank: myPresetExits,
  * });
  * 
  * const square = document.querySelector('.square');

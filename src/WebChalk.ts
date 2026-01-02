@@ -232,10 +232,10 @@ export class Webchalk {
    * {@link additionalPresetEffectBanks} parameter. **WEBCHALK'S OWN PRESET EFFECT BANKS ARE AUTOMATICALLY INCLUDED. YOU DO NOT
    * NEED TO ADD THEM MANUALLY.**
    * @param additionalPresetEffectBanks - optional object containing additional banks that the developer can use to add their own preset effects
-   * @param additionalPresetEffectBanks.additionalEntranceEffects - objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Entrance()` clip factory function
-   * @param additionalPresetEffectBanks.additionalExitEffects - objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Exit()` clip factory function
-   * @param additionalPresetEffectBanks.additionalEmphasisEffects - objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Emphasis()` clip factory function
-   * @param additionalPresetEffectBanks.additionalMotionEffects - objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Motion()` clip factory function
+   * @param additionalPresetEffectBanks.additionalEntranceEffectBank - objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Entrance()` clip factory function
+   * @param additionalPresetEffectBanks.additionalExitEffectBank - objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Exit()` clip factory function
+   * @param additionalPresetEffectBanks.additionalEmphasisEffectBank - objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Emphasis()` clip factory function
+   * @param additionalPresetEffectBanks.additionalMotionEffectBank - objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Motion()` clip factory function
    * @returns Factory functions that return category-specific {@link AnimClip}s, each with intellisense for their category-specific effects banks.
    * 
    * @example
@@ -270,7 +270,7 @@ export class Webchalk {
    * // Extending the preset entrances and motions banks with additional preset effects
    * const clipFactories = webchalk.createAnimationClipFactories({
    *   // PRESET ENTRANCES
-   *   additionalEntranceEffects: {
+   *   additionalEntranceEffectBank: {
    *     coolZoomIn: {
    *       buildFrameGenerators(initialScale: number) {
    *         return {
@@ -302,7 +302,7 @@ export class Webchalk {
    *   },
    * 
    *   // PRESET EXITS
-   *   additionalExitEffects: {
+   *   additionalExitEffectBank: {
    *     // a preset animation effect for flying out to the left side of the screen
    *     flyOutLeft: {
    *       buildFrameGenerators() {
@@ -364,13 +364,13 @@ export class Webchalk {
   (
     additionalPresetEffectBanks: {
       /** object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with `Entrance()` clip factory function */
-      additionalEntranceEffects?: AdditionalEntranceBank & PresetEffectBank<EntranceClip>;
+      additionalEntranceEffectBank?: AdditionalEntranceBank & PresetEffectBank<EntranceClip>;
       /** object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Exit()` clip factory function */
-      additionalExitEffects?: AdditionalExitBank & PresetEffectBank<ExitClip>;
+      additionalExitEffectBank?: AdditionalExitBank & PresetEffectBank<ExitClip>;
       /** object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Emphasis()` clip factory function */
-      additionalEmphasisEffects?: AdditionalEmphasisBank & PresetEffectBank<EmphasisClip>;
+      additionalEmphasisEffectBank?: AdditionalEmphasisBank & PresetEffectBank<EmphasisClip>;
       /** object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Motion()` clip factory function */
-      additionalMotionEffects?: AdditionalMotionBank & PresetEffectBank<MotionClip>;
+      additionalMotionEffectBank?: AdditionalMotionBank & PresetEffectBank<MotionClip>;
     } = {},
     /**
      * if `false`, the preset effects that normally come with the framework will be excluded
@@ -381,11 +381,11 @@ export class Webchalk {
      */
     includeLibraryPresets: IncludeLibPresets | void = true as IncludeLibPresets
   ) {
-    const {additionalEntranceEffects, additionalExitEffects, additionalEmphasisEffects, additionalMotionEffects} = additionalPresetEffectBanks as {
-      additionalEntranceEffects?: AdditionalEntranceBank & PresetEffectBank<EntranceClip>;
-      additionalExitEffects?: AdditionalExitBank & PresetEffectBank<ExitClip>;
-      additionalEmphasisEffects?: AdditionalEmphasisBank & PresetEffectBank<EmphasisClip>;
-      additionalMotionEffects?: AdditionalMotionBank & PresetEffectBank<MotionClip>;
+    const {additionalEntranceEffectBank, additionalExitEffectBank, additionalEmphasisEffectBank, additionalMotionEffectBank} = additionalPresetEffectBanks as {
+      additionalEntranceEffectBank?: AdditionalEntranceBank & PresetEffectBank<EntranceClip>;
+      additionalExitEffectBank?: AdditionalExitBank & PresetEffectBank<ExitClip>;
+      additionalEmphasisEffectBank?: AdditionalEmphasisBank & PresetEffectBank<EmphasisClip>;
+      additionalMotionEffectBank?: AdditionalMotionBank & PresetEffectBank<MotionClip>;
     };
 
     type TogglePresets<TLibBank, TAdditionalBank> = Readonly<(IncludeLibPresets extends true ? TLibBank : {}) & TAdditionalBank>;
@@ -402,10 +402,10 @@ export class Webchalk {
     }
     
     // Merge the library preset banks with any additional banks added from layer 4
-    const combinedEntranceBank = mergeBanks(libPresetEntrances, additionalEntranceEffects as AdditionalEntranceBank);
-    const combinedExitBank = mergeBanks(libPresetExits, additionalExitEffects as AdditionalExitBank);
-    const combinedEmphasisBank = mergeBanks(libPresetEmphases, additionalEmphasisEffects as AdditionalEmphasisBank);
-    const combinedMotionBank = mergeBanks(libPresetMotions, additionalMotionEffects as AdditionalMotionBank);
+    const combinedEntranceBank = mergeBanks(libPresetEntrances, additionalEntranceEffectBank as AdditionalEntranceBank);
+    const combinedExitBank = mergeBanks(libPresetExits, additionalExitEffectBank as AdditionalExitBank);
+    const combinedEmphasisBank = mergeBanks(libPresetEmphases, additionalEmphasisEffectBank as AdditionalEmphasisBank);
+    const combinedMotionBank = mergeBanks(libPresetMotions, additionalMotionEffectBank as AdditionalMotionBank);
     const combinedTransitionBank = mergeBanks(libPresetTransitions, {} as _EmptyTransitionBank);
     const combinedConnectorEntranceBank = mergeBanks(libPresetConnectorEntrances, {} as _EmptyConnectorEntranceBank);
     const combinedConnectorExitBank = mergeBanks(libPresetConnectorExits, {} as _EmptyConnectorExitBank);
@@ -884,7 +884,7 @@ export class Webchalk {
 export const webchalk = new Webchalk();
 
 // const thing =  webchalk.createAnimationClipFactories({
-//   additionalEntranceEffects: definePresetEffectBank('Entrance', {
+//   additionalEntranceEffectBank: definePresetEffectBank('Entrance', {
 //     hello: definePresetEffect('Entrance', {
 //       buildFrameGenerators() {return {}},
 //       defaultConfig: {
@@ -908,7 +908,7 @@ export const webchalk = new Webchalk();
 // }).Entrance(new HTMLElement(), '~ad', [], {}).getModifiers();
 
 // const thing2 = webchalk.createAnimationClipFactories({
-//   additionalEntranceEffects: definePresetEffectBank('Entrance', {
+//   additionalEntranceEffectBank: definePresetEffectBank('Entrance', {
 //     appear: {
 //       buildFrameGenerators() {
 //         console.log('Here is EXACTLY what is going on!');

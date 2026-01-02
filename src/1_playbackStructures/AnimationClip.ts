@@ -1502,7 +1502,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
    * <!-- EX:S id="AnimClip.computeTween-1" code-type="ts" -->
    * ```ts
    * const {Entrance} = webchalk.createAnimationClipFactories({
-   *   additionalEntranceEffects: {
+   *   additionalEntranceEffectBank: {
    *     rotate: {
    *       buildFrameGenerators(degrees: number) {
    *         return {
