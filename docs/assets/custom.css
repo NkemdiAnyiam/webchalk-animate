@@ -137,6 +137,9 @@ a.tsd-signature-type.external {
 :not(pre) > code:not(.ts) {
   background-color: var(--code-inline-background); }
 
+.tsd-accordion-summary svg {
+  position: unset !important; }
+
 .tsd-accordion-summary:has(h2) {
   color: var(--code-background);
   background-color: var(--color-member-name);
@@ -194,36 +197,42 @@ h3.tsd-anchor-link + .tsd-signatures .tsd-signature,
 h3.tsd-anchor-link + .tsd-signature {
   border-color: var(--color-member-name);
   border-width: 1px !important;
-  height: 15rem;
   max-height: max-content;
   overflow: auto;
   overscroll-behavior: contain;
   resize: vertical; }
 
 .tsd-signature {
-  height: 15rem;
   max-height: max-content;
   overflow: auto;
   overscroll-behavior: contain;
   resize: vertical; }
 
 .tsd-type-parameter-list {
+  border: 1px solid var(--color-accent);
   display: flex;
   flex-direction: column;
-  gap: 1rem; }
+  gap: 1rem;
+  max-height: max-content;
+  overflow: auto;
+  overscroll-behavior: contain;
+  resize: vertical; }
   .tsd-type-parameter-list .tsd-comment p {
     margin: 0; }
 
 .tsd-signatures {
   margin-bottom: 0; }
+  .tsd-signatures > li:not(:last-child) {
+    margin-bottom: 16px;
+    border-bottom: 2px dashed var(--color-member-name);
+    padding-bottom: 1rem; }
+  .tsd-signatures > li:not(:first-child) {
+    padding-top: 1rem; }
   .tsd-signatures .tsd-signature {
     background-color: var(--md-sys-color-surface-container-high);
     border-width: 2px; }
     .tsd-signatures .tsd-signature:not(:first-child) {
       margin-top: 16px; }
-  .tsd-signatures .tsd-description:not(:last-child) {
-    margin-bottom: 16px;
-    border-bottom: 2px dashed var(--color-text); }
   .tsd-signatures .tsd-description .tsd-parameters .tsd-parameter-list {
     display: flex;
     flex-direction: column;
@@ -240,7 +249,6 @@ h3.tsd-anchor-link + .tsd-signature {
     .tsd-signatures .tsd-description .tsd-parameters .tsd-parameter-list .tsd-parameters .tsd-kind-property {
       color: var(--color-sub-param); }
   .tsd-signatures .tsd-description .tsd-returns-content {
-    height: 15rem;
     max-height: max-content;
     overflow: auto;
     overscroll-behavior: contain;
@@ -248,8 +256,7 @@ h3.tsd-anchor-link + .tsd-signature {
   .tsd-signatures .tsd-description .tsd-returns-title + p {
     margin-top: -0.8rem; }
 
-.tsd-tag-Example pre {
-  height: 15rem;
+.tsd-tag-example pre {
   max-height: max-content;
   overflow: auto;
   overscroll-behavior: contain;

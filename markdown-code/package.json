@@ -16,7 +16,7 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "webchalk-animate": "file:../tarballs/webchalk-animate-0.29.1.tgz"
+    "webchalk-animate": "file:../tarballs/webchalk-animate-0.30.0.tgz"
   },
   "@parcel/resolver-default": {
     "packageExports": true

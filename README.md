@@ -1,8 +1,8 @@
-# WebChalk Animate
+# Webchalk Animate
 
-(Note: This README is a work in progress and does not currently give a suitable rundown of WebChalk and its usage, nor will it consistently updated until the package is in a more stable state)
+(Note: This README is a work in progress and does not currently give a suitable rundown of Webchalk and its usage, nor will it consistently updated until the package is in a more stable state)
 
-WebChalk is a web animation framework that supports the development of interactive algorithm visualizations, providing a library of preset animations and  beginner-friendly API that can be used to animate DOM elements (i.e., the contents on a webpage which are produced by HTML code).
+Webchalk is a web animation framework that supports the development of interactive algorithm visualizations, providing a library of preset animations and  beginner-friendly API that can be used to animate DOM elements (i.e., the contents on a webpage which are produced by HTML code).
 
 ## Table of Contents
 
@@ -14,7 +14,7 @@ WebChalk is a web animation framework that supports the development of interacti
   - [First Time Installing a Package?](#first-time-installing-a-package)
     - [1. Install Node.js](#1-install-nodejs)
     - [2. Initialize a Project](#2-initialize-a-project)
-    - [3. Install WebChalk](#3-install-webchalk)
+    - [3. Install Webchalk](#3-install-webchalk)
 - [Usage](#usage)
   - [Imports](#imports)
   - [Creating Animation Clips](#creating-animation-clips)
@@ -43,13 +43,13 @@ npm install webchalk
 <details>
   <summary>Expand/Collapse Section</summary>
   
-A "package" is essentially a downloadable library of code that you can use alongside your _own_ code. For example, the animation framework WebChalk is a package that can be downloaded using the command above, and you can use it with your code to help create your own animated visualizations.
+A "package" is essentially a downloadable library of code that you can use alongside your _own_ code. For example, the animation framework Webchalk is a package that can be downloaded using the command above, and you can use it with your code to help create your own animated visualizations.
 
 Managing packages manually would be tedious since they are constantly being updated with new versions, deprecations, conflicts, etc. That is why it is common to install packages using a "package manager".
 
 #### 1. Install Node.js
 
-To install WebChalk, you must use NPM (Node Package Manager). It is the package manager for Node.js, which is a runtime environment for JavaScript. NPM actually comes _with_ Node, so the first step to installing a package is to [install Node.js](https://nodejs.org/en/download/prebuilt-installer). After this, you can check to make sure Node and NPM are installed by opening any command-line interface (CLI) and running the following:
+To install Webchalk, you must use NPM (Node Package Manager). It is the package manager for Node.js, which is a runtime environment for JavaScript. NPM actually comes _with_ Node, so the first step to installing a package is to [install Node.js](https://nodejs.org/en/download/prebuilt-installer). After this, you can check to make sure Node and NPM are installed by opening any command-line interface (CLI) and running the following:
 
 ```bash
 node --version
@@ -68,7 +68,7 @@ npm init --yes
 
 This will initialize a new Node project (do not worry about filling out all of the fields—the `--yes` flag tells it to just select default options. If you would actually like to fill them out manually, omit the `--yes` flag). A new file called `package.json` should now exist. This (along with a file you will soon see named `package-lock.json`) records important details about the project, including any dependencies (packages).
 
-#### 3. Install WebChalk
+#### 3. Install Webchalk
 
 Now you can use the command given at the beginning of the [Installation section](#installation) (repeated here for convenience):
 
@@ -83,18 +83,18 @@ NPM will install the specified package (in this case, `webchalk-animate`) as a "
 
 ### Imports
 
-Once WebChalk is installed, import it with the following statements in your JavaScript code:
+Once Webchalk is installed, import it with the following statements in your JavaScript code:
 <!--MD-S id="import webchalk" code-type="ts"-->
 ```ts
 import { webchalk } from 'webchalk-animate';
 ```
 <!--MD-E id="import webchalk"-->
-For convenience (and clarity), the package also exposes a majority of its internal types and objects using other import paths (but none of them are required to make full usage of WebChalk's functionalities):
+For convenience (and clarity), the package also exposes a majority of its internal types and objects using other import paths (but none of them are required to use of Webchalk's basic timeline functionalities):
 <!--MD-S id="import paths" code-type="ts"-->
 ```ts
-import * as WebChalkTypes from 'webchalk-animate/types-and-interfaces';
-import * as WebChalkErrors from "webchalk-animate/error-handling";
-import * as WebChalkEasing from "webchalk-animate/easing";
+import * as WebchalkTypes from 'webchalk-animate/types-and-interfaces';
+import * as WebchalkErrors from "webchalk-animate/error-handling";
+import * as WebchalkEasing from "webchalk-animate/easing";
 ```
 <!--MD-E id="import paths"-->
 
@@ -108,7 +108,7 @@ import * as WebChalkEasing from "webchalk-animate/easing";
 
 An "animation effect" is a predefined behavior that can be applied to elements. For example, an entrance animation effect called "fade-in" could be defined to cause an element to transition from 0% opacity to 100% opacity.
 
-In WebChalk, effects are grouped into 9 categories:
+In Webchalk, effects are grouped into 9 categories:
 - Entrance effects
 - Exit effects
 - Emphasis effects
@@ -119,7 +119,7 @@ In WebChalk, effects are grouped into 9 categories:
 - Connector Entrance effects
 - Connector Exit effects
 
-To actually see an effect in action, you must play an **"animation clip"**. In the WebChalk framework, a "clip" is the smallest building block of a timeline, represented by the class `AnimClip`. In essence, it is a [DOM element, effect] pair, where a "DOM element" is some HTML element on the page and the effect is the animation effect that will be applied to it. Since there are 9 categories of animation effects, there are 9 subclasses of `AnimClip`.
+To actually see an effect in action, you must play an **"animation clip"**. In the Webchalk framework, a "clip" is the smallest building block of a timeline, represented by the class `AnimClip`. In essence, it is a [DOM element, effect] pair, where a "DOM element" is some HTML element on the page and the effect is the animation effect that will be applied to it. Since there are 9 categories of animation effects, there are 9 subclasses of `AnimClip`.
 
 - `EntranceClip`
 - `ExitClip`
@@ -134,7 +134,7 @@ To actually see an effect in action, you must play an **"animation clip"**. In t
 
 #### Creation
 
-WebChalk provides several factory functions that you can use to create animation clips (the smallest building block of a timeline, represented by the abstract `AnimClip` class). There is one factory function for each of the categories of clips (e.g., the `Entrance()` factory function returns `EntranceClip`, the `Motion()` factory function returns `MotionClip`, etc.). They are called "factory" functions because they create instances of clips without you having to deal with the more complex details of the constructors and setup.
+Webchalk provides several factory functions that you can use to create animation clips (the smallest building block of a timeline, represented by the abstract `AnimClip` class). There is one factory function for each of the categories of clips (e.g., the `Entrance()` factory function returns `EntranceClip`, the `Motion()` factory function returns `MotionClip`, etc.). They are called "factory" functions because they create instances of clips without you having to deal with the more complex details of the constructors and setup.
 
 To access the factory functions, use the `webchalk` object's `createAnimationClipFactories()` method:
 <!--MD-S id="usage__webchalk.createAnimationClipFactories()" code-type="ts"-->
@@ -194,7 +194,7 @@ This is where the next playback structure—`AnimSequence`—comes in.
 
 #### Creating a Sequence and Adding Clips
 
-An **"animation sequence"** is a number of animations that occur one after another in a particular order. In WebChalk, animation clips can be placed into sequences, which are their _own_ fully-fledged playback structures.
+An **"animation sequence"** is a number of animations that occur one after another in a particular order. In Webchalk, animation clips can be placed into sequences, which are their _own_ fully-fledged playback structures.
 
 To create an animation sequence, use <!--MD-S id="usage__create-sequence" code-type="inline-code" MD-G-->`webchalk.newSequence()`<!--MD-E-->. Without any arguments, the method just creates an empty sequence without any animation clips. You can add clips to the sequence upon its creation by passing an array of clips as an argument, or you can use <!--MD-S id="usage__add-clips" code-type="inline-code" MD-G-->`AnimSequence.prototype.addClips([])`<!--MD-E-->:
 
@@ -330,7 +330,7 @@ tLine.step('forward')
 
 #### Adding Playback Buttons
 
-Viewers will still need a way to step back and forth themselves in their browsers. For this, WebChalk provides fully styled, out-of-the-box playback buttons that are automatically detected by a timeline. In the example above, notice how <!--MD-S id="usage__timeline" code-type="inline-code" MD-G-->`tLine`<!--MD-E-->'s `timelineName` config is set to <!--MD-S id="usage__timeline-name" code-type="inline-code" MD-G-->`'Basics'`<!--MD-E-->. In your HTML, you can use WebChalk's custom playback button elements as shown below (the comments explain the process).
+Viewers will still need a way to step back and forth themselves in their browsers. For this, Webchalk provides fully styled, out-of-the-box playback buttons that are automatically detected by a timeline. In the example above, notice how <!--MD-S id="usage__timeline" code-type="inline-code" MD-G-->`tLine`<!--MD-E-->'s `timelineName` config is set to <!--MD-S id="usage__timeline-name" code-type="inline-code" MD-G-->`'Basics'`<!--MD-E-->. In your HTML, you can use Webchalk's custom playback button elements as shown below (the comments explain the process).
 
 **HTML**
 <!-- MD-S id="usage__body" code-type="html"-->
@@ -344,7 +344,7 @@ Viewers will still need a way to step back and forth themselves in their browser
   </main>
   <!-- The timeline-name attribute must match the timeline object's timelineName config value. -->
   <div class="buttons" timeline-name="Basics">
-    <!-- WebChalk playback button components will be automatically linked to timeline. -->
+    <!-- Webchalk playback button components will be automatically linked to timeline. -->
     <!-- action attribute controls what button it is. Optional shortcut attribute increases accessibility. -->
     <webchalk-playback-button action="step-backward" shortcut="ArrowLeft"></webchalk-playback-button>
     <webchalk-playback-button action="pause" shortcut="Space"></webchalk-playback-button>
@@ -374,10 +374,10 @@ Viewers will still need a way to step back and forth themselves in their browser
 ```
 <!-- MD-E id="buttons-container-style"-->
 With just that code (which you can feel free to copy and paste—just change the `timeline-name` attribute to match your timeline), your visualization will display playback buttons that look like the ones shown in the image below. Creating your _own_ buttons from scratch that attempt to interface with `AnimTimeline` is _not_ recommended.
-![WebChalk playback buttons UI](./images/timeline-buttons-ui.jpg)
+![Webchalk playback buttons UI](./images/timeline-buttons-ui.jpg)
 
 <!-- ### Creating Custom Preset Animation Effects
 
-Sometimes, you will need an animation effect that WebChalk does not exactly have. -->
+Sometimes, you will need an animation effect that Webchalk does not exactly have. -->
 
 (Work in progress)

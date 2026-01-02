@@ -2,9 +2,10 @@
 import { webchalk } from 'webchalk-animate';
 /**** MD-E id="import webchalk" */
 /**** MD-S id="import paths" */
-import * as WebchalkTypes from 'webchalk-animate/types-and-interfaces';
+import * as WebchalkTypes from 'webchalk-animate/types';
 import * as WebchalkErrors from "webchalk-animate/error-handling";
-import * as WebchalkEasing from "webchalk-animate/easing";
+import * as WebchalkPES from "webchalk-animate/preset-effect-suite";
+import * as WebchalkUtils from "webchalk-animate/utility-functions";
 /**** MD-E id="import paths" */
 
 const { AnimSequence, AnimClip } = WebchalkTypes;
