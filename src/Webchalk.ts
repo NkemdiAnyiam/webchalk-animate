@@ -392,12 +392,6 @@ export class Webchalk {
 
     const mergeBanks = <L, U>(libraryBank: L, additionalBank: U) => {
       const combinedBank = {...(includeLibraryPresets ? libraryBank : {}), ...(additionalBank ?? {})} as PresetEffectBank;
-      // // set effectName and sourceBank properties of each generator to their obviously corresponding values
-      // // Object.assign circumvents the Readonly<>, preventing a TS error
-      // for (const key in combinedBank) {
-      //   const extras = { effectName: key, sourceBank: combinedBank } satisfies Partial<PresetEffectDefinition>;
-      //   Object.assign(combinedBank[key], extras);
-      // }
       return Object.freeze(combinedBank) as TogglePresets<L, U>;
     }
     
@@ -903,33 +897,6 @@ export const webchalk = new Webchalk();
 //         duration: 0
 //       }
 //     },
-//     '~ad': webchalk.copyPresetEffect(libPresetEntrances, '~appear', {addedDefaultConfig: {}, addedImmutableConfig: {}}),
+//     '~ad': copyPresetEffectFromBank(libPresetEntrances, '~appear', {addedDefaultConfig: {}, addedImmutableConfig: {}}),
 //   }),
 // }).Entrance(new HTMLElement(), '~ad', [], {}).getModifiers();
-
-// const thing2 = webchalk.createAnimationClipFactories({
-//   additionalEntranceEffectBank: definePresetEffectBank('Entrance', {
-//     appear: {
-//       buildFrameGenerators() {
-//         console.log('Here is EXACTLY what is going on!');
-
-//         return {
-//           keyframesGenerator_play: () => { return []; },
-//           // keyframesGenerator_rewind: 'exact-reverse',
-
-//           mutatorGenerator_play: () => { return () => {  } },
-//           mutatorGenerator_rewind: () => { return () => {  } }
-//         }
-//       },
-//       defaultConfig: {
-//         duration: 1000,
-//         delay: 300,
-//       },
-//       immutableConfig: {
-//         easing: 'linear',
-//       },
-//       rerunBuildFrameGenerators: 'on-every-play'
-//     }
-//   })
-// });
-
