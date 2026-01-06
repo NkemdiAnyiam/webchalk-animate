@@ -16,6 +16,7 @@
 
 .circle--1 {
   background-color: #99ffff;
+  opacity: 0.5;
 }
 
 .circle--2 {
@@ -23,11 +24,12 @@
 }
 
 .circle--3 {
-  background-color: #ff9999;
+  background-color: #99ff99;
 }
 
 .circle--4 {
-  background-color: #99ff99;
+  background-color: #ff9999;
+  opacity: 0.5;
 }
 
 .connector {

@@ -5,6 +5,7 @@ import * as WebchalkUtils from "webchalk-animate/utility-functions";
 import { definePresetEffectBank, webchalkPresetEffectBanks, useEasing, copyPresetEffectFromBank } from 'webchalk-animate/preset-effect-suite';
 
 console.log(WebchalkTypes.AnimClip);
+const negateNumString = (str: string): string => str[0] === '-' ? str.slice(1) : `-${str}`;
 
 /* css */`
 @keyframes roll-in-blurred-left {
@@ -254,14 +255,33 @@ const customEmphases = definePresetEffectBank(
   'Emphasis',
   {
     becomeGreen: {
-      buildFrameGenerators() {
+      buildFrameGenerators(partnerEl: Element) {
+        const getOrigCol = (elem: Element) => {
+          const [, r, g, b] = this.getStyles(elem, 'backgroundColor').match(/rgb\((\d+), (\d+), (\d+)\)/)!.map(numStr => Number(numStr));
+          return [r, g, b];
+        };
+        const [r1, g1, b1] = getOrigCol(this.domElem)
+        const [r2, g2, b2] = getOrigCol(partnerEl);
+
         return {
           mutatorGenerator_play: () => {
-            return () => { this.domElem.style.backgroundColor = `rgb(${this.computeTween(255, 0)} 255 ${this.computeTween(255, 0)})` }
+            return () => { this.domElem.style.backgroundColor = `rgb(${this.computeTween(r1, 0)} ${this.computeTween(g1, 255)} ${this.computeTween(b1, 0)})`; }
           },
+          // mutatorGenerator_rewind: () => {
+          //   return () => { this.domElem.style.backgroundColor = `rgb(${this.computeTween(0, 255)} 255 ${this.computeTween(0, 255)})`; }
+          // },
+          nestedEffectFrameGeneratorSets: [
+            {
+              domElem: partnerEl as WebchalkTypes.DOMElement,
+              mutatorGenerator_play: () => {
+                return () => { (partnerEl as WebchalkTypes.DOMElement).style.backgroundColor = `rgb(${this.computeTween(r2, 0)} ${this.computeTween(g2, 255)} ${this.computeTween(b2, 0)})`; }
+              }
+            }
+          ]
         }
       },
       defaultConfig: {},
+      howOftenBuildGenerators: 'on-every-play',
     }
   }
 );
@@ -349,6 +369,88 @@ const customMotions = definePresetEffectBank(
         };
       }
     },
+
+    swap: {
+      buildFrameGenerators(swapEl: Element | null | undefined) {
+        if (!swapEl) {
+          throw new TypeError(`Swap target must not be null or undefined`);
+        }
+
+        function computeTranslation(self: WebchalkTypes.DOMElement, targetElem: WebchalkTypes.DOMElement, translationOptions: Partial<WebchalkTypes.MoveToOptions>) {
+          const alignmentComponents = WebchalkUtils.parseXYAlignmentString(translationOptions.alignment);
+          const selfOffsetComponents = WebchalkUtils.parseXYTupleString(translationOptions.selfOffset);
+          const targetOffsetComponents = WebchalkUtils.parseXYTupleString(translationOptions.targetOffset);
+
+          const alignmentX = alignmentComponents?.[0] ?? 'left';
+          const alignmentY = alignmentComponents?.[1] ?? 'top';
+          const selfOffsetX = selfOffsetComponents?.[0] ?? '0px';
+          const selfOffsetY = selfOffsetComponents?.[1] ?? '0px';
+          const targetOffsetX = targetOffsetComponents?.[0] ?? '0px';
+          const targetOffsetY = targetOffsetComponents?.[1] ?? '0px';
+          const {
+            preserveX = false,
+            preserveY = false,
+          } = translationOptions;
+          
+          // get the bounding boxes of our DOM element and the target element
+          const rectSelf = WebchalkUtils.getBoundingClientRectOfHidden(self);
+          const rectTarget = WebchalkUtils.getBoundingClientRectOfHidden(targetElem);
+
+          // the displacement will start as the difference between the target element's position and our element's position
+          const baseXTrans: number = alignmentX === 'center'
+            ? ((rectTarget.left + rectTarget.width/2) - (rectSelf.left + rectSelf.width/2))
+            : (preserveX ? 0 : rectTarget[alignmentX] - rectSelf[alignmentX]);
+          const baseYTrans: number = alignmentY === 'center'
+            ? ((rectTarget.top + rectTarget.height/2) - (rectSelf.top + rectSelf.height/2))
+            : (preserveY ? 0 : rectTarget[alignmentY] - rectSelf[alignmentY]);
+
+          // there may also be additional offset with respect to the target element
+          let targetOffsetXTrans = targetOffsetX;
+          let targetOffsetYTrans = targetOffsetY;
+          if (typeof targetOffsetX === 'string') {
+            const match = targetOffsetX.match(/(-?\d+(?:\.\d*)?)(\D+)/);
+            if (!match) { throw new RangeError(`Invalid targetOffsetX value ${targetOffsetX}`); }
+            const num = Number(match[1]);
+            const unit = match[2] as WebchalkTypes.CssLengthUnit;
+            if (unit === '%') { targetOffsetXTrans = `${(num/100) * rectTarget.width}px`; }
+          }
+          if (typeof targetOffsetY === 'string') {
+            const match = targetOffsetY.match(/(-?\d+(?:\.\d*)?)(\D+)/);
+            if (!match) { throw new RangeError(`Invalid targetOffsetY value ${targetOffsetY}`); }
+            const num = Number(match[1]);
+            const unit = match[2] as WebchalkTypes.CssLengthUnit;
+            if (unit === '%') { targetOffsetYTrans = `${(num/100) * rectTarget.height}px`; }
+          }
+          
+          return {
+            keyframesGenerator_play: () => [
+              {translate: `calc(${baseXTrans}px + ${selfOffsetX} + ${targetOffsetXTrans}) calc(${baseYTrans}px + ${selfOffsetY} + ${targetOffsetYTrans})`}
+            ],
+            keyframesGenerator_rewind: () => [
+              {translate: `calc(${-baseXTrans}px + ${negateNumString(selfOffsetX)} + ${negateNumString(targetOffsetXTrans)}) calc(${-baseYTrans}px + ${negateNumString(selfOffsetY)} + ${negateNumString(targetOffsetYTrans)})`}
+            ],
+          };
+        }
+
+        const selfFrameGens = computeTranslation(this.domElem, swapEl as WebchalkTypes.DOMElement, {});
+        const partnerFrameGens = computeTranslation(swapEl as WebchalkTypes.DOMElement, this.domElem, {});
+
+        return {
+          keyframesGenerator_play: selfFrameGens.keyframesGenerator_play,
+          keyframesGenerator_rewind: selfFrameGens.keyframesGenerator_rewind,
+          nestedEffectFrameGeneratorSets: [
+            {
+              domElem: swapEl,
+              keyframesGenerator_play: partnerFrameGens.keyframesGenerator_play,
+              keyframesGenerator_rewind: partnerFrameGens.keyframesGenerator_rewind,
+            }
+          ]
+        };
+      },
+      defaultConfig: webchalkPresetEffectBanks.motionBank['~move-to'].defaultConfig,
+      immutableConfig: webchalkPresetEffectBanks.motionBank['~move-to'].immutableConfig,
+      howOftenBuildGenerators: webchalkPresetEffectBanks.motionBank['~move-to'].howOftenBuildGenerators,
+    }
   }
 );
 
@@ -380,7 +482,8 @@ const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Tra
 }
 
 const square = document.querySelector('.square');
-const circle = document.querySelector('.circle.circle--1');
+const circle1 = document.querySelector('.circle.circle--1');
+const circle4 = document.querySelector('.circle.circle--4');
 
 const ent = Entrance(square, '~appear', []);
 
@@ -498,10 +601,16 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   //   console.log('HEY, EVERYONE!!!');
   // })
 
+  const motionSwap = Motion(circle1, 'swap', [circle4!], {duration: 1000});
+  motionSwap.scheduleTask('activePhase', '55%', {onPlay: () => wait(2000), onRewind: () => wait(2000)});
+
   timeline.addSequences([
     webchalk.newSequence([
-      Motion(circle, '~translate', [{translate: '900px 0'}], {delay: 500}),
-      Motion(circle, 'translateRel', []),
+      Motion(circle1, '~translate', [{translate: '900px 0'}]),
+      Motion(circle1, 'translateRel', []),
+      // Emphasis(circle1, 'becomeGreen', [circle4!], {startsNextClipToo: true}),
+      motionSwap,
+      Motion(circle1, '~translate', [{translate: '200px 0'}]),
     ]),
   ]);
 })();

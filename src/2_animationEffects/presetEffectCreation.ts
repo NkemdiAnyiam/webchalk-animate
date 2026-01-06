@@ -1,6 +1,6 @@
 import { AnimClip } from "../1_playbackStructures/AnimationClip";
 import { EmphasisClip, EntranceClip, ExitClip, Layer4MutableConfig, MotionClip } from "../1_playbackStructures/AnimationClipCategories";
-import { Keyframes, Mutator } from "../4_utils/interfaces";
+import { DOMElement, Keyframes, Mutator } from "../4_utils/interfaces";
 import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord, StrictPropertyCheck, StrictReturnPropertyCheck, PrettifyCustomError, ErrorCheckJoiner, ValidationBloat } from "../4_utils/utilityTypes";
 import { AnimClipConfig } from "../1_playbackStructures/AnimationClip";
 import { webchalk } from "../Webchalk";
@@ -409,6 +409,7 @@ export interface EffectFrameGeneratorSet extends StripDuplicateMethodAutocomplet
   /**
    * If `true`, the effect specified by the keyframes generators will be reversed.
    * * This is convenient when you want to create the opposite of another previously defined effect
+   * * This also applies to all keyframe generators within {@link EffectFrameGeneratorSet.nestedEffectFrameGeneratorSet | nestedEffectFrameGeneratorSet}
    * 
    * @group Keyframes Generators
    */
@@ -416,11 +417,49 @@ export interface EffectFrameGeneratorSet extends StripDuplicateMethodAutocomplet
   /**
    * If `true`, the effect specified by the mutator generators will be reversed.
    * * This is convenient when you want to create the opposite of another previously defined effect
+   * * This also applies to all mutator generators within {@link EffectFrameGeneratorSet.nestedEffectFrameGeneratorSet | nestedEffectFrameGeneratorSet}
    * 
    * @group Mutator Generators
    */
   reverseMutatorEffect?: boolean;
+  // TODO: add code examples
+  /**
+   * Array containing {@link NestedEffectFrameGeneratorSet}s, which can be used to create
+   * additional frame generators for animate other elements (for example, animating
+   * a secondary element in a swap animation, or animating the children of `this.domElem`)
+   */
+  nestedEffectFrameGeneratorSets?: NestedEffectFrameGeneratorSet[];
 }> {}
+
+/**
+ * Object containing a target element to animate and up to 4 callback functions that will be called to
+ * produce the effect for an co-animation within a clip.
+ * Contained in {@link EffectFrameGeneratorSet} returned by {@link PresetEffectDefinition.buildFrameGenerators}.
+ *  * {@link EffectFrameGeneratorSet.keyframesGenerator_play | keyframesGenerator_play} will run every time the clip is played,
+ * producing a {@link Keyframes} object.
+ *  * {@link EffectFrameGeneratorSet.keyframesGenerator_rewind | keyframesGenerator_rewind} will run every time the clip is rewound,
+ * producing a {@link Keyframes} object.
+ *    * If the backward generator is omitted, the forward generator will be used again instead, and the result will just be played in reverse.
+ * It is up to you to check whether the animation effect is valid if this shortcut is taken.
+ *  * {@link EffectFrameGeneratorSet.mutatorGenerator_play | mutatorGenerator_play} will run every time the clip is played,
+ * producing a {@link Mutator} function.
+ *  * {@link EffectFrameGeneratorSet.mutatorGenerator_rewind | mutatorGenerator_rewind} will run every time the clip is rewound,
+ * producing a {@link Mutator} function.
+ *    * If the backward generator is omitted, the backward generator will be used again instead, and the result will just be reversed.
+ * It is up to you to check whether the animation effect is valid if this shortcut is taken.
+ * 
+ * @see {@link PresetEffectDefinition.buildFrameGenerators}
+ * 
+ * @category Effect Definition
+ */
+export interface NestedEffectFrameGeneratorSet extends StripDuplicateMethodAutocompletion<
+  Pick<
+    EffectFrameGeneratorSet,
+    'keyframesGenerator_play' | 'keyframesGenerator_rewind' | 'mutatorGenerator_play' | 'mutatorGenerator_rewind'
+  >
+> {
+  domElem: Element | DOMElement | null | undefined;
+};
 
 // TODO: add code examples
 /**

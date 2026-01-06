@@ -6,9 +6,9 @@ import { EffectOptions, PresetEffectBank, PresetEffectDefinition, EffectFrameGen
 import { call, detab, getPartial, mergeArrays, xor } from "../4_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
 import { CustomErrorClasses, ClipErrorGenerator, errorTip, generateError } from "../4_utils/errors";
-import { DOMElement, EffectCategory, Keyframes, StyleProperty } from "../4_utils/interfaces";
+import { DOMElement, EffectCategory, Mutator, StyleProperty } from "../4_utils/interfaces";
 import { WebchalkConnectorElement } from "../3_components/WebchalkConnectorElement";
-import { WebchalkAnimation } from "./WebchalkAnimation";
+import { WebchalkAnimation, NestedWebchalkAnimation } from "./WebchalkAnimation";
 import { PartialPick, PickFromArray, WithRequired } from "../4_utils/utilityTypes";
 
 // /**
@@ -520,6 +520,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
  }
 
  protected animation!: WebchalkAnimation;
+ protected get nestedAnimations(): NestedWebchalkAnimation[] { return this.animation.nestedAnimations; };
  /**@internal*/
  get rafLoopsProgress(): number {
   const { progress, direction } = this.animation.effect!.getComputedTiming();
@@ -533,14 +534,23 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   return prog;
  }
 
- // true if both keyframes generators are undefined in frame generators
- protected noKeyframes: boolean = false;
- // true if both mutator generators are undefined in frame generators
- protected noRaf: boolean = false;
- // true if only backward keyframes generators is undefined in frame generators
- protected bFramesMirrored: boolean = false;
- // true if only backward mutator generator is undefined in frame generators
- protected bRafMirrored: boolean = false;
+ protected effectFrameGeneratorSetMetadata = {
+  // true if both keyframes generators are undefined in frame generators
+  noKeyframes: false,
+  // true if both mutator generators are undefined in frame generators
+  noRaf: false,
+  // true if only backward keyframes generators is undefined in frame generators
+  bFramesMirrored: false,
+  // true if only backward mutator generator is undefined in frame generators
+  bRafMirrored: false,
+ };
+
+ protected nestedEffectFrameGeneratorSetMetadataArray: {
+  noKeyframes: boolean;
+  noRaf: boolean;
+  bFramesMirrored: boolean;
+  bRafMirrored: boolean;
+ }[] = [];
 
   // GROUP: Effect Details
   protected abstract get category(): EffectCategory;
@@ -549,12 +559,20 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   protected effectOptions: EffectOptions<TPresetEffectDefinition> = {} as EffectOptions<TPresetEffectDefinition>;
   
   /**@internal*/
-  effectFrameGeneratorSet = {} as WithRequired<EffectFrameGeneratorSet, 'keyframesGenerator_play' | 'keyframesGenerator_rewind'>;
+  effectFrameGeneratorSet = {} as WithRequired<EffectFrameGeneratorSet, 'keyframesGenerator_play' | 'keyframesGenerator_rewind' | 'nestedEffectFrameGeneratorSets'>;
   /**@internal*/
   rafMutators: {
-    forwardMutator?: () => void;
-    backwardMutator?: () => void;
+    forwardMutator?: Mutator;
+    backwardMutator?: Mutator;
   } = {};
+  /**@internal*/
+  nestedRafMutators: {
+    forwardMutators: Mutator[];
+    backwardMutators: Mutator[];
+  } = {
+    forwardMutators: [],
+    backwardMutators: [],
+  }
 
   /**
    * Returns specific details about the animation's effect.
@@ -809,31 +827,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       composite: composite,
     };
 
-    this.animation = new WebchalkAnimation(
-      new KeyframeEffect(
-        this.domElem,
-        // Using fontFeatureSettings handles a very strange Firefox bug that causes animations to run without any visual changes
-        // when the animation is finished, setKeyframes() is called, and the animation continues after extending the runtime using
-        // endDelay. It appears that the bug only occurs when the keyframes field contains nothing that will actually affect the
-        // styling of the element (for example, adding {['fake-field']: 'bla'} will not fix it), but I obviously do not want to
-        // add anything that will actually affect the style of the element, so I decided to use fontFeatureSettings and set it to
-        // the default value to make it as unlikely as possible that anything the user does is obstructed.
-        [{fontFeatureSettings: 'normal'}],
-        keyframeOptions
-      ),
-      new KeyframeEffect(
-        this.domElem,
-        [{fontFeatureSettings: 'normal'}],
-        {
-          ...keyframeOptions,
-          easing: useEasing(easing, {inverted: true}),
-          // delay & endDelay are of course swapped when we want to play in "reverse"
-          delay: keyframeOptions.endDelay,
-          endDelay: keyframeOptions.delay,
-        },
-      ),
-      this.generateError
-    );
+    this.animation = new WebchalkAnimation(this.domElem, keyframeOptions, this.generateError);
 
     // TODO: Figure out how to disable any pausing/stepping functionality in the timeline while stopped for tasks
     this.animation.pauseForTasks = () => {
@@ -1210,26 +1204,64 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       this.animation.forwardEffect.updateTiming({
         direction: this.effectFrameGeneratorSet.reverseKeyframesEffect ? 'reverse' : 'normal',
       });
+      const nestedAnimations = this.nestedAnimations;
+      for (let i = 0; i < nestedAnimations.length; ++i) {
+        nestedAnimations[i].forwardEffect.updateTiming({
+          direction: this.effectFrameGeneratorSet.reverseKeyframesEffect ? 'reverse' : 'normal',
+        });
+      }
 
       this.animation.backwardEffect.updateTiming({
         // if no backward keyframes generator was specified, assume the reverse of the forward keyframes generator
-        direction: xor(this.bFramesMirrored, this.effectFrameGeneratorSet.reverseKeyframesEffect) ? 'reverse' : 'normal',
+        direction: xor(
+          this.effectFrameGeneratorSetMetadata.bFramesMirrored,
+          this.effectFrameGeneratorSet.reverseKeyframesEffect
+        ) ? 'reverse' : 'normal'
       });
+      for (let i = 0; i < this.nestedAnimations.length; ++i) {
+        this.nestedAnimations[i].backwardEffect.updateTiming({
+          direction: xor(
+            this.nestedEffectFrameGeneratorSetMetadataArray[i].bFramesMirrored,
+            this.effectFrameGeneratorSet.reverseKeyframesEffect
+          ) ? 'reverse' : 'normal'
+        });
+      }
     }
 
-    const config = this.config;
+    const {
+      config,
+      animation,
+      nestedAnimations,
+      effectFrameGeneratorSet,
+      effectFrameGeneratorSetMetadata,
+      effectFrameGeneratorSet: {nestedEffectFrameGeneratorSets},
+      nestedEffectFrameGeneratorSetMetadataArray,
+    } = this;
 
-    const animation = this.animation;
     animation.setDirection(direction);
+    for (let i = 0; i < nestedAnimations.length; ++i) {
+      nestedAnimations[i].setDirection(direction);
+    }
     this.direction = direction;
     // Clear the current keyframes to prevent interference with generators
     switch(direction) {
       case 'forward':
         animation.setForwardFrames([{fontFeatureSettings: 'normal'}]);
+        for (let i = 0; i < nestedAnimations.length; ++i) {
+          nestedAnimations[i].setForwardFrames([{fontFeatureSettings: 'normal'}]);
+        }
         break;
       case 'backward':
         animation.setBackwardFrames([{fontFeatureSettings: 'normal'}]);
+        for (let i = 0; i < nestedAnimations.length; ++i) {
+          nestedAnimations[i].setBackwardFrames([{fontFeatureSettings: 'normal'}]);
+        }
         break;
+      default:
+        throw this.generateError(
+          Error,
+          `An error here should be impossible. this.animation.direction should only be 'forward' or 'backward'.`
+        );
     }
     this.useCompoundedPlaybackRate();
 
@@ -1252,6 +1284,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
           // FORWARD
           case 'forward':
             // handle CSS classes and pre-start function
+            // TODO: add classes to all elements???
             this.domElem.classList.add(...config.cssClasses.toAddOnStart ?? []);
             this.domElem.classList.remove(...config.cssClasses.toRemoveOnStart ?? []);
             this._onStartForward();
@@ -1260,18 +1293,34 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
             // Keyframe generation is done here so that generations operations that rely on the side effects of class modifications and _onStartForward()...
             // ...can function properly.
             try {
-              animation.setForwardFrames(this.effectFrameGeneratorSet.keyframesGenerator_play(), this.effectFrameGeneratorSet.reverseKeyframesEffect);
-              this.rafMutators.forwardMutator = this.effectFrameGeneratorSet.mutatorGenerator_play?.();
+              const reverseKeyframesEffect = effectFrameGeneratorSet.reverseKeyframesEffect;
+              animation.setForwardFrames(effectFrameGeneratorSet.keyframesGenerator_play(), reverseKeyframesEffect);
+              for (let i = 0; i < nestedAnimations.length; ++i) {
+                const nestedEffectFrameGenSet = nestedEffectFrameGeneratorSets[i];
+                nestedAnimations[i].setForwardFrames(nestedEffectFrameGenSet.keyframesGenerator_play!(), reverseKeyframesEffect);
+              }
+              this.rafMutators.forwardMutator = effectFrameGeneratorSet.mutatorGenerator_play?.();
+              this.nestedRafMutators.forwardMutators = [];
+              for (let i = 0; i < nestedAnimations.length; ++i) {
+                const nestedEffectFrameGenSet = nestedEffectFrameGeneratorSets[i];
+                if (nestedEffectFrameGenSet.mutatorGenerator_play) {
+                  this.nestedRafMutators.forwardMutators.push(nestedEffectFrameGenSet.mutatorGenerator_play());
+                }
+              }
             }
             catch (err: unknown) {
               throw this.generateError(err as Error);
             }
 
             // If RAF mutator exists, begin RAF loop
-            if (this.rafMutators.forwardMutator) { requestAnimationFrame(this.loop); }
+            // NEXT REMINDER: figure this out
+            if (this.rafMutators.forwardMutator || (this.nestedRafMutators.forwardMutators.length > 0)) { requestAnimationFrame(this.loop); }
 
             // sets it back to 'forwards' in case it was set to 'none' in a previous running
             animation.effect?.updateTiming({fill: 'forwards'});
+            for (let i = 0; i < nestedAnimations.length; ++i) {
+              nestedAnimations[i].effect?.updateTiming({fill: 'forwards'});
+            }
             break;
     
           // BACKWARD
@@ -1283,13 +1332,23 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
 
             // Generate keyframes
             try {
-              this.animation.setBackwardFrames(this.effectFrameGeneratorSet.keyframesGenerator_rewind(), this.bFramesMirrored, this.effectFrameGeneratorSet.reverseKeyframesEffect);
+              const reverseKeyframesEffect = effectFrameGeneratorSet.reverseKeyframesEffect;
+              animation.setBackwardFrames(effectFrameGeneratorSet.keyframesGenerator_rewind(), effectFrameGeneratorSetMetadata.bFramesMirrored, reverseKeyframesEffect);
               this.rafMutators.backwardMutator = this.effectFrameGeneratorSet.mutatorGenerator_rewind?.();
+
+              for (let i = 0; i < nestedAnimations.length; ++i) {
+                const nestedEffectFrameGenSet = nestedEffectFrameGeneratorSets[i];
+                const nestedAnim = this.nestedAnimations[i];
+                nestedAnim.setBackwardFrames(nestedEffectFrameGenSet.keyframesGenerator_rewind!(), nestedEffectFrameGeneratorSetMetadataArray[i].bFramesMirrored, reverseKeyframesEffect);
+                if (nestedEffectFrameGenSet.mutatorGenerator_rewind) {
+                  this.nestedRafMutators.backwardMutators.push(nestedEffectFrameGenSet.mutatorGenerator_rewind());
+                }
+              }
             }
             catch (err: unknown) { throw this.generateError(err as Error); }
 
             // If RAF mutator exists, begin RAF loop
-            if (this.rafMutators.backwardMutator) { requestAnimationFrame(this.loop); }
+            if (this.rafMutators.backwardMutator || (this.nestedRafMutators.backwardMutators.length > 0)) { requestAnimationFrame(this.loop); }
             break;
     
           default:
@@ -1303,65 +1362,75 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
 
     // After active phase, then handle commit settings, apply class modifications, and call onFinish functions.
     animation.onActiveFinish = () => {
-      // CHANGE NOTE: Move hidden class stuff here
-      try {
-        // if should commit styles, only try to use commitStyles() if there are meaningful keyframes
-        if (config.commitsStyles && !this.noKeyframes) {
-          // Attempt to apply the styles to the element.
-          try {
-            animation.commitStyles();
-            // ensures that accumulating effects are not stacked after commitStyles() (hopefully, new spec will prevent the need for this workaround)
-            animation.effect?.updateTiming({ fill: 'none' });
-          }
-          // If commitStyles() fails, it's because the element is not rendered.
-          catch (_) {
-            // attempt to override the hidden state and apply the style.
+      const commitStylesAndAddClasses = (animation: WebchalkAnimation | NestedWebchalkAnimation, noKeyframes: boolean) => {
+        const domElem = animation.target;
+
+        try {
+          // if should commit styles, only try to use commitStyles() if there are meaningful keyframes
+          if (config.commitsStyles && !noKeyframes) {
+            // Attempt to apply the styles to the element.
             try {
-              this.domElem.classList.add('webchalk-force-show'); // CHANGE NOTE: Use new hidden classes
               animation.commitStyles();
+              // ensures that accumulating effects are not stacked after commitStyles() (hopefully, new spec will prevent the need for this workaround)
               animation.effect?.updateTiming({ fill: 'none' });
-              this.domElem.classList.remove('webchalk-force-show');
             }
-            // If this fails, then the element's parent is hidden. Do not attempt to remedy; throw error instead.
-            catch (err: unknown) {
-              let reasons = [];
-              if (getComputedStyle(this.domElem).display === 'none') {
-                reasons.push(detab`Something is causing the CSS style {display: hidden} to be applied besides the class "webchalk-display-none".`);
+            // If commitStyles() fails, it's because the element is not rendered.
+            catch (_) {
+              // attempt to override the hidden state and apply the style.
+              try {
+                domElem.classList.add('webchalk-force-show'); // CHANGE NOTE: Use new hidden classes
+                animation.commitStyles();
+                animation.effect?.updateTiming({ fill: 'none' });
+                domElem.classList.remove('webchalk-force-show');
               }
-              let ancestor = this.domElem;
-              while (ancestor = ancestor.parentElement as DOMElement) {
-                if (!ancestor) { break; }
-                if (getComputedStyle(ancestor).display === 'none') {
-                  reasons.push(detab`One of the parent elements of the element is unrendered.`);
+              // If this fails, then the element's parent is hidden. Do not attempt to remedy; throw error instead.
+              catch (err: unknown) {
+                const reasons = [];
+                if (getComputedStyle(domElem).display === 'none') {
+                  reasons.push(detab`Something is causing the CSS style {display: hidden} to be applied besides the class "webchalk-display-none".`);
                 }
+                let ancestor = domElem;
+                while (ancestor = ancestor.parentElement as DOMElement) {
+                  if (!ancestor) { break; }
+                  if (getComputedStyle(ancestor).display === 'none') {
+                    reasons.push(detab`One of the parent elements of the element is unrendered.`);
+                  }
+                }
+                throw this.generateError(CustomErrorClasses.CommitStylesError,
+                  detab`Failed to commit styles on the element while it was unrendered.\
+                  Animation styles normally cannot be saved on unrendered elements in JavaScript, but Webchalk allows it ONLY IF\
+                  the element is unrendered due to having the CSS class "webchalk-display-none". If there is ANY other reason\
+                  for the element not being rendered, the styles cannot be committed.
+                  Detected reasons:\n`
+                  + reasons.map((reason, index) => `    ${index + 1}) ${reason}`).join('\n'),
+                  domElem
+                );
               }
-              throw this.generateError(CustomErrorClasses.CommitStylesError,
-                detab`Failed to commit styles on the element while it was unrendered.\
-                Animation styles normally cannot be saved on unrendered elements in JavaScript, but Webchalk allows it ONLY IF\
-                the element is unrendered due to having the CSS class "webchalk-display-none". If there is ANY other reason\
-                for the element not being rendered, the styles cannot be committed.
-                Detected reasons:\n`
-                + reasons.map((reason, index) => `    ${index + 1}) ${reason}`).join('\n')
-              );
             }
           }
+    
+          // TODO: figure this out for co animations
+          switch(direction) {
+            case 'forward':
+              this.domElem.classList.add(...config.cssClasses.toAddOnFinish ?? []);
+              this.domElem.classList.remove(...config.cssClasses.toRemoveOnFinish ?? []);
+              this._onFinishForward();
+              break;
+            case 'backward':
+              this._onFinishBackward();
+              this.domElem.classList.add(...config.cssClasses.toRemoveOnStart ?? []);
+              this.domElem.classList.remove(...config.cssClasses.toAddOnStart ?? []);
+              break;
+          }
         }
-  
-        switch(direction) {
-          case 'forward':
-            this.domElem.classList.add(...config.cssClasses.toAddOnFinish ?? []);
-            this.domElem.classList.remove(...config.cssClasses.toRemoveOnFinish ?? []);
-            this._onFinishForward();
-            break;
-          case 'backward':
-            this._onFinishBackward();
-            this.domElem.classList.add(...config.cssClasses.toRemoveOnStart ?? []);
-            this.domElem.classList.remove(...config.cssClasses.toAddOnStart ?? []);
-            break;
+        catch (err: unknown) {
+          reject(err);
         }
-      }
-      catch (err: unknown) {
-        reject(err);
+      };
+
+      commitStylesAndAddClasses(animation, effectFrameGeneratorSetMetadata.noKeyframes);
+      for (let i = 0; i < nestedAnimations.length; ++i) {
+        commitStylesAndAddClasses(nestedAnimations[i], nestedEffectFrameGeneratorSetMetadataArray[i].noKeyframes);
       }
     };
     
@@ -1376,7 +1445,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     return promise.catch((err) => {
       this.root.pause();
       throw err;
-    })
+    });
   }
 
   private retrieveGenerators(): void {
@@ -1389,95 +1458,139 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
         mutatorGenerator_rewind,
         reverseKeyframesEffect = false,
         reverseMutatorEffect = false,
+        nestedEffectFrameGeneratorSets = [],
       } = call(this.presetEffectDefinition.buildFrameGenerators, this, ...this.getEffectDetails().effectOptions);
 
-      // if no generators are specified, make keyframes generators return empty keyframes array
-      if (!(keyframesGenerator_play || keyframesGenerator_rewind || mutatorGenerator_play || mutatorGenerator_rewind)) {
-        keyframesGenerator_play = () => [];
-        keyframesGenerator_rewind = () => [];
-        this.noKeyframes = this.noRaf = true;
-      }
-      else {
-        // if both keyframe generators are unspecified, make them return empty keyframes array
-        if (!keyframesGenerator_play && !keyframesGenerator_rewind) {
-          this.noKeyframes = true;
-          keyframesGenerator_play = () => [];
-          keyframesGenerator_rewind = () => [];
-        }
-        // if backward keyframes generator is unspecified, use forward generator and set mirrored to true
-        else if (!keyframesGenerator_rewind) {
-          keyframesGenerator_rewind = keyframesGenerator_play!;
-          this.bFramesMirrored = true;
-        }
-        // if forward keyframes generator is unspecified, throw error
-        else if (!keyframesGenerator_play) {
-          throw new CustomErrorClasses.InvalidEffectError(
-            `The backward keyframes generator cannot be specified without the forward keyframes generator as well.`
-          );
-        }
-  
-        // if both RAF generators are unspecified, do nothing
-        if (!mutatorGenerator_play && !mutatorGenerator_rewind) {
-          this.noRaf = true;
-        }
-        // if backward RAF mutator generator is unspecified, use forward generator and set mirrored to true
-        else if (!mutatorGenerator_rewind) {
-          mutatorGenerator_rewind = mutatorGenerator_play;
-          this.bRafMirrored = true;
-        }
-        // if forward RAF mutator generator is unspecified, throw error
-        else if (!mutatorGenerator_play) {
-          throw new CustomErrorClasses.InvalidEffectError(
-            `The backward mutator generator cannot be specified without the forward mutator generator as well.`
-          );
-        }
-      }
-
-      this.effectFrameGeneratorSet = {
-        keyframesGenerator_play: keyframesGenerator_play!,
+      // format main effect frame generator set and metadata
+      const tempEffectFrameGeneratorSet = {
+        keyframesGenerator_play,
         keyframesGenerator_rewind,
         mutatorGenerator_play,
         mutatorGenerator_rewind,
+      }
+      
+      this.formatFrameGeneratorSet(tempEffectFrameGeneratorSet, this.effectFrameGeneratorSetMetadata);
+
+      this.effectFrameGeneratorSet = {
+        ...tempEffectFrameGeneratorSet as WithRequired<
+          typeof this.effectFrameGeneratorSet,
+          'keyframesGenerator_play' | 'keyframesGenerator_rewind'
+        >,
         reverseKeyframesEffect,
         reverseMutatorEffect,
+        // TODO: dispose of old sets when necessary
+        nestedEffectFrameGeneratorSets,
       };
+
+      // format co-effect frame generator set and create metadata
+      // and create new co animation objects
+      this.animation.deleteNestedAnimations();
+      this.nestedEffectFrameGeneratorSetMetadataArray = [];
+
+      for (let i = 0; i < nestedEffectFrameGeneratorSets.length; ++i) {
+        // handle generator set and metadata
+        const nestedEffectFrameGeneratorSet = nestedEffectFrameGeneratorSets[i];
+        const nestedEffectFrameGeneratorSetMetadata = {
+          bFramesMirrored: false,
+          bRafMirrored: false,
+          noKeyframes: false,
+          noRaf: false,
+        };
+        this.nestedEffectFrameGeneratorSetMetadataArray.push(nestedEffectFrameGeneratorSetMetadata);
+
+        this.formatFrameGeneratorSet(nestedEffectFrameGeneratorSet, nestedEffectFrameGeneratorSetMetadata);
+
+        // create co-animation
+        const { delay, duration, endDelay, easing, composite } = this.config;
+        const keyframeOptions: KeyframeEffectOptions = {
+          delay,
+          duration,
+          endDelay,
+          fill: 'forwards',
+          easing: useEasing(easing),
+          composite: composite,
+        };
+
+        this.animation.createNestedAnimation(nestedEffectFrameGeneratorSet.domElem, keyframeOptions, this.generateError);
+      }
     }
     catch (err: unknown) { throw this.generateError(err as Error); }
   }
 
-  // private refreshGenerators(): void {
-  //   try {
-  //     // retrieve generators
-  //     let {
-  //       keyframesGenerator_play,
-  //       keyframesGenerator_rewind,
-  //       mutatorGenerator_play,
-  //       mutatorGenerator_rewind,
-  //       reverseKeyframesEffect = false,
-  //       reverseMutatorEffect = false,
-  //     } = call(this.presetEffectDefinition.buildFrameGenerators, this, ...this.getEffectDetails().effectOptions);
+  private formatFrameGeneratorSet(
+    generatorSet: Pick<EffectFrameGeneratorSet,
+      | 'keyframesGenerator_play'
+      | 'keyframesGenerator_rewind'
+      | 'mutatorGenerator_play'
+      | 'mutatorGenerator_rewind'
+    >,
+    generatorSetMetadata: {
+      bFramesMirrored: boolean;
+      bRafMirrored: boolean;
+      noKeyframes: boolean;
+      noRaf: boolean;
+    }
+  ): void {
+    // if no generators are specified, make keyframes generators return empty keyframes array
+    if (!(generatorSet.keyframesGenerator_play || generatorSet.keyframesGenerator_rewind || generatorSet.mutatorGenerator_play || generatorSet.mutatorGenerator_rewind)) {
+      generatorSet.keyframesGenerator_play = () => [];
+      generatorSet.keyframesGenerator_rewind = () => [];
+      generatorSetMetadata.noKeyframes = true;
+      generatorSetMetadata.noRaf = true;
+    }
+    else {
+      // if both keyframe generators are unspecified, make them return empty keyframes array
+      if (!generatorSet.keyframesGenerator_play && !generatorSet.keyframesGenerator_rewind) {
+        generatorSetMetadata.noKeyframes = true;
+        generatorSet.keyframesGenerator_play = () => [];
+        generatorSet.keyframesGenerator_rewind = () => [];
+      }
+      // if backward keyframes generator is unspecified, use forward generator and set mirrored to true
+      else if (!generatorSet.keyframesGenerator_rewind) {
+        generatorSet.keyframesGenerator_rewind = generatorSet.keyframesGenerator_play!;
+        generatorSetMetadata.bFramesMirrored = true;
+      }
+      // if forward keyframes generator is unspecified, throw error
+      else if (!generatorSet.keyframesGenerator_play) {
+        throw new CustomErrorClasses.InvalidEffectError(
+          `The backward keyframes generator cannot be specified without the forward keyframes generator as well.`
+        );
+      }
 
-  //     this.effectFrameGeneratorSet = {
-  //       keyframesGenerator_play: keyframesGenerator_play! ?? keyframesGenerator_rewind!,
-  //       keyframesGenerator_rewind: keyframesGenerator_rewind! ?? keyframesGenerator_play!,
-  //       mutatorGenerator_play: mutatorGenerator_play ?? mutatorGenerator_rewind,
-  //       mutatorGenerator_rewind: mutatorGenerator_rewind ?? mutatorGenerator_play,
-  //       reverseKeyframesEffect,
-  //       reverseMutatorEffect,
-  //     };
-  //   }
-  //   catch (err: unknown) { throw this.generateError(err as Error); }
-  // }
+      // if both RAF generators are unspecified, do nothing
+      if (!generatorSet.mutatorGenerator_play && !generatorSet.mutatorGenerator_rewind) {
+        generatorSetMetadata.noRaf = true;
+      }
+      // if backward RAF mutator generator is unspecified, use forward generator and set mirrored to true
+      else if (!generatorSet.mutatorGenerator_rewind) {
+        generatorSet.mutatorGenerator_rewind = generatorSet.mutatorGenerator_play;
+        generatorSetMetadata.bRafMirrored = true;
+      }
+      // if forward RAF mutator generator is unspecified, throw error
+      else if (!generatorSet.mutatorGenerator_play) {
+        throw new CustomErrorClasses.InvalidEffectError(
+          `The backward mutator generator cannot be specified without the forward mutator generator as well.`
+        );
+      }
+    }
+  }
 
   private loop = (): void => {
-    const rafMutators = this.rafMutators!;
+    const rafMutators = this.rafMutators;
+    const nestedRafMutators = this.nestedRafMutators;
     try {
       switch(this.animation.direction) {
         case "forward":
-          rafMutators.forwardMutator!();
+          rafMutators.forwardMutator?.();
+          for (let i = 0; i < nestedRafMutators.forwardMutators.length; ++i) {
+            nestedRafMutators.forwardMutators[i]();
+          }
           break;
         case "backward":
-          rafMutators.backwardMutator!();
+          rafMutators.backwardMutator?.();
+          for (let i = 0; i < nestedRafMutators.backwardMutators.length; ++i) {
+            nestedRafMutators.backwardMutators[i]();
+          }
           break;
         default: throw this.generateError(Error, `Something very wrong occurred for there to be an error here.`);
       }
@@ -1546,7 +1659,9 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     // if using a mirror for the backward mutator, computeTween() should flip the progress
     // if mutators are reversed, computeTween() should flip the progress
     const flipProgress = xor(
-      this.animation.direction === 'backward' && this.bRafMirrored,
+      // this.animation.direction === 'backward' && this.effectFrameGeneratorSetMetadata.bRafMirrored,
+      this.direction === 'backward'
+        && new Error().stack?.includes('mutatorGenerator_play' as keyof Pick<EffectFrameGeneratorSet, 'mutatorGenerator_play'>),
       this.effectFrameGeneratorSet.reverseMutatorEffect
     );
 
@@ -1582,301 +1697,3 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

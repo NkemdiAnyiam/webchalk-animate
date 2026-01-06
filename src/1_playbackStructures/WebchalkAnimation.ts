@@ -1,61 +1,48 @@
 import { AnimClip, ScheduledTask } from "./AnimationClip";
 import { CustomErrorClasses, ClipErrorGenerator } from "../4_utils/errors";
-import { Keyframes } from "../4_utils/interfaces";
+import { DOMElement, Keyframes } from "../4_utils/interfaces";
+import { useEasing } from "../2_animationEffects/easing";
 
-type Segment = [
-  endDelay: number,
-  callbacks: Function[],
-  tasks: {id: string; callback: Function; frequencyLimit: number}[],
-  integrityblocks: {id: string, callback: Function}[],
-  // true when awaiting delay/endDelay periods while the awaited delay/endDelay duration is 0
-  skipEndDelayUpdation: boolean,
-  header: Partial<{
-    completed: boolean;
-    activated: boolean;
-    phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole';
-    timePosition: number | 'beginning' | 'end' | `${number}%`;
-  }>,
-];
-
-type SegmentsCache = [delayPhaseEnd: Segment, activePhaseEnd: Segment, endDelayPhaseEnd: Segment];
-
-type FullyFinishedPromise = {
-  promise: Promise<WebchalkAnimation>;
-  resolve: (value: WebchalkAnimation | PromiseLike<WebchalkAnimation>) => void;
-};
-
-export class WebchalkAnimation extends Animation {
+abstract class WebchalkAnimationBase extends Animation {
+  forwardEffect: KeyframeEffect;
+  backwardEffect: KeyframeEffect;
+  target: DOMElement;
   direction: 'forward' | 'backward' = 'forward';
-  private getEffect(direction: 'forward' | 'backward'): KeyframeEffect { return direction === 'forward' ? this.forwardEffect : this.backwardEffect; }
-  private inProgress = false;
-  private isFinished = false;
-  // holds list of stopping points and resolvers to control segmentation of animation...
-  // to help with Promises-based sequencing
-  private segmentsForward: Segment[] = [];
-  private segmentsForwardCache: SegmentsCache;
-  private segmentsBackward: Segment[] = [];
-  private segmentsBackwardCache: SegmentsCache;
+  protected getEffect(direction: 'forward' | 'backward'): KeyframeEffect { return direction === 'forward' ? this.forwardEffect : this.backwardEffect; }
+  protected inProgress = false;
 
-  private isExpediting = false;
-  private fullyFinished: FullyFinishedPromise = this.getNewFullyFinished();
-  
-  onDelayFinish: Function = () => {};
-  onActiveFinish: Function = () => {};
-  onEndDelayFinish: Function = () => {};
-  // FIXME: The behavior for pausing for tasks while expedition is in act is undefined
-  pauseForTasks: Function = () => { throw new Error(`This should never be called before being defined by parent clip`); };
-  unpauseFromTasks: Function = () => { throw new Error(`This should never be called before being defined by parent clip`); };
-
-  constructor(public forwardEffect: KeyframeEffect, public backwardEffect: KeyframeEffect, private errorGenerator: ClipErrorGenerator) {
+  constructor(target: Element | null | undefined, keyframeOptions: KeyframeEffectOptions, protected errorGenerator: ClipErrorGenerator) {
     super();
 
-    if (!this.forwardEffect.target) { throw this.errorGenerator(CustomErrorClasses.InvalidElementError, `Animation target must not be null or undefined`); }
-    if (this.forwardEffect.target !== backwardEffect.target) { this.errorGenerator(Error, `Forward and backward keyframe effects must target the same element`); }
+    if (!target) { throw this.errorGenerator(CustomErrorClasses.InvalidElementError, `Animation target must not be null or undefined`); }
+    this.target = target as DOMElement;
+
+    this.forwardEffect = new KeyframeEffect(
+      target,
+      // Using fontFeatureSettings handles a very strange Firefox bug that causes animations to run without any visual changes
+      // when the animation is finished, setKeyframes() is called, and the animation continues after extending the runtime using
+      // endDelay. It appears that the bug only occurs when the keyframes field contains nothing that will actually affect the
+      // styling of the element (for example, adding {['fake-field']: 'bla'} will not fix it), but I obviously do not want to
+      // add anything that will actually affect the style of the element, so I decided to use fontFeatureSettings and set it to
+      // the default value to make it as unlikely as possible that anything the user does is obstructed.
+      [{fontFeatureSettings: 'normal'}],
+      keyframeOptions,
+    );
+
+    this.backwardEffect = new KeyframeEffect(
+      target,
+      [{fontFeatureSettings: 'normal'}],
+      {
+        ...keyframeOptions,
+        easing: useEasing(keyframeOptions.easing ?? 'linear', {inverted: true}),
+        // delay & endDelay are of course swapped when we want to play in "reverse"
+        delay: keyframeOptions.endDelay,
+        endDelay: keyframeOptions.delay,
+      },
+    );
     
+    // TODO: check to see if this line is actually necessary
     this.setDirection('forward');
-    this.resetPhases('both');
-    this.segmentsForwardCache = [...this.segmentsForward] as SegmentsCache;
-    this.segmentsBackwardCache = [...this.segmentsBackward] as SegmentsCache;
   }
   
   setForwardFrames(keyframes: Keyframes, shouldReverse: boolean = false): void {
@@ -114,7 +101,12 @@ export class WebchalkAnimation extends Animation {
     }
   }
 
-  setDirection(direction: 'forward' | 'backward') {
+  /**
+   * Swaps the current {@link Animation.effect} for either {@link WebchalkAnimationBase.forwardEffect}
+   * or {@link WebchalkAnimationBase.backwardEffect} depending on {@link direction}.
+   * @param direction - direction in which the animation will go when playback is initiated
+   */
+  setDirection(direction: 'forward' | 'backward'): void {
     this.direction = direction;
 
     // Load proper KeyframeEffect
@@ -132,17 +124,87 @@ export class WebchalkAnimation extends Animation {
         throw this.errorGenerator(RangeError, `Invalid direction "${direction}" passed to setDirection(). Must be "forward" or "backward".`);
     }
   }
+}
 
+type Segment = [
+  endDelay: number,
+  callbacks: Function[],
+  tasks: {id: string; callback: Function; frequencyLimit: number}[],
+  integrityblocks: {id: string, callback: Function}[],
+  // true when awaiting delay/endDelay periods while the awaited delay/endDelay duration is 0
+  skipEndDelayUpdation: boolean,
+  header: Partial<{
+    completed: boolean;
+    activated: boolean;
+    phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole';
+    timePosition: number | 'beginning' | 'end' | `${number}%`;
+  }>,
+];
+
+type SegmentsCache = [delayPhaseEnd: Segment, activePhaseEnd: Segment, endDelayPhaseEnd: Segment];
+
+type FullyFinishedPromise = {
+  promise: Promise<WebchalkAnimation>;
+  resolve: (value: WebchalkAnimation | PromiseLike<WebchalkAnimation>) => void;
+};
+
+export class WebchalkAnimation extends WebchalkAnimationBase {
+  private isFinished = false;
+  private isExpediting = false;
+  fullyFinished: FullyFinishedPromise = this.getNewFullyFinished();
   private getNewFullyFinished(): FullyFinishedPromise {
     const {resolve, promise} = Promise.withResolvers<WebchalkAnimation>();
     return {resolve, promise};
   }
+
+  // holds list of stopping points and resolvers to control segmentation of animation...
+  // to help with Promises-based sequencing
+  private segmentsForward: Segment[] = [];
+  private segmentsForwardCache: SegmentsCache;
+  private segmentsBackward: Segment[] = [];
+  private segmentsBackwardCache: SegmentsCache;
+
+  onDelayFinish: Function = () => {};
+  onActiveFinish: Function = () => {};
+  onEndDelayFinish: Function = () => {};
+  
+  // FIXME: The behavior for pausing for tasks while expedition is in act is undefined
+  pauseForTasks: Function = () => { throw new Error(`This should never be called before being defined by parent clip`); };
+  unpauseFromTasks: Function = () => { throw new Error(`This should never be called before being defined by parent clip`); };
+
+  nestedAnimations: NestedWebchalkAnimation[] = [];
+  createNestedAnimation(...args: ConstructorParameters<typeof NestedWebchalkAnimation>): NestedWebchalkAnimation {
+    const nestedAnimation = new NestedWebchalkAnimation(...args)
+    nestedAnimation.leader = this;
+    this.nestedAnimations.push(nestedAnimation);
+
+    return nestedAnimation;
+  }
+  deleteNestedAnimations() {
+    const nestedAnimations = this.nestedAnimations;
+    for (let i = 0; i < nestedAnimations.length; ++i) {
+      nestedAnimations[i].leader = undefined;
+    }
+    this.nestedAnimations = [];
+  }
+
+  constructor(target: Element | null | undefined, keyframeOptions: KeyframeEffectOptions, protected errorGenerator: ClipErrorGenerator) {
+    super(target, keyframeOptions, errorGenerator);
+
+    this.resetPhases('both');
+    this.segmentsForwardCache = [...this.segmentsForward] as SegmentsCache;
+    this.segmentsBackwardCache = [...this.segmentsBackward] as SegmentsCache;
+  }
   
   async play(): Promise<void> {
+    const childAnimations = this.nestedAnimations;
     // If animation is already in progress and is just paused, resume the animation directly.
     // Through AnimClip, the only time this can happen is when using AnimClip.unpause()
     if (super.playState === 'paused') {
       super.play();
+      for (let i = 0; i < childAnimations.length; ++i) {
+        childAnimations[i].play();
+      }
       return;
     }
     
@@ -150,6 +212,8 @@ export class WebchalkAnimation extends Animation {
     if (this.inProgress) { return; }
     this.inProgress = true;
     
+    // if animation is being activated after having finished playback at some point,...
+    // ... reset fullyFinished promise and reset phases from the previous direction
     if (this.isFinished) {
       this.isFinished = false;
       this.fullyFinished = this.getNewFullyFinished();
@@ -160,6 +224,9 @@ export class WebchalkAnimation extends Animation {
     super.play();
     // extra await allows additional pushes to queue before loop begins
     await Promise.resolve();
+    for (let i = 0; i < childAnimations.length; ++i) {
+      childAnimations[i].play();
+    }
 
     const effect = super.effect!;
     const segments = this.direction === 'forward' ? this.segmentsForward : this.segmentsBackward;
@@ -172,17 +239,28 @@ export class WebchalkAnimation extends Animation {
       if (!skipEndDelayUpdation) {
         // Set animation to stop at a certain time using endDelay.
         effect.updateTiming({ endDelay });
+        for (let i = 0; i < childAnimations.length; ++i) {
+          childAnimations[i].effect!.updateTiming({ endDelay });
+        }
         // if playback was paused for tasks, resume playback
         if (blockedForTasks === true) {
           this.unpauseFromTasks();
           blockedForTasks = false;
         }
-        if (this.isExpediting) { super.finish(); }
-        await super.finished;
+        if (this.isExpediting) {
+          super.finish();
+          for (let i = 0; i < childAnimations.length; ++i) {
+            childAnimations[i].finish();
+          }
+        }
+        await Promise.all([
+          super.finished,
+          ...(childAnimations.map(anim => anim.finished)),
+        ]);
       }
       else {
         // This allows outside operations like schedulePromise() to push more callbacks to the queue...
-        // before the next loop iteration (this makes up for not having await super.finished)
+        // ... before the next loop iteration (this makes up for not having await super.finished)
         await Promise.resolve();
       }
       header.completed = true;
@@ -232,71 +310,32 @@ export class WebchalkAnimation extends Animation {
     // From there, it will continue expediting using isExpediting
     else {
       super.finish();
+      for (let i = 0; i < this.nestedAnimations.length; ++i) {
+        this.nestedAnimations[i].finish();
+      }
     }
 
     await this.fullyFinished.promise;
   }
 
-  private resetPhases(direction: 'forward' | 'backward' | 'both'): void {
-    const resetForwardPhases = () => {
-      const { delay, duration, endDelay } = this.forwardEffect.getTiming() as {[prop: string]: number};
+  pause(): void {
+    super.pause();
+    for (let i = 0; i < this.nestedAnimations.length; ++i) {
+      this.nestedAnimations[i].pause();
+    }
+  }
 
-      // set up segments for end of delay phase, end of active phase, and end of endDelay phase
-      const segmentsForward: Segment[] = [
-        [ -duration, [() => this.onDelayFinish()], [], [], delay === 0, {phase: 'delayPhase', timePosition: 'end'} ],
-        [ 0, [() => this.onActiveFinish()], [], [], false, {phase: 'activePhase', timePosition: 'end'} ],
-        [ endDelay, [() => this.onEndDelayFinish()], [], [], endDelay === 0, {phase: 'endDelayPhase',  timePosition: 'end'} ],
-      ];
+  updatePlaybackRate(playbackRate: number): void {
+    super.updatePlaybackRate(playbackRate);
+    for (let i = 0; i < this.nestedAnimations.length; ++i) {
+      this.nestedAnimations[i].updatePlaybackRate(playbackRate);
+    }
+  }
 
-      // for tasks that are scheduled to reoccur, schedule them again
-      const tempSegments = this.segmentsForward;
-      this.segmentsForward = segmentsForward;
-      this.segmentsForwardCache = [...segmentsForward] as SegmentsCache;
-      for (const segment of tempSegments) {
-        for (const task of segment[2]) {
-          if (--task.frequencyLimit > 0) {
-            this.rescheduleTask('forward', segment[5].phase!, segment[5].timePosition!, task);
-          }
-        }
-      }
-    };
-
-    // NEXT REMINDER: Reimplement so that delayPhase for backwards direction corresponds to endDelayPhase
-    // TODO: Determine if the NEXT REMINDER above has been correctly fulfilled
-    const resetBackwardPhases = () => {
-      const { delay, duration, endDelay } = this.backwardEffect.getTiming() as {[prop: string]: number};
-
-      // set up segments for beginning of endDelay phase, beginning of active phase, and beginning of delay phase
-      const segmentsBackward: Segment[] = [
-        [ -duration, [() => this.onDelayFinish()], [], [], delay === 0, {phase: 'endDelayPhase', timePosition: 'beginning'} ],
-        [ 0, [() => this.onActiveFinish()], [], [], false, {phase: 'activePhase', timePosition: 'beginning'} ],
-        [ endDelay, [() => this.onEndDelayFinish()], [], [], endDelay === 0, {phase: 'delayPhase', timePosition: 'beginning'} ],
-      ];
-      
-      const tempSegments = this.segmentsBackward;
-      this.segmentsBackward = segmentsBackward;
-      this.segmentsBackwardCache = [...segmentsBackward] as SegmentsCache;
-      for (const segment of tempSegments) {
-        for (const task of segment[2]) {
-          if (--task.frequencyLimit > 0) {
-            this.rescheduleTask('backward', segment[5].phase!, segment[5].timePosition!, task);
-          }
-        }
-      }
-    };
-
-    switch(direction) {
-      case "forward":
-        resetForwardPhases();
-        break;
-      case "backward":
-        resetBackwardPhases();
-        break;
-      case "both":
-        resetForwardPhases();
-        resetBackwardPhases();
-        break;
-      default: throw this.errorGenerator(RangeError, `Invalid direction "${direction}" used in resetPromises(). Must be "forward", "backward", or "both."`);
+  cancel(): void {
+    super.cancel();
+    for (let i = 0; i < this.nestedAnimations.length; ++i) {
+      this.nestedAnimations[i].cancel();
     }
   }
 
@@ -567,5 +606,83 @@ export class WebchalkAnimation extends Animation {
     const phaseTimePosition: number = direction === 'forward' ? wrappedPhaseTimePos : phaseDuration - wrappedPhaseTimePos;
 
     return [segments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition];
+  }
+
+  resetPhases(direction: 'forward' | 'backward' | 'both'): void {
+    const resetForwardPhases = () => {
+      const { delay, duration, endDelay } = this.forwardEffect.getTiming() as {[prop: string]: number};
+
+      // set up segments for...
+      // ->end of delay phase->,
+      // ->end of active phase->,
+      // ->end of endDelay phase->
+      const segmentsForward: Segment[] = [
+        [ -duration, [() => this.onDelayFinish()], [], [], delay === 0, {phase: 'delayPhase', timePosition: 'end'} ],
+        [ 0, [() => this.onActiveFinish()], [], [], false, {phase: 'activePhase', timePosition: 'end'} ],
+        [ endDelay, [() => this.onEndDelayFinish()], [], [], endDelay === 0, {phase: 'endDelayPhase',  timePosition: 'end'} ],
+      ];
+
+      // for tasks that are scheduled to reoccur, schedule them again
+      const tempSegments = this.segmentsForward;
+      this.segmentsForward = segmentsForward;
+      this.segmentsForwardCache = [...segmentsForward] as SegmentsCache;
+      for (const segment of tempSegments) {
+        for (const task of segment[2]) {
+          if (--task.frequencyLimit > 0) {
+            this.rescheduleTask('forward', segment[5].phase!, segment[5].timePosition!, task);
+          }
+        }
+      }
+    };
+
+    // NEXT REMINDER: Reimplement so that delayPhase for backwards direction corresponds to endDelayPhase
+    // TODO: Determine if the NEXT REMINDER above has been correctly fulfilled
+    const resetBackwardPhases = () => {
+      const { delay, duration, endDelay } = this.backwardEffect.getTiming() as {[prop: string]: number};
+
+      // set up segments for...
+      // <-beginning of endDelay phase<- (which corresponds to the end of the rewinding frames' delay),
+      // <-beginning of active phase<- (which corresponds to the end of the rewinding frames' active),
+      // <-beginning of delay phase<- (which corresponds to the end of the rewinding frames' end delay)
+      const segmentsBackward: Segment[] = [
+        [ -duration, [() => this.onDelayFinish()], [], [], delay === 0, {phase: 'endDelayPhase', timePosition: 'beginning'} ],
+        [ 0, [() => this.onActiveFinish()], [], [], false, {phase: 'activePhase', timePosition: 'beginning'} ],
+        [ endDelay, [() => this.onEndDelayFinish()], [], [], endDelay === 0, {phase: 'delayPhase', timePosition: 'beginning'} ],
+      ];
+      
+      const tempSegments = this.segmentsBackward;
+      this.segmentsBackward = segmentsBackward;
+      this.segmentsBackwardCache = [...segmentsBackward] as SegmentsCache;
+      for (const segment of tempSegments) {
+        for (const task of segment[2]) {
+          if (--task.frequencyLimit > 0) {
+            this.rescheduleTask('backward', segment[5].phase!, segment[5].timePosition!, task);
+          }
+        }
+      }
+    };
+
+    switch(direction) {
+      case "forward":
+        resetForwardPhases();
+        break;
+      case "backward":
+        resetBackwardPhases();
+        break;
+      case "both":
+        resetForwardPhases();
+        resetBackwardPhases();
+        break;
+      default: throw this.errorGenerator(RangeError, `Invalid direction "${direction}" used in resetPromises(). Must be "forward", "backward", or "both."`);
+    }
+  }
+}
+
+export class NestedWebchalkAnimation extends WebchalkAnimationBase {
+  leader: WebchalkAnimation | undefined;
+
+  async play(): Promise<void> {
+    super.play();
+    await this.leader?.fullyFinished;
   }
 }
