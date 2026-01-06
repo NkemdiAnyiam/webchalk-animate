@@ -601,7 +601,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   //   console.log('HEY, EVERYONE!!!');
   // })
 
-  const motionSwap = Motion(circle1, 'swap', [circle4!], {duration: 1000});
+  const motionSwap = Motion(circle1, 'swap', [circle4], {duration: 1000});
   motionSwap.scheduleTask('activePhase', '55%', {onPlay: () => wait(2000), onRewind: () => wait(2000)});
 
   timeline.addSequences([
