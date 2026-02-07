@@ -667,7 +667,7 @@ export class AnimTimeline {
   /**
    * Removes a number of {@link AnimSequence} objects from the timeline based on the provided indices range (0-based).
    * @param startIndex - the starting index, inclusive
-   * @param endIndex - the ending index, exclusive
+   * @param endIndex - the ending index, exclusive (if not specified, {@link startIndex} `+ 1` is used, removing one sequence)
    * @returns An array containing the sequences that were removed from the timeline.
    * @group Structure
    */
