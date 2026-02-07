@@ -327,6 +327,7 @@ export type ScheduledTask = {
  */
 export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefinition = PresetEffectDefinition, TClipConfig extends AnimClipConfig = AnimClipConfig> {
   private static id: number = 0;
+  protected static MIN_DURATION = 0.01;
 
   /**
    * The base default configuration for any animation clip before any category-specific
@@ -814,10 +815,10 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
 
     this.config = this.mergeConfigs(effectConfig, this.presetEffectDefinition.defaultConfig ?? {}, this.presetEffectDefinition.immutableConfig ?? {});
     // cannot be exactly 0 because that causes some Animation-related bugs that can't be easily worked around
-    this.config.duration = Math.max(this.getTiming('duration') as number, 0.01);
+    this.config.duration = Math.max(this.getTiming('duration') as number, AnimClip.MIN_DURATION);
 
     // playbackRate is not included because it is computed at the time of animating
-    const { delay, duration, endDelay, easing, composite  } = this.config;
+    const { delay, duration, endDelay, easing, composite } = this.config;
     const keyframeOptions: KeyframeEffectOptions = {
       delay,
       duration,

@@ -239,7 +239,6 @@ export class EntranceClip<TPresetEffectDefinition extends PresetEffectDefinition
   }
 }
 
-
 /*-:***************************************************************************************************************************/
 /*-:*********************************************        EXIT        **********************************************************/
 /*-:***************************************************************************************************************************/
@@ -325,6 +324,7 @@ interface ExitClipModifiers extends AnimClipModifiers, Pick<ExitClipConfig, 'exi
  */
 export class ExitClip<TPresetEffectDefinition extends PresetEffectDefinition<ExitClip, ExitClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, ExitClipConfig> {
   protected get category(): 'Exit' { return 'Exit'; }
+  // TODO: move to be in config
   private exitType: ExitClipConfig['exitType'] = '' as ExitClipConfig['exitType'];
 
   get categoryImmutableConfig() {
