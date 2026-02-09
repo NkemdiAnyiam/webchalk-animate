@@ -1,5 +1,5 @@
 import { AnimClip } from "../1_playbackStructures/AnimationClip";
-import { EmphasisClip, EntranceClip, ExitClip, Layer4MutableConfig, MotionClip } from "../1_playbackStructures/AnimationClipCategories";
+import { EmphasisClip, EntranceClip, ExitClip, Layer4MutableConfig, MotionClip, TextEditorClip } from "../1_playbackStructures/AnimationClipCategories";
 import { DOMElement, Keyframes, Mutator } from "../4_utils/interfaces";
 import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord, StrictPropertyCheck, StrictReturnPropertyCheck, PrettifyCustomError, ErrorCheckJoiner, ValidationBloat } from "../4_utils/utilityTypes";
 import { AnimClipConfig } from "../1_playbackStructures/AnimationClip";
@@ -1358,7 +1358,8 @@ export type Layer3MutableClipConfig<TClipClass extends AnimClip> = Omit<ReturnTy
 export type PresetEffectBank<TClip extends AnimClip = AnimClip> = ReadonlyRecord<
   string, // effect name
   PresetEffectDefinition<
-    ReadonlyPick<TClip, 'domElem' | 'getEffectDetails' | 'getStatus' | 'getStyles'>,
+    ReadonlyPick<TClip, 'domElem' | 'getEffectDetails' | 'getStatus' | 'getStyles' | 'getTiming'>
+    & (TClip extends TextEditorClip ? ReadonlyPick<TextEditorClip, 'setDurationFromRate'> : {}),
     Layer3MutableClipConfig<TClip>
   >
 >;

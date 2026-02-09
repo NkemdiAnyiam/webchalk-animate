@@ -166,6 +166,12 @@ export type AnimClipTiming = Pick<AnimClip['config'],
    * @see {@link AnimClipTiming.playbackRate}
    */
   compoundedPlaybackRate: AnimClip['compoundedPlaybackRate'];
+  /**
+   * The type of timescale the animation clip uses to measure the length of the animation.
+   *  * `"duration"` indicates that the animation length follows a fixed amount of time.
+   *  * `"rate"` indicates that the animation length depends on some variable change.
+   */
+  timescaleType: AnimClip['timescaleType'];
 };
 
 // TYPE
@@ -616,6 +622,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
 
   // GROUP: Timing
   private get compoundedPlaybackRate(): number { return this.config.playbackRate * (this._parentSequence?.getTiming().compoundedPlaybackRate ?? 1); }
+  protected timescaleType: 'duration' | 'rate' = 'duration';
   
   /**@internal*/ fullStartTime = NaN;
   /**@internal*/ get activeStartTime() { return (this.fullStartTime + this.getTiming('delay')) / this.getTiming('playbackRate'); }
@@ -665,6 +672,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       easing: config.easing,
       playbackRate: config.playbackRate,
       compoundedPlaybackRate: this.compoundedPlaybackRate,
+      timescaleType: this.timescaleType,
     };
 
     return specifics ? getPartial(result, specifics) : result;
@@ -1188,6 +1196,11 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   protected _onFinishForward(): void {};
   protected _onStartBackward(): void {};
   protected _onFinishBackward(): void {};
+
+  protected updateDuration(duration: number): void {
+    this.config.duration = duration;
+    this.animation.updateDuration(duration);
+  }
 
   protected async animate(direction: 'forward' | 'backward'): Promise<this> {
     if (this.inProgress) { return this; }

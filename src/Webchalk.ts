@@ -3,13 +3,15 @@ import {
   EntranceClip, ExitClip, EmphasisClip, MotionClip, ScrollerClip, TransitionClip,
   ConnectorEntranceClip, ConnectorExitClip, ConnectorSetterClip,
   Layer4MutableConfig,
+  TextEditorClip,
 } from "./1_playbackStructures/AnimationClipCategories";
 import { AnimSequence, AnimSequenceConfig } from "./1_playbackStructures/AnimationSequence";
 import { AnimTimeline, AnimTimelineConfig } from "./1_playbackStructures/AnimationTimeline";
 import { WebchalkConnectorElement, WebchalkConnectorElementConfig } from "./3_components/WebchalkConnectorElement";
 import {
   libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions,
-  libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions
+  libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions,
+  libPresetTextEdits
 } from "./2_animationEffects/webchalkPresetEffectBanks";
 import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./4_utils/interfaces";
 import { PresetEffectBank, EffectNameIn, PresetEffectDefinition, EffectOptions, definePresetEffectBank, ExtendableBankCategoryToClipType, PresetEffectBankToCategory, definePresetEffect } from "./2_animationEffects/presetEffectCreation";
@@ -359,6 +361,7 @@ export class Webchalk {
     _EmptyConnectorEntranceBank extends PresetEffectBank<ConnectorEntranceClip> = {},
     _EmptyConnectorExitBank extends PresetEffectBank<ConnectorExitClip> = {},
     _EmptyScrollerBank extends PresetEffectBank<ScrollerClip> = {},
+    _EmptyTextEditorBank extends PresetEffectBank<TextEditorClip> = {},
     IncludeLibPresets extends boolean = true
   >
   (
@@ -404,6 +407,7 @@ export class Webchalk {
     const combinedConnectorEntranceBank = mergeBanks(libPresetConnectorEntrances, {} as _EmptyConnectorEntranceBank);
     const combinedConnectorExitBank = mergeBanks(libPresetConnectorExits, {} as _EmptyConnectorExitBank);
     const combinedScrollerBank = mergeBanks(libPresetScrolls, {} as _EmptyScrollerBank);
+    const combinedTextEditorBank = mergeBanks(libPresetTextEdits, {} as _EmptyTextEditorBank);
 
     const self = this;
     // return functions that can be used to instantiate AnimClips with intellisense for the combined banks
@@ -864,6 +868,17 @@ export class Webchalk {
       ) {
         self.clipCreatorLock = false;
         return new ScrollerClip<TPresetEffectDefinition>(domElem as DOMElement, effectName, combinedScrollerBank).initialize(effectOptions, effectConfig);
+      },
+
+      TextEditor: function<TEffectBank extends typeof combinedTextEditorBank, TEffectName extends EffectNameIn<TEffectBank>, TPresetEffectDefinition extends TEffectBank[TEffectName]>
+      (
+        domElem: Element | null | undefined,
+        effectName: TEffectName,
+        effectOptions: EffectOptions<TPresetEffectDefinition>,
+        effectConfig: Partial<Layer4MutableConfig<TextEditorClip, TPresetEffectDefinition>> = {},
+      ) {
+        self.clipCreatorLock = false;
+        return new TextEditorClip<TPresetEffectDefinition>(domElem as DOMElement, effectName, combinedTextEditorBank).initialize(effectOptions, effectConfig);
       },
     };
   }

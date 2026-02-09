@@ -1,13 +1,44 @@
+.array {
+  border: 2px solid #111;
+  width: min-content;
+
+  display: flex;
+}
+
+.array__block {
+  width: 10rem;
+  height: 10rem;
+  background-color: #f7f7f7;
+
+  display: grid;
+  align-items: center;
+  justify-content: center;
+}
+
+.array__value {
+  font-size: 2.4rem;
+  color: black;
+
+  display: grid;
+  align-items: center;
+  justify-content: center;
+}
+
+.array__block:not(:last-child) {
+  border-right: 1.5px solid #111;
+}
+
 .square {
   width: 10rem;
   height: 10rem;
   background-color: #f7f7f7;
-  outline: 3px solid black;
+  outline: 3px solid #111;
   position: relative;
 }
 
 .circle {
   position: absolute;
+  top: 10rem;
   width: 5rem;
   height: 5rem;
   border-radius: 50%;

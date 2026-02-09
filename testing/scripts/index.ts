@@ -458,7 +458,15 @@ const customMotions = definePresetEffectBank(
 //   additionalEntranceEffectBank:
 // });
 
-const {Motion, Entrance, Emphasis, Exit, ConnectorSetter, ConnectorEntrance, Transition} = webchalk.createAnimationClipFactories({
+const {
+  Motion,
+  Entrance,
+  Emphasis,
+  Exit,
+  ConnectorSetter,
+  ConnectorEntrance,
+  TextEditor,
+} = webchalk.createAnimationClipFactories({
   additionalEntranceEffectBank: customEntrances,
   additionalExitEffectBank: customExits,
   additionalEmphasisEffectBank: customEmphases,
@@ -569,11 +577,29 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   //   console.log('WE BACK')
   // });
 
+  const textBox = document.querySelector('.text-box');
+  const textBox2 = document.querySelector('.text-box-2');
+
   const timeline = webchalk.newTimeline({timelineName: 'Basic', autoLinksButtons: false, debugMode: true});
   timeline.linkPlaybackButtons();
   // await wait(1000);
+  const testAdjacency = webchalk.newSequence([
+    TextEditor(textBox, 'delete-text', [], {startsNextClipToo: false}),
+    TextEditor(textBox2, 'replace-text', ['What in tarnation was supposed to happen when you did that?']),
+    // TextEditor(textBox, 'insert-text', ['This is the new text']),
+    Entrance(square, 'riseUp', [], {duration: 1000}),
+  ]);
+
+  const array = document.querySelector('.array');
+  const arrayVal = document.querySelector('.array__value');
+  Motion(array, '~move-to', [document.querySelector('body'), {alignment: 'center center'}], {duration: 0}).play();
+
   timeline.addSequences(
     [
+      webchalk.newSequence([
+        TextEditor(arrayVal, 'replace-text', [68])
+      ]),
+      testAdjacency,
       seq,
 
       // webchalk.newSequence([

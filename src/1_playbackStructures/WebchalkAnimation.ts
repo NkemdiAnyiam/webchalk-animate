@@ -339,6 +339,14 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     }
   }
 
+  updateDuration(duration: number): void {
+    this.effect?.updateTiming({duration, endDelay: -duration});
+    this.forwardEffect.updateTiming({duration, endDelay: -duration});
+    this.backwardEffect.updateTiming({duration});
+    this.segmentsForwardCache[0][0] = -duration;
+    this.segmentsBackwardCache[0][0] = -duration;
+  }
+
   // accepts a time to wait for (converted to an endDelay) and returns a Promise that is resolved at that time
   schedulePromise<T extends Parameters<AnimClip['schedulePromise']>>(direction: T[0], phase: T[1], timePosition: T[2]): Promise<void> {
     return new Promise(resolve => {

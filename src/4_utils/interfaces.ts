@@ -175,7 +175,8 @@ export type EffectCategory =
   | 'Scroller'
   | 'Connector Setter'
   | 'Connector Entrance'
-  | 'Connector Exit';
+  | 'Connector Exit'
+  | 'Text Editor';
 
 /**
  * The possible formats for writing keyframes. The two accepted forms
@@ -227,3 +228,38 @@ export type StyleProperty = Union<
     string>,
   string
 >;
+
+/**
+ * @ignore
+ */
+export type TextNodeDatum = {
+  textNode: Text;
+  origVal: string;
+  words: string[];
+  numWordsRestored: number;
+  numCharsRestored: number;
+  numWordsToDelete: number;
+  numCharsToDelete: number;
+  head: boolean;
+  captureIndex: number;
+};
+
+/**
+ * @ignore
+ */
+export type InfixTextNodeList = TextNodeDatum[];
+
+// keeps track of the stats related to the words and characters in the root element
+/**
+ * @ignore
+ */
+export type RootNodeEditStats = {
+  totalWords: number; // total number of words in the entire structure
+  totalChars: number; // total number of chars in the entire structure
+  wordsAdded: number; // number of words restored to the structure
+  charsAdded: number; // number of characters restored to the structure
+  wordsRemoved: number; // number of words removed from the structure
+  charsRemoved: number; // number of characters removed from the structure
+};
+
+export type TextEditRate = `${number}${'wpm' | 'cpm'}`

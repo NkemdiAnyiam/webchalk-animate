@@ -1,12 +1,12 @@
-import { AnimClip, AnimClipConfig, AnimClipModifiers } from "./AnimationClip";
+import { AnimClip, AnimClipConfig, AnimClipModifiers, AnimClipTiming } from "./AnimationClip";
 import { CustomErrorClasses, errorTip } from "../4_utils/errors";
 import { getPartial, parseMultiUnitPlacement } from "../4_utils/helpers";
 import { Webchalk } from "../Webchalk";
-import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
+import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement, RootNodeEditStats, TextEditRate } from "../4_utils/interfaces";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { WebchalkConnectorElement, WebchalkConnectorElementConfig } from "../3_components/WebchalkConnectorElement";
 import { PresetEffectDefinition, PresetEffectBank, EffectOptions, Layer3MutableClipConfig, EffectNameIn } from "../2_animationEffects/presetEffectCreation";
-import { libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions, libPresetConnectorEntrances, libPresetConnectorExits, libPresetTransitions, libPresetScrolls } from "../2_animationEffects/webchalkPresetEffectBanks";
+import { libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions, libPresetConnectorEntrances, libPresetConnectorExits, libPresetTransitions, libPresetScrolls, libPresetTextEdits } from "../2_animationEffects/webchalkPresetEffectBanks";
 
 /**
  * Returns an object type that includes only the effect configuration properties that are allowed to
@@ -1390,6 +1390,292 @@ export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefin
   }
 }
 
+/*-:***************************************************************************************************************************/
+/*-:*******************************************        TEXT EDITOR        ********************************************************/
+/*-:***************************************************************************************************************************/
+/**
+ * Contains configuration options used to define both the timing and effects of the animation clip.
+ * Used as the last argument in the `TextEditor()` factory function created by {@link Webchalk.createAnimationClipFactories}.
+ * Also returned by {@link TextEditorClip.getConfig}.
+ *  * Contains additional properties:
+ *    * {@link TextEditorClipModifiers.durationOrRate | durationOrRate}
+ *    * {@link TextEditorClipModifiers.durationOrRateDeletion | durationOrRateDeletion}
+ *    * {@link TextEditorClipModifiers.durationOrRateInsertion | durationOrRateInsertion}
+ * @see {@link TextEditorClip.getConfig}
+ * 
+ * @category TextEditor
+ */
+export interface TextEditorClipConfig extends AnimClipConfig {
+  durationOrRate: number | TextEditRate;
+  durationOrRateInsertion: number | TextEditRate;
+  durationOrRateDeletion: number | TextEditRate;
+}
+
+/**
+ * Contains timing-related details about an animation.
+ * Returned by {@link TextEditorClip.getTiming}.
+ *  * Contains additional properties:
+ *    * {@link TextEditorClipModifiers.durationOrRate | durationOrRate}
+ *    * {@link TextEditorClipModifiers.durationOrRateDeletion | durationOrRateDeletion}
+ *    * {@link TextEditorClipModifiers.durationOrRateInsertion | durationOrRateInsertion}
+ * @see {@link TextEditorClip.getTiming}
+ * 
+ * @category Text Editor
+ */
+export interface TextEditorClipTiming extends AnimClipTiming, Pick<
+  TextEditorClipConfig, 'durationOrRate' | 'durationOrRateInsertion' | 'durationOrRateDeletion'
+> {}
+
+/**
+ * Used to edit the text contents of an element.
+ * 
+ * <!-- EX:S id="AnimClip.desc" code-type="comment-block" -->
+ * A "clip" is the smallest building block of a timeline. It is essentially a [DOM element, effect] pair,
+ * where a "DOM element" is some HTML element on the page and the effect is the animation effect that
+ * will be applied to it (asynchronously).
+ * 
+ * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
+ * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webchalk provides convenient factory functions
+ * that can be used to create such clips—the factory functions can be obtained from {@link Webchalk.createAnimationClipFactories}.
+ * Examples are shown below.
+ * 
+ * Generally (with some exceptions), using a clip factory function follows this format:
+ * `const clip = <factory func>(<some element>, <effect name>, [<effect options>], {<optional clip configuration>});`
+ * <!-- EX:E id="AnimClip.desc" -->
+ * 
+ * @example
+ * TODO: add code example
+ * 
+ * @category TextEditor
+ * @hideconstructor
+ */
+export class TextEditorClip<TPresetEffectDefinition extends PresetEffectDefinition<TextEditorClip, TextEditorClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, TextEditorClipConfig> {
+  protected get category(): 'Text Editor' { return 'Text Editor'; }
+  // private durationOrRate: TextEditorClipConfig['durationOrRate'] = NaN;
+  // private durationOrRateDeletion: TextEditorClipConfig['durationOrRateDeletion'] = NaN;
+  // private durationOrRateInsertion: TextEditorClipConfig['durationOrRateInsertion'] = NaN;
+
+  get categoryImmutableConfig() {
+    return {
+      duration: 1000000,
+      composite: 'accumulate',
+    } satisfies Partial<TextEditorClipConfig>;
+  }
+
+  get categoryDefaultConfig() {
+    return {
+      ...AnimClip.baseDefaultConfig,
+      durationOrRate: '500wpm',
+      durationOrRateInsertion: '500wpm',
+      durationOrRateDeletion: 500,
+      ...this.categoryImmutableConfig,
+    } satisfies TextEditorClipConfig;
+  }
+
+  /**
+   * @returns Additional properties for text editor configuration:
+   *  * {@link TextEditorClipConfig.durationOrRate | durationOrRate}
+   *  * {@link TextEditorClipConfig.durationOrRateDeletion | durationOrRateDeletion}
+   *  * {@link TextEditorClipConfig.durationOrRateInsertion | durationOrRateInsertion}
+   * @inheritdoc *
+   */
+  getConfig(): TextEditorClipConfig {
+    return super.getConfig();
+  }
+
+  /**
+   * @returns Additional properties for text editor configuration.
+   *  * {@link TextEditorClipTiming.durationOrRate | durationOrRate}
+   *  * {@link TextEditorClipTiming.durationOrRateDeletion | durationOrRateDeletion}
+   *  * {@link TextEditorClipTiming.durationOrRateInsertion | durationOrRateInsertion}
+   * @inheritdoc *
+   */
+  getTiming(): TextEditorClipTiming;
+  /**
+   * Returns the value of a single specific property.
+   * @param propName - name of the desired property
+   * @ignore
+   */
+  getTiming<T extends keyof TextEditorClipTiming>(propName: T): TextEditorClipTiming[T];
+  /**
+   * Returns an object containing a subset of the object that would normally be returned.
+   * @param propNames - array of strings specifying which properties should be included.
+   * @ignore
+   */
+  getTiming<T extends (keyof TextEditorClipTiming)[]>(propNames: (keyof TextEditorClipTiming)[] | T): PickFromArray<TextEditorClipTiming, T>;
+  /**
+   * @group Property Getter Methods
+   */
+  getTiming(specifics?: keyof TextEditorClipTiming | (keyof TextEditorClipTiming)[]):
+    | TextEditorClipTiming
+    | TextEditorClipTiming[keyof AnimClipTiming]
+    | Partial<Pick<TextEditorClipTiming, keyof TextEditorClipTiming>>
+  {
+    const config = this.config;
+    const result: TextEditorClipTiming = {
+      ...super.getTiming(),
+      durationOrRate: config.durationOrRate,
+      durationOrRateDeletion: config.durationOrRateDeletion,
+      durationOrRateInsertion: config.durationOrRateInsertion,
+    };
+    
+    return specifics ? getPartial(result, specifics) : result;
+  }
+
+  /**@internal*/
+  constructor(domElem: DOMElement | null | undefined, effectName: string, PresetEffectBank: PresetEffectBank) {
+    // TODO: fix accidental capitalization
+    super(domElem, effectName, PresetEffectBank);
+    super.preventConnector();
+  }
+
+  /**@internal*/initialize(effectOptions: EffectOptions<TPresetEffectDefinition>, effectConfig: Partial<Layer4MutableConfig<TextEditorClip, TPresetEffectDefinition>> = {}) {
+    super.initialize(effectOptions, effectConfig);
+
+    if (!this.presetEffectDefinition.immutableConfig?.hasOwnProperty('durationOrRate')) {
+      const durationOrRate = (effectConfig as TextEditorClipConfig).durationOrRate ?? this.presetEffectDefinition.defaultConfig?.durationOrRate ?? this.categoryDefaultConfig.durationOrRate!;
+      this.config.durationOrRate = durationOrRate;
+
+      if (typeof durationOrRate === 'number') {
+        if (durationOrRate < 0) { throw new RangeError(`Invalid duration "${durationOrRate}". Duration cannot be negative`); }
+        const duration = Math.max(durationOrRate, AnimClip.MIN_DURATION);
+        this.config.duration = duration;
+        this.animation.effect?.updateTiming({duration});
+        this.animation.forwardEffect.updateTiming({duration});
+        this.animation.backwardEffect.updateTiming({duration});
+      }
+      else {
+        this.timescaleType = 'rate';
+      }
+    }
+    else {
+      const durationOrRateDeletion = (effectConfig as TextEditorClipConfig).durationOrRateDeletion ?? this.presetEffectDefinition.defaultConfig?.durationOrRateDeletion ?? this.categoryDefaultConfig.durationOrRateDeletion!;
+      const durationOrRateInsertion = (effectConfig as TextEditorClipConfig).durationOrRateInsertion ?? this.presetEffectDefinition.defaultConfig?.durationOrRateInsertion ?? this.categoryDefaultConfig.durationOrRateInsertion!;
+      this.config.durationOrRateDeletion = durationOrRateDeletion;
+      this.config.durationOrRateInsertion = durationOrRateInsertion;
+
+      if (typeof durationOrRateDeletion === 'number' && typeof durationOrRateInsertion === 'number') {
+        if (durationOrRateDeletion < 0) { throw new RangeError(`Invalid deletion duration "${durationOrRateDeletion}". Duration cannot be negative`); }
+        const durationD = Math.max(durationOrRateDeletion, AnimClip.MIN_DURATION);
+
+        if (durationOrRateInsertion < 0) { throw new RangeError(`Invalid insertion duration "${durationOrRateInsertion}". Duration cannot be negative`); }
+        const durationI = Math.max(durationOrRateInsertion, AnimClip.MIN_DURATION);
+
+        const duration = durationD + durationI;
+        this.config.duration = duration;
+        this.animation.effect?.updateTiming({duration});
+        this.animation.forwardEffect.updateTiming({duration});
+        this.animation.backwardEffect.updateTiming({duration});
+      }
+      else {
+        this.timescaleType = 'rate';
+      }
+    }
+
+    return this;
+  }
+
+  setDurationFromRate(rootEditStatsSet: [deletion: RootNodeEditStats, insertion: RootNodeEditStats]): {
+    durationDeletion: number; durationInsertion: number;
+  };
+  setDurationFromRate(rootEditStats: RootNodeEditStats): number;
+  setDurationFromRate(rootEditStats: RootNodeEditStats | [deletion: RootNodeEditStats, insertion: RootNodeEditStats]): number | {
+    durationDeletion: number; durationInsertion: number;
+  } {
+    let duration: number = 0;
+
+    // if just durationOrRate
+    if (!(rootEditStats instanceof Array)) {
+      const durationOrRate = this.config.durationOrRate as Exclude<TextEditorClipTiming['durationOrRate'], number>;
+      const [rateScalarStr, rateUnit] = durationOrRate.match(/^(\d+(?:\.\d+)?)(wpm|cpm)$/)?.slice(1) ?? [];
+      if (!(rateScalarStr && rateUnit)) {
+        throw new RangeError(`Invalid rate "${durationOrRate}". Must be in the form "<number>wpm" or "<number>cpm", e.g., "150wpm".`);
+      }
+      const rateScalar = Number(rateScalarStr);
+      if (isNaN(rateScalar) || rateScalar < 0) {
+        throw new RangeError(`Invalid rate "${durationOrRate}". Must be in the form "<number>wpm" or "<number>cpm", e.g., "150wpm". <number> must also be positive.`)
+      }
+
+      switch(rateUnit) {
+        case "wpm":
+          duration = rootEditStats.totalWords / rateScalar * 60 * 1000;
+          break;
+        case "cpm":
+          duration = rootEditStats.totalChars / rateScalar * 60 * 1000;
+          break;
+        default: throw new Error(`Invalid rate "${durationOrRate}". Must be in the form "<number>wpm" or "<number>cpm", e.g., "150wpm".`);
+      }
+
+      this.updateDuration(duration);
+      return duration;
+    }
+    // if durationOrRateDeletion and durationOrRateInsertion
+    else {
+      const [reStatsD, reStatsI] = rootEditStats;
+      
+      // compute deletion duration
+      const durationOrRateDeletion = this.config.durationOrRateDeletion as TextEditorClipTiming['durationOrRateDeletion'];
+      let durationDeletion: number;
+      if (typeof durationOrRateDeletion === 'number') {
+        if (durationOrRateDeletion < 0) { throw new RangeError(`Invalid deletion duration "${durationOrRateDeletion}". Duration cannot be negative`); }
+        durationDeletion = durationOrRateDeletion;
+      }
+      else {
+        const [rateScalarStr, rateUnit] = durationOrRateDeletion.match(/^(\d+(?:\.\d+)?)(wpm|cpm)$/)?.slice(1) ?? [];
+        if (!(rateScalarStr && rateUnit)) {
+          throw new RangeError(`Invalid deletion rate "${durationOrRateDeletion}". Must be in the form "<number>wpm" or "<number>cpm", e.g., "150wpm".`);
+        }
+        const rateScalar = Number(rateScalarStr);
+        if (isNaN(rateScalar) || rateScalar < 0) {
+          throw new RangeError(`Invalid deletion rate "${durationOrRateDeletion}". Must be in the form "<number>wpm" or "<number>cpm", e.g., "150wpm". <number> must also be positive.`)
+        }
+  
+        switch(rateUnit) {
+          case "wpm":
+            durationDeletion = reStatsD.totalWords / rateScalar * 60 * 1000;
+            break;
+          case "cpm":
+            durationDeletion = reStatsD.totalChars / rateScalar * 60 * 1000;
+            break;
+          default: throw new Error(`Invalid deletion rate "${durationOrRateDeletion}". Must be in the form "<number>wpm" or "<number>cpm", e.g., "150wpm".`);
+        }
+      }
+
+      // compute insertion duration
+      const durationOrRateInsertion = this.config.durationOrRateInsertion as TextEditorClipTiming['durationOrRateInsertion'];
+      let durationInsertion: number;
+      if (typeof durationOrRateInsertion === 'number') {
+        if (durationOrRateInsertion < 0) { throw new RangeError(`Invalid insertion duration "${durationOrRateInsertion}". Duration cannot be negative`); }
+        durationInsertion = durationOrRateInsertion;
+      }
+      else {
+        const durationOrRateInsertion = this.config.durationOrRateInsertion as Exclude<TextEditorClipTiming['durationOrRateInsertion'], number>;
+        const [rateScalarStr, rateUnit] = durationOrRateInsertion.match(/^(\d+(?:\.\d+)?)(wpm|cpm)$/)?.slice(1) ?? [];
+        if (!(rateScalarStr && rateUnit)) {
+          throw new RangeError(`Invalid insertion rate "${durationOrRateInsertion}". Must be in the form "<number>wpm" or "<number>cpm", e.g., "150wpm".`);
+        }
+        const rateScalar = Number(rateScalarStr);
+        if (isNaN(rateScalar) || rateScalar < 0) {
+          throw new RangeError(`Invalid insertion rate "${durationOrRateInsertion}". Must be in the form "<number>wpm" or "<number>cpm", e.g., "150wpm". <number> must also be positive.`)
+        }
+  
+        switch(rateUnit) {
+          case "wpm":
+            durationInsertion = reStatsI.totalWords / rateScalar * 60 * 1000;
+            break;
+          case "cpm":
+            durationInsertion = reStatsI.totalChars / rateScalar * 60 * 1000;
+            break;
+          default: throw new Error(`Invalid insertion rate "${durationOrRateInsertion}". Must be in the form "<number>wpm" or "<number>cpm", e.g., "150wpm".`);
+        }
+      }
+
+      this.updateDuration(durationDeletion + durationInsertion);
+      return { durationDeletion, durationInsertion };
+    }
+  }
+}
+
 type PickEffects<TBank extends PresetEffectBank> = Pick<TBank, EffectNameIn<TBank>>;
 
 /**
@@ -1455,3 +1741,11 @@ export type WebchalkPresetTransitionEffects = PickEffects<typeof libPresetTransi
  * @interface
  */
 export type WebchalkPresetScrollEffects = PickEffects<typeof libPresetScrolls>;
+
+/**
+ * Typings for the preset text editor animation effects that come with the library's text editor effect bank.
+ * 
+ * @category Text Editor
+ * @interface
+ */
+export type WebchalkPresetTextEditEffects = PickEffects<typeof libPresetTextEdits>;

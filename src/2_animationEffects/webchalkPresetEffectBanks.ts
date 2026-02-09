@@ -7,11 +7,12 @@ import {
   ScrollerClip,
   ConnectorEntranceClip,
   ConnectorExitClip,
+  TextEditorClip,
 } from "../1_playbackStructures/AnimationClipCategories";
 import { webchalk } from "../Webchalk";
 import { definePresetEffectBank, formatBank, PresetEffectBank } from "./presetEffectCreation";
-import { computeSelfScrollingBounds, deepFreeze, getBoundingClientRectOfHidden, negateNumString, parseXYAlignmentString, parseXYTupleString } from "../4_utils/helpers";
-import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions, Keyframes } from "../4_utils/interfaces";
+import { computeSelfScrollingBounds, constructInfixTextNodeList, createRootNodeEditStats, deepFreeze, getBoundingClientRectOfHidden, infixTextDelete, infixTextInsert, negateNumString, numCharsInNode, numWordsInNode, parseXYAlignmentString, parseXYTupleString, WORDS_REGEX } from "../4_utils/helpers";
+import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions, Keyframes, RootNodeEditStats, InfixTextNodeList, TextNodeDatum } from "../4_utils/interfaces";
 import { useEasing } from "./easing";
 import { CustomErrorClasses } from "../4_utils/errors";
 export type {
@@ -1237,11 +1238,306 @@ export const libPresetScrolls = {
   },
 } satisfies PresetEffectBank<ScrollerClip>;
 
+export const libPresetTextEdits = {
+  ['delete-text']: {
+    buildFrameGenerators(
+      options: {
+        letterChunking?: 'by-character' | 'by-word';
+        match?: string | RegExp;
+        ignoreMatchCase?: boolean;
+        findAllMatches?: boolean;
+      } = {}
+    ) {
+      const {
+        letterChunking = 'by-character',
+        match,
+        ignoreMatchCase = false,
+        findAllMatches = false,
+      } = options;
+
+      const infixList = constructInfixTextNodeList(this.domElem, {match, findAllMatches, ignoreMatchCase});
+      const rootEditStats = createRootNodeEditStats(infixList, 'delete');
+
+      if (this.getTiming('timescaleType') === 'rate') {
+        this.setDurationFromRate(rootEditStats);
+      }
+
+      return {
+        mutatorGenerator_play: () => {
+          return () => {
+            infixTextDelete(infixList, this.computeTween(0, 1), rootEditStats, letterChunking);
+          };
+        },
+        mutatorGenerator_rewind: () => {
+          return () => {
+            infixTextInsert(infixList, this.computeTween(0, 1), rootEditStats, letterChunking);
+          };
+        }
+      }
+    },
+    defaultConfig: {
+      durationOrRate: 500,
+    },
+    immutableConfig: {
+      durationOrRateInsertion: NaN,
+      durationOrRateDeletion: NaN,
+    },
+    howOftenBuildGenerators: 'on-every-play',
+  },
+
+  ['insert-text']: {
+    buildFrameGenerators(
+      newText: string | number | (string | number)[],
+      options: {
+        letterChunking?: 'by-character' | 'by-word';
+        match?: string | RegExp;
+        position?: 'before' | 'after'
+        ignoreMatchCase?: boolean;
+        findAllMatches?: boolean;
+        bridgeMatches?: boolean;
+      } = {}
+    ) {
+      const {
+        letterChunking = 'by-character',
+        match,
+        position = 'after',
+        ignoreMatchCase = false,
+        findAllMatches = false,
+        bridgeMatches = true,
+      } = options;
+
+      const tempInfixList = constructInfixTextNodeList(this.domElem, {match, findAllMatches, ignoreMatchCase});
+      const infixList: InfixTextNodeList = [];
+
+      // if no match was specified, then only either the first Text node or the last Text node within domElem...
+      // ... will be inserted into (depending on position)
+      if (match === undefined) {
+        switch(position) {
+          case "before":
+            infixList.push(tempInfixList[0]);
+            break;
+          case "after":
+            infixList.push(tempInfixList[tempInfixList.length - 1]);
+            break;
+          default:
+            throw new RangeError(`Invalid 'position' value "${position}". Must be "before" or "after".`);
+        }
+      }
+      else {
+        infixList.push(...tempInfixList.filter(datum => datum.head));
+      }
+
+      // If newText is an array and `bridgeMatching` is `true`, this variable is used to keep track...
+      // ... of the current index into the `newText` array.
+      let newTextIndex = -1;
+      for (let i = 0; i < infixList.length; ++i) {
+        const datum = infixList[i];
+
+        const newTextStr: string = String(
+          (newText instanceof Array)
+          ? (
+            bridgeMatches
+              ? newText[++newTextIndex % newText.length]
+              : newText[Math.min(datum.captureIndex, newText.length - 1)] ?? ''
+          )
+          : newText
+        );
+        const originalNode = datum.textNode;
+
+        // create a new Text node to insert the new text into (but not if the current Text node is already empty)
+        if (originalNode.nodeValue !== '') {
+          let newNode: Text;
+          switch(position) {
+            case "before":
+              newNode = originalNode.parentNode!.insertBefore(new Text(), originalNode);
+              break;
+            case "after":
+              newNode = originalNode.parentNode!.insertBefore(new Text(), originalNode.nextSibling);
+              break;
+            default:
+              throw new RangeError(`Invalid 'position' value "${position}". Must be "before" or "after".`);
+          }
+
+          datum.textNode = newNode;
+        }
+
+        datum.origVal = newTextStr;
+        datum.words = newTextStr.match(WORDS_REGEX) ?? [];
+        // set up the deletion numbers for rewinding
+        datum.numWordsToDelete = numWordsInNode(datum);
+        datum.numCharsToDelete = numCharsInNode(datum);
+      }
+
+      const rootEditStats = createRootNodeEditStats(infixList, 'insert');
+
+      if (this.getTiming('timescaleType') === 'rate') {
+        this.setDurationFromRate(rootEditStats);
+      }
+
+      return {
+        mutatorGenerator_play: () => {
+          return () => {
+            infixTextInsert(infixList, this.computeTween(0, 1), rootEditStats, letterChunking);
+          };
+        },
+        mutatorGenerator_rewind: () => {
+          return () => {
+            infixTextDelete(infixList, this.computeTween(0, 1), rootEditStats, letterChunking);
+          };
+        }
+      }
+    },
+    defaultConfig: {
+      durationOrRate: '500wpm',
+    },
+    immutableConfig: {
+      durationOrRateInsertion: NaN,
+      durationOrRateDeletion: NaN,
+    },
+    howOftenBuildGenerators: 'on-every-play',
+  },
+
+  ['replace-text']: {
+    buildFrameGenerators(
+      newText: string | number | (string | number)[],
+      options: {
+        letterChunking?: 'by-character' | 'by-word';
+        match?: string | RegExp;
+        ignoreMatchCase?: boolean;
+        findAllMatches?: boolean;
+        bridgeMatches?: boolean;
+      } = {}
+    ) {
+      const {
+        letterChunking = 'by-character',
+        match,
+        ignoreMatchCase = false,
+        findAllMatches = false,
+        bridgeMatches = true,
+      } = options;
+
+      // construct infix list and stats for deletion
+      const infixListD = constructInfixTextNodeList(this.domElem, {match, findAllMatches, ignoreMatchCase});
+      const rootEditStatsD = createRootNodeEditStats(infixListD, 'delete');
+
+      // construct infix list and stats for insertion
+      let newTextIndex = -1;
+      const infixListI: InfixTextNodeList = [];
+      for (let i = 0; i < infixListD.length; ++i) {
+        const datum = infixListD[i];
+        if (!datum.head) { continue; }
+
+        const newDatum: TextNodeDatum = {...datum};
+        const newTextStr: string = String(
+          (newText instanceof Array)
+          ? (
+            bridgeMatches
+              ? newText[++newTextIndex % newText.length]
+              : newText[Math.min(newDatum.captureIndex, newText.length - 1)] ?? ''
+          )
+          : String(newText)
+        );
+        newDatum.origVal = newTextStr;
+        newDatum.words = newTextStr.match(WORDS_REGEX) ?? [];
+        infixListI.push(newDatum);
+        // set up the deletion numbers for rewinding
+        newDatum.numWordsToDelete = numWordsInNode(newDatum);
+        newDatum.numCharsToDelete = numCharsInNode(newDatum);
+      }
+
+      const rootEditStatsI = createRootNodeEditStats(infixListI, 'insert');
+
+      let durationDeletion: number;
+      let durationInsertion: number;
+      let durationTotal: number;
+      if (this.getTiming('timescaleType') === 'rate') {
+        const durations = this.setDurationFromRate([rootEditStatsD, rootEditStatsI]);
+        durationDeletion = durations.durationDeletion;
+        durationInsertion = durations.durationInsertion;
+        durationTotal = durationDeletion + durationInsertion;
+      }
+      else {
+        durationDeletion = this.getTiming('durationOrRateDeletion') as number;
+        durationInsertion = this.getTiming('durationOrRateInsertion') as number;
+        durationTotal = durationDeletion + durationInsertion;
+      }
+
+      // Value between `0` and `1` indicating at what percentage of total duration that the operation should swap when playing.
+      const switchPoint_play = durationDeletion / durationTotal;
+      // Value between `0` and `1` indicating at what percentage of total duration that the operation should swap when rewinding.
+      const switchPoint_rewind = durationInsertion / durationTotal;
+      let currOp: 'deletion' | 'insertion' = 'deletion';
+
+      return {
+        mutatorGenerator_play: () => {
+          return () => {
+            const progress = this.computeTween(0, 1);
+            
+            if (currOp === 'deletion') {
+              if (progress >= switchPoint_play) {
+                currOp = 'insertion';
+                infixTextDelete(infixListD, 1, rootEditStatsD, letterChunking);
+              }
+              else {
+                infixTextDelete(infixListD, progress / switchPoint_play, rootEditStatsD, letterChunking);
+              }
+            }
+
+            if (currOp === 'insertion') {
+              if (progress === 1) {
+                currOp = 'deletion';
+                infixTextInsert(infixListI, 1, rootEditStatsI, letterChunking);
+              }
+              else {
+                infixTextInsert(infixListI, (progress - switchPoint_play) / (1 - switchPoint_play), rootEditStatsI, letterChunking);
+              }
+            }
+          };
+        },
+        mutatorGenerator_rewind: () => {
+          return () => {
+            const progress = this.computeTween(0, 1);
+            
+            if (currOp === 'deletion') {
+              if (progress >= switchPoint_rewind) {
+                currOp = 'insertion';
+                infixTextDelete(infixListI, 1, rootEditStatsI, letterChunking);
+              }
+              else {
+                infixTextDelete(infixListI, progress / switchPoint_rewind, rootEditStatsI, letterChunking);
+              }
+            }
+
+            if (currOp === 'insertion') {
+              if (progress === 1) {
+                currOp = 'deletion';
+                infixTextInsert(infixListD, 1, rootEditStatsD, letterChunking);
+              }
+              else {
+                infixTextInsert(infixListD, (progress - switchPoint_rewind) / (1 - switchPoint_rewind), rootEditStatsD, letterChunking);
+              }
+            }
+          };
+        }
+      }
+    },
+    defaultConfig: {
+      durationOrRateInsertion: '500wpm',
+      durationOrRateDeletion: 500,
+    },
+    immutableConfig: {
+      durationOrRate: NaN,
+    },
+    howOftenBuildGenerators: 'on-every-play',
+  },
+} satisfies PresetEffectBank<TextEditorClip>;
+
 [
   libPresetConnectorEntrances,
   libPresetConnectorExits,
   libPresetScrolls,
   libPresetTransitions,
+  libPresetTextEdits,
 ].forEach(bank => formatBank(bank));
 
 /**
@@ -1255,5 +1551,6 @@ export const webchalkPresetEffectBanks = {
   connectorEntranceBank: libPresetConnectorEntrances,
   connectorExitBank: libPresetConnectorExits,
   scrollBank: libPresetScrolls,
-  transitionBank: libPresetTransitions
+  transitionBank: libPresetTransitions,
+  textEditBank: libPresetTextEdits,
 };

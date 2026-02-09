@@ -484,22 +484,48 @@ export class AnimSequence {
       ? [locationOrClips, undefined]
       : [animClips, locationOrClips];
 
-    for (const animClip of clips) {
+    for (let i = 0; i < clips.length; ++i) {
+      const animClip = clips[i];
       if (!(animClip instanceof AnimClip)) {
         throw this.generateError(CustomErrorClasses.InvalidChildError, `At least one of the objects being added is not an AnimClip.`);
       }
+
       if (animClip.parentSequence) {
         // TODO: Improve error message
         throw this.generateError(CustomErrorClasses.InvalidChildError, `At least one of the clips being added is already part of some sequence.`);
       }
-      animClip.setLineage(this, this._parentTimeline);
+      
+      if (!AnimSequence.isValidTimescaleAdjacency(animClip, clips[i + 1])) {
+        // TODO: Create custom error
+        throw this.generateError(Error,
+          `Illegal clip insertion. Clips that use a rate cannot start with ('startWithPrev' or 'startsNextClipToo') clips that use a duration, but the array of clips you attempted to insert has this issue between indices ${i} and ${i + 1}.`
+        );
+      }
     }
-    if (loc) {
-      this.animClips.splice(loc.atIndex, 0, ...clips);
+
+    // check to see if clips that would become adjacent to the first and last to-be-inserted clips...
+    // ... would case timescaleType adjacent issues
+    const prevAnimClip = loc ? animClips[loc.atIndex - 1] : animClips[animClips.length - 1];
+    const nextAnimClip = loc ? animClips[loc.atIndex] : undefined;
+    const firstInserted = clips[0];
+    const lastInserted = clips[clips.length - 1];
+    if (!AnimSequence.isValidTimescaleAdjacency(prevAnimClip, firstInserted)
+      || !AnimSequence.isValidTimescaleAdjacency(lastInserted, nextAnimClip)
+    ) {
+      // TODO: Create custom error
+      throw this.generateError(Error,
+        `Illegal clip insertion. Clips that use a rate cannot start with ('startWithPrev' or 'startsNextClipToo') clips that use a duration, but the first or last clip you attempted to insert would cause this issue if placed at the specified location.`
+      );
     }
-    else {
-      this.animClips.push(...clips);
+
+    // confirm insertion
+    if (loc) { this.animClips.splice(loc.atIndex, 0, ...clips); }
+    else { this.animClips.push(...clips); }
+
+    for (let i = 0; i < clips.length; ++i) {
+      clips[i].setLineage(this, this._parentTimeline);
     }
+
     return this;
   }
 
@@ -512,16 +538,37 @@ export class AnimSequence {
   removeClips(animClips: AnimClip[]): this {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeClips.name); }
 
-    for (const animClip of animClips) {
-      const index = this.findClipIndex(animClip);
+    const animClipsCopy = [...this.animClips];
+    const removedClips: AnimClip[] = [];
+
+    for (let i = 0; i < animClips.length; ++i) {
+      const index = this.findClipIndex(animClips[i]);
       if (index === -1) {
         // TODO: improve warning
         console.warn(`At least one of the clips being removed from this sequence was already not in the sequence.`);
         return this;
       }
-      this.animClips.splice(index, 1);
-      animClip.removeLineage();
+      removedClips.push(...animClipsCopy.splice(index, 1));
     }
+
+    // check for timeScaleType parallel issues within remaining clips
+    for (let i = 0; i < animClipsCopy.length - 1; ++i) {
+      if (!AnimSequence.isValidTimescaleAdjacency(animClipsCopy[i], animClipsCopy[i + 1])) {
+        // TODO: Create custom error
+        throw this.generateError(Error,
+          `Illegal clip removal. Clips that use a rate cannot start with ('startWithPrev' or 'startsNextClipToo') clips that use a duration, and we detected that removing the specified clips would cause the remaining clips to face this issue.`
+        );
+      }
+    }
+    
+    // confirm deletion
+    for (let i = 0; i < removedClips.length; ++i) {
+      removedClips[i].removeLineage();
+    }
+
+    this.animClips = animClipsCopy;
+
+    // TODO: return the array of removed clips
     return this;
   }
   
@@ -535,9 +582,25 @@ export class AnimSequence {
   removeClipsAt(startIndex: number, endIndex: number = startIndex + 1): AnimClip[] {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeClipsAt.name); }
 
-    const removalArray = this.animClips.splice(startIndex, endIndex - startIndex);
-    for (const clip of removalArray) { clip.removeLineage(); }
-    return removalArray;
+    const animClipsCopy = [...this.animClips];
+    const removedClips = animClipsCopy.splice(startIndex, endIndex - startIndex);
+    
+    // check to see if the clips on either side of the removal are allowed to be adjacent
+    if (!AnimSequence.isValidTimescaleAdjacency(animClipsCopy[startIndex - 1], animClipsCopy[startIndex])) {
+      // TODO: Create custom error
+      throw this.generateError(Error,
+        `Illegal clip removal. Clips that use a rate cannot start with ('startWithPrev' or 'startsNextClipToo') clips that use a duration, and we detected that removing the specified clips would cause the remaining clips to face this issue.`
+      );
+    }
+
+    // confirm deletion
+    for (let i = 0; i < removedClips.length; ++i) {
+      removedClips[i].removeLineage();
+    }
+
+    this.animClips = animClipsCopy;
+
+    return removedClips;
   }
 
   /**
@@ -548,6 +611,20 @@ export class AnimSequence {
    */
   findClipIndex(animClip: AnimClip): number {
     return this.animClips.findIndex((_animClip) => _animClip === animClip);
+  }
+
+  /**
+   * Checks to see whether the specified clips are allowed to be adjacent given their timing and {@link AnimClip.timescaleType | timescaleType}.
+   * @param leftClip - the clip presumably prior to {@link rightClip}
+   * @param rightClip - the clip presumably following {@link leftClip}
+   * @returns `true` if {@link leftClip} and {@link rightClip} are allowed to be adjacent.
+   * 
+   * @see {@link AnimClip.timescaleType}
+   */
+  private static isValidTimescaleAdjacency(leftClip: AnimClip | undefined, rightClip: AnimClip | undefined): boolean {
+    return (leftClip === undefined || rightClip === undefined)
+      || ( !leftClip.getTiming('startsNextClipToo') && !rightClip.getTiming('startsWithPrevious') )
+      || ( leftClip.getTiming('timescaleType') === rightClip.getTiming('timescaleType') );
   }
 
   /*-:**************************************************************************************************************************/
@@ -582,6 +659,7 @@ export class AnimSequence {
     this.onStart.do();
 
     const activeGroupings = this.animClipGroupings_activeFinishOrder;
+    const indicesOfRateGroupings: number[] = [];
     // const activeGroupings2 = this.animClipGroupings_endDelayFinishOrder;
     const numGroupings = activeGroupings.length;
 
@@ -591,10 +669,15 @@ export class AnimSequence {
       // const activeGrouping2 = activeGroupings2[i];
       const groupingLength = activeGrouping.length;
 
-      // ensure that no clip finishes its active phase before any clip that should finish its active phase first (according to the calculated "perfect" timing)
-      for (let j = 1; j < groupingLength; ++j) {
-        activeGrouping[j].addIntegrityblock('activePhase', 'end', { onPlay: () => activeGrouping[j-1].schedulePromise('forward', 'activePhase', 'end') });
-        // activeGrouping2[j].animation.addIntegrityblocks('forward', 'endDelayPhase', 'end', activeGrouping2[j-1].animation.getFinished('forward', 'endDelayPhase'));
+      if (activeGrouping[0].getTiming('timescaleType') === 'duration') {
+        // ensure that no clip finishes its active phase before any clip that should finish its active phase first (according to the calculated "perfect" timing)
+        for (let j = 1; j < groupingLength; ++j) {
+          activeGrouping[j].addIntegrityblock('activePhase', 'end', { onPlay: () => activeGrouping[j-1].schedulePromise('forward', 'activePhase', 'end') });
+          // activeGrouping2[j].animation.addIntegrityblocks('forward', 'endDelayPhase', 'end', activeGrouping2[j-1].animation.getFinished('forward', 'endDelayPhase'));
+        }
+      }
+      else {
+        indicesOfRateGroupings.push(i);
       }
     }
 
@@ -602,11 +685,18 @@ export class AnimSequence {
     for (let i = 0; i < this.animClip_forwardGroupings.length; ++i) {
       parallelClips = [];
       const grouping = this.animClip_forwardGroupings[i];
+      const isRateGrouping = indicesOfRateGroupings.includes(i);
       const firstClip = grouping[0];
       this.inProgressClips.set(firstClip.id, firstClip);
+      let resolve: () => void = () => {};
       parallelClips.push(firstClip.play(this)
         .then(() => {this.inProgressClips.delete(firstClip.id)})
       );
+      if (isRateGrouping) {
+        const prom = Promise.withResolvers<void>();
+        resolve = prom.resolve;
+        // firstClip.scheduleTask('activePhase', 'end', {onPlay: async () => await prom.promise}, {frequencyLimit: 1});
+      }
 
       for (let j = 1; j < grouping.length; ++j) {
         // the start of any clip within a grouping should line up with the beginning of the preceding clip's active phase
@@ -618,6 +708,19 @@ export class AnimSequence {
           .then(() => {this.inProgressClips.delete(currAnimClip.id)})
         );
       }
+
+      if (isRateGrouping) {
+        console.log('about to compute rate commission');
+        this.commitForRate(i);
+        // ensure that no clip finishes its active phase before any clip that should finish its active phase first (according to the calculated "perfect" timing)
+        for (let j = 1; j < grouping.length; ++j) {
+          activeGroupings[i][j].addIntegrityblock('activePhase', 'end', { onPlay: () => activeGroupings[i][j-1].schedulePromise('forward', 'activePhase', 'end') });
+          // activeGrouping2[j].animation.addIntegrityblocks('forward', 'endDelayPhase', 'end', activeGrouping2[j-1].animation.getFinished('forward', 'endDelayPhase'));
+        }
+      }
+
+      resolve?.();
+
       await Promise.all(parallelClips);
     }
 
@@ -808,20 +911,27 @@ export class AnimSequence {
     let currActiveFinishGrouping: AnimClip[] = [];
     let currEndDelayGrouping: AnimClip[] = [];
 
+    let currTimeScaleType: 'duration' | 'rate' = animClips[0].getTiming('timescaleType');
+
     for (let i = 0; i < numClips; ++i) {
       const currAnimClip = animClips[i];
       const prevClip = animClips[i-1];
       const startsWithPrev = currAnimClip.getTiming('startsWithPrevious') || prevClip?.getTiming('startsNextClipToo');
-      let currStartTime: number;
+      let currStartTime: number = 0;
 
+      // the current clip is in a grouping of parallel clips or the first clip in the sequence
       if (startsWithPrev || i === 0) {
         // currActiveBackwardFinishGrouping.push(currAnimClip);
         currActiveFinishGrouping.push(currAnimClip);
         currEndDelayGrouping.push(currAnimClip);
-
-        currStartTime = prevClip?.activeStartTime ?? 0;
+        
+        if (currTimeScaleType === 'duration') {
+          currStartTime = prevClip?.activeStartTime ?? 0;
+        }
       }
+      // the current clip is starting a new grouping of parallel clips
       else {
+        currTimeScaleType = currAnimClip.getTiming('timescaleType');
         this.animClip_forwardGroupings.push([]);
         currActiveFinishGrouping.sort(activeFinishComparator);
         currEndDelayGrouping.sort(endDelayFinishComparator);
@@ -841,7 +951,9 @@ export class AnimSequence {
 
       currAnimClip.fullStartTime = currStartTime;
 
-      maxFinishTime = Math.max(currAnimClip.fullFinishTime, maxFinishTime);
+      if (currTimeScaleType === 'duration') {
+        maxFinishTime = Math.max(currAnimClip.fullFinishTime, maxFinishTime);
+      }
     }
 
     currActiveFinishGrouping.sort(activeFinishComparator);
@@ -853,6 +965,41 @@ export class AnimSequence {
     this.animClipGroupings_endDelayFinishOrder.push(currEndDelayGrouping);
 
     return this;
+  }
+
+  private commitForRate(indexOfGrouping: number): void {
+    const {
+      activeBackwardFinishComparator,
+      activeFinishComparator,
+      endDelayFinishComparator,
+    } = AnimSequence;
+
+    // let maxFinishTime = 0;
+    const currActiveFinishGrouping: AnimClip[] = this.animClipGroupings_activeFinishOrder[indexOfGrouping];
+    const currEndDelayGrouping: AnimClip[] = this.animClipGroupings_endDelayFinishOrder[indexOfGrouping];
+    const forwardGrouping: AnimClip[] = this.animClip_forwardGroupings[indexOfGrouping];
+
+    for (let i = 0; i < forwardGrouping.length; ++i) {
+      const currAnimClip = forwardGrouping[i];
+      const prevClip = forwardGrouping[i-1];
+
+      let currStartTime: number;
+
+      // // currActiveBackwardFinishGrouping.push(currAnimClip);
+      // currActiveFinishGrouping.push(currAnimClip);
+      // currEndDelayGrouping.push(currAnimClip);
+
+      currStartTime = prevClip?.activeStartTime ?? 0;
+      currAnimClip.fullStartTime = currStartTime;
+
+      // maxFinishTime = Math.max(currAnimClip.fullFinishTime, maxFinishTime);
+    }
+
+    currActiveFinishGrouping.sort(activeFinishComparator);
+    currEndDelayGrouping.sort(endDelayFinishComparator);
+    const currActiveBackwardFinishGrouping = [...currEndDelayGrouping].reverse();
+    currActiveBackwardFinishGrouping.sort(activeBackwardFinishComparator);
+    this.animClipGroupings_backwardActiveFinishOrder[indexOfGrouping] = currActiveBackwardFinishGrouping;
   }
 
   // get all currently running animations that belong to this timeline and perform operation() with them
