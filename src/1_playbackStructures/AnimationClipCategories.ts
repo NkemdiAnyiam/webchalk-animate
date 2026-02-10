@@ -164,8 +164,8 @@ export class EntranceClip<TPresetEffectDefinition extends PresetEffectDefinition
   }
 
   /**@internal*/
-  constructor(domElem: DOMElement | null | undefined, effectName: string, PresetEffectBank: PresetEffectBank) {
-    super(domElem, effectName, PresetEffectBank);
+  constructor(domElem: DOMElement | null | undefined, effectName: string, presetEffectBank: PresetEffectBank) {
+    super(domElem, effectName, presetEffectBank);
     super.preventConnector();
   }
 
@@ -385,8 +385,8 @@ export class ExitClip<TPresetEffectDefinition extends PresetEffectDefinition<Exi
   }
 
   /**@internal*/
-  constructor(domElem: DOMElement | null | undefined, effectName: string, PresetEffectBank: PresetEffectBank) {
-    super(domElem, effectName, PresetEffectBank);
+  constructor(domElem: DOMElement | null | undefined, effectName: string, presetEffectBank: PresetEffectBank) {
+    super(domElem, effectName, presetEffectBank);
     super.preventConnector();
   }
 
@@ -998,10 +998,10 @@ export class ConnectorSetterClip extends AnimClip<PresetEffectDefinition, Connec
     pointA: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
     pointB: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
     effectName: string,
-    PresetEffectBank: PresetEffectBank,
+    presetEffectBank: PresetEffectBank,
     connectorConfig: Partial<WebchalkConnectorElementConfig> = {},
     ) {
-    super(connectorElem, effectName, PresetEffectBank);
+    super(connectorElem, effectName, presetEffectBank);
 
     if (!(connectorElem instanceof WebchalkConnectorElement)) { throw this.generateError(CustomErrorClasses.InvalidElementError, `Must pass WebchalkConnectorElement element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
 
@@ -1193,8 +1193,8 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
   }
 
   /**@internal*/
-  constructor(connectorElem: WebchalkConnectorElement | null | undefined, effectName: string, PresetEffectBank: PresetEffectBank) {
-    super(connectorElem, effectName, PresetEffectBank);
+  constructor(connectorElem: WebchalkConnectorElement | null | undefined, effectName: string, presetEffectBank: PresetEffectBank) {
+    super(connectorElem, effectName, presetEffectBank);
 
     if (!(connectorElem instanceof WebchalkConnectorElement)) { throw this.generateError(CustomErrorClasses.InvalidElementError, `Must pass ${WebchalkConnectorElement.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
     this.domElem = connectorElem;
@@ -1349,8 +1349,8 @@ export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefin
   }
 
   /**@internal*/
-  constructor(connectorElem: WebchalkConnectorElement | null | undefined, effectName: string, PresetEffectBank: PresetEffectBank) {
-    super(connectorElem, effectName, PresetEffectBank);
+  constructor(connectorElem: WebchalkConnectorElement | null | undefined, effectName: string, presetEffectBank: PresetEffectBank) {
+    super(connectorElem, effectName, presetEffectBank);
 
     if (!(connectorElem instanceof WebchalkConnectorElement)) { throw this.generateError(CustomErrorClasses.InvalidElementError, `Must pass ${WebchalkConnectorElement.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
 
@@ -1523,9 +1523,8 @@ export class TextEditorClip<TPresetEffectDefinition extends PresetEffectDefiniti
   }
 
   /**@internal*/
-  constructor(domElem: DOMElement | null | undefined, effectName: string, PresetEffectBank: PresetEffectBank) {
-    // TODO: fix accidental capitalization
-    super(domElem, effectName, PresetEffectBank);
+  constructor(domElem: DOMElement | null | undefined, effectName: string, presetEffectBank: PresetEffectBank) {
+    super(domElem, effectName, presetEffectBank);
     super.preventConnector();
   }
 
