@@ -676,7 +676,7 @@ export class AnimTimeline {
     if (startIndex <= this.loadedSeqIndex - 1) {
       throw this.generateError(
         CustomErrorClasses.TimeParadoxError,
-        `startIndex '${startIndex}' is falls within the range of sequences that have already been played,` +
+        `startIndex '${startIndex}' falls within the range of sequences that have already been played,` +
         ` but removing sequences that have already been played is prohibited.` +
         errorTip(
           `Tip: Just as changing the past is not possible, changing parts of the timeline that have already passed is not allowed.` +
