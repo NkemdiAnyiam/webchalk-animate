@@ -125,6 +125,13 @@ abstract class WebchalkAnimationBase extends Animation {
         throw this.errorGenerator(RangeError, `Invalid direction "${direction}" passed to setDirection(). Must be "forward" or "backward".`);
     }
   }
+
+  /** @internal */
+  updateDuration(duration: number): void {
+    this.effect?.updateTiming({duration, endDelay: -duration});
+    this.forwardEffect.updateTiming({duration, endDelay: -duration});
+    this.backwardEffect.updateTiming({duration});
+  }
 }
 
 type PhaseSegment = [
@@ -343,9 +350,10 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
 
   /** @internal */
   updateDuration(duration: number): void {
-    this.effect?.updateTiming({duration, endDelay: -duration});
-    this.forwardEffect.updateTiming({duration, endDelay: -duration});
-    this.backwardEffect.updateTiming({duration});
+    super.updateDuration(duration);
+    for (let i = 0; i < this.nestedAnimations.length; ++i) {
+      this.nestedAnimations[i].updateDuration(duration);
+    }
     this.phaseEndSegmentsForwardCache[0][0] = -duration;
     this.phaseEndSegmentsBackwardCache[0][0] = -duration;
   }
