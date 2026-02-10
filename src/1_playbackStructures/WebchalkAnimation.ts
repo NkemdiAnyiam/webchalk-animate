@@ -127,7 +127,7 @@ abstract class WebchalkAnimationBase extends Animation {
   }
 }
 
-type Segment = [
+type PhaseSegment = [
   endDelay: number,
   callbacks: Function[],
   tasks: {id: string; callback: Function; frequencyLimit: number}[],
@@ -142,7 +142,7 @@ type Segment = [
   }>,
 ];
 
-type SegmentsCache = [delayPhaseEnd: Segment, activePhaseEnd: Segment, endDelayPhaseEnd: Segment];
+type PhaseEndSegmentsCache = [delayPhaseEnd: PhaseSegment, activePhaseEnd: PhaseSegment, endDelayPhaseEnd: PhaseSegment];
 
 type FullyFinishedPromise = {
   promise: Promise<WebchalkAnimation>;
@@ -159,11 +159,11 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
   }
 
   // holds list of stopping points and resolvers to control segmentation of animation...
-  // to help with Promises-based sequencing
-  private segmentsForward: Segment[] = [];
-  private segmentsForwardCache: SegmentsCache;
-  private segmentsBackward: Segment[] = [];
-  private segmentsBackwardCache: SegmentsCache;
+  // ... to help with Promises-based sequencing
+  private phaseSegmentsForward: PhaseSegment[] = [];
+  private phaseEndSegmentsForwardCache: PhaseEndSegmentsCache;
+  private phaseSegmentsBackward: PhaseSegment[] = [];
+  private phaseEndSegmentsBackwardCache: PhaseEndSegmentsCache;
 
   onDelayFinish: Function = () => {};
   onActiveFinish: Function = () => {};
@@ -192,9 +192,9 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
   constructor(target: Element | null | undefined, keyframeOptions: KeyframeEffectOptions, protected errorGenerator: ClipErrorGenerator) {
     super(target, keyframeOptions, errorGenerator);
 
-    this.resetPhases('both');
-    this.segmentsForwardCache = [...this.segmentsForward] as SegmentsCache;
-    this.segmentsBackwardCache = [...this.segmentsBackward] as SegmentsCache;
+    this.resetPhaseSegments('both');
+    this.phaseEndSegmentsForwardCache = [...this.phaseSegmentsForward] as PhaseEndSegmentsCache;
+    this.phaseEndSegmentsBackwardCache = [...this.phaseSegmentsBackward] as PhaseEndSegmentsCache;
   }
   
   async play(): Promise<void> {
@@ -228,11 +228,11 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     }
 
     const effect = super.effect!;
-    const segments = this.direction === 'forward' ? this.segmentsForward : this.segmentsBackward;
+    const phaseSegments = this.direction === 'forward' ? this.phaseSegmentsForward : this.phaseSegmentsBackward;
     let blockedForTasks: boolean | null = null;
     // Traverse live array instead of static length since entries could be added mid-loop
-    for (const segment of segments) {
-      const [ endDelay, callbacks, tasks, integrityblocks, skipEndDelayUpdation, header ]: Segment = segment;
+    for (const segment of phaseSegments) {
+      const [ endDelay, callbacks, tasks, integrityblocks, skipEndDelayUpdation, header ]: PhaseSegment = segment;
       header.activated = true;
 
       if (!skipEndDelayUpdation) {
@@ -295,7 +295,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     this.isExpediting = false;
     // clip has essentially "reset" by finishing rewinding, so reset segments as well.
     // (this is before resolving fullyFinished in case operations that await it attempt to schedule new tasks) 
-    if (this.direction === 'backward') { this.resetPhases('both'); }
+    if (this.direction === 'backward') { this.resetPhaseSegments('both'); }
     this.fullyFinished.resolve(this);
   }
 
@@ -346,8 +346,8 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     this.effect?.updateTiming({duration, endDelay: -duration});
     this.forwardEffect.updateTiming({duration, endDelay: -duration});
     this.backwardEffect.updateTiming({duration});
-    this.segmentsForwardCache[0][0] = -duration;
-    this.segmentsBackwardCache[0][0] = -duration;
+    this.phaseEndSegmentsForwardCache[0][0] = -duration;
+    this.phaseEndSegmentsBackwardCache[0][0] = -duration;
   }
 
   // accepts a time to wait for (converted to an endDelay) and returns a Promise that is resolved at that time
@@ -357,7 +357,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       if (this.isFinished && this.direction === direction) { resolve(); return; }
 
       const [
-        segments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition
+        phaseSegments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition
       ] = WebchalkAnimation.computePhaseEmplacement(this, direction, phase, timePosition);
 
       // check for out of bounds time positions
@@ -393,10 +393,10 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       }
 
       const endDelay: number = phaseEndDelayOffset + phaseTimePosition;
-      const numSegments = segments.length;
+      const numSegments = phaseSegments.length;
       
       for (let i = initialArrIndex; i < numSegments; ++i) {
-        const currSegment = segments[i];
+        const currSegment = phaseSegments[i];
         
         // if new endDelay is less than curr, new segment should be inserted to list
         if (endDelay < currSegment[0]) {
@@ -404,7 +404,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
           if (currSegment[5].activated) { resolve(); return; }
 
           // insert new segment to list
-          segments.splice(i, 0, [ endDelay, [resolve], [], [], phaseTimePosition === 0, {} ]);
+          phaseSegments.splice(i, 0, [ endDelay, [resolve], [], [], phaseTimePosition === 0, {} ]);
           return;
         }
 
@@ -453,12 +453,12 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
   }
 
   unscheduleTask<T extends Parameters<AnimClip['unscheduleTask']>>(taskId: T[0]): ScheduledTask {
-    let taskF: Segment[2][number] | undefined = undefined;
-    let taskB: Segment[2][number] | undefined = undefined;
+    let taskF: PhaseSegment[2][number] | undefined = undefined;
+    let taskB: PhaseSegment[2][number] | undefined = undefined;
 
     // find segment containing the task with matching id, then remove task
-    for (let i = 0; i < this.segmentsForward.length; ++i) {
-      const tasks = this.segmentsForward[i][2];
+    for (let i = 0; i < this.phaseSegmentsForward.length; ++i) {
+      const tasks = this.phaseSegmentsForward[i][2];
       for (let j = 0; j < tasks.length; ++j) {
         const task = tasks[j];
         if (task.id === taskId) {
@@ -468,8 +468,8 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       }
     }
 
-    for (let i = 0; i < this.segmentsBackward.length; ++i) {
-      const tasks = this.segmentsBackward[i][2];
+    for (let i = 0; i < this.phaseSegmentsBackward.length; ++i) {
+      const tasks = this.phaseSegmentsBackward[i][2];
       for (let j = 0; j < tasks.length; ++j) {
         const task = tasks[j];
         if (task.id === taskId) {
@@ -526,7 +526,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     }
     
     const [
-      segments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition
+      phaseSegments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition
     ] = WebchalkAnimation.computePhaseEmplacement(this, direction, phase, timePosition);
 
     // check for out of bounds time positions
@@ -562,10 +562,10 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     }
 
     const endDelay: number = phaseEndDelayOffset + phaseTimePosition;
-    const numSegments = segments.length;
+    const numSegments = phaseSegments.length;
     
     for (let i = initialArrIndex; i < numSegments; ++i) {
-      const currSegment = segments[i];
+      const currSegment = phaseSegments[i];
       
       // if new endDelay is less than curr, new segment should be inserted to list
       if (endDelay < currSegment[0]) {
@@ -580,7 +580,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         }
 
         // insert new segment to list
-        segments.splice(i, 0, [
+        phaseSegments.splice(i, 0, [
           endDelay,
           [],
           (awaitedType === 'task' ? [taskPart] : []),
@@ -617,16 +617,16 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     direction: 'forward' | 'backward',
     phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
     timePosition: number | 'beginning' | 'end' | `${number}%`,
-    ): [segments: Segment[], initialArrIndex: number, phaseDuration: number, phaseEndDelayOffset: number, phaseTimePosition: number] {
+    ): [segments: PhaseSegment[], initialArrIndex: number, phaseDuration: number, phaseEndDelayOffset: number, phaseTimePosition: number] {
     // compute initial index, phase duration, and endDelay offset based on phase and arguments
-    let segments: Segment[];
-    let segmentsCache: SegmentsCache;
+    let phaseSegments: PhaseSegment[];
+    let phaseEndSegmentsCache: PhaseEndSegmentsCache;
     switch(direction) {
       case "forward":
-        [segments, segmentsCache] = [anim.segmentsForward, anim.segmentsForwardCache];
+        [phaseSegments, phaseEndSegmentsCache] = [anim.phaseSegmentsForward, anim.phaseEndSegmentsForwardCache];
         break;
       case "backward":
-        [segments, segmentsCache] = [anim.segmentsBackward, anim.segmentsBackwardCache];
+        [phaseSegments, phaseEndSegmentsCache] = [anim.phaseSegmentsBackward, anim.phaseEndSegmentsBackwardCache];
         break;
       default:
         throw anim.errorGenerator(
@@ -652,12 +652,12 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         phaseEndDelayOffset = -(delay + duration);
         break;
       case "activePhase":
-        initialArrIndex = segments.indexOf(segmentsCache[0]) + 1;
+        initialArrIndex = phaseSegments.indexOf(phaseEndSegmentsCache[0]) + 1;
         phaseDuration = duration;
         phaseEndDelayOffset = -duration;
         break;
       case "endDelayPhase":
-        initialArrIndex = segments.indexOf(segmentsCache[1]) + 1;
+        initialArrIndex = phaseSegments.indexOf(phaseEndSegmentsCache[1]) + 1;
         phaseDuration = effect.getTiming().endDelay as number;
         phaseEndDelayOffset = 0;
         break;
@@ -695,10 +695,10 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     // time positions should refer to the same point in a phase, regardless of the current direction
     const phaseTimePosition: number = direction === 'forward' ? wrappedPhaseTimePos : phaseDuration - wrappedPhaseTimePos;
 
-    return [segments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition];
+    return [phaseSegments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition];
   }
 
-  resetPhases(direction: 'forward' | 'backward' | 'both'): void {
+  resetPhaseSegments(direction: 'forward' | 'backward' | 'both'): void {
     const resetForwardPhases = () => {
       const { delay, duration, endDelay } = this.forwardEffect.getTiming() as {[prop: string]: number};
 
@@ -706,16 +706,16 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       // ->end of delay phase->,
       // ->end of active phase->,
       // ->end of endDelay phase->
-      const segmentsForward: Segment[] = [
+      const freshPhaseSegmentsForward: PhaseSegment[] = [
         [ -duration, [() => this.onDelayFinish()], [], [], delay === 0, {phase: 'delayPhase', timePosition: 'end'} ],
         [ 0, [() => this.onActiveFinish()], [], [], false, {phase: 'activePhase', timePosition: 'end'} ],
         [ endDelay, [() => this.onEndDelayFinish()], [], [], endDelay === 0, {phase: 'endDelayPhase',  timePosition: 'end'} ],
       ];
 
       // for tasks that are scheduled to reoccur, schedule them again
-      const tempSegments = this.segmentsForward;
-      this.segmentsForward = segmentsForward;
-      this.segmentsForwardCache = [...segmentsForward] as SegmentsCache;
+      const tempSegments = this.phaseSegmentsForward;
+      this.phaseSegmentsForward = freshPhaseSegmentsForward;
+      this.phaseEndSegmentsForwardCache = [...freshPhaseSegmentsForward] as PhaseEndSegmentsCache;
       for (const segment of tempSegments) {
         for (const task of segment[2]) {
           if (--task.frequencyLimit > 0) {
@@ -734,15 +734,15 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       // <-beginning of endDelay phase<- (which corresponds to the end of the rewinding frames' delay),
       // <-beginning of active phase<- (which corresponds to the end of the rewinding frames' active),
       // <-beginning of delay phase<- (which corresponds to the end of the rewinding frames' end delay)
-      const segmentsBackward: Segment[] = [
+      const freshPhaseSegmentsBackward: PhaseSegment[] = [
         [ -duration, [() => this.onDelayFinish()], [], [], delay === 0, {phase: 'endDelayPhase', timePosition: 'beginning'} ],
         [ 0, [() => this.onActiveFinish()], [], [], false, {phase: 'activePhase', timePosition: 'beginning'} ],
         [ endDelay, [() => this.onEndDelayFinish()], [], [], endDelay === 0, {phase: 'delayPhase', timePosition: 'beginning'} ],
       ];
       
-      const tempSegments = this.segmentsBackward;
-      this.segmentsBackward = segmentsBackward;
-      this.segmentsBackwardCache = [...segmentsBackward] as SegmentsCache;
+      const tempSegments = this.phaseSegmentsBackward;
+      this.phaseSegmentsBackward = freshPhaseSegmentsBackward;
+      this.phaseEndSegmentsBackwardCache = [...freshPhaseSegmentsBackward] as PhaseEndSegmentsCache;
       for (const segment of tempSegments) {
         for (const task of segment[2]) {
           if (--task.frequencyLimit > 0) {
