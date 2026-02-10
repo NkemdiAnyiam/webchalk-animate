@@ -403,15 +403,14 @@ export function dedent(text: string, tabLength: number = 2): string {
 }
 
 /**
- * 
- * @param text 
- * @returns 
+ * Removes tabs from a template string that are the result of writing the string over multiple lines in the editor.
+ * @param text - the template string
+ * @returns The string without any tabs.
  * 
  * @ignore
  */
-export function detab(text: TemplateStringsArray | string): string {
-  if (typeof text === 'string') { return text.replace(/\n +/g, '\n').replace(/ +/g, ' '); /*return text.replaceAll(/(\t|\s)/g, ' ');*/ }
-  return text.map(str => str.replace(/\n +/g, '\n').replace(/ +/g, ' ')).join(' ');
+export function detab(text: TemplateStringsArray, ...placeholders: any[]): string {
+  return text.map((str, i) => `${str}${placeholders[i] ?? ''}`).join(' ').replace(/[^\S\r\n]+/g, ' ');
 }
 
 /**
