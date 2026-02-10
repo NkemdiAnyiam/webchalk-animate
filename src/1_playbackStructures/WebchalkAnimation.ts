@@ -496,13 +496,13 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     return { onPlay: taskF.callback, onRewind: taskB.callback };
   }
 
-  private rescheduleTask<T extends Parameters<AnimClip['scheduleTask']>>(
+  private rescheduleTaskPart<T extends Parameters<AnimClip['scheduleTask']>>(
     direction: 'forward' | 'backward',
     phase: T[0],
     timePosition: T[1],
-    task: {id: string; callback: Function; frequencyLimit: number}
+    taskPart: {id: string; callback: Function; frequencyLimit: number}
   ): void {
-    this.addAwaiteds(direction, phase, timePosition, 'task', task);
+    this.addAwaiteds(direction, phase, timePosition, 'task', taskPart);
   }
 
   private addAwaiteds(
@@ -729,7 +729,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       for (const segment of tempSegments) {
         for (const task of segment[2]) {
           if (--task.frequencyLimit > 0) {
-            this.rescheduleTask('forward', segment[5].phase!, segment[5].timePosition!, task);
+            this.rescheduleTaskPart('forward', segment[5].phase!, segment[5].timePosition!, task);
           }
         }
       }
@@ -756,7 +756,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       for (const segment of tempSegments) {
         for (const task of segment[2]) {
           if (--task.frequencyLimit > 0) {
-            this.rescheduleTask('backward', segment[5].phase!, segment[5].timePosition!, task);
+            this.rescheduleTaskPart('backward', segment[5].phase!, segment[5].timePosition!, task);
           }
         }
       }
