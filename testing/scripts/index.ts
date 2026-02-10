@@ -587,7 +587,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     TextEditor(textBox, 'delete-text', [], {startsNextClipToo: false}),
     TextEditor(textBox2, 'replace-text', ['What in tarnation was supposed to happen when you did that?']),
     // TextEditor(textBox, 'insert-text', ['This is the new text']),
-    Entrance(square, 'riseUp', [], {duration: 1000}),
+    // Entrance(square, 'riseUp', [], {duration: 1000}),
   ]);
 
   const array = document.querySelector('.array');

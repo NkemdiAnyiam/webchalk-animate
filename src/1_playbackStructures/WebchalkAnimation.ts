@@ -2,6 +2,7 @@ import { AnimClip, ScheduledTask } from "./AnimationClip";
 import { CustomErrorClasses, ClipErrorGenerator } from "../4_utils/errors";
 import { DOMElement, Keyframes } from "../4_utils/interfaces";
 import { useEasing } from "../2_animationEffects/easing";
+import { detab } from "../4_utils/helpers";
 
 abstract class WebchalkAnimationBase extends Animation {
   forwardEffect: KeyframeEffect;
@@ -213,12 +214,10 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     this.inProgress = true;
     
     // if animation is being activated after having finished playback at some point,...
-    // ... reset fullyFinished promise and reset phases from the previous direction
+    // ... reset fullyFinished promise
     if (this.isFinished) {
       this.isFinished = false;
       this.fullyFinished = this.getNewFullyFinished();
-      // If going forward, reset backward promises. If going backward, reset forward promises.
-      this.resetPhases(this.direction === 'forward' ? 'backward' : 'forward');
     }
 
     super.play();
@@ -294,6 +293,9 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     this.inProgress = false;
     this.isFinished = true;
     this.isExpediting = false;
+    // clip has essentially "reset" by finishing rewinding, so reset segments as well.
+    // (this is before resolving fullyFinished in case operations that await it attempt to schedule new tasks) 
+    if (this.direction === 'backward') { this.resetPhases('both'); }
     this.fullyFinished.resolve(this);
   }
 
@@ -339,6 +341,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     }
   }
 
+  /** @internal */
   updateDuration(duration: number): void {
     this.effect?.updateTiming({duration, endDelay: -duration});
     this.forwardEffect.updateTiming({duration, endDelay: -duration});
@@ -353,16 +356,40 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       // if the animation is already finished in the given direction, resolve immediately
       if (this.isFinished && this.direction === direction) { resolve(); return; }
 
-      const [segments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition] = WebchalkAnimation.computePhaseEmplacement(this, direction, phase, timePosition);
+      const [
+        segments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition
+      ] = WebchalkAnimation.computePhaseEmplacement(this, direction, phase, timePosition);
 
       // check for out of bounds time positions
       if (phaseTimePosition < 0) {
-        if (typeof timePosition === 'number') { throw this.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Negative timePosition ${timePosition} for phase "${phase}" resulted in invalid time ${phaseTimePosition}. Must be in the range [0, ${phaseDuration}] for this "${phase}".`);}
-        else { throw this.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`); }
+        if (typeof timePosition === 'number') {
+          throw this.errorGenerator(
+            CustomErrorClasses.InvalidPhasePositionError,
+            detab`Negative 'timePosition' ${timePosition} for phase "${phase}" resulted in invalid time ${phaseTimePosition}\
+              (i.e., ${phaseDuration} - ${Math.abs(timePosition)}).\
+              Negative 'timePosition' values must result in the range [0, ${phaseDuration}] for this "${phase}".`
+          );
+        }
+        else {
+          throw this.errorGenerator(
+            CustomErrorClasses.InvalidPhasePositionError,
+            `Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`
+          );
+        }
       }
       if (phaseTimePosition > phaseDuration) {
-        if (typeof timePosition === 'number') { throw this.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Invalid timePosition value ${timePosition} for phase "${phase}". Must be in the range [0, ${phaseDuration}] for this "${phase}".`); }
-        else { throw this.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`); }
+        if (typeof timePosition === 'number') {
+          throw this.errorGenerator(
+            CustomErrorClasses.InvalidPhasePositionError,
+            `Invalid positive timePosition value ${timePosition} for phase "${phase}". Positive time position values must be in the range [0, ${phaseDuration}] for this "${phase}".`
+          );
+        }
+        else {
+          throw this.errorGenerator(
+            CustomErrorClasses.InvalidPhasePositionError,
+            `Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`
+          );
+        }
       }
 
       const endDelay: number = phaseEndDelayOffset + phaseTimePosition;
@@ -404,20 +431,24 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     task: T[2]
   ): void {
     const id = Math.random().toString(20).substring(2, 32) + String(Date.now());
-    if (task.onPlay) this.addAwaiteds('forward', phase, timePosition, 'integrityblock', {id, callback: task.onPlay, frequencyLimit: 1});
-    if (task.onRewind) this.addAwaiteds('backward', phase, timePosition, 'integrityblock', {id, callback: task.onRewind, frequencyLimit: 1});
+    if (task.onPlay) { this.addAwaiteds('forward', phase, timePosition, 'integrityblock', {id, callback: task.onPlay, frequencyLimit: 1}) };
+    if (task.onRewind) { this.addAwaiteds('backward', phase, timePosition, 'integrityblock', {id, callback: task.onRewind, frequencyLimit: 1}) };
   }
 
   scheduleTask<T extends Parameters<AnimClip['scheduleTask']>>(
     phase: T[0],
     timePosition: T[1],
     task: T[2],
-    schedulingOptions: T[3]
+    schedulingOptions: T[3] = {}
   ): string {
     const id = Math.random().toString(20).substring(2, 32) + String(Date.now());
-    const frequencyLimit = schedulingOptions?.frequencyLimit ?? Infinity;
-    this.addAwaiteds('forward', phase, timePosition, 'task', {id, callback: task.onPlay || function(){}, frequencyLimit});
-    this.addAwaiteds('backward', phase, timePosition, 'task', {id, callback: task.onRewind || function(){}, frequencyLimit});
+    const {
+      frequencyLimit = Infinity,
+    } = schedulingOptions;
+    
+    if (task.onPlay) { this.addAwaiteds('forward', phase, timePosition, 'task', {id, callback: task.onPlay, frequencyLimit}); }
+    if (task.onRewind) { this.addAwaiteds('backward', phase, timePosition, 'task', {id, callback: task.onRewind, frequencyLimit}); }
+
     return id;
   }
 
@@ -469,30 +500,65 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
     timePosition: number | 'beginning' | 'end' | `${number}%`,
     awaitedType: 'integrityblock' | 'task',
-    task: {id: string, callback: Function, frequencyLimit: number},
+    taskPart: {id: string, callback: Function, frequencyLimit: number}
   ): void {
-    if (task.frequencyLimit < 0) {
-      throw this.errorGenerator(RangeError, `Invalid 'frequencyLimit' ${task.frequencyLimit}. Must be at least 0.`);
+    if (taskPart.frequencyLimit < 0) {
+      throw this.errorGenerator(RangeError, `Invalid 'frequencyLimit' ${taskPart.frequencyLimit}. Must be at least 0.`);
     }
 
-    if (task.frequencyLimit === 0) { return; }
+    if (taskPart.frequencyLimit === 0) { return; }
 
-    // if the animation is already finished in the given direction, do nothing
-    if (this.isFinished && this.direction === direction) {
-      console.warn(this.errorGenerator(Error, `The new ${awaitedType}s set for time position "${timePosition}" will not be used because the time "${timePosition}" has already passed.`).message);
-      return;
+    if (
+      // if the task includes 'onPlay' callback...
+      direction === 'forward' && (
+        // ... and the animation is currently rewinding, throw error
+        this.inProgress && this.direction === 'backward'
+        // ... and the animation has finished playing, throw error
+        || this.isFinished && this.direction === 'forward'
+      )
+    ) {
+      throw this.errorGenerator(
+        CustomErrorClasses.LateSchedulingError,
+        detab`The new ${awaitedType} set for time position "${timePosition}" could not be scheduled because\
+          it provided an 'onPlay' callback and the clip ${this.inProgress ? 'was rewinding' : 'has finished playing'}.\
+          New ${awaitedType}s can only be scheduled while the clip is still 1) waiting to be played or 2) currently playing.`
+      );
     }
     
-    const [segments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition] = WebchalkAnimation.computePhaseEmplacement(this, direction, phase, timePosition);
+    const [
+      segments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition
+    ] = WebchalkAnimation.computePhaseEmplacement(this, direction, phase, timePosition);
 
     // check for out of bounds time positions
     if (phaseTimePosition < 0) {
-      if (typeof timePosition === 'number') { throw this.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Negative timePosition ${timePosition} for phase "${phase}" resulted in invalid time ${phaseTimePosition}. Must be in the range [0, ${phaseDuration}] for this "${phase}".`);}
-      else { throw this.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`); }
+      if (typeof timePosition === 'number') {
+        throw this.errorGenerator(
+          CustomErrorClasses.InvalidPhasePositionError,
+          detab`Negative 'timePosition' ${timePosition} for phase "${phase}" resulted in invalid time ${phaseTimePosition}\
+            (i.e., ${phaseDuration} - ${Math.abs(timePosition)}).\
+            Negative 'timePosition' values must result in the range [0, ${phaseDuration}] for this "${phase}".`
+        );
+      }
+      else {
+        throw this.errorGenerator(
+          CustomErrorClasses.InvalidPhasePositionError,
+          `Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`
+        );
+      }
     }
     if (phaseTimePosition > phaseDuration) {
-      if (typeof timePosition === 'number') { throw this.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Invalid timePosition value ${timePosition} for phase "${phase}". Must be in the range [0, ${phaseDuration}] for this "${phase}".`); }
-      else { throw this.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`); }
+      if (typeof timePosition === 'number') {
+        throw this.errorGenerator(
+          CustomErrorClasses.InvalidPhasePositionError,
+          `Invalid timePosition value ${timePosition} for phase "${phase}". Must be in the range [0, ${phaseDuration}] for this "${phase}".`
+        );
+      }
+      else {
+        throw this.errorGenerator(
+          CustomErrorClasses.InvalidPhasePositionError,
+          `Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`
+        );
+      }
     }
 
     const endDelay: number = phaseEndDelayOffset + phaseTimePosition;
@@ -506,16 +572,19 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         // but if the proceeding segment has already been reached in the loop, then the time at which the new promises
         // should be awaited has already passed
         if (currSegment[5].activated) {
-          console.warn(this.errorGenerator(Error, `The new ${awaitedType}s set for time position "${timePosition}" will not be used because the time "${timePosition}" has already passed.`).message);
-          return;
+          throw this.errorGenerator(
+            CustomErrorClasses.LateSchedulingError,
+            detab`The new ${awaitedType}s set for time position "${timePosition}" could not be scheduled because\
+              the time "${timePosition}" has already passed.`
+          );
         }
 
         // insert new segment to list
         segments.splice(i, 0, [
           endDelay,
           [],
-          (awaitedType === 'task' ? [task] : []),
-          (awaitedType === 'integrityblock' ? [task] : []),
+          (awaitedType === 'task' ? [taskPart] : []),
+          (awaitedType === 'integrityblock' ? [taskPart] : []),
           phaseTimePosition === 0,
           {phase, timePosition}
         ]);
@@ -526,12 +595,15 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       if (endDelay === currSegment[0]) {
         // but if curr segment is already completed, the time to await the promises has already passed
         if (currSegment[5].completed) {
-          console.warn(this.errorGenerator(Error, `The new ${awaitedType}s set for time position "${timePosition}" will not be used because the time "${timePosition}" has already passed.`).message);
-          return;
+          throw this.errorGenerator(
+            CustomErrorClasses.LateSchedulingError,
+            detab`The new ${awaitedType}s set for time position "${timePosition}" could not be scheduled because\
+              the time "${timePosition}" has already passed.`
+          );
         }
 
         // add promises to current segment
-        currSegment[awaitedType === 'task' ? 2 : 3].push(task);
+        currSegment[awaitedType === 'task' ? 2 : 3].push(taskPart);
         return;
       }
     }
@@ -557,7 +629,10 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         [segments, segmentsCache] = [anim.segmentsBackward, anim.segmentsBackwardCache];
         break;
       default:
-        throw anim.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Invalid direction "${direction}". Must be "forward" or "backward".`);
+        throw anim.errorGenerator(
+          CustomErrorClasses.InvalidPhasePositionError,
+          `Invalid direction "${direction}". Must be "forward" or "backward".`
+        );
     }
     const effect = anim.getEffect(direction);
     const { duration, delay } = effect.getTiming() as {duration: number, delay: number};
@@ -592,7 +667,10 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         phaseEndDelayOffset = -(delay + duration);
         break;
       default:
-        throw anim.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Invalid phase "${phase}". Must be "delayPhase", "activePhase", "endDelayPhase", or "whole".`);
+        throw anim.errorGenerator(
+          CustomErrorClasses.InvalidPhasePositionError,
+          `Invalid phase "${phase}". Must be "delayPhase", "activePhase", "endDelayPhase", or "whole".`
+        );
     }
 
     // COMPUTE TIME POSITION RELATIVE TO PHASE
@@ -605,7 +683,9 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       // if timePosition is in percent format, convert to correct time value based on phase
       const match = timePosition.toString().match(/^(-?\d+(\.\d*)?)%$/);
       // note: this error should never occur
-      if (!match) { throw anim.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Invalid timePosition value "${timePosition}".`); }
+      if (!match) {
+        throw anim.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Invalid timePosition value "${timePosition}".`);
+      }
 
       initialPhaseTimePos = phaseDuration * (Number(match[1]) / 100);
     }
@@ -683,7 +763,11 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         resetForwardPhases();
         resetBackwardPhases();
         break;
-      default: throw this.errorGenerator(RangeError, `Invalid direction "${direction}" used in resetPromises(). Must be "forward", "backward", or "both."`);
+      default:
+        throw this.errorGenerator(
+          RangeError,
+          `Invalid direction "${direction}" used in resetPromises(). Must be "forward", "backward", or "both."`
+        );
     }
   }
 }

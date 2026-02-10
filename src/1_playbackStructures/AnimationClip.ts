@@ -1197,6 +1197,10 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   protected _onStartBackward(): void {};
   protected _onFinishBackward(): void {};
 
+  /**
+   * Updates the duration of rate-based animation clips.
+   * @param duration - the duration computed once the clip plays
+   */
   protected updateDuration(duration: number): void {
     this.config.duration = duration;
     this.animation.updateDuration(duration);

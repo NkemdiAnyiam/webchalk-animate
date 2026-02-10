@@ -137,6 +137,13 @@ class LockedOperationError extends Error {
   }
 }
 
+class LateSchedulingError extends LockedOperationError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'LateSchedulingError';
+  }
+}
+
 class TimeParadoxError extends Error {
   constructor(message: string) {
     super(message);
@@ -175,6 +182,7 @@ export const CustomErrorClasses = {
   InvalidExitAttempt,
   InvalidPhasePositionError,
   LockedOperationError,
+  LateSchedulingError,
   TimeParadoxError,
   ChildPlaybackError,
   InvalidChildError,
