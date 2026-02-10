@@ -410,7 +410,7 @@ export function dedent(text: string, tabLength: number = 2): string {
  * @ignore
  */
 export function detab(text: TemplateStringsArray, ...placeholders: any[]): string {
-  return text.map((str, i) => `${str}${placeholders[i] ?? ''}`).join(' ').replace(/[^\S\r\n]+/g, ' ');
+  return text.map((str, i) => `${str}${placeholders[i] ?? ''}`).join('').replace(/[^\S\r\n]+/g, ' ');
 }
 
 /**
