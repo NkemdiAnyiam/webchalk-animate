@@ -463,6 +463,11 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         const task = tasks[j];
         if (task.id === taskId) {
           [taskF] = tasks.splice(j, 1);
+
+          // if removing the task causes segment to be empty, cut the segment
+          if (WebchalkAnimation.isEmptySegment(this.phaseSegmentsForward[i])) {
+            this.phaseSegmentsForward.splice(i, 1);
+          }
           break;
         }
       }
@@ -474,6 +479,11 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         const task = tasks[j];
         if (task.id === taskId) {
           [taskB] = tasks.splice(j, 1);
+
+          // if removing the task causes segment to be empty, cut the segment
+          if (WebchalkAnimation.isEmptySegment(this.phaseSegmentsBackward[i])) {
+            this.phaseSegmentsBackward.splice(i, 1);
+          }
           break;
         }
       }
@@ -769,6 +779,10 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
           `Invalid direction "${direction}" used in resetPromises(). Must be "forward", "backward", or "both."`
         );
     }
+  }
+
+  private static isEmptySegment(phaseSegment: PhaseSegment): boolean {
+    return [phaseSegment[1], phaseSegment[2], phaseSegment[3]].every(funcs => funcs.length === 0);
   }
 }
 
