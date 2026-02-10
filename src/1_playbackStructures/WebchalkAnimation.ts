@@ -455,7 +455,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     return { onPlay: taskF.callback, onRewind: taskB.callback };
   }
 
-  rescheduleTask<T extends Parameters<AnimClip['scheduleTask']>>(
+  private rescheduleTask<T extends Parameters<AnimClip['scheduleTask']>>(
     direction: 'forward' | 'backward',
     phase: T[0],
     timePosition: T[1],
