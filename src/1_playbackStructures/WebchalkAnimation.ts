@@ -471,9 +471,11 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     awaitedType: 'integrityblock' | 'task',
     task: {id: string, callback: Function, frequencyLimit: number},
   ): void {
-    if (task.frequencyLimit < 1) {
-      throw this.errorGenerator(RangeError, `Invalid frequencyLimit ${task.frequencyLimit}. Must be greater than 0.`);
+    if (task.frequencyLimit < 0) {
+      throw this.errorGenerator(RangeError, `Invalid 'frequencyLimit' ${task.frequencyLimit}. Must be at least 0.`);
     }
+
+    if (task.frequencyLimit === 0) { return; }
 
     // if the animation is already finished in the given direction, do nothing
     if (this.isFinished && this.direction === direction) {
