@@ -1457,7 +1457,7 @@ export class TextEditorClip<TPresetEffectDefinition extends PresetEffectDefiniti
 
   get categoryImmutableConfig() {
     return {
-      duration: 1000000,
+      duration: 1234567,
       composite: 'accumulate',
     } satisfies Partial<TextEditorClipConfig>;
   }
