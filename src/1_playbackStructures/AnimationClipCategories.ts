@@ -324,8 +324,6 @@ interface ExitClipModifiers extends AnimClipModifiers, Pick<ExitClipConfig, 'exi
  */
 export class ExitClip<TPresetEffectDefinition extends PresetEffectDefinition<ExitClip, ExitClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, ExitClipConfig> {
   protected get category(): 'Exit' { return 'Exit'; }
-  // TODO: move to be in config
-  private exitType: ExitClipConfig['exitType'] = '' as ExitClipConfig['exitType'];
 
   get categoryImmutableConfig() {
     return {
@@ -397,7 +395,7 @@ export class ExitClip<TPresetEffectDefinition extends PresetEffectDefinition<Exi
     if (exitType !== 'display-none' && exitType !== 'visibility-hidden') {
       throw this.generateError(RangeError, `Invalid 'exitType' config value "${exitType}". Must be "display-none" or "visibility-hidden".`);
     }
-    this.exitType = exitType;
+    this.config.exitType = exitType;
 
     return this;
   }
@@ -422,14 +420,14 @@ export class ExitClip<TPresetEffectDefinition extends PresetEffectDefinition<Exi
   }
 
   protected _onFinishForward(): void {
-    switch(this.exitType) {
+    switch(this.config.exitType) {
       case "display-none": this.domElem.classList.add('webchalk-display-none'); break;
       case "visibility-hidden": this.domElem.classList.add('webchalk-visibility-hidden'); break;
     }
   }
 
   protected _onStartBackward(): void {
-    switch(this.exitType) {
+    switch(this.config.exitType) {
       case "display-none": this.domElem.classList.remove('webchalk-display-none'); break;
       case "visibility-hidden": this.domElem.classList.remove('webchalk-visibility-hidden'); break;
     }
@@ -502,6 +500,7 @@ export interface EmphasisClipConfig extends AnimClipConfig {
  */
 export class EmphasisClip<TPresetEffectDefinition extends PresetEffectDefinition<EmphasisClip, EmphasisClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, EmphasisClipConfig> {
   protected get category(): 'Emphasis' { return 'Emphasis'; }
+
   get categoryImmutableConfig() {
     return {
     } satisfies Partial<EmphasisClipConfig>;
@@ -586,6 +585,7 @@ export interface MotionClipConfig extends AnimClipConfig {
  */
 export class MotionClip<TPresetEffectDefinition extends PresetEffectDefinition<MotionClip, MotionClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, MotionClipConfig> {
   protected get category(): 'Motion' { return 'Motion'; }
+
   get categoryImmutableConfig() {
     return {
       
@@ -687,6 +687,7 @@ export interface ScrollerClipConfig extends AnimClipConfig {
 // TODO: implement rewindScrollBehavior: 'prior-user-position' | 'prior-scroll-target' = 'prior-scroll-target'
 export class ScrollerClip<TPresetEffectDefinition extends PresetEffectDefinition<ScrollerClip, ScrollerClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, ScrollerClipConfig> {
   protected get category(): 'Scroller' { return 'Scroller'; }
+
   get categoryImmutableConfig() {
     return {
     } satisfies Partial<ScrollerClipConfig>;
@@ -797,8 +798,6 @@ export interface TransitionClipModifiers extends AnimClipModifiers, Pick<Transit
  */
 export class TransitionClip<TPresetEffectDefinition extends PresetEffectDefinition<TransitionClip, TransitionClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, TransitionClipConfig> {
   protected get category(): 'Transition' { return 'Transition'; }
-  // determines whether properties affected by this transition should be removed from inline style upon finishing animation
-  private removeInlineStyleOnFinish: boolean = false;
 
   get categoryImmutableConfig() {
     return {
@@ -809,6 +808,7 @@ export class TransitionClip<TPresetEffectDefinition extends PresetEffectDefiniti
   get categoryDefaultConfig() {
     return {
       ...AnimClip.baseDefaultConfig,
+  // determines whether properties affected by this transition should be removed from inline style upon finishing animation
       removeInlineStylesOnFinish: false,
       ...this.categoryImmutableConfig,
     } satisfies TransitionClipConfig;
@@ -859,12 +859,12 @@ export class TransitionClip<TPresetEffectDefinition extends PresetEffectDefiniti
 
   /**@internal*/initialize(effectOptions: EffectOptions<TPresetEffectDefinition>, effectConfig: Partial<Layer4MutableConfig<TransitionClip, TPresetEffectDefinition>> = {}) {
     super.initialize(effectOptions, effectConfig);
-    this.removeInlineStyleOnFinish = (effectConfig as TransitionClipConfig).removeInlineStylesOnFinish ?? this.presetEffectDefinition.defaultConfig?.removeInlineStylesOnFinish ?? this.categoryDefaultConfig.removeInlineStylesOnFinish!;
+    this.config.removeInlineStylesOnFinish = (effectConfig as TransitionClipConfig).removeInlineStylesOnFinish ?? this.presetEffectDefinition.defaultConfig?.removeInlineStylesOnFinish ?? this.categoryDefaultConfig.removeInlineStylesOnFinish!;
     return this;
   }
 
   protected _onFinishForward(): void {
-    if (this.removeInlineStyleOnFinish) {
+    if (this.config.removeInlineStylesOnFinish) {
       const keyframe = this.effectOptions[0] as Keyframe;
       for (const property in keyframe) {
         (this.domElem as HTMLElement).style[property as any] = "";
