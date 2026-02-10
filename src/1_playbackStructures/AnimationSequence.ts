@@ -756,7 +756,7 @@ export class AnimSequence {
       const activeGrouping = activeGroupings[i];
       const groupingLength = activeGrouping.length;
 
-      // ensure that no clip finishes rewinding its active phase before any clip that should finishing doing so first first (according to the calculated "perfect" timing)
+      // ensure that no clip finishes rewinding its active phase before any clip that should finishing doing so first (according to the calculated "perfect" timing)
       for (let j = 1; j < groupingLength; ++j) {
         activeGrouping[j].addIntegrityblock('activePhase', 'beginning', { onRewind: () => activeGrouping[j-1].schedulePromise('backward', 'activePhase', 'beginning') });
       }
