@@ -2,7 +2,7 @@ import { AnimClip, ScheduledTask } from "./AnimationClip";
 import { CustomErrorClasses, ClipErrorGenerator } from "../4_utils/errors";
 import { DOMElement, Keyframes } from "../4_utils/interfaces";
 import { useEasing } from "../2_animationEffects/easing";
-import { detab } from "../4_utils/helpers";
+import { detab, TBA_DURATION } from "../4_utils/helpers";
 
 abstract class WebchalkAnimationBase extends Animation {
   forwardEffect: KeyframeEffect;
@@ -137,7 +137,7 @@ abstract class WebchalkAnimationBase extends Animation {
 type PhaseSegment = [
   endDelay: number,
   callbacks: Function[],
-  tasks: {id: string; callback: Function; frequencyLimit: number}[],
+  taskParts: ScheduledTaskPart[],
   integrityblocks: {id: string, callback: Function}[],
   // true when awaiting delay/endDelay periods while the awaited delay/endDelay duration is 0
   skipEndDelayUpdation: boolean,
@@ -150,6 +150,8 @@ type PhaseSegment = [
 ];
 
 type PhaseEndSegmentsCache = [delayPhaseEnd: PhaseSegment, activePhaseEnd: PhaseSegment, endDelayPhaseEnd: PhaseSegment];
+
+type ScheduledTaskPart = {id: string; callback: Function; frequencyLimit: number; origTimePosition: Parameters<AnimClip['scheduleTask']>[1]};
 
 type FullyFinishedPromise = {
   promise: Promise<WebchalkAnimation>;
@@ -171,6 +173,13 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
   private phaseEndSegmentsForwardCache: PhaseEndSegmentsCache;
   private phaseSegmentsBackward: PhaseSegment[] = [];
   private phaseEndSegmentsBackwardCache: PhaseEndSegmentsCache;
+
+  private reschedulingQueue: {
+    [id: string]: {
+      onPlayReschedulingArgs?: Parameters<WebchalkAnimation['rescheduleTaskPart']>;
+      onRewindReschedulingArgs?: Parameters<WebchalkAnimation['rescheduleTaskPart']>;
+    }
+  } = {};
 
   onDelayFinish: Function = () => {};
   onActiveFinish: Function = () => {};
@@ -302,7 +311,10 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     this.isExpediting = false;
     // clip has essentially "reset" by finishing rewinding, so reset segments as well.
     // (this is before resolving fullyFinished in case operations that await it attempt to schedule new tasks) 
-    if (this.direction === 'backward') { this.resetPhaseSegments('both'); }
+    if (this.direction === 'backward') {
+      this.reschedulingQueue = {};
+      this.resetPhaseSegments('both');
+    }
     this.fullyFinished.resolve(this);
   }
 
@@ -356,6 +368,18 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     }
     this.phaseEndSegmentsForwardCache[0][0] = -duration;
     this.phaseEndSegmentsBackwardCache[0][0] = -duration;
+
+    const ids = Object.keys(this.reschedulingQueue);
+    for (let i = 0; i < ids.length; ++i) {
+      const {
+        onPlayReschedulingArgs,
+        onRewindReschedulingArgs,
+      } = this.reschedulingQueue[ids[i]];
+
+      this.unscheduleTask(ids[i]);
+      if (onPlayReschedulingArgs) { this.rescheduleTaskPart(...onPlayReschedulingArgs); }
+      if (onRewindReschedulingArgs) { this.rescheduleTaskPart(...onRewindReschedulingArgs); }
+    }
   }
 
   // accepts a time to wait for (converted to an endDelay) and returns a Promise that is resolved at that time
@@ -439,8 +463,8 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     task: T[2]
   ): void {
     const id = Math.random().toString(20).substring(2, 32) + String(Date.now());
-    if (task.onPlay) { this.addAwaiteds('forward', phase, timePosition, 'integrityblock', {id, callback: task.onPlay, frequencyLimit: 1}) };
-    if (task.onRewind) { this.addAwaiteds('backward', phase, timePosition, 'integrityblock', {id, callback: task.onRewind, frequencyLimit: 1}) };
+    if (task.onPlay) { this.addAwaiteds('forward', phase, timePosition, 'integrityblock', {id, callback: task.onPlay, frequencyLimit: 1, origTimePosition: timePosition}) };
+    if (task.onRewind) { this.addAwaiteds('backward', phase, timePosition, 'integrityblock', {id, callback: task.onRewind, frequencyLimit: 1, origTimePosition: timePosition}) };
   }
 
   scheduleTask<T extends Parameters<AnimClip['scheduleTask']>>(
@@ -450,14 +474,65 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     schedulingOptions: T[3] = {}
   ): string {
     const id = Math.random().toString(20).substring(2, 32) + String(Date.now());
+
     const {
       frequencyLimit = Infinity,
     } = schedulingOptions;
+
+    if (!task.onPlay && !task.onRewind) {
+      throw this.errorGenerator(TypeError, `Invalid task object. Must contain at least one of 'onPlay' and 'onRewind' properties.`)
+    }
     
-    if (task.onPlay) { this.addAwaiteds('forward', phase, timePosition, 'task', {id, callback: task.onPlay, frequencyLimit}); }
-    if (task.onRewind) { this.addAwaiteds('backward', phase, timePosition, 'task', {id, callback: task.onRewind, frequencyLimit}); }
+    let onPlayTaskPart: ScheduledTaskPart | undefined;
+    let onRewindTaskPart: ScheduledTaskPart | undefined;
+
+    if (task.onPlay) {
+      onPlayTaskPart = {id, callback: task.onPlay, frequencyLimit, origTimePosition: timePosition};
+      this.addAwaiteds('forward', phase, timePosition, 'task', onPlayTaskPart);
+    }
+    if (task.onRewind) {
+      onRewindTaskPart = {id, callback: task.onRewind, frequencyLimit, origTimePosition: timePosition};
+      this.addAwaiteds('backward', phase, timePosition, 'task', onRewindTaskPart);
+    }
+
+    if (typeof timePosition === 'string' && timePosition.includes('%')) {
+      if (onPlayTaskPart) { this.queueForRescheduling('forward', phase, onPlayTaskPart); }
+      if (onRewindTaskPart) { this.queueForRescheduling('backward', phase, onRewindTaskPart); }
+    }
 
     return id;
+  }
+
+  private rescheduleTaskPart<T extends Parameters<AnimClip['scheduleTask']>>(
+    direction: 'forward' | 'backward',
+    phase: T[0],
+    taskPart: ScheduledTaskPart
+  ): void {
+    this.addAwaiteds(direction, phase, taskPart.origTimePosition, 'task', taskPart);
+    if (typeof taskPart.origTimePosition === 'string' && taskPart.origTimePosition.includes('%')) {
+      this.queueForRescheduling(direction, phase, taskPart);
+    }
+  }
+
+  private queueForRescheduling<T extends Parameters<WebchalkAnimation['scheduleTask']>>(
+    direction: 'forward' | 'backward',
+    phase: T[0],
+    taskPart: ScheduledTaskPart
+  ): void {
+
+    const id = taskPart.id;
+    if (!this.reschedulingQueue[id]) { this.reschedulingQueue[id] = {}; }
+
+    switch(direction) {
+      case "forward":
+        this.reschedulingQueue[id].onPlayReschedulingArgs = [direction, phase, taskPart];
+        break;
+      case "backward":
+        this.reschedulingQueue[id].onRewindReschedulingArgs = [direction, phase, taskPart];
+        break;
+      default:
+        throw this.errorGenerator(RangeError, `Invalid direction "${direction}". Must be "forward" or "backward".`);
+    }
   }
 
   unscheduleTask<T extends Parameters<AnimClip['unscheduleTask']>>(taskId: T[0]): ScheduledTask {
@@ -501,16 +576,9 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       throw this.errorGenerator(RangeError, `Task with id "${taskId}" was not found within this clip's scheduled tasks.`);
     }
 
-    return { onPlay: taskF.callback, onRewind: taskB.callback };
-  }
+    delete this.reschedulingQueue[taskId];
 
-  private rescheduleTaskPart<T extends Parameters<AnimClip['scheduleTask']>>(
-    direction: 'forward' | 'backward',
-    phase: T[0],
-    timePosition: T[1],
-    taskPart: {id: string; callback: Function; frequencyLimit: number}
-  ): void {
-    this.addAwaiteds(direction, phase, timePosition, 'task', taskPart);
+    return { onPlay: taskF.callback, onRewind: taskB.callback };
   }
 
   private addAwaiteds(
@@ -518,7 +586,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
     timePosition: number | 'beginning' | 'end' | `${number}%`,
     awaitedType: 'integrityblock' | 'task',
-    taskPart: {id: string, callback: Function, frequencyLimit: number}
+    taskPart: ScheduledTaskPart
   ): void {
     if (taskPart.frequencyLimit < 0) {
       throw this.errorGenerator(RangeError, `Invalid 'frequencyLimit' ${taskPart.frequencyLimit}. Must be at least 0.`);
@@ -716,7 +784,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     return [phaseSegments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition];
   }
 
-  resetPhaseSegments(direction: 'forward' | 'backward' | 'both'): void {
+  private resetPhaseSegments(direction: 'forward' | 'backward' | 'both'): void {
     const resetForwardPhases = () => {
       const { delay, duration, endDelay } = this.forwardEffect.getTiming() as {[prop: string]: number};
 
@@ -735,9 +803,9 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       this.phaseSegmentsForward = freshPhaseSegmentsForward;
       this.phaseEndSegmentsForwardCache = [...freshPhaseSegmentsForward] as PhaseEndSegmentsCache;
       for (const segment of tempSegments) {
-        for (const task of segment[2]) {
-          if (--task.frequencyLimit > 0) {
-            this.rescheduleTaskPart('forward', segment[5].phase!, segment[5].timePosition!, task);
+        for (const taskPart of segment[2]) {
+          if (--taskPart.frequencyLimit > 0) {
+            this.rescheduleTaskPart('forward', segment[5].phase!, taskPart);
           }
         }
       }
@@ -762,9 +830,9 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       this.phaseSegmentsBackward = freshPhaseSegmentsBackward;
       this.phaseEndSegmentsBackwardCache = [...freshPhaseSegmentsBackward] as PhaseEndSegmentsCache;
       for (const segment of tempSegments) {
-        for (const task of segment[2]) {
-          if (--task.frequencyLimit > 0) {
-            this.rescheduleTaskPart('backward', segment[5].phase!, segment[5].timePosition!, task);
+        for (const taskPart of segment[2]) {
+          if (--taskPart.frequencyLimit > 0) {
+            this.rescheduleTaskPart('backward', segment[5].phase!, taskPart);
           }
         }
       }
@@ -790,7 +858,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
   }
 
   private static isEmptySegment(phaseSegment: PhaseSegment): boolean {
-    return [phaseSegment[1], phaseSegment[2], phaseSegment[3]].every(funcs => funcs.length === 0);
+    return [phaseSegment[1], phaseSegment[2], phaseSegment[3]].every(arr => arr.length === 0);
   }
 }
 
