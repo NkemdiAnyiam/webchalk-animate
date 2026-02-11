@@ -482,6 +482,8 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     if (!task.onPlay && !task.onRewind) {
       throw this.errorGenerator(TypeError, `Invalid task object. Must contain at least one of 'onPlay' and 'onRewind' properties.`)
     }
+
+    if (frequencyLimit === 0) { return id; }
     
     let onPlayTaskPart: ScheduledTaskPart | undefined;
     let onRewindTaskPart: ScheduledTaskPart | undefined;
@@ -591,8 +593,6 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     if (taskPart.frequencyLimit < 0) {
       throw this.errorGenerator(RangeError, `Invalid 'frequencyLimit' ${taskPart.frequencyLimit}. Must be at least 0.`);
     }
-
-    if (taskPart.frequencyLimit === 0) { return; }
 
     if (
       // if the task includes 'onPlay' callback...
