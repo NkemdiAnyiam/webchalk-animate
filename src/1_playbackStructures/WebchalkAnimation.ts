@@ -174,10 +174,10 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
   private phaseSegmentsBackward: PhaseSegment[] = [];
   private phaseEndSegmentsBackwardCache: PhaseEndSegmentsCache;
 
-  private reschedulingQueue: {
+  private taskReschedulingQueue: {
     [id: string]: {
-      onPlayReschedulingArgs?: Parameters<WebchalkAnimation['rescheduleTaskPart']>;
-      onRewindReschedulingArgs?: Parameters<WebchalkAnimation['rescheduleTaskPart']>;
+      onPlayReschedulingArgs?: Parameters<WebchalkAnimation['renewScheduledTaskPart']>;
+      onRewindReschedulingArgs?: Parameters<WebchalkAnimation['renewScheduledTaskPart']>;
     }
   } = {};
 
@@ -312,7 +312,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     // clip has essentially "reset" by finishing rewinding, so reset segments as well.
     // (this is before resolving fullyFinished in case operations that await it attempt to schedule new tasks) 
     if (this.direction === 'backward') {
-      this.reschedulingQueue = {};
+      this.taskReschedulingQueue = {};
       this.resetPhaseSegments('both');
     }
     this.fullyFinished.resolve(this);
@@ -369,16 +369,9 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     this.phaseEndSegmentsForwardCache[0][0] = -duration;
     this.phaseEndSegmentsBackwardCache[0][0] = -duration;
 
-    const ids = Object.keys(this.reschedulingQueue);
+    const ids = Object.keys(this.taskReschedulingQueue);
     for (let i = 0; i < ids.length; ++i) {
-      const {
-        onPlayReschedulingArgs,
-        onRewindReschedulingArgs,
-      } = this.reschedulingQueue[ids[i]];
-
-      this.unscheduleTask(ids[i]);
-      if (onPlayReschedulingArgs) { this.rescheduleTaskPart(...onPlayReschedulingArgs); }
-      if (onRewindReschedulingArgs) { this.rescheduleTaskPart(...onRewindReschedulingArgs); }
+      this.rescheduleTask(this.taskReschedulingQueue[ids[i]]);
     }
   }
 
@@ -505,7 +498,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     return id;
   }
 
-  private rescheduleTaskPart<T extends Parameters<AnimClip['scheduleTask']>>(
+  private renewScheduledTaskPart<T extends Parameters<AnimClip['scheduleTask']>>(
     direction: 'forward' | 'backward',
     phase: T[0],
     taskPart: ScheduledTaskPart
@@ -516,6 +509,31 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     }
   }
 
+  private rescheduleTask(
+    taskReschedulingData: WebchalkAnimation['taskReschedulingQueue'][string]
+  ) {
+    const {
+      onPlayReschedulingArgs,
+      onRewindReschedulingArgs,
+    } = taskReschedulingData;
+
+    const eitherArgs = (onPlayReschedulingArgs || onRewindReschedulingArgs)!;
+
+    this.unscheduleTask(eitherArgs[2].id);
+
+    const timePosition = eitherArgs[2].origTimePosition;
+    const phase = eitherArgs[1];
+
+    if (onPlayReschedulingArgs) {
+      const taskPart = onPlayReschedulingArgs[2];
+      this.addAwaiteds('forward', phase, timePosition, 'task', taskPart);
+    }
+    if (onRewindReschedulingArgs) {
+      const taskPart = onRewindReschedulingArgs[2];
+      this.addAwaiteds('backward', phase, timePosition, 'task', taskPart);
+    }
+  }
+
   private queueForRescheduling<T extends Parameters<WebchalkAnimation['scheduleTask']>>(
     direction: 'forward' | 'backward',
     phase: T[0],
@@ -523,14 +541,14 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
   ): void {
 
     const id = taskPart.id;
-    if (!this.reschedulingQueue[id]) { this.reschedulingQueue[id] = {}; }
+    if (!this.taskReschedulingQueue[id]) { this.taskReschedulingQueue[id] = {}; }
 
     switch(direction) {
       case "forward":
-        this.reschedulingQueue[id].onPlayReschedulingArgs = [direction, phase, taskPart];
+        this.taskReschedulingQueue[id].onPlayReschedulingArgs = [direction, phase, taskPart];
         break;
       case "backward":
-        this.reschedulingQueue[id].onRewindReschedulingArgs = [direction, phase, taskPart];
+        this.taskReschedulingQueue[id].onRewindReschedulingArgs = [direction, phase, taskPart];
         break;
       default:
         throw this.errorGenerator(RangeError, `Invalid direction "${direction}". Must be "forward" or "backward".`);
@@ -578,7 +596,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       throw this.errorGenerator(RangeError, `Task with id "${taskId}" was not found within this clip's scheduled tasks.`);
     }
 
-    delete this.reschedulingQueue[taskId];
+    delete this.taskReschedulingQueue[taskId];
 
     return { onPlay: taskF.callback, onRewind: taskB.callback };
   }
@@ -805,7 +823,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       for (const segment of tempSegments) {
         for (const taskPart of segment[2]) {
           if (--taskPart.frequencyLimit > 0) {
-            this.rescheduleTaskPart('forward', segment[5].phase!, taskPart);
+            this.renewScheduledTaskPart('forward', segment[5].phase!, taskPart);
           }
         }
       }
@@ -832,7 +850,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       for (const segment of tempSegments) {
         for (const taskPart of segment[2]) {
           if (--taskPart.frequencyLimit > 0) {
-            this.rescheduleTaskPart('backward', segment[5].phase!, taskPart);
+            this.renewScheduledTaskPart('backward', segment[5].phase!, taskPart);
           }
         }
       }

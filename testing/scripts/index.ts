@@ -580,7 +580,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   const textBox = document.querySelector('.text-box');
   const textBox2 = document.querySelector('.text-box-2');
   const tEdit = TextEditor(textBox, 'delete-text', [], {startsNextClipToo: false, durationOrRate: '500wpm'});
-  tEdit.scheduleTask('activePhase', '25%', {onPlay: () => wait(2000), onRewind: () => wait(2000)}, {frequencyLimit: 2});
+  tEdit.scheduleTask('activePhase', '25%', {onPlay: () => wait(500), onRewind: () => wait(500)}, {frequencyLimit: 2});
 
   const timeline = webchalk.newTimeline({timelineName: 'Basic', autoLinksButtons: false, debugMode: true});
   timeline.linkPlaybackButtons();
