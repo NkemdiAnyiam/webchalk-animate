@@ -1,6 +1,6 @@
 import { AnimClip, AnimClipConfig, AnimClipModifiers, AnimClipTiming } from "./AnimationClip";
 import { CustomErrorClasses, errorTip } from "../4_utils/errors";
-import { getPartial, parseMultiUnitPlacement } from "../4_utils/helpers";
+import { getPartial, parseMultiUnitPlacement, TBA_DURATION } from "../4_utils/helpers";
 import { Webchalk } from "../Webchalk";
 import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement, RootNodeEditStats, TextEditRate } from "../4_utils/interfaces";
 import { PickFromArray } from "../4_utils/utilityTypes";
@@ -1457,7 +1457,7 @@ export class TextEditorClip<TPresetEffectDefinition extends PresetEffectDefiniti
 
   get categoryImmutableConfig() {
     return {
-      duration: 1234567,
+      duration: TBA_DURATION,
       composite: 'accumulate',
     } satisfies Partial<TextEditorClipConfig>;
   }
