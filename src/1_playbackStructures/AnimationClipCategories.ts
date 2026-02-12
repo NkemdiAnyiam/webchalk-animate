@@ -1574,10 +1574,13 @@ export class TextEditorClip<TPresetEffectDefinition extends PresetEffectDefiniti
     return this;
   }
 
+  /**@internal */
   setDurationFromRate(rootEditStatsSet: [deletion: RootNodeEditStats, insertion: RootNodeEditStats]): {
     durationDeletion: number; durationInsertion: number;
   };
+  /**@internal */
   setDurationFromRate(rootEditStats: RootNodeEditStats): number;
+  /**@internal */
   setDurationFromRate(rootEditStats: RootNodeEditStats | [deletion: RootNodeEditStats, insertion: RootNodeEditStats]): number | {
     durationDeletion: number; durationInsertion: number;
   } {
