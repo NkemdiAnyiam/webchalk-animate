@@ -2,7 +2,7 @@ import { AnimClip, ScheduledTask } from "./AnimationClip";
 import { CustomErrorClasses, ClipErrorGenerator } from "../4_utils/errors";
 import { DOMElement, Keyframes } from "../4_utils/interfaces";
 import { useEasing } from "../2_animationEffects/easing";
-import { detab, TBA_DURATION } from "../4_utils/helpers";
+import { detab, generateId, TBA_DURATION } from "../4_utils/helpers";
 
 abstract class WebchalkAnimationBase extends Animation {
   forwardEffect: KeyframeEffect;
@@ -455,7 +455,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     timePosition: T[1],
     task: T[2]
   ): void {
-    const id = Math.random().toString(20).substring(2, 32) + String(Date.now());
+    const id = generateId();
     if (task.onPlay) { this.addAwaiteds('forward', phase, timePosition, 'integrityblock', {id, callback: task.onPlay, frequencyLimit: 1, origTimePosition: timePosition}) };
     if (task.onRewind) { this.addAwaiteds('backward', phase, timePosition, 'integrityblock', {id, callback: task.onRewind, frequencyLimit: 1, origTimePosition: timePosition}) };
   }
@@ -466,7 +466,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     task: T[2],
     schedulingOptions: T[3] = {}
   ): string {
-    const id = Math.random().toString(20).substring(2, 32) + String(Date.now());
+    const id = generateId();
 
     const {
       frequencyLimit = Infinity,

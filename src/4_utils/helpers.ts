@@ -873,3 +873,5 @@ export function createRootNodeEditStats(infixList: InfixTextNodeList, operation:
     default: throw new RangeError(`Invalid operation "${operation}". Must be "insert" or "delete".`);
   }
 }
+
+export function generateId(): string { return Math.random().toString(20).substring(2, 32) + String(Date.now()); }
