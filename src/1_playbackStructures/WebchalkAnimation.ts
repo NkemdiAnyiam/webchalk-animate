@@ -274,7 +274,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         ]);
       }
       else {
-        // This allows outside operations like schedulePromise() to push more callbacks to the queue...
+        // This allows outside operations like generatePromise() to push more callbacks to the queue...
         // ... before the next loop iteration (this makes up for not having await super.finished)
         await Promise.resolve();
       }
@@ -369,14 +369,14 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     this.phaseEndSegmentsForwardCache[0][0] = -duration;
     this.phaseEndSegmentsBackwardCache[0][0] = -duration;
 
-    const ids = Object.keys(this.taskReschedulingQueue);
-    for (let i = 0; i < ids.length; ++i) {
-      this.rescheduleTask(this.taskReschedulingQueue[ids[i]]);
+    const taskIds = Object.keys(this.taskReschedulingQueue);
+    for (let i = 0; i < taskIds.length; ++i) {
+      this.rescheduleTask(this.taskReschedulingQueue[taskIds[i]]);
     }
   }
 
   // accepts a time to wait for (converted to an endDelay) and returns a Promise that is resolved at that time
-  schedulePromise<T extends Parameters<AnimClip['schedulePromise']>>(direction: T[0], phase: T[1], timePosition: T[2]): Promise<void> {
+  generatePromise<T extends Parameters<AnimClip['generatePromise']>>(direction: T[0], phase: T[1], timePosition: T[2]): Promise<void> {
     return new Promise(resolve => {
       // if the animation is already finished in the given direction, resolve immediately
       if (this.isFinished && this.direction === direction) { resolve(); return; }

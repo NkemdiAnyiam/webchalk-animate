@@ -672,7 +672,7 @@ export class AnimSequence {
       if (activeGrouping[0].getTiming('timescaleType') === 'duration') {
         // ensure that no clip finishes its active phase before any clip that should finish its active phase first (according to the calculated "perfect" timing)
         for (let j = 1; j < groupingLength; ++j) {
-          activeGrouping[j].addIntegrityblock('activePhase', 'end', { onPlay: () => activeGrouping[j-1].schedulePromise('forward', 'activePhase', 'end') });
+          activeGrouping[j].addIntegrityblock('activePhase', 'end', { onPlay: () => activeGrouping[j-1].generatePromise('forward', 'activePhase', 'end') });
           // activeGrouping2[j].animation.addIntegrityblocks('forward', 'endDelayPhase', 'end', activeGrouping2[j-1].animation.getFinished('forward', 'endDelayPhase'));
         }
       }
@@ -701,7 +701,7 @@ export class AnimSequence {
       for (let j = 1; j < grouping.length; ++j) {
         // the start of any clip within a grouping should line up with the beginning of the preceding clip's active phase
         // (akin to PowerPoint timing)
-        await grouping[j-1].schedulePromise('forward', 'activePhase', 'beginning');
+        await grouping[j-1].generatePromise('forward', 'activePhase', 'beginning');
         const currAnimClip = grouping[j];
         this.inProgressClips.set(currAnimClip.id, currAnimClip);
         parallelClips.push(currAnimClip.play(this)
@@ -714,7 +714,7 @@ export class AnimSequence {
         this.commitForRate(i);
         // ensure that no clip finishes its active phase before any clip that should finish its active phase first (according to the calculated "perfect" timing)
         for (let j = 1; j < grouping.length; ++j) {
-          activeGroupings[i][j].addIntegrityblock('activePhase', 'end', { onPlay: () => activeGroupings[i][j-1].schedulePromise('forward', 'activePhase', 'end') });
+          activeGroupings[i][j].addIntegrityblock('activePhase', 'end', { onPlay: () => activeGroupings[i][j-1].generatePromise('forward', 'activePhase', 'end') });
           // activeGrouping2[j].animation.addIntegrityblocks('forward', 'endDelayPhase', 'end', activeGrouping2[j-1].animation.getFinished('forward', 'endDelayPhase'));
         }
       }
@@ -758,7 +758,7 @@ export class AnimSequence {
 
       // ensure that no clip finishes rewinding its active phase before any clip that should finishing doing so first (according to the calculated "perfect" timing)
       for (let j = 1; j < groupingLength; ++j) {
-        activeGrouping[j].addIntegrityblock('activePhase', 'beginning', { onRewind: () => activeGrouping[j-1].schedulePromise('backward', 'activePhase', 'beginning') });
+        activeGrouping[j].addIntegrityblock('activePhase', 'beginning', { onRewind: () => activeGrouping[j-1].generatePromise('backward', 'activePhase', 'beginning') });
       }
     }
     
@@ -781,11 +781,11 @@ export class AnimSequence {
         const nextAnimClip = grouping[j + 1];
         // if the current clip intersects the next clip, wait for that intersection time
         if (currAnimClip.fullFinishTime > nextAnimClip.fullStartTime) {
-          await nextAnimClip.schedulePromise('backward', 'whole', currAnimClip.fullFinishTime - nextAnimClip.fullStartTime);
+          await nextAnimClip.generatePromise('backward', 'whole', currAnimClip.fullFinishTime - nextAnimClip.fullStartTime);
         }
         // otherwise, wait for the next clip to finish rewinding entirely
         else {
-          await nextAnimClip.schedulePromise('backward', 'delayPhase', 'beginning');
+          await nextAnimClip.generatePromise('backward', 'delayPhase', 'beginning');
         }
 
         // once waiting period above is over, begin rewinding current clip

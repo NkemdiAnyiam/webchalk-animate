@@ -495,7 +495,7 @@ const circle4 = document.querySelector('.circle.circle--4');
 
 const ent = Entrance(square, '~appear', []);
 
-// console.log(ent.schedulePromise === ent.schedulePromise);
+// console.log(ent.generatePromise === ent.generatePromise);
 
 const entrance: WebchalkTypes.EntranceClip = Entrance(square, '~fly-in', ['from-bottom'], {hideNowType: 'display-none'});
 const motion = Motion(square, '~translate', [{translate: '200px 200px'}], {duration: 1000, easing: 'bounce-out'});

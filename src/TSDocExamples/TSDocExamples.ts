@@ -608,34 +608,34 @@ clip4.play(); // bottomConnector disappears instantly
 }
 
 {
-/**** EX:S id="AnimClip.schedulePromise-1" */
+/**** EX:S id="AnimClip.generatePromise-1" */
 async function testFunc() {
   const { Entrance } = webchalk.createAnimationClipFactories();
   const square = document.querySelector('.square');
   const ent = Entrance(square, '~fade-in', []);
   // wait until ent is played and gets 1/5 of the way through the active phase of the animation
-  await ent.schedulePromise('forward', 'activePhase', '20%');
+  await ent.generatePromise('forward', 'activePhase', '20%');
   console.log('1/5 done playing!');
 }
 
 testFunc();
-/**** EX:E id="AnimClip.schedulePromise-1" */
+/**** EX:E id="AnimClip.generatePromise-1" */
 }
 
 {
-/**** EX:S id="AnimClip.schedulePromise-2" */
+/**** EX:S id="AnimClip.generatePromise-2" */
 
 async function testFunc() {
   const { Entrance } = webchalk.createAnimationClipFactories();
   const square = document.querySelector('.square');
   const ent = Entrance(square, '~fade-in', []);
    // wait until ent is eventually rewound and gets 4/5 of the way through rewinding the active phase of the animation
-   await ent.schedulePromise('backward', 'activePhase', '20%');
+   await ent.generatePromise('backward', 'activePhase', '20%');
    console.log('4/5 done rewinding!');
 }
 
 testFunc();
-/**** EX:E id="AnimClip.schedulePromise-2" */
+/**** EX:E id="AnimClip.generatePromise-2" */
 }
 
 {
