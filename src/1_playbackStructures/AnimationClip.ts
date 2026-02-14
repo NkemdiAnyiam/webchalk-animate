@@ -930,7 +930,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
    */
   pause(): this;
   /**@internal*/
-  pause(parentSequence: AnimSequence): this;
+  pause(parentSequence?: AnimSequence): this;
   pause(parentSequence?: AnimSequence): this {
     if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError(this.pause.name); }
     if (this.isRunning) {
@@ -1293,7 +1293,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       { animation.finish(); }
     else
       { animation.play(); }
-    if (this._parentSequence?.getStatus('isPaused')) { animation.pause(); }
+    if (this._parentSequence?.getStatus('isPaused')) { this.pause(this.parentSequence); }
     
     // After delay phase, apply class modifications and call onStart functions.
     animation.onDelayFinish = () => {
