@@ -592,13 +592,13 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       }
     }
 
-    if (!taskF || !taskB) {
+    if (!(taskF || taskB)) {
       throw this.errorGenerator(RangeError, `Task with id "${taskId}" was not found within this clip's scheduled tasks.`);
     }
 
     delete this.taskReschedulingQueue[taskId];
 
-    return { onPlay: taskF.callback, onRewind: taskB.callback };
+    return { ...(taskF ? {onPlay: taskF.callback} : {}), ...(taskB ? {onRewind: taskB.callback} : {}) };
   }
 
   private addAwaiteds(
