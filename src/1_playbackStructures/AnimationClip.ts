@@ -1457,6 +1457,8 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       this.inProgress = false;
       this.isRunning = false;
       animation.cancel();
+      // if rate-based length, reset duration to unknown after finishing rewinding
+      if (this.timescaleType === 'rate' && this.direction === 'backward') { this.updateDuration(TBA_DURATION); }
       resolve(this);
     };
 
