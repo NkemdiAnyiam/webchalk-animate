@@ -2,7 +2,7 @@ import { AnimClip, ScheduledTask } from "./AnimationClip";
 import { CustomErrorClasses, ClipErrorGenerator } from "../4_utils/errors";
 import { DOMElement, Keyframes } from "../4_utils/interfaces";
 import { useEasing } from "../2_animationEffects/easing";
-import { detab, generateId, TBA_DURATION } from "../4_utils/helpers";
+import { detab, generateId, PERCENTAGE_REGEX, TBA_DURATION } from "../4_utils/helpers";
 
 abstract class WebchalkAnimationBase extends Animation {
   forwardEffect: KeyframeEffect;
@@ -786,7 +786,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     else if (typeof timePosition === 'number') { initialPhaseTimePos = timePosition; }
     else {
       // if timePosition is in percent format, convert to correct time value based on phase
-      const match = timePosition.toString().match(/^(-?\d+(\.\d*)?)%$/);
+      const match = timePosition.toString().match(PERCENTAGE_REGEX);
       // note: this error should never occur
       if (!match) {
         throw anim.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, `Invalid timePosition value "${timePosition}".`);

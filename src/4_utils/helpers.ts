@@ -439,6 +439,11 @@ export const WORDS_REGEX = /\W*((\w+)'?(\w+)?)\W*|\W+/g;
  */
 export const TBA_DURATION = 1234567.7654321;
 
+/**
+ * @ignore
+ */
+export const PERCENTAGE_REGEX = /^(-?\d+(\.\d*)?)%$/;
+
 // forms a list of data related to Text nodes in a DFS traversal (so it's sequential)
 /**
  * Forms a list of data related to {@link Text} nodes in a DFS traversal
