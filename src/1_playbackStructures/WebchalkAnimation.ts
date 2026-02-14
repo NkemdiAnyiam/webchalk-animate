@@ -625,7 +625,8 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         CustomErrorClasses.LateSchedulingError,
         detab`The new ${awaitedType} set for time position "${timePosition}" could not be scheduled because\
           it provided an 'onPlay' callback and the clip ${this.inProgress ? 'was rewinding' : 'has finished playing'}.\
-          New ${awaitedType}s can only be scheduled while the clip is still 1) waiting to be played or 2) currently playing.`
+          New ${awaitedType}s with 'onPlay' can only be scheduled while the clip is still 1) waiting to be played or 2)\
+          currently playing.`
       );
     }
     
