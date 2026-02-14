@@ -444,6 +444,11 @@ export const TBA_DURATION = 1234567.7654321;
  */
 export const PERCENTAGE_REGEX = /^(-?\d+(\.\d*)?)%$/;
 
+/**
+ * @ignore
+ */
+export const RELATIVE_TIME_POSITION_REGEX = new RegExp(`^(?:${PERCENTAGE_REGEX.source}|beginning|end)$`);
+
 // forms a list of data related to Text nodes in a DFS traversal (so it's sequential)
 /**
  * Forms a list of data related to {@link Text} nodes in a DFS traversal

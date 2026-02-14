@@ -2,7 +2,7 @@ import { AnimClip, ScheduledTask } from "./AnimationClip";
 import { CustomErrorClasses, ClipErrorGenerator } from "../4_utils/errors";
 import { DOMElement, Keyframes } from "../4_utils/interfaces";
 import { useEasing } from "../2_animationEffects/easing";
-import { detab, generateId, PERCENTAGE_REGEX, TBA_DURATION } from "../4_utils/helpers";
+import { detab, equalWithinTol, generateId, PERCENTAGE_REGEX, RELATIVE_TIME_POSITION_REGEX, TBA_DURATION } from "../4_utils/helpers";
 
 abstract class WebchalkAnimationBase extends Animation {
   forwardEffect: KeyframeEffect;
@@ -490,7 +490,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       this.addAwaiteds('backward', phase, timePosition, 'task', onRewindTaskPart);
     }
 
-    if (typeof timePosition === 'string' && timePosition.includes('%')) {
+    if (typeof timePosition === 'string' && timePosition.match(RELATIVE_TIME_POSITION_REGEX)) {
       if (onPlayTaskPart) { this.queueForRescheduling('forward', phase, onPlayTaskPart); }
       if (onRewindTaskPart) { this.queueForRescheduling('backward', phase, onRewindTaskPart); }
     }
