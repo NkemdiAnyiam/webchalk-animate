@@ -1201,9 +1201,9 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
    * Updates the duration of rate-based animation clips.
    * @param duration - the duration computed once the clip plays
    */
-  protected updateDuration(duration: number): void {
+  protected updateDuration(duration: number, rescheduleTasks: boolean = true): void {
     this.config.duration = duration;
-    this.animation.updateDuration(duration);
+    this.animation.updateDuration(duration, rescheduleTasks);
   }
 
   protected async animate(direction: 'forward' | 'backward'): Promise<this> {
@@ -1458,7 +1458,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       this.isRunning = false;
       animation.cancel();
       // if rate-based length, reset duration to unknown after finishing rewinding
-      if (this.timescaleType === 'rate' && this.direction === 'backward') { this.updateDuration(TBA_DURATION); }
+      if (this.timescaleType === 'rate' && this.direction === 'backward') { this.updateDuration(TBA_DURATION, false); }
       resolve(this);
     };
 

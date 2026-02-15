@@ -361,11 +361,14 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
   }
 
   /** @internal */
-  updateDuration(duration: number): void {
+  updateDuration(duration: number, rescheduleTasks: boolean = true): void {
     super.updateDuration(duration);
     for (let i = 0; i < this.nestedAnimations.length; ++i) {
       this.nestedAnimations[i].updateDuration(duration);
     }
+
+    if (!rescheduleTasks) { return; }
+
     this.phaseEndSegmentsForwardCache[0][0] = -duration;
     this.phaseEndSegmentsBackwardCache[0][0] = -duration;
 
