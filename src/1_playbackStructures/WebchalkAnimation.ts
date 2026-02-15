@@ -11,6 +11,7 @@ abstract class WebchalkAnimationBase extends Animation {
   direction: 'forward' | 'backward' = 'forward';
   protected getEffect(direction: 'forward' | 'backward'): KeyframeEffect { return direction === 'forward' ? this.forwardEffect : this.backwardEffect; }
   protected inProgress = false;
+  get durationPending(): boolean { return equalWithinTol(this.effect!.getTiming().duration as number, TBA_DURATION); }
 
   constructor(target: Element | null | undefined, keyframeOptions: KeyframeEffectOptions, protected errorGenerator: ClipErrorGenerator) {
     super();
@@ -384,6 +385,18 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       // if the animation is already finished in the given direction, resolve immediately
       if (this.isFinished && this.direction === direction) { resolve(); return; }
 
+      if (this.durationPending && !String(timePosition).match(RELATIVE_TIME_POSITION_REGEX)) {
+        throw this.errorGenerator(
+          CustomErrorClasses.EarlySchedulingError,
+          detab`The new promise requested for time position "${timePosition}" could not be scheduled because\
+            the duration of the clip is not yet known. A clip whose length is set with a rate rather than a duration\
+            can only schedule promises using a relative 'timePosition' value (such as {timePosition: "20%"} or {timePosition: "end"})\
+            before the duration is known. The duration of a rate-based clip is only known while in one of these 3 states:\
+            1) The clip is currently playing; 2) The clip has finished playing and is waiting to be rewound' 3) The clip is\
+            currently rewinding.`
+        );
+      }
+
       const [
         phaseSegments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition
       ] = WebchalkAnimation.computePhaseEmplacement(this, direction, phase, timePosition);
@@ -409,7 +422,8 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         if (typeof timePosition === 'number') {
           throw this.errorGenerator(
             CustomErrorClasses.InvalidPhasePositionError,
-            `Invalid positive timePosition value ${timePosition} for phase "${phase}". Positive time position values must be in the range [0, ${phaseDuration}] for this "${phase}".`
+            detab`Invalid positive timePosition value ${timePosition} for phase "${phase}".\
+            Positive time position values must be in the range [0, ${phaseDuration}] for this "${phase}".`
           );
         }
         else {
@@ -614,6 +628,18 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     if (taskPart.frequencyLimit < 0) {
       throw this.errorGenerator(RangeError, `Invalid 'frequencyLimit' ${taskPart.frequencyLimit}. Must be at least 0.`);
     }
+    
+    if (this.durationPending && !String(timePosition).match(RELATIVE_TIME_POSITION_REGEX)) {
+      throw this.errorGenerator(
+        CustomErrorClasses.EarlySchedulingError,
+        detab`The new ${awaitedType} set for time position "${timePosition}" could not be scheduled because\
+          the duration of the clip is not yet known. A clip whose length is set with a rate rather than a duration\
+          can only schedule ${awaitedType}s using a relative 'timePosition' value (such as {timePosition: "20%"} or {timePosition: "end"})\
+          before the duration is known. The duration of a rate-based clip is only known while in one of these 3 states:\
+          1) The clip is currently playing; 2) The clip has finished playing and is waiting to be rewound' 3) The clip is\
+          currently rewinding. Once the clip finishes rewinding, the duration becomes unknown again until the clip plays again.`
+      );
+    }
 
     if (
       // if the task includes 'onPlay' callback...
@@ -682,7 +708,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         if (currSegment[5].activated) {
           throw this.errorGenerator(
             CustomErrorClasses.LateSchedulingError,
-            detab`The new ${awaitedType}s set for time position "${timePosition}" could not be scheduled because\
+            detab`The new ${awaitedType} set for time position "${timePosition}" could not be scheduled because\
               the time "${timePosition}" has already passed.`
           );
         }
@@ -705,7 +731,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         if (currSegment[5].completed) {
           throw this.errorGenerator(
             CustomErrorClasses.LateSchedulingError,
-            detab`The new ${awaitedType}s set for time position "${timePosition}" could not be scheduled because\
+            detab`The new ${awaitedType} set for time position "${timePosition}" could not be scheduled because\
               the time "${timePosition}" has already passed.`
           );
         }

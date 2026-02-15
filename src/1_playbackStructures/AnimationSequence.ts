@@ -710,7 +710,6 @@ export class AnimSequence {
       }
 
       if (isRateGrouping) {
-        console.log('about to compute rate commission');
         this.commitForRate(i);
         // ensure that no clip finishes its active phase before any clip that should finish its active phase first (according to the calculated "perfect" timing)
         for (let j = 1; j < grouping.length; ++j) {

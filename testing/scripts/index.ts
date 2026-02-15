@@ -580,7 +580,10 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   const textBox = document.querySelector('.text-box');
   const textBox2 = document.querySelector('.text-box-2');
   const tEdit = TextEditor(textBox, 'delete-text', [], {startsNextClipToo: false, durationOrRate: '500wpm'});
-  tEdit.scheduleTask('activePhase', '25%', {onPlay: () => wait(500), onRewind: () => wait(500)}, {frequencyLimit: 2});
+  // tEdit.scheduleTask('activePhase', 'end', {onPlay: () => wait(500), onRewind: () => wait(500)}, {frequencyLimit: 2});
+  tEdit.scheduleTask('activePhase', 'beginning', {onPlay: () => {
+    tEdit.scheduleTask('activePhase', 'end', {onPlay: () => wait(500), onRewind: () => wait(500)}, {frequencyLimit: 1});
+  }}, {frequencyLimit: 2});
 
   const timeline = webchalk.newTimeline({timelineName: 'Basic', autoLinksButtons: false, debugMode: true});
   timeline.linkPlaybackButtons();
@@ -588,7 +591,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   const testAdjacency = webchalk.newSequence([
     tEdit,
     // TextEditor(textBox, 'delete-text', [], {startsNextClipToo: false}),
-    TextEditor(textBox2, 'replace-text', ['What in tarnation was supposed to happen when you did that?']),
+    TextEditor(textBox2, 'replace-text', ['What in tarnation was supposed to happen when you did that?'], {startsWithPrevious: true}),
     // TextEditor(textBox, 'insert-text', ['This is the new text']),
     // Entrance(square, 'riseUp', [], {duration: 1000}),
   ]);
@@ -631,7 +634,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   // })
 
   const motionSwap = Motion(circle1, 'swap', [circle4], {duration: 1000});
-  // motionSwap.scheduleTask('activePhase', '55%', {onPlay: () => wait(2000), onRewind: () => wait(2000)});
+  motionSwap.scheduleTask('activePhase', '55%', {onPlay: () => wait(2000), onRewind: () => wait(2000)});
 
   timeline.addSequences([
     webchalk.newSequence([

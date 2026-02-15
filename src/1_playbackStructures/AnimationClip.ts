@@ -3,7 +3,7 @@ import { AnimTimeline } from "./AnimationTimeline";
 import { EntranceClip, MotionClip, TransitionClip } from "./AnimationClipCategories";
 import { webchalk, Webchalk } from "../Webchalk";
 import { EffectOptions, PresetEffectBank, PresetEffectDefinition, EffectFrameGeneratorSet } from "../2_animationEffects/presetEffectCreation";
-import { call, detab, getPartial, mergeArrays, xor } from "../4_utils/helpers";
+import { call, detab, getPartial, mergeArrays, TBA_DURATION, xor } from "../4_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
 import { CustomErrorClasses, ClipErrorGenerator, errorTip, generateError } from "../4_utils/errors";
 import { DOMElement, EffectCategory, Mutator, StyleProperty } from "../4_utils/interfaces";
@@ -724,6 +724,10 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   protected isPaused: AnimClipStatus['isPaused'] = false;
   protected direction: AnimClipStatus['direction'] = 'forward';
   protected firstRun: boolean = true;
+  // protected get durationPending(): boolean {
+  //   // return this.timescaleType === 'rate' && (this.firstRun || this.direction === 'backward' && !this.inProgress);
+  //   return this.animation.durationPending;
+  // }
   /**
    * Returns details about the animation's current status.
    * @returns An object containing
