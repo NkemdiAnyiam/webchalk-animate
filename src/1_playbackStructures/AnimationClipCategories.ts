@@ -1538,10 +1538,7 @@ export class TextEditorClip<TPresetEffectDefinition extends PresetEffectDefiniti
       if (typeof durationOrRate === 'number') {
         if (durationOrRate < 0) { throw new RangeError(`Invalid duration "${durationOrRate}". Duration cannot be negative`); }
         const duration = Math.max(durationOrRate, AnimClip.MIN_DURATION);
-        this.config.duration = duration;
-        this.animation.effect?.updateTiming({duration});
-        this.animation.forwardEffect.updateTiming({duration});
-        this.animation.backwardEffect.updateTiming({duration});
+        this.updateDuration(duration);
       }
       else {
         this.timescaleType = 'rate';
@@ -1561,10 +1558,7 @@ export class TextEditorClip<TPresetEffectDefinition extends PresetEffectDefiniti
         const durationI = Math.max(durationOrRateInsertion, AnimClip.MIN_DURATION);
 
         const duration = durationD + durationI;
-        this.config.duration = duration;
-        this.animation.effect?.updateTiming({duration});
-        this.animation.forwardEffect.updateTiming({duration});
-        this.animation.backwardEffect.updateTiming({duration});
+        this.updateDuration(duration);
       }
       else {
         this.timescaleType = 'rate';
