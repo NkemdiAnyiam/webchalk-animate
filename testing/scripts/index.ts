@@ -544,7 +544,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   const seq = webchalk.newSequence(
     [
-      entrance,
+      // entrance,
       // Transition(square, '~from', [{opacity: '0', backgroundColor: 'red', width: '0'}], {duration: 2000}),
       // Transition(square, '~to', [{width: '20rem'}], {}),
       // Transition(square, '~to', [{width: '10rem'}], {removeInlineStylesOnFinish: true}),
@@ -579,10 +579,10 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   const textBox = document.querySelector('.text-box');
   const textBox2 = document.querySelector('.text-box-2');
-  const tEdit = TextEditor(textBox, 'delete-text', [], {startsNextClipToo: false, durationOrRate: '500wpm'});
+  const tEdit = TextEditor(textBox, 'delete-text', [], {startsNextClipToo: true, durationOrRate: '500wpm'});
   // tEdit.scheduleTask('activePhase', 'end', {onPlay: () => wait(500), onRewind: () => wait(500)}, {frequencyLimit: 2});
   tEdit.scheduleTask('activePhase', 'beginning', {onPlay: () => {
-    tEdit.scheduleTask('activePhase', 'end', {onPlay: () => wait(500), onRewind: () => wait(500)}, {frequencyLimit: 1});
+    tEdit.scheduleTask('activePhase', '10%', {onPlay: () => wait(500), onRewind: () => wait(500)}, {frequencyLimit: 1});
   }}, {frequencyLimit: 2});
 
   const timeline = webchalk.newTimeline({timelineName: 'Basic', autoLinksButtons: false, debugMode: true});
@@ -593,7 +593,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     // TextEditor(textBox, 'delete-text', [], {startsNextClipToo: false}),
     TextEditor(textBox2, 'replace-text', ['What in tarnation was supposed to happen when you did that?'], {startsWithPrevious: true}),
     // TextEditor(textBox, 'insert-text', ['This is the new text']),
-    // Entrance(square, 'riseUp', [], {duration: 1000}),
+    Entrance(square, 'riseUp', [], {duration: 1000, startsWithPrevious: true}),
   ]);
 
   const array = document.querySelector('.array');
