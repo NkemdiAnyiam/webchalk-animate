@@ -182,6 +182,9 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     }
   } = {};
 
+  private numTaskParts = 0;
+  get hasTasks(): boolean { return this.numTaskParts > 0; }
+  
   onDelayFinish: Function = () => {};
   onActiveFinish: Function = () => {};
   onEndDelayFinish: Function = () => {};
@@ -507,6 +510,9 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       this.addAwaiteds('backward', phase, timePosition, 'task', onRewindTaskPart);
     }
 
+    if (onPlayTaskPart) { ++this.numTaskParts; }
+    if (onRewindTaskPart) { ++this.numTaskParts; }
+
     if (typeof timePosition === 'string' && timePosition.match(RELATIVE_TIME_POSITION_REGEX)) {
       if (onPlayTaskPart) { this.queueForRescheduling('forward', phase, onPlayTaskPart); }
       if (onRewindTaskPart) { this.queueForRescheduling('backward', phase, onRewindTaskPart); }
@@ -544,10 +550,12 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     if (onPlayReschedulingArgs) {
       const taskPart = onPlayReschedulingArgs[2];
       this.addAwaiteds('forward', phase, timePosition, 'task', taskPart);
+      ++this.numTaskParts;
     }
     if (onRewindReschedulingArgs) {
       const taskPart = onRewindReschedulingArgs[2];
       this.addAwaiteds('backward', phase, timePosition, 'task', taskPart);
+      ++this.numTaskParts;
     }
   }
 
@@ -583,6 +591,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         const task = tasks[j];
         if (task.id === taskId) {
           [taskF] = tasks.splice(j, 1);
+          --this.numTaskParts;
 
           // if removing the task causes segment to be empty, cut the segment
           if (WebchalkAnimation.isEmptySegment(this.phaseSegmentsForward[i])) {
@@ -599,6 +608,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         const task = tasks[j];
         if (task.id === taskId) {
           [taskB] = tasks.splice(j, 1);
+          --this.numTaskParts;
 
           // if removing the task causes segment to be empty, cut the segment
           if (WebchalkAnimation.isEmptySegment(this.phaseSegmentsBackward[i])) {
@@ -855,6 +865,9 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
           if (--taskPart.frequencyLimit > 0) {
             this.renewScheduledTaskPart('forward', segment[5].phase!, taskPart);
           }
+          else {
+            --this.numTaskParts;
+          }
         }
       }
     };
@@ -881,6 +894,9 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         for (const taskPart of segment[2]) {
           if (--taskPart.frequencyLimit > 0) {
             this.renewScheduledTaskPart('backward', segment[5].phase!, taskPart);
+          }
+          else {
+            --this.numTaskParts;
           }
         }
       }

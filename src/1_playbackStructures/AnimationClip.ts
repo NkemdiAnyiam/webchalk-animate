@@ -621,7 +621,9 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   }
 
   // GROUP: Timing
-  private get compoundedPlaybackRate(): number { return this.config.playbackRate * (this._parentSequence?.getTiming().compoundedPlaybackRate ?? 1); }
+  private get compoundedPlaybackRate(): number {
+    return this.config.playbackRate * (this._parentSequence?.getTiming().compoundedPlaybackRate ?? 1);
+  }
   protected timescaleType: 'duration' | 'rate' = 'duration';
   
   /**@internal*/ fullStartTime = NaN;
@@ -724,6 +726,8 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   protected isPaused: AnimClipStatus['isPaused'] = false;
   protected direction: AnimClipStatus['direction'] = 'forward';
   protected firstRun: boolean = true;
+  // TODO: Add to AnimClipStatus
+  protected isFinished: boolean = false;
   // protected get durationPending(): boolean {
   //   // return this.timescaleType === 'rate' && (this.firstRun || this.direction === 'backward' && !this.inProgress);
   //   return this.animation.durationPending;
@@ -900,6 +904,8 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   /*-:**************************************************************************************************************************/
   /*-:*****************************************        PLAYBACK        *********************************************************/
   /*-:**************************************************************************************************************************/
+  private currAnimatePromise: Promise<this> = new Promise(resolve => {});
+  
   /**
    * Plays the animation clip (animation runs forward).
    * @returns A promise that is resolved when the animation finishes playing (including playing its endDelay phase).
@@ -911,7 +917,8 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   async play(parentSequence?: AnimSequence): Promise<this> {
     // both parentSequence vars should either be undefined or the same AnimSequence
     if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError(this.play.name); }
-    return this.animate('forward');
+    this.currAnimatePromise = this.animate('forward');
+    return this.currAnimatePromise;
   }
 
   /**
@@ -924,7 +931,8 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   async rewind(parentSequence: AnimSequence): Promise<this>;
   async rewind(parentSequence?: AnimSequence): Promise<this> {
     if (this._parentSequence !== parentSequence) { this.throwChildPlaybackError(this.rewind.name); }
-    return this.animate('backward');
+    this.currAnimatePromise = this.animate('backward');
+    return this.currAnimatePromise;
   }
 
   /**
@@ -996,9 +1004,12 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
         );
       }
     }
-
-    await this.animation.finish();
-    return this;
+    else {
+      if (!this.jumpingDisabled) {
+        this.animation.finish();
+      }
+      return this.currAnimatePromise;
+    }
   }
 
   // accepts a time to wait for (converted to an endDelay) and returns a Promise that is resolved at that time
@@ -1185,11 +1196,29 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   }
 
   /**
+   * @internal
+   */
+  get hasTasks() {
+    return this.animation.hasTasks;
+  }
+
+  /**
    * Multiplies playback rate of parent timeline and sequence (if exist) with base playback rate.
    * @group Playback Methods
    * @internal
    */
   useCompoundedPlaybackRate() { this.animation.updatePlaybackRate(this.compoundedPlaybackRate); }
+
+  /**@internal */
+  jumpingDisabled = false;
+
+  /**
+   * @group Playback Methods
+   * @internal
+   */
+  disableJumpingOneTime() {
+    this.jumpingDisabled = true;
+  }
 
   /*-:**************************************************************************************************************************/
   /*-:*****************************************         ANIMATE         ********************************************************/
@@ -1286,12 +1315,21 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     this.useCompoundedPlaybackRate();
 
     // used as resolve() and reject() in the eventually returned promise
+
+    // if animation is being activated after having finished playback at some point,...
+    // ... reset fullyFinished promise
+    if (this.isFinished) {
+      this.isFinished = false;
+    }
     const { promise, resolve, reject } = Promise.withResolvers<this>();
     
     this.inProgress = true;
     this.isRunning = true;
 
-    if (this._parentSequence?.getStatus('skippingOn') || this._parentSequence?.getStatus('usingFinish'))
+    if (
+      (this._parentSequence?.getStatus('skippingOn') || this._parentSequence?.getStatus('usingFinish'))
+      && !this.jumpingDisabled
+    )
       { animation.finish(); }
     else
       { animation.play(); }
@@ -1461,6 +1499,8 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       animation.cancel();
       // if rate-based length, reset duration to unknown after finishing rewinding
       if (this.timescaleType === 'rate' && this.direction === 'backward') { this.updateDuration(TBA_DURATION, false); }
+      this.isFinished = true;
+      this.jumpingDisabled = false; // only matters if jumpingDisabled was activated by disableJumpingOneTime()
       resolve(this);
     };
 

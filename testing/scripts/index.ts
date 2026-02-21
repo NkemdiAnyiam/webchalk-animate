@@ -582,7 +582,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   const tEdit = TextEditor(textBox, 'delete-text', [], {startsNextClipToo: true, durationOrRate: '500wpm'});
   // tEdit.scheduleTask('activePhase', 'end', {onPlay: () => wait(500), onRewind: () => wait(500)}, {frequencyLimit: 2});
   tEdit.scheduleTask('activePhase', 'beginning', {onPlay: () => {
-    tEdit.scheduleTask('activePhase', '10%', {onPlay: () => wait(500), onRewind: () => wait(500)}, {frequencyLimit: 1});
+    tEdit.scheduleTask('activePhase', '50%', {onPlay: () => wait(500), onRewind: () => wait(500)}, {frequencyLimit: 1});
   }}, {frequencyLimit: 2});
 
   const timeline = webchalk.newTimeline({timelineName: 'Basic', autoLinksButtons: false, debugMode: true});

@@ -334,7 +334,13 @@ export class AnimSequence {
   }
   
   // GROUP: Timing
-  protected get compoundedPlaybackRate() { return this.config.playbackRate * (this._parentTimeline?.getTiming().playbackRate ?? 1); }
+  /**@internal*/ pseudoJumpingEnabled = false;
+  private static pseudoJumpingRate = 100;
+
+  protected get compoundedPlaybackRate() {
+    return this.config.playbackRate * (this.pseudoJumpingEnabled ? AnimSequence.pseudoJumpingRate : 1) * (this._parentTimeline?.getTiming().playbackRate ?? 1);
+  }
+
   /**
    * Returns timing-related details about the sequence.
    * @returns An object containing
@@ -369,7 +375,7 @@ export class AnimSequence {
     const result: AnimSequenceTiming = {
       autoplays: config.autoplays,
       autoplaysNextSequence: config.autoplaysNextSequence,
-      compoundedPlaybackRate: this.compoundedPlaybackRate,
+      compoundedPlaybackRate: this.compoundedPlaybackRate, // / (this.pseudoJumpingEnabled ? AnimSequence.pseudoJumpingRate : 1),
       playbackRate: config.playbackRate,
     };
 
@@ -631,6 +637,13 @@ export class AnimSequence {
     for (let i = 0; i < this.animClip_forwardGroupings.length; ++i) {
       parallelClips = [];
       const grouping = this.animClip_forwardGroupings[i];
+      // if any clipping within the current grouping has tasks, disable their ability to...
+      // ... instantly finish
+      if (AnimSequence.checkUnjumpableGrouping(grouping)) {
+        for (let i = 0; i < grouping.length; ++i) {
+          grouping[i].disableJumpingOneTime();
+        }
+      }
       const isRateGrouping = indicesOfRateGroupings.includes(i);
       const firstClip = grouping[0];
       this.inProgressClips.set(firstClip.id, firstClip);
@@ -706,6 +719,12 @@ export class AnimSequence {
     for (let i = groupingsLength - 1; i >= 0; --i) {
       parallelClips = [];
       const grouping = groupings[i];
+      if (AnimSequence.checkUnjumpableGrouping(grouping)) {
+        for (let i = 0; i < grouping.length; ++i) {
+          grouping[i].disableJumpingOneTime();
+          if (this.skippingOn) { this.applyPseudoJumpingRate(true); }
+        }
+      }
       const groupingLength = grouping.length;
       const lastClip = grouping[groupingLength - 1];
       this.inProgressClips.set(lastClip.id, lastClip);
@@ -743,6 +762,10 @@ export class AnimSequence {
     this.fullyFinished.resolve(this);
     this.onStart.undo();
     return this;
+  }
+
+  private static checkUnjumpableGrouping(grouping: AnimClip[]): boolean {
+    return grouping.some(clip => clip.hasTasks);
   }
   
   /**
@@ -783,6 +806,7 @@ export class AnimSequence {
     if (this.usingFinish || this.isPaused) { return this; }
     this.usingFinish = true; // resets to false at the end of play() and rewind()
 
+    this.applyPseudoJumpingRate(true);
     // if in progress, finish the current clips and let the proceeding ones read from this.usingFinish
     if (this.inProgress) { this.finishInProgressAnimations(); }
     // else, if this sequence is ready to play forward, just play (then all clips will read from this.usingFinish)
@@ -790,7 +814,10 @@ export class AnimSequence {
     // If sequence is at the end of its playback, finish() does nothing.
     // AnimTimeline calling AnimSequence.finish() in its method for finishing current sequences should still work
     // because that method is only called when sequences are already playing (so it hits the first if-statement)
-    return this.fullyFinished.promise;
+    
+    await this.fullyFinished.promise;
+    this.applyPseudoJumpingRate(false);
+    return this;
   }
 
   // used to skip currently running animation so they don't run at regular speed while using finish()
@@ -802,6 +829,11 @@ export class AnimSequence {
    */
   async finishInProgressAnimations(): Promise<this> {
     return this.doForInProgressClips_async(animClip => animClip.finish(this));
+  }
+
+  private applyPseudoJumpingRate(state: boolean) {
+    this.pseudoJumpingEnabled = state;
+    this.useCompoundedPlaybackRate();
   }
 
   /**
