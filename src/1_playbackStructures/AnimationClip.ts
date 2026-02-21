@@ -987,11 +987,9 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     if (!this.inProgress) {
       switch(this.animation.direction) {
         case "forward":
-          this.play(parentSequence!);
-          break;
+          return this.play(parentSequence!);
         case "backward":
-          this.rewind(parentSequence!);
-          break;
+          return this.rewind(parentSequence!);
         default: throw this.generateError(
           Error,
           `An error here should be impossible. this.animation.direction should only be 'forward' or 'backward'.`
