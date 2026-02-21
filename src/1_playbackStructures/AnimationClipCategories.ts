@@ -1459,6 +1459,7 @@ export class TextEditorClip<TPresetEffectDefinition extends PresetEffectDefiniti
     return {
       duration: TBA_DURATION,
       composite: 'accumulate',
+      easing: 'linear',
     } satisfies Partial<TextEditorClipConfig>;
   }
 
