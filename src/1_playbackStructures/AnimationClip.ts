@@ -622,7 +622,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
 
   // GROUP: Timing
   private get compoundedPlaybackRate(): number {
-    return this.config.playbackRate * (this._parentSequence?.getTiming().compoundedPlaybackRate ?? 1);
+    return this.config.playbackRate * (this._parentSequence?.internalCompoundedPlaybackRate ?? 1);
   }
   protected timescaleType: 'duration' | 'rate' = 'duration';
   

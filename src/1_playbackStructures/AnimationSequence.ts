@@ -334,13 +334,25 @@ export class AnimSequence {
   }
   
   // GROUP: Timing
-  /**@internal*/ usePseudoJumpingMultiplier = false;
+  /**@internal*/ usingPseudoJumpingMultiplier = false;
+  /**
+   * Multiplier applied to compounded playback rate to account for instances where
+   * clips need an alternative to finish() because of some limitation (such as tasks).
+   */
   private static pseudoJumpingPlaybackMultiplier = 100;
 
   protected get compoundedPlaybackRate() {
-    return this.config.playbackRate
-      * (this.usePseudoJumpingMultiplier ? AnimSequence.pseudoJumpingPlaybackMultiplier : 1)
-      * (this._parentTimeline?.getTiming().playbackRate ?? 1);
+    return this.config.playbackRate * (this._parentTimeline?.getTiming().playbackRate ?? 1);
+  }
+
+  /**
+   * Equivalent to normal compounded playback rate multiplied by any additional factors.
+   * Separate and used by {@link AnimClip.useCompoundedPlaybackRate} so that {@link AnimSequence.compoundedPlaybackRate}
+   * can be retrieved without any hidden multipliers that the user does not need to be cognizant of.
+   * @internal
+   */
+  get internalCompoundedPlaybackRate() {
+    return this.compoundedPlaybackRate * (this.usingPseudoJumpingMultiplier ? AnimSequence.pseudoJumpingPlaybackMultiplier : 1);
   }
 
   /**
@@ -645,13 +657,15 @@ export class AnimSequence {
       if (isUnjumpableGrouping) {
         for (let i = 0; i < grouping.length; ++i) {
           grouping[i].disableJumpingOneTime();
-          if (this.skippingOn) { this.applyPseudoJumpingRate(true); }
+          if (this.skippingOn) { this.togglePseudoJumpingRate(true); }
         }
       }
       const isRateGrouping = indicesOfRateGroupings.includes(i);
       const firstClip = grouping[0];
       this.inProgressClips.set(firstClip.id, firstClip);
       if (isRateGrouping) {
+        // prevents first clip from reaching end of active phase before a later-starting clip has a chance to...
+        // ... add an integrityblock if needed (in the case when said clip ends earlier than this first block)
         firstClip.scheduleTask('activePhase', '99%', {onPlay: () => { return Promise.resolve(); }}, {frequencyLimit: 1});
       }
       parallelClips.push(firstClip.play(this)
@@ -679,7 +693,7 @@ export class AnimSequence {
       }
 
       await Promise.all(parallelClips);
-      if (isUnjumpableGrouping) { this.applyPseudoJumpingRate(false); }
+      if (isUnjumpableGrouping) { this.togglePseudoJumpingRate(false); }
     }
 
     this.inProgress = false;
@@ -731,7 +745,7 @@ export class AnimSequence {
       if (isUnjumpableGrouping) {
         for (let i = 0; i < grouping.length; ++i) {
           grouping[i].disableJumpingOneTime();
-          if (this.skippingOn) { this.applyPseudoJumpingRate(true); }
+          if (this.skippingOn) { this.togglePseudoJumpingRate(true); }
         }
       }
       const groupingLength = grouping.length;
@@ -760,7 +774,7 @@ export class AnimSequence {
         );
       }
       await Promise.all(parallelClips);
-      if (isUnjumpableGrouping) { this.applyPseudoJumpingRate(false); }
+      if (isUnjumpableGrouping) { this.togglePseudoJumpingRate(false); }
     }
 
     this.inProgress = false;
@@ -778,9 +792,14 @@ export class AnimSequence {
     return grouping.some(clip => clip.hasTaskParts(direction));
   }
 
-  private applyPseudoJumpingRate(state: boolean): void {
+  /**
+   * Determines whether to multiply the compounded playback rate by a special multiplier
+   * @param state - `true` or `false` depending on whether multiplier should be applied
+   * @returns 
+   */
+  private togglePseudoJumpingRate(state: boolean): void {
     // if no change, do nothing
-    if (this.usePseudoJumpingMultiplier === (this.usePseudoJumpingMultiplier = state)) { return; }
+    if (this.usingPseudoJumpingMultiplier === (this.usingPseudoJumpingMultiplier = state)) { return; }
     this.useCompoundedPlaybackRate();
   }
   
@@ -822,7 +841,7 @@ export class AnimSequence {
     if (this.usingFinish || this.isPaused) { return this; }
     this.usingFinish = true; // resets to false at the end of play() and rewind()
 
-    this.applyPseudoJumpingRate(true);
+    this.togglePseudoJumpingRate(true);
     // if in progress, finish the current clips and let the proceeding ones read from this.usingFinish
     if (this.inProgress) { this.finishInProgressAnimations(); }
     // else, if this sequence is ready to play forward, just play (then all clips will read from this.usingFinish)
@@ -832,7 +851,7 @@ export class AnimSequence {
     // because that method is only called when sequences are already playing (so it hits the first if-statement)
     
     await this.fullyFinished.promise;
-    this.applyPseudoJumpingRate(false);
+    this.togglePseudoJumpingRate(false);
     return this;
   }
 
