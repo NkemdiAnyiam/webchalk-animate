@@ -334,11 +334,13 @@ export class AnimSequence {
   }
   
   // GROUP: Timing
-  /**@internal*/ pseudoJumpingEnabled = false;
-  private static pseudoJumpingRate = 100;
+  /**@internal*/ usePseudoJumpingMultiplier = false;
+  private static pseudoJumpingPlaybackMultiplier = 100;
 
   protected get compoundedPlaybackRate() {
-    return this.config.playbackRate * (this.pseudoJumpingEnabled ? AnimSequence.pseudoJumpingRate : 1) * (this._parentTimeline?.getTiming().playbackRate ?? 1);
+    return this.config.playbackRate
+      * (this.usePseudoJumpingMultiplier ? AnimSequence.pseudoJumpingPlaybackMultiplier : 1)
+      * (this._parentTimeline?.getTiming().playbackRate ?? 1);
   }
 
   /**
@@ -639,14 +641,19 @@ export class AnimSequence {
       const grouping = this.animClip_forwardGroupings[i];
       // if any clipping within the current grouping has tasks, disable their ability to...
       // ... instantly finish
-      if (AnimSequence.checkUnjumpableGrouping(grouping)) {
+      const isUnjumpableGrouping = AnimSequence.checkUnjumpableGrouping(grouping, 'forward');
+      if (isUnjumpableGrouping) {
         for (let i = 0; i < grouping.length; ++i) {
           grouping[i].disableJumpingOneTime();
+          if (this.skippingOn) { this.applyPseudoJumpingRate(true); }
         }
       }
       const isRateGrouping = indicesOfRateGroupings.includes(i);
       const firstClip = grouping[0];
       this.inProgressClips.set(firstClip.id, firstClip);
+      if (isRateGrouping) {
+        firstClip.scheduleTask('activePhase', '99%', {onPlay: () => { return Promise.resolve(); }}, {frequencyLimit: 1});
+      }
       parallelClips.push(firstClip.play(this)
         .then(() => {this.inProgressClips.delete(firstClip.id)})
       );
@@ -672,6 +679,7 @@ export class AnimSequence {
       }
 
       await Promise.all(parallelClips);
+      if (isUnjumpableGrouping) { this.applyPseudoJumpingRate(false); }
     }
 
     this.inProgress = false;
@@ -719,7 +727,8 @@ export class AnimSequence {
     for (let i = groupingsLength - 1; i >= 0; --i) {
       parallelClips = [];
       const grouping = groupings[i];
-      if (AnimSequence.checkUnjumpableGrouping(grouping)) {
+      const isUnjumpableGrouping = AnimSequence.checkUnjumpableGrouping(grouping, 'backward'); 
+      if (isUnjumpableGrouping) {
         for (let i = 0; i < grouping.length; ++i) {
           grouping[i].disableJumpingOneTime();
           if (this.skippingOn) { this.applyPseudoJumpingRate(true); }
@@ -751,6 +760,7 @@ export class AnimSequence {
         );
       }
       await Promise.all(parallelClips);
+      if (isUnjumpableGrouping) { this.applyPseudoJumpingRate(false); }
     }
 
     this.inProgress = false;
@@ -764,8 +774,14 @@ export class AnimSequence {
     return this;
   }
 
-  private static checkUnjumpableGrouping(grouping: AnimClip[]): boolean {
-    return grouping.some(clip => clip.hasTasks);
+  private static checkUnjumpableGrouping(grouping: AnimClip[], direction: 'forward' | 'backward'): boolean {
+    return grouping.some(clip => clip.hasTaskParts(direction));
+  }
+
+  private applyPseudoJumpingRate(state: boolean): void {
+    // if no change, do nothing
+    if (this.usePseudoJumpingMultiplier === (this.usePseudoJumpingMultiplier = state)) { return; }
+    this.useCompoundedPlaybackRate();
   }
   
   /**
@@ -829,11 +845,6 @@ export class AnimSequence {
    */
   async finishInProgressAnimations(): Promise<this> {
     return this.doForInProgressClips_async(animClip => animClip.finish(this));
-  }
-
-  private applyPseudoJumpingRate(state: boolean) {
-    this.pseudoJumpingEnabled = state;
-    this.useCompoundedPlaybackRate();
   }
 
   /**

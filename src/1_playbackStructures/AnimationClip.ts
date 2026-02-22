@@ -1198,8 +1198,8 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   /**
    * @internal
    */
-  get hasTasks() {
-    return this.animation.hasTasks;
+  hasTaskParts(direction: 'forward' | 'backward') {
+    return this.animation.hasTaskParts(direction);
   }
 
   /**
