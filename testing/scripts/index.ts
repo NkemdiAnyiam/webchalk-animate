@@ -585,7 +585,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     tEdit.scheduleTask('activePhase', '50%', {onPlay: () => wait(500), onRewind: () => wait(500)}, {frequencyLimit: 1});
   }}, {frequencyLimit: 2});
   const tEdit2 = TextEditor(textBox2, 'replace-text', ['What in tarnation was supposed to happen when you did that?'], {startsWithPrevious: true});
-  tEdit2.scheduleTask('activePhase', '80%', {onPlay: () => wait (2000), onRewind: () => wait(2000)}, {frequencyLimit: 1});
+  tEdit2.scheduleTask('activePhase', '80%', {onPlay: () => wait(2000), onRewind: () => wait(2000)}, {frequencyLimit: 1});
 
   const timeline = webchalk.newTimeline({timelineName: 'Basic', autoLinksButtons: false, debugMode: true});
   timeline.linkPlaybackButtons();
