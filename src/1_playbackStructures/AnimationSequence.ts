@@ -464,11 +464,17 @@ export class AnimSequence {
    * @internal
    * @group Structure
    */
-  setLineage(timeline: AnimTimeline) {
+  setLineage(timeline: AnimTimeline): boolean {
+    if (this._parentTimeline) {
+      return false;
+    }
+
     this._parentTimeline = timeline;
     for (const animClip of this.animClips) {
       animClip.setLineage(this, this._parentTimeline);
     }
+
+    return true;
   }
 
   /**
@@ -514,15 +520,19 @@ export class AnimSequence {
         // TODO: Improve error message
         throw this.generateError(CustomErrorClasses.InvalidChildError, `At least one of the clips being added is already part of some sequence.`);
       }
+      
+      if (!animClip.setLineage(this, this._parentTimeline)) {
+        // if setting lineage fails, undo setting lineage on previous clips attempting to be added
+        for (let j = 0; j < i; ++j) {
+          clips[j].removeLineage();
+        }
+        throw new CustomErrorClasses.InvalidChildError(`At least one of the clips being added appears in the given array multiple times.`);
+      };
     }
 
-    // confirm insertion
+    // insert clips
     if (loc) { this.animClips.splice(loc.atIndex, 0, ...clips); }
     else { this.animClips.push(...clips); }
-
-    for (let i = 0; i < clips.length; ++i) {
-      clips[i].setLineage(this, this._parentTimeline);
-    }
 
     return this;
   }

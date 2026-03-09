@@ -778,10 +778,14 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
    * Used by a parent to set pointers to itself (the parent) within the clip.
    * @internal
    */
-  setLineage(sequence: AnimSequence, timeline: AnimTimeline | undefined): this {
+  setLineage(sequence: AnimSequence, timeline: AnimTimeline | undefined): boolean {
+    if (this._parentSequence) {
+      return false;
+    }
+
     this._parentSequence = sequence;
     this._parentTimeline = timeline;
-    return this;
+    return true;
   }
 
   /**

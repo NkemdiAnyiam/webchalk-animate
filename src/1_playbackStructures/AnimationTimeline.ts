@@ -608,7 +608,12 @@ export class AnimTimeline {
       if (animSequence.getStatus('lockedStructure')) {
         throw this.generateError(CustomErrorClasses.InvalidChildError, `At least one of the sequences being added is in progress or in a forward finished state.`);
       }
-      animSequence.setLineage(this);
+      if (!animSequence.setLineage(this)) {
+        throw this.generateError(
+          CustomErrorClasses.InvalidChildError,
+          `At least one of the sequences being added appears in the given array multiple times.`
+        );
+      }
     };
     
     if (loc) {
