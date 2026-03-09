@@ -637,8 +637,10 @@ export class AnimTimeline {
       const index = this.findSequenceIndex(animSequence);
       if (index === -1) {
         // TODO: improve warning
-        console.warn(`At least one of the sequences being removed from this timeline was already not in the timeline.`);
-        return this;
+        throw this.generateError(
+          CustomErrorClasses.InvalidChildError,
+          `At least one of the sequences being removed from this timeline was already not in the timeline.`
+        );
       }
       if (index <= this.loadedSeqIndex - 1) {
         throw this.generateError(

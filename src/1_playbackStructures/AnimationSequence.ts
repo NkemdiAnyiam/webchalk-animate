@@ -543,8 +543,10 @@ export class AnimSequence {
       const index = this.findClipIndex(animClips[i]);
       if (index === -1) {
         // TODO: improve warning
-        console.warn(`At least one of the clips being removed from this sequence was already not in the sequence.`);
-        return this;
+        throw this.generateError(
+          CustomErrorClasses.InvalidChildError,
+          `At least one of the clips being removed from this sequence was already not in the sequence.`
+        );
       }
       removedClips.push(...animClipsCopy.splice(index, 1));
     }
