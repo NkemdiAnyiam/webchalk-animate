@@ -1721,7 +1721,6 @@ export function definePresetEffectBank<
   return presetEffectBank as typeof presetEffectBank & ClipTypeToHiddenBankCategorizer<ExtendableBankCategoryToClipType<TCategory>>;
 }
 
-// TODO: document
 /**
  * Duplicates the specified effect from the specified preset effect bank and
  * changes the default configuration options using {@link addedConfiguration}.
