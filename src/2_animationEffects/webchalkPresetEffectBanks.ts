@@ -1239,7 +1239,7 @@ export const libPresetScrolls = {
 } satisfies PresetEffectBank<ScrollerClip>;
 
 export const libPresetTextEdits = {
-  ['delete-text']: {
+  ['~delete-text']: {
     buildFrameGenerators(
       options: {
         letterChunking?: 'by-character' | 'by-word';
@@ -1285,7 +1285,7 @@ export const libPresetTextEdits = {
     howOftenBuildGenerators: 'on-every-play',
   },
 
-  ['insert-text']: {
+  ['~insert-text']: {
     buildFrameGenerators(
       newText: string | number | (string | number)[],
       options: {
@@ -1397,7 +1397,7 @@ export const libPresetTextEdits = {
     howOftenBuildGenerators: 'on-every-play',
   },
 
-  ['replace-text']: {
+  ['~replace-text']: {
     buildFrameGenerators(
       newText: string | number | (string | number)[],
       options: {
