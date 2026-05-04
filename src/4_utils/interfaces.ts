@@ -315,7 +315,7 @@ export type TextEditOptions = {
    */
   letterChunking?: 'by-character' | 'by-word';
   /**
-   * if `true` {@link TextEditOptions.findAllMatches|findAllMatches} is also `true`, then all matches will be treated as one
+   * if `true` and {@link TextEditOptions.findAllMatches|findAllMatches} is also `true`, then all matches will be treated as one
    * large single match. This options is only meaningful when inserting an array.
    * @defaultValue
    * ```ts
