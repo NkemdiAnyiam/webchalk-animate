@@ -1305,7 +1305,7 @@ export const libPresetTextEdits = {
       | 'match'
       | 'ignoreMatchCase'
       | 'findAllMatches'
-      | 'bridgeMatches'
+      | 'joinMatches'
       | 'useCaptureGroups'
       > & {
         /**
@@ -1325,7 +1325,7 @@ export const libPresetTextEdits = {
         position = 'after',
         ignoreMatchCase = false,
         findAllMatches = false,
-        bridgeMatches = true,
+        joinMatches = true,
         useCaptureGroups = false,
       } = options;
 
@@ -1359,7 +1359,7 @@ export const libPresetTextEdits = {
         const newTextStr: string = String(
           (newText instanceof Array)
           ? (
-            bridgeMatches
+            joinMatches
               ? newText[++newTextIndex % newText.length]
               : newText[Math.min(datum.captureIndex, newText.length - 1)] ?? ''
           )
@@ -1430,7 +1430,7 @@ export const libPresetTextEdits = {
       | 'match'
       | 'ignoreMatchCase'
       | 'findAllMatches'
-      | 'bridgeMatches'
+      | 'joinMatches'
       | 'useCaptureGroups'
       > = {}
     ) {
@@ -1439,7 +1439,7 @@ export const libPresetTextEdits = {
         match,
         ignoreMatchCase = false,
         findAllMatches = false,
-        bridgeMatches = true,
+        joinMatches = true,
         useCaptureGroups = false,
       } = options;
 
@@ -1458,7 +1458,7 @@ export const libPresetTextEdits = {
         const newTextStr: string = String(
           (newText instanceof Array)
           ? (
-            bridgeMatches
+            joinMatches
               ? newText[++newTextIndex % newText.length]
               : newText[Math.min(newDatum.captureIndex, newText.length - 1)] ?? ''
           )

@@ -322,5 +322,5 @@ export type TextEditOptions = {
    * false
    * ```
    */
-  bridgeMatches?: boolean;
+  joinMatches?: boolean;
 };
