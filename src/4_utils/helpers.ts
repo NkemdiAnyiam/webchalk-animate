@@ -462,6 +462,7 @@ export function constructInfixTextNodeList(node: Node, options: {
   match?: string | RegExp;
   findAllMatches: boolean;
   ignoreMatchCase: boolean;
+  useCaptureGroups: boolean;
 }): InfixTextNodeList {
   if (!node) { throw new TypeError(`Element must not be null or undefined`); }
   
@@ -469,6 +470,7 @@ export function constructInfixTextNodeList(node: Node, options: {
     match,
     findAllMatches,
     ignoreMatchCase,
+    useCaptureGroups = false,
   } = options;
   
   const textContent = node.textContent!;
@@ -511,8 +513,8 @@ export function constructInfixTextNodeList(node: Node, options: {
       // attempt to loop through the matches to push [startIndex, endIndex] ranges
       for (let i = 0; i < matchResults.length; ++i) {
         const res = matchResults[i];
-        // if there are capture groups, push each capture instead of the whole match
-        if (res.indices![1]) {
+        // if useCaptureGroups and there are capture groups, push each capture instead of the whole match
+        if (useCaptureGroups && res.indices![1]) {
           for (let j = 1; j < res.indices!.length; ++j) {
             [startIndex, endIndex] = res.indices![j];
             // check to make sure there are no nested capture groups

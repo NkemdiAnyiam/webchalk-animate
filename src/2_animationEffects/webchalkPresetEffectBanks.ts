@@ -1246,6 +1246,7 @@ export const libPresetTextEdits = {
         match?: string | RegExp;
         ignoreMatchCase?: boolean;
         findAllMatches?: boolean;
+        useCaptureGroups?: boolean;
       } = {}
     ) {
       const {
@@ -1253,9 +1254,10 @@ export const libPresetTextEdits = {
         match,
         ignoreMatchCase = false,
         findAllMatches = false,
+        useCaptureGroups = false,
       } = options;
 
-      const infixList = constructInfixTextNodeList(this.domElem, {match, findAllMatches, ignoreMatchCase});
+      const infixList = constructInfixTextNodeList(this.domElem, {match, findAllMatches, ignoreMatchCase, useCaptureGroups});
       const rootEditStats = createRootNodeEditStats(infixList, 'delete');
 
       if (this.getTiming('timescaleType') === 'rate') {
@@ -1295,6 +1297,7 @@ export const libPresetTextEdits = {
         ignoreMatchCase?: boolean;
         findAllMatches?: boolean;
         bridgeMatches?: boolean;
+        useCaptureGroups?: boolean;
       } = {}
     ) {
       const {
@@ -1304,9 +1307,10 @@ export const libPresetTextEdits = {
         ignoreMatchCase = false,
         findAllMatches = false,
         bridgeMatches = true,
+        useCaptureGroups = false,
       } = options;
 
-      const tempInfixList = constructInfixTextNodeList(this.domElem, {match, findAllMatches, ignoreMatchCase});
+      const tempInfixList = constructInfixTextNodeList(this.domElem, {match, findAllMatches, ignoreMatchCase, useCaptureGroups});
       const infixList: InfixTextNodeList = [];
 
       // if no match was specified, then only either the first Text node or the last Text node within domElem...
@@ -1406,6 +1410,7 @@ export const libPresetTextEdits = {
         ignoreMatchCase?: boolean;
         findAllMatches?: boolean;
         bridgeMatches?: boolean;
+        useCaptureGroups?: boolean;
       } = {}
     ) {
       const {
@@ -1414,10 +1419,11 @@ export const libPresetTextEdits = {
         ignoreMatchCase = false,
         findAllMatches = false,
         bridgeMatches = true,
+        useCaptureGroups = false,
       } = options;
 
       // construct infix list and stats for deletion
-      const infixListD = constructInfixTextNodeList(this.domElem, {match, findAllMatches, ignoreMatchCase});
+      const infixListD = constructInfixTextNodeList(this.domElem, {match, findAllMatches, ignoreMatchCase, useCaptureGroups});
       const rootEditStatsD = createRootNodeEditStats(infixListD, 'delete');
 
       // construct infix list and stats for insertion
