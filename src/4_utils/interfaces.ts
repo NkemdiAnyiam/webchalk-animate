@@ -263,3 +263,64 @@ export type RootNodeEditStats = {
 };
 
 export type TextEditRate = `${number}${'wpm' | 'cpm'}`
+
+// TODO: add code examples
+export type TextEditOptions = {
+  /**
+   * if `true`, a case-insensitive search will be used if {@link TextEditOptions.match|match} is specified
+   * @defaultValue
+   * ```ts
+   * false
+   * ```
+   * @remarks
+   * This applies when {@link TextEditOptions.match|match} is a {@link RegExp} as well. So do _not_ attempt to specify the
+   * `i` flag when specifying a regular expression to match—it will be ignored.
+  */
+  ignoreMatchCase?: boolean;
+  /**
+   * retrieves the result of matching this string against a string or regular expression.
+   *  * When inserting text, match (if specified) will be used to determine _where_ to insert the new text.
+   *  * If deleting or replacing text, match will be used to determine _what_ text to delete
+   * (if unspecified, all text will be deleted or replaced).
+   */
+  match?: string | RegExp;
+  /**
+   * if `true`, then if {@link TextEditOptions.match|match} contains capturing groups—portions enclosed in parentheses, as in
+   * `/My ID is (\w\d)+, and my number is (\d+)/`—each group will be inserted by, deleted, or replaced (whatever operation is being performed)
+   * instead of the entire match.
+   * @defaultValue
+   * ```ts
+   * false
+   * ```
+   * @remarks
+   */
+  useCaptureGroups?: boolean;
+  /**
+   * if `true`, then {@link TextEditOptions.match|match} (if specified) will search for _all_ matching results instead of
+   * just stopping at one.
+   * @defaultValue
+   * ```ts
+   * false
+   * ```
+   */
+  findAllMatches?: boolean;
+  /**
+   * an aesthetic option that determines whether text should be inserted/deleted by characters at a time or words at a time.
+   * @defaultValue
+   * ```ts
+   * 'by-character'
+   * ```
+   * @remarks
+   * The default value is `'by-character'` because that is typically less jarring for the eyes than whole words.
+   */
+  letterChunking?: 'by-character' | 'by-word';
+  /**
+   * if `true` {@link TextEditOptions.findAllMatches|findAllMatches} is also `true`, then all matches will be treated as one
+   * large single match. This options is only meaningful when inserting an array.
+   * @defaultValue
+   * ```ts
+   * false
+   * ```
+   */
+  bridgeMatches?: boolean;
+};

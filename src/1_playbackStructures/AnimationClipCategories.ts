@@ -1444,7 +1444,37 @@ export interface TextEditorClipTiming extends AnimClipTiming, Pick<
  * <!-- EX:E id="AnimClip.desc" -->
  * 
  * @example
- * TODO: add code example
+ *  * <!-- EX:S id="TextEditorClip.example" code-type="ts" -->
+ * ```ts
+ * // retrieve connector entrance clip factory function;
+ * const { TextEditor } = webchalk.createAnimationClipFactories();
+ * 
+ * // select elements containing text from the DOM
+ * const textbox = document.querySelector('.some-text-box');
+ * const explanation = document.querySelector('.explanation');
+ * const paragraphs = document.querySelector('.details');
+ * const letters = document.querySelector('.letters');
+ * 
+ * // A = element, B = effect name, C = effect options, D = configuration (optional)
+ * 
+ * // create connector entrance clips using factory function
+ * //                       A        B               C                                                      D
+ * const clip1 = TextEditor(textbox, '~delete-text', [{match: /I hate this class!/, findAllMatches: true}], {durationOrRate: '400wpm'});
+ * //                       A            B               C                                      D             
+ * const clip2 = TextEditor(explanation, '~insert-text', ['Hello world!', {position: 'after'}], {durationOrRate: 2000});
+ * //                       A           B                C                                                D
+ * const clip3 = TextEditor(paragraphs, '~replace-text', ['Bob', {match: 'Jimmy', findAllMatches: true}], {durationOrRateInsertion: '200wpm'});
+ * //                       A        B                C
+ * const clip4 = TextEditor(letters, '~replace-text', [['a', 'b', 'c'], {match: /Let's use (x), (y), and (z)./}]);
+ * 
+ * // play clips (all will play at the same time because they are asynchronous)
+ * clip1.play(); // in textbox, finds and deletes all substrings that match string 'I hate this class!' 
+ * clip2.play(); // in explanation, inserts string 'Hello world!' at the end of the text
+ * clip3.play(); // in paragraphs, finds and replaces all substrings that match 'Jimmy' with 'Bob'
+ * clip4.play(); // in letters, finds the substring that matches regex /Let's use x, y, and z/ and...
+ * // ... replaces 'x' with 'a', 'y' with 'b', and 'z' with 'c'
+ * ```
+ * <!-- EX:E id="TextEditorClip.example" -->
  * 
  * @category TextEditor
  * @hideconstructor

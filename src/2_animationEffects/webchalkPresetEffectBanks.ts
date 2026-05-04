@@ -12,7 +12,7 @@ import {
 import { webchalk } from "../Webchalk";
 import { definePresetEffectBank, formatBank, PresetEffectBank } from "./presetEffectCreation";
 import { computeSelfScrollingBounds, constructInfixTextNodeList, createRootNodeEditStats, deepFreeze, getBoundingClientRectOfHidden, infixTextDelete, infixTextInsert, negateNumString, numCharsInNode, numWordsInNode, parseXYAlignmentString, parseXYTupleString, WORDS_REGEX } from "../4_utils/helpers";
-import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions, Keyframes, RootNodeEditStats, InfixTextNodeList, TextNodeDatum } from "../4_utils/interfaces";
+import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions, Keyframes, RootNodeEditStats, InfixTextNodeList, TextNodeDatum, TextEditOptions } from "../4_utils/interfaces";
 import { useEasing } from "./easing";
 import { CustomErrorClasses } from "../4_utils/errors";
 export type {
@@ -1238,16 +1238,24 @@ export const libPresetScrolls = {
   },
 } satisfies PresetEffectBank<ScrollerClip>;
 
+/*-:**************************************************************************************************************************/
+/*-:****************************************        TEXT EDITS        ********************************************************/
+/*-:**************************************************************************************************************************/
+/**
+ * @category hidden
+ */
 export const libPresetTextEdits = {
+  /** Element has all (or just the specified) text deleted. */
   ['~delete-text']: {
     buildFrameGenerators(
-      options: {
-        letterChunking?: 'by-character' | 'by-word';
-        match?: string | RegExp;
-        ignoreMatchCase?: boolean;
-        findAllMatches?: boolean;
-        useCaptureGroups?: boolean;
-      } = {}
+      options: Pick<
+        TextEditOptions,
+        | 'letterChunking'
+        | 'match'
+        | 'ignoreMatchCase'
+        | 'findAllMatches'
+        | 'useCaptureGroups'
+      > = {}
     ) {
       const {
         letterChunking = 'by-character',
@@ -1287,17 +1295,28 @@ export const libPresetTextEdits = {
     howOftenBuildGenerators: 'on-every-play',
   },
 
+  /** Element has the specified text inserted. */
   ['~insert-text']: {
     buildFrameGenerators(
       newText: string | number | (string | number)[],
-      options: {
-        letterChunking?: 'by-character' | 'by-word';
-        match?: string | RegExp;
+      options: Pick<
+      TextEditOptions,
+      | 'letterChunking'
+      | 'match'
+      | 'ignoreMatchCase'
+      | 'findAllMatches'
+      | 'bridgeMatches'
+      | 'useCaptureGroups'
+      > & {
+        /**
+         * string value determining where to insert the new text relative to
+         * {@link TextEditOptions.match|match} (or if no match is specified, the entire text)
+         * @defaultValue
+         * ```ts
+         * 'after'
+         * ```
+         */
         position?: 'before' | 'after'
-        ignoreMatchCase?: boolean;
-        findAllMatches?: boolean;
-        bridgeMatches?: boolean;
-        useCaptureGroups?: boolean;
       } = {}
     ) {
       const {
@@ -1401,17 +1420,19 @@ export const libPresetTextEdits = {
     howOftenBuildGenerators: 'on-every-play',
   },
 
+  /** Element has all (or just the specified) text deleted and replaced with the specified text. */
   ['~replace-text']: {
     buildFrameGenerators(
       newText: string | number | (string | number)[],
-      options: {
-        letterChunking?: 'by-character' | 'by-word';
-        match?: string | RegExp;
-        ignoreMatchCase?: boolean;
-        findAllMatches?: boolean;
-        bridgeMatches?: boolean;
-        useCaptureGroups?: boolean;
-      } = {}
+      options: Pick<
+      TextEditOptions,
+      | 'letterChunking'
+      | 'match'
+      | 'ignoreMatchCase'
+      | 'findAllMatches'
+      | 'bridgeMatches'
+      | 'useCaptureGroups'
+      > = {}
     ) {
       const {
         letterChunking = 'by-character',
