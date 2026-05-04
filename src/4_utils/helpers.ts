@@ -516,10 +516,10 @@ export function constructInfixTextNodeList(node: Node, options: {
         // if useCaptureGroups and there are capture groups, push each capture instead of the whole match
         if (useCaptureGroups && res.indices![1]) {
           for (let j = 1; j < res.indices!.length; ++j) {
-            [startIndex, endIndex] = res.indices![j];
+            [startIndex, endIndex] = res.indices![j]!;
             // check to make sure there are no nested capture groups
             for (let k = j + 1; k < res.indices!.length; ++k) {
-              const [startIndexK, endIndexK] = res.indices![k];
+              const [startIndexK, endIndexK] = res.indices![k]!;
               if (Math.max(startIndex, startIndexK) < Math.min(endIndex, endIndexK)) {
                 throw new RangeError(`Invalid regex ${match}. Nested capture groups are not allowed.`);
               }
@@ -528,7 +528,7 @@ export function constructInfixTextNodeList(node: Node, options: {
           }
         }
         else {
-          [startIndex, endIndex] = res.indices![0];
+          [startIndex, endIndex] = res.indices![0]!;
           ranges.push([startIndex, endIndex, 0]);
         }
         if (!findAllMatches) { break; }
