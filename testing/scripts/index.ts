@@ -579,12 +579,12 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   const textBox = document.querySelector('.text-box');
   const textBox2 = document.querySelector('.text-box-2');
-  const tEdit = TextEditor(textBox, 'delete-text', [], {startsNextClipToo: true, durationOrRate: '500wpm'});
+  const tEdit = TextEditor(textBox, '~delete-text', [], {startsNextClipToo: true, durationOrRate: '500wpm'});
   // tEdit.scheduleTask('activePhase', 'end', {onPlay: () => wait(500), onRewind: () => wait(500)}, {frequencyLimit: 2});
   tEdit.scheduleTask('activePhase', 'beginning', {onPlay: () => {
     tEdit.scheduleTask('activePhase', '50%', {onPlay: () => wait(500), onRewind: () => wait(500)}, {frequencyLimit: 1});
   }}, {frequencyLimit: 2});
-  const tEdit2 = TextEditor(textBox2, 'replace-text', ['What in tarnation was supposed to happen when you did that?'], {startsWithPrevious: true});
+  const tEdit2 = TextEditor(textBox2, '~replace-text', ['What in tarnation was supposed to happen when you did that?'], {startsWithPrevious: true});
   tEdit2.scheduleTask('activePhase', '80%', {onPlay: () => wait(2000), onRewind: () => wait(2000)}, {frequencyLimit: 1});
 
   const timeline = webchalk.newTimeline({timelineName: 'Basic', autoLinksButtons: false, debugMode: true});
@@ -634,6 +634,16 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   // timeline.toggleSkipping({forceState: 'on'}).then(() => {
   //   console.log('HEY, EVERYONE!!!');
   // })
+
+  // function dequoteJSON(obj: object) {
+  //   return JSON.stringify(obj, null, 2)
+  //     .replace(/^[\t ]*"[^:\n\r]+(?<!\\)":/gm, (match) => `${match.replace(/"/g, "")}`);
+  // }
+
+  // const str = JSON.stringify(Exit(square, 'fade-out-red', [], {duration: 1000, cssClasses: {toAddOnFinish: ['yo', 'bro']}}).getConfig(), null, 2)
+
+  // console.log(str);
+  // console.log(dequoteJSON(Exit(square, 'fade-out-red', [], {duration: 1000, cssClasses: {toAddOnFinish: ['yo', 'bro']}}).getConfig()));
 
   const motionSwap = Motion(circle1, 'swap', [circle4], {duration: 1000});
   motionSwap.scheduleTask('activePhase', '55%', {onPlay: () => wait(2000), onRewind: () => wait(2000)});
