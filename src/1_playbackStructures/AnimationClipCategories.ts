@@ -1403,7 +1403,7 @@ export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefin
  *    * {@link TextEditorClipModifiers.durationOrRateInsertion | durationOrRateInsertion}
  * @see {@link TextEditorClip.getConfig}
  * 
- * @category TextEditor
+ * @category Text Editor
  */
 export interface TextEditorClipConfig extends AnimClipConfig {
   durationOrRate: number | TextEditRate;
@@ -1476,7 +1476,7 @@ export interface TextEditorClipTiming extends AnimClipTiming, Pick<
  * ```
  * <!-- EX:E id="TextEditorClip.example" -->
  * 
- * @category TextEditor
+ * @category Text Editor
  * @hideconstructor
  */
 export class TextEditorClip<TPresetEffectDefinition extends PresetEffectDefinition<TextEditorClip, TextEditorClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, TextEditorClipConfig> {
