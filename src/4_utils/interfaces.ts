@@ -26,7 +26,7 @@ import { Union } from "./utilityTypes";
 // > = Omit<TClipConfig, FromFrozenKeys<TPresetEffectDefinition['defaultConfig']>>;
 
 /**
- * Practical union of the 3 subclasses of {@link Element}.
+ * A practical union of the 3 subclasses of {@link Element}.
  * Mostly useful for autocompletions. For example, the `style` property does
  * not exist on {@link Element}, but it does exist on its subclasses. 
  */
@@ -39,9 +39,9 @@ export type DOMElement = HTMLElement | SVGElement | MathMLElement;
  */
 interface TranslationOffset {
   /**
-   * determines offsets to apply to both X and Y positional components
-   *  * the offset is applied _after_ {@link alignment} is applied
-   *  * string in the form "{@link CssLength} {@link CssLength}"
+   * Determines offsets to apply to both X and Y positional components.
+   *  * The offset is applied _after_ {@link alignment} is applied.
+   *  * It is a string in the form "{@link CssLength} {@link CssLength}".
    * @example
    * ```ts
    * // move 12px right and 50% of own height down
@@ -53,12 +53,12 @@ interface TranslationOffset {
 
 // CHANGE NOTE: Use strings in the format of <number><CssLengthUnit> and remove XY things
 /**
- * Options for the translate animation.
+ * An options object for the translate animation.
  */
 export interface TranslateOptions extends TranslationOffset {
   /**
-   * distances to travel in the X and Y directions
-   *  * string in the form "{@link CssLength} {@link CssLength}"
+   * The distances to travel in the X and Y directions.
+   *  * It is a string in the form "{@link CssLength} {@link CssLength}".
    * @example
    * ```ts
    * // move 12px right and 50% of own height down
@@ -69,15 +69,15 @@ export interface TranslateOptions extends TranslationOffset {
 }
 
 /**
- * Options for the move-to animation.
+ * An options object for the move-to animation.
  */
 export interface MoveToOptions extends TranslationOffset {
-  /** determines horizontal and vertical alignment with target element */
+  /** Determines horizontal and vertical alignment with target element. */
   alignment: `${CssXAlignment} ${CssYAlignment}`;
   /**
-   * offset with respect to target's left and top bound
-   *  * the offset is applied _after_ {@link alignment} is applied
-   *  * string in the form "{@link CssLength} {@link CssLength}"
+   * The offset with respect to the target's left and top bound.
+   *  * The offset is applied _after_ {@link alignment} is applied.
+   *  * It is a string in the form "{@link CssLength} {@link CssLength}".
    * @example
    * ```ts
    * // move 12px right and 50% of target element's height down
@@ -85,80 +85,80 @@ export interface MoveToOptions extends TranslationOffset {
    * ```
    */
   targetOffset: `${CssLength} ${CssLength}`;
-  /** if `true`, there will be no horizontal translation with respect to the target element (offsets still apply) */
+  /** If `true`, there will be no horizontal translation with respect to the target element (offsets still apply). */
   preserveX: boolean;
-  /** if `true`, there will be no vertical translation with respect to the target element (offsets still apply) */
+  /** If `true`, there will be no vertical translation with respect to the target element (offsets still apply). */
   preserveY: boolean;
 }
 
 /**
- * Options for the scroll-self animation
+ * An options object for the scroll-self animation.
  */
 export interface ScrollingOptions {
-  /** determines the intersection point of the scrolling container with respect to its top-left bound */
+  /** Determines the intersection point of the scrolling container with respect to its top-left bound. */
   scrollableOffset?: [x: MultiUnitPlacementX | number, y: MultiUnitPlacementY | number];
-  /** determines the intersection point of the scroll target with respect to its top-left corner */
+  /** Determines the intersection point of the scroll target with respect to its top-left corner. */
   targetOffset?: [x: MultiUnitPlacementX | number, y: MultiUnitPlacementY | number];
-  /** if `true`, the scrolling container will not scroll horizontally */
+  /** If `true`, the scrolling container will not scroll horizontally. */
   preserveX?: boolean;
-  /** if `true`, the scrolling container will not scroll vertically */
+  /** If `true`, the scrolling container will not scroll vertically. */
   preserveY?: boolean;
 };
 
 /**
  * A few common options for units in CSS.
- *  * `"px"` refers to pixels
- *  * `"rem"` refers to root em
- *  * `"%"` refers to a percentage
+ *  * `"px"` refers to pixels.
+ *  * `"rem"` refers to root em.
+ *  * `"%"` refers to a percentage.
  * @see [CSS values and units](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Values_and_units)
  */
 export type CssLengthUnit = | 'px' | 'rem' | '%';
-/** String in the form of a number and a CSS length unit, such as `"12px"`. */
+/** A string in the form of a number and a CSS length unit, such as `"12px"`. */
 export type CssLength = `${number}${CssLengthUnit}` | '0';
 /**
  * Keywords for common alignments along the y-axis.
- *  * `"top"` indicates a distance of 0% from the top of an element
- *  * `"center"` indicates a distance of 50% from the top of an element
- *  * `"bottom"` indicates a distance of 100% from the top of an element
+ *  * `"top"` indicates a distance of 0% from the top of an element.
+ *  * `"center"` indicates a distance of 50% from the top of an element.
+ *  * `"bottom"` indicates a distance of 100% from the top of an element.
  */
 export type CssYAlignment = | 'top' | 'bottom' | 'center';
 /**
  * Keywords for common alignments along the x-axis.
- *  * `"left"` indicates a distance of 0% from the left of an element
- *  * `"center"` indicates a distance of 50% from the left of an element
- *  * `"right"` indicates a distance of 100% from the left of an element
+ *  * `"left"` indicates a distance of 0% from the left of an element.
+ *  * `"center"` indicates a distance of 50% from the left of an element.
+ *  * `"right"` indicates a distance of 100% from the left of an element.
  */
 export type CssXAlignment = | 'left' | 'right' | 'center';
 
-/** String in the form of a number and the '%' sign, such as `"50%"`. */
+/** A string in the form of a number and the '%' sign, such as `"50%"`. */
 export type percentage = `${number}%`;
-/** String in the form of a number and 'px', such as `"12px"`. */
+/** A string in the form of a number and 'px', such as `"12px"`. */
 export type pixels = `${number}px`
-/** Simply the plus sign `"+"` or the minus sign `"-"`. */
+/** A string that is simply either the plus sign `"+"` or the minus sign `"-"`. */
 export type operator = '+' | '-';
 
 /**
  * Denotes an X coordinate alignment in the following formats:
- *  * {@link percentage} (such as `"50%"`)
- *  * {@link pixels} (such as `"12px"`)
- *  * {@link CssXAlignment} (such as `"center"` (which is equivalent to `"50%"`) and `"left"` (which is equivalent to `"0%"`))
- *  * {@link percentage} (+|-) {@link pixels} or {@link pixels} (+|-) {@link percentage} (such as `"50% - 12px"` and `"30px - 20%"`)
- *  * {@link CssXAlignment} (+|-) ({@link pixels}|{@link percentage}) (such as `"left + 50%"` and `"center - 12px"`)
+ *  * {@link percentage} (such as `"50%"`).
+ *  * {@link pixels} (such as `"12px"`).
+ *  * {@link CssXAlignment} (such as `"center"` (which is equivalent to `"50%"`) and `"left"` (which is equivalent to `"0%"`)).
+ *  * {@link percentage} (+|-) {@link pixels} or {@link pixels} (+|-) {@link percentage} (such as `"50% - 12px"` and `"30px - 20%"`).
+ *  * {@link CssXAlignment} (+|-) ({@link pixels}|{@link percentage}) (such as `"left + 50%"` and `"center - 12px"`).
  */
 export type MultiUnitPlacementX = percentage | pixels | CssXAlignment | `${percentage} ${operator} ${pixels}` | `${pixels} ${operator} ${percentage}` | `${CssXAlignment} ${operator} ${pixels | percentage}`;
 
 /**
  * Denotes an X coordinate alignment in the following formats:
- *  * {@link percentage} (such as `"50%"`)
- *  * {@link pixels} (such as `"12px"`)
- *  * {@link CssYAlignment} (such as `"center"` (which is equivalent to `"50%"`) and `"top"` (which is equivalent to `"0%"`))
- *  * {@link percentage} (+|-) {@link pixels} or {@link pixels} (+|-) {@link percentage} (such as `"50% - 12px"` and `"30px - 20%"`)
- *  * {@link CssYAlignment} (+|-) ({@link pixels}|{@link percentage}) (such as `"top + 50%"` and `"center - 12px"`)
+ *  * {@link percentage} (such as `"50%"`).
+ *  * {@link pixels} (such as `"12px"`).
+ *  * {@link CssYAlignment} (such as `"center"` (which is equivalent to `"50%"`) and `"top"` (which is equivalent to `"0%"`)).
+ *  * {@link percentage} (+|-) {@link pixels} or {@link pixels} (+|-) {@link percentage} (such as `"50% - 12px"` and `"30px - 20%"`).
+ *  * {@link CssYAlignment} (+|-) ({@link pixels}|{@link percentage}) (such as `"top + 50%"` and `"center - 12px"`).
  */
 export type MultiUnitPlacementY = percentage | pixels | CssYAlignment | `${percentage} ${operator} ${pixels}` | `${pixels} ${operator} ${percentage}` | `${CssYAlignment} ${operator} ${pixels | percentage}`;
 
 /**
- * Tuple containing the result of parsing a multi-unit placement string
+ * A tuple containing the result of parsing a multi-unit placement string
  * into a percentage number (where 1 means 100%) and a pixels number.
  */
 export type ParsedMultiUnitPlacement = [percentage: number, pixels: number];
@@ -209,8 +209,8 @@ export type Keyframes = PropertyIndexedKeyframes | Keyframe[];
 export type Mutator = () => void;
 
 /**
- * Standard CSS style property names in camelCase form.
- * * Standard names are autocompleted, but non-standard values are still allowed (this accounts
+ * The standard CSS style property names in camelCase form.
+ *  * Standard names are autocompleted, but non-standard values are still allowed (this accounts
  * for custom CSS variables)
  */
 export type StyleProperty = Union<
@@ -267,7 +267,7 @@ export type TextEditRate = `${number}${'wpm' | 'cpm'}`
 // TODO: add code examples
 export type TextEditOptions = {
   /**
-   * if `true`, a case-insensitive search will be used if {@link TextEditOptions.match|match} is specified
+   * If `true`, a case-insensitive search will be used if {@link TextEditOptions.match|match} is specified.
    * @defaultValue
    * ```ts
    * false
@@ -278,14 +278,14 @@ export type TextEditOptions = {
   */
   ignoreMatchCase?: boolean;
   /**
-   * retrieves the result of matching this string against a string or regular expression.
+   * Retrieves the result of matching this string against a string or regular expression.
    *  * When inserting text, match (if specified) will be used to determine _where_ to insert the new text.
    *  * If deleting or replacing text, match will be used to determine _what_ text to delete
    * (if unspecified, all text will be deleted or replaced).
    */
   match?: string | RegExp;
   /**
-   * if `true`, then if {@link TextEditOptions.match|match} contains capturing groups—portions enclosed in parentheses, as in
+   * If `true`, then if {@link TextEditOptions.match|match} contains capturing groups—portions enclosed in parentheses, as in
    * `/My ID is (\w\d)+, and my number is (\d+)/`—each group will be inserted by, deleted, or replaced (whatever operation is being performed)
    * instead of the entire match.
    * @defaultValue
@@ -296,7 +296,7 @@ export type TextEditOptions = {
    */
   useCaptureGroups?: boolean;
   /**
-   * if `true`, then {@link TextEditOptions.match|match} (if specified) will search for _all_ matching results instead of
+   * If `true`, then {@link TextEditOptions.match|match} (if specified) will search for _all_ matching results instead of
    * just stopping at one.
    * @defaultValue
    * ```ts
@@ -305,7 +305,7 @@ export type TextEditOptions = {
    */
   findAllMatches?: boolean;
   /**
-   * an aesthetic option that determines whether text should be inserted/deleted by characters at a time or words at a time.
+   * An aesthetic option that determines whether text should be inserted/deleted by characters at a time or words at a time.
    * @defaultValue
    * ```ts
    * 'by-character'
@@ -315,8 +315,8 @@ export type TextEditOptions = {
    */
   letterChunking?: 'by-character' | 'by-word';
   /**
-   * if `true` and {@link TextEditOptions.findAllMatches|findAllMatches} is also `true`, then all matches will be treated as one
-   * large single match. This options is only meaningful when inserting an array.
+   * If `true` and {@link TextEditOptions.findAllMatches|findAllMatches} is also `true`, then all matches will be treated as one
+   * large single match. This option is only meaningful when inserting an array.
    * @defaultValue
    * ```ts
    * false

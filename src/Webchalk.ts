@@ -30,8 +30,8 @@ export class Webchalk {
   /**
    * Creates a new {@link AnimSequence} with configuration options specified in the {@link config} parameter
    * followed by an optional array of animation clips.
-   * @param config - configuration options for the sequence
-   * @param animClips - array of {@link AnimClip}s to add to the sequence
+   * @param config - Configuration options for the sequence.
+   * @param animClips - An array of {@link AnimClip}s to add to the sequence.
    * @returns A new {@link AnimSequence} instance.
    * 
    * @example
@@ -79,7 +79,7 @@ export class Webchalk {
   newSequence(config: Partial<AnimSequenceConfig>, animClips?: AnimClip[]): AnimSequence;
   /**
    * Creates a new {@link AnimSequence} instance with an optional array of animation clips.
-   * @param animClips - array of {@link AnimClip}s to add to the sequence
+   * @param animClips - An array of {@link AnimClip}s to add to the sequence.
    * @returns A new {@link AnimSequence} instance.
    * 
    * @example
@@ -132,8 +132,8 @@ export class Webchalk {
   /**
    * Creates a new {@link AnimTimeline} with configuration options specified in the {@link config} parameter
    * followed by an optional array of animation sequences.
-   * @param config - configuration options for the timeline
-   * @param animSequences - array of {@link AnimSequence}s to add to the timeline
+   * @param config - Configuration options for the timeline.
+   * @param animSequences - An array of {@link AnimSequence}s to add to the timeline.
    * @returns A new {@link AnimTimeline} instance.
    * 
    * @example
@@ -179,7 +179,7 @@ export class Webchalk {
   newTimeline(config: Partial<AnimTimelineConfig> | AnimSequence[], animSequences?: AnimSequence[]): AnimTimeline;
   /**
    * Creates a new {@link AnimTimeline} with with an optional array of animation sequences.
-   * @param animSequences - optional array of {@link AnimSequence}s to add to the timeline
+   * @param animSequences - An array of {@link AnimSequence}s to add to the timeline.
    * @returns A new {@link AnimTimeline} instance.
    * 
    * @example
@@ -233,11 +233,11 @@ export class Webchalk {
    *  * Developers may add their own preset animation effects to the Entrance, Exit, Emphasis, and Motion categories by using the
    * {@link additionalPresetEffectBanks} parameter. **WEBCHALK'S OWN PRESET EFFECT BANKS ARE AUTOMATICALLY INCLUDED. YOU DO NOT
    * NEED TO ADD THEM MANUALLY.**
-   * @param additionalPresetEffectBanks - optional object containing additional banks that the developer can use to add their own preset effects
-   * @param additionalPresetEffectBanks.additionalEntranceEffectBank - objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Entrance()` clip factory function
-   * @param additionalPresetEffectBanks.additionalExitEffectBank - objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Exit()` clip factory function
-   * @param additionalPresetEffectBanks.additionalEmphasisEffectBank - objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Emphasis()` clip factory function
-   * @param additionalPresetEffectBanks.additionalMotionEffectBank - objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Motion()` clip factory function
+   * @param additionalPresetEffectBanks - Object containing additional banks that the developer can use to add their own preset effects
+   * @param additionalPresetEffectBanks.additionalEntranceEffectBank - Objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Entrance()` clip factory function.
+   * @param additionalPresetEffectBanks.additionalExitEffectBank - Objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Exit()` clip factory function.
+   * @param additionalPresetEffectBanks.additionalEmphasisEffectBank - Objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Emphasis()` clip factory function.
+   * @param additionalPresetEffectBanks.additionalMotionEffectBank - Objects of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Motion()` clip factory function.
    * @returns Factory functions that return category-specific {@link AnimClip}s, each with intellisense for their category-specific effects banks.
    * 
    * @example
@@ -366,17 +366,17 @@ export class Webchalk {
   >
   (
     additionalPresetEffectBanks: {
-      /** object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with `Entrance()` clip factory function */
+      /** Object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with `Entrance()` clip factory function. */
       additionalEntranceEffectBank?: AdditionalEntranceBank & PresetEffectBank<EntranceClip>;
-      /** object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Exit()` clip factory function */
+      /** Object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Exit()` clip factory function. */
       additionalExitEffectBank?: AdditionalExitBank & PresetEffectBank<ExitClip>;
-      /** object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Emphasis()` clip factory function */
+      /** Object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Emphasis()` clip factory function. */
       additionalEmphasisEffectBank?: AdditionalEmphasisBank & PresetEffectBank<EmphasisClip>;
-      /** object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Motion()` clip factory function */
+      /** Object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Motion()` clip factory function. */
       additionalMotionEffectBank?: AdditionalMotionBank & PresetEffectBank<MotionClip>;
     } = {},
     /**
-     * if `false`, the preset effects that normally come with the framework will be excluded
+     * If `false`, the preset effects that normally come with the framework will be excluded.
      * @defaultValue
      * ```ts
      * true
@@ -414,11 +414,11 @@ export class Webchalk {
     return {
       /**
        * Creates an {@link EntranceClip}, which can be used to reveal an element that was hidden.
-       * @param domElem - the element to which the animation effect will be applied
-       * @param effectName - the name of the preset animation effect
-       * @param effectOptions - array of arguments that can be used to customize the appearance of the chosen animation effect
-       * @param effectConfig - configuration options object ({@link EntranceClipConfig}) that defines the behavior of the clip
-       * @returns An {@link EntranceClip} object.
+       * @param domElem - The element to which the animation effect will be applied.
+       * @param effectName - The name of the preset animation effect.
+       * @param effectOptions - The array of arguments that can be used to customize the appearance of the chosen animation effect.
+       * @param effectConfig - A configuration options object ({@link EntranceClipConfig}) that defines the behavior of the clip.
+       * @returns A new {@link EntranceClip} instance.
        * 
        * @example
        * <!-- EX:S id="EntranceClip.example" code-type="ts" -->
@@ -460,11 +460,11 @@ export class Webchalk {
 
       /**
        * Creates an {@link ExitClip}, which can be used to unrender or make invisible an element.
-       * @param domElem - the element to which the animation effect will be applied
-       * @param effectName - the name of the preset animation effect
-       * @param effectOptions - array of arguments that can be used to customize the appearance of the chosen animation effect
-       * @param effectConfig - configuration options object ({@link ExitClipConfig}) that defines the behavior of the clip
-       * @returns An {@link ExitClip} object.
+       * @param domElem - The element to which the animation effect will be applied.
+       * @param effectName - The name of the preset animation effect.
+       * @param effectOptions - The array of arguments that can be used to customize the appearance of the chosen animation effect.
+       * @param effectConfig - A configuration options object ({@link ExitClipConfig}) that defines the behavior of the clip.
+       * @returns A new {@link ExitClip} instance.
        * 
        * <!-- EX:S id="ExitClip.example" code-type="ts" -->
        * ```ts
@@ -505,11 +505,11 @@ export class Webchalk {
 
       /**
        * Creates an {@link EmphasisClip}, which can be used to emphasize an element in some way (like highlighting).
-       * @param domElem - the element to which the animation effect will be applied
-       * @param effectName - the name of the preset animation effect
-       * @param effectOptions - array of arguments that can be used to customize the appearance of the chosen animation effect
-       * @param effectConfig - configuration options object ({@link EmphasisClipConfig}) that defines the behavior of the clip
-       * @returns An {@link EmphasisClip} object.
+       * @param domElem - The element to which the animation effect will be applied.
+       * @param effectName - The name of the preset animation effect.
+       * @param effectOptions - The array of arguments that can be used to customize the appearance of the chosen animation effect.
+       * @param effectConfig - A configuration options object ({@link EmphasisClipConfig}) that defines the behavior of the clip.
+       * @returns A new {@link EmphasisClip} instance.
        * 
        * <!-- EX:S id="EmphasisClip.example" code-type="ts" -->
        * ```ts
@@ -549,11 +549,11 @@ export class Webchalk {
 
       /**
        * Creates a {@link MotionClip}.
-       * @param domElem - the element to which the animation effect will be applied
-       * @param effectName - the name of the preset animation effect
-       * @param effectOptions - array of arguments that can be used to customize the appearance of the chosen animation effect
-       * @param effectConfig - configuration options object ({@link MotionClipConfig}) that defines the behavior of the clip
-       * @returns A {@link MotionClip} object.
+       * @param domElem - The element to which the animation effect will be applied.
+       * @param effectName - The name of the preset animation effect.
+       * @param effectOptions - The array of arguments that can be used to customize the appearance of the chosen animation effect.
+       * @param effectConfig - A configuration options object ({@link MotionClipConfig}) that defines the behavior of the clip.
+       * @returns A new {@link MotionClip} instance.
        * 
        * <!-- EX:S id="MotionClip.example" code-type="ts" -->
        * ```ts
@@ -596,11 +596,11 @@ export class Webchalk {
 
       /**
        * Creates a {@link TransitionClip}, which can be used to make an element transition to or from a given {@link Keyframe}.
-       * @param domElem - the element to which the animation effect will be applied
-       * @param effectName - the name of the preset animation effect
-       * @param effectOptions - array of arguments that can be used to customize the appearance of the chosen animation effect
-       * @param effectConfig - configuration options object ({@link TransitionClipConfig}) that defines the behavior of the clip
-       * @returns A {@link TransitionClip} object.
+       * @param domElem - The element to which the animation effect will be applied.
+       * @param effectName - The name of the preset animation effect.
+       * @param effectOptions - The array of arguments that can be used to customize the appearance of the chosen animation effect.
+       * @param effectConfig - A configuration options object ({@link TransitionClipConfig}) that defines the behavior of the clip.
+       * @returns A new {@link TransitionClip} instance.
        * 
        * <!-- EX:S id="TransitionClip.example" code-type="ts" -->
        * ```ts
@@ -641,11 +641,11 @@ export class Webchalk {
 
       /**
        * Creates a {@link ConnectorSetterClip}, which can be used to set the endpoints of a {@link WebchalkConnectorElement}.
-       * @param connectorElem - the {@link WebchalkConnectorElement} element to which the animation effect will be applied
-       * @param pointA - the new target of endpoint A (or `"preserve"` if it should not change)
-       * @param pointB - the new target of endpoint B (or `"preserve"` if it should not change)
+       * @param connectorElem - The {@link WebchalkConnectorElement} element to which the animation effect will be applied.
+       * @param pointA - The new target of endpoint A (or `"preserve"` if it should not change).
+       * @param pointB - The new target of endpoint B (or `"preserve"` if it should not change).
        * @param connectorConfig A {@link WebchalkConnectorElementConfig} object.
-       * @returns A {@link ConnectorSetter} object.
+       * @returns A new {@link ConnectorSetter} instance.
        * 
        * <!-- EX:S id="ConnectorSetterClip.example" code-type="ts" -->
        * ```ts
@@ -712,11 +712,11 @@ export class Webchalk {
 
       /**
        * Creates a {@link ConnectorEntranceClip}, which can be used to reveal a {@link WebchalkConnectorElement} that was hidden.
-       * @param domElem - the {@link WebchalkConnectorElement} element to which the animation effect will be applied
-       * @param effectName - the name of the preset animation effect
-       * @param effectOptions - array of arguments that can be used to customize the appearance of the chosen animation effect
-       * @param effectConfig - configuration options object ({@link ConnectorEntranceClipConfig}) that defines the behavior of the clip
-       * @returns A {@link ConnectorEntranceClip} object.
+       * @param domElem - The {@link WebchalkConnectorElement} element to which the animation effect will be applied.
+       * @param effectName - The name of the preset animation effect.
+       * @param effectOptions - The array of arguments that can be used to customize the appearance of the chosen animation effect.
+       * @param effectConfig - A configuration options object ({@link ConnectorEntranceClipConfig}) that defines the behavior of the clip.
+       * @returns A new {@link ConnectorEntranceClip} instance.
        * 
        * <!-- EX:S id="ConnectorEntranceClip.example" code-type="ts" -->
        * ```ts
@@ -763,11 +763,11 @@ export class Webchalk {
 
       /**
        * Creates a {@link ConnectorExitClip}, which can be used to unrender a {@link WebchalkConnectorElement}.
-       * @param domElem - the {@link WebchalkConnectorElement} element to which the animation effect will be applied
-       * @param effectName - the name of the preset animation effect
-       * @param effectOptions - array of arguments that can be used to customize the appearance of the chosen animation effect
-       * @param effectConfig - configuration options object ({@link ConnectorExitClipConfig}) that defines the behavior of the clip
-       * @returns A {@link ConnectorExitClip} object.
+       * @param domElem - The {@link WebchalkConnectorElement} element to which the animation effect will be applied.
+       * @param effectName - The name of the preset animation effect.
+       * @param effectOptions - The array of arguments that can be used to customize the appearance of the chosen animation effect.
+       * @param effectConfig - A configuration options object ({@link ConnectorExitClipConfig}) that defines the behavior of the clip.
+       * @returns A new {@link ConnectorExitClip} instance.
        * 
        * <!-- EX:S id="ConnectorExitClip.example" code-type="ts" -->
        * ```ts
@@ -812,11 +812,11 @@ export class Webchalk {
       
       /**
        * Creates an {@link ScrollerClip}, which can be used to scroll an element.
-       * @param domElem - the element to which the animation effect will be applied
-       * @param effectName - the name of the preset animation effect
-       * @param effectOptions - array of arguments that can be used to customize the appearance of the chosen animation effect
-       * @param effectConfig - configuration options object ({@link ScrollerClipConfig}) that defines the behavior of the clip
-       * @returns An {@link ScrollerClip} object.
+       * @param domElem - The element to which the animation effect will be applied.
+       * @param effectName - The name of the preset animation effect.
+       * @param effectOptions - The array of arguments that can be used to customize the appearance of the chosen animation effect.
+       * @param effectConfig - A configuration options object ({@link ScrollerClipConfig}) that defines the behavior of the clip.
+       * @returns A new {@link ScrollerClip} instance.
        * 
        * <!-- EX:S id="ScrollerClip.example" code-type="ts" -->
        * ```ts

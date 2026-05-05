@@ -45,7 +45,7 @@ const clipOpened = 'polygon(0 0%, 100% 0%, 100% 100%, 0 100%)';
  * @category hidden
  */
 export const libPresetEntrances = definePresetEffectBank('Entrance', {
-  /** Element appears instantaneously. */
+  /** The element appears instantaneously. */
   [`~appear`]: {
     /**
      * 
@@ -70,7 +70,7 @@ export const libPresetEntrances = definePresetEffectBank('Entrance', {
     howOftenBuildGenerators: 'on-first-play-only',
   },
 
-  /** Element fades in, starting from 0 opacity. */
+  /** The element fades in, starting from 0 opacity. */
   [`~fade-in`]: {
     /**
      * 
@@ -89,12 +89,12 @@ export const libPresetEntrances = definePresetEffectBank('Entrance', {
   },
 
   /**
-   * Element flies in from offscreen from the specified direction.
+   * The element flies in from offscreen from the specified direction.
    */
   [`~fly-in`]: {
     /**
      * 
-     * @param direction - direction from which the element should enter
+     * @param direction - The direction from which the element should enter.
      * @returns 
      */
     buildFrameGenerators(direction: `from-${Direction}` = 'from-bottom') {
@@ -136,13 +136,13 @@ export const libPresetEntrances = definePresetEffectBank('Entrance', {
   },
 
   /**
-   * Element spins and zooms into view while fading in.
+   * The element spins and zooms into view while fading in.
    */
   [`~pinwheel`]: {
     /**
      * 
-     * @param numSpins - number of times the element will spin
-     * @param direction - direction of the rotation
+     * @param numSpins - The number of times the element will spin.
+     * @param direction - The direction of the rotation.
      * @returns 
      */
     buildFrameGenerators(numSpins: number = 2, direction: 'clockwise' | 'counterclockwise' = 'counterclockwise') {
@@ -163,7 +163,7 @@ export const libPresetEntrances = definePresetEffectBank('Entrance', {
   },
 
   /**
-   * Element flies in from the bottom of the screen and ends up
+   * The element flies in from the bottom of the screen and ends up
    * slightly too high, then settles down to its final position.
    */
   [`~rise-up`]: {
@@ -192,12 +192,12 @@ export const libPresetEntrances = definePresetEffectBank('Entrance', {
   },
 
   /**
-   * Element is wiped on, starting from the specified direction.
+   * The element is wiped on, starting from the specified direction.
    */
   [`~wipe`]: {
     /**
      * 
-     * @param direction - direction from which to begin the wipe
+     * @param direction - The direction from which to begin the wipe.
      * @returns 
      */
     buildFrameGenerators(direction: 'from-bottom' | 'from-left' | 'from-top' | 'from-right' = 'from-bottom') {
@@ -235,14 +235,14 @@ export const libPresetEntrances = definePresetEffectBank('Entrance', {
   },
 
   /**
-   * Element slides in from the specified direction while also wiping.
+   * The element slides in from the specified direction while also wiping.
    * Particularly effective if the element is adjacent to a different element, making it look as if it
    * is sliding out of that element like a dropdown expanding.
    */
   ['~slide-in']: {
     /**
      * 
-     * @param direction - direction from which to slide
+     * @param direction - The direction from which to slide.
      * @returns 
      */
     buildFrameGenerators(direction: 'from-left' | 'from-top' | 'from-right' | 'from-bottom' = 'from-top') {
@@ -302,7 +302,7 @@ export const libPresetEntrances = definePresetEffectBank('Entrance', {
  * @category hidden
  */
 export const libPresetExits = definePresetEffectBank('Exit', {
-  /** Element disappears instantaneously. */
+  /** The element disappears instantaneously. */
   [`~disappear`]: {
     /**
      * 
@@ -320,7 +320,7 @@ export const libPresetExits = definePresetEffectBank('Exit', {
     howOftenBuildGenerators: 'on-first-play-only',
   },
 
-  /** Element fades out to 0 opacity. */
+  /** The element fades out to 0 opacity. */
   [`~fade-out`]: {
     /**
      * 
@@ -338,11 +338,11 @@ export const libPresetExits = definePresetEffectBank('Exit', {
     howOftenBuildGenerators: 'on-first-play-only',
   },
 
-  /** Element flies offscreen towards the specified direction */
+  /** The element flies offscreen towards the specified direction. */
   [`~fly-out`]: {
     /**
      * 
-     * @param direction - direction to which the element should exit
+     * @param direction - The direction to which the element should exit.
      * @returns 
      */
     buildFrameGenerators(direction: `to-${OrthoDirection | DiagDirection}` = 'to-bottom') {
@@ -382,12 +382,12 @@ export const libPresetExits = definePresetEffectBank('Exit', {
     howOftenBuildGenerators: 'on-first-play-only',
   },
 
-  /** Element spins and shrinks while fading out. */
+  /** The element spins and shrinks while fading out. */
   [`~pinwheel`]: {
     /**
      * 
-     * @param numSpins - number of times the element will spin
-     * @param direction - direction of the spin
+     * @param numSpins - The number of times the element will spin.
+     * @param direction - The direction of the spin.
      * @returns 
      */
     buildFrameGenerators(numSpins: number = 2, direction: 'clockwise' | 'counterclockwise' = 'clockwise') {
@@ -408,7 +408,7 @@ export const libPresetExits = definePresetEffectBank('Exit', {
   },
 
   /**
-   * Element floats up slightly and then accelerates to the bottom of the screen.
+   * The element floats up slightly and then accelerates to the bottom of the screen.
    */
   [`~sink-down`]: {
     /**
@@ -443,7 +443,7 @@ export const libPresetExits = definePresetEffectBank('Exit', {
     howOftenBuildGenerators: 'on-first-play-only',
   },
   
-  /** Element is wiped off, starting from the specified direction. */
+  /** The element is wiped off, starting from the specified direction. */
   [`~wipe`]: {
     /**
      * 
@@ -482,14 +482,14 @@ export const libPresetExits = definePresetEffectBank('Exit', {
   },
 
   /**
-   * Element slides out to the specified direction while also wiping.
+   * The element slides out to the specified direction while also wiping.
    * Particularly effective if the element is adjacent to a different element, making it look as if it
    * is sliding into that element like a dropdown collapsing.
    */
   ['~slide-out']: {
     /**
      * 
-     * @param direction - direction to which to slide
+     * @param direction - The direction to which to slide.
      * @returns 
      */
     buildFrameGenerators(direction: 'to-left' | 'to-top' | 'to-right' | 'to-bottom' = 'to-top') {
@@ -548,12 +548,12 @@ export const libPresetExits = definePresetEffectBank('Exit', {
  */
 export const libPresetEmphases = definePresetEffectBank('Emphasis', {
   /**
-   * Element is highlighted in the specified color.
+   * The element is highlighted in the specified color.
    */
   [`~highlight`]: {
     /**
      * 
-     * @param color - color to use for the highlight
+     * @param color - The color to use for the highlight.
      * @returns 
      */
     buildFrameGenerators(color: string = 'default') {
@@ -604,7 +604,7 @@ export const libPresetEmphases = definePresetEffectBank('Emphasis', {
     howOftenBuildGenerators: 'on-every-play',
   },
 
-  /** Element is unhighlighted. */
+  /** The element is unhighlighted. */
   [`~un-highlight`]: {
     /**
      * 
@@ -650,12 +650,12 @@ export const libPresetEmphases = definePresetEffectBank('Emphasis', {
  * @category hidden
  */
 export const libPresetMotions = definePresetEffectBank('Motion', {
-  /** Element is moved with respect to another element. */
+  /** The element is moved with respect to another element. */
   ['~move-to']: {
     /**
      * 
-     * @param targetElem - element to which our element should move
-     * @param translationOptions - options defining the behavior of the motion
+     * @param targetElem - The element to which our element should move.
+     * @param translationOptions - An options object defining the behavior of the motion.
      * @returns 
      */
     buildFrameGenerators(targetElem: Element | null | undefined, translationOptions: Partial<MoveToOptions> = {}) {
@@ -724,11 +724,11 @@ export const libPresetMotions = definePresetEffectBank('Motion', {
     howOftenBuildGenerators: 'on-every-play',
   },
 
-  /** Element moves based on the specified translation options. */
+  /** The element moves based on the specified translation options. */
   ['~translate']: {
     /**
      * 
-     * @param translationOptions - options defining the behavior of the motion
+     * @param translationOptions - An options object defining the behavior of the motion.
      * @returns 
      */
     buildFrameGenerators(translationOptions: Partial<TranslateOptions> = {}) {
@@ -761,11 +761,11 @@ export const libPresetMotions = definePresetEffectBank('Motion', {
  * @category hidden
  */
 export const libPresetTransitions = {
-  /** Element transitions from the specified {@link Keyframe} to its current state. */
+  /** The element transitions from the specified {@link Keyframe} to its current state. */
   ['~from']: {
     /**
      * 
-     * @param keyframe - a _single_ {@link Keyframe} object dictating the beginning state of the transition
+     * @param keyframe - A _single_ {@link Keyframe} object dictating the beginning state of the transition.
      * @see [Keyframe Formats (way #1)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Keyframe_Formats)
      * @see [Keyframe Properties](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Keyframe_Formats#attributes)
      * @returns 
@@ -811,11 +811,11 @@ export const libPresetTransitions = {
     howOftenBuildGenerators: 'on-first-play-only',
   },
 
-  /** Element transitions from its current state to the specified {@link Keyframe}. */
+  /** The element transitions from its current state to the specified {@link Keyframe}. */
   ['~to']: {
     /**
      * 
-     * @param keyframe - a _single_ {@link Keyframe} object dictating the end state of the transition
+     * @param keyframe - A _single_ {@link Keyframe} object dictating the end state of the transition.
      * @see [Keyframe Formats (way #1)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Keyframe_Formats)
      * @see [Keyframe Properties](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Keyframe_Formats#attributes)
      * @returns 
@@ -897,7 +897,7 @@ export const libPresetTransitions = {
  * @category hidden
  */
 export const libPresetConnectorEntrances = {
-  /** Connector appears instantaneously. */
+  /** The connector element appears instantaneously. */
   [`~appear`]: {
     /**
      * 
@@ -915,7 +915,7 @@ export const libPresetConnectorEntrances = {
     howOftenBuildGenerators: 'on-first-play-only',
   },
 
-  /** Connector fades in, starting from 0 opacity. */
+  /** The connector element fades in, starting from 0 opacity. */
   [`~fade-in`]: {
     /**
      * 
@@ -934,11 +934,11 @@ export const libPresetConnectorEntrances = {
   },
 
   // TODO: Fix new bugs surrounding animating custom variables
-  /** Connector is wiped on from the specified direction as if being drawn. */
+  /** The connector is wiped on from the specified direction as if being drawn. */
   [`~trace`]: {
     /**
      * 
-     * @param direction - direction from which the connector should be traced
+     * @param direction - The direction from which the connector should be traced.
      * @returns 
      */
     buildFrameGenerators(direction: 'from-A' | 'from-B' | 'from-top' | 'from-bottom' | 'from-left' | 'from-right' = 'from-A') {
@@ -1008,7 +1008,7 @@ export const libPresetConnectorEntrances = {
  * @category hidden
  */
 export const libPresetConnectorExits = {
-  /** Connector disappears instantaneously. */
+  /** The connector element disappears instantaneously. */
   [`~disappear`]: {
     /**
      * 
@@ -1026,7 +1026,7 @@ export const libPresetConnectorExits = {
     howOftenBuildGenerators: 'on-first-play-only',
   },
 
-  /** Connector fades out to 0 opacity. */
+  /** The connector element fades out to 0 opacity. */
   [`~fade-out`]: {
     /**
      * 
@@ -1044,11 +1044,11 @@ export const libPresetConnectorExits = {
     howOftenBuildGenerators: 'on-first-play-only',
   },
 
-  /** Connector is wiped off from the specified direction as if being erased. */
+  /** The connector element is wiped off from the specified direction as if being erased. */
   [`~trace`]: {
     /**
      * 
-     * @param direction - direction from which the connector should be traced
+     * @param direction - The direction from which the connector should be traced.
      * @returns 
      */
     buildFrameGenerators(direction: 'from-A' | 'from-B' | 'from-top' | 'from-bottom' | 'from-left' | 'from-right' = 'from-A') {
@@ -1153,12 +1153,12 @@ export const libPresetScrolls = {
   //   }
   // },
 
-  /** Element is scrolled with respect to a child element. */
+  /** The element is scrolled with respect to a child element. */
   [`~scroll-self`]: {
     /**
      * 
-     * @param target - child element to which our element should scroll
-     * @param scrollOptions - options defining the behavior of the scroll
+     * @param target - The child element to which our element should scroll.
+     * @param scrollOptions - An options object defining the behavior of the scroll.
      * @returns 
      */
     buildFrameGenerators(target: Element | null | undefined, scrollOptions: Partial<ScrollingOptions> = {}) {
@@ -1245,7 +1245,7 @@ export const libPresetScrolls = {
  * @category hidden
  */
 export const libPresetTextEdits = {
-  /** Element has all (or just the specified) text deleted. */
+  /** The element has all (or just the specified) text deleted. */
   ['~delete-text']: {
     buildFrameGenerators(
       options: Pick<
@@ -1295,7 +1295,7 @@ export const libPresetTextEdits = {
     howOftenBuildGenerators: 'on-every-play',
   },
 
-  /** Element has the specified text inserted. */
+  /** The element has the specified text inserted. */
   ['~insert-text']: {
     buildFrameGenerators(
       newText: string | number | (string | number)[],
@@ -1309,8 +1309,8 @@ export const libPresetTextEdits = {
       | 'useCaptureGroups'
       > & {
         /**
-         * string value determining where to insert the new text relative to
-         * {@link TextEditOptions.match|match} (or if no match is specified, the entire text)
+         * A string determining where to insert the new text relative to
+         * {@link TextEditOptions.match|match} (or if no match is specified, the entire text).
          * @defaultValue
          * ```ts
          * 'after'
@@ -1420,7 +1420,7 @@ export const libPresetTextEdits = {
     howOftenBuildGenerators: 'on-every-play',
   },
 
-  /** Element has all (or just the specified) text deleted and replaced with the specified text. */
+  /** The element has all (or just the specified) text deleted and replaced with the specified text. */
   ['~replace-text']: {
     buildFrameGenerators(
       newText: string | number | (string | number)[],
@@ -1568,7 +1568,7 @@ export const libPresetTextEdits = {
 ].forEach(bank => formatBank(bank));
 
 /**
- * Object containing the various preset effect banks that Webchalk provides.
+ * The object containing the various preset effect banks that Webchalk provides.
  */
 export const webchalkPresetEffectBanks = {
   entranceBank: libPresetEntrances,

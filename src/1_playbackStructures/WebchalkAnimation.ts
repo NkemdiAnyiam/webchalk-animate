@@ -106,7 +106,7 @@ abstract class WebchalkAnimationBase extends Animation {
   /**
    * Swaps the current {@link Animation.effect} for either {@link WebchalkAnimationBase.forwardEffect}
    * or {@link WebchalkAnimationBase.backwardEffect} depending on {@link direction}.
-   * @param direction - direction in which the animation will go when playback is initiated
+   * @param direction - The direction in which the animation will go when playback is initiated.
    */
   setDirection(direction: 'forward' | 'backward'): void {
     this.direction = direction;

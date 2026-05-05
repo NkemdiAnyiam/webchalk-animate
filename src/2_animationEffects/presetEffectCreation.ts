@@ -8,7 +8,7 @@ import { deepFreeze } from "../4_utils/helpers";
 import { DEFAULT_CONFIG_ERROR, IMMUTABLE_CONFIG_ERROR, EFFECT_FRAME_GENERATORS_RETURN_ERROR_PRIMITIVE, EFFECT_FRAME_GENERATORS_RETURN_ERROR_PROPERTIES, EFFECT_FRAME_GENERATORS_RETURN_ERROR_KEYFRAMES_RW, EFFECT_FRAME_GENERATORS_RETURN_ERROR_MUTATOR_RW } from "../4_utils/errors";
 
 /**
- * Object containing up to 4 callback functions that will be called to
+ * An object containing up to 4 callback functions that will be called to
  * produce the effect for an animation clip. Returned by {@link PresetEffectDefinition.buildFrameGenerators}.
  *  * {@link EffectFrameGeneratorSet.keyframesGenerator_play | keyframesGenerator_play} will run every time the clip is played,
  * producing a {@link Keyframes} object.
@@ -408,24 +408,24 @@ export interface EffectFrameGeneratorSet extends StripDuplicateMethodAutocomplet
   mutatorGenerator_rewind?: () => Mutator;
   /**
    * If `true`, the effect specified by the keyframes generators will be reversed.
-   * * This is convenient when you want to create the opposite of another previously defined effect
-   * * This also applies to all keyframe generators within {@link EffectFrameGeneratorSet.nestedEffectFrameGeneratorSet | nestedEffectFrameGeneratorSet}
+   *  * This is convenient when you want to create the opposite of another previously defined effect.
+   *  * This also applies to all keyframe generators within {@link EffectFrameGeneratorSet.nestedEffectFrameGeneratorSet | nestedEffectFrameGeneratorSet}.
    * 
    * @group Keyframes Generators
    */
   reverseKeyframesEffect?: boolean;
   /**
    * If `true`, the effect specified by the mutator generators will be reversed.
-   * * This is convenient when you want to create the opposite of another previously defined effect
-   * * This also applies to all mutator generators within {@link EffectFrameGeneratorSet.nestedEffectFrameGeneratorSet | nestedEffectFrameGeneratorSet}
+   *  * This is convenient when you want to create the opposite of another previously defined effect.
+   *  * This also applies to all mutator generators within {@link EffectFrameGeneratorSet.nestedEffectFrameGeneratorSet | nestedEffectFrameGeneratorSet}.
    * 
    * @group Mutator Generators
    */
   reverseMutatorEffect?: boolean;
   // TODO: add code examples
   /**
-   * Array containing {@link NestedEffectFrameGeneratorSet}s, which can be used to create
-   * additional frame generators for animate other elements (for example, animating
+   * An array containing {@link NestedEffectFrameGeneratorSet}s, which can be used to create
+   * additional frame generators for animating other elements (for example, animating
    * a secondary element in a swap animation, or animating the children of `this.domElem`)
    */
   nestedEffectFrameGeneratorSets?: NestedEffectFrameGeneratorSet[];
@@ -599,7 +599,7 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
     immutableConfig?: Partial<TConfig> & object; // "& object" for some reason ensures custom errors will display for cases where ONLY invalid properties are provided
     /**
      * String that determines how frequently {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators} will be run.
-     * **SUGGESTION:** Read the documentation for {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators} first.
+     *  **SUGGESTION:** Read the documentation for {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators} first.
      *  * if `on-first-play-only`, {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators} will run the first time
      * `play()` is called and never again. The first-made {@link EffectFrameGeneratorSet} object's functions and the closure created during the first call to
      * {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators} will be used for the clip's entire lifetime.
@@ -808,11 +808,11 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
      * Function that runs when the clip is played. Returns a {@link EffectFrameGeneratorSet} object, which contains callback functions that will produce the
      * effects for both playing and rewinding the animation.
      * @this {AnimClip} A subset of properties of the {@link AnimClip} storing the effect at runtime
-     * @param effectOptions - parameters used to set the behavior for the specific animation effect when calling the clip factory function
+     * @param effectOptions - An array containing parameters used to set the behavior for the specific animation effect when calling the clip factory function.
      * @returns An object containing 4 possible callback functions that return {@link Keyframes} and/or {@link Mutator}.
      * 
      * @remarks
-     * **Overview**\
+     *  **Overview**\
      * Whenever {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators} runs (how often it runs depends on
      * {@link PresetEffectDefinition.howOftenBuildGenerators | howOftenBuildGenerators}), it returns a new {@link EffectFrameGeneratorSet} containing
      * callback functions, which we can refer to as "effect generators". The clip will call these effect generators to generate the
@@ -823,7 +823,7 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
      * For the sake of code clarity, it is recommended that you keep a final return statement at the bottom of
      * {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators} (as opposed to several possible return statements scattered throughout).
      * 
-     * **Special `this`**\
+     *  **Special `this`**\
      * For both convenience and utility, using `this` inside the scope of {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators}
      * gives access to a subset of useful properties and methods of the clip.
      *  * {@link AnimClip.domElem}
@@ -832,7 +832,7 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
      *  * {@link AnimClip.getEffectDetails}
      *  * {@link AnimClip.getStatus}
      * 
-     * **Forward Keyframes Generator**\
+     *  **Forward Keyframes Generator**\
      * In a typical case, you will return a {@link EffectFrameGeneratorSet} containing the callback function {@link EffectFrameGeneratorSet.keyframesGenerator_play}.
      * When the clip is played, the callback function will be called to produce the keyframes for the animation to play. When the clip
      * is rewound, the _same_ callback function will be called again to produce keyframes for the animation to play, but the direction will
@@ -845,7 +845,7 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
      * that the initial styles can be restored when the clip is rewound. The helper method {@link AnimClip.getStyles} is a convenient way
      * to get the current style properties of an element.
      * 
-     * **Forward Mutator Generator**\
+     *  **Forward Mutator Generator**\
      * You can also animate JavaScript values using {@link EffectFrameGeneratorSet.mutatorGenerator_play}.
      * Like the keyframes generator, it is a callback function that will be called when the clip is played, and when the clip is rewound,
      * it will be called again with its effect being reversed this time. The difference is that instead of returning
@@ -855,7 +855,7 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
      * (Under the hood, {@link requestAnimationFrame} loops are being used.)
      * See the documentation of {@link EffectFrameGeneratorSet} for details on how to use mutator generators.
      * 
-     * **Backward Effect Generators**\
+     *  **Backward Effect Generators**\
      * In addition to the forward keyframes/mutator generators, you may also define {@link EffectFrameGeneratorSet.keyframesGenerator_rewind} and/or
      * {@link EffectFrameGeneratorSet.mutatorGenerator_rewind}, giving you the ability to define more complex effects. When the clip is played,
      * the full {@link EffectFrameGeneratorSet} will be produced. Only the forward keyframes/mutator generators will be called at first since they will be used for
@@ -864,13 +864,13 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
      * will be called to produce the effect again. Then when the clip is eventually rewound again, the backward generators will once again
      * be called to produce the effect—so on and so forth.
      * 
-     * **Generator Rebuild Frequency**\
+     *  **Generator Rebuild Frequency**\
      * By default, {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators} only runs the first time the clip is played, so the
      * resulting generators will be reused for the lifetime of the clip. To allow {@link PresetEffectDefinition.buildFrameGenerators | buildFrameGenerators}
      * to rerun and remake the {@link EffectFrameGeneratorSet}, set {@link PresetEffectDefinition.howOftenBuildGenerators} to `'on-every-play'`.
      * 
      * <!--
-     * **_LONG, DETAILED EXPLANATION_**\
+     *  **_LONG, DETAILED EXPLANATION_**\
      * An animation clip uses two separate sets of keyframes—one set that will be used when the clip is played (the forward set)
      * and one set that will be used when the clip is rewound (the backward set). This means that you can define two distinct
      * effects for a clip's forward and backward animations, though you will most likely just want to define backward keyframes
@@ -888,7 +888,7 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
      * Similarly, the backward mutation function will be returned by {@link EffectFrameGeneratorSet.mutatorGenerator_rewind}—which is called _every_ time the
      * clip is rewound—and the mutation will repeatedly run at the device's frame rate.
      * 
-     * **REASONING**: Sometimes, the semantics of an animation are impossible to express by playing and rewinding only one set of keyframes.
+     *  **REASONING**: Sometimes, the semantics of an animation are impossible to express by playing and rewinding only one set of keyframes.
      * For example, suppose you make a motion effect that moves the target from element A to element B. The semantic expectations are that
      * the target moves to B when the clip is played and moves back to A when the clip is rewound.\
      * It would not be enough to just rewind the forward keyframes because that would send the element from B back to wherever A _used_ to be (which may or
@@ -898,7 +898,7 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
      * can account for dynamic factors like screen size, shifting elements, etc. (especially when paired with the possible values for
      * {@link PresetEffectDefinition.howOftenBuildGenerators | howOftenBuildGenerators}).
      * 
-     * **OPTIONAL SHORTCUT:** For most effects, the semantic expectations will likely be trivial (i.e., effects where the rewind is simply just the reverse
+     *  **OPTIONAL SHORTCUT:** For most effects, the semantic expectations will likely be trivial (i.e., effects where the rewind is simply just the reverse
      * of the forward keyframes). For example, suppose you make an emphasis effect where the element's opacity changes from 1 to 0.5. The semantic
      * expectation is that when the clip is rewound, the opacity changes from 0.5 to 1. Here, then, the expectation for the backward
      * keyframes would be equivalent to just reversing the effect of the forward keyframes. We can say that the forward generator is
@@ -910,7 +910,7 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
      * Then, because the backward generator was filled in, the clip will reverse the effect of the keyframes it produces,
      * resulting in an animation that changes the opacity from 1 to 0.5 when the clip is rewound (which is the desired rewinding effect).
      * The same shortcut allowance holds true for the mutator generators.\
-     * **NOTE:** Using the shortcut has _no_ impact on {@link PresetEffectDefinition.howOftenBuildGenerators | howOftenBuildGenerators}.
+     *  **NOTE:** Using the shortcut has _no_ impact on {@link PresetEffectDefinition.howOftenBuildGenerators | howOftenBuildGenerators}.
      * Do not concern yourself with whether or not using the shortcut will change the behavior of
      * {@link PresetEffectDefinition.howOftenBuildGenerators | howOftenBuildGenerators}—it makes absolutely no difference. In other words,
      * if you fully write an effect and then later realize that one or both forward generators are invertible,
@@ -918,7 +918,7 @@ export type PresetEffectDefinition<TClipContext extends unknown = unknown, TConf
      * of {@link PresetEffectDefinition.howOftenBuildGenerators | howOftenBuildGenerators}.
      * -->
      * 
-     * **Caution with `composite`**\
+     *  **Caution with `composite`**\
      * Be mindful of how the value of {@link AnimClipConfig.composite} 
      * (`'replace'`, `'add'` or `'accumulate'`) may affect the effect when rewinding. This will less often be an issue
      * for entrance and exit effects since changes resulting from effects in these
@@ -1395,8 +1395,8 @@ export type EffectNameIn<TEffectBank extends PresetEffectBank> = Exclude<keyof {
  * Allows the convenient creation of an object in the shape of a {@link PresetEffectDefinition} with full auto-completion.
  * The resulting effect definition must be passed into {@link webchalk.createAnimationClipFactories} in order to be added to the
  * preset effects registry.
- * @param effectCategory - the category of the animation effect
- * @param effectDefinition - the effect definition object, where you will define {@link PresetEffectDefinition.buildFrameGenerators} among other properties
+ * @param effectCategory - The category of the animation effect.
+ * @param effectDefinition - The effect definition object, where you will define {@link PresetEffectDefinition.buildFrameGenerators} among other properties.
  * @returns - The same {@link effectDefinition} object you passed into the function.
  * 
  * @remarks
@@ -1536,8 +1536,8 @@ export function definePresetEffect<
  * Allows the convenient creation of an object in the shape of a {@link PresetEffectBank} with full auto-completion for each entry.
  * The resulting effect bank must be passed into {@link webchalk.createAnimationClipFactories} in order for its effect definitions to be
  * added to the preset effects registry.
- * @param effectCategory - the category of the animation effects
- * @param presetEffectBank - object where every key is an effect name and every value is a {@link PresetEffectDefinition}
+ * @param effectCategory - The category of the animation effects.
+ * @param presetEffectBank - The object where every key is an effect name and every value is a {@link PresetEffectDefinition}.
  * @returns - The same {@link presetEffectBank} object you passed into the function.
  * 
  * @remarks
@@ -1724,16 +1724,16 @@ export function definePresetEffectBank<
 /**
  * Duplicates the specified effect from the specified preset effect bank and
  * changes the default configuration options using {@link addedConfiguration}.
- * @param sourceEffectBank - the preset effect bank you want to copy an effect from
- * @param effectName - string name of the specific preset effect definition to be copied
- * @param addedConfiguration - object containing additional configuration options to extend those of
- * the original effect
- * @param addedConfiguration.addedDefaultConfig - default configuration for the
+ * @param sourceEffectBank - The preset effect bank you want to copy an effect from.
+ * @param effectName - The string name of the specific preset effect definition to be copied.
+ * @param addedConfiguration - The object containing additional configuration options to extend those of
+ * the original effect.
+ * @param addedConfiguration.addedDefaultConfig - An object containing default configuration for the
  * new copy of {@link sourceEffectBank}.{@link effectName} that adds onto and/or overwrites the
- * default configuration options that came from the original effect
- * @param addedConfiguration.addedImmutableConfig - immutable configuration for the
+ * default configuration options that came from the original effect.
+ * @param addedConfiguration.addedImmutableConfig - An object containing immutable configuration for the
  * new copy of {@link sourceEffectBank}.{@link effectName} that adds onto (but _cannot_ overwrite) the immutable
- * configuration options that came from the original effect
+ * configuration options that came from the original effect.
  * @returns A new {@link PresetEffectDefinition} object that can be used as an entry in a {@link PresetEffectBank}.
  * 
  * @remarks
@@ -1876,11 +1876,11 @@ export function copyPresetEffectFromBank<
 }
 
 /**
- * Formats the provide preset effect bank to ensure the following:
- * - Each effect definition does not use an arrow function to define {@link PresetEffectDefinition.buildFrameGenerators}
- * - Each effect definition has a value set for {@link PresetEffectDefinition.howOftenBuildGenerators}
- * - The bank is deep-frozen (cannot be mutated in any way)
- * @param presetEffectBank - the bank to format
+ * Formats the provided preset effect bank to ensure the following:
+ * - Each effect definition does not use an arrow function to define {@link PresetEffectDefinition.buildFrameGenerators}.
+ * - Each effect definition has a value set for {@link PresetEffectDefinition.howOftenBuildGenerators}.
+ * - The bank is deep-frozen (cannot be mutated in any way).
+ * @param presetEffectBank - The bank to format.
  * @returns The same {@link presetEffectBank} passed into the function.
  * @ignore
  */

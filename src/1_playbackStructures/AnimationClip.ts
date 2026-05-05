@@ -24,29 +24,29 @@ import { PartialPick, PickFromArray, WithRequired } from "../4_utils/utilityType
 
 // TYPE
 /**
- * Contains configuration options that determine what CSS classes should be added or removed
+ * An object containing configuration options that determine what CSS classes should be added or removed
  * from the target element when the clip is played or rewound.
  * 
  * @category Subtypes
  */
 export type CssClassOptions = {
   /**
-   * Array of CSS classes to add to the element when the clip finishes playing.
+   * An array of CSS classes to add to the element when the clip finishes playing.
    */
   toAddOnFinish: string[];
 
   /**
-   * Array of CSS classes to add to the element when the clip starts playing.
+   * An array of CSS classes to add to the element when the clip starts playing.
    */
   toAddOnStart: string[];
 
   /**
-   * Array of CSS classes to remove from the element when the clip finishes playing.
+   * An array of CSS classes to remove from the element when the clip finishes playing.
    */
   toRemoveOnFinish: string[];
 
   /**
-   * Array of CSS classes to remove from the element when the clip starts playing.
+   * An array of CSS classes to remove from the element when the clip starts playing.
    */
   toRemoveOnStart: string[];
 };
@@ -69,8 +69,8 @@ type CustomKeyframeEffectOptions = {
   // don't actually need to use commitStyles()
   /**
    * Determines whether the effects of the animation will persist after the clip finishes.
-   *  * if `false`, the effects of the animation will not persist after the clip finishes.
-   *  * if `true`, the effects will attempt to be committed. If the element is not rendered by the
+   *  * If `false`, the effects of the animation will not persist after the clip finishes.
+   *  * If `true`, the effects will attempt to be committed. If the element is not rendered by the
    * time the clip finishes because of the CSS class "webchalk-display-none", the clip will try to forcefully apply the styles by
    * instantly unhiding the element, committing the animation styles, then re-hiding the element (necessary because JavaScript
    * does not allow animation results to be saved to unrendered elements).
@@ -80,13 +80,13 @@ type CustomKeyframeEffectOptions = {
   commitsStyles: false | true;
 
   /**
-   * Resolves how an element's animation impacts the element's underlying property values.
+   * Resolves how the element's animation impacts the element's underlying property values.
    * @see [KeyframeEffect: composite property](https://developer.mozilla.org/en-US/docs/Web/API/KeyframeEffect/composite)
    */
   composite: CompositeOperation;
 
   /**
-   * Contains arrays of CSS classes that should be added to or removed from the element.
+   * An object containing arrays of CSS classes that should be added to or removed from the element.
    *  * The array of classes to add is added first, and then the array of classes to remove is removed.
    *  * Changes are automatically undone in the appropriate order when the clip is rewound.
    */
@@ -132,7 +132,7 @@ type KeyframeTimingOptions = {
 
 // TYPE
 /**
- * Contains configuration options used to define both the timing and effects of the animation clip.
+ * An object containing configuration options used to define both the timing and effects of the animation clip.
  * Used as the last argument in most clip factory functions created by {@link Webchalk.createAnimationClipFactories}.
  * Returned by {@link AnimClip.getConfig}.
  * @see {@link AnimClip.getConfig}.
@@ -144,7 +144,7 @@ export type AnimClipConfig = KeyframeTimingOptions & CustomKeyframeEffectOptions
 
 // TYPE
 /**
- * Contains timing-related details about an animation.
+ * An object containing timing-related details about an animation.
  * Returned by {@link AnimClip.getTiming}.
  * @see {@link AnimClip.getTiming}
  * @category Interfaces
@@ -176,7 +176,7 @@ export type AnimClipTiming = Pick<AnimClip['config'],
 
 // TYPE
 /**
- * Contains specific details about an animation's effect.
+ * An object containing specific details about an animation's effect.
  * Returned by {@link AnimClip.getEffectDetails}.
  * @see {@link AnimClip.getEffectDetails}
  * @category Interfaces
@@ -184,18 +184,18 @@ export type AnimClipTiming = Pick<AnimClip['config'],
  */
 export type AnimClipEffectDetails = {
   /**
-   * Name of the animation effect.
+   * The name of the animation effect.
    */
   effectName: AnimClip['effectName'];
 
   /**
-   * Object containing both the function used to build the effect frame generators and
+   * The object containing both the function used to build the effect frame generators and
    * possibly a set of default configuration options for the effect.
    */
   presetEffectDefinition: AnimClip['presetEffectDefinition'];
 
   /**
-   * An array containing the effect options used to set the behavior of the animation effect.
+   * The array containing the effect options used to set the behavior of the animation effect.
    */
   effectOptions: AnimClip['effectOptions'];
 
@@ -207,7 +207,7 @@ export type AnimClipEffectDetails = {
 
 // TYPE
 /**
- * Contains details about how the DOM element is modified beyond just the effect of the animation (such as modifying CSS classes).
+ * An object containing details about how the DOM element is modified beyond just the effect of the animation (such as modifying CSS classes).
  * Returned by {@link AnimClip.getModifiers}.
  * @see {@link AnimClip.getModifiers}
  * @category Interfaces
@@ -217,7 +217,7 @@ export type AnimClipModifiers = Pick<AnimClipConfig, 'cssClasses' | 'composite' 
 
 // TYPE
 /**
- * Contains details about an animation's current status.
+ * An object containing details about an animation's current status.
  * Returned by {@link AnimClip.getStatus}.
  * @see {@link AnimClip.getStatus}
  * @category Interfaces
@@ -240,23 +240,23 @@ export type AnimClipStatus = {
   isPaused: boolean;
 
   /**
-   * the current direction of the animation
+   * The current direction of the animation.
    */
   direction: 'forward' | 'backward';
 };
 
 // TYPE
 /**
- * Used in {@link AnimClip.scheduleTask}.
  * An object that contains functions that will be called at
  * a certain time during an {@link AnimClip}'s playback.
+ * Used in {@link AnimClip.scheduleTask}.
  * 
  * @category Subtypes
  */
 export type ScheduledTask = {
-  /** a function that will be called at the specified time when the clip is playing */
+  /** A function that will be called at the specified time when the clip is playing. */
   onPlay?: Function;
-  /** a function that will be called at the specified time when the clip is rewinding */
+  /** A function that will be called at the specified time when the clip is rewinding. */
   onRewind?: Function;
 };
 
@@ -434,7 +434,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   /*-:*************************************        FIELDS & ACCESSORS        ***************************************************/
   /*-:**************************************************************************************************************************/
   /**
-   * Number that uniquely identifies the clip from other clips.
+   * A number that uniquely identifies the clip from other clips.
    * Automatically generated.
    */
   readonly id: number;
@@ -467,37 +467,37 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
 
  /**
   * Returns an object containing the specified style properties of the specified element.
-  * * Normal CSS properties _must_ be written in camelCase
+  *  * Normal CSS properties _must_ be written in camelCase
   * (e.g., `['marginBottom', 'backgroundColor']`, _NOT_ `['margin-bottom', 'background-color']`),
-  * * CSS variables should be written normally (e.g., `['--nav-edge-color', '--brand-red']`).
-  * @param element - DOM element from which to read the styles
-  * @param styleProps - Array of strings representing camelCase CSS property names
+  *  * CSS variables should be written normally (e.g., `['--nav-edge-color', '--brand-red']`).
+  * @param element - The DOM element from which to read the styles.
+  * @param styleProps - An array of strings representing camelCase CSS property names.
   * @returns An object where the keys are the specified camelCase strings and the values are the CSS property values.
   */
  getStyles(element: Element, styleProps: StyleProperty[]): {[key: string]: string};
  /**
   * Returns the string value of the specified CSS property name for the specified element.
-  * * Normal CSS properties _must_ be written in camelCase (e.g., `'marginBottom'`, _NOT_ `'margin-bottom'`),
-  * * CSS variables should be written normally (e.g., `'--brand-red'`).
-  * @param element - DOM element from which to read the style
-  * @param styleProps - String representing a single camelCase CSS property name
+  *  * Normal CSS properties _must_ be written in camelCase (e.g., `'marginBottom'`, _NOT_ `'margin-bottom'`),
+  *  * CSS variables should be written normally (e.g., `'--brand-red'`).
+  * @param element - The DOM element from which to read the style.
+  * @param styleProps - A string representing a single camelCase CSS property name.
   * @returns The string value of the specified camelCase CSS property name.
   */
  getStyles(element: Element, styleProp: StyleProperty): string;
  /**
   * Returns an object containing the specified style properties of this clip's DOM element.
-  * * Normal CSS properties _must_ be written in camelCase
+  *  * Normal CSS properties _must_ be written in camelCase
   * (e.g., `['marginBottom', 'backgroundColor']`, _NOT_ `['margin-bottom', 'background-color']`),
-  * * CSS variables should be written normally (e.g., `['--nav-edge-color', '--brand-red']`).
-  * @param styleProps - Array of strings representing camelCase CSS property names
+  *  * CSS variables should be written normally (e.g., `['--nav-edge-color', '--brand-red']`).
+  * @param styleProps - An array of strings representing camelCase CSS property names.
   * @returns An object where the keys are the specified camelCase strings and the values are the CSS property values.
   */
  getStyles(styleProps: StyleProperty[]): {[key: string]: string};
  /**
   * Returns the string value of the specified CSS property name for this clip's DOM element.
-  * * Normal CSS properties _must_ be written in camelCase (e.g., `'marginBottom'`, _NOT_ `'margin-bottom'`),
-  * * CSS variables should be written normally (e.g., `'--brand-red'`).
-  * @param styleProps - String representing a single camelCase CSS property name
+  *  * Normal CSS properties _must_ be written in camelCase (e.g., `'marginBottom'`, _NOT_ `'margin-bottom'`),
+  *  * CSS variables should be written normally (e.g., `'--brand-red'`).
+  * @param styleProps - A string representing a single camelCase CSS property name.
   * @returns The string value of the specified camelCase CSS property name.
   */
  getStyles(styleProp: StyleProperty): string;
@@ -592,13 +592,13 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   getEffectDetails(): AnimClipEffectDetails;
   /**
    * Returns the value of a single specific property.
-   * @param propName - name of the desired property
+   * @param propName - The name of the desired property.
    * @ignore
    */
   getEffectDetails<T extends keyof AnimClipEffectDetails>(propName: T): AnimClipEffectDetails[T];
   /**
    * Returns an object containing a subset of the object that would normally be returned.
-   * @param propNames - array of strings specifying which properties should be included.
+   * @param propNames - An array of strings specifying which properties should be included.
    * @ignore
    */
   getEffectDetails<T extends (keyof AnimClipEffectDetails)[]>(propNames: (keyof AnimClipEffectDetails)[] | T): PickFromArray<AnimClipEffectDetails, T>;
@@ -646,13 +646,13 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   getTiming(): AnimClipTiming;
   /**
    * Returns the value of a single specific property.
-   * @param propName - name of the desired property
+   * @param propName - The name of the desired property.
    * @ignore
    */
   getTiming<T extends keyof AnimClipTiming>(propName: T): AnimClipTiming[T];
   /**
    * Returns an object containing a subset of the object that would normally be returned.
-   * @param propNames - array of strings specifying which properties should be included.
+   * @param propNames - An array of strings specifying which properties should be included.
    * @ignore
    */
   getTiming<T extends (keyof AnimClipTiming)[]>(propNames: (keyof AnimClipTiming)[] | T): PickFromArray<AnimClipTiming, T>;
@@ -691,13 +691,13 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   getModifiers(): AnimClipModifiers;
   /**
    * Returns the value of a single specific property.
-   * @param propName - name of the desired property
+   * @param propName - The name of the desired property.
    * @ignore
    */
   getModifiers<T extends keyof AnimClipModifiers>(propName: T): AnimClipModifiers[T];
   /**
    * Returns an object containing a subset of the object that would normally be returned.
-   * @param propNames - array of strings specifying which properties should be included.
+   * @param propNames - An array of strings specifying which properties should be included.
    * @ignore
    */
   getModifiers<T extends (keyof AnimClipModifiers)[]>(propNames: (keyof AnimClipModifiers)[] | T): PickFromArray<AnimClipModifiers, T>;
@@ -743,13 +743,13 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   getStatus(): AnimClipStatus;
   /**
    * Returns the value of a single specific property.
-   * @param propName - name of the desired property
+   * @param propName - The name of the desired property
    * @ignore
    */
   getStatus<T extends keyof AnimClipStatus>(propName: T): AnimClipStatus[T];
   /**
    * Returns an object containing a subset of the object that would normally be returned.
-   * @param propNames - array of strings specifying which properties should be included.
+   * @param propNames - An array of strings specifying which properties should be included.
    * @ignore
    */
   getStatus<T extends (keyof AnimClipStatus)[]>(propNames: (keyof AnimClipStatus)[] | T): PickFromArray<AnimClipStatus, T>;
@@ -1019,9 +1019,9 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   // accepts a time to wait for (converted to an endDelay) and returns a Promise that is resolved at that time
   /**
    * Returns a `Promise` that is resolved when the animation clip reaches the specified time in the specified direction.
-   * @param direction - the direction the animation will be going when the Promise is resolved
-   * @param phase - the phase of the animation where the Promise will be resolved
-   * @param timePosition - the time position within the phase when the Promise will be resolved
+   * @param direction - The direction the animation will be going when the Promise is resolved.
+   * @param phase - The phase of the animation where the Promise will be resolved.
+   * @param timePosition - The time position within the phase when the Promise will be resolved.
    * @returns A promise that is resolved at the specific time point of the animation.
    * 
    * @example
@@ -1082,11 +1082,11 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
    * Pauses the animation clip when it reaches the specified time and performs the specified task,
    * unpausing once the task is complete.
    *  * If the clip is part of a structure (like a sequence), the entire structure is paused as well.
-   * @param phase - the phase of the animation to place the blocks in
-   * @param timePosition - the time position within the phase when the task should be performed
-   * @param task - an object that contains the functions that should be called when {@link timePosition} is reached
-   * @param schedulingOptions - options defining the behavior of the scheduling
-   * @param schedulingOptions.frequencyLimit - the maximum number of times the task can be performed
+   * @param phase - The phase of the animation to place the blocks in.
+   * @param timePosition - The time position within the phase when the task should be performed.
+   * @param task - An object that contains the functions that should be called when {@link timePosition} is reached.
+   * @param schedulingOptions - An options object defining the behavior of the scheduling.
+   * @param schedulingOptions.frequencyLimit - The maximum number of times the task can be performed.
    * @returns The string id (auto-generated) referring to the task and its spot in the schedule.
    * 
    * @example
@@ -1176,7 +1176,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     task: ScheduledTask,
     schedulingOptions: {
       /**
-       * the maximum number of times the task can be performed
+       * The maximum number of times the task can be performed.
        * @defaultValue
        * ```ts
        * Infinity
@@ -1190,7 +1190,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
 
   /**
    * Removes the task represented by the string id (id obtained from {@link AnimClip.scheduleTask | scheduleTask()}).
-   * @param taskId - string id of the task to remove
+   * @param taskId - The string id of the task to remove.
    * @returns The removed task.
    * 
    * @group Timing Event Methods
@@ -1234,7 +1234,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
 
   /**
    * Updates the duration of rate-based animation clips.
-   * @param duration - the duration computed once the clip plays
+   * @param duration - The duration computed once the clip plays.
    */
   protected updateDuration(duration: number, rescheduleTasks: boolean = true): void {
     this.config.duration = duration;
@@ -1671,8 +1671,8 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
    * Calculates the value partway between two fixed numbers (an initial value and a final value)
    * based on the progress of the animation.
    *  * Intended for use inside {@link EffectFrameGeneratorSet.mutatorGenerator_play} and {@link EffectFrameGeneratorSet.mutatorGenerator_rewind}.
-   * @param initialVal - the starting value
-   * @param finalVal - the ending value
+   * @param initialVal - The starting value.
+   * @param finalVal - The ending value.
    * @returns The number that is a percentage of the way between `initialVal` and `finalVal` based on the percentage of completion of the animation (playing or rewinding).
    * 
    * @see {@link EffectFrameGeneratorSet}

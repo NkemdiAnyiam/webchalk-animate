@@ -20,7 +20,7 @@ export type Layer4MutableConfig<TClipClass extends AnimClip, TPresetEffectDefini
 /*-:*******************************************        ENTRANCE        ********************************************************/
 /*-:***************************************************************************************************************************/
 /**
- * Contains configuration options used to define both the timing and effects of the animation clip.
+ * An object containing configuration options used to define both the timing and effects of the animation clip.
  * Used as the last argument in the `Entrance()` factory function created by {@link Webchalk.createAnimationClipFactories}.
  * Also returned by {@link EntranceClip.getConfig}.
  *  * Contains additional properties:
@@ -34,16 +34,16 @@ export interface EntranceClipConfig extends AnimClipConfig {
    * Determines whether/how the element should be hidden as soon as the clip is instantiated
    * (i.e., right when Entrance() is called). This can be convenient because it ensures that the
    * element will be hidden before the entrance clip is played.
-   *  * if `null`, the clip does not attempt to hide the element upon the clip's instantiation
-   *  * if `'display-none'`, the element is unrendered by setting the CSS `display` to `none`
-   *  * if `'visibility-hidden'`, the element is turned invisible by setting the CSS `visibility` to `hidden`
+   *  * If `null`, the clip does not attempt to hide the element upon the clip's instantiation.
+   *  * If `'display-none'`, the element is unrendered by setting the CSS `display` to `none`.
+   *  * If `'visibility-hidden'`, the element is turned invisible by setting the CSS `visibility` to `hidden`.
    * @see [display: none & visibility: hidden](https://www.freecodecamp.org/news/css-display-none-and-visibility-hidden-the-difference/)
    */
   hideNowType: 'display-none' | 'visibility-hidden' | null;
 }
 
 /**
- * Contains details about how the DOM element is modified beyond just the effect of the animation (such as modifying CSS classes).
+ * An object containing details about how the DOM element is modified beyond just the effect of the animation (such as modifying CSS classes).
  * Returned by {@link EntranceClip.getModifiers}.
  *  * Contains additional properties:
  *    * {@link EntranceClipModifiers.hideNowType | hideNowType}
@@ -140,13 +140,13 @@ export class EntranceClip<TPresetEffectDefinition extends PresetEffectDefinition
   getModifiers(): EntranceClipModifiers;
   /**
    * Returns the value of a single specific property.
-   * @param propName - name of the desired property
+   * @param propName - The name of the desired property.
    * @ignore
    */
   getModifiers<T extends keyof EntranceClipModifiers>(propName: T): EntranceClipModifiers[T];
   /**
    * Returns an object containing a subset of the object that would normally be returned.
-   * @param propNames - array of strings specifying which properties should be included.
+   * @param propNames - An array of strings specifying which properties should be included.
    * @ignore
    */
   getModifiers<T extends (keyof EntranceClipModifiers)[]>(propNames: (keyof EntranceClipModifiers)[] | T): PickFromArray<EntranceClipModifiers, T>;
@@ -243,7 +243,7 @@ export class EntranceClip<TPresetEffectDefinition extends PresetEffectDefinition
 /*-:*********************************************        EXIT        **********************************************************/
 /*-:***************************************************************************************************************************/
 /**
- * Contains configuration options used to define both the timing and effects of the animation clip.
+ * An object containing configuration options used to define both the timing and effects of the animation clip.
  * Used as the last argument in the `Exit()` factory function created by {@link Webchalk.createAnimationClipFactories}.
  * Also returned by {@link ExitClip.getConfig}.
  *  * Contains additional properties:
@@ -255,15 +255,15 @@ export class EntranceClip<TPresetEffectDefinition extends PresetEffectDefinition
 export interface ExitClipConfig extends AnimClipConfig {
   /**
    * Determines how the element should be hidden when the clip has finished playing.
-   *  * if `'display-none'`, the element is unrendered by setting the CSS `display` to `none`
-   *  * if `'visibility-hidden'`, the element is turned invisible by setting the CSS `visibility` to `hidden`
+   *  * If `'display-none'`, the element is unrendered by setting the CSS `display` to `none`.
+   *  * If `'visibility-hidden'`, the element is turned invisible by setting the CSS `visibility` to `hidden`.
    * @see [display: none & visibility: hidden](https://www.freecodecamp.org/news/css-display-none-and-visibility-hidden-the-difference/)
    */
   exitType: 'display-none' | 'visibility-hidden';
 };
 
 /**
- * Contains details about how the DOM element is modified beyond just the effect of the animation (such as modifying CSS classes).
+ * An object containing details about how the DOM element is modified beyond just the effect of the animation (such as modifying CSS classes).
  * Returned by {@link ExitClip.getModifiers}.
  *  * Contains additional properties:
  *    * {@link ExitClipModifiers.exitType | exitType}
@@ -359,13 +359,13 @@ export class ExitClip<TPresetEffectDefinition extends PresetEffectDefinition<Exi
   getModifiers(): ExitClipModifiers;
   /**
    * Returns the value of a single specific property.
-   * @param propName - name of the desired property
+   * @param propName - The name of the desired property.
    * @ignore
    */
   getModifiers<T extends keyof ExitClipModifiers>(propName: T): ExitClipModifiers[T];
   /**
    * Returns an object containing a subset of the object that would normally be returned.
-   * @param propNames - array of strings specifying which properties should be included.
+   * @param propNames - An array of strings specifying which properties should be included.
    * @ignore
    */
   getModifiers<T extends (keyof ExitClipModifiers)[]>(propNames: (keyof ExitClipModifiers)[] | T): PickFromArray<ExitClipModifiers, T>;
@@ -438,7 +438,7 @@ export class ExitClip<TPresetEffectDefinition extends PresetEffectDefinition<Exi
 /*-:*******************************************        EMPHASIS        ********************************************************/
 /*-:***************************************************************************************************************************/
 /**
- * Contains configuration options used to define both the timing and effects of the animation clip.
+ * An object containing configuration options used to define both the timing and effects of the animation clip.
  * Used as the last argument in the `Emphasis()` factory function created by {@link Webchalk.createAnimationClipFactories}.
  * Also returned by {@link EmphasisClip.getConfig}.
  *  * Contains additional properties:
@@ -522,7 +522,7 @@ export class EmphasisClip<TPresetEffectDefinition extends PresetEffectDefinition
 /*-:********************************************        MOTION        *********************************************************/
 /*-:***************************************************************************************************************************/
 /**
- * Contains configuration options used to define both the timing and effects of the animation clip.
+ * An object containing configuration options used to define both the timing and effects of the animation clip.
  * Used as the last argument in the `Motion()` factory function created by {@link Webchalk.createAnimationClipFactories}.
  * Also returned by {@link MotionClip.getConfig}.
  *  * Contains additional properties:
@@ -609,7 +609,7 @@ export class MotionClip<TPresetEffectDefinition extends PresetEffectDefinition<M
 /*-:*******************************************        SCROLLER        ********************************************************/
 /*-:***************************************************************************************************************************/
 /**
- * Contains configuration options used to define both the timing and effects of the animation clip.
+ * An object containing configuration options used to define both the timing and effects of the animation clip.
  * Used as the last argument in the `Scroller()` factory function created by {@link Webchalk.createAnimationClipFactories}.
  * Also returned by {@link ScrollerClip.getConfig}.
  *  * Contains additional properties:
@@ -710,7 +710,7 @@ export class ScrollerClip<TPresetEffectDefinition extends PresetEffectDefinition
 /*-:******************************************        TRANSITION        *******************************************************/
 /*-:***************************************************************************************************************************/
 /**
- * Contains configuration options used to define both the timing and effects of the animation clip.
+ * An object containing configuration options used to define both the timing and effects of the animation clip.
  * Used as the last argument in the `Transition()` factory function created by {@link Webchalk.createAnimationClipFactories}.
  * Also returned by {@link TransitionClip.getConfig}.
  *  * Contains additional properties:
@@ -737,7 +737,7 @@ export interface TransitionClipConfig extends AnimClipConfig {
 }
 
 /**
- * Contains details about how the DOM element is modified beyond just the effect of the animation (such as modifying CSS classes).
+ * An object containing details about how the DOM element is modified beyond just the effect of the animation (such as modifying CSS classes).
  * Returned by {@link TransitionClip.getModifiers}.
  *  * Contains additional properties:
  *    * {@link TransitionClipModifiers.removeInlineStylesOnFinish | removeInlineStylesOnFinish}
@@ -834,13 +834,13 @@ export class TransitionClip<TPresetEffectDefinition extends PresetEffectDefiniti
   getModifiers(): TransitionClipModifiers;
   /**
    * Returns the value of a single specific property.
-   * @param propName - name of the desired property
+   * @param propName - The name of the desired property.
    * @ignore
    */
   getModifiers<T extends keyof TransitionClipModifiers>(propName: T): TransitionClipModifiers[T];
   /**
    * Returns an object containing a subset of the object that would normally be returned.
-   * @param propNames - array of strings specifying which properties should be included.
+   * @param propNames - An array of strings specifying which properties should be included.
    * @ignore
    */
   getModifiers<T extends (keyof TransitionClipModifiers)[]>(propNames: (keyof TransitionClipModifiers)[] | T): PickFromArray<TransitionClipModifiers, T>;
@@ -1048,7 +1048,7 @@ export class ConnectorSetterClip extends AnimClip<PresetEffectDefinition, Connec
 /*-:**************************************        CONNECTOR ENTRANCE        ***************************************************/
 /*-:***************************************************************************************************************************/
 /**
- * Contains configuration options used to define both the timing and effects of the animation clip.
+ * An object containing configuration options used to define both the timing and effects of the animation clip.
  * Used as the last argument in the `ConnectorEntrance()` factory function created by {@link Webchalk.createAnimationClipFactories}.
  * Also returned by {@link ConnectorEntranceClip.getConfig}.
  *  * Contains additional properties:
@@ -1062,7 +1062,7 @@ export interface ConnectorEntranceClipConfig extends AnimClipConfig {
 };
 
 /**
- * Contains details about how the DOM element is modified beyond just the effect of the animation (such as modifying CSS classes).
+ * An object containing details about how the DOM element is modified beyond just the effect of the animation (such as modifying CSS classes).
  * Returned by {@link ConnectorEntranceClip.getModifiers}.
  *  * Contains additional properties:
  *    * {@link ConnectorEntranceClipModifiers.hideNowType | hideNowType}
@@ -1159,7 +1159,7 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
   }
 
   /**
-   * Returns details about how the DOM element is modified beyond just the effect of the animation.
+   * Returns an object containing details about how the DOM element is modified beyond just the effect of the animation.
    * @returns An object containing
    *  * {@link AnimClipModifiers.cssClasses|cssClasses},
    *  * {@link AnimClipModifiers.commitsStyles|commitsStyles},
@@ -1169,13 +1169,13 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
   getModifiers(): ConnectorEntranceClipModifiers;
   /**
    * Returns the value of a single specific property.
-   * @param propName - name of the desired property
+   * @param propName - The name of the desired property.
    * @ignore
    */
   getModifiers<T extends keyof ConnectorEntranceClipModifiers>(propName: T): ConnectorEntranceClipModifiers[T];
   /**
    * Returns an object containing a subset of the object that would normally be returned.
-   * @param propNames - array of strings specifying which properties should be included.
+   * @param propNames - An array of strings specifying which properties should be included.
    * @ignore
    */
   getModifiers<T extends (keyof ConnectorEntranceClipModifiers)[]>(propNames: (keyof ConnectorEntranceClipModifiers)[] | T): PickFromArray<ConnectorEntranceClipModifiers, T>;
@@ -1261,7 +1261,7 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
 /*-:****************************************        CONNECTOR EXIT        *****************************************************/
 /*-:***************************************************************************************************************************/
 /**
- * Contains configuration options used to define both the timing and effects of the animation clip.
+ * An objecting containing configuration options used to define both the timing and effects of the animation clip.
  * Used as the last argument in the `ConnectorExit()` factory function created by {@link Webchalk.createAnimationClipFactories}.
  * Also returned by {@link ConnectorExitClip.getConfig}.
  *  * Contains additional properties:
@@ -1394,7 +1394,7 @@ export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefin
 /*-:*******************************************        TEXT EDITOR        ********************************************************/
 /*-:***************************************************************************************************************************/
 /**
- * Contains configuration options used to define both the timing and effects of the animation clip.
+ * An object containing configuration options used to define both the timing and effects of the animation clip.
  * Used as the last argument in the `TextEditor()` factory function created by {@link Webchalk.createAnimationClipFactories}.
  * Also returned by {@link TextEditorClip.getConfig}.
  *  * Contains additional properties:
@@ -1412,7 +1412,7 @@ export interface TextEditorClipConfig extends AnimClipConfig {
 }
 
 /**
- * Contains timing-related details about an animation.
+ * An object containing timing-related details about an animation.
  * Returned by {@link TextEditorClip.getTiming}.
  *  * Contains additional properties:
  *    * {@link TextEditorClipModifiers.durationOrRate | durationOrRate}
@@ -1524,13 +1524,13 @@ export class TextEditorClip<TPresetEffectDefinition extends PresetEffectDefiniti
   getTiming(): TextEditorClipTiming;
   /**
    * Returns the value of a single specific property.
-   * @param propName - name of the desired property
+   * @param propName - The name of the desired property.
    * @ignore
    */
   getTiming<T extends keyof TextEditorClipTiming>(propName: T): TextEditorClipTiming[T];
   /**
    * Returns an object containing a subset of the object that would normally be returned.
-   * @param propNames - array of strings specifying which properties should be included.
+   * @param propNames - An array of strings specifying which properties should be included.
    * @ignore
    */
   getTiming<T extends (keyof TextEditorClipTiming)[]>(propNames: (keyof TextEditorClipTiming)[] | T): PickFromArray<TextEditorClipTiming, T>;

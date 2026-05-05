@@ -7,13 +7,13 @@ import { webchalk } from "../Webchalk";
 
 // TYPE
 /**
- * Contains configuration options used to define the details and behavior of the animation timeline.
+ * An object configuration options used to define the details and behavior of the animation timeline.
  * @category Interfaces
  * @interface
  */
 export type AnimTimelineConfig = {
   /**
-   * String representing the name of the timeline.
+   * A string representing the name of the timeline.
    * This value is used to sync with `<webchalk-playback-button>` elements that share the same
    * value in their `timeline-name` attribute.
    * @defaultValue
@@ -49,7 +49,7 @@ export type AnimTimelineConfig = {
 
 // TYPE
 /**
- * Contains details about an timeline's current status. Returned by {@link AnimTimeline.getStatus}.
+ * An object containing details about an timeline's current status. Returned by {@link AnimTimeline.getStatus}.
  * @see {@link AnimTimeline.getStatus}
  * @category Interfaces
  * @interface
@@ -102,7 +102,7 @@ export type AnimTimelineStatus = {
 
 // TYPE
 /**
- * Contains timing-related details about the timeline. Returned by {@link AnimTimeline.getTiming}.
+ * An object containing timing-related details about the timeline. Returned by {@link AnimTimeline.getTiming}.
  * @see {@link AnimTimeline.getTiming}
  * @category Interfaces
  * @interface
@@ -135,13 +135,13 @@ type PlaybackButtonPurpose = `Step ${'Forward' | 'Backward'}` | 'Pause' | 'Fast 
 
 // TYPE
 /**
+ * An options object specifying the location at which the sequences should be inserted {@link AnimTimeline.addSequences}.
  * Used in {@link AnimTimeline.addSequences | addSequences}.
- * Options specifying the location at which the sequences should be inserted {@link AnimTimeline.addSequences}.
  * @category hidden
  */
 export type AddSequencesOptions = {
   /**
-   * Index at which the sequences should be added.
+   * The index at which the sequences should be added.
    */
   atIndex: number;
 };
@@ -191,20 +191,20 @@ export class AnimTimeline {
   /*-:*************************************        FIELDS & ACCESSORS        ***************************************************/
   /*-:**************************************************************************************************************************/
   /**
-   * Number that uniquely identifies the timeline from other timelines.
+   * A number that uniquely identifies the timeline from other timelines.
    * Automatically generated.
    */
   readonly id;
 
   /**
    * The highest level of this timeline's lineage.
-   *  * The timeline itself (there is currently no higher possible level)
+   *  * The timeline itself is always the root (there is currently no higher possible level).
    * @group Structure
    */
   get root(): AnimTimeline { return this; }
   private animSequences: AnimSequence[] = []; // array of every AnimSequence in this timeline
   /**
-   * Number of sequences in this timeline.
+   * The number of sequences in this timeline.
    * @group Structure
    */
   get numSequences(): number { return this.animSequences.length; }
@@ -242,13 +242,13 @@ export class AnimTimeline {
   getStatus(): AnimTimelineStatus;
   /**
    * Returns the value of a single specific property.
-   * @param propName - name of the desired property
+   * @param propName - The name of the desired property.
    * @ignore
    */
   getStatus<T extends keyof AnimTimelineStatus>(propName: T): AnimTimelineStatus[T];
   /**
    * Returns an object containing a subset of the object that would normally be returned.
-   * @param propNames - array of strings specifying which properties should be included.
+   * @param propNames - An array of strings specifying which properties should be included.
    * @ignore
    */
   getStatus<T extends (keyof AnimTimelineStatus)[]>(propNames: (keyof AnimTimelineStatus)[] | T): PickFromArray<AnimTimelineStatus, T>;
@@ -286,13 +286,13 @@ export class AnimTimeline {
   getTiming(): AnimTimelineTiming;
   /**
    * Returns the value of a single specific property.
-   * @param propName - name of the desired property
+   * @param propName - The name of the desired property.
    * @ignore
    */
   getTiming<T extends keyof AnimTimelineTiming>(propName: T): AnimTimelineTiming[T];
   /**
    * Returns an object containing a subset of the object that would normally be returned.
-   * @param propNames - array of strings specifying which properties should be included.
+   * @param propNames - An array of strings specifying which properties should be included.
    * @ignore
    */
   getTiming<T extends (keyof AnimTimelineTiming)[]>(propNames: (keyof AnimTimelineTiming)[] | T): PickFromArray<AnimTimelineTiming, T>;
@@ -366,16 +366,16 @@ export class AnimTimeline {
    * `timeline-name` attributes are equivalent to this timeline's `timelineName` configuration option,
    * then links those buttons to this timeline.
    *  * By default, all button types are searched for.
-   * @param options - Settings to define the behavior of the search
-   * @param options.searchRoot - The HTML element from which to begin searching for the buttons
-   * @param options.buttonsSubset - Array of strings indicating which specific buttons we want to link
+   * @param options - An object containing settings to define the behavior of the search
+   * @param options.searchRoot - The HTML element from which to begin searching for the buttons.
+   * @param options.buttonsSubset - An array of strings indicating which specific buttons we want to link.
    * @returns 
    * @group Playback UI
    */
   linkPlaybackButtons(options: {
-    /** The HTML element from which to begin searching for the buttons */
+    /** The HTML element from which to begin searching for the buttons. */
     searchRoot?: HTMLElement,
-    /** Array of strings indicating which specific buttons we want to link. By default, all buttons are searched for */
+    /** An array of strings indicating which specific buttons we want to link. By default, all buttons are searched for. */
     buttonsSubset?: PlaybackButtonPurpose[]
   } = {}): this {
     const {
@@ -577,15 +577,15 @@ export class AnimTimeline {
   /*-:**************************************************************************************************************************/
   /**
    * Adds {@link AnimSequence} objects to the end of the timeline.
-   * @param animSequences - array of animation sequences to add
+   * @param animSequences - An array of animation sequences to add.
    * @returns 
    * @group Structure
    */
   addSequences(animSequences: AnimSequence[]): this;
   /**
    * Adds {@link AnimSequence} objects to the specified location within the timeline.
-   * @param location - options specifying the location at which the sequences should be inserted
-   * @param animSequences - array of animation sequences to add
+   * @param location - Object containing options specifying the location at which the sequences should be inserted.
+   * @param animSequences - An array of animation sequences to add.
    * @returns 
    * @group Structure
    */
@@ -631,7 +631,7 @@ export class AnimTimeline {
 
   /**
    * Removes specified {@link AnimSequence} objects from the timeline.
-   * @param animSequences - array of animation sequences to remove
+   * @param animSequences - An array of animation sequences to remove.
    * @returns 
    * @group Structure
    */
@@ -673,8 +673,8 @@ export class AnimTimeline {
 
   /**
    * Removes a number of {@link AnimSequence} objects from the timeline based on the provided indices range (0-based).
-   * @param startIndex - the starting index, inclusive
-   * @param endIndex - the ending index, exclusive (if not specified, {@link startIndex} `+ 1` is used, removing one sequence)
+   * @param startIndex - The starting index, inclusive.
+   * @param endIndex - The ending index, exclusive (if not specified, {@link startIndex} `+ 1` is used, removing one sequence).
    * @returns An array containing the sequences that were removed from the timeline.
    * @group Structure
    */
@@ -707,7 +707,7 @@ export class AnimTimeline {
 
   /**
    * Finds the index of a given {@link AnimSequence} object within the timeline
-   * @param animSequence - the animation sequence to search for within the timeline
+   * @param animSequence - The animation sequence to search for within the timeline.
    * @returns The index of {@link animSequence} within the timeline or `-1` if the sequence is not part of the timeline.
    * @group Structure
    */
@@ -721,7 +721,7 @@ export class AnimTimeline {
   // CHANGE NOTE: sequences, and clips now have base playback rates that are then compounded by parents
   /**
    * Sets the base playback rate of the timeline.
-   * @param rate - the new playback rate
+   * @param rate - The new playback rate.
    * @returns 
    * @group Playback Methods
    */
@@ -738,7 +738,7 @@ export class AnimTimeline {
   /**
    * Takes 1 step in the specified direction.
    *  * If any sequences are set to autoplay, the timeline automatically continues stepping through them.
-   * @param direction - the direction in which the timeline should step
+   * @param direction - The direction in which the timeline should step.
    * @returns A {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise | Promise} that resolves when the timeline has finished stepping.
    * @group Playback Methods
    */
@@ -833,7 +833,7 @@ export class AnimTimeline {
   // pauses or unpauses playback
   /**
    * Pauses the animation timeline if it is unpaused or unpauses it if it is currently paused.
-   * @param options - options for the behavior of the toggle
+   * @param options - An options object specifying the behavior of the toggle.
    * @returns 
    * @group Playback Methods
    */
@@ -842,7 +842,7 @@ export class AnimTimeline {
     viaButton?: boolean,
     /**
      * Explicitly instructs the method to either pause (equivalent to {@link AnimTimeline.pause | pause()})
-     * or unpause (equivalent to {@link AnimTimeline.unpause | unpause()})
+     * or unpause (equivalent to {@link AnimTimeline.unpause | unpause()}).
      */
     forceState?: 'pause' | 'unpause'
   } = {}): this {
@@ -902,8 +902,8 @@ export class AnimTimeline {
 
   /**
    * Jumps instantly to the sequence whose {@link AnimSequence.getJumpTag|AnimSequence.getJumpTag()} value matches the {@link jumpTag} argument.
-   * @param jumpTag - string that is used to search for the target sequence with the matching {@link AnimSequence.getJumpTag|AnimSequence.getJumpTag()} value
-   * @param options - set of options defining the behavior of the search, the offset of the jump, and whether to consider autoplay
+   * @param jumpTag - The string that is used to search for the target sequence with the matching {@link AnimSequence.getJumpTag|AnimSequence.getJumpTag()} value.
+   * @param options - An options object defining the behavior of the search, the offset of the jump, and whether to consider autoplay.
    * @returns A {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise | Promise} that resolves when the timeline has finished jumping.
    * 
    * 
@@ -982,23 +982,23 @@ export class AnimTimeline {
     jumpTag: string | RegExp,
     options: {
       /**
-       * the direction and/or the starting point of the search
+       * The direction and/or the starting point of the search.
        * @defaultValue
        * ```ts
        * 'forward-from-beginning'
        * ```
        */
       search?: 'forward-from-beginning' | 'backward-from-end' | 'forward' | 'backward';
-      /** offset that changes the starting point of the search by the indicated amount */
+      /** An offset that changes the starting point of the search by the indicated amount. */
       searchOffset?: number;
-      /** offset that adds to the initial landing position */
+      /** An offset that adds to the initial landing position. */
       targetOffset?: number;
       /**
-       * determines how the timeline should handle sequences set to autoplay once the
-       * jump destination (after considering {@link options.targetOffset}) has been reached
-       *  * if `'none`', the timeline stays at the final landing position after the initial jumping operation.
-       *  * if `'forward'`, the timeline will jump forward for as long as the next sequence is supposed to autoplay after the current sequence.
-       *  * if `'backward'`, the timeline will jump backward for as long as the previous sequence is supposed to automatically
+       * Determines how the timeline should handle sequences set to autoplay once the
+       * jump destination (after considering {@link options.targetOffset}) has been reached.
+       *  * If `'none`', the timeline stays at the final landing position after the initial jumping operation.
+       *  * If `'forward'`, the timeline will jump forward for as long as the next sequence is supposed to autoplay after the current sequence.
+       *  * If `'backward'`, the timeline will jump backward for as long as the previous sequence is supposed to automatically
        * rewind after the current sequence is rewound (this is naturally only true when the current sequence is set to autoplay when the timeline steps forward).
        * @defaultValue
        * ```ts
@@ -1019,22 +1019,22 @@ export class AnimTimeline {
 
   /**
    * Jumps instantly to the position within the timeline based on the {@link position} argument.
-   * @param position - the target position within the timeline
-   * @param options - set of options defining the offset of the jump and whether to consider autoplay
+   * @param position - The target position within the timeline.
+   * @param options - An options object defining the offset of the jump and whether to consider autoplay.
    * @returns A {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise | Promise} that resolves when the timeline has finished jumping.
    * @group Playback Methods
    */
   jumpToPosition(
     position: 'beginning' | 'end' | number,
     options: {
-      /** offset that adds to the initial landing position */
+      /** An offset that adds to the initial landing position. */
       targetOffset?: number;
       /**
-       * determines how the timeline should handle sequences set to autoplay once the
-       * jump destination (after considering {@link options.targetOffset}) has been reached
-       *  * if `'none`', the timeline stays at the final landing position after the initial jumping operation.
-       *  * if `'forward'`, the timeline will jump forward for as long as the next sequence is supposed to autoplay after the current sequence.
-       *  * if `'backward'`, the timeline will jump backward for as long as the previous sequence as long as the previous sequence is supposed to automatically
+       * Determines how the timeline should handle sequences set to autoplay once the
+       * jump destination (after considering {@link options.targetOffset}) has been reached.
+       *  * If `'none`', the timeline stays at the final landing position after the initial jumping operation.
+       *  * If `'forward'`, the timeline will jump forward for as long as the next sequence is supposed to autoplay after the current sequence.
+       *  * If `'backward'`, the timeline will jump backward for as long as the previous sequence as long as the previous sequence is supposed to automatically
        * rewind after the current sequence is rewound (this is naturally only true when the current sequence is set to autoplay when the timeline steps forward).
        * @defaultValue
        * ```ts
@@ -1223,7 +1223,7 @@ export class AnimTimeline {
   /**
    * Turns on skipping if it is currently off or turns it off if it is currently on.
    * @see {@link AnimTimeline.turnSkippingOn|turnSkippingOn()}
-   * @param options - options defining the behavior of the toggle
+   * @param options - An options object defining the behavior of the toggle.
    * @returns 
    * @group Playback Methods
    */

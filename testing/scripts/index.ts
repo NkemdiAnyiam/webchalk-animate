@@ -100,7 +100,7 @@ const customEntrances = definePresetEffectBank(
     },
 
     /**
-     * Element flies in from the bottom of the screen and ends up
+     * The element flies in from the bottom of the screen and ends up
      * slightly too high, then settles down to its final position.
      */
     riseUp: {

@@ -10,12 +10,12 @@ export type Union<T, U> = T | (U & Nothing);
  * Prevents duplicate autocompletion for functions whose type union resolves to `Function` when `undefined` and `never` are excluded.
  * For functions, explicitly adding "& Function" seems to get rid of the version without the method signature.
  * @interface
- * @template T - Object type that presumably contains some methods that are potentially never/undefined
+ * @template T - The object type that presumably contains some methods that are potentially never/undefined.
  * 
  * @remarks
  * For each key `K` of `T`, see if `T[K]` extends `Function` when not `never` or `undefined`.
- * * If so, return `T[K] & Function`
- * * If not, return `T[K]` (unchanged)
+ *  * If so, return `T[K] & Function`.
+ *  * If not, return `T[K]` (unchanged).
  */
 export type StripDuplicateMethodAutocompletion<T> = {
   [K in keyof T]: (
@@ -60,9 +60,9 @@ export type PrettifyCustomError<TError extends string> = `**********************
 
 /**
  * Returns the specified error if {@link TObj} contains additional properties beyond what is allowed by {@link TExpected}.
- * @template TObj - Object type that should have NO additional properties beyond what is specified by TExpected
- * @template TExpected - Object type that restricts what is allowed to show up in {@link TObj}
- * @template TError - The error string that will be returned if {@link TObj} does not respect {@link TExpected}
+ * @template TObj - The object type that should have NO additional properties beyond what is specified by TExpected.
+ * @template TExpected - The object type that restricts what is allowed to show up in {@link TObj}.
+ * @template TError - The error string that will be returned if {@link TObj} does not respect {@link TExpected}.
  * @ignore
  */
 export type StrictPropertyCheck<TObj extends object, TExpected extends object, TError extends string = 'ERROR'> =
@@ -74,10 +74,10 @@ export type StrictPropertyCheck<TObj extends object, TExpected extends object, T
 /**
  * Returns the specified corresponding error if the return type of {@link TFunc} is either a primitive value / array
  * (instead of an object) or is an object containing extraneous properties.
- * @template TFunc - Function type that should have the expected object return type
- * @template TExpectedReturn - Object type that restricts what is allowed to show up in the return type of {@link TFunc}
- * @template TErrorPrimitive - The error string that will be returned if {@link TFunc} returns a primitive or array
- * @template TErrorProperties - The error string that will be returned if {@link TFunc}'s return type does not respect {@link TExpectedReturn}
+ * @template TFunc - The function type that should have the expected object return type.
+ * @template TExpectedReturn - The object type that restricts what is allowed to show up in the return type of {@link TFunc}.
+ * @template TErrorPrimitive - The error string that will be returned if {@link TFunc} returns a primitive or array.
+ * @template TErrorProperties - The error string that will be returned if {@link TFunc}'s return type does not respect {@link TExpectedReturn}.
  * @ignore
  */
 export type StrictReturnPropertyCheck<
@@ -92,8 +92,8 @@ export type StrictReturnPropertyCheck<
 
 /**
  * Combines any errors (indicated by not extending `object`) into an array.
- * @template TErrorChecks - Array containing error checks, each of which presumably
- * returns `{}` when passed or a `string` when failed (which fails to extend `object`)
+ * @template TErrorChecks - An array containing error checks, each of which presumably
+ * returns `{}` when passed or a `string` when failed (which fails to extend `object`).
  */
 export type ErrorCheckJoiner<TErrorChecks extends any[]> =
   TErrorChecks['length'] extends 0

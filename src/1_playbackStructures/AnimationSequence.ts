@@ -7,13 +7,13 @@ import { webchalk } from "../Webchalk";
 
 // TYPE
 /**
- * Contains configuration options used to define the timing and details of the animation sequence.
+ * An object containing configuration options used to define the timing and details of the animation sequence.
  * @category Interfaces
  * @interface
  */
 export type AnimSequenceConfig = {
   /**
-   * String that is logged when debugging mode is enabled.
+   * A string that is logged when debugging mode is enabled.
    * @defaultValue
    * ```ts
    * '<blank sequence description>'
@@ -22,7 +22,8 @@ export type AnimSequenceConfig = {
   description: string;
 
   /**
-   * This string can be used as an argument to {@link AnimTimeline.jumpToSequenceTag}.
+   * A string that can be used to identify the sequence as a jump point (like a bookmark in a document).
+   * Pass it as an argument to {@link AnimTimeline.jumpToSequenceTag} to jump to the sequence.
    * @defaultValue
    * ```ts
    * ''
@@ -62,7 +63,7 @@ export type AnimSequenceConfig = {
 
 // TYPE
 /**
- * Contains timing-related details about the sequence. Returned by {@link AnimSequence.getTiming}.
+ * An object containing timing-related details about the sequence. Returned by {@link AnimSequence.getTiming}.
  * @see {@link AnimSequence.getTiming}
  * @category Interfaces
  * @interface
@@ -83,7 +84,7 @@ export type AnimSequenceTiming = Pick<AnimSequenceConfig,
 
 // TYPE
 /**
- * Contains details about an sequence's current status. Returned by {@link AnimSequence.getStatus}.
+ * An object containing details about an sequence's current status. Returned by {@link AnimSequence.getStatus}.
  * @see {@link AnimSequence.getStatus}
  * @category Interfaces
  * @interface
@@ -139,12 +140,13 @@ export type AnimSequenceStatus = {
   wasRewound: boolean;
 
   /**
-   * Shows whether the sequence is currently allowed to accept changes to its structure.
-   * `true` only if the sequence is in progress or in a forward finished state.
-   *  * Operations like {@link AnimSequence.addClips | addClips()}, {@link AnimSequence.removeClips | removeClips()},
+   * Represents whether the sequence is currently allowed to accept changes to its structure.
+   * Operations that change the sequence like {@link AnimSequence.addClips | addClips()}, {@link AnimSequence.removeClips | removeClips()},
    * etc. check whether the structure is locked before proceeding.
-   *  * Any time the sequence goes back to its starting point after fully rewinding, its structure is unlocked
-   * and allowed to accept changes (i.e., {@link AnimSequenceStatus.lockedStructure | lockedStructure} is `false`).
+   *  * `true` when the sequence is in progress or in a forward finished state (the structure becomes locked and unable to
+   * accept changes).
+   *  * `false` after the sequence has gone back to its starting point after fully rewinding (the structure becomes unlocked
+   * and allowed to accept changes).
    */
   lockedStructure: boolean;
 };
@@ -227,7 +229,7 @@ export class AnimSequence {
   /*-:*************************************        FIELDS & ACCESSORS        ***************************************************/
   /*-:**************************************************************************************************************************/
   /**
-   * Number that uniquely identifies the sequence from other sequences.
+   * A number that uniquely identifies the sequence from other sequences.
    * Automatically generated.
    */
   readonly id: number;
@@ -237,8 +239,8 @@ export class AnimSequence {
   /**@internal*/ _parentTimeline?: AnimTimeline; // pointer to parent AnimTimeline
   /**
    * The highest level of this sequence's lineage.
-   *  * If the sequence is nested within an {@link AnimTimeline}: that timeline,
-   *  * Else: the sequence itself
+   *  * If the sequence is nested within an {@link AnimTimeline}: that timeline is the root.
+   *  * Else: the sequence itself is the root.
    * @group Structure
    */
   get root(): AnimTimeline | AnimSequence { return this.parentTimeline ?? this; }
@@ -300,13 +302,13 @@ export class AnimSequence {
   getStatus(): AnimSequenceStatus;
   /**
    * Returns the value of a single specific property.
-   * @param propName - name of the desired property
+   * @param propName - The name of the desired property.
    * @ignore
    */
   getStatus<T extends keyof AnimSequenceStatus>(propName: T): AnimSequenceStatus[T];
   /**
    * Returns an object containing a subset of the object that would normally be returned.
-   * @param propNames - array of strings specifying which properties should be included.
+   * @param propNames - An array of strings specifying which properties should be included.
    * @ignore
    */
   getStatus<T extends (keyof AnimSequenceStatus)[]>(propNames: (keyof AnimSequenceStatus)[] | T): PickFromArray<AnimSequenceStatus, T>;
@@ -336,7 +338,7 @@ export class AnimSequence {
   // GROUP: Timing
   /**@internal*/ usingPseudoJumpingMultiplier = false;
   /**
-   * Multiplier applied to compounded playback rate to account for instances where
+   * A multiplier applied to compounded playback rate to account for instances where
    * clips need an alternative to finish() because of some limitation (such as tasks).
    */
   private static pseudoJumpingPlaybackMultiplier = 100;
@@ -367,13 +369,13 @@ export class AnimSequence {
   getTiming(): AnimSequenceTiming;
   /**
    * Returns the value of a single specific property.
-   * @param propName - name of the desired property
+   * @param propName - The name of the desired property.
    * @ignore
    */
   getTiming<T extends keyof AnimSequenceTiming>(propName: T): AnimSequenceTiming[T];
   /**
    * Returns an object containing a subset of the object that would normally be returned.
-   * @param propNames - array of strings specifying which properties should be included.
+   * @param propNames - An array of strings specifying which properties should be included.
    * @ignore
    */
   getTiming<T extends (keyof AnimSequenceTiming)[]>(propNames: (keyof AnimSequenceTiming)[] | T): PickFromArray<AnimSequenceTiming, T>;
@@ -413,7 +415,7 @@ export class AnimSequence {
   
   /**
    * Sets the {@link AnimSequenceConfig.description|description} for this sequence.
-   * @param description - new description
+   * @param description - The new description.
    * @see {@link AnimSequenceConfig.description}
    * @group Property Setter Methods
    */
@@ -421,7 +423,7 @@ export class AnimSequence {
 
   /**
    * Sets the {@link AnimSequenceConfig.jumpTag|jumpTag} for this sequence.
-   * @param jumpTag - new jump tag
+   * @param jumpTag - The new jump tag.
    * @see {@link AnimSequenceConfig.jumpTag}
    * @group Property Setter Methods
    */
@@ -489,7 +491,7 @@ export class AnimSequence {
 
   /**
    * Adds {@link AnimClip} objects to the end of the sequence.
-   * @param animClips - array of animation clips to add
+   * @param animClips - An array of animation clips to add.
    * @returns 
    * @group Structure
    */
@@ -497,8 +499,8 @@ export class AnimSequence {
   // TODO: prevent play() and rewind() when sequence contains undefined entries (I don't think this will ever happen?)
   /**
    * Adds {@link AnimClip} objects to the specified location within the sequence.
-   * @param location - options specifying the location at which the clips should be inserted
-   * @param animClips - array of animation clips to add
+   * @param location - An options object specifying the location at which the clips should be inserted.
+   * @param animClips - The array of animation clips to add.
    * @returns 
    * @group Structure
    */
@@ -538,8 +540,8 @@ export class AnimSequence {
   }
 
   /**
-   * Removes specified {@link AnimClip} objects from the sequence.
-   * @param animClips - array of animation clips to remove
+   * Removes the specified {@link AnimClip} objects from the sequence.
+   * @param animClips - The array of animation clips to remove.
    * @returns 
    * @group Structure
    */
@@ -574,8 +576,8 @@ export class AnimSequence {
   
   /**
    * Removes a number of {@link AnimClip} objects from the sequence based on the provided indices range (0-based).
-   * @param startIndex - the starting index, inclusive
-   * @param endIndex - the ending index, exclusive (if not specified, {@link startIndex} `+ 1` is used, removing one clip)
+   * @param startIndex - The starting index, inclusive.
+   * @param endIndex - The ending index, exclusive (if not specified, {@link startIndex} `+ 1` is used, removing one clip).
    * @returns An array containing the clips that were removed from the sequence.
    * @group Structure
    */
@@ -596,9 +598,9 @@ export class AnimSequence {
   }
 
   /**
-   * Finds the index of a given {@link AnimClip} object within the sequence
-   * @param animClip - the animation clip to search for within the sequence
-   * @returns The index of {@link animClip} within the sequence or `-1` if the clip is not part of the sequence.
+   * Finds the index of a given {@link AnimClip} object within the sequence.
+   * @param animClip - The animation clip to search for within the sequence.
+   * @returns The index of {@link animClip} within the sequence, or `-1` if the clip is not part of the sequence.
    * @group Structure
    */
   findClipIndex(animClip: AnimClip): number {
@@ -805,8 +807,8 @@ export class AnimSequence {
   }
 
   /**
-   * Determines whether to multiply the compounded playback rate by a special multiplier
-   * @param state - `true` or `false` depending on whether multiplier should be applied
+   * Determines whether to multiply the compounded playback rate by a special multiplier.
+   * @param state - `true` or `false` depending on whether multiplier should be applied.
    * @returns 
    */
   private togglePseudoJumpingRate(state: boolean): void {
@@ -880,7 +882,7 @@ export class AnimSequence {
 
   /**
    * Sets the base playback rate of the sequence.
-   * @param newRate - the new playback rate
+   * @param newRate - The new playback rate.
    * @group Playback Methods
    */
   updatePlaybackRate(newRate: number): this {

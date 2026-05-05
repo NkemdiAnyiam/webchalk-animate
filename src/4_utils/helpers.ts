@@ -336,11 +336,11 @@ export const computeSelfScrollingBounds = (scrollable: Element, target: Element,
 };
 
 /**
- * Functional, type-safe version of
+ * A functional, type-safe version of
  * {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call | Function.prototype.call}.
- * @param callableFunction - function whose `call` method we want to invoke
- * @param thisArg - value to use for the `thisArg` parameter for `callableFunction.call()`
- * @param args - arguments to pass to the `args` parameter for `callableFunction.call()`
+ * @param callableFunction - The function whose `call` method we want to invoke.
+ * @param thisArg - The value to use for the `thisArg` parameter for `callableFunction.call()`.
+ * @param args - The arguments to pass to the `args` parameter for `callableFunction.call()`.
  * @returns The result of `callableFunction.call(thisArg, ...args)`.
  * 
  * @ignore
@@ -356,8 +356,8 @@ export function call<TFunction extends ([...args]: unknown[]) => unknown>(
 /**
  * Returns either an object containing a subset of properties of the specified source object
  * or the value of a singular property of the source object.
- * @param source - the object whose properties should be targeted
- * @param props - a singular property name or an array of property names
+ * @param source - The object whose properties should be targeted.
+ * @param props - A singular property name or an array of property names.
  * @returns A singular value if {@link props} is a string or an object containing a subset of properties if {@link props} is an array of strings.
  */
 export function getPartial<Source extends object, T extends (keyof Source)[] = (keyof Source)[]>(source: Source, props: (keyof Source)[] | T | KeyOf<Source>): PickFromArray<Source, T> | Source[keyof Source] {
@@ -404,7 +404,7 @@ export function dedent(text: string, tabLength: number = 2): string {
 
 /**
  * Removes tabs from a template string that are the result of writing the string over multiple lines in the editor.
- * @param text - the template string
+ * @param text - The template string.
  * @returns The string without any tabs.
  * 
  * @ignore
@@ -415,7 +415,7 @@ export function detab(text: TemplateStringsArray, ...placeholders: any[]): strin
 
 /**
  * Gets the bounding rectangle of an element even if it is unrendered.
- * @param element - the element on which to call `getBoundingClientRect()`
+ * @param element - The element on which to call `getBoundingClientRect()`.
  * @returns The bounding client rectangle of {@link element}.
  */
 export function getBoundingClientRectOfHidden(element: Element | null): DOMRect {
@@ -451,9 +451,9 @@ export const RELATIVE_TIME_POSITION_REGEX = new RegExp(`^(?:${PERCENTAGE_REGEX.s
 
 // forms a list of data related to Text nodes in a DFS traversal (so it's sequential)
 /**
- * Forms a list of data related to {@link Text} nodes in a DFS traversal
- * @param node - the root {@link Node} at which the traversal will begin
- * @param options - options for matching
+ * Forms a list of data related to {@link Text} nodes in a DFS traversal.
+ * @param node - The root {@link Node} at which the traversal will begin.
+ * @param options - The options object for matching.
  * @returns A list that contains sequential data about matched {@link Text} nodes.
  * 
  * @ignore
