@@ -34,7 +34,7 @@
     "open-docs": "bash -c \"start ./docs/index.html\"",
     "copy-doc-assets": "cp -r ./typedoc-config/assets/fonts ./docs/assets",
     "build-typedoc-plugins": "rm -rf ./typedoc-config/assets/plugins && tsc --project ./typedoc-config/src",
-    "build-typedoc-styles": "rm -rf ./typedoc-config/assets/styles && node-sass ./typedoc-config/src/styles/typedoc-styles.scss ./typedoc-config/assets/styles/typedoc-styles.css",
+    "build-typedoc-styles": "rm -rf ./typedoc-config/assets/styles && sass ./typedoc-config/src/styles/typedoc-styles.scss ./typedoc-config/assets/styles/typedoc-styles.css",
     "gen-docs": "npm run build-typedoc-plugins && npm run build-typedoc-styles && typedoc --options ./typedoc-config/typedoc.json && npm run copy-doc-assets && npm run open-docs",
     "lint": "tsc"
   },
@@ -53,7 +53,7 @@
     "@types/node": "^22.7.2",
     "doctoc": "^2.2.1",
     "madge": "^8.0.0",
-    "node-sass": "^9.0.0",
+    "sass": "^1.99.0",
     "tsup": "^8.0.1",
     "typedoc": "^0.28.15",
     "typedoc-material-theme": "^1.4.0",
