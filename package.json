@@ -21,6 +21,11 @@
     "./preset-effect-suite": "./dist/5_exports/presetEffectSuite.js"
   },
   "scripts": {
+    "start": "npm run clean-up && npm-run-all --parallel start:browser start:styles",
+    "start:browser": "npx parcel@2.9.0 index.html --dist-dir dist-dev --no-cache",
+    "start:styles": "sass --watch ./styles/scss:./styles/css",
+    "clean-up": "rm -rf ./.parcel-cache ./.cache",
+    
     "build": "tsup",
     "inject-tsdoc": "npx ts-node ./utils/TSDocExamplesInjector.ts",
     "inject-markdown": "npx ts-node ./utils/readmeInjector.ts && doctoc README.md --notitle",
@@ -53,6 +58,7 @@
     "@types/node": "^22.7.2",
     "doctoc": "^2.2.1",
     "madge": "^8.0.0",
+    "npm-run-all": "^4.1.5",
     "sass": "^1.99.0",
     "tsup": "^8.0.1",
     "typedoc": "^0.28.15",

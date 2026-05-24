@@ -1,0 +1,5 @@
+$hem: 10px;
+
+@function hem($num-hem) {
+  @return $num-hem * $hem;
+}

@@ -1,0 +1,11 @@
+@import "base";
+@import "base--component";
+@import "timeline";
+@import "sequence";
+@import "clip";
+
+.square {
+  width: 20rem;
+  height: 20rem;
+  background-color: red;
+}

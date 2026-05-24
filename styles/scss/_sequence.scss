@@ -1,0 +1,179 @@
+@use 'utils' as *;
+
+/* SEQUENCE */
+.sequence {
+  width: 100%;
+  // background-color: lightgray;
+  background-color: var(--color-gray-darkest);
+  height: 100%;
+}
+
+.sequence__header {
+  background-color: var(--color-gray-darkest);
+  padding: hem(1) calc(hem(2) - 16px + 4px);
+  color: var(--color-gray-lightest);
+
+  display: flex;
+  align-items: baseline;
+  gap: hem(1.6);
+}
+
+.sequence__number {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.sequence__description {
+  font-size: 12px;
+  font-weight: normal;
+}
+
+/* SEQUENCE CONTROLS */
+.sequence__controls-container {
+  background-color: var(--color-gray-darkest);
+  height: hem(2.8);
+  padding-left: hem(2.8);
+}
+
+.sequence__controls {
+  background-color: var(--color-gray-light);
+  height: 100%;
+  width: fit-content;
+  padding: hem(0.4) hem(1);
+
+  display: flex;
+  gap: hem(1);
+}
+
+.sequence__control {
+  width: hem(2);
+  height: hem(2);
+  background-color: gray;
+}
+
+.sequence__control--play-light {
+  border-radius: 50%;
+}
+
+.sequence__control--jump-button {
+  border-radius: 2px;
+}
+
+/* SCHEDULE */
+.sequence__schedule {
+  overflow-x: scroll;
+}
+
+.sequence__schedule-inner-wrapper {
+  display: inline-block;
+  min-width: 100%;
+  padding-bottom: 17.5px;
+}
+
+/* SCHEDULE HEADER */
+.sequence__schedule-header {
+  display: grid;
+  grid-template-areas:
+  'pad times'
+  'pad ticks';
+}
+
+.sequence__schedule-header-pad {
+  grid-area: pad;
+  width: hem(2.8);
+  background-color: var(--color-gray-darkest);
+  position: sticky;
+  left: 0;
+  z-index: 2;
+}
+
+.sequence__schedule-times {
+  grid-area: times;
+  background-color: var(--color-gray-darkest);
+  color: var(--color-gray-lightest);
+  font-size: 12px;
+  font-family: var(--font-code-family);
+  padding: hem(0.5) hem(2.8) hem(0.5) 0;
+
+  display: flex;
+  /* gap: hem(24); */
+}
+
+.sequence__schedule-time-wrapper {
+  flex-shrink: 0;
+  flex-grow: 0;
+  width: 250px;
+}
+
+.sequence__schedule-time {
+  
+}
+
+.sequence__playhead-trail {
+  position: absolute;
+  top: 0;
+  // left: hem(2.8);
+  background-color: #70efef;
+  box-shadow: inset 0 0 5px var(--color-glow-blue);
+  height: 100%;
+  width: hem(22.5);
+}
+
+.sequence__ticks {
+  grid-area: ticks;
+  position: relative;
+  z-index: 1;
+  background-color: var(--color-gray-light);
+  height: hem(2.5);
+  // padding-left: hem(2.8);
+  border: 1px solid var(--color-gray-darkest);
+  border-left: 0;
+  box-shadow: 0 3px 2px #53535399;
+
+  display: flex;
+  align-items: end;
+  gap: hem(2.5);
+}
+
+// .sequence__ticks::before {
+//   content: '';
+//   display: block;
+//   position: absolute;
+//   height: 100%;
+//   width: hem(2.8);
+//   background-color: var(--color-gray-darkest);
+//   left: 0;
+//   top: 0;
+// }
+
+.sequence__tick {
+  background-color: var(--color-gray-darkest);
+  position: relative;
+  flex-shrink: 0;
+  flex-grow: 0;
+  /* lines up the center of the ticks with their numbers */
+  transform: translateX(-50%);
+}
+
+.sequence__tick--whole {
+  height: hem(2);
+  width: hem(0.3);
+  margin-right: hem(-0.3);
+}
+
+.sequence__tick--half {
+  height: hem(1.5);
+  width: hem(0.2);
+  margin-right: hem(-0.2);
+}
+
+.sequence__tick--tenth {
+  height: hem(1);
+  width: hem(0.1);
+  margin-right: hem(-0.1);
+}
+
+/* CLIP TRACKS */
+.sequence__clip-tracks {
+  
+}

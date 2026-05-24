@@ -1,6 +1,9 @@
 node_modules
 dist
+dist-dev
 **/tarballs
 typedoc-config/assets/plugins
 typedoc-config/assets/**/typedoc-styles.css
 .vscode
+.cache
+.parcel-cache

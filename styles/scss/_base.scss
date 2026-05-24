@@ -1,0 +1,25 @@
+:where(:not(.timeline)) {
+  &,
+  &::before,
+  &::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: inherit;
+    color: inherit;
+    line-height: 1;
+  }
+}
+
+
+:root {
+}
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  min-height: 100vh;
+  font-size: 16px;
+}
