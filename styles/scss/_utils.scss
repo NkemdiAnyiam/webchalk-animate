@@ -3,3 +3,8 @@ $hem: 10px;
 @function hem($num-hem) {
   @return $num-hem * $hem;
 }
+
+$z--timeline-header: 3;
+$z--schedule-header-padding: 2;
+$z--track-header: 1;
+$z--schedule-ticks: 1;

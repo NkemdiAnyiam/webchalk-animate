@@ -1,9 +1,12 @@
 @use 'utils' as *;
 
+$track-height: calc(hem(3.5) + 1px);
+
 .sequence__clip-track {
-  height: calc(hem(3.5) + 1px);
+  height: $track-height;
   --track-bg: white;
   border-top: 1px solid var(--color-gray-darkest);
+  // scroll-snap-align: start;
 
   display: flex;
 }
@@ -14,10 +17,10 @@
 
 .sequence__track-header {
   position: sticky;
-  z-index: 1;
+  z-index: $z--track-header;
   left: 0;
   flex: 0 0 hem(2.8);
-  height: 100%;
+  // height: 100%;
   // box-shadow: 1.75px 0 1px rgba(50, 50, 50, .55);
   box-shadow: 3px 0 2px #53535399;
 
@@ -35,10 +38,15 @@
 .sequence__track-body {
   position: relative;
   flex: 1 0 auto;
-  height: 100%;
+  // height: 100%;
   background-color: var(--track-bg);
+  cursor: move;
 
   display: flex;
+}
+
+.sequence__track-body * {
+  cursor: initial;
 }
 
 /* CLIP */

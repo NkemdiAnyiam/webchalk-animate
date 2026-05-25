@@ -13,4 +13,9 @@
   button {
     cursor: pointer;
   }
+
+  .user-select-none,
+  &.user-select-none {
+    user-select: none !important;
+  }
 }

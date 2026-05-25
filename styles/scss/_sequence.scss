@@ -1,11 +1,12 @@
 @use 'utils' as *;
+@use 'clip';
 
 /* SEQUENCE */
 .sequence {
   width: 100%;
   // background-color: lightgray;
   background-color: var(--color-gray-darkest);
-  height: 100%;
+  // height: 100%;
 }
 
 .sequence__header {
@@ -82,9 +83,9 @@
   grid-area: pad;
   width: hem(2.8);
   background-color: var(--color-gray-darkest);
-  position: sticky;
-  left: 0;
-  z-index: 2;
+  // position: sticky;
+  // left: 0;
+  // z-index: $z--schedule-header-padding;
 }
 
 .sequence__schedule-times {
@@ -122,9 +123,10 @@
 .sequence__ticks {
   grid-area: ticks;
   position: relative;
-  z-index: 1;
+  z-index: $z--schedule-ticks;
   background-color: var(--color-gray-light);
-  height: hem(2.5);
+  // height: hem(2.5);
+  height: hem(2);
   // padding-left: hem(2.8);
   border: 1px solid var(--color-gray-darkest);
   border-left: 0;
@@ -156,24 +158,29 @@
 }
 
 .sequence__tick--whole {
-  height: hem(2);
+  height: 80%;
   width: hem(0.3);
   margin-right: hem(-0.3);
 }
 
 .sequence__tick--half {
-  height: hem(1.5);
+  height: 60%;
   width: hem(0.2);
   margin-right: hem(-0.2);
 }
 
 .sequence__tick--tenth {
-  height: hem(1);
+  height: 40%;
   width: hem(0.1);
   margin-right: hem(-0.1);
 }
 
 /* CLIP TRACKS */
 .sequence__clip-tracks {
-  
+  max-height: clip.$track-height * 6.5;
+  // max-height: hem(20);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  // scroll-snap-type: y mandatory;
+  transition: max-height 0.1s;
 }
