@@ -33,14 +33,14 @@ body {
   user-select: none !important;
 }
 
-.sequence__clip-track {
+.sequence__track {
   height: 36px;
   --track-bg: white;
   border-top: 1px solid var(--color-gray-darkest);
   display: flex;
 }
 
-.sequence__clip-track:nth-child(even) {
+.sequence__track:nth-child(even) {
   --track-bg: var(--color-gray-lighter) ;
 }
 
@@ -269,48 +269,48 @@ body {
 }
 
 @container timeline-ui (min-height: 0px) {
-  .timeline .sequence__clip-tracks {
+  .timeline .sequence__tracks {
     max-height: 36px;
   }
 }
 @container timeline-ui (min-height: 220px) {
-  .timeline .sequence__clip-tracks {
+  .timeline .sequence__tracks {
     max-height: 54px;
   }
 }
 @container timeline-ui (min-height: 255px) {
-  .timeline .sequence__clip-tracks {
+  .timeline .sequence__tracks {
     max-height: 90px;
   }
 }
 @container timeline-ui (min-height: 290px) {
-  .timeline .sequence__clip-tracks {
+  .timeline .sequence__tracks {
     max-height: 126px;
   }
 }
 @container timeline-ui (min-height: 325px) {
-  .timeline .sequence__clip-tracks {
+  .timeline .sequence__tracks {
     max-height: 162px;
   }
 }
 @container timeline-ui (min-height: 360px) {
-  .timeline .sequence__clip-tracks {
+  .timeline .sequence__tracks {
     max-height: 198px;
   }
 }
 @container timeline-ui (min-height: 395px) {
-  .timeline .sequence__clip-tracks {
+  .timeline .sequence__tracks {
     max-height: 234px;
   }
 }
-.sequence__clip-track {
+.sequence__track {
   height: 36px;
   --track-bg: white;
   border-top: 1px solid var(--color-gray-darkest);
   display: flex;
 }
 
-.sequence__clip-track:nth-child(even) {
+.sequence__track:nth-child(even) {
   --track-bg: var(--color-gray-lighter) ;
 }
 
@@ -610,21 +610,21 @@ body {
 }
 
 /* CLIP TRACKS */
-.sequence__clip-tracks {
+.sequence__tracks {
   max-height: 234px;
   overflow-y: auto;
   overscroll-behavior: contain;
   transition: max-height 0.1s;
 }
 
-.sequence__clip-track {
+.sequence__track {
   height: 36px;
   --track-bg: white;
   border-top: 1px solid var(--color-gray-darkest);
   display: flex;
 }
 
-.sequence__clip-track:nth-child(even) {
+.sequence__track:nth-child(even) {
   --track-bg: var(--color-gray-lighter) ;
 }
 

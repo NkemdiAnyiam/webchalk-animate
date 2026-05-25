@@ -60,7 +60,7 @@ const attachTimelineUIResizer = () => {
 };
 
 const attachScheduleDraggers = () => {
-  const clipTracksAll = [...document.querySelectorAll('.sequence__clip-tracks')] as HTMLDivElement[];
+  const clipTracksAll = [...document.querySelectorAll('.sequence__tracks')] as HTMLDivElement[];
 
   for (let i = 0; i < clipTracksAll.length; ++i) {
     const clipTracks = clipTracksAll[i];

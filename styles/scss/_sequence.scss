@@ -176,7 +176,7 @@
 }
 
 /* CLIP TRACKS */
-.sequence__clip-tracks {
+.sequence__tracks {
   max-height: clip.$track-height * 6.5;
   // max-height: hem(20);
   overflow-y: auto;

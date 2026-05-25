@@ -92,42 +92,42 @@
 
 
 @container timeline-ui (min-height: 0px) {
-  .timeline .sequence__clip-tracks {
+  .timeline .sequence__tracks {
     max-height: clip.$track-height * 1;
   }
 }
 // @container timeline-ui (min-height: 220px) {
-//   .timeline .sequence__clip-tracks {
+//   .timeline .sequence__tracks {
 //     max-height: clip.$track-height * 1;
 //   }
 // }
 @container timeline-ui (min-height: 220px) {
-  .timeline .sequence__clip-tracks {
+  .timeline .sequence__tracks {
     max-height: clip.$track-height * 1.5;
   }
 }
 @container timeline-ui (min-height: 255px) {
-  .timeline .sequence__clip-tracks {
+  .timeline .sequence__tracks {
     max-height: clip.$track-height * 2.5;
   }
 }
 @container timeline-ui (min-height: 290px) {
-  .timeline .sequence__clip-tracks {
+  .timeline .sequence__tracks {
     max-height: clip.$track-height * 3.5;
   }
 }
 @container timeline-ui (min-height: 325px) {
-  .timeline .sequence__clip-tracks {
+  .timeline .sequence__tracks {
     max-height: clip.$track-height * 4.5;
   }
 }
 @container timeline-ui (min-height: 360px) {
-  .timeline .sequence__clip-tracks {
+  .timeline .sequence__tracks {
     max-height: clip.$track-height * 5.5;
   }
 }
 @container timeline-ui (min-height: 395px) {
-  .timeline .sequence__clip-tracks {
+  .timeline .sequence__tracks {
     max-height: clip.$track-height * 6.5;
   }
 }

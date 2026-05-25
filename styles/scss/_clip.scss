@@ -2,7 +2,7 @@
 
 $track-height: calc(hem(3.5) + 1px);
 
-.sequence__clip-track {
+.sequence__track {
   height: $track-height;
   --track-bg: white;
   border-top: 1px solid var(--color-gray-darkest);
@@ -11,7 +11,7 @@ $track-height: calc(hem(3.5) + 1px);
   display: flex;
 }
 
-.sequence__clip-track:nth-child(even) {
+.sequence__track:nth-child(even) {
   --track-bg: var(--color-gray-lighter)
 }
 
