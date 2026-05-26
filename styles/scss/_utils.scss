@@ -12,3 +12,16 @@ $z--schedule-header: 3;
 $z--track-header: 2;
 $z--schedule-playhead: 1;
 $z--schedule-ticks: 1;
+
+@mixin category-color($category) {
+  --hue-light: var(--color-#{$category}-light);
+  --hue-dark: var(--color-#{$category}-dark);
+  --hue-darkest: var(--color-#{$category}-darkest);
+}
+
+@function var-lighten($color, $percent) {
+  @return color-mix(in srgb, $color (100% - $percent), white);
+}
+@function var-darken($color, $percent) {
+  @return color-mix(in srgb, $color (100% - $percent), black);
+}

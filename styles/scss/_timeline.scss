@@ -19,12 +19,13 @@
   --color-gray-light: #E0E0E0;
   --color-gray-lighter: #ECECEC;
   --color-gray-lightest: #F7F7F7;
-  --color-entrance-green-light: #9AFF9A;
-  --color-entrance-green-dark: #004900;
-  --color-entrance-green-darkest: #002700;
-  --color-exit-red-light: #FFB5B5;
-  --color-exit-red-dark: #9E0600;
-  --color-exit-red-darkest: #330200;
+  --color-entrance-light: #9AFF9A;
+  --color-entrance-dark: #004900;
+  --color-entrance-darkest: #002700;
+  --color-exit-light: #FFB5B5;
+  // --color-exit-dark: #9E0600;
+  --color-exit-dark: #330200;
+  --color-exit-darkest: #330200;
   --font-primary-family: "Verdana";
   --font-code-family: "Cascadia Code", "Fira Code";
 
@@ -96,22 +97,33 @@
 
 @container timeline-ui (min-height: 0px) {
   .timeline .sequence__schedule { max-height: schedule-max-height(1); }
+  .timeline .clip-info-box { max-height: schedule-max-height(1); }
 }
 @container timeline-ui (min-height: 220px) {
   .timeline .sequence__schedule { max-height: schedule-max-height(1.5); }
+  .timeline .clip-info-box { max-height: schedule-max-height(1.5); }
 }
 @container timeline-ui (min-height: 255px) {
   .timeline .sequence__schedule { max-height: schedule-max-height(2.5); }
+  .timeline .clip-info-box { max-height: schedule-max-height(2.5); }
 }
 @container timeline-ui (min-height: 290px) {
   .timeline .sequence__schedule { max-height: schedule-max-height(3.5); }
+  .timeline .clip-info-box { max-height: schedule-max-height(3.5); }
 }
 @container timeline-ui (min-height: 325px) {
   .timeline .sequence__schedule { max-height: schedule-max-height(4.5); }
+  .timeline .clip-info-box { max-height: schedule-max-height(4.5); }
 }
 @container timeline-ui (min-height: 360px) {
   .timeline .sequence__schedule { max-height: schedule-max-height(5.5); }
+  .timeline .clip-info-box { max-height: schedule-max-height(5.5); }
 }
 @container timeline-ui (min-height: 395px) {
   .timeline .sequence__schedule { max-height: schedule-max-height(6.5); }
+  .timeline .clip-info-box { max-height: schedule-max-height(6.5); }
+}
+@container timeline-ui (min-height: 430px) {
+  .timeline .sequence__schedule { max-height: schedule-max-height(7.5); }
+  .timeline .clip-info-box { max-height: schedule-max-height(7.5); }
 }

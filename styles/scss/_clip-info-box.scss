@@ -1,0 +1,80 @@
+@use 'utils' as *;
+@use 'clip';
+
+.clip-info-box--entrance {
+  @include category-color(entrance);
+}
+
+.clip-info-box--exit {
+  @include category-color(exit);
+}
+
+.clip-info-box {
+  grid-area: info-box;
+  max-height: clip.$track-height * 7.5 + hem(4.2);
+  margin-right: hem(-50);
+  background-color: var(--hue-light);
+  border: 2px solid var(--hue-dark);
+  color: var(--hue-darkest);
+  font-size: 12px;
+  line-height: 1.2;
+  width: hem(50);
+  position: sticky;
+  right: 0;
+  top: 0;
+  z-index: 5;
+  overflow-y: auto;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overscroll-behavior: contain;
+}
+
+.clip-info-box__nav {
+  background-color: var(--hue-dark);
+}
+
+.clip-info-box__tabs {
+  list-style: none;
+
+  display: flex;
+}
+
+.clip-info-box__tab {
+  &:not(:last-child) .clip-info-box__tab-button {
+    border-right: none;
+  }
+}
+
+.clip-info-box__tab-button {
+  padding: hem(0.2) hem(0.4);
+  border: 1.5px solid var(--hue-dark);
+  border-top: none;
+
+  background-color: var(--hue-light);
+  transition: background-color 0.1s, color 0.1s;
+
+  &:hover {
+    // background-color: oklch(from var(--hue-light) calc(l + 0.2) c h);
+    background-color: var-lighten(var(--hue-light), 40%);
+  }
+  &:active {
+    color: var(--hue-light);
+    background-color: var-lighten(var(--hue-dark), 20%);
+  }
+  &#{&}--current {
+    cursor: default;
+    background-color: var(--hue-dark);
+    color: var(--hue-light);
+  }
+}
+
+.clip-info-box__body {
+  padding: 17.5px;
+  padding-top: 0;
+  
+  display: flex;
+  flex-direction: column;
+  gap: hem(1.5)
+}

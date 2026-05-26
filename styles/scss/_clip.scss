@@ -53,15 +53,11 @@ $track-height: calc(hem(3.5) + 1px);
 }
 
 .clip--entrance {
-  --hue-light: var(--color-entrance-green-light);
-  --hue-dark: var(--color-entrance-green-dark);
-  --hue-darkest: var(--color-entrance-green-darkest);
+  @include category-color(entrance);
 }
 
 .clip--exit {
-  --hue-light: var(--color-exit-red-light);
-  --hue-dark: var(--color-exit-red-darkest);
-  --hue-darkest: var(--color-exit-red-darkest);
+  @include category-color(exit);
 }
 
 .clip__length-bars {

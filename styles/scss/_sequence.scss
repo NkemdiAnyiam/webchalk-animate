@@ -33,6 +33,7 @@
 .sequence__controls-container {
   background-color: var(--color-gray-darkest);
   padding-left: $sequence-left-side-width;
+  // border-bottom: 1px dashed #f7f7f788;
 }
 
 .sequence__controls {
@@ -65,17 +66,23 @@
   position: relative;
   overflow: scroll;
   overscroll-behavior: contain;
-  max-height: clip.$track-height * 6.5 + hem(4.2); // magic number 4.2 is the height of the schedule header
+  max-height: clip.$track-height * 7.5 + hem(4.2); // magic number 4.2 is the height of the schedule header
   transition: max-height 0.1s;
+
+  display: grid;
+  grid-template-areas: 'wrapper info-box';
 }
 
-
 $schedule-wrapper-scroll-padding: 17.5px;
+
 .sequence__schedule-inner-wrapper {
+  grid-area: wrapper;
   position: relative;
   display: inline-block;
   min-width: 100%;
   padding-bottom: $schedule-wrapper-scroll-padding;
+
+  display: inline-block;
 }
 
 /* SCHEDULE HEADER */
@@ -83,6 +90,7 @@ $schedule-wrapper-scroll-padding: 17.5px;
   position: sticky;
   top: 0;
   z-index: $z--schedule-header;
+  grid-area: header;
 
   display: grid;
   grid-template-areas:
@@ -201,4 +209,5 @@ $schedule-wrapper-scroll-padding: 17.5px;
 /* CLIP TRACKS */
 .sequence__tracks {
   width: 100%;
+  grid-area: tracks;
 }
