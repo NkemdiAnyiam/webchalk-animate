@@ -4,6 +4,8 @@ $hem: 10px;
   @return $num-hem * $hem;
 }
 
+$sequence-left-side-width: hem(3.2);
+
 $z--timeline-header: 4;
 $z--schedule-header-padding: 3;
 $z--schedule-header: 3;
