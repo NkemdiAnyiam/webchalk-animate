@@ -1,4 +1,4 @@
-:where(:not(.timeline)) {
+:not(:where(.timeline, .timeline *)) {
   &,
   &::before,
   &::after {
