@@ -4,8 +4,9 @@ $hem: 10px;
   @return $num-hem * $hem;
 }
 
-$z--timeline-header: 3;
-$z--schedule-header-padding: 2;
-$z--schedule-header: 2;
-$z--track-header: 1;
+$z--timeline-header: 4;
+$z--schedule-header-padding: 3;
+$z--schedule-header: 3;
+$z--track-header: 2;
+$z--schedule-playhead: 1;
 $z--schedule-ticks: 1;
