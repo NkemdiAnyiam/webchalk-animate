@@ -84,6 +84,7 @@
   grid-template-areas:
   'pad times'
   'pad ticks';
+  grid-template-columns: auto 1fr;
 }
 
 .sequence__schedule-header-pad {
