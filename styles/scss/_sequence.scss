@@ -62,7 +62,11 @@
 
 /* SCHEDULE */
 .sequence__schedule {
-  overflow-x: scroll;
+  position: relative;
+  overflow: scroll;
+  overscroll-behavior: contain;
+  max-height: clip.$track-height * 6.5 + hem(4.2); // magic number 4.2 is the height of the schedule header
+  --schedule-scroll-amount: 0;
 }
 
 .sequence__schedule-inner-wrapper {
@@ -73,6 +77,10 @@
 
 /* SCHEDULE HEADER */
 .sequence__schedule-header {
+  position: sticky;
+  top: 0;
+  z-index: $z--schedule-header;
+
   display: grid;
   grid-template-areas:
   'pad times'
@@ -83,9 +91,9 @@
   grid-area: pad;
   width: hem(2.8);
   background-color: var(--color-gray-darkest);
-  // position: sticky;
-  // left: 0;
-  // z-index: $z--schedule-header-padding;
+  position: sticky;
+  left: 0;
+  z-index: $z--schedule-header-padding;
 }
 
 .sequence__schedule-times {
@@ -97,7 +105,6 @@
   padding: hem(0.5) hem(2.8) hem(0.5) 0;
 
   display: flex;
-  /* gap: hem(24); */
 }
 
 .sequence__schedule-time-wrapper {
@@ -113,7 +120,6 @@
 .sequence__playhead-trail {
   position: absolute;
   top: 0;
-  // left: hem(2.8);
   background-color: #70efef;
   box-shadow: inset 0 0 5px var(--color-glow-blue);
   height: 100%;
@@ -125,9 +131,7 @@
   position: relative;
   z-index: $z--schedule-ticks;
   background-color: var(--color-gray-light);
-  // height: hem(2.5);
   height: hem(2);
-  // padding-left: hem(2.8);
   border: 1px solid var(--color-gray-darkest);
   border-left: 0;
   box-shadow: 0 3px 2px #53535399;
@@ -136,17 +140,6 @@
   align-items: end;
   gap: hem(2.5);
 }
-
-// .sequence__ticks::before {
-//   content: '';
-//   display: block;
-//   position: absolute;
-//   height: 100%;
-//   width: hem(2.8);
-//   background-color: var(--color-gray-darkest);
-//   left: 0;
-//   top: 0;
-// }
 
 .sequence__tick {
   background-color: var(--color-gray-darkest);
@@ -177,10 +170,6 @@
 
 /* CLIP TRACKS */
 .sequence__tracks {
-  max-height: clip.$track-height * 6.5;
-  // max-height: hem(20);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  // scroll-snap-type: y mandatory;
   transition: max-height 0.1s;
+  width: 100%;
 }

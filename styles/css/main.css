@@ -269,38 +269,38 @@ body {
 }
 
 @container timeline-ui (min-height: 0px) {
-  .timeline .sequence__tracks {
-    max-height: 36px;
+  .timeline .sequence__schedule {
+    max-height: 78px;
   }
 }
 @container timeline-ui (min-height: 220px) {
-  .timeline .sequence__tracks {
-    max-height: 54px;
+  .timeline .sequence__schedule {
+    max-height: 96px;
   }
 }
 @container timeline-ui (min-height: 255px) {
-  .timeline .sequence__tracks {
-    max-height: 90px;
+  .timeline .sequence__schedule {
+    max-height: 132px;
   }
 }
 @container timeline-ui (min-height: 290px) {
-  .timeline .sequence__tracks {
-    max-height: 126px;
+  .timeline .sequence__schedule {
+    max-height: 168px;
   }
 }
 @container timeline-ui (min-height: 325px) {
-  .timeline .sequence__tracks {
-    max-height: 162px;
+  .timeline .sequence__schedule {
+    max-height: 204px;
   }
 }
 @container timeline-ui (min-height: 360px) {
-  .timeline .sequence__tracks {
-    max-height: 198px;
+  .timeline .sequence__schedule {
+    max-height: 240px;
   }
 }
 @container timeline-ui (min-height: 395px) {
-  .timeline .sequence__tracks {
-    max-height: 234px;
+  .timeline .sequence__schedule {
+    max-height: 276px;
   }
 }
 .sequence__track {
@@ -521,7 +521,11 @@ body {
 
 /* SCHEDULE */
 .sequence__schedule {
-  overflow-x: scroll;
+  position: relative;
+  overflow: scroll;
+  overscroll-behavior: contain;
+  max-height: 276px;
+  --schedule-scroll-amount: 0;
 }
 
 .sequence__schedule-inner-wrapper {
@@ -532,6 +536,9 @@ body {
 
 /* SCHEDULE HEADER */
 .sequence__schedule-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
   display: grid;
   grid-template-areas: "pad times" "pad ticks";
 }
@@ -540,6 +547,9 @@ body {
   grid-area: pad;
   width: 28px;
   background-color: var(--color-gray-darkest);
+  position: sticky;
+  left: 0;
+  z-index: 2;
 }
 
 .sequence__schedule-times {
@@ -550,7 +560,6 @@ body {
   font-family: var(--font-code-family);
   padding: 5px 28px 5px 0;
   display: flex;
-  /* gap: hem(24); */
 }
 
 .sequence__schedule-time-wrapper {
@@ -611,10 +620,8 @@ body {
 
 /* CLIP TRACKS */
 .sequence__tracks {
-  max-height: 234px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
   transition: max-height 0.1s;
+  width: 100%;
 }
 
 .sequence__track {

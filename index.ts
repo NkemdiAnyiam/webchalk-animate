@@ -64,6 +64,7 @@ const attachScheduleDraggers = () => {
 
   for (let i = 0; i < clipTracksAll.length; ++i) {
     const clipTracks = clipTracksAll[i];
+    const schedule = clipTracks.closest('.sequence__schedule') as HTMLDivElement;
 
     const handleClick = (e: MouseEvent) => {
       const clipTrack = (e.target as HTMLElement);
@@ -73,22 +74,23 @@ const attachScheduleDraggers = () => {
       // unhighlight all text to prevent annoying dragging issues
       document.getSelection()?.removeAllRanges();
       // prevent user selection to handle other annoying dragging issues
-      clipTracks.classList.add('user-select-none');
+      schedule.classList.add('user-select-none');
 
       const handleDrag = (e: MouseEvent) => {
         const [x, y] = [e.movementX, e.movementY];
-        const schedule = clipTracks.closest('.sequence__schedule') as HTMLDivElement;
         if (y !== 0) {
-          clipTracks.scrollTo({top: y < 0 ? Math.floor(clipTracks.scrollTop - y) : Math.ceil(clipTracks.scrollTop - y), behavior: 'instant'});
+          const newY = y < 0 ? Math.floor(schedule.scrollTop - y) : Math.ceil(schedule.scrollTop - y);
+          schedule.scrollTo({top: newY, behavior: 'instant'});
         }
         if (x !== 0) {
-          schedule.scrollTo({left: x < 0 ? Math.floor(schedule.scrollLeft - x) : Math.ceil(schedule.scrollLeft - x), behavior: 'instant'});
+          const newX = x < 0 ? Math.floor(schedule.scrollLeft - x) : Math.ceil(schedule.scrollLeft - x);
+          schedule.scrollTo({left: newX, behavior: 'instant'});
         }
       }
 
       const handleRelease = (e: MouseEvent) => {
         // remove all event listeners related to dragging this schedule
-        clipTracks.classList.remove('user-select-none');
+        schedule.classList.remove('user-select-none');
         window.removeEventListener('mousemove', handleDrag);
         window.removeEventListener('mouseup', handleRelease);
         window.removeEventListener('mouseleave', handleRelease);
