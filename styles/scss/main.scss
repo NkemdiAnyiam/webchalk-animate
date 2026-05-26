@@ -1,8 +1,8 @@
-@import "base";
-@import "base--component";
-@import "timeline";
-@import "sequence";
-@import "clip";
+@use "base";
+@use "base--component";
+@use "timeline";
+@use "sequence";
+@use "clip";
 
 .square {
   width: 20rem;
