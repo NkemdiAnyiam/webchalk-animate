@@ -66,6 +66,7 @@
   overflow: scroll;
   overscroll-behavior: contain;
   max-height: clip.$track-height * 6.5 + hem(4.2); // magic number 4.2 is the height of the schedule header
+  transition: max-height 0.1s;
 }
 
 .sequence__schedule-inner-wrapper {
@@ -170,6 +171,5 @@
 
 /* CLIP TRACKS */
 .sequence__tracks {
-  transition: max-height 0.1s;
   width: 100%;
 }
