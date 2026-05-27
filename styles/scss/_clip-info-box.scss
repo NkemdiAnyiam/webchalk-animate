@@ -12,12 +12,12 @@
   grid-area: info-box;
   position: sticky;
   // max-height: track-based-height-units(7.5);
-  transition: max-height 0.1s;
-  flex-basis: hem(50);
+  // transition: max-height 0.1s;
+  flex-basis: 500px;
   flex-shrink: 0;
   // margin-right: hem(-50);
-  min-width: hem(23);
-  max-width: hem(105);
+  min-width: 230px;
+  max-width: 1050px;
   background-color: var(--hue-light);
   border: 2px solid var(--hue-dark);
   border-bottom: none;

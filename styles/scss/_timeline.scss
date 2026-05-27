@@ -36,15 +36,15 @@
   bottom: 0;
   left: 0;
   width: 100vw;
-  height: hem(44);
+  height: 440px;
+  min-height: 15px;
+  max-height: calc(100vh - 20px);
   overflow-y: auto;
   // background-color: lightgray;
   background-color: var(--color-primary-blue);
   font-family: var(--font-primary-family);
   font-size: 16px;
   font-weight: 400;
-  min-height: 15px;
-  max-height: calc(100vh - 20px);
 
   display: flex;
   flex-direction: column;
