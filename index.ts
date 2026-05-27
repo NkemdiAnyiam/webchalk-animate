@@ -106,5 +106,42 @@ const attachScheduleDraggers = () => {
   }
 };
 
+const attachClipInfoBoxResizer = () => {
+  const infoBox = document.querySelector('.clip-info-box') as HTMLElement;
+
+  const handleClick = (e: MouseEvent) => {
+    const boxResizer = (e.target as HTMLElement);
+    // only do process if resizer was clicked
+    if (!boxResizer.classList.contains('clip-info-box__resizer')) { return; }
+
+    // unhighlight all text to prevent annoying dragging issues
+    document.getSelection()?.removeAllRanges();
+    // prevent selection in order to prevent other annoying dragging issues
+    infoBox.classList.add('user-select-none');
+
+    const handleDrag = (e: MouseEvent) => {
+      // change box width based on mouse movement
+      const x = e.movementX;
+      infoBox.style.width = `${Number.parseFloat(getComputedStyle(infoBox).width) - x}px`;
+    }
+
+    const handleRelease = (e: MouseEvent) => {
+      // remove all event listeners
+      infoBox.classList.remove('user-select-none');
+      window.removeEventListener('mousemove', handleDrag);
+      window.removeEventListener('mouseup', handleRelease);
+      window.removeEventListener('mouseleave', handleRelease);
+    }
+
+    // add listeners for handling drag and release to window
+    window.addEventListener('mousemove', handleDrag);
+    window.addEventListener('mouseup', handleRelease);
+    window.addEventListener('mouseleave', handleRelease);
+  };
+
+  infoBox.addEventListener('mousedown', handleClick);
+};
+
 attachTimelineUIResizer();
 attachScheduleDraggers();
+attachClipInfoBoxResizer();
