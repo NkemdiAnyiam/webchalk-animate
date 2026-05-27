@@ -49,6 +49,8 @@
 
 .clip-info-box__nav {
   background-color: var(--hue-dark);
+  position: sticky;
+  top: 0;
 
   overflow-x: auto;
   flex-shrink: 0;
