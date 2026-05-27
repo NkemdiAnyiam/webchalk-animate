@@ -122,7 +122,7 @@ const attachClipInfoBoxResizer = () => {
     const handleDrag = (e: MouseEvent) => {
       // change box width based on mouse movement
       const x = e.movementX;
-      infoBox.style.width = `${Number.parseFloat(getComputedStyle(infoBox).width) - x}px`;
+      infoBox.style.flexBasis = `${Number.parseFloat(getComputedStyle(infoBox).flexBasis) - x}px`;
     }
 
     const handleRelease = (e: MouseEvent) => {

@@ -69,8 +69,7 @@
   max-height: track-based-height-units(7.5);
   transition: max-height 0.1s;
 
-  display: grid;
-  grid-template-areas: 'wrapper info-box';
+  display: flex;
 }
 
 $schedule-wrapper-scroll-padding: 17.5px;
@@ -80,6 +79,7 @@ $schedule-wrapper-scroll-padding: 17.5px;
   position: relative;
   display: inline-block;
   min-width: 100%;
+  flex: 1 0 auto;
   padding-bottom: $schedule-wrapper-scroll-padding;
 
   display: inline-block;
@@ -142,12 +142,12 @@ $schedule-wrapper-scroll-padding: 17.5px;
   pointer-events: none;
   width: 0;
   border-left: hem(0.2) dashed var(--color-glow-blue);
-  left: $sequence-left-side-width; // accounts for track header width
-  position: absolute;
+  // left: $sequence-left-side-width; // accounts for track header width
+  position: sticky;
   top: hem(0);
-  transform: translateX(-50%); // to center it
+  transform: translateX(calc(50% + $sequence-left-side-width)); // to center it
   translate: hem(22.5);
-  bottom: $schedule-wrapper-scroll-padding;
+  // bottom: $schedule-wrapper-scroll-padding;
   z-index: $z--schedule-playhead;
 
   &::before {

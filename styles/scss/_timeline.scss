@@ -91,11 +91,11 @@
   // scroll-snap-type: y proximity;
 }
 
-@container timeline-ui (min-height: 0px)   { .timeline { .sequence__schedule, .clip-info-box { max-height: track-based-height-units(1.0); } } }
-@container timeline-ui (min-height: 220px) { .timeline { .sequence__schedule, .clip-info-box { max-height: track-based-height-units(1.5); } } }
-@container timeline-ui (min-height: 255px) { .timeline { .sequence__schedule, .clip-info-box { max-height: track-based-height-units(2.5); } } }
-@container timeline-ui (min-height: 290px) { .timeline { .sequence__schedule, .clip-info-box { max-height: track-based-height-units(3.5); } } }
-@container timeline-ui (min-height: 325px) { .timeline { .sequence__schedule, .clip-info-box { max-height: track-based-height-units(4.5); } } }
-@container timeline-ui (min-height: 360px) { .timeline { .sequence__schedule, .clip-info-box { max-height: track-based-height-units(5.5); } } }
-@container timeline-ui (min-height: 395px) { .timeline { .sequence__schedule, .clip-info-box { max-height: track-based-height-units(6.5); } } }
-@container timeline-ui (min-height: 430px) { .timeline { .sequence__schedule, .clip-info-box { max-height: track-based-height-units(7.5); } } }
+@container timeline-ui (min-height: 0px)   { .timeline { .sequence__schedule { max-height: track-based-height-units(1.0); } } }
+@container timeline-ui (min-height: 220px) { .timeline { .sequence__schedule { max-height: track-based-height-units(1.5); } } }
+@container timeline-ui (min-height: 255px) { .timeline { .sequence__schedule { max-height: track-based-height-units(2.5); } } }
+@container timeline-ui (min-height: 290px) { .timeline { .sequence__schedule { max-height: track-based-height-units(3.5); } } }
+@container timeline-ui (min-height: 325px) { .timeline { .sequence__schedule { max-height: track-based-height-units(4.5); } } }
+@container timeline-ui (min-height: 360px) { .timeline { .sequence__schedule { max-height: track-based-height-units(5.5); } } }
+@container timeline-ui (min-height: 395px) { .timeline { .sequence__schedule { max-height: track-based-height-units(6.5); } } }
+@container timeline-ui (min-height: 430px) { .timeline { .sequence__schedule { max-height: track-based-height-units(7.5); } } }

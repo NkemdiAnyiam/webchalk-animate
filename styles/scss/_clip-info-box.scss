@@ -11,14 +11,16 @@
 .clip-info-box {
   grid-area: info-box;
   position: sticky;
-  max-height: calc(var(--track-height) * 7.5 + hem(4.2));
+  // max-height: track-based-height-units(7.5);
   transition: max-height 0.1s;
-  width: hem(50);
-  margin-right: hem(-50);
+  flex-basis: hem(50);
+  flex-shrink: 0;
+  // margin-right: hem(-50);
   min-width: hem(23);
   max-width: hem(105);
   background-color: var(--hue-light);
   border: 2px solid var(--hue-dark);
+  border-bottom: none;
   color: var(--hue-darkest);
   font-size: 12px;
   line-height: 1.2;
