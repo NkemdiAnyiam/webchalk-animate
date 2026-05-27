@@ -1,5 +1,4 @@
 @use 'utils' as *;
-@use 'clip';
 
 .clip-info-box--entrance {
   @include category-color(entrance);
@@ -11,7 +10,8 @@
 
 .clip-info-box {
   grid-area: info-box;
-  max-height: clip.$track-height * 7.5 + hem(4.2);
+  max-height: calc(var(--track-height) * 7.5 + hem(4.2));
+  transition: max-height 0.1s;
   margin-right: hem(-50);
   background-color: var(--hue-light);
   border: 2px solid var(--hue-dark);

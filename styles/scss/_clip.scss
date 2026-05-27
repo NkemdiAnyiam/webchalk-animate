@@ -1,9 +1,11 @@
 @use 'utils' as *;
 
-$track-height: calc(hem(3.5) + 1px);
+.timeline {
+  --track-height: calc(#{hem(3.5)} + 1px);
+}
 
 .sequence__track {
-  height: $track-height;
+  height: var(--track-height);
   --track-bg: white;
   border-top: 1px solid var(--color-gray-darkest);
 

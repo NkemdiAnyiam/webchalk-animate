@@ -1,7 +1,9 @@
-$hem: 10px;
-
 @function hem($num-hem) {
-  @return $num-hem * $hem;
+  @return calc(#{$num-hem} * var(--hem));
+}
+
+@function track-based-height-units($multiplier) {
+  @return calc(var(--track-height) * $multiplier + hem(4.2));
 }
 
 $sequence-left-side-width: hem(3.2);

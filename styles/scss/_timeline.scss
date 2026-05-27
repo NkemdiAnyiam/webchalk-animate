@@ -91,39 +91,11 @@
   // scroll-snap-type: y proximity;
 }
 
-@function schedule-max-height($multiplier) {
-  @return clip.$track-height * $multiplier + hem(4.2);
-}
-
-@container timeline-ui (min-height: 0px) {
-  .timeline .sequence__schedule { max-height: schedule-max-height(1); }
-  .timeline .clip-info-box { max-height: schedule-max-height(1); }
-}
-@container timeline-ui (min-height: 220px) {
-  .timeline .sequence__schedule { max-height: schedule-max-height(1.5); }
-  .timeline .clip-info-box { max-height: schedule-max-height(1.5); }
-}
-@container timeline-ui (min-height: 255px) {
-  .timeline .sequence__schedule { max-height: schedule-max-height(2.5); }
-  .timeline .clip-info-box { max-height: schedule-max-height(2.5); }
-}
-@container timeline-ui (min-height: 290px) {
-  .timeline .sequence__schedule { max-height: schedule-max-height(3.5); }
-  .timeline .clip-info-box { max-height: schedule-max-height(3.5); }
-}
-@container timeline-ui (min-height: 325px) {
-  .timeline .sequence__schedule { max-height: schedule-max-height(4.5); }
-  .timeline .clip-info-box { max-height: schedule-max-height(4.5); }
-}
-@container timeline-ui (min-height: 360px) {
-  .timeline .sequence__schedule { max-height: schedule-max-height(5.5); }
-  .timeline .clip-info-box { max-height: schedule-max-height(5.5); }
-}
-@container timeline-ui (min-height: 395px) {
-  .timeline .sequence__schedule { max-height: schedule-max-height(6.5); }
-  .timeline .clip-info-box { max-height: schedule-max-height(6.5); }
-}
-@container timeline-ui (min-height: 430px) {
-  .timeline .sequence__schedule { max-height: schedule-max-height(7.5); }
-  .timeline .clip-info-box { max-height: schedule-max-height(7.5); }
-}
+@container timeline-ui (min-height: 0px)   { .timeline { .sequence__schedule, .clip-info-box { max-height: track-based-height-units(1.0); } } }
+@container timeline-ui (min-height: 220px) { .timeline { .sequence__schedule, .clip-info-box { max-height: track-based-height-units(1.5); } } }
+@container timeline-ui (min-height: 255px) { .timeline { .sequence__schedule, .clip-info-box { max-height: track-based-height-units(2.5); } } }
+@container timeline-ui (min-height: 290px) { .timeline { .sequence__schedule, .clip-info-box { max-height: track-based-height-units(3.5); } } }
+@container timeline-ui (min-height: 325px) { .timeline { .sequence__schedule, .clip-info-box { max-height: track-based-height-units(4.5); } } }
+@container timeline-ui (min-height: 360px) { .timeline { .sequence__schedule, .clip-info-box { max-height: track-based-height-units(5.5); } } }
+@container timeline-ui (min-height: 395px) { .timeline { .sequence__schedule, .clip-info-box { max-height: track-based-height-units(6.5); } } }
+@container timeline-ui (min-height: 430px) { .timeline { .sequence__schedule, .clip-info-box { max-height: track-based-height-units(7.5); } } }
