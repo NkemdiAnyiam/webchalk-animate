@@ -20,12 +20,11 @@
 }
 
 .sequence__number {
-  font-size: 14px;
+  font-size: hem(1.4);
   font-weight: 700;
 }
 
 .sequence__description {
-  font-size: 12px;
   font-weight: normal;
 }
 
@@ -112,7 +111,6 @@ $schedule-wrapper-scroll-padding: 17.5px;
   grid-area: times;
   background-color: var(--color-gray-darkest);
   color: var(--color-gray-lightest);
-  font-size: 12px;
   font-family: var(--font-code-family);
   padding: hem(0.5) $sequence-left-side-width hem(0.5) 0;
 

@@ -43,7 +43,7 @@
   // background-color: lightgray;
   background-color: var(--color-primary-blue);
   font-family: var(--font-primary-family);
-  font-size: 16px;
+  font-size: hem(1.2);
   font-weight: 400;
 
   display: flex;
@@ -74,7 +74,7 @@
 }
   
 .timeline__name {
-  font-size: 16px;
+  font-size: hem(1.6);
   font-weight: 700;
 }
 

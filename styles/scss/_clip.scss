@@ -31,7 +31,6 @@
 }
 
 .sequence__track-number {
-  font-size: 12px;
   color: var(--color-gray-darkest);
 }
 
@@ -119,7 +118,6 @@
 .clip__effect-category-icon {
   // font-family: "Roboto";
   font-weight: 900;
-  font-size: 12px;
   text-align: center;
 }
 
@@ -133,7 +131,6 @@
 
 .clip__effect-name {
   font-family: var(--font-code-family);
-  font-size: 12px;
   font-weight: 500;
 }
 
@@ -142,7 +139,6 @@
 .clip__info-button-box {
   background-color: var(--track-bg);
   border: 1.5px solid var(--color-gray);
-  font-size: 12px;
   color: var(--color-gray);
 }
 
@@ -175,7 +171,7 @@
   border: 1.5px solid var(--color-gray);
   border-radius: 50%;
   font-family: Georgia;
-  font-size: 12px;
+  font-size: hem(1.2);
   font-weight: 900;
 
   display: flex;
