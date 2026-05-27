@@ -40,13 +40,12 @@
   flex: 1 0 auto;
   // height: 100%;
   background-color: var(--track-bg);
-  cursor: move;
 
   display: flex;
-}
 
-.sequence__track-body * {
-  cursor: initial;
+  &:hover:not(:has(> :hover)) {
+    cursor: move;
+  }
 }
 
 /* CLIP */
