@@ -1,6 +1,58 @@
 import { equalWithinTol, getBoundingClientRectOfHidden } from "../4_utils/helpers";
 import { DOMElement, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
 
+const stylesheet = new CSSStyleSheet();
+stylesheet.replaceSync(
+  /*css*/`:host {
+    /* marker opacity property registered in injectGlobals() */
+    --a-marker-opacity: 1;
+    --b-marker-opacity: 1;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    stroke: black;
+    fill: black;
+    display: initial;
+    line-height: 0 !important;
+    overflow: visible !important;
+    visibility: hidden !important;
+  }
+  
+  .connector__svg {
+    visibility: hidden !important;
+    overflow: visible !important;
+  }
+        
+  .connector__g-body {
+    visibility: initial;
+  }
+  
+  .connector__mask-group {
+    stroke: white !important;
+    fill: white !important;
+  }
+  
+  .connector__layer-group {
+            
+  }
+  
+  .connector__line {
+    fill: none;
+  }
+  
+  .connector__line--mask {
+    stroke-dashoffset: 0 !important;
+  }
+  
+  .connector__line--layer {
+    stroke-dasharray: 1 !important;
+  }
+  
+  marker {
+    stroke: none;
+  }`
+);
+
 export type WebchalkConnectorElementConfig = {
   pointTrackingEnabled: boolean;
 };
@@ -55,6 +107,7 @@ export class WebchalkConnectorElement extends HTMLElement {
     super();
     this.connectorId = WebchalkConnectorElement.staticId++;
     const shadow = this.attachShadow({mode: 'open'});
+    shadow.adoptedStyleSheets = [stylesheet];
 
     const markerIdPrefix = `markerArrow--${this.connectorId}`;
     this.markerIdPrefix = markerIdPrefix;
@@ -68,55 +121,6 @@ export class WebchalkConnectorElement extends HTMLElement {
     // TODO: In the future, https://github.com/w3c/csswg-drafts/issues/8361 could help prevent <svg> from contributing to overflow
     const htmlString = /*html*/`
       <style>
-        :host {
-          /* marker opacity property registered in injectGlobals() */
-          --a-marker-opacity: 1;
-          --b-marker-opacity: 1;
-          position: absolute !important;
-          top: 0 !important;
-          left: 0 !important;
-          stroke: black;
-          fill: black;
-          display: initial;
-          line-height: 0 !important;
-          overflow: visible !important;
-          visibility: hidden !important;
-        }
-        
-        .connector__svg {
-          visibility: hidden !important;
-          overflow: visible !important;
-        }
-              
-        .connector__g-body {
-          visibility: initial;
-        }
-        
-        .connector__mask-group {
-          stroke: white !important;
-          fill: white !important;
-        }
-        
-        .connector__layer-group {
-                  
-        }
-        
-        .connector__line {
-          fill: none;
-        }
-        
-        .connector__line--mask {
-          stroke-dashoffset: 0 !important;
-        }
-        
-        .connector__line--layer {
-          stroke-dasharray: 1 !important;
-        }
-        
-        marker {
-          stroke: none;
-        }
-      
         .connector__line--layer {
           marker-start: url(#${markerIdPrefix}-a--layer);
           marker-end: url(#${markerIdPrefix}-b--layer);

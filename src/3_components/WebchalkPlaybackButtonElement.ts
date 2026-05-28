@@ -1,3 +1,51 @@
+const stylesheet = new CSSStyleSheet();
+stylesheet.replaceSync(
+  /*css*/`:host {
+    width: 25.6px;
+    height: 25.6px;
+    display: inline-block;
+    background-color: var(--webchalk-playback-button-background-color);
+    padding: 1.6px !important;
+  
+    box-shadow: -3.2px 3.2px 3.2px rgba(0, 0, 0, 0.4);
+    transform: scale(1);
+    transition: all 0.02s;
+  
+    cursor: pointer;
+  }
+  
+  :host(.playback-button--disabledPointerFromPause),
+  :host(.playback-button--disabledPointerFromStepping) {
+    cursor: not-allowed;
+  }
+  
+  :host(.playback-button--disabledFromTimelineEdge),
+  :host(.playback-button--disabledFromPause),
+  :host(.playback-button--disabledFromStepping) {
+    background-color: var(--webchalk-playback-button-disabled-color);
+    cursor: not-allowed;
+  }
+  
+  :host(.playback-button--pressed) {
+    transform: scale(0.90);
+    box-shadow: -0.64px 0.64px 0.64px rgba(0, 0, 0, 0.8);
+  }
+  
+  :host(.playback-button--pressed[trigger="press"]) {
+    background-color: var(--webchalk-playback-button-press-color);
+  }
+  
+  :host(.playback-button--pressed[trigger="hold"]) {
+    background-color: var(--webchalk-playback-button-hold-color);
+  }
+  
+  .playback-button__symbol {
+    width: 100%;
+    height: auto;
+    fill: var(--webchalk-playback-button-symbol-color);
+  }`
+);
+
 export class WebchalkPlaybackButtonElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-playback-button', WebchalkPlaybackButtonElement); }
 
@@ -21,6 +69,7 @@ export class WebchalkPlaybackButtonElement extends HTMLElement {
   constructor() {
     super();
     const shadow = this.attachShadow({mode: 'open'});
+    shadow.adoptedStyleSheets = [stylesheet];
     
     this.shortcutKey = this.getAttribute('shortcut') ?? null;
     this.allowHolding = this.hasAttribute('allow-holding');
@@ -56,53 +105,6 @@ export class WebchalkPlaybackButtonElement extends HTMLElement {
     this.action = action;
 
     const htmlString = /*html*/`
-      <style>
-        :host {
-          width: 25.6px;
-          height: 25.6px;
-          display: inline-block;
-          background-color: var(--webchalk-playback-button-background-color);
-          padding: 1.6px !important;
-        
-          box-shadow: -3.2px 3.2px 3.2px rgba(0, 0, 0, 0.4);
-          transform: scale(1);
-          transition: all 0.02s;
-        
-          cursor: pointer;
-        }
-        
-        :host(.playback-button--disabledPointerFromPause),
-        :host(.playback-button--disabledPointerFromStepping) {
-          cursor: not-allowed;
-        }
-        
-        :host(.playback-button--disabledFromTimelineEdge),
-        :host(.playback-button--disabledFromPause),
-        :host(.playback-button--disabledFromStepping) {
-          background-color: var(--webchalk-playback-button-disabled-color);
-          cursor: not-allowed;
-        }
-        
-        :host(.playback-button--pressed) {
-          transform: scale(0.90);
-          box-shadow: -0.64px 0.64px 0.64px rgba(0, 0, 0, 0.8);
-        }
-        
-        :host(.playback-button--pressed[trigger="press"]) {
-          background-color: var(--webchalk-playback-button-press-color);
-        }
-        
-        :host(.playback-button--pressed[trigger="hold"]) {
-          background-color: var(--webchalk-playback-button-hold-color);
-        }
-        
-        .playback-button__symbol {
-          width: 100%;
-          height: auto;
-          fill: var(--webchalk-playback-button-symbol-color);
-        }
-      </style>
-
       <svg class="playback-button__symbol" xmlns="http://www.w3.org/2000/svg" width="81.83" height="81.83" viewBox="0 0 81.83 81.83">
         <rect width="81.83" height="81.83" transform="translate(81.83 81.83) rotate(-180)" fill="none"/>
         ${buttonShapeHtmlStr}
