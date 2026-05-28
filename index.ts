@@ -106,9 +106,7 @@ const attachScheduleDraggers = () => {
   }
 };
 
-const attachClipInfoBoxResizer = () => {
-  const infoBox = document.querySelector('.clip-info-box') as HTMLElement;
-
+const attachClipInfoBoxResizer = (infoBox: HTMLDivElement) => {
   const handleClick = (e: MouseEvent) => {
     const boxResizer = (e.target as HTMLElement);
     // only do process if resizer was clicked
@@ -125,7 +123,7 @@ const attachClipInfoBoxResizer = () => {
       infoBox.style.flexBasis = `${Number.parseFloat(getComputedStyle(infoBox).flexBasis) - x}px`;
     }
 
-    const handleRelease = (e: MouseEvent) => {
+    const handleRelease = () => {
       // remove all event listeners
       infoBox.classList.remove('user-select-none');
       window.removeEventListener('mousemove', handleDrag);
@@ -137,11 +135,58 @@ const attachClipInfoBoxResizer = () => {
     window.addEventListener('mousemove', handleDrag);
     window.addEventListener('mouseup', handleRelease);
     window.addEventListener('mouseleave', handleRelease);
-  };
 
+  };
+  
   infoBox.addEventListener('mousedown', handleClick);
+  detachClipInfoBoxResizer = () => infoBox.removeEventListener('mousedown', handleClick);
 };
 
 attachTimelineUIResizer();
 attachScheduleDraggers();
-attachClipInfoBoxResizer();
+
+
+let detachClipInfoBoxResizer: () => void;
+
+const infoBox = document.querySelector('.clip-info-box') as HTMLDivElement;
+infoBox.remove();
+
+const infoButton = document.querySelector('.clip__info-button') as HTMLButtonElement;
+infoButton.addEventListener('click', () => {
+  const queriedInfoBox = document.querySelector('.clip-info-box');
+  if (queriedInfoBox) {
+    detachClipInfoBoxResizer?.();
+    queriedInfoBox.remove();
+  }
+  else {
+    document.querySelector('.sequence__schedule-inner-wrapper')!.insertAdjacentElement('afterend', infoBox);
+    attachClipInfoBoxResizer(infoBox);
+  }
+});
+
+
+const playhead = document.querySelector('.sequence__playhead') as HTMLDivElement;
+const tracks = document.querySelector('.sequence__tracks') as HTMLDivElement;
+console.log(playhead);
+
+const loop = () => {
+  if (playhead.getBoundingClientRect().right >= tracks.getBoundingClientRect().right - 1) { return; }
+  playhead.style.translate = Number.parseFloat(getComputedStyle(playhead).translate) + 1 + 'px';
+  checkEdge(playhead);
+  requestAnimationFrame(loop);
+};
+
+requestAnimationFrame(loop);
+
+const checkEdge = (playhead: HTMLDivElement) => {
+  const pEdge = playhead.getBoundingClientRect().right
+  const screenEdge = document.documentElement.getBoundingClientRect().right;
+
+  if (pEdge >= screenEdge - 10) {
+    console.log('HELLO');
+    const schedule = playhead.closest('.sequence__schedule') as HTMLDivElement;
+    schedule.scrollTo({left: schedule.scrollLeft + pEdge - 100, behavior: 'instant'});
+  }
+};
+
+// checkEdge(playhead);
