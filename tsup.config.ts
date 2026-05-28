@@ -14,5 +14,5 @@ export const tsup: Options = {
   target: 'es2020',
   // outDir: env === 'production' ? 'dist' : 'lib',
   outDir: 'dist',
-  entry: ['src/**/*.ts'], //include all files under src
+  entry: ['src/**/*.ts'], // include all files under src
 };

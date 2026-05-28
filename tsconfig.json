@@ -10,5 +10,6 @@
     "noErrorTruncation": true,
     "types": ["node"]
   },
+  "include": ["src"], // ONLY NEEDED FOR BUILDING PACKAGE
   "exclude": ["node_modules", "**/__tests__/*"]
 }
