@@ -1,25 +1,25 @@
-:not(:where(.timeline, .timeline *)) {
-  &,
-  &::before,
-  &::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: inherit;
-    color: inherit;
-    line-height: 1;
-  }
+:host {
+  --hem: 10px;
+  line-height: 1;
 }
 
-
-:root {
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
 }
 
-html {
-  font-size: 62.5%;
+button {
+  cursor: pointer;
 }
 
-body {
-  min-height: 100vh;
-  font-size: 16px;
+.user-select-none,
+&.user-select-none {
+  user-select: none !important;
 }
+

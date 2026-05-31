@@ -1,15 +1,6 @@
 @use 'utils' as *;
 @use 'clip';
 
-.playback-buttons {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  background-color: #dddddd;
-  padding: hem(2) hem(1);
-  transform-origin: bottom left;
-}
-
 /* TIMELINE */
 .timeline {
   --color-gray-darkest: #121213;
