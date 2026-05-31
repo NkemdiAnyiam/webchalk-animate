@@ -430,6 +430,94 @@ export function getBoundingClientRectOfHidden(element: Element | null): DOMRect 
 }
 
 /**
+ * Accepts a string representing a DOM element and creates an actual {@link Element} that matches.
+ * @param htmlString - string representing a DOM element
+ * @returns An HTML element that matches the provided {@link htmlString} argument.
+ * 
+ * @example
+ * ```js
+ * // create a `<ul>` element with some `<li>` children
+ * const ulEl = createElFromString(`
+ *    <ul>
+ *        <li>Hello!</li>
+ *        <li><a href="https://www.google.com" rel="noreferrer">Link to Google</a></li>
+ *        <li>Bye!</li>
+ *    </ul>
+ * `);
+ * 
+ * // attach it to the <body> element in the DOM
+ * document.querySelector('body').append(ulEl);
+ * ```
+ * now the `<body>` in the HTML looks like this:
+ * ```html
+ * <body>
+ *     <ul>
+ *         <li>Hello!</li>
+ *         <li><a href="https://www.google.com" rel="noreferrer">Link to Google</a></li>
+ *         <li>Bye!</li>
+ *     </ul>
+ * </body>
+ * ```
+ */
+export function createElFromString<TElement = Element>(htmlString: string): TElement {
+  const template = document.createElement('template');
+  template.innerHTML = htmlString;
+  const element = document.importNode(template.content, true).querySelector('*') as TElement;
+  return element;
+}
+
+/**
+ * Accepts an {@link HTMLTemplateElement} and creates an {@link Element} from its contents.
+ * @param templateEl - the {@link HTMLTemplateElement} whose contents are to be cloned
+ * @returns An HTML element that is created from {@link templateEl} contents.
+ * 
+ * @example
+ * ```html
+ * <body>
+ *     <template id="to-clone">
+ *         <ul>
+ *             <li>Hello!</li>
+ *             <li><a href="https://www.google.com" rel="noreferrer">Link to Google</a></li>
+ *             <li>Bye!</li>
+ *         </ul>
+ *     </template>
+ * </body>
+ * ```
+ * 
+ * ```js
+ * // create a `<ul>` element with some `<li>` children
+ * const ulEl = createElFromTemplate(document.querySelector('#to-clone'));
+ * 
+ * // attach it to the <body> element in the DOM
+ * document.querySelector('body').append(ulEl);
+ * ```
+ * now the `<body>` in the HTML looks like this:
+ * ```html
+ * <body>
+ *     <template id="to-clone">
+ *         <ul>
+ *             <li>Hello!</li>
+ *             <li><a href="https://www.google.com" rel="noreferrer">Link to Google</a></li>
+ *             <li>Bye!</li>
+ *         </ul>
+ *     </template>
+ * 
+ *     <ul>
+ *         <li>Hello!</li>
+ *         <li><a href="https://www.google.com" rel="noreferrer">Link to Google</a></li>
+ *         <li>Bye!</li>
+ *     </ul>
+ * </body>
+ * ```
+ * Make sure to remove the `<template>` element when finished using it so that you don't accidentally select it later.
+ * I.e., `document.querySelector('#to-clone').remove();`
+ */
+export function createElFromTemplate<TElement = Element>(templateEl: HTMLTemplateElement): TElement {
+  const element = document.importNode(templateEl.content, true).querySelector('*') as TElement;
+  return element;
+}
+
+/**
  * @ignore
  */
 export const WORDS_REGEX = /\W*((\w+)'?(\w+)?)\W*|\W+/g;
