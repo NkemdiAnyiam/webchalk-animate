@@ -60,6 +60,10 @@
   @include category-color(exit);
 }
 
+.clip--motion {
+  @include category-color(motion);
+}
+
 .clip__length-bars {
   height: hem(2);
 
