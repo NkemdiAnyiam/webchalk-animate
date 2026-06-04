@@ -22,7 +22,7 @@ const redSquare = document.querySelector('.square');
 // Motion(redSquare, '~translate', [{translate: '20rem 20rem'}])
 
 const seq1 = webchalk.newSequence([
-  Exit(redSquare, '~fade-out', []),
+  Exit(redSquare, '~fade-out', [], {duration: 1000}),
 ]);
 seq1.addClips([
   Entrance(redSquare, '~pinwheel', [1], {delay: 500, duration: 1000, endDelay: 200}),
@@ -37,9 +37,6 @@ const webchalkTimelinePane = document.querySelector('webchalk-timeline-pane') as
 const webchalkSequence = webchalkTimelinePane.shadowRoot!.querySelector('webchalk-sequence') as WebchalkSequenceElement;
 seq1.webchalkSequence = webchalkSequence;
 webchalkSequence.buildTracksFromSequence(seq1);
-
-
-timeline.step('forward');
 
 // const shadowRoot = (document.querySelector('webchalk-timeline-pane') as WebchalkTimelinePaneElement).shadowRoot;
 

@@ -31,6 +31,8 @@ function hem(numHem: number): string {
 export class WebchalkSequenceElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-sequence', WebchalkSequenceElement); }
   maxSecondsDisplayed: number = 0;
+  private playheadEl: HTMLElement;
+  private playheadTrailEl: HTMLElement;
   
   constructor() {
     super();
@@ -45,7 +47,10 @@ export class WebchalkSequenceElement extends HTMLElement {
     const element = template.content.cloneNode(true);
     shadow.append(element);
 
-    this.updateMaxSecondsDisplayed(6);
+    this.playheadEl = shadow.querySelector('.sequence__playhead') as HTMLElement;
+    this.playheadTrailEl = shadow.querySelector('.sequence__playhead-trail') as HTMLElement;
+
+    this.updateMaxSecondsDisplayed(11);
     this.attachScheduleDraggers();
   }
 
@@ -312,6 +317,66 @@ export class WebchalkSequenceElement extends HTMLElement {
     });
 
     this.updateMaxSecondsDisplayed(sequence.maxTime / 1000);
+  }
+
+  private playheadForwardLoop(inProgressClips: Map<number, AnimClip>) {
+    if (this.stop) {
+      this.stop = false;
+      return;
+    }
+
+    const clip = [...inProgressClips.values()][0];
+    if (clip) {
+      const currScheduleMs = clip.fullStartTime + clip.currentTime;
+      this.playheadTrailEl.style.width = `${hem(msToNumHem(currScheduleMs))}`;
+      this.playheadEl.style.translate = `${hem(msToNumHem(currScheduleMs))}`;
+    }
+
+    requestAnimationFrame(() => {
+      this.playheadForwardLoop(inProgressClips);
+    });
+  }
+
+  private playheadBackwardLoop(inProgressClips: Map<number, AnimClip>) {
+    if (this.stop) {
+      this.stop = false;
+      return;
+    }
+
+    const clip = [...inProgressClips.values()][0];
+    if (clip) {
+      const currScheduleMs = clip.fullFinishTime - clip.currentTime;
+      this.playheadTrailEl.style.width = `${hem(msToNumHem(currScheduleMs))}`;
+      this.playheadEl.style.translate = `${hem(msToNumHem(currScheduleMs))}`;
+    }
+
+    requestAnimationFrame(() => {
+      this.playheadBackwardLoop(inProgressClips);
+    });
+  }
+
+  startPlayhead(inProgressClips: Map<number, AnimClip>, direction: 'forward' | 'backward') {
+    if (direction === 'forward') {
+      requestAnimationFrame(() => {
+        this.playheadForwardLoop(inProgressClips);
+      });
+    }
+    else if (direction === 'backward') {
+      requestAnimationFrame(() => {
+        this.playheadBackwardLoop(inProgressClips);
+      });
+    }
+    else {
+      throw new RangeError(`Invalid direction '${direction}'. Must be 'forward' or 'backward'.`)
+    }
+  }
+
+  private stop = false;
+
+  stopPlayhead(maxTimeMs: number) {
+    this.stop = true;
+    this.playheadEl.style.translate = `${hem(msToNumHem(maxTimeMs))}`;
+    this.playheadTrailEl.style.width = `${hem(msToNumHem(maxTimeMs))}`;
   }
 
   attachScheduleDraggers() {

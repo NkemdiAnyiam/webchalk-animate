@@ -643,6 +643,8 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   /**@internal*/ get activeFinishTime() { return (this.fullStartTime + this.getTiming('delay') + this.getTiming('duration')) / this.getTiming('playbackRate'); }
   /**@internal*/ get fullFinishTime() { return (this.fullStartTime + this.getTiming('delay') + this.getTiming('duration') + this.getTiming('endDelay')) / this.getTiming('playbackRate'); }
 
+  // TODO: position this somewhere better
+  get currentTime() { return this.animation.currentTime as number; }
   /**
    * Returns timing-related details about the animation.
    * @returns An object containing

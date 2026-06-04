@@ -681,6 +681,7 @@ export class AnimSequence {
     }
 
     let parallelClips: Promise<void>[] = [];
+    this.webchalkSequence?.startPlayhead(this.inProgressClips, 'forward');
     for (let i = 0; i < this.animClip_forwardGroupings.length; ++i) {
       parallelClips = [];
       const grouping = this.animClip_forwardGroupings[i];
@@ -729,6 +730,7 @@ export class AnimSequence {
       await Promise.all(parallelClips);
       if (isUnjumpableGrouping) { this.togglePseudoJumpingRate(false); }
     }
+    this.webchalkSequence?.stopPlayhead(this.maxTime);
 
     this.inProgress = false;
     this.isRunning = false;
@@ -772,6 +774,7 @@ export class AnimSequence {
     const groupings = this.animClipGroupings_endDelayFinishOrder;
     const groupingsLength = groupings.length;
     
+    this.webchalkSequence?.startPlayhead(this.inProgressClips, 'backward');
     for (let i = groupingsLength - 1; i >= 0; --i) {
       parallelClips = [];
       const grouping = groupings[i];
@@ -810,6 +813,7 @@ export class AnimSequence {
       await Promise.all(parallelClips);
       if (isUnjumpableGrouping) { this.togglePseudoJumpingRate(false); }
     }
+    this.webchalkSequence?.stopPlayhead(0);
 
     this.inProgress = false;
     this.isRunning = false;
