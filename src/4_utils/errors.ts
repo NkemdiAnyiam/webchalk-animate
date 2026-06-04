@@ -245,7 +245,8 @@ export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg =
       : ''
     ) +
     (clip
-      ? `\nClip:     [Category: ${clip.getEffectDetails('category')}] [Effect: ${clip.getEffectDetails('effectName')}]` +
+      // TODO: maybe add new line for description
+      ? `\nClip:     [Category: ${clip.getEffectDetails('category')}] [Effect: ${clip.getEffectDetails('effectName')}] [Description: ${clip.getConfig().description}]` +
         `\nDOM Tag:  ${getOpeningTag(element)}`
       : ''
     ) +
