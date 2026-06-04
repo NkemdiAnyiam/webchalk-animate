@@ -29,8 +29,8 @@ body {
 
 .playback-buttons {
   position: fixed;
-  bottom: 0;
-  left: 0;
+  top: 0;
+  right: 0;
   background-color: #dddddd;
   padding: hem(2) hem(1);
   transform-origin: bottom left;
