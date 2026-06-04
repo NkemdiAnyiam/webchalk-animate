@@ -1,7 +1,7 @@
 import { AnimClip } from "./AnimationClip";
 import { AnimTimeline } from "./AnimationTimeline";
 import { CustomErrorClasses, errorTip, generateError, SequenceErrorGenerator } from "../4_utils/errors";
-import { getPartial } from "../4_utils/helpers";
+import { getPartial, TBA_DURATION } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { webchalk } from "../Webchalk";
 
@@ -250,7 +250,7 @@ export class AnimSequence {
    * @group Structure
    */
   get parentTimeline() { return this._parentTimeline; }
-  private animClips: AnimClip[] = []; // array of animClips
+  animClips: AnimClip[] = []; // array of animClips
 
   private animClipGroupings_activeFinishOrder: AnimClip[][] = [];
   private animClipGroupings_endDelayFinishOrder: AnimClip[][] = [];
@@ -396,6 +396,18 @@ export class AnimSequence {
     };
 
     return specifics ? getPartial(result, specifics) : result;
+  }
+
+  get maxTime(): number {
+    const lastGrouping = this.animClipGroupings_endDelayFinishOrder.at(-1)!;
+    let maxTime = 0;
+    for (let i = 0; i < lastGrouping.length; ++i) {
+      const clip = lastGrouping[i];
+      if (clip.getTiming('duration') === TBA_DURATION) { continue; }
+      maxTime = Math.max(maxTime, clip.fullFinishTime);
+    }
+
+    return maxTime;
   }
 
   // GROUP: Description and Jump tag
@@ -686,6 +698,7 @@ export class AnimSequence {
       if (isRateGrouping) {
         // prevents first clip from reaching end of active phase before a later-starting clip has a chance to...
         // ... add an integrityblock if needed (in the case when said clip ends earlier than this first block)
+        // TODO: might need to explicitly exclude this from schedule ui
         firstClip.scheduleTask('activePhase', '99%', {onPlay: () => { return Promise.resolve(); }}, {frequencyLimit: 1});
       }
       parallelClips.push(firstClip.play(this)
@@ -919,7 +932,7 @@ export class AnimSequence {
       endDelayFinishComparator,
     } = AnimSequence;
 
-    // let maxFinishTime = 0;
+    let maxFinishTime = 0;
     const animClips = this.animClips;
     const numClips = animClips.length;
     this.animClip_forwardGroupings = [[]];
@@ -950,8 +963,8 @@ export class AnimSequence {
       }
       // the current clip is starting a new grouping of parallel clips
       else {
+        // sort and push current groupings
         // currTimeScaleType = currAnimClip.getTiming('timescaleType');
-        this.animClip_forwardGroupings.push([]);
         currActiveFinishGrouping.sort(activeFinishComparator);
         currEndDelayGrouping.sort(endDelayFinishComparator);
         currActiveBackwardFinishGrouping = [...currEndDelayGrouping].reverse();
@@ -959,20 +972,24 @@ export class AnimSequence {
         this.animClipGroupings_backwardActiveFinishOrder.push(currActiveBackwardFinishGrouping);
         this.animClipGroupings_activeFinishOrder.push(currActiveFinishGrouping);
         this.animClipGroupings_endDelayFinishOrder.push(currEndDelayGrouping);
+
+        // create new groupings
+        this.animClip_forwardGroupings.push([]);
         currActiveBackwardFinishGrouping = [currAnimClip];
         currActiveFinishGrouping = [currAnimClip];
         currEndDelayGrouping = [currAnimClip];
-        
-        // currStartTime = maxFinishTime;
-        currFullStartTime = 0;
+
+        currFullStartTime = maxFinishTime;
+        // currFullStartTime = prevClip.fullFinishTime;
       }
 
       this.animClip_forwardGroupings[this.animClip_forwardGroupings.length - 1].push(currAnimClip);
 
       currAnimClip.fullStartTime = currFullStartTime;
+      // console.log(currAnimClip.fullStartTime);
 
       // if (currTimeScaleType === 'duration') {
-      //   maxFinishTime = Math.max(currAnimClip.fullFinishTime, maxFinishTime);
+      maxFinishTime = currAnimClip.getTiming('timescaleType') === 'duration' ? Math.max(currAnimClip.fullFinishTime, maxFinishTime) : maxFinishTime;
       // }
     }
 
@@ -994,29 +1011,52 @@ export class AnimSequence {
       endDelayFinishComparator,
     } = AnimSequence;
 
-    // let maxFinishTime = 0;
+    // NEXT REMINDER: incorporate the max times here and implement reflowing for the groups that follow (without needing to re-sort).
+
+    // TODO: presumably, each track will be saved within AnimClip
+    const toUpdate: [index: number, clip: AnimClip][] = [];
+
     const currActiveFinishGrouping: AnimClip[] = this.animClipGroupings_activeFinishOrder[indexOfGrouping];
     const currEndDelayGrouping: AnimClip[] = this.animClipGroupings_endDelayFinishOrder[indexOfGrouping];
-    // const forwardGrouping: AnimClip[] = this.animClip_forwardGroupings[indexOfGrouping];
+    let origMaxFinishTime: number = 0;
+    for (let i = 0; i < currEndDelayGrouping.length; ++i) {
+      const currClip = currEndDelayGrouping[i];
+      if (currClip.getTiming('timescaleType') === 'rate') { continue; }
+      origMaxFinishTime = Math.max(origMaxFinishTime, currClip.fullFinishTime);
+    }
+    // console.log(currEndDelayGrouping.at(-1)); // doesn't work because rate-based clips start with really high duration
+    let newMaxFinishTime = origMaxFinishTime;
+    const forwardGrouping: AnimClip[] = this.animClip_forwardGroupings[indexOfGrouping];
 
-    // for (let i = 0; i < forwardGrouping.length; ++i) {
-    //   const currAnimClip = forwardGrouping[i];
-    //   const prevClip = forwardGrouping[i-1];
+    for (let i = 0; i < forwardGrouping.length; ++i) {
+      const currAnimClip = forwardGrouping[i];
+      if (currAnimClip.getTiming('timescaleType') === 'duration') { continue; }
 
-    //   // // currActiveBackwardFinishGrouping.push(currAnimClip);
-    //   // currActiveFinishGrouping.push(currAnimClip);
-    //   // currEndDelayGrouping.push(currAnimClip);
+      newMaxFinishTime = Math.max(newMaxFinishTime, currAnimClip.fullFinishTime);
+      toUpdate.push([this.findClipIndex(currAnimClip), currAnimClip]);
+    }
 
-    //   currAnimClip.fullStartTime = prevClip?.activeStartTime ?? 0;
-
-    //   // maxFinishTime = Math.max(currAnimClip.fullFinishTime, maxFinishTime);
-    // }
-
+    // active finish times, end delay times, and backward finish times may now be different
     currActiveFinishGrouping.sort(activeFinishComparator);
     currEndDelayGrouping.sort(endDelayFinishComparator);
     const currActiveBackwardFinishGrouping = [...currEndDelayGrouping].reverse();
     currActiveBackwardFinishGrouping.sort(activeBackwardFinishComparator);
     this.animClipGroupings_backwardActiveFinishOrder[indexOfGrouping] = currActiveBackwardFinishGrouping;
+
+    // TODO: update lengths of rate-based clips in UI
+
+    // If maximum finish time within the grouping increased because of rate-based duration updates,...
+    //... update start times of clips in upcoming groupings.
+    const deltaMaxFinishTime = newMaxFinishTime - origMaxFinishTime;
+    if (deltaMaxFinishTime > 0) {
+      for (let i = indexOfGrouping + 1; i < this.animClip_forwardGroupings.length; ++i) {
+        const futureGrouping = this.animClip_forwardGroupings[i];
+        for (let j = 0; j < futureGrouping.length; ++j) {
+          futureGrouping[j].fullStartTime += deltaMaxFinishTime;
+          toUpdate.push([this.findClipIndex(futureGrouping[j]), futureGrouping[j]]);
+        }
+      }
+    }
   }
 
   // get all currently running animations that belong to this timeline and perform operation() with them
