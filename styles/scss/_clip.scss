@@ -80,6 +80,7 @@
 
 .clip__length-bar--duration {
   width: hem(7.8);
+  min-width: hem(0.25);
   background-color: var(--hue-dark);
 }
 
