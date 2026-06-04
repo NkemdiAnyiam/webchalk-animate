@@ -140,7 +140,17 @@ type KeyframeTimingOptions = {
  * @category Interfaces
  * @interface
  */
-export type AnimClipConfig = KeyframeTimingOptions & CustomKeyframeEffectOptions;
+export type AnimClipConfig = KeyframeTimingOptions & CustomKeyframeEffectOptions & {
+  // TODO: update documentation
+  /**
+   * A string that is logged when debugging mode is enabled.
+   * @defaultValue
+   * ```ts
+   * '<blank sequence description>'
+   * ```
+   */
+  description: string;
+};
 
 // TYPE
 /**
@@ -358,6 +368,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       playbackRate: 1,
       startsNextClipToo: false,
       startsWithPrevious: false,
+      description: `<blank clip description>`,
     } as const satisfies AnimClipConfig;
   }
 
@@ -420,6 +431,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
    *  * {@link AnimClipConfig.playbackRate|playbackRate},
    *  * {@link AnimClipConfig.startsWithPrevious|startsWithPrevious},
    *  * {@link AnimClipConfig.startsNextClipToo|startsNextClipToo},
+   *  * {@link AnimClipConfig.description|description},
    * @group Property Getter Methods
    * @group Configuration
    */
