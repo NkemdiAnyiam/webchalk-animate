@@ -64,6 +64,10 @@
   @include category-color(motion);
 }
 
+.clip--text-editor {
+  @include category-color(text-editor);
+}
+
 .clip__length-bars {
   height: hem(2);
 
