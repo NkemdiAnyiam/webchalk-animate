@@ -867,6 +867,7 @@ export function infixTextDelete(infixTextNodeList: TextNodeDatum[], percentage: 
   }
 }
 
+// TODO: if no text node present in element, add one so error is not thrown (this TODO should be in preset effects file)
 // add to the Text nodes such that only the given percentage of total words or characters are shown overall
 // Note that if 'by-word' is used, only ttStats.wordsAdded gets updated, not ttStats.charsAdded (and vice versa)
 /**
