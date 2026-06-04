@@ -120,7 +120,7 @@ $schedule-wrapper-scroll-padding: 17.5px;
 .sequence__schedule-time-wrapper {
   flex-shrink: 0;
   flex-grow: 0;
-  width: 250px;
+  width: var(--hems-per-second);
 }
 
 .sequence__schedule-time {
@@ -174,7 +174,7 @@ $schedule-wrapper-scroll-padding: 17.5px;
 
   display: flex;
   align-items: end;
-  gap: hem(2.5);
+  gap: calc(var(--hems-per-second) / 10);
 }
 
 .sequence__tick {
