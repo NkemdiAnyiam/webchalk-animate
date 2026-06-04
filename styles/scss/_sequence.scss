@@ -133,7 +133,7 @@ $schedule-wrapper-scroll-padding: 17.5px;
   background-color: #70efef;
   box-shadow: inset 0 0 5px var(--color-glow-blue);
   height: 100%;
-  width: hem(22.5);
+  // width: hem(22.5); // only for initial mockup
 }
 
 .sequence__playhead {
@@ -144,7 +144,7 @@ $schedule-wrapper-scroll-padding: 17.5px;
   position: sticky;
   top: hem(0);
   transform: translateX(calc(50% + $sequence-left-side-width)); // to center it
-  translate: hem(22.5);
+  // translate: hem(22.5); // only for initial mockup
   // bottom: $schedule-wrapper-scroll-padding;
   z-index: $z--schedule-playhead;
 
