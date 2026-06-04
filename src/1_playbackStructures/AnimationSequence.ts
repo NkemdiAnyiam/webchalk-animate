@@ -536,6 +536,8 @@ export class AnimSequence {
     if (loc) { this.animClips.splice(loc.atIndex, 0, ...clips); }
     else { this.animClips.push(...clips); }
 
+    this.commit();
+
     return this;
   }
 
@@ -570,6 +572,8 @@ export class AnimSequence {
 
     this.animClips = animClipsCopy;
 
+    this.commit();
+
     // TODO: return the array of removed clips
     return this;
   }
@@ -593,6 +597,8 @@ export class AnimSequence {
     }
 
     this.animClips = animClipsCopy;
+
+    this.commit();
 
     return removedClips;
   }
