@@ -196,12 +196,14 @@ $schedule-wrapper-scroll-padding: 17.5px;
   height: 60%;
   width: hem(0.2);
   margin-right: hem(-0.2);
+  background-color: var-lighten(var(--color-gray-darkest), 30%);
 }
 
 .sequence__tick--tenth {
   height: 40%;
   width: hem(0.1);
   margin-right: hem(-0.1);
+  background-color: var-lighten(var(--color-gray-darkest), 50%);
 }
 
 /* CLIP TRACKS */
