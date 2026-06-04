@@ -19,12 +19,27 @@ const {
 } = webchalk.createAnimationClipFactories();
 
 const redSquare = document.querySelector('.square');
+// Motion(redSquare, '~translate', [{translate: '20rem 20rem'}])
 
 const seq1 = webchalk.newSequence([
-  Motion(redSquare, '~translate', [{translate: '20rem 20rem'}]),
+  Exit(redSquare, '~fade-out', []),
+]);
+seq1.addClips([
+  Entrance(redSquare, '~pinwheel', [1], {delay: 500, duration: 1000, endDelay: 200}),
+  Motion(redSquare, '~translate', [{translate: '200px 200px'}], {startsWithPrevious: true}),
+  TextEditor(redSquare, '~insert-text', ['HELLO WORLD! To what do I owe you all the pleasure?'], {durationOrRate: '300wpm', startsWithPrevious: true}),
+  Exit(redSquare, '~fade-out', []),
 ]);
 const timeline = webchalk.newTimeline({timelineName: 'main'});
 timeline.addSequences([seq1]);
+
+const webchalkTimelinePane = document.querySelector('webchalk-timeline-pane') as WebchalkTimelinePaneElement;
+const webchalkSequence = webchalkTimelinePane.shadowRoot!.querySelector('webchalk-sequence') as WebchalkSequenceElement;
+seq1.webchalkSequence = webchalkSequence;
+webchalkSequence.buildTracksFromSequence(seq1);
+
+
+timeline.step('forward');
 
 // const shadowRoot = (document.querySelector('webchalk-timeline-pane') as WebchalkTimelinePaneElement).shadowRoot;
 

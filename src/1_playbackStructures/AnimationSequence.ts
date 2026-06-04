@@ -4,6 +4,7 @@ import { CustomErrorClasses, errorTip, generateError, SequenceErrorGenerator } f
 import { getPartial, TBA_DURATION } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { webchalk } from "../Webchalk";
+import { WebchalkSequenceElement } from "../../WebchalkSequenceElement";
 
 // TYPE
 /**
@@ -1004,6 +1005,7 @@ export class AnimSequence {
     return this;
   }
 
+  webchalkSequence?: WebchalkSequenceElement;
   private commitForRate(indexOfGrouping: number): void {
     const {
       activeBackwardFinishComparator,
@@ -1057,6 +1059,8 @@ export class AnimSequence {
         }
       }
     }
+
+    this.webchalkSequence?.updateTracks(toUpdate, this);
   }
 
   // get all currently running animations that belong to this timeline and perform operation() with them
