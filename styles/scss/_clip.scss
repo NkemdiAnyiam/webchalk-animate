@@ -112,7 +112,8 @@
 /* EFFECT CATEGORY */
 .clip__effect-category {
   margin-right: -1.5px;
-  width: hem(2);
+  // width: hem(2);
+  padding: 0 hem(0.15);
 
   display: flex;
   justify-content: center;
