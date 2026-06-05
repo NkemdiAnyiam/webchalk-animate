@@ -80,6 +80,7 @@
 .clip__length-bar--delay {
   width: hem(2);
   border: 3.5px solid var(--hue-dark);
+  border-right: none;
 }
 
 .clip__length-bar--duration {
@@ -93,6 +94,7 @@
 .clip__length-bar--end-delay {
   width: hem(4);
   border: 3.5px solid var(--hue-dark);
+  border-left: none;
 }
 
 /* LABEL */
