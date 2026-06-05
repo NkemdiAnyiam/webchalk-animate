@@ -1,7 +1,7 @@
 import { AnimClip } from "./AnimationClip";
 import { AnimTimeline } from "./AnimationTimeline";
 import { CustomErrorClasses, errorTip, generateError, SequenceErrorGenerator } from "../4_utils/errors";
-import { getPartial, TBA_DURATION } from "../4_utils/helpers";
+import { getPartial, nor, TBA_DURATION } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { webchalk } from "../Webchalk";
 import { WebchalkSequenceElement } from "../../WebchalkSequenceElement";
@@ -668,16 +668,17 @@ export class AnimSequence {
       // const activeGrouping2 = activeGroupings2[i];
       const groupingLength = grouping.length;
 
-      if (grouping.every(clip => clip.getTiming('timescaleType') === 'duration')) {
+      // if (grouping.every(clip => clip.getTiming('timescaleType') === 'duration')) {
         // ensure that no clip finishes its active phase before any clip that should finish its active phase first (according to the calculated "perfect" timing)
-        for (let j = 1; j < groupingLength; ++j) {
-          grouping[j].addIntegrityblock('activePhase', 'end', { onPlay: () => grouping[j-1].generatePromise('forward', 'activePhase', 'end') });
+        const noRateClips = grouping.filter(clip => clip.getTiming('timescaleType') !== 'rate');
+        for (let j = 1; j < noRateClips.length; ++j) {
+          noRateClips[j].addIntegrityblock('activePhase', 'end', { onPlay: () => noRateClips[j-1].generatePromise('forward', 'activePhase', 'end') });
           // activeGrouping2[j].animation.addIntegrityblocks('forward', 'endDelayPhase', 'end', activeGrouping2[j-1].animation.getFinished('forward', 'endDelayPhase'));
         }
-      }
-      else {
-        indicesOfRateGroupings.push(i);
-      }
+      // }
+      // else {
+        // indicesOfRateGroupings.push(i);
+      // }
     }
 
     let parallelClips: Promise<void>[] = [];
@@ -694,15 +695,16 @@ export class AnimSequence {
           if (this.skippingOn) { this.togglePseudoJumpingRate(true); }
         }
       }
-      const isRateGrouping = indicesOfRateGroupings.includes(i);
+      // const isRateGrouping = indicesOfRateGroupings.includes(i);
       const firstClip = grouping[0];
       this.inProgressClips.set(firstClip.id, firstClip);
-      if (isRateGrouping) {
-        // prevents first clip from reaching end of active phase before a later-starting clip has a chance to...
-        // ... add an integrityblock if needed (in the case when said clip ends earlier than this first block)
-        // TODO: might need to explicitly exclude this from schedule ui
-        firstClip.scheduleTask('activePhase', '99%', {onPlay: () => { return Promise.resolve(); }}, {frequencyLimit: 1});
-      }
+      // if (isRateGrouping) {
+      //   // console.log(animClipGroupings_activeFinishOrder[i].map(clip => clip.getConfig().description));
+      //   // prevents first clip from reaching end of active phase before a later-starting clip has a chance to...
+      //   // ... add an integrityblock if needed (in the case when said clip ends earlier than this first block)
+      //   // TODO: might need to explicitly exclude this from schedule ui
+      //   firstClip.scheduleTask('activePhase', '99%', {onPlay: () => Promise.resolve()}, {frequencyLimit: 1});
+      // }
       parallelClips.push(firstClip.play(this)
         .then(() => {this.inProgressClips.delete(firstClip.id)})
       );
@@ -713,19 +715,27 @@ export class AnimSequence {
         await grouping[j-1].generatePromise('forward', 'activePhase', 'beginning');
         const currAnimClip = grouping[j];
         this.inProgressClips.set(currAnimClip.id, currAnimClip);
+        if (currAnimClip.getTiming('timescaleType') === 'rate') {
+          currAnimClip.generatePromise('forward', 'activePhase', 'beginning').then(() => {
+            this.commitForRate(i);
+          });
+        }
         parallelClips.push(currAnimClip.play(this)
           .then(() => {this.inProgressClips.delete(currAnimClip.id)})
         );
       }
 
-      if (isRateGrouping) {
-        this.commitForRate(i);
-        // ensure that no clip finishes its active phase before any clip that should finish its active phase first (according to the calculated "perfect" timing)
-        for (let j = 1; j < grouping.length; ++j) {
-          animClipGroupings_activeFinishOrder[i][j].addIntegrityblock('activePhase', 'end', { onPlay: () => animClipGroupings_activeFinishOrder[i][j-1].generatePromise('forward', 'activePhase', 'end') });
-          // activeGrouping2[j].animation.addIntegrityblocks('forward', 'endDelayPhase', 'end', activeGrouping2[j-1].animation.getFinished('forward', 'endDelayPhase'));
-        }
-      }
+      // if (isRateGrouping) {
+      //   this.commitForRate(i);
+      //   console.log(animClipGroupings_activeFinishOrder[i].map(clip => clip.getConfig().description));
+      //   // ensure that no clip finishes its active phase before any clip that should finish its active phase first (according to the calculated "perfect" timing)
+      //   // TODO: probably don't look at grouping? Use a newly sorted array? No, this sentence doesn't make sense.
+      //   for (let j = 1; j < grouping.length; ++j) {
+      //     console.log(animClipGroupings_activeFinishOrder[i][j].getConfig().description, animClipGroupings_activeFinishOrder[i][j-1].getConfig().description);
+      //     animClipGroupings_activeFinishOrder[i][j].addIntegrityblock('activePhase', 'end', { onPlay: () => animClipGroupings_activeFinishOrder[i][j-1].generatePromise('forward', 'activePhase', 'end') });
+      //     // activeGrouping2[j].animation.addIntegrityblocks('forward', 'endDelayPhase', 'end', activeGrouping2[j-1].animation.getFinished('forward', 'endDelayPhase'));
+      //   }
+      // }
 
       await Promise.all(parallelClips);
       if (isUnjumpableGrouping) { this.togglePseudoJumpingRate(false); }

@@ -27,6 +27,13 @@ body {
   background-color: red;
 }
 
+.circle {
+  width: 10rem;
+  height: 10rem;
+  background-color: lightblue;
+  border-radius: 50%;
+}
+
 .playback-buttons {
   position: fixed;
   top: 0;

@@ -19,19 +19,36 @@ const {
 } = webchalk.createAnimationClipFactories();
 
 const redSquare = document.querySelector('.square');
+const blueCircle = document.querySelector('.circle');
 // Motion(redSquare, '~translate', [{translate: '20rem 20rem'}])
 
+const timeline = webchalk.newTimeline({timelineName: 'main'});
+
 const seq1 = webchalk.newSequence([
-  Exit(redSquare, '~fade-out', [], {duration: 1000}),
+  // Exit(redSquare, '~fade-out', [], {duration: 1000}),
 ]);
 seq1.addClips([
-  Entrance(redSquare, '~pinwheel', [1], {delay: 500, duration: 1000, endDelay: 200}),
-  Motion(redSquare, '~translate', [{translate: '200px 200px'}], {startsWithPrevious: true}),
-  TextEditor(redSquare, '~insert-text', ['HELLO WORLD! To what do I owe you all the pleasure?'], {durationOrRate: '300wpm', startsWithPrevious: true}),
-  Exit(redSquare, '~fade-out', []),
+  Entrance(redSquare, '~pinwheel', [1], {duration: 500, description: 'Enter red square', hideNowType: 'display-none'},),
+  Motion(redSquare, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move red square'}),
+  Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000}),
+  TextEditor(redSquare, '~insert-text', ['HELLO WORLD! To what do I owe you all the pleasure?'],
+    {durationOrRate: '300wpm', startsWithPrevious: true, description: 'Insert text', delay: 1000}
+  ),
+  Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000}),
+  Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000}),
+  // Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 5000}),
+  // // Exit(redSquare, '~fade-out', []),
 ]);
-const timeline = webchalk.newTimeline({timelineName: 'main'});
 timeline.addSequences([seq1]);
+
+// const seq2 = webchalk.newSequence();
+// seq2.addClips([
+//   Motion(blueCircle, '~translate', [{translate: '200px 200px'}], {duration: 1000}),
+//   Motion(blueCircle, '~translate', [{translate: '200px 0'}], {duration: 1000}),
+//   TextEditor(blueCircle, '~insert-text', ['HELLO WORLD! To what do I owe you all the pleasure?'], {durationOrRate: '300wpm', startsWithPrevious: true}),
+//   Exit(blueCircle, '~fade-out', []),
+// ]);
+// timeline.addSequences([seq2]);
 
 const webchalkTimelinePane = document.querySelector('webchalk-timeline-pane') as WebchalkTimelinePaneElement;
 const webchalkSequence = webchalkTimelinePane.shadowRoot!.querySelector('webchalk-sequence') as WebchalkSequenceElement;
