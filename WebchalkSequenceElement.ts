@@ -1,8 +1,7 @@
 import * as fs from 'fs';
 import { stylesheet } from './componentStyleString';
 
-import { createElFromString, TBA_DURATION } from './src/4_utils/helpers';
-import { EffectCategory } from './src/4_utils/interfaces';
+import { createElFromString } from './src/4_utils/helpers';
 import { AnimSequence } from './src/1_playbackStructures/AnimationSequence';
 import { AnimClip } from './src/1_playbackStructures/AnimationClip';
 import { WebchalkTimelinePaneElement } from './WebchalkTimelinePane';
@@ -24,9 +23,6 @@ function numHToMs(hem: number) { return hem / getHemsPerSecond() * 1000; }
 function hem(numHem: number): string {
   return `calc(${numHem} * var(--hem))`;
 }
-
-// TODO: playhead forward position should be equivalent to the fullStartTime of any inProgressClip + that clip's currentTime
-// playhead backward position should be equivalent the the fullFinishTime of any inProgressClip - that clip's currentTime
 
 export class WebchalkSequenceElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-sequence', WebchalkSequenceElement); }
@@ -96,35 +92,7 @@ export class WebchalkSequenceElement extends HTMLElement {
   }
 
   // TODO: update to read from actual start times and not margins
-  insertTrack(
-    index: number,
-    pseudoClip: {
-      effectCategory: EffectCategory;
-      effectName: string;
-      effectDescription: string;
-      startsWithPrev: boolean;
-      startsNextClipToo: boolean;
-      delay: number;
-      duration: number;
-      endDelay: number;
-    },
-  ) {
-    const categoryToAbbrev = (category: EffectCategory): string => {
-      switch(category) {
-        case 'Entrance': return 'En';
-        case 'Exit': return 'Ex';
-        case 'Emphasis': return 'Em';
-        case 'Motion': return 'Mo';
-        case 'Transition': return 'Tr';
-        case 'Scroller': return 'Sc';
-        case 'Connector Setter': return 'CSe';
-        case 'Connector Entrance': return 'CEn';
-        case 'Connector Exit': return 'CEx';
-        case 'Text Editor': return 'TE';
-        // TODO: error handling for category to abbreviation
-      }
-    };
-
+  insertTrack(index: number, clip: AnimClip) {
     const sequenceTracks = this.shadowRoot!.querySelector('.sequence__tracks') as HTMLDivElement;
 
     function hemFromClip(clip: HTMLElement, options: { startsWith?: boolean } = {}): number {
@@ -148,57 +116,20 @@ export class WebchalkSequenceElement extends HTMLElement {
           )
       );
     }
-
-    // TODO: move somewhere else
-
-    const {
-      effectCategory,
-      effectName,
-      effectDescription,
-      startsWithPrev,
-      startsNextClipToo,
-      delay,
-      duration,
-      endDelay,
-    } = pseudoClip;
-
-    const trackBefore = sequenceTracks.querySelector(`:scope > :nth-child(${(index + 1) - 1})`) as HTMLElement;
-    const hemBefore = trackBefore ? hemFromClip(trackBefore.querySelector('.clip')!, {startsWith: startsWithPrev}) : 0;
+    
+    // const trackBefore = sequenceTracks.querySelector(`:scope > :nth-child(${(index + 1) - 1})`) as HTMLElement;
 
     const trackStr = /*html*/`
       <div class="sequence__track">
         <div class="sequence__track-header">
           <span class="sequence__track-number">${index + 1}.</span>
         </div>
-        <div class="sequence__track-body">
-          <div class="clip clip--${effectCategory.toLowerCase().replaceAll(' ', '-')}" style="margin-left: ${hem(hemBefore)};">
-            <div class="clip__length-bars">
-              <div class="clip__length-bar clip__length-bar--delay" style="width: ${hem(msToNumHem(delay))};${delay === 0 ? ' border: none;' : ''}"></div>
-              <div class="clip__length-bar clip__length-bar--duration" style="width: ${hem(msToNumHem(duration === TBA_DURATION ? 0 : duration))};"></div>
-              <div class="clip__length-bar clip__length-bar--end-delay" style="width: ${hem(msToNumHem(endDelay))};${endDelay === 0 ? ' border: none;' : ''}"></div>
-            </div>
-            <div class="clip__label">
-              <div class="clip__effect-category">
-                <div class="clip__effect-category-icon">${categoryToAbbrev(effectCategory)}</div>
-              </div>
-              <div class="clip__effect-name-box">
-                <div class="clip__effect-name">${effectName}</div>
-              </div>
-              <div class="clip__description-box">
-                <p class="clip__description-text">
-                  ${effectDescription}
-                </p>
-              </div>
-              <div class="clip__info-button-box">
-                <button class="clip__info-button">i</button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div class="sequence__track-body"></div>
       </div>`
     ;
 
     const track = createElFromString(trackStr) as HTMLElement;
+    track.querySelector('.sequence__track-body')!.insertAdjacentElement('beforeend', clip.webchalkClipEl!);
     const trackAfter = sequenceTracks.querySelector(`:scope > :nth-child(${index + 1})`);
     if (!trackAfter) {
       sequenceTracks.appendChild(track);
@@ -220,78 +151,24 @@ export class WebchalkSequenceElement extends HTMLElement {
     }
   }
 
-  buildTracksFromSequence(
-    sequence: AnimSequence,
-  ) {
-    const categoryToAbbrev = (category: EffectCategory): string => {
-      switch(category) {
-        case 'Entrance': return 'En';
-        case 'Exit': return 'Ex';
-        case 'Emphasis': return 'Em';
-        case 'Motion': return 'Mo';
-        case 'Transition': return 'Tr';
-        case 'Scroller': return 'Sc';
-        case 'Connector Setter': return 'CSe';
-        case 'Connector Entrance': return 'CEn';
-        case 'Connector Exit': return 'CEx';
-        case 'Text Editor': return 'TE';
-        // TODO: error handling for category to abbreviation
-      }
-    };
-
-    const sequenceTracks = this.shadowRoot!.querySelector('.sequence__tracks') as HTMLDivElement;
+  buildTracksFromSequence(sequence: AnimSequence) {
+    const sequenceTracks = this.shadowRoot!.querySelector('.sequence__tracks') as HTMLElement;
 
     requestAnimationFrame(() => {
       for (let i = 0; i < sequence.animClips.length; ++i) {
-        const clip = sequence.animClips[i];
-        const fullStartTime = clip.fullStartTime;
-        const {
-          category,
-          effectName,
-        } = clip.getEffectDetails();
-        const {
-          delay,
-          duration,
-          endDelay,
-        } = clip.getTiming();
-        const { description } = clip.getConfig();
-        const trackNumber = i + 1;
-
         const trackStr = /*html*/`
           <div class="sequence__track">
             <div class="sequence__track-header">
-              <span class="sequence__track-number">${trackNumber}.</span>
+              <span class="sequence__track-number">${i + 1}.</span>
             </div>
-            <div class="sequence__track-body">
-              <div class="clip clip--${category.toLowerCase().replaceAll(' ', '-')}" style="margin-left: ${hem(msToNumHem(fullStartTime))};">
-                <div class="clip__length-bars">
-                  <div class="clip__length-bar clip__length-bar--delay" style="width: ${hem(msToNumHem(delay))};${delay === 0 ? ' border: none;' : ''}"></div>
-                  <div class="clip__length-bar clip__length-bar--duration" style="width: ${hem(msToNumHem(duration === TBA_DURATION ? 0 : duration))};"></div>
-                  <div class="clip__length-bar clip__length-bar--end-delay" style="width: ${hem(msToNumHem(endDelay))};${endDelay === 0 ? ' border: none;' : ''}"></div>
-                </div>
-                <div class="clip__label">
-                  <div class="clip__effect-category">
-                    <div class="clip__effect-category-icon">${categoryToAbbrev(category)}</div>
-                  </div>
-                  <div class="clip__effect-name-box">
-                    <div class="clip__effect-name">${effectName}</div>
-                  </div>
-                  <div class="clip__description-box">
-                    <p class="clip__description-text">
-                      
-                    </p>
-                  </div>
-                  <div class="clip__info-button-box">
-                    <button class="clip__info-button">i</button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <div class="sequence__track-body"></div>
           </div>`
         ;
 
         const track = createElFromString(trackStr) as HTMLElement;
-        track.querySelector('.clip__description-text')!.textContent = description;
+        const clip = sequence.animClips[i];
+        clip.webchalkClipEl?.updateFullStartTime(clip.fullStartTime);
+        track.querySelector('.sequence__track-body')!.insertAdjacentElement('beforeend',clip.webchalkClipEl!);
         sequenceTracks.appendChild(track);
       }
       
@@ -299,24 +176,15 @@ export class WebchalkSequenceElement extends HTMLElement {
     });
   }
 
-  updateTracks(indexClipPairs: [index: number, clip: AnimClip][], sequence: AnimSequence) {
-    const sequenceTracks = this.shadowRoot!.querySelector('.sequence__tracks') as HTMLDivElement;
-
-    function msToHem(ms: number) { return ms / 1000 * getHemsPerSecond(); }
-
+  updateSchedule(clips: AnimClip[], maxTimeMs: number) {
     requestAnimationFrame(() => {
-      for (const [index, clip] of indexClipPairs) {
-        let nthChild = index + 1;
-        const clipEl = sequenceTracks.querySelector(`.sequence__track:nth-child(${nthChild}) .clip`) as HTMLElement;
-        clipEl.style.marginLeft = hem(msToHem(clip.fullStartTime));
-        
-        // TODO: only do if rate-based clip
-        const durationBarEl = clipEl.querySelector('.clip__length-bar--duration') as HTMLElement;
-        durationBarEl.style.width = hem(msToHem(clip.getTiming('duration')));
+      for (const clip of clips) {
+        const clipEl = clip.webchalkClipEl!;
+        clipEl.updateFullStartTime(clip.fullStartTime);
       }
     });
 
-    this.updateMaxSecondsDisplayed(sequence.maxTime / 1000);
+    this.updateMaxSecondsDisplayed(maxTimeMs / 1000);
   }
 
   private playheadForwardLoop(inProgressClips: Map<number, AnimClip>) {

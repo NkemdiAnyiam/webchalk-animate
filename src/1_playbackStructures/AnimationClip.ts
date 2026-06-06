@@ -10,6 +10,7 @@ import { DOMElement, EffectCategory, Mutator, StyleProperty } from "../4_utils/i
 import { WebchalkConnectorElement } from "../3_components/WebchalkConnectorElement";
 import { WebchalkAnimation, NestedWebchalkAnimation } from "./WebchalkAnimation";
 import { PartialPick, PickFromArray, WithRequired } from "../4_utils/utilityTypes";
+import { WebchalkClipElement } from "../../WebchalkClipElement";
 
 // /**
 //  * Spreads {@link objOrIterable} whether it is an array of keyframes
@@ -812,6 +813,9 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     return this;
   }
 
+  // TODO: organize
+  webchalkClipEl?: WebchalkClipElement;
+
   constructor(domElem: DOMElement | null | undefined, effectName: string, bank: PresetEffectBank) {
     if (webchalk.clipCreatorLock) {
       throw this.generateError(
@@ -873,6 +877,9 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       this.root.unpause();
       this.parentTimeline?.enablePlaybackButtons();
     }
+
+    this.webchalkClipEl = new WebchalkClipElement();
+    this.webchalkClipEl.build(this);
 
     return this;
   }
@@ -1253,6 +1260,8 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   protected updateDuration(duration: number, rescheduleTasks: boolean = true): void {
     this.config.duration = duration;
     this.animation.updateDuration(duration, rescheduleTasks);
+    this.webchalkClipEl?.updateDuration(duration);
+    this._parentSequence?.commitForRate(this);
   }
 
   protected async animate(direction: 'forward' | 'backward'): Promise<this> {

@@ -1,9 +1,11 @@
 import { webchalk } from './src/index';
+import { WebchalkClipElement } from './WebchalkClipElement';
 import { WebchalkSequenceElement } from './WebchalkSequenceElement';
 import { WebchalkTimelinePaneElement } from './WebchalkTimelinePane';
 
 WebchalkTimelinePaneElement.addToCustomElementRegistry();
 WebchalkSequenceElement.addToCustomElementRegistry();
+WebchalkClipElement.addToCustomElementRegistry();
 
 const {
   Entrance,
@@ -36,6 +38,7 @@ seq1.addClips([
   ),
   Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000}),
   Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000}),
+  Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: false, description: 'Move blue circle', delay: 1000}),
   // Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 5000}),
   // // Exit(redSquare, '~fade-out', []),
 ]);
