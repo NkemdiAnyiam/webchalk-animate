@@ -400,7 +400,7 @@ export class AnimSequence {
   }
 
   get maxTime(): number {
-    const lastGrouping = this.animClipGroupings_endDelayFinishOrder.at(-1)!;
+    const lastGrouping = this.animClipGroupings_endDelayFinishOrder.at(-1) ?? [];
     let maxTime = 0;
     for (let i = 0; i < lastGrouping.length; ++i) {
       const clip = lastGrouping[i];
