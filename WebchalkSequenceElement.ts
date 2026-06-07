@@ -230,9 +230,10 @@ export class WebchalkSequenceElement extends HTMLElement {
     const schedule = clipTracks.closest('.sequence__schedule') as HTMLDivElement;
 
     const handleClick = (e: MouseEvent) => {
-      const clipTrack = (e.target as HTMLElement);
+      // need to select from composedPath() because e.target would just see webchalk-clip
+      const clickTarget = e.composedPath()[0] as HTMLElement;
       // only do process if a track was clicked
-      if (!clipTrack.classList.contains('clip__body')) { return; }
+      if (!clickTarget.classList.contains('clip__body')) { return; }
 
       // unhighlight all text to prevent annoying dragging issues
       document.getSelection()?.removeAllRanges();
