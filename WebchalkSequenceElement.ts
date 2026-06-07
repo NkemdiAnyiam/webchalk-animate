@@ -100,7 +100,7 @@ export class WebchalkSequenceElement extends HTMLElement {
   }
 
   insertClips(insertionIndex: number, newClips: AnimClip[], allClips: AnimClip[]) {
-    const sequenceClips = this.shadowRoot!.querySelector('.sequence__clips') as HTMLDivElement;
+    const sequenceClips = this.shadowRoot!.querySelector('.sequence__clips') as HTMLElement;
 
     // clip elements will be made for any clips that don't have ui attached
 
@@ -108,11 +108,15 @@ export class WebchalkSequenceElement extends HTMLElement {
     const firstNewClip = newClips[0];
     if (!firstNewClip.uiAttached) { firstNewClip.attachUI(); }
     firstNewClip.updateClipNumber(insertionIndex + 1);
-    if (sequenceClips.children[insertionIndex - 1]) {
+
+    if (insertionIndex === 0) {
+      sequenceClips.insertAdjacentElement('afterbegin', firstNewClip.webchalkClipEl!);
+    }
+    else if (sequenceClips.children[insertionIndex - 1]) {
       sequenceClips.children[insertionIndex - 1].insertAdjacentElement('afterend', firstNewClip.webchalkClipEl!);
     }
     else {
-      sequenceClips.appendChild(firstNewClip.webchalkClipEl!);
+      sequenceClips.insertAdjacentElement('beforeend', firstNewClip.webchalkClipEl!);
     }
     let insertionPoint: AnimClip;
 
