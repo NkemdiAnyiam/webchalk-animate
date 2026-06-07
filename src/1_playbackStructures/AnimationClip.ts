@@ -864,9 +864,6 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     return this;
   }
 
-  // TODO: organize
-  webchalkClipEl?: WebchalkClipElement;
-
   constructor(domElem: DOMElement | null | undefined, effectName: string, bank: PresetEffectBank) {
     if (webchalk.clipCreatorLock) {
       throw this.generateError(
@@ -929,9 +926,6 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       this.parentTimeline?.enablePlaybackButtons();
     }
 
-    this.webchalkClipEl = new WebchalkClipElement();
-    this.webchalkClipEl.build(this);
-
     return this;
   }
 
@@ -975,6 +969,20 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       // layer 2 subclass immutable config takes priority over layer 3 immutable config
       ...this.categoryImmutableConfig,
     };
+  }
+
+  /*-:**************************************************************************************************************************/
+  /*-:**************************************        USER INTERFACE        ******************************************************/
+  /*-:**************************************************************************************************************************/
+  webchalkClipEl?: WebchalkClipElement;
+  get uiAttached(): boolean { return this.webchalkClipEl ? true : false; }
+  
+  /** @internal */
+  attachUI() {
+    // TODO: improve error message
+    if (this.uiAttached) { throw new Error('AnimClip UI already attached'); }
+    this.webchalkClipEl = new WebchalkClipElement();
+    this.webchalkClipEl.readClip(this);
   }
 
   /*-:**************************************************************************************************************************/

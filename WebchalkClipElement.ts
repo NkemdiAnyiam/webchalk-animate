@@ -58,7 +58,7 @@ export class WebchalkClipElement extends HTMLElement {
     shadow.append(element);
   }
 
-  build(clip: AnimClip) {
+  readClip(clip: AnimClip) {
     const clipEl = this.shadowRoot?.querySelector('.clip') as HTMLElement;
     const clipNumberEl = clipEl.querySelector('.clip__number') as HTMLElement;
     const delayBarEl = clipEl.querySelector('.clip__length-bar--delay') as HTMLElement;

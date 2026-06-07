@@ -50,104 +50,84 @@ export class WebchalkSequenceElement extends HTMLElement {
     this.attachScheduleDraggers();
   }
 
-  updateMaxSecondsDisplayed(time: number) {
-    if (Math.ceil(time) > this.maxSecondsDisplayed) {
-      const newMaxTime = Math.ceil(time);
-      const sequenceScheduleTimes = this.shadowRoot!.querySelector('.sequence__schedule-times');
-      const sequenceTicks = this.shadowRoot!.querySelector('.sequence__ticks');
+  updateMaxSecondsDisplayed(seconds: number) {
+    const newMaxTime = Math.max(Math.ceil(seconds), 11);
+    const oldMaxTime = this.maxSecondsDisplayed;
 
-      const ticksString = /*html*/`
-        <div class="sequence__tick sequence__tick--whole"></div>
-        <div class="sequence__tick sequence__tick--tenth"></div>
-        <div class="sequence__tick sequence__tick--tenth"></div>
-        <div class="sequence__tick sequence__tick--tenth"></div>
-        <div class="sequence__tick sequence__tick--tenth"></div>
-        <div class="sequence__tick sequence__tick--half"></div>
-        <div class="sequence__tick sequence__tick--tenth"></div>
-        <div class="sequence__tick sequence__tick--tenth"></div>
-        <div class="sequence__tick sequence__tick--tenth"></div>
-        <div class="sequence__tick sequence__tick--tenth"></div>`
-        .repeat(newMaxTime - this.maxSecondsDisplayed)
-      ;
+    if (newMaxTime === oldMaxTime) { return; }
 
-      requestAnimationFrame(() => {
-        for (let currSeconds = this.maxSecondsDisplayed + 1; currSeconds <= Math.ceil(newMaxTime); ++currSeconds) {
-          const scheduleTimeWrapper = createElFromString<HTMLElement>(/*html*/`
-            <div class="sequence__schedule-time-wrapper">
-              <span class="sequence__schedule-time">0:${String(currSeconds).padStart(2, '0')}</span>
-            </div>`
-          );
-  
-          sequenceScheduleTimes?.appendChild(scheduleTimeWrapper);
-        }
-        sequenceTicks?.insertAdjacentHTML('beforeend', ticksString);
-        
-        this.maxSecondsDisplayed = newMaxTime;
-      });
+    const sequenceScheduleTimes = this.shadowRoot!.querySelector('.sequence__schedule-times') as HTMLElement;
+    const sequenceTicks = this.shadowRoot!.querySelector('.sequence__ticks') as HTMLElement;
 
-    }
-    else if (Math.floor(time) < this.maxSecondsDisplayed) {
-
-    }
-  }
-
-  // TODO: update to read from actual start times and not margins
-  insertTrack(index: number, clip: AnimClip) {
-    const sequenceTracks = this.shadowRoot!.querySelector('.sequence__clips') as HTMLDivElement;
-
-    function hemFromClip(clip: HTMLElement, options: { startsWith?: boolean } = {}): number {
-      return Number.parseFloat(
-        clip.style.marginLeft.match(/calc\((-?\d+(?:\.\d+)?|-?\.\d+) \* var\(--hem\)\)/)?.[1] ?? '-3'
-      ) + (
-        options.startsWith
-          ? Number.parseFloat((clip.querySelector('.clip__length-bar--delay') as HTMLElement)
-            .style.width
-            .match(/calc\((-?\d+(?:\.\d+)?|-?\.\d+) \* var\(--hem\)\)/)?.[1] ?? '-3'
-          )
-          : Number.parseFloat((clip.querySelector('.clip__length-bar--delay') as HTMLElement)
-            .style.width
-            .match(/calc\((-?\d+(?:\.\d+)?|-?\.\d+) \* var\(--hem\)\)/)?.[1] ?? '-3'
-          ) + Number.parseFloat((clip.querySelector('.clip__length-bar--duration') as HTMLElement)
-            .style.width
-            .match(/calc\((-?\d+(?:\.\d+)?|-?\.\d+) \* var\(--hem\)\)/)?.[1] ?? '-3'
-          ) + Number.parseFloat((clip.querySelector('.clip__length-bar--end-delay') as HTMLElement)
-            .style.width
-            .match(/calc\((-?\d+(?:\.\d+)?|-?\.\d+) \* var\(--hem\)\)/)?.[1] ?? '-3'
-          )
-      );
-    }
-    
-    // const trackBefore = sequenceTracks.querySelector(`:scope > :nth-child(${(index + 1) - 1})`) as HTMLElement;
-
-    const trackStr = /*html*/`
-      <div class="sequence__track">
-        <div class="sequence__track-header">
-          <span class="sequence__track-number">${index + 1}.</span>
-        </div>
-        <div class="sequence__track-body"></div>
-      </div>`
+    const ticksString = /*html*/`
+      <div class="sequence__tick sequence__tick--whole"></div>
+      <div class="sequence__tick sequence__tick--tenth"></div>
+      <div class="sequence__tick sequence__tick--tenth"></div>
+      <div class="sequence__tick sequence__tick--tenth"></div>
+      <div class="sequence__tick sequence__tick--tenth"></div>
+      <div class="sequence__tick sequence__tick--half"></div>
+      <div class="sequence__tick sequence__tick--tenth"></div>
+      <div class="sequence__tick sequence__tick--tenth"></div>
+      <div class="sequence__tick sequence__tick--tenth"></div>
+      <div class="sequence__tick sequence__tick--tenth"></div>`
     ;
 
-    const track = createElFromString(trackStr) as HTMLElement;
-    track.querySelector('.sequence__track-body')!.insertAdjacentElement('beforeend', clip.webchalkClipEl!);
-    const trackAfter = sequenceTracks.querySelector(`:scope > :nth-child(${index + 1})`);
-    if (!trackAfter) {
-      sequenceTracks.appendChild(track);
+    // insert schedule times and ticks
+    if (newMaxTime > oldMaxTime) {
+      for (let currSeconds = oldMaxTime + 1; currSeconds <= newMaxTime; ++currSeconds) {
+        const scheduleTimeWrapper = createElFromString<HTMLElement>(/*html*/`
+          <div class="sequence__schedule-time-wrapper">
+            <span class="sequence__schedule-time">${Math.floor(currSeconds / (60 * 60))}:${String(Math.floor(currSeconds / 60) % 60).padStart(2, '0')}:${String(currSeconds % 60).padStart(2, '0')}</span>
+          </div>`
+        );
+
+        sequenceScheduleTimes?.appendChild(scheduleTimeWrapper);
+      }
+
+      sequenceTicks?.insertAdjacentHTML('beforeend', ticksString.repeat(newMaxTime - oldMaxTime));
+    }
+    // remove schedule times and ticks
+    else {
+      for (let currSeconds = 0; currSeconds < oldMaxTime - newMaxTime; ++currSeconds) {
+        sequenceScheduleTimes.removeChild(sequenceScheduleTimes.lastElementChild!);
+        for (let i = 0; i < 10; ++i) {
+          sequenceTicks.removeChild(sequenceTicks.lastElementChild!);
+        }
+      }
+    }
+
+    this.maxSecondsDisplayed = newMaxTime;
+  }
+
+  insertClips(insertionIndex: number, newClips: AnimClip[], allClips: AnimClip[]) {
+    const sequenceClips = this.shadowRoot!.querySelector('.sequence__clips') as HTMLDivElement;
+
+    // clip elements will be made for any clips that don't have ui attached
+
+    // insert the first clip and then use it as the insertion point
+    const firstNewClip = newClips[0];
+    if (!firstNewClip.uiAttached) { firstNewClip.attachUI(); }
+    firstNewClip.updateClipNumber(insertionIndex + 1);
+    if (sequenceClips.children[insertionIndex - 1]) {
+      sequenceClips.children[insertionIndex - 1].insertAdjacentElement('afterend', firstNewClip.webchalkClipEl!);
     }
     else {
-      trackAfter.insertAdjacentElement('beforebegin', track);
-      const trackClip = track.querySelector('.clip') as HTMLElement;
-      let currAfterTrack: Element | null = trackAfter;
-      let currTrackNumber = index + 1;
-      // TODO: instead, base off of start times to prevent compounding pixel errors
-      while (currAfterTrack) {
-        currAfterTrack.querySelector('.sequence__track-number')!.textContent = String(++currTrackNumber);
-        const currAfterTrackClip = currAfterTrack.querySelector('.clip') as HTMLElement;
-        console.log(currAfterTrackClip.style.marginLeft);
-        console.log(currAfterTrack);
-        currAfterTrackClip.style.marginLeft = hem(hemFromClip(currAfterTrackClip) + hemFromClip(trackClip, {startsWith: true}));
-        currAfterTrack = currAfterTrack.nextElementSibling;
-      }
+      sequenceClips.appendChild(firstNewClip.webchalkClipEl!);
+    }
+    let insertionPoint: AnimClip;
+
+    // insert new clip elements
+    for (let i = insertionIndex + 1; i < newClips.length; ++i) {
+      insertionPoint = newClips[i - 1];
+      const newClip = newClips[i];
+      if (!newClip.uiAttached) { newClip.attachUI(); }
+      newClip.updateClipNumber(i + 1);
+      insertionPoint.webchalkClipEl?.insertAdjacentElement('afterend', newClip.webchalkClipEl!);
+    }
+
+    // update clip numbers for any pre-existing clips after the insertion index
+    for (let i = insertionIndex + newClips.length; i < allClips.length; ++i) {
+      allClips[i].updateClipNumber(i + 1);
     }
   }
 

@@ -463,7 +463,7 @@ export class AnimSequence {
     // TODO: make non-automatic
     const webchalkSequence = document.querySelector('webchalk-timeline-pane')!.shadowRoot!.querySelector('webchalk-sequence') as WebchalkSequenceElement;
     this.webchalkSequence = webchalkSequence;
-    webchalkSequence.buildTracksFromSequence(this);
+    // webchalkSequence.buildTracksFromSequence(this);
 
     // If first argument is an AnimClip[], add clips to sequence.
     // Else, it must be a configuration object. Assign its values to this sequence's configuration object
@@ -530,6 +530,8 @@ export class AnimSequence {
       ? [locationOrClips, undefined]
       : [animClips, locationOrClips];
 
+    if (clips.length === 0) { return this; }
+
     for (let i = 0; i < clips.length; ++i) {
       const animClip = clips[i];
       if (!(animClip instanceof AnimClip)) {
@@ -553,16 +555,11 @@ export class AnimSequence {
     // insert clips
     if (loc) {
       this.animClips.splice(loc.atIndex, 0, ...clips);
-      for (let i = loc.atIndex; i < this.animClips.length; ++i) {
-        this.animClips[i].updateClipNumber(i + 1);
-      }
+      this.webchalkSequence?.insertClips(loc.atIndex, clips, this.animClips);
     }
     else {
-      const lastClipNumber = this.animClips.at(-1)?.getHierarchy().clipNumber ?? 0;
       this.animClips.push(...clips);
-      for (let i = 0; i < clips.length; ++i) {
-        clips[i].updateClipNumber(lastClipNumber + i + 1);
-      }
+      this.webchalkSequence?.insertClips(this.animClips.length - clips.length, clips, this.animClips);
     }
 
     this.commit();
