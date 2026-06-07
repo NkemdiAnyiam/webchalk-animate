@@ -460,6 +460,11 @@ export class AnimSequence {
     
     this.id = AnimSequence.id++;
 
+    // TODO: make non-automatic
+    const webchalkSequence = document.querySelector('webchalk-timeline-pane')!.shadowRoot!.querySelector('webchalk-sequence') as WebchalkSequenceElement;
+    this.webchalkSequence = webchalkSequence;
+    webchalkSequence.buildTracksFromSequence(this);
+
     // If first argument is an AnimClip[], add clips to sequence.
     // Else, it must be a configuration object. Assign its values to this sequence's configuration object
     if (configOrClips instanceof Array) {
@@ -546,12 +551,21 @@ export class AnimSequence {
     }
 
     // insert clips
-    if (loc) { this.animClips.splice(loc.atIndex, 0, ...clips); }
-    else { this.animClips.push(...clips); }
+    if (loc) {
+      this.animClips.splice(loc.atIndex, 0, ...clips);
+      for (let i = loc.atIndex; i < this.animClips.length; ++i) {
+        this.animClips[i].updateClipNumber(i + 1);
+      }
+    }
+    else {
+      const lastClipNumber = this.animClips.at(-1)?.getHierarchy().clipNumber ?? 0;
+      this.animClips.push(...clips);
+      for (let i = 0; i < clips.length; ++i) {
+        clips[i].updateClipNumber(lastClipNumber + i + 1);
+      }
+    }
 
     this.commit();
-    // TODO: for now, just updating using provided clips. but in future, consider startsWith...
-    this.webchalkSequence?.updateSchedule(loc ? this.animClips : clips, this.maxTime);
 
     return this;
   }
@@ -998,12 +1012,9 @@ export class AnimSequence {
 
       this.animClip_forwardGroupings[this.animClip_forwardGroupings.length - 1].push(currAnimClip);
 
-      currAnimClip.fullStartTime = currFullStartTime;
-      // console.log(currAnimClip.fullStartTime);
+      currAnimClip.updateFullStartTime(currFullStartTime);
 
-      // if (currTimeScaleType === 'duration') {
       maxFinishTime = currAnimClip.getTiming('timescaleType') === 'duration' ? Math.max(currAnimClip.fullFinishTime, maxFinishTime) : maxFinishTime;
-      // }
     }
 
     currActiveFinishGrouping.sort(activeFinishComparator);
@@ -1013,6 +1024,8 @@ export class AnimSequence {
     this.animClipGroupings_backwardActiveFinishOrder.push(currActiveBackwardFinishGrouping);
     this.animClipGroupings_activeFinishOrder.push(currActiveFinishGrouping);
     this.animClipGroupings_endDelayFinishOrder.push(currEndDelayGrouping);
+
+    this.webchalkSequence?.updateMaxSecondsDisplayed(this.maxTime / 1000);
 
     return this;
   }
@@ -1048,8 +1061,6 @@ export class AnimSequence {
     currActiveBackwardFinishGrouping.sort(activeBackwardFinishComparator);
     this.animClipGroupings_backwardActiveFinishOrder[indexOfGrouping] = currActiveBackwardFinishGrouping;
 
-    const toUpdate: AnimClip[] = [clip]; // array of clips whose changes need to be reflected in UI
-
     // If there are more groupings after this one, they will be affected by any change in the...
     // ... maximum finish time of the current grouping.
     const nextForwardGrouping = this.animClip_forwardGroupings[indexOfGrouping + 1];
@@ -1071,14 +1082,14 @@ export class AnimSequence {
         for (let i = indexOfGrouping + 1; i < this.animClip_forwardGroupings.length; ++i) {
           const futureGrouping = this.animClip_forwardGroupings[i];
           for (let j = 0; j < futureGrouping.length; ++j) {
-            futureGrouping[j].fullStartTime += deltaMaxFinishTime;
-            toUpdate.push(futureGrouping[j]);
+            const futureClip = futureGrouping[j];
+            futureClip.updateFullStartTime(futureClip.fullStartTime + deltaMaxFinishTime);
           }
         }
       }
     }
 
-    this.webchalkSequence?.updateSchedule(toUpdate, this.maxTime);
+    this.webchalkSequence?.updateMaxSecondsDisplayed(this.maxTime / 1000);
   }
 
   // get all currently running animations that belong to this timeline and perform operation() with them

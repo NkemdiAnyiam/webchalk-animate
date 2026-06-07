@@ -11,7 +11,7 @@
 .clip-info-box {
   grid-area: info-box;
   position: sticky;
-  // max-height: track-based-height-units(7.5);
+  // max-height: clip-based-height-units(7.5);
   // transition: max-height 0.1s;
   flex-basis: 500px;
   flex-shrink: 0;

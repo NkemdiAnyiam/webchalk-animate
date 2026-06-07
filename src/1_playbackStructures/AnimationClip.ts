@@ -257,6 +257,36 @@ export type AnimClipStatus = {
 };
 
 // TYPE
+export type AnimClipHierarchy = {
+  /**
+   * The parent {@link AnimSequence} that contains this clip
+   * (`undefined` if the clip is not part of a sequence).
+   * @group Structure
+   */
+  parentSequence?: AnimSequence;
+  /**
+   * The parent {@link AnimTimeline} that contains the {@link AnimSequence} that contains this clip (may be `undefined`).
+   * @group Structure
+   */
+  parentTimeline?: AnimTimeline;
+  /**
+   * The position of this clip within its parent sequence (or `NaN` if there is no parent sequence).
+   * @remarks
+   * The first clip in a sequence has a clip number of `1`.
+   * @group Structure
+   */
+  clipNumber: number;
+  /**
+   * The highest level of this clip's lineage.
+   *  * If the clip is nested within an {@link AnimTimeline}: that timeline,
+   *  * Else, if the clip is within an {@link AnimSequence}: that sequence,
+   *  * Else: the clip itself
+   * @group Structure
+   */
+  root: AnimTimeline | AnimSequence | AnimClip;
+}
+
+// TYPE
 /**
  * An object that contains functions that will be called at
  * a certain time during an {@link AnimClip}'s playback.
@@ -446,11 +476,13 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   /*-:**************************************************************************************************************************/
   /*-:*************************************        FIELDS & ACCESSORS        ***************************************************/
   /*-:**************************************************************************************************************************/
+    // GROUP: Hierarchy
   /**
    * A number that uniquely identifies the clip from other clips.
    * Automatically generated.
    */
   readonly id: number;
+  // TODO: remove the getters for these
   /**@internal*/ _parentSequence?: AnimSequence;
   /**@internal*/ _parentTimeline?: AnimTimeline;
   /**
@@ -477,7 +509,22 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
    * @group Structure
    */
   readonly domElem: DOMElement;
+  private clipNumber: number = NaN;
+  /** @internal */ updateClipNumber(trackNumber: number) {
+    this.clipNumber = trackNumber;
+    this.webchalkClipEl?.updateClipNumber(trackNumber);
+  }
 
+  getHierarchy(): AnimClipHierarchy {
+    return {
+      parentSequence: this._parentSequence,
+      parentTimeline: this.parentTimeline,
+      root: this.parentTimeline ?? this.parentSequence ?? this,
+      clipNumber: this.clipNumber,
+    };
+  }
+
+  // GROUP: Styles
  /**
   * Returns an object containing the specified style properties of the specified element.
   *  * Normal CSS properties _must_ be written in camelCase
@@ -565,12 +612,12 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   bRafMirrored: false,
  };
 
- protected nestedEffectFrameGeneratorSetMetadataArray: {
-  noKeyframes: boolean;
-  noRaf: boolean;
-  bFramesMirrored: boolean;
-  bRafMirrored: boolean;
- }[] = [];
+  protected nestedEffectFrameGeneratorSetMetadataArray: {
+    noKeyframes: boolean;
+    noRaf: boolean;
+    bFramesMirrored: boolean;
+    bRafMirrored: boolean;
+  }[] = [];
 
   // GROUP: Effect Details
   protected abstract get category(): EffectCategory;
@@ -640,6 +687,10 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   protected timescaleType: 'duration' | 'rate' = 'duration';
   
   /**@internal*/ fullStartTime = NaN;
+  /**@internal*/ updateFullStartTime(fullStartTime: number) {
+    this.fullStartTime = fullStartTime;
+    this.webchalkClipEl?.updateFullStartTime(fullStartTime);
+  }
   /**@internal*/ get activeStartTime() { return (this.fullStartTime + this.getTiming('delay')) / this.getTiming('playbackRate'); }
   /**@internal*/ get activeFinishTime() { return (this.fullStartTime + this.getTiming('delay') + this.getTiming('duration')) / this.getTiming('playbackRate'); }
   /**@internal*/ get fullFinishTime() { return (this.fullStartTime + this.getTiming('delay') + this.getTiming('duration') + this.getTiming('endDelay')) / this.getTiming('playbackRate'); }

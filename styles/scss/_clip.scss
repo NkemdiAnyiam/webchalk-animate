@@ -1,24 +1,24 @@
 @use 'utils' as *;
 
 .timeline {
-  --track-height: calc(#{hem(3.5)} + 1px);
+  --clip-height: calc(#{hem(3.5)} + 1px);
 }
 
-.sequence__track {
-  height: var(--track-height);
-  --track-bg: white;
+.clip {
+  height: var(--clip-height);
+  --clip-bg: white;
   border-top: 1px solid var(--color-gray-darkest);
 
   display: flex;
 }
 
-.sequence__track:nth-child(even) {
-  --track-bg: var(--color-gray-lighter)
+.clip:nth-child(even) {
+  --clip-bg: var(--color-gray-lighter)
 }
 
-.sequence__track-header {
+.clip__header {
   position: sticky;
-  z-index: $z--track-header;
+  z-index: $z--clip-header;
   left: 0;
   flex: 0 0 $sequence-left-side-width;
   // box-shadow: 1.75px 0 1px rgba(50, 50, 50, .55);
@@ -27,18 +27,18 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: var(--track-bg);
+  background-color: var(--clip-bg);
 }
 
-.sequence__track-number {
+.clip__number {
   color: var(--color-gray-darkest);
 }
 
-.sequence__track-body {
+.clip__body {
   position: relative;
   flex: 1 0 auto;
   // height: 100%;
-  background-color: var(--track-bg);
+  background-color: var(--clip-bg);
 
   display: flex;
 
@@ -47,24 +47,24 @@
   }
 }
 
-/* CLIP */
-.clip {
+/* CLIP EFFECT */
+.clip__effect {
   transition: margin-left 0.1s;
 }
 
-.clip--entrance {
+.clip__effect--entrance {
   @include category-color(entrance);
 }
 
-.clip--exit {
+.clip__effect--exit {
   @include category-color(exit);
 }
 
-.clip--motion {
+.clip__effect--motion {
   @include category-color(motion);
 }
 
-.clip--text-editor {
+.clip__effect--text-editor {
   @include category-color(text-editor);
 }
 
@@ -151,7 +151,7 @@
 /* EFFECT DESCRIPTION */
 .clip__description-box,
 .clip__info-button-box {
-  background-color: var(--track-bg);
+  background-color: var(--clip-bg);
   border: 1.5px solid var(--color-gray);
   color: var(--color-gray);
 }
@@ -181,7 +181,7 @@
 .clip__info-button {
   width: 100%;
   height: 100%;
-  background-color: var(--track-bg);
+  background-color: var(--clip-bg);
   border: 1.5px solid var(--color-gray);
   border-radius: 50%;
   font-family: Georgia;

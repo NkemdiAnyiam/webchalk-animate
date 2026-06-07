@@ -54,9 +54,6 @@ timeline.addSequences([seq1]);
 // timeline.addSequences([seq2]);
 
 const webchalkTimelinePane = document.querySelector('webchalk-timeline-pane') as WebchalkTimelinePaneElement;
-const webchalkSequence = webchalkTimelinePane.shadowRoot!.querySelector('webchalk-sequence') as WebchalkSequenceElement;
-seq1.webchalkSequence = webchalkSequence;
-webchalkSequence.buildTracksFromSequence(seq1);
 
 // const shadowRoot = (document.querySelector('webchalk-timeline-pane') as WebchalkTimelinePaneElement).shadowRoot;
 

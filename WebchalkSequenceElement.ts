@@ -93,7 +93,7 @@ export class WebchalkSequenceElement extends HTMLElement {
 
   // TODO: update to read from actual start times and not margins
   insertTrack(index: number, clip: AnimClip) {
-    const sequenceTracks = this.shadowRoot!.querySelector('.sequence__tracks') as HTMLDivElement;
+    const sequenceTracks = this.shadowRoot!.querySelector('.sequence__clips') as HTMLDivElement;
 
     function hemFromClip(clip: HTMLElement, options: { startsWith?: boolean } = {}): number {
       return Number.parseFloat(
@@ -152,39 +152,17 @@ export class WebchalkSequenceElement extends HTMLElement {
   }
 
   buildTracksFromSequence(sequence: AnimSequence) {
-    const sequenceTracks = this.shadowRoot!.querySelector('.sequence__tracks') as HTMLElement;
+    const sequenceTracks = this.shadowRoot!.querySelector('.sequence__clips') as HTMLElement;
 
     requestAnimationFrame(() => {
       for (let i = 0; i < sequence.animClips.length; ++i) {
-        const trackStr = /*html*/`
-          <div class="sequence__track">
-            <div class="sequence__track-header">
-              <span class="sequence__track-number">${i + 1}.</span>
-            </div>
-            <div class="sequence__track-body"></div>
-          </div>`
-        ;
-
-        const track = createElFromString(trackStr) as HTMLElement;
         const clip = sequence.animClips[i];
-        clip.webchalkClipEl?.updateFullStartTime(clip.fullStartTime);
-        track.querySelector('.sequence__track-body')!.insertAdjacentElement('beforeend',clip.webchalkClipEl!);
-        sequenceTracks.appendChild(track);
+        // TODO: check to make sure clip element is actually built first
+        sequenceTracks.appendChild(clip.webchalkClipEl!);
       }
       
       this.updateMaxSecondsDisplayed(sequence.maxTime / 1000);
     });
-  }
-
-  updateSchedule(clips: AnimClip[], maxTimeMs: number) {
-    requestAnimationFrame(() => {
-      for (const clip of clips) {
-        const clipEl = clip.webchalkClipEl!;
-        clipEl.updateFullStartTime(clip.fullStartTime);
-      }
-    });
-
-    this.updateMaxSecondsDisplayed(maxTimeMs / 1000);
   }
 
   private playheadForwardLoop(inProgressClips: Map<number, AnimClip>) {
@@ -248,13 +226,13 @@ export class WebchalkSequenceElement extends HTMLElement {
   }
 
   attachScheduleDraggers() {
-    const clipTracks = this.shadowRoot?.querySelector('.sequence__tracks') as HTMLDivElement;
+    const clipTracks = this.shadowRoot?.querySelector('.sequence__clips') as HTMLDivElement;
     const schedule = clipTracks.closest('.sequence__schedule') as HTMLDivElement;
 
     const handleClick = (e: MouseEvent) => {
       const clipTrack = (e.target as HTMLElement);
       // only do process if a track was clicked
-      if (!clipTrack.classList.contains('sequence__track-body')) { return; }
+      if (!clipTrack.classList.contains('clip__body')) { return; }
 
       // unhighlight all text to prevent annoying dragging issues
       document.getSelection()?.removeAllRanges();
