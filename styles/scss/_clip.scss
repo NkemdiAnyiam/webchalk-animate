@@ -12,8 +12,8 @@
   display: flex;
 }
 
-.clip:nth-child(even) {
-  --clip-bg: var(--color-gray-lighter)
+:host(:nth-child(even)) .clip {
+  --clip-bg: var(--color-gray-lighter);
 }
 
 .clip__header {
