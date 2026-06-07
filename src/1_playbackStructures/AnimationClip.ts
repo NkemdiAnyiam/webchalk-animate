@@ -525,92 +525,92 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   }
 
   // GROUP: Styles
- /**
-  * Returns an object containing the specified style properties of the specified element.
-  *  * Normal CSS properties _must_ be written in camelCase
-  * (e.g., `['marginBottom', 'backgroundColor']`, _NOT_ `['margin-bottom', 'background-color']`),
-  *  * CSS variables should be written normally (e.g., `['--nav-edge-color', '--brand-red']`).
-  * @param element - The DOM element from which to read the styles.
-  * @param styleProps - An array of strings representing camelCase CSS property names.
-  * @returns An object where the keys are the specified camelCase strings and the values are the CSS property values.
-  */
- getStyles(element: Element, styleProps: StyleProperty[]): {[key: string]: string};
- /**
-  * Returns the string value of the specified CSS property name for the specified element.
-  *  * Normal CSS properties _must_ be written in camelCase (e.g., `'marginBottom'`, _NOT_ `'margin-bottom'`),
-  *  * CSS variables should be written normally (e.g., `'--brand-red'`).
-  * @param element - The DOM element from which to read the style.
-  * @param styleProps - A string representing a single camelCase CSS property name.
-  * @returns The string value of the specified camelCase CSS property name.
-  */
- getStyles(element: Element, styleProp: StyleProperty): string;
- /**
-  * Returns an object containing the specified style properties of this clip's DOM element.
-  *  * Normal CSS properties _must_ be written in camelCase
-  * (e.g., `['marginBottom', 'backgroundColor']`, _NOT_ `['margin-bottom', 'background-color']`),
-  *  * CSS variables should be written normally (e.g., `['--nav-edge-color', '--brand-red']`).
-  * @param styleProps - An array of strings representing camelCase CSS property names.
-  * @returns An object where the keys are the specified camelCase strings and the values are the CSS property values.
-  */
- getStyles(styleProps: StyleProperty[]): {[key: string]: string};
- /**
-  * Returns the string value of the specified CSS property name for this clip's DOM element.
-  *  * Normal CSS properties _must_ be written in camelCase (e.g., `'marginBottom'`, _NOT_ `'margin-bottom'`),
-  *  * CSS variables should be written normally (e.g., `'--brand-red'`).
-  * @param styleProps - A string representing a single camelCase CSS property name.
-  * @returns The string value of the specified camelCase CSS property name.
-  */
- getStyles(styleProp: StyleProperty): string;
- /**
-  * @group Property Getter Methods
-  */
- getStyles(stylePropsOrEl: StyleProperty[] | StyleProperty | Element, styleProps?: StyleProperty[] | StyleProperty) {
-  const elementSpecified = !!styleProps;
-  const props = elementSpecified ? styleProps : stylePropsOrEl as Exclude<typeof stylePropsOrEl, Element>;
-  const element = elementSpecified ? stylePropsOrEl as Extract<typeof stylePropsOrEl, Element> : this.domElem;
+  /**
+    * Returns an object containing the specified style properties of the specified element.
+    *  * Normal CSS properties _must_ be written in camelCase
+    * (e.g., `['marginBottom', 'backgroundColor']`, _NOT_ `['margin-bottom', 'background-color']`),
+    *  * CSS variables should be written normally (e.g., `['--nav-edge-color', '--brand-red']`).
+    * @param element - The DOM element from which to read the styles.
+    * @param styleProps - An array of strings representing camelCase CSS property names.
+    * @returns An object where the keys are the specified camelCase strings and the values are the CSS property values.
+    */
+  getStyles(element: Element, styleProps: StyleProperty[]): {[key: string]: string};
+  /**
+    * Returns the string value of the specified CSS property name for the specified element.
+    *  * Normal CSS properties _must_ be written in camelCase (e.g., `'marginBottom'`, _NOT_ `'margin-bottom'`),
+    *  * CSS variables should be written normally (e.g., `'--brand-red'`).
+    * @param element - The DOM element from which to read the style.
+    * @param styleProps - A string representing a single camelCase CSS property name.
+    * @returns The string value of the specified camelCase CSS property name.
+    */
+  getStyles(element: Element, styleProp: StyleProperty): string;
+  /**
+    * Returns an object containing the specified style properties of this clip's DOM element.
+    *  * Normal CSS properties _must_ be written in camelCase
+    * (e.g., `['marginBottom', 'backgroundColor']`, _NOT_ `['margin-bottom', 'background-color']`),
+    *  * CSS variables should be written normally (e.g., `['--nav-edge-color', '--brand-red']`).
+    * @param styleProps - An array of strings representing camelCase CSS property names.
+    * @returns An object where the keys are the specified camelCase strings and the values are the CSS property values.
+    */
+  getStyles(styleProps: StyleProperty[]): {[key: string]: string};
+  /**
+    * Returns the string value of the specified CSS property name for this clip's DOM element.
+    *  * Normal CSS properties _must_ be written in camelCase (e.g., `'marginBottom'`, _NOT_ `'margin-bottom'`),
+    *  * CSS variables should be written normally (e.g., `'--brand-red'`).
+    * @param styleProps - A string representing a single camelCase CSS property name.
+    * @returns The string value of the specified camelCase CSS property name.
+    */
+  getStyles(styleProp: StyleProperty): string;
+  /**
+    * @group Property Getter Methods
+    */
+  getStyles(stylePropsOrEl: StyleProperty[] | StyleProperty | Element, styleProps?: StyleProperty[] | StyleProperty) {
+    const elementSpecified = !!styleProps;
+    const props = elementSpecified ? styleProps : stylePropsOrEl as Exclude<typeof stylePropsOrEl, Element>;
+    const element = elementSpecified ? stylePropsOrEl as Extract<typeof stylePropsOrEl, Element> : this.domElem;
 
-  // for each requested style property, set that property inside result object
-  const styleDec = getComputedStyle(element);
-  if (typeof props === 'string') {
-    // @ts-expect-error
-    return props.startsWith('--') ? styleDec.getPropertyValue(props) : styleDec[props];
-  }
-  else {
-    // create object that will store style props
-    const subsetObj = {} as any;
-    for (const prop of props) {
+    // for each requested style property, set that property inside result object
+    const styleDec = getComputedStyle(element);
+    if (typeof props === 'string') {
       // @ts-expect-error
-      subsetObj[prop] = prop.startsWith('--') ? styleDec.getPropertyValue(prop) : styleDec[prop as string];
+      return props.startsWith('--') ? styleDec.getPropertyValue(props) : styleDec[props];
     }
-    return  subsetObj;
+    else {
+      // create object that will store style props
+      const subsetObj = {} as any;
+      for (const prop of props) {
+        // @ts-expect-error
+        subsetObj[prop] = prop.startsWith('--') ? styleDec.getPropertyValue(prop) : styleDec[prop as string];
+      }
+      return  subsetObj;
+    }
   }
- }
 
- protected animation!: WebchalkAnimation;
- protected get nestedAnimations(): NestedWebchalkAnimation[] { return this.animation.nestedAnimations; };
- /**@internal*/
- get rafLoopsProgress(): number {
-  const { progress, direction } = this.animation.effect!.getComputedTiming();
+  protected animation!: WebchalkAnimation;
+  protected get nestedAnimations(): NestedWebchalkAnimation[] { return this.animation.nestedAnimations; };
+  /**@internal*/
+  get rafLoopsProgress(): number {
+    const { progress, direction } = this.animation.effect!.getComputedTiming();
 
-  const prog = direction === 'normal'
-    // ?? 1 because during the active phase (the only time when raf runs), null progress means finished
-    ? (progress ?? 1)
-    // ?? 0 for the same reason except accounting for direction === 'reverse' instead of 'normal'
-    : 1 - (progress ?? 0);
+    const prog = direction === 'normal'
+      // ?? 1 because during the active phase (the only time when raf runs), null progress means finished
+      ? (progress ?? 1)
+      // ?? 0 for the same reason except accounting for direction === 'reverse' instead of 'normal'
+      : 1 - (progress ?? 0);
 
-  return prog;
- }
+    return prog;
+  }
 
- protected effectFrameGeneratorSetMetadata = {
-  // true if both keyframes generators are undefined in frame generators
-  noKeyframes: false,
-  // true if both mutator generators are undefined in frame generators
-  noRaf: false,
-  // true if only backward keyframes generators is undefined in frame generators
-  bFramesMirrored: false,
-  // true if only backward mutator generator is undefined in frame generators
-  bRafMirrored: false,
- };
+  protected effectFrameGeneratorSetMetadata = {
+    // true if both keyframes generators are undefined in frame generators
+    noKeyframes: false,
+    // true if both mutator generators are undefined in frame generators
+    noRaf: false,
+    // true if only backward keyframes generators is undefined in frame generators
+    bFramesMirrored: false,
+    // true if only backward mutator generator is undefined in frame generators
+    bRafMirrored: false,
+  };
 
   protected nestedEffectFrameGeneratorSetMetadataArray: {
     noKeyframes: boolean;
