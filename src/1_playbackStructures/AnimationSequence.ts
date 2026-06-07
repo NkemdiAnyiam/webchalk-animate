@@ -656,7 +656,7 @@ export class AnimSequence {
     this.isRunning = true;
     this.handleFinishState();
 
-    this.commit();
+    // this.commit();
 
     this.onStart.do();
 
