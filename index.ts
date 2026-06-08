@@ -1,11 +1,13 @@
 import { webchalk } from './src/index';
 import { WebchalkClipElement } from './WebchalkClipElement';
+import { WebchalkClipInfoBoxElement } from './WebchalkClipInfoBoxElement';
 import { WebchalkSequenceElement } from './WebchalkSequenceElement';
 import { WebchalkTimelinePaneElement } from './WebchalkTimelinePane';
 
 WebchalkTimelinePaneElement.addToCustomElementRegistry();
 WebchalkSequenceElement.addToCustomElementRegistry();
 WebchalkClipElement.addToCustomElementRegistry();
+WebchalkClipInfoBoxElement.addToCustomElementRegistry();
 
 const {
   Entrance,

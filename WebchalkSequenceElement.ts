@@ -159,13 +159,15 @@ export class WebchalkSequenceElement extends HTMLElement {
     const playheadEl = this.playheadEl;
     const scheduleEl = playheadEl.closest('.sequence__schedule') as HTMLElement;
     const scheduleBox = scheduleEl.getBoundingClientRect();
+    const infoBoxWidth = scheduleEl.querySelector('webchalk-clip-info-box')?.getBoundingClientRect().width ?? 0;
 
+    // TODO: swap hard-coded 100 with something related to hem
     switch(direction) {
       case 'forward': {
         const pEdge = playheadEl.getBoundingClientRect().right;
         const scheduleEdge = scheduleEl.getBoundingClientRect().right;
         // if right edge of playhead is close to right edge of schedule, scroll schedule
-        if (pEdge >= scheduleEdge - 10) {
+        if (pEdge >= scheduleEdge - infoBoxWidth - 10) {
           const schedule = playheadEl.closest('.sequence__schedule') as HTMLElement;
           schedule.scrollTo({left: schedule.scrollLeft + pEdge - 100, behavior: 'instant'});
         }
@@ -176,7 +178,7 @@ export class WebchalkSequenceElement extends HTMLElement {
         const scheduleEdge = scheduleEl.getBoundingClientRect().left;
         const clipHeaderWidth = scheduleEl.querySelector('webchalk-clip')!.shadowRoot!.querySelector('.clip__header')!.getBoundingClientRect().width;
         if (pEdge <= scheduleEdge + 10 + clipHeaderWidth) {
-          scheduleEl.scrollTo({left: scheduleEl.scrollLeft - scheduleBox.width + clipHeaderWidth + 100, behavior: 'instant'});
+          scheduleEl.scrollTo({left: scheduleEl.scrollLeft - scheduleBox.width + infoBoxWidth + clipHeaderWidth + 100, behavior: 'instant'});
         }
         break;
       }

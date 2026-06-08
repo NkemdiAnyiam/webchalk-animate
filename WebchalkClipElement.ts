@@ -96,4 +96,16 @@ export class WebchalkClipElement extends HTMLElement {
     const clipNumberEl = this.shadowRoot!.querySelector('.clip__number') as HTMLElement;
     clipNumberEl.textContent = `${clipNumber}.`;
   }
+
+  // infoButton.addEventListener('click', () => {
+  //   const queriedInfoBox = document.querySelector('.clip-info-box');
+  //   if (queriedInfoBox) {
+  //     detachClipInfoBoxResizer?.();
+  //     queriedInfoBox.remove();
+  //   }
+  //   else {
+  //     document.querySelector('.sequence__schedule-inner-wrapper')!.insertAdjacentElement('afterend', infoBox);
+  //     attachClipInfoBoxResizer(infoBox);
+  //   }
+  // });
 }
