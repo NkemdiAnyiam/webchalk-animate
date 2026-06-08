@@ -157,7 +157,38 @@ export class WebchalkSequenceElement extends HTMLElement {
     sequenceDescriptionEl.textContent = `${description}.`;
   }
 
+  private handlePlayheadEdge(direction: 'forward' | 'backward') {
+    const playheadEl = this.playheadEl;
+    const scheduleEl = playheadEl.closest('.sequence__schedule') as HTMLElement;
+    const scheduleBox = scheduleEl.getBoundingClientRect();
+
+    switch(direction) {
+      case 'forward': {
+        const pEdge = playheadEl.getBoundingClientRect().right;
+        const scheduleEdge = scheduleEl.getBoundingClientRect().right;
+        // if right edge of playhead is close to right edge of schedule, scroll schedule
+        if (pEdge >= scheduleEdge - 10) {
+          const schedule = playheadEl.closest('.sequence__schedule') as HTMLElement;
+          schedule.scrollTo({left: schedule.scrollLeft + pEdge - 100, behavior: 'instant'});
+        }
+        break;
+      }
+      case 'backward': {
+        const pEdge = playheadEl.getBoundingClientRect().left;
+        const scheduleEdge = scheduleEl.getBoundingClientRect().left;
+        const clipHeaderWidth = scheduleEl.querySelector('webchalk-clip')!.shadowRoot!.querySelector('.clip__header')!.getBoundingClientRect().width;
+        if (pEdge <= scheduleEdge + 10 + clipHeaderWidth) {
+          scheduleEl.scrollTo({left: scheduleEl.scrollLeft - scheduleBox.width + clipHeaderWidth + 100, behavior: 'instant'});
+        }
+        break;
+      }
+      default: throw new RangeError(`Invalid direction "${direction}". Must be "forward" or "backward".`)
+    }
+  }
+
   private playheadForwardLoop(inProgressClips: Map<number, AnimClip>) {
+    this.handlePlayheadEdge('forward');
+
     if (this.stop) {
       this.stop = false;
       return;
@@ -176,6 +207,8 @@ export class WebchalkSequenceElement extends HTMLElement {
   }
 
   private playheadBackwardLoop(inProgressClips: Map<number, AnimClip>) {
+    this.handlePlayheadEdge('backward');
+
     if (this.stop) {
       this.stop = false;
       return;

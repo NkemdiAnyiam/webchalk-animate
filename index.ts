@@ -112,29 +112,3 @@ let detachClipInfoBoxResizer: () => void;
 //     attachClipInfoBoxResizer(infoBox);
 //   }
 // });
-
-
-const playhead = document.querySelector('.sequence__playhead') as HTMLDivElement;
-const tracks = document.querySelector('.sequence__tracks') as HTMLDivElement;
-
-const loop = () => {
-  if (playhead.getBoundingClientRect().right >= tracks.getBoundingClientRect().right - 1) { return; }
-  playhead.style.translate = Number.parseFloat(getComputedStyle(playhead).translate) + 1 + 'px';
-  checkEdge(playhead);
-  requestAnimationFrame(loop);
-};
-
-// requestAnimationFrame(loop);
-
-const checkEdge = (playhead: HTMLDivElement) => {
-  const pEdge = playhead.getBoundingClientRect().right
-  const screenEdge = document.documentElement.getBoundingClientRect().right;
-
-  if (pEdge >= screenEdge - 10) {
-    console.log('HELLO');
-    const schedule = playhead.closest('.sequence__schedule') as HTMLDivElement;
-    schedule.scrollTo({left: schedule.scrollLeft + pEdge - 100, behavior: 'instant'});
-  }
-};
-
-// checkEdge(playhead);
