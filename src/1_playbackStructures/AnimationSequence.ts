@@ -432,7 +432,11 @@ export class AnimSequence {
    * @see {@link AnimSequenceConfig.description}
    * @group Property Setter Methods
    */
-  setDescription(description: string): this { this.config.description = description; return this; }
+  setDescription(description: string): this {
+    this.config.description = description;
+    this.webchalkSequenceEl?.updateDescription(description);
+    return this;
+  }
 
   /**
    * Sets the {@link AnimSequenceConfig.jumpTag|jumpTag} for this sequence.
