@@ -11,17 +11,14 @@ const str = fs.readFileSync('./htmlComponents/sequence.html', 'utf-8');
 export class WebchalkSequenceElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-sequence', WebchalkSequenceElement); }
 
-  static getHemsPerSecond() {
-    const timelinePane = (document.querySelector('webchalk-timeline-pane') as WebchalkTimelinePaneElement)
-      .shadowRoot!.querySelector('.timeline') as HTMLElement;
-  
-    return Number(getComputedStyle(timelinePane)
+  getHemsPerSecond() {
+    return Number(getComputedStyle(this)
       .getPropertyValue('--hems-per-second')
       .match(/calc\((-?\d+(?:\.\d+)?|-?\.\d+) \* \d+px\)/)![1]
     );
   }
-  static msToNumHem(ms: number) { return ms / 1000 * WebchalkSequenceElement.getHemsPerSecond(); }
-  static msToHemStr(ms: number): string { return hem(WebchalkSequenceElement.msToNumHem(ms)); }
+  msToNumHem(ms: number) { return ms / 1000 * this.getHemsPerSecond(); }
+  msToHemStr(ms: number): string { return hem(this.msToNumHem(ms)); }
 
   private maxSecondsDisplayed: number = 0;
   private playheadEl: HTMLElement;
@@ -105,8 +102,7 @@ export class WebchalkSequenceElement extends HTMLElement {
 
     // insert the first clip and then use it as the insertion point
     const firstNewClip = newClips[0];
-    if (!firstNewClip.uiAttached) { firstNewClip.attachUI(); }
-    firstNewClip.updateClipNumber(insertionIndex + 1);
+    firstNewClip.attachUI();
 
     if (insertionIndex === 0) {
       sequenceClips.insertAdjacentElement('afterbegin', firstNewClip.webchalkClipEl!);
@@ -117,15 +113,18 @@ export class WebchalkSequenceElement extends HTMLElement {
     else {
       sequenceClips.insertAdjacentElement('beforeend', firstNewClip.webchalkClipEl!);
     }
-    let insertionPoint: AnimClip;
+    firstNewClip.writeUI();
+    firstNewClip.updateClipNumber(insertionIndex + 1);
 
     // insert new clip elements
+    let insertionPoint: AnimClip;
     for (let i = insertionIndex + 1; i < newClips.length; ++i) {
       insertionPoint = newClips[i - 1];
       const newClip = newClips[i];
-      if (!newClip.uiAttached) { newClip.attachUI(); }
-      newClip.updateClipNumber(i + 1);
+      newClip.attachUI();
       insertionPoint.webchalkClipEl?.insertAdjacentElement('afterend', newClip.webchalkClipEl!);
+      newClip.writeUI();
+      newClip.updateClipNumber(i + 1);
     }
 
     // update clip numbers for any pre-existing clips after the insertion index
@@ -134,8 +133,10 @@ export class WebchalkSequenceElement extends HTMLElement {
     }
   }
 
+  // TODO: implement removal of clips
+
   readSequence(sequence: AnimSequence) {
-    const sequenceEl = this.shadowRoot?.querySelector('.sequence') as HTMLElement;
+    const sequenceEl = this.shadowRoot!.querySelector('.sequence') as HTMLElement;
 
     sequenceEl.querySelector('.sequence__description')!.textContent = sequence.getDescription();
 
@@ -194,8 +195,8 @@ export class WebchalkSequenceElement extends HTMLElement {
     const clip = [...inProgressClips.values()][0];
     if (clip) {
       const currScheduleMs = clip.fullStartTime + clip.currentTime;
-      this.playheadTrailEl.style.width = `${hem(WebchalkSequenceElement.msToNumHem(currScheduleMs))}`;
-      this.playheadEl.style.translate = `${hem(WebchalkSequenceElement.msToNumHem(currScheduleMs))}`;
+      this.playheadTrailEl.style.width = `${this.msToHemStr(currScheduleMs)}`;
+      this.playheadEl.style.translate = `${this.msToHemStr(currScheduleMs)}`;
     }
 
     requestAnimationFrame(() => {
@@ -214,8 +215,8 @@ export class WebchalkSequenceElement extends HTMLElement {
     const clip = [...inProgressClips.values()][0];
     if (clip) {
       const currScheduleMs = clip.fullFinishTime - clip.currentTime;
-      this.playheadTrailEl.style.width = `${hem(WebchalkSequenceElement.msToNumHem(currScheduleMs))}`;
-      this.playheadEl.style.translate = `${hem(WebchalkSequenceElement.msToNumHem(currScheduleMs))}`;
+      this.playheadTrailEl.style.width = `${this.msToHemStr(currScheduleMs)}`;
+      this.playheadEl.style.translate = `${this.msToHemStr(currScheduleMs)}`;
     }
 
     requestAnimationFrame(() => {
@@ -243,8 +244,8 @@ export class WebchalkSequenceElement extends HTMLElement {
 
   stopPlayhead(maxTimeMs: number) {
     this.stop = true;
-    this.playheadEl.style.translate = `${hem(WebchalkSequenceElement.msToNumHem(maxTimeMs))}`;
-    this.playheadTrailEl.style.width = `${hem(WebchalkSequenceElement.msToNumHem(maxTimeMs))}`;
+    this.playheadEl.style.translate = `${this.msToHemStr(maxTimeMs)}`;
+    this.playheadTrailEl.style.width = `${this.msToHemStr(maxTimeMs)}`;
   }
 
   attachScheduleDraggers() {

@@ -982,7 +982,11 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     // TODO: improve error message
     if (this.uiAttached) { throw new Error('AnimClip UI already attached'); }
     this.webchalkClipEl = new WebchalkClipElement();
-    this.webchalkClipEl.readClip(this);
+  }
+
+  /** @internal */
+  writeUI() {
+    this.webchalkClipEl?.readClip(this);
   }
 
   /*-:**************************************************************************************************************************/

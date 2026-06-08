@@ -760,8 +760,10 @@ export class AnimTimeline {
     // TODO: improve error message
     if (this.uiAttached) { throw new Error('AnimTimeline UI already attached'); }
     this.webchalkTimelineEl = new WebchalkTimelinePaneElement();
+    this.webchalkTimelineEl.style.display = 'none';
     document.documentElement.querySelector('body')?.insertAdjacentElement('beforeend', this.webchalkTimelineEl);
     this.webchalkTimelineEl.readTimeline(this);
+    this.webchalkTimelineEl.style.removeProperty('display');
   }
 
   /*-:**************************************************************************************************************************/

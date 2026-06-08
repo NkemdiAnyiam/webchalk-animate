@@ -25,6 +25,8 @@ const categoryToAbbrev = (category: EffectCategory): string => {
 
 export class WebchalkClipElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-clip', WebchalkClipElement); }
+
+  private parentWebchalkSequenceEl: WebchalkSequenceElement | undefined;
   
   constructor() {
     super();
@@ -41,7 +43,8 @@ export class WebchalkClipElement extends HTMLElement {
   }
 
   readClip(clip: AnimClip) {
-    const clipEl = this.shadowRoot?.querySelector('.clip') as HTMLElement;
+    this.parentWebchalkSequenceEl = (this.getRootNode() as ShadowRoot).host as WebchalkSequenceElement;
+    const clipEl = this.shadowRoot!.querySelector('.clip') as HTMLElement;
     const clipNumberEl = clipEl.querySelector('.clip__number') as HTMLElement;
     const delayBarEl = clipEl.querySelector('.clip__length-bar--delay') as HTMLElement;
     const durationBarEl = clipEl.querySelector('.clip__length-bar--duration') as HTMLElement;
@@ -65,12 +68,12 @@ export class WebchalkClipElement extends HTMLElement {
     const { clipNumber } = clip.getHierarchy();
 
     effectEl.classList.add(`clip__effect--${category.toLowerCase().replaceAll(' ', '-')}`);
-    effectEl.style.marginLeft = WebchalkSequenceElement.msToHemStr(fullStartTime);
+    effectEl.style.marginLeft = this.parentWebchalkSequenceEl.msToHemStr(fullStartTime);
 
-    delayBarEl.style.width = WebchalkSequenceElement.msToHemStr(delay);
+    delayBarEl.style.width = this.parentWebchalkSequenceEl.msToHemStr(delay);
     if (delay === 0) { delayBarEl.style.border = 'none'; }
-    durationBarEl.style.width = WebchalkSequenceElement.msToHemStr(duration === TBA_DURATION ? 0 : duration);
-    endDelayBarEl.style.width = WebchalkSequenceElement.msToHemStr(endDelay);
+    durationBarEl.style.width = this.parentWebchalkSequenceEl.msToHemStr(duration === TBA_DURATION ? 0 : duration);
+    endDelayBarEl.style.width = this.parentWebchalkSequenceEl.msToHemStr(endDelay);
     if (endDelay === 0) { endDelayBarEl.style.border = 'none'; }
 
     clipNumberEl.textContent = `${clipNumber}.`;
@@ -81,12 +84,12 @@ export class WebchalkClipElement extends HTMLElement {
 
   updateDuration(newDurationMs: number) {
     const durationBarEl = this.shadowRoot!.querySelector('.clip__length-bar--duration') as HTMLElement;
-    durationBarEl.style.width = WebchalkSequenceElement.msToHemStr(newDurationMs === TBA_DURATION ? 0 : newDurationMs);
+    durationBarEl.style.width = this.parentWebchalkSequenceEl!.msToHemStr(newDurationMs === TBA_DURATION ? 0 : newDurationMs);
   }
 
   updateFullStartTime(startTimeMs: number) {
     const effectEl = this.shadowRoot?.querySelector('.clip__effect') as HTMLElement;
-    effectEl.style.marginLeft = WebchalkSequenceElement.msToHemStr(startTimeMs);
+    effectEl.style.marginLeft = this.parentWebchalkSequenceEl!.msToHemStr(startTimeMs);
   }
 
   updateClipNumber(clipNumber: number) {

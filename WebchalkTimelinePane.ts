@@ -37,8 +37,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
 
     // insert the first sequences and then use it as the insertion point
     const firstNewSequence = newSequences[0];
-    if (!firstNewSequence.uiAttached) { firstNewSequence.attachUI(); }
-    firstNewSequence.updateSequenceNumber(insertionIndex + 1);
+    firstNewSequence.attachUI();
 
     if (insertionIndex === 0) {
       timelineSequences.insertAdjacentElement('afterbegin', firstNewSequence.webchalkSequenceEl!);
@@ -49,15 +48,18 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     else {
       timelineSequences.insertAdjacentElement('beforeend', firstNewSequence.webchalkSequenceEl!);
     }
-    let insertionPoint: AnimSequence;
+    firstNewSequence.writeUI();
+    firstNewSequence.updateSequenceNumber(insertionIndex + 1);
 
+    let insertionPoint: AnimSequence;
     // insert new sequence elements
     for (let i = insertionIndex + 1; i < newSequences.length; ++i) {
       insertionPoint = newSequences[i - 1];
       const newSequence = newSequences[i];
-      if (!newSequence.uiAttached) { newSequence.attachUI(); }
-      newSequence.updateSequenceNumber(i + 1);
+      newSequence.attachUI();
       insertionPoint.webchalkSequenceEl?.insertAdjacentElement('afterend', newSequence.webchalkSequenceEl!);
+      newSequence.writeUI();
+      newSequence.updateSequenceNumber(i + 1);
     }
 
     // update sequence numbers for any pre-existing sequences after the insertion index
@@ -68,7 +70,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
   }
 
   readTimeline(timeline: AnimTimeline) {
-    const timelineEl = this.shadowRoot?.querySelector('.timeline') as HTMLElement;
+    const timelineEl = this.shadowRoot!.querySelector('.timeline') as HTMLElement;
     timelineEl.querySelector('.timeline__name')!.textContent = timeline.getConfig().timelineName;
 
     this.insertSequences(0, timeline.getHierarchy().sequences, timeline.getHierarchy().sequences);

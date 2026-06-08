@@ -699,7 +699,12 @@ export class AnimSequence {
     // TODO: improve error message
     if (this.uiAttached) { throw new Error('AnimSequence UI already attached'); }
     this.webchalkSequenceEl = new WebchalkSequenceElement();
-    this.webchalkSequenceEl.readSequence(this);
+  }
+
+  /** @internal */
+  writeUI() {
+    // TODO: incorporate case of already-finished sequence
+    this.webchalkSequenceEl?.readSequence(this);
   }
 
   /*-:**************************************************************************************************************************/
