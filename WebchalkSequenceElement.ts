@@ -4,29 +4,26 @@ import { stylesheet } from './componentStyleString';
 import { createElFromString } from './src/4_utils/helpers';
 import { AnimSequence } from './src/1_playbackStructures/AnimationSequence';
 import { AnimClip } from './src/1_playbackStructures/AnimationClip';
-import { WebchalkTimelinePaneElement } from './WebchalkTimelinePane';
+import { hem, WebchalkTimelinePaneElement } from './WebchalkTimelinePane';
 
 const str = fs.readFileSync('./htmlComponents/sequence.html', 'utf-8');
 
-// TODO: move somewhere else
-function getHemsPerSecond() {
-  const timelinePane = (document.querySelector('webchalk-timeline-pane') as WebchalkTimelinePaneElement)
-    .shadowRoot!.querySelector('.timeline') as HTMLElement;
-
-  return Number(getComputedStyle(timelinePane)
-    .getPropertyValue('--hems-per-second')
-    .match(/calc\((-?\d+(?:\.\d+)?|-?\.\d+) \* \d+px\)/)![1]
-  );
-}
-function msToNumHem(ms: number) { return ms / 1000 * getHemsPerSecond(); }
-function numHToMs(hem: number) { return hem / getHemsPerSecond() * 1000; }
-function hem(numHem: number): string {
-  return `calc(${numHem} * var(--hem))`;
-}
-
 export class WebchalkSequenceElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-sequence', WebchalkSequenceElement); }
-  maxSecondsDisplayed: number = 0;
+
+  static getHemsPerSecond() {
+    const timelinePane = (document.querySelector('webchalk-timeline-pane') as WebchalkTimelinePaneElement)
+      .shadowRoot!.querySelector('.timeline') as HTMLElement;
+  
+    return Number(getComputedStyle(timelinePane)
+      .getPropertyValue('--hems-per-second')
+      .match(/calc\((-?\d+(?:\.\d+)?|-?\.\d+) \* \d+px\)/)![1]
+    );
+  }
+  static msToNumHem(ms: number) { return ms / 1000 * WebchalkSequenceElement.getHemsPerSecond(); }
+  static msToHemStr(ms: number): string { return hem(WebchalkSequenceElement.msToNumHem(ms)); }
+
+  private maxSecondsDisplayed: number = 0;
   private playheadEl: HTMLElement;
   private playheadTrailEl: HTMLElement;
   
@@ -197,8 +194,8 @@ export class WebchalkSequenceElement extends HTMLElement {
     const clip = [...inProgressClips.values()][0];
     if (clip) {
       const currScheduleMs = clip.fullStartTime + clip.currentTime;
-      this.playheadTrailEl.style.width = `${hem(msToNumHem(currScheduleMs))}`;
-      this.playheadEl.style.translate = `${hem(msToNumHem(currScheduleMs))}`;
+      this.playheadTrailEl.style.width = `${hem(WebchalkSequenceElement.msToNumHem(currScheduleMs))}`;
+      this.playheadEl.style.translate = `${hem(WebchalkSequenceElement.msToNumHem(currScheduleMs))}`;
     }
 
     requestAnimationFrame(() => {
@@ -217,8 +214,8 @@ export class WebchalkSequenceElement extends HTMLElement {
     const clip = [...inProgressClips.values()][0];
     if (clip) {
       const currScheduleMs = clip.fullFinishTime - clip.currentTime;
-      this.playheadTrailEl.style.width = `${hem(msToNumHem(currScheduleMs))}`;
-      this.playheadEl.style.translate = `${hem(msToNumHem(currScheduleMs))}`;
+      this.playheadTrailEl.style.width = `${hem(WebchalkSequenceElement.msToNumHem(currScheduleMs))}`;
+      this.playheadEl.style.translate = `${hem(WebchalkSequenceElement.msToNumHem(currScheduleMs))}`;
     }
 
     requestAnimationFrame(() => {
@@ -246,8 +243,8 @@ export class WebchalkSequenceElement extends HTMLElement {
 
   stopPlayhead(maxTimeMs: number) {
     this.stop = true;
-    this.playheadEl.style.translate = `${hem(msToNumHem(maxTimeMs))}`;
-    this.playheadTrailEl.style.width = `${hem(msToNumHem(maxTimeMs))}`;
+    this.playheadEl.style.translate = `${hem(WebchalkSequenceElement.msToNumHem(maxTimeMs))}`;
+    this.playheadTrailEl.style.width = `${hem(WebchalkSequenceElement.msToNumHem(maxTimeMs))}`;
   }
 
   attachScheduleDraggers() {

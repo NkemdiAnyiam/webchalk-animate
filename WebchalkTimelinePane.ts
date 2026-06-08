@@ -5,6 +5,10 @@ import { AnimSequence } from './src/1_playbackStructures/AnimationSequence';
 
 const str = fs.readFileSync('./htmlComponents/timeline-pane.html', 'utf-8');
 
+export function hem(numHem: number): string {
+  return `calc(${numHem} * var(--hem))`;
+}
+
 export class WebchalkTimelinePaneElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-timeline-pane', WebchalkTimelinePaneElement); }
   

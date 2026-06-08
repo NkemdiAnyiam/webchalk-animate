@@ -1,30 +1,12 @@
 import * as fs from 'fs';
 import { stylesheet } from './componentStyleString';
 import { AnimClip } from './src/1_playbackStructures/AnimationClip';
-import { WebchalkTimelinePaneElement } from './WebchalkTimelinePane';
 import { TBA_DURATION } from './src/4_utils/helpers';
 import { EffectCategory } from './src/4_utils/interfaces';
+import { WebchalkSequenceElement } from './WebchalkSequenceElement';
 
 const str = fs.readFileSync('./htmlComponents/clip.html', 'utf-8');
 
-// TODO: move somewhere else
-function getHemsPerSecond() {
-  const timelinePane = (document.querySelector('webchalk-timeline-pane') as WebchalkTimelinePaneElement)
-    .shadowRoot!.querySelector('.timeline') as HTMLElement;
-
-  return Number(getComputedStyle(timelinePane)
-    .getPropertyValue('--hems-per-second')
-    .match(/calc\((-?\d+(?:\.\d+)?|-?\.\d+) \* \d+px\)/)![1]
-  );
-}
-function msToNumHem(ms: number) { return ms / 1000 * getHemsPerSecond(); }
-function numHToMs(hem: number) { return hem / getHemsPerSecond() * 1000; }
-function hem(numHem: number): string {
-  return `calc(${numHem} * var(--hem))`;
-}
-function msToHemStr(ms: number): string { return hem(msToNumHem(ms)); }
-
-// TODO: move somewhere else
 const categoryToAbbrev = (category: EffectCategory): string => {
   switch(category) {
     case 'Entrance': return 'En';
@@ -83,12 +65,12 @@ export class WebchalkClipElement extends HTMLElement {
     const { clipNumber } = clip.getHierarchy();
 
     effectEl.classList.add(`clip__effect--${category.toLowerCase().replaceAll(' ', '-')}`);
-    effectEl.style.marginLeft = msToHemStr(fullStartTime);
+    effectEl.style.marginLeft = WebchalkSequenceElement.msToHemStr(fullStartTime);
 
-    delayBarEl.style.width = msToHemStr(delay);
+    delayBarEl.style.width = WebchalkSequenceElement.msToHemStr(delay);
     if (delay === 0) { delayBarEl.style.border = 'none'; }
-    durationBarEl.style.width = msToHemStr(duration === TBA_DURATION ? 0 : duration);
-    endDelayBarEl.style.width = msToHemStr(endDelay);
+    durationBarEl.style.width = WebchalkSequenceElement.msToHemStr(duration === TBA_DURATION ? 0 : duration);
+    endDelayBarEl.style.width = WebchalkSequenceElement.msToHemStr(endDelay);
     if (endDelay === 0) { endDelayBarEl.style.border = 'none'; }
 
     clipNumberEl.textContent = `${clipNumber}.`;
@@ -99,12 +81,12 @@ export class WebchalkClipElement extends HTMLElement {
 
   updateDuration(newDurationMs: number) {
     const durationBarEl = this.shadowRoot!.querySelector('.clip__length-bar--duration') as HTMLElement;
-    durationBarEl.style.width = msToHemStr(newDurationMs === TBA_DURATION ? 0 : newDurationMs);
+    durationBarEl.style.width = WebchalkSequenceElement.msToHemStr(newDurationMs === TBA_DURATION ? 0 : newDurationMs);
   }
 
   updateFullStartTime(startTimeMs: number) {
     const effectEl = this.shadowRoot?.querySelector('.clip__effect') as HTMLElement;
-    effectEl.style.marginLeft = msToHemStr(startTimeMs);
+    effectEl.style.marginLeft = WebchalkSequenceElement.msToHemStr(startTimeMs);
   }
 
   updateClipNumber(clipNumber: number) {
