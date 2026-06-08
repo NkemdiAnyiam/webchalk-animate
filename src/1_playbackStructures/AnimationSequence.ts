@@ -153,6 +153,39 @@ export type AnimSequenceStatus = {
 };
 
 // TYPE
+export type AnimSequenceHierarchy = {
+  /**
+   * The parent {@link AnimTimeline} that contains this sequence clip (may be `undefined`).
+   * @group Structure
+   */
+  parentTimeline?: AnimTimeline;
+  /**
+   * The position of this sequence within its parent timeline (or `NaN` if there is no parent timeline).
+   * @remarks
+   * The first sequence in a sequence has a sequence number of `1`.
+   * @group Structure
+   */
+  sequenceNumber: number;
+  /**
+   * The highest level of this sequence's lineage.
+   *  * If the sequence is nested within an {@link AnimTimeline}: that timeline
+   *  * Else: the sequence itself
+   * @group Structure
+   */
+  root: AnimTimeline | AnimSequence;
+  /**
+   * A copy of this sequence's array of {@link AnimClip} objects.
+   * @group Structure
+   */
+  clips: AnimClip[];
+  /**
+   * The number of clips in this sequence.
+   * @group Structure
+   */
+  numClips: number;
+}
+
+// TYPE
 type AnimationOperation = (animation: AnimClip) => void;
 // TYPE
 type AsyncAnimationOperation = (animation: AnimClip) => Promise<unknown>;
@@ -251,7 +284,23 @@ export class AnimSequence {
    * @group Structure
    */
   get parentTimeline() { return this._parentTimeline; }
-  animClips: AnimClip[] = []; // array of animClips
+  private sequenceNumber: number = NaN;
+  /** @internal */ updateSequenceNumber(trackNumber: number) {
+    this.sequenceNumber = trackNumber;
+    this.webchalkSequenceEl?.updateSequenceNumber(trackNumber);
+  }
+  animClips: AnimClip[] = []; // array of animClips TODO: make private
+  get numClips(): number { return this.animClips.length; }
+
+  getHierarchy(): AnimSequenceHierarchy {
+    return {
+      parentTimeline: this.parentTimeline,
+      root: this.parentTimeline ?? this,
+      sequenceNumber: this.sequenceNumber,
+      clips: this.animClips,
+      numClips: this.animClips.length,
+    };
+  }
 
   private animClipGroupings_activeFinishOrder: AnimClip[][] = [];
   private animClipGroupings_endDelayFinishOrder: AnimClip[][] = [];
@@ -464,11 +513,6 @@ export class AnimSequence {
     
     this.id = AnimSequence.id++;
 
-    // TODO: make non-automatic
-    const webchalkSequence = document.querySelector('webchalk-timeline-pane')!.shadowRoot!.querySelector('webchalk-sequence') as WebchalkSequenceElement;
-    this.webchalkSequence = webchalkSequence;
-    // webchalkSequence.buildTracksFromSequence(this);
-
     // If first argument is an AnimClip[], add clips to sequence.
     // Else, it must be a configuration object. Assign its values to this sequence's configuration object
     if (configOrClips instanceof Array) {
@@ -559,11 +603,11 @@ export class AnimSequence {
     // insert clips
     if (loc) {
       this.animClips.splice(loc.atIndex, 0, ...clips);
-      this.webchalkSequence?.insertClips(loc.atIndex, clips, this.animClips);
+      this.webchalkSequenceEl?.insertClips(loc.atIndex, clips, this.animClips);
     }
     else {
       this.animClips.push(...clips);
-      this.webchalkSequence?.insertClips(this.animClips.length - clips.length, clips, this.animClips);
+      this.webchalkSequenceEl?.insertClips(this.animClips.length - clips.length, clips, this.animClips);
     }
 
     this.commit();
@@ -643,6 +687,20 @@ export class AnimSequence {
   findClipIndex(animClip: AnimClip): number {
     return this.animClips.findIndex((_animClip) => _animClip === animClip);
   }
+  
+  /*-:**************************************************************************************************************************/
+  /*-:**************************************        USER INTERFACE        ******************************************************/
+  /*-:**************************************************************************************************************************/
+  webchalkSequenceEl?: WebchalkSequenceElement;
+  get uiAttached(): boolean { return this.webchalkSequenceEl ? true : false; }
+  
+  /** @internal */
+  attachUI() {
+    // TODO: improve error message
+    if (this.uiAttached) { throw new Error('AnimSequence UI already attached'); }
+    this.webchalkSequenceEl = new WebchalkSequenceElement();
+    this.webchalkSequenceEl.readSequence(this);
+  }
 
   /*-:**************************************************************************************************************************/
   /*-:*****************************************        PLAYBACK        *********************************************************/
@@ -700,7 +758,7 @@ export class AnimSequence {
     }
 
     let parallelClips: Promise<void>[] = [];
-    this.webchalkSequence?.startPlayhead(this.inProgressClips, 'forward');
+    this.webchalkSequenceEl?.startPlayhead(this.inProgressClips, 'forward');
     for (let i = 0; i < this.animClip_forwardGroupings.length; ++i) {
       parallelClips = [];
       const grouping = this.animClip_forwardGroupings[i];
@@ -753,7 +811,7 @@ export class AnimSequence {
       await Promise.all(parallelClips);
       if (isUnjumpableGrouping) { this.togglePseudoJumpingRate(false); }
     }
-    this.webchalkSequence?.stopPlayhead(this.maxTime);
+    this.webchalkSequenceEl?.stopPlayhead(this.maxTime);
 
     this.inProgress = false;
     this.isRunning = false;
@@ -797,7 +855,7 @@ export class AnimSequence {
     const groupings = this.animClipGroupings_endDelayFinishOrder;
     const groupingsLength = groupings.length;
     
-    this.webchalkSequence?.startPlayhead(this.inProgressClips, 'backward');
+    this.webchalkSequenceEl?.startPlayhead(this.inProgressClips, 'backward');
     for (let i = groupingsLength - 1; i >= 0; --i) {
       parallelClips = [];
       const grouping = groupings[i];
@@ -836,7 +894,7 @@ export class AnimSequence {
       await Promise.all(parallelClips);
       if (isUnjumpableGrouping) { this.togglePseudoJumpingRate(false); }
     }
-    this.webchalkSequence?.stopPlayhead(0);
+    this.webchalkSequenceEl?.stopPlayhead(0);
 
     this.inProgress = false;
     this.isRunning = false;
@@ -1026,13 +1084,11 @@ export class AnimSequence {
     this.animClipGroupings_activeFinishOrder.push(currActiveFinishGrouping);
     this.animClipGroupings_endDelayFinishOrder.push(currEndDelayGrouping);
 
-    this.webchalkSequence?.updateMaxSecondsDisplayed(this.maxTime / 1000);
+    this.webchalkSequenceEl?.updateMaxSecondsDisplayed(this.maxTime / 1000);
 
     return this;
   }
 
-  // TODO: organize
-  webchalkSequence?: WebchalkSequenceElement;
   /** @internal */
   commitForRate(clip: AnimClip): void {
     const {
@@ -1090,7 +1146,7 @@ export class AnimSequence {
       }
     }
 
-    this.webchalkSequence?.updateMaxSecondsDisplayed(this.maxTime / 1000);
+    this.webchalkSequenceEl?.updateMaxSecondsDisplayed(this.maxTime / 1000);
   }
 
   // get all currently running animations that belong to this timeline and perform operation() with them

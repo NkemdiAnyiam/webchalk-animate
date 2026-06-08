@@ -24,9 +24,11 @@ const redSquare = document.querySelector('.square');
 const blueCircle = document.querySelector('.circle');
 // Motion(redSquare, '~translate', [{translate: '20rem 20rem'}])
 
-const timeline = webchalk.newTimeline({timelineName: 'main'});
+const timeline = webchalk.newTimeline({timelineName: 'Main'});
 
-const seq1 = webchalk.newSequence([
+const seq1 = webchalk.newSequence(
+  {description: 'Move the thingamabob to the other element, demonstrating how doing things in an orderly manner accomplishes some cool example.'},
+  [
   // Exit(redSquare, '~fade-out', [], {duration: 1000}),
 ]);
 seq1.addClips([
@@ -53,7 +55,7 @@ timeline.addSequences([seq1]);
 // ]);
 // timeline.addSequences([seq2]);
 
-const webchalkTimelinePane = document.querySelector('webchalk-timeline-pane') as WebchalkTimelinePaneElement;
+timeline.attachUI();
 
 // const shadowRoot = (document.querySelector('webchalk-timeline-pane') as WebchalkTimelinePaneElement).shadowRoot;
 

@@ -137,18 +137,24 @@ export class WebchalkSequenceElement extends HTMLElement {
     }
   }
 
-  buildTracksFromSequence(sequence: AnimSequence) {
-    const sequenceTracks = this.shadowRoot!.querySelector('.sequence__clips') as HTMLElement;
+  readSequence(sequence: AnimSequence) {
+    const sequenceEl = this.shadowRoot?.querySelector('.sequence') as HTMLElement;
 
-    requestAnimationFrame(() => {
-      for (let i = 0; i < sequence.animClips.length; ++i) {
-        const clip = sequence.animClips[i];
-        // TODO: check to make sure clip element is actually built first
-        sequenceTracks.appendChild(clip.webchalkClipEl!);
-      }
-      
-      this.updateMaxSecondsDisplayed(sequence.maxTime / 1000);
-    });
+    sequenceEl.querySelector('.sequence__description')!.textContent = sequence.getDescription();
+
+    this.insertClips(0, sequence.animClips, sequence.animClips);
+    
+    this.updateMaxSecondsDisplayed(sequence.maxTime / 1000);
+  }
+
+  updateSequenceNumber(sequenceNumber: number) {
+    const sequenceNumberEl = this.shadowRoot!.querySelector('.sequence__number') as HTMLElement;
+    sequenceNumberEl.textContent = `${sequenceNumber}.`;
+  }
+
+  updateDescription(description: string) {
+    const sequenceDescriptionEl = this.shadowRoot!.querySelector('.sequence__description') as HTMLElement;
+    sequenceDescriptionEl.textContent = `${description}.`;
   }
 
   private playheadForwardLoop(inProgressClips: Map<number, AnimClip>) {
@@ -167,11 +173,6 @@ export class WebchalkSequenceElement extends HTMLElement {
     requestAnimationFrame(() => {
       this.playheadForwardLoop(inProgressClips);
     });
-  }
-
-  updateDescription(description: string) {
-    const sequenceDescriptionEl = this.shadowRoot!.querySelector('.sequence__description') as HTMLElement;
-    sequenceDescriptionEl.textContent = `${description}.`;
   }
 
   private playheadBackwardLoop(inProgressClips: Map<number, AnimClip>) {

@@ -4,6 +4,7 @@ import { getPartial } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { WebchalkPlaybackButtonElement } from "../3_components/WebchalkPlaybackButtonElement";
 import { webchalk } from "../Webchalk";
+import { WebchalkTimelinePaneElement } from "../../WebchalkTimelinePane";
 
 // TYPE
 /**
@@ -99,6 +100,26 @@ export type AnimTimelineStatus = {
    */
   atEnd: boolean;
 };
+
+// TYPE
+export type AnimTimelineHierarchy = {
+  /**
+   * The highest level of this timeline's lineage.
+   *  * The timeline itself is always the root (there is currently no higher possible level).
+   * @group Structure
+   */
+  root: AnimTimeline;
+  /**
+   * A copy of this timeline's array of {@link AnimSequence} objects.
+   * @group Structure
+   */
+  sequences: AnimSequence[];
+  /**
+   * The number of sequences in this timeline.
+   * @group Structure
+   */
+  numSequences: number;
+}
 
 // TYPE
 /**
@@ -208,6 +229,15 @@ export class AnimTimeline {
    * @group Structure
    */
   get numSequences(): number { return this.animSequences.length; }
+
+  getHierarchy(): AnimTimelineHierarchy {
+    return {
+      root: this,
+      sequences: this.animSequences,
+      numSequences: this.animSequences.length,
+    };
+  }
+
   private loadedSeqIndex = 0; // index into animSequences
   // CHANGE NOTE: AnimTimeline now stores references to in-progress sequences and also does not act directly on individual animations
   private inProgressSequences: Map<number, AnimSequence> = new Map();
@@ -594,8 +624,10 @@ export class AnimTimeline {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.addSequences.name); }
 
     const [sequences, loc] = (locationOrSequences instanceof Array)
-      ? [locationOrSequences, undefined]
-      : [animSequences, locationOrSequences];
+    ? [locationOrSequences, undefined]
+    : [animSequences, locationOrSequences];
+    
+    if (sequences.length === 0) { return this; }
 
     for(const animSequence of sequences) {
       if (!(animSequence instanceof AnimSequence)) {
@@ -618,9 +650,11 @@ export class AnimTimeline {
     
     if (loc) {
       this.animSequences.splice(loc.atIndex, 0, ...sequences);
+      this.webchalkTimelineEl?.insertSequences(loc.atIndex, sequences, this.animSequences);
     }
     else {
       this.animSequences.push(...sequences);
+      this.webchalkTimelineEl?.insertSequences(this.animSequences.length - sequences.length, sequences, this.animSequences);
     }
 
     // no need to worry about backward button because it's impossible to reach or leave index 0 by adding sequences
@@ -713,6 +747,21 @@ export class AnimTimeline {
    */
   findSequenceIndex(animSequence: AnimSequence): number {
     return this.animSequences.findIndex((_animSequence) => _animSequence === animSequence);
+  }
+    
+  /*-:**************************************************************************************************************************/
+  /*-:**************************************        USER INTERFACE        ******************************************************/
+  /*-:**************************************************************************************************************************/
+  webchalkTimelineEl?: WebchalkTimelinePaneElement;
+  get uiAttached(): boolean { return this.webchalkTimelineEl ? true : false; }
+
+  /** @internal */
+  attachUI() {
+    // TODO: improve error message
+    if (this.uiAttached) { throw new Error('AnimTimeline UI already attached'); }
+    this.webchalkTimelineEl = new WebchalkTimelinePaneElement();
+    document.documentElement.querySelector('body')?.insertAdjacentElement('beforeend', this.webchalkTimelineEl);
+    this.webchalkTimelineEl.readTimeline(this);
   }
 
   /*-:**************************************************************************************************************************/
