@@ -100,6 +100,8 @@ export class WebchalkSequenceElement extends HTMLElement {
   }
 
   insertClips(insertionIndex: number, newClips: AnimClip[], allClips: AnimClip[]) {
+    if (newClips.length === 0) { return; }
+
     const sequenceClips = this.shadowRoot!.querySelector('.sequence__clips') as HTMLElement;
 
     // clip elements will be made for any clips that don't have ui attached
