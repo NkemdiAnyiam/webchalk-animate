@@ -875,14 +875,14 @@ export class AnimSequence {
 
       for (let j = groupingLength - 2; j >= 0; --j) {
         const currAnimClip = grouping[j];
-        const nextAnimClip = grouping[j + 1];
-        // if the current clip intersects the next clip, wait for that intersection time
-        if (currAnimClip.fullFinishTime > nextAnimClip.fullStartTime) {
-          await nextAnimClip.generatePromise('backward', 'whole', currAnimClip.fullFinishTime - nextAnimClip.fullStartTime);
-        }
-        // otherwise, wait for the next clip to finish rewinding entirely
-        else {
-          await nextAnimClip.generatePromise('backward', 'delayPhase', 'beginning');
+        // Traverse back up the grouping until finding a clip that the current clip intersects with (one MUST exist).
+        // Upon finding such a clip, wait for that intersection time and then rewind the current clip.
+        for (let k = j + 1; k < groupingLength; ++k) {
+          let intersectingClip = grouping[k];
+          if (currAnimClip.fullFinishTime >= intersectingClip.fullStartTime) {
+            await intersectingClip.generatePromise('backward', 'whole', currAnimClip.fullFinishTime - intersectingClip.fullStartTime);
+            break;
+          }
         }
 
         // once waiting period above is over, begin rewinding current clip
