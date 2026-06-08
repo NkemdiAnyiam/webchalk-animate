@@ -539,7 +539,7 @@ export class AnimSequence {
 
     this._parentTimeline = timeline;
     for (const animClip of this.animClips) {
-      animClip.setLineage(this, this._parentTimeline);
+      animClip.setLineage('timeline', this);
     }
 
     return true;
@@ -552,6 +552,10 @@ export class AnimSequence {
    */
   removeLineage(): this {
     this._parentTimeline = undefined;
+    for (const clip of this.animClips) {
+      clip.removeLineage('timeline');
+    }
+
     return this;
   }
 
@@ -591,10 +595,10 @@ export class AnimSequence {
         throw this.generateError(CustomErrorClasses.InvalidChildError, `At least one of the clips being added is already part of some sequence.`);
       }
       
-      if (!animClip.setLineage(this, this._parentTimeline)) {
+      if (!animClip.setLineage('sequence', this)) {
         // if setting lineage fails, undo setting lineage on previous clips attempting to be added
         for (let j = 0; j < i; ++j) {
-          clips[j].removeLineage();
+          clips[j].removeLineage('sequence');
         }
         throw new CustomErrorClasses.InvalidChildError(`At least one of the clips being added appears in the given array multiple times.`);
       };
@@ -642,7 +646,7 @@ export class AnimSequence {
     
     // confirm deletion
     for (let i = 0; i < removedClips.length; ++i) {
-      removedClips[i].removeLineage();
+      removedClips[i].removeLineage('sequence');
     }
 
     this.animClips = animClipsCopy;
@@ -668,7 +672,7 @@ export class AnimSequence {
 
     // confirm deletion
     for (let i = 0; i < removedClips.length; ++i) {
-      removedClips[i].removeLineage();
+      removedClips[i].removeLineage('sequence');
     }
 
     this.animClips = animClipsCopy;

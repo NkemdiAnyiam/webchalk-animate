@@ -844,13 +844,19 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
    * Used by a parent to set pointers to itself (the parent) within the clip.
    * @internal
    */
-  setLineage(sequence: AnimSequence, timeline: AnimTimeline | undefined): boolean {
-    if (this._parentSequence) {
-      return false;
+  setLineage(level: 'sequence' | 'timeline', sequence: AnimSequence): boolean {
+    switch(level) {
+      case "sequence":
+        if (this._parentSequence) { return false; }
+        this._parentSequence = sequence;
+        this._parentTimeline = sequence.getHierarchy().parentTimeline;
+        break;
+      case "timeline":
+        this._parentTimeline = sequence._parentTimeline;
+        break;
+      default: this.generateError(RangeError, `Invalid level "${level}". Must be "sequence" or "timeline"`);
     }
 
-    this._parentSequence = sequence;
-    this._parentTimeline = timeline;
     return true;
   }
 
@@ -858,9 +864,18 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
    * Used by a parent to remove pointers to itself (the parent) within the clip.
    * @internal
    */
-  removeLineage(): this {
-    this._parentSequence = undefined;
-    this._parentTimeline = undefined;
+  removeLineage(level: 'sequence' | 'timeline'): this {
+    switch(level) {
+      case "sequence":
+        this._parentSequence = undefined;
+        this._parentTimeline = undefined;
+        break;
+      case "timeline":
+        this._parentTimeline = undefined
+        break;
+      default: this.generateError(RangeError, `Invalid level "${level}". Must be "sequence" or "timeline"`);
+    }
+    
     return this;
   }
 
