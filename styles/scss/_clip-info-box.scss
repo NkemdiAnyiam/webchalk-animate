@@ -8,6 +8,14 @@
   @include category-color(exit);
 }
 
+.clip-info-box--motion {
+  @include category-color(motion);
+}
+
+.clip-info-box--text-editor {
+  @include category-color(text-editor);
+}
+
 .clip-info-box {
   height: 100%;
   background-color: var(--hue-light);
