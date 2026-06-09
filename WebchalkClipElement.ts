@@ -4,6 +4,7 @@ import { AnimClip } from './src/1_playbackStructures/AnimationClip';
 import { TBA_DURATION } from './src/4_utils/helpers';
 import { EffectCategory } from './src/4_utils/interfaces';
 import { WebchalkSequenceElement } from './WebchalkSequenceElement';
+import { WebchalkClipInfoBoxElement } from './WebchalkClipInfoBoxElement';
 
 const str = fs.readFileSync('./htmlComponents/clip.html', 'utf-8');
 
@@ -27,6 +28,8 @@ export class WebchalkClipElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-clip', WebchalkClipElement); }
 
   private parentWebchalkSequenceEl: WebchalkSequenceElement | undefined;
+  private infoBoxShown = false;
+  private category: EffectCategory = '' as EffectCategory; // TODO: incorporate better
   
   constructor() {
     super();
@@ -40,6 +43,8 @@ export class WebchalkClipElement extends HTMLElement {
     template.innerHTML = htmlString;
     const element = template.content.cloneNode(true);
     shadow.append(element);
+
+    this.attachInfoButtonHandler();
   }
 
   readClip(clip: AnimClip) {
@@ -68,6 +73,7 @@ export class WebchalkClipElement extends HTMLElement {
     const { clipNumber } = clip.getHierarchy();
 
     effectEl.classList.add(`clip__effect--${category.toLowerCase().replaceAll(' ', '-')}`);
+    this.category = category;
     effectEl.style.marginLeft = this.parentWebchalkSequenceEl.msToHemStr(fullStartTime);
 
     delayBarEl.style.width = this.parentWebchalkSequenceEl.msToHemStr(delay);
@@ -97,15 +103,26 @@ export class WebchalkClipElement extends HTMLElement {
     clipNumberEl.textContent = `${clipNumber}.`;
   }
 
-  // infoButton.addEventListener('click', () => {
-  //   const queriedInfoBox = document.querySelector('.clip-info-box');
-  //   if (queriedInfoBox) {
-  //     detachClipInfoBoxResizer?.();
-  //     queriedInfoBox.remove();
-  //   }
-  //   else {
-  //     document.querySelector('.sequence__schedule-inner-wrapper')!.insertAdjacentElement('afterend', infoBox);
-  //     attachClipInfoBoxResizer(infoBox);
-  //   }
-  // });
+  attachInfoButtonHandler() {
+    const infoButton = this.shadowRoot!.querySelector('.clip__info-button') as HTMLButtonElement;
+    infoButton?.addEventListener('click', this.handleInfoButtonClick);
+  }
+
+  handleInfoButtonClick = (e: PointerEvent) => {
+    if (this.infoBoxShown) {
+      const infoBox = this.shadowRoot!.querySelector('webchalk-clip-info-box') as WebchalkClipInfoBoxElement;
+      infoBox?.remove();
+      this.infoBoxShown = false;
+      this.classList.remove('info-box-shown');
+    }
+    else {
+      const infoBox = new WebchalkClipInfoBoxElement();
+      infoBox.shadowRoot?.querySelector('.clip-info-box')!.classList.add(`clip-info-box--${this.category.toLowerCase().replaceAll(/\s/g, '-')}`);
+      const clipEffect = this.shadowRoot?.querySelector('.clip__effect') as HTMLElement;
+      clipEffect.insertAdjacentElement('afterend', infoBox);
+      this.infoBoxShown = true;
+      this.classList.add('info-box-shown');
+      // webchalk.createAnimationClipFactories().Scroller(this.closest('.sequence__schedule'), '~scroll-self', [infoBox, {scrollableOffset: ['center', '20%']}], {duration: 100}).play();
+    }
+  };
 }

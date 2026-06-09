@@ -10,13 +10,15 @@ hostStyles.replaceSync(/*css*/`
     transition: max-height 0.1s;
     margin-right: hem(-50);
     */
-    grid-area: info-box;
-    position: sticky;
+    /* grid-area: info-box;
+    position: sticky; */
+    position: relative;
     flex-basis: 500px;
+    /* width: 500px; */
     flex-shrink: 0;
     right: 0;
-    top: 0;
-    z-index: 5;
+    top: calc(0.8 * var(--hem));
+    /* z-index: 5; */
     min-width: 230px;
     max-width: 1050px;
   }
@@ -64,10 +66,26 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
     // prevent selection in order to prevent other annoying dragging issues
     infoBox.classList.add('user-select-none');
 
-    const handleDrag = (e: MouseEvent) => {
-      // change box width based on mouse movement
-      const x = e.movementX;
-      this.style.flexBasis = `${Number.parseFloat(getComputedStyle(this).flexBasis) - x}px`;
+    let handleDrag: (e: MouseEvent) => void;
+    if (clickTarget.classList.contains('clip-info-box__resizer--width')) {
+      handleDrag = (e: MouseEvent) => {
+        // change box width based on mouse movement
+        const x = e.movementX;
+        this.style.flexBasis = `${Number.parseFloat(getComputedStyle(this).flexBasis) + x}px`;
+      }
+    }
+    else {
+      // const timelineUI = (e.composedPath() as HTMLElement[]).find(target => target.classList?.contains('timeline'))!;
+      // const scheduleEl = (e.composedPath() as HTMLElement[]).find(target => target.classList?.contains('sequence__schedule'))!;
+      const innerWrapperEl = this.shadowRoot?.querySelector('.clip-info-box__inner-wrapper') as HTMLElement;
+      handleDrag = (e: MouseEvent) => {
+        // change box height based on mouse movement
+        const y = e.movementY;
+        // TODO: figure out how fine-tune if including overall scroll or timeline height
+        // timelineUI.style.height = `${Number.parseFloat(getComputedStyle(timelineUI).height) - y}px`;
+        // scheduleEl.scrollTo({top: scheduleEl.scrollTop + y, behavior: 'instant'});
+        innerWrapperEl.style.maxHeight = `${Math.min(Number.parseFloat(getComputedStyle(innerWrapperEl).maxHeight) + y)}px`;
+      }
     }
 
     const handleRelease = () => {

@@ -71,13 +71,17 @@
   display: flex;
 }
 
+.sequence__schedule:has(.info-box-shown) {
+  max-height: clip-based-height-units(12.5) !important;
+}
+
 $schedule-wrapper-scroll-padding: 17.5px;
 
 .sequence__schedule-inner-wrapper {
-  grid-area: wrapper;
+  // grid-area: wrapper;
   position: relative;
-  display: inline-block;
   min-width: 100%;
+  height: 100%;
   flex: 1 0 auto;
   padding-bottom: $schedule-wrapper-scroll-padding;
 
@@ -209,5 +213,5 @@ $schedule-wrapper-scroll-padding: 17.5px;
 /* CLIPS */
 .sequence__clips {
   width: 100%;
-  grid-area: clips;
+  // grid-area: clips;
 }

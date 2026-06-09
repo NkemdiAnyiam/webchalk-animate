@@ -5,7 +5,7 @@
 }
 
 .clip {
-  height: var(--clip-height);
+  min-height: var(--clip-height);
   --clip-bg: white;
   border-top: 1px solid var(--color-gray-darkest);
 
@@ -50,6 +50,7 @@
 /* CLIP EFFECT */
 .clip__effect {
   transition: margin-left 0.1s;
+  height: min-content;
 }
 
 .clip__effect--entrance {
@@ -70,6 +71,8 @@
 
 .clip__length-bars {
   height: hem(2);
+  position: absolute;
+  top: 0;
 
   display: flex;
 }
@@ -99,7 +102,7 @@
 
 /* LABEL */
 .clip__label {
-  position: absolute;
+  position: relative;
   height: hem(2.2);
   width: fit-content;
   top: hem(0.8);
@@ -178,6 +181,7 @@
   align-items: center;
 }
 
+// TODO: add hover/active styling
 .clip__info-button {
   width: 100%;
   height: 100%;
