@@ -11,7 +11,7 @@
 
 .sequence__header {
   background-color: var(--color-gray-darkest);
-  padding: hem(1) calc(hem(2) + 4px); // extra 4px to account for timeline header border
+  padding: hem(1) hem(2);
   color: var(--color-gray-lightest);
 
   display: flex;
