@@ -4,13 +4,18 @@
 /* SEQUENCE */
 .sequence {
   width: 100%;
-  // background-color: lightgray;
   background-color: var(--color-gray-darkest);
-  // height: 100%;
+}
+
+:host(.error) {
+  .sequence {
+    background-color: var(--color-error-dark);
+  }
 }
 
 .sequence__header {
-  background-color: var(--color-gray-darkest);
+  // background-color: var(--color-gray-darkest);
+  background-color: inherit;
   padding: hem(1) hem(2);
   color: var(--color-gray-lightest);
 
@@ -30,7 +35,8 @@
 
 /* SEQUENCE CONTROLS */
 .sequence__controls-container {
-  background-color: var(--color-gray-darkest);
+  // background-color: var(--color-gray-darkest);
+  background-color: inherit;
   padding-left: $sequence-left-side-width;
   // border-bottom: 1px dashed #f7f7f788;
 }
@@ -67,6 +73,7 @@
   overscroll-behavior: contain;
   max-height: clip-based-height-units(7.5);
   transition: max-height 0.1s;
+  background-color: inherit;
 
   display: flex;
 }
@@ -83,7 +90,8 @@ $schedule-wrapper-scroll-padding: 17.5px;
   min-width: 100%;
   height: 100%;
   flex: 1 0 auto;
-  padding-bottom: $schedule-wrapper-scroll-padding;
+  padding-bottom: $schedule-wrapper-scroll-padding; // TODO: move to .sequence__clips?
+  background-color: inherit;
 
   display: inline-block;
 }
@@ -94,6 +102,7 @@ $schedule-wrapper-scroll-padding: 17.5px;
   top: 0;
   z-index: $z--schedule-header;
   grid-area: header;
+  background-color: inherit;
 
   display: grid;
   grid-template-areas:
@@ -105,7 +114,8 @@ $schedule-wrapper-scroll-padding: 17.5px;
 .sequence__schedule-header-pad {
   grid-area: pad;
   width: $sequence-left-side-width;
-  background-color: var(--color-gray-darkest);
+  // background-color: var(--color-gray-darkest);
+  background-color: inherit;
   position: sticky;
   left: 0;
   z-index: $z--schedule-header-padding;
@@ -113,7 +123,8 @@ $schedule-wrapper-scroll-padding: 17.5px;
 
 .sequence__schedule-times {
   grid-area: times;
-  background-color: var(--color-gray-darkest);
+  // background-color: var(--color-gray-darkest);
+  background-color: inherit;
   color: var(--color-gray-lightest);
   font-family: var(--font-code-family);
   padding: hem(0.5) 0;

@@ -47,6 +47,13 @@
   }
 }
 
+:host(.error) {
+  .clip__body,
+  .clip__header {
+    background-color: var(--color-error-light);
+  }
+}
+
 /* CLIP EFFECT */
 .clip__effect {
   transition: margin-left 0.1s;

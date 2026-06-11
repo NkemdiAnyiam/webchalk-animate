@@ -3,6 +3,10 @@ import { stylesheet } from './componentStyleString';
 import { AnimTimeline } from './src/1_playbackStructures/AnimationTimeline';
 import { AnimSequence } from './src/1_playbackStructures/AnimationSequence';
 
+/** @ts-ignore */
+// TODO: figure out how to properly fix the implicit any error
+import { hljs } from './src/4_utils/highlightjs/index.js';
+
 const str = fs.readFileSync('./htmlComponents/timeline-pane.html', 'utf-8');
 
 export function hem(numHem: number): string {
@@ -26,6 +30,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     shadow.append(element);
 
     this.attachTimelineUIResizer();
+    this.attachErrorPanelResizer();
   }
 
   insertSequences(insertionIndex: number, newSequences: AnimSequence[], allSequences: AnimSequence[]) {
@@ -74,6 +79,15 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     timelineEl.querySelector('.timeline__name')!.textContent = timeline.getConfig().timelineName;
 
     this.insertSequences(0, timeline.getHierarchy().sequences, timeline.getHierarchy().sequences);
+
+    // Use highlight.js directly on each code element since highlight.js cannot see the shadow dom by default.
+    const codeEls = [...this.shadowRoot!.querySelectorAll('pre code')];
+    for (let i = 0; i < codeEls.length; ++i) {
+      const codeEl = codeEls[i];
+      codeEl.textContent = codeEl.textContent.replace(/^\s*\n/, '');
+      codeEl.textContent = codeEl.textContent.replace(/\n\s*$/, '');
+      hljs.highlightElement(codeEl);
+    }
   }
 
   attachTimelineUIResizer() {
@@ -110,5 +124,41 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     };
 
     timelineUI.addEventListener('mousedown', handleClick);
+  }
+
+  attachErrorPanelResizer() {
+    const errorPanel = this.shadowRoot?.querySelector('.timeline__error-panel') as HTMLDivElement;
+
+    const handleClick = (e: MouseEvent) => {
+      const errorPanelResizer = (e.target as HTMLElement);
+      // only do process if resizer was clicked
+      if (!errorPanelResizer.classList.contains('timeline__error-panel-resizer')) { return; }
+
+      // unhighlight all text to prevent annoying dragging issues
+      document.getSelection()?.removeAllRanges();
+      // prevent selection in order to prevent other annoying dragging issues
+      errorPanel.classList.add('user-select-none');
+
+      const handleDrag = (e: MouseEvent) => {
+        // change panel width based on mouse movement
+        const x = e.movementX;
+        errorPanel.style.width = `${Number.parseFloat(getComputedStyle(errorPanel).width) - x}px`;
+      }
+
+      const handleRelease = (e: MouseEvent) => {
+        // remove all event listeners
+        errorPanel.classList.remove('user-select-none');
+        window.removeEventListener('mousemove', handleDrag);
+        window.removeEventListener('mouseup', handleRelease);
+        window.removeEventListener('mouseleave', handleRelease);
+      }
+
+      // add listeners for handling drag and release to window
+      window.addEventListener('mousemove', handleDrag);
+      window.addEventListener('mouseup', handleRelease);
+      window.addEventListener('mouseleave', handleRelease);
+    };
+
+    errorPanel.addEventListener('mousedown', handleClick);
   }
 }

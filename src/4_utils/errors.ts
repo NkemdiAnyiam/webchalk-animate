@@ -229,6 +229,17 @@ export const errorTip = (tip: string) => {
  */
 export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg = '<unspecified error>', components = {}) => {
   const {timeline, sequence, clip, element} = components;
+  if (timeline?.webchalkTimelineEl) {
+    // TODO: set directly on timeline structure instead of timeline UI element so that it can be reflected in a late-generated UI
+    timeline.webchalkTimelineEl.classList.add('error');
+  }
+  if (sequence?.webchalkSequenceEl) {
+    sequence.webchalkSequenceEl.classList.add('error');
+  }
+  if (clip?.webchalkClipEl) {
+    clip.webchalkClipEl.classList.add('error');
+  }
+
   const locationPostfix = (
     `\n\n${'-'.repeat(25)}LOCATION${'-'.repeat(25)}` +
     (timeline
@@ -252,6 +263,7 @@ export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg =
     ) +
     `\n${'-'.repeat(58)}`
   );
+  
   if (ErrorClassOrInstance instanceof Error) {
     /** @ts-ignore */
     return (new ErrorClassOrInstance.constructor(ErrorClassOrInstance.message + locationPostfix, {cause: ErrorClassOrInstance}));

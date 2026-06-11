@@ -881,6 +881,7 @@ export class AnimTimeline {
     return autorewindPrevious;
   }
 
+  // TODO: prevent all button interactions and playback operations when error is present
   // pauses or unpauses playback
   /**
    * Pauses the animation timeline if it is unpaused or unpauses it if it is currently paused.

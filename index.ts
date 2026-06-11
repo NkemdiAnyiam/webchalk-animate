@@ -31,15 +31,15 @@ const timeline = webchalk.newTimeline({timelineName: 'Main'});
 const seq1 = webchalk.newSequence(
   {description: 'Move the thingamabob to the other element, demonstrating how doing things in an orderly manner accomplishes some cool example.'},
   [
-  // Exit(redSquare, '~fade-out', [], {duration: 1000}),
-]);
-seq1.addClips([
-  Entrance(redSquare, '~pinwheel', [1], {duration: 500, description: 'Enter red square', hideNowType: 'display-none'},),
-  Motion(redSquare, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move red square'}),
-  Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000}),
-  TextEditor(redSquare, '~insert-text', ['HELLO WORLD! To what do I owe you all the pleasure?'],
-    {durationOrRate: '300wpm', startsWithPrevious: true, description: 'Insert text', delay: 1000}
-  ),
+  ]);
+  seq1.addClips([
+    Motion(redSquare, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move red square'}),
+    Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000}),
+    Entrance(redSquare, '~pinwheel', [1], {duration: 500, description: 'Enter red square'},),
+    Exit(redSquare, '~fade-out', [], {duration: 1000}),
+    TextEditor(redSquare, '~insert-text', ['HELLO WORLD! To what do I owe you all the pleasure?'],
+      {durationOrRate: '300wpm', startsWithPrevious: true, description: 'Insert text', delay: 1000}
+    ),
   Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000}),
   Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000}),
   Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: false, description: 'Move blue circle', delay: 1000}),
@@ -48,14 +48,14 @@ seq1.addClips([
 ]);
 timeline.addSequences([seq1]);
 
-// const seq2 = webchalk.newSequence();
-// seq2.addClips([
-//   Motion(blueCircle, '~translate', [{translate: '200px 200px'}], {duration: 1000}),
-//   Motion(blueCircle, '~translate', [{translate: '200px 0'}], {duration: 1000}),
-//   TextEditor(blueCircle, '~insert-text', ['HELLO WORLD! To what do I owe you all the pleasure?'], {durationOrRate: '300wpm', startsWithPrevious: true}),
-//   Exit(blueCircle, '~fade-out', []),
-// ]);
-// timeline.addSequences([seq2]);
+const seq2 = webchalk.newSequence();
+seq2.addClips([
+  Motion(blueCircle, '~translate', [{translate: '200px 200px'}], {duration: 1000}),
+  Motion(blueCircle, '~translate', [{translate: '200px 0'}], {duration: 1000}),
+  TextEditor(blueCircle, '~insert-text', ['HELLO WORLD! To what do I owe you all the pleasure?'], {durationOrRate: '300wpm', startsWithPrevious: true}),
+  Exit(blueCircle, '~fade-out', []),
+]);
+timeline.addSequences([seq2]);
 
 timeline.attachUI();
 
