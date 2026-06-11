@@ -6,6 +6,7 @@ import { AnimSequence } from './src/1_playbackStructures/AnimationSequence';
 /** @ts-ignore */
 // TODO: figure out how to properly fix the implicit any error
 import { hljs } from './src/4_utils/highlightjs/index.js';
+import { dedent } from './src/4_utils/helpers';
 
 const str = fs.readFileSync('./htmlComponents/timeline-pane.html', 'utf-8');
 
@@ -86,6 +87,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       const codeEl = codeEls[i];
       codeEl.textContent = codeEl.textContent.replace(/^\s*\n/, '');
       codeEl.textContent = codeEl.textContent.replace(/\n\s*$/, '');
+      codeEl.textContent = dedent(codeEl.textContent);
       hljs.highlightElement(codeEl);
     }
   }
