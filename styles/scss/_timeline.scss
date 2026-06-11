@@ -185,6 +185,10 @@
   display: inline-block;
 }
 
+.timeline__error-panel code {
+  background-color: #221212;
+}
+
 @container timeline-ui (min-height: 0px)   { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(1.0); } } }
 @container timeline-ui (min-height: 220px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(1.5); } } }
 @container timeline-ui (min-height: 255px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(2.5); } } }
