@@ -204,25 +204,25 @@ export class EntranceClip<TPresetEffectDefinition extends PresetEffectDefinition
       const { display, visibility } = getComputedStyle(this.domElem);
       let str = ``;
       if (display === 'none') {
-        str = `The element being entered is hidden with CSS 'display: none', but it was not using the class "webchalk-display-none".` +
+        str = `The element being entered is hidden with CSS {display: none;}, but it was not using the class "webchalk-display-none".` +
         ` An element needs to be unrendered using the class "webchalk-display-none" in order for Entrance() to act on it.`;
       }
       else if (visibility === 'hidden') {
-        str = `The element being entered is hidden with CSS 'visibility: hidden', but it was not using the class "webchalk-visibility-hidden".` +
+        str = `The element being entered is hidden with CSS {visibility: hidden;}, but it was not using the class "webchalk-visibility-hidden".` +
         ` An element needs to be unrendered using the class "webchalk-visibility-hidden" in order for Entrance() to act on it.`;
       }
       else {
         str = `Entrance() can only play on elements that are already hidden, but this element was not hidden.` +
-        ` To hide an element, you can 1) use the 'hideNowType' config option to immediately hide the element from the very start,` +
-        ` 2) hide it with Exit() before the Entrance() animation runs, or` +
+        ` To hide an element, you can do one of the following: 1) use the {hideNowType} config option to immediately hide the element from the very start;` +
+        ` 2) hide the element with Exit() before the Entrance() animation runs;` +
         ` 3) manually add either "webchalk-display-none" or "webchalk-visibility-hidden" to its CSS class list in the HTML.`;
       }
       throw this.generateError(CustomErrorClasses.InvalidEntranceAttempt,
         str +
         `${errorTip(
-          `Tip: Adding "webchalk-display-none" to an element's CSS class list applies a 'display: none' CSS style, which completely unrenders an element.` +
-          ` "webchalk-visibility-hidden" applies a 'visibility: hidden' CSS style, which just makes the element invisible while still taking up space.` +
-          ` When using 'exitType' with Exit() or 'hideNowType' with Entrance(), you may set the config options to "display-none" (the default for exitType)` +
+          `Tip: Adding "webchalk-display-none" to an element's CSS class list applies a {display: none;} CSS style, which completely unrenders an element.` +
+          ` Adding "webchalk-visibility-hidden" applies a {visibility: hidden;} CSS style, which just makes the element invisible while still taking up space.` +
+          ` When using {exitType} with Exit() or {hideNowType} with Entrance(), you may set the config options to "display-none" (the default for exitType)` +
           ` or "visibility-hidden", but behind the scenes, this just determines whether to add` +
           ` the class "webchalk-display-none" or the class "webchalk-visibility-hidden".`
         )}`
