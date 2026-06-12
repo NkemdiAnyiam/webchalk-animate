@@ -5,11 +5,16 @@
 .sequence {
   width: 100%;
   background-color: var(--color-gray-darkest);
+
+  --color-glow-light: var(--color-glow-blue-light);
+  --color-glow: var(--color-glow-blue);
 }
 
 :host(.error) {
   .sequence {
     background-color: var(--color-error-dark);
+    --color-glow-light: var(--color-glow-error-light);
+    --color-glow: var(--color-glow-error);
   }
 }
 
@@ -145,8 +150,8 @@ $schedule-wrapper-scroll-padding: 17.5px;
 .sequence__playhead-trail {
   position: absolute;
   top: 0;
-  background-color: #70efef;
-  box-shadow: inset 0 0 5px var(--color-glow-blue);
+  background-color: var(--color-glow-light);
+  box-shadow: inset 0 0 5px var(--color-glow);
   height: 100%;
   // width: hem(22.5); // only for initial mockup
 }
@@ -154,7 +159,7 @@ $schedule-wrapper-scroll-padding: 17.5px;
 .sequence__playhead {
   pointer-events: none;
   width: 0;
-  border-left: hem(0.2) dashed var(--color-glow-blue);
+  border-left: hem(0.2) dashed var(--color-glow-light);
   // left: $sequence-left-side-width; // accounts for clip header width
   position: sticky;
   top: hem(0);
@@ -170,9 +175,9 @@ $schedule-wrapper-scroll-padding: 17.5px;
     left: hem(-0.2);
     top: 0;
     width: hem(0.2);
-    background-color: #70efef;
+    background-color: var(--color-glow-light);
     opacity: 0.5;
-    box-shadow: inset 0 0 1px var(--color-glow-blue), 0 0 1px 1px #70efef;
+    box-shadow: inset 0 0 1px var(--color-glow), 0 0 1px 1px var(--color-glow-light);
     height: 100%;
   }
 }

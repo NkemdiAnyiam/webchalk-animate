@@ -976,3 +976,54 @@ export function createRootNodeEditStats(infixList: InfixTextNodeList, operation:
 }
 
 export function generateId(): string { return Math.random().toString(20).substring(2, 32) + String(Date.now()); }
+
+export function createCodeEl(codeString: string, codeType: 'ts' | 'css' | 'html', presentation: 'inline' | 'block' = 'inline'): HTMLPreElement {
+  let highlightCodeEnd = '';
+  switch(codeType) {
+    case "ts": highlightCodeEnd = 'typescript'; break;
+    case "css": highlightCodeEnd = 'scss'; break;
+    case "html": highlightCodeEnd = 'html'; break;
+    default: throw new RangeError(`Invalid code type "${codeType}". Must be "ts", "css", or "html".`);
+  }
+
+  const code = createElFromString<HTMLPreElement>(`<pre class="pre ${presentation === 'inline' ? 'pre--inline' : 'pre--block'}"><code class="code language-${highlightCodeEnd}">${codeString}</code></pre>`);
+
+  return code;
+}
+
+export function createUListEl(items: (string | HTMLElement)[][]): HTMLUListElement {
+  const ulEl = createElFromString<HTMLUListElement>(`<ul></ul>`);
+  for (const item of items) {
+    const liEl = createElFromString<HTMLLIElement>(`<li></li>`);
+
+    for (const thing of item) {
+      liEl.appendChild(typeof thing === 'string' ? new Text(thing) : thing);
+    }
+
+    ulEl.appendChild(liEl);
+  }
+
+  return ulEl;
+}
+
+export function createDetailsEl(summaryText: string, body: string | HTMLElement): HTMLDetailsElement {
+  const detailsEl = createElFromString<HTMLDetailsElement>(`<details></details>`);
+  const summaryEl = createElFromString(`<summary>${summaryText}</summary>`);
+  
+  detailsEl.appendChild(summaryEl);
+  detailsEl.appendChild(typeof body === 'string' ? new Text(body) : body);
+
+  return detailsEl;
+}
+
+export function fragment(arr: (string | HTMLElement)[]): DocumentFragment {
+  const frag = new DocumentFragment();
+
+  for (const thing of arr) {
+    frag.appendChild(typeof thing === 'string' ? new Text(thing) : thing);
+  }
+
+  frag.normalize();
+
+  return frag;
+}

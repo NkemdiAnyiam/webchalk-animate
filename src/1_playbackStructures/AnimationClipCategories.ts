@@ -1,6 +1,6 @@
 import { AnimClip, AnimClipConfig, AnimClipModifiers, AnimClipTiming } from "./AnimationClip";
 import { CustomErrorClasses, errorTip } from "../4_utils/errors";
-import { getPartial, parseMultiUnitPlacement, TBA_DURATION } from "../4_utils/helpers";
+import { createCodeEl, createDetailsEl, fragment, getPartial, parseMultiUnitPlacement, TBA_DURATION, createUListEl } from "../4_utils/helpers";
 import { Webchalk } from "../Webchalk";
 import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement, RootNodeEditStats, TextEditRate } from "../4_utils/interfaces";
 import { PickFromArray } from "../4_utils/utilityTypes";
@@ -203,29 +203,92 @@ export class EntranceClip<TPresetEffectDefinition extends PresetEffectDefinition
       // getComputedStyle() for a child element
       const { display, visibility } = getComputedStyle(this.domElem);
       let str = ``;
+      const frags: [description: DocumentFragment, tips?: DocumentFragment, location?: DocumentFragment] = [new DocumentFragment()];
       if (display === 'none') {
         str = `The element being entered is hidden with CSS {display: none;}, but it was not using the class "webchalk-display-none".` +
         ` An element needs to be unrendered using the class "webchalk-display-none" in order for Entrance() to act on it.`;
+        frags[0] = fragment([
+          `The element being entered is hidden with CSS `, createCodeEl(`{display: none;}`, 'css'), `, but it was not using the class `, createCodeEl("webchalk-display-none", 'ts'),
+        `. An element needs to be unrendered using the class `, createCodeEl(`"webchalk-display-none"`, 'ts'), ` in order for`, createCodeEl(`Entrance()`, 'ts'), ` to act on it.`
+        ]);
       }
       else if (visibility === 'hidden') {
         str = `The element being entered is hidden with CSS {visibility: hidden;}, but it was not using the class "webchalk-visibility-hidden".` +
         ` An element needs to be unrendered using the class "webchalk-visibility-hidden" in order for Entrance() to act on it.`;
+        frags[0] = fragment([
+          `The element being entered is hidden with CSS `, createCodeEl(`{visibility: hidden;}`, 'css'), `, but it was not using the class `,
+          createCodeEl(`"webchalk-visibility-hidden"`, 'ts'), `. An element needs to be unrendered using the class `, createCodeEl(`"webchalk-visibility-hidden"`, 'css'),
+          ` in order for `, createCodeEl(`Entrance()`, 'ts'), ` to act on it.`
+        ]);
       }
       else {
         str = `Entrance() can only play on elements that are already hidden, but this element was not hidden.` +
-        ` To hide an element, you can do one of the following: 1) use the {hideNowType} config option to immediately hide the element from the very start;` +
-        ` 2) hide the element with Exit() before the Entrance() animation runs;` +
-        ` 3) manually add either "webchalk-display-none" or "webchalk-visibility-hidden" to its CSS class list in the HTML.`;
+        ` To hide an element, you can do one of the following: 1) Use the {hideNowType:} config option to immediately hide the element from the very start;` +
+        ` 2) Hide the element with Exit() before the Entrance() animation runs;` +
+        ` 3) Manually add either "webchalk-display-none" or "webchalk-visibility-hidden" to its CSS class list in the HTML.`;
+        frags[0] = fragment([
+          createCodeEl(`Entrance()`, 'ts'), ` can only play on elements that are already hidden, but this element was not hidden. To hide an element, you can do one of the following:`,
+          createUListEl([
+            [
+              `Use the `, createCodeEl(`{hideNowType:}`, 'ts'), ` config option to immediately hide the element from the very start.`,
+              createDetailsEl(
+                `Example:`,
+                createCodeEl(`
+                  const sequence = webchalk.newSequence([
+                    Entrance(elem, '~fly-in', ['from-left'], {hideNowType: 'display-none'}),
+                  ]);`, 'ts', 'block'
+                )
+              ),
+            ],
+            [
+              `Hide the element with `, createCodeEl(`Exit()`, 'ts'), ` before the `, createCodeEl(`Entrance()`, 'ts'), ` animation runs.`,
+              createDetailsEl(
+                `Example:`,
+                createCodeEl(`
+                  const sequence = webchalk.newSequence([
+                    Exit(elem, '~fade-out', []),
+                    Entrance(elem, '~fly-in', ['from-left']),
+                  ]);`, 'ts', 'block'
+                )
+              ),
+            ],
+            [
+              `Manually add either `, createCodeEl(`"webchalk-display-none"`, 'ts'), ` or `, createCodeEl(`"webchalk-visibility-hidden"`, 'ts'), ` to its CSS class list in the HTML.`,
+              createDetailsEl(
+                `Example:`,
+                createCodeEl(`&lt;div class="some-class another-class webchalk-display-none"&gt;...&lt;/div&gt;`, 'html', 'block')
+              ),
+            ],
+          ])
+        ]);
       }
+
+      frags[1] = fragment([
+        createDetailsEl(`Tips:`, createUListEl([
+          [
+            `Adding `, createCodeEl(`"webchalk-display-none"`, 'ts'), ` to an element's CSS class list applies a `, createCodeEl(`{display: none;}`, 'css'),
+            ` CSS style, which completely unrenders an element.`
+          ],
+          [
+            `Adding `, createCodeEl(`"webchalk-visibility-hidden"`, 'ts'), ` to an element's CSS class list applies a `, createCodeEl(`{visibility: hidden;}`, 'css'),
+            ` CSS style, which just makes the element invisible while still taking up space.`
+          ],
+          [
+            `When using `, createCodeEl(`{exitType:}`, 'ts'), ` with `, createCodeEl(`Exit()`, 'ts'), ` or `, createCodeEl(`{hideNowType:}`, 'ts'), ` with `, createCodeEl(`Entrance()`, 'ts'), ` you may set the config options to `, createCodeEl(`"display-none"`, 'ts'), ` (the default for `, createCodeEl(`{exitType:}`, 'ts'), `)`,
+            ` or `, createCodeEl(`"visibility-hidden"`, 'ts'), `, but behind the scenes, this just determines whether to add the class `, createCodeEl(`"webchalk-display-none"`, 'ts'),
+            ` or the class `, createCodeEl(`"webchalk-visibility-hidden"`, 'ts'), `.`
+          ]
+        ]))
+      ]);
       throw this.generateError(CustomErrorClasses.InvalidEntranceAttempt,
-        str +
+        [str +
         `${errorTip(
-          `Tip: Adding "webchalk-display-none" to an element's CSS class list applies a {display: none;} CSS style, which completely unrenders an element.` +
-          ` Adding "webchalk-visibility-hidden" applies a {visibility: hidden;} CSS style, which just makes the element invisible while still taking up space.` +
-          ` When using {exitType} with Exit() or {hideNowType} with Entrance(), you may set the config options to "display-none" (the default for exitType)` +
+          `Tips: Adding "webchalk-display-none" to an element's CSS class list applies a {display: none;} CSS style, which completely unrenders an element.` +
+          ` Adding "webchalk-visibility-hidden" to an element's CSS class list applies a {visibility: hidden;} CSS style, which just makes the element invisible while still taking up space.` +
+          ` When using {exitType:} with Exit() or {hideNowType:} with Entrance(), you may set the config options to "display-none" (the default for {exitType:})` +
           ` or "visibility-hidden", but behind the scenes, this just determines whether to add` +
           ` the class "webchalk-display-none" or the class "webchalk-visibility-hidden".`
-        )}`
+        )}`, frags],
       );
     }
   }
@@ -234,7 +297,7 @@ export class EntranceClip<TPresetEffectDefinition extends PresetEffectDefinition
     switch(this.backwardsHidingMethod) {
       case "display-none": this.domElem.classList.add('webchalk-display-none'); break;
       case "visibility-hidden": this.domElem.classList.add('webchalk-visibility-hidden'); break;
-      default: throw this.generateError(Error, `This error should NEVER be reached.`);
+      default: throw this.generateError(Error, [`This error should NEVER be reached.`]);
     }
   }
 }
@@ -393,7 +456,7 @@ export class ExitClip<TPresetEffectDefinition extends PresetEffectDefinition<Exi
 
     const exitType = (effectConfig as ExitClipConfig).exitType ?? this.presetEffectDefinition.defaultConfig?.exitType ?? this.categoryDefaultConfig.exitType!;
     if (exitType !== 'display-none' && exitType !== 'visibility-hidden') {
-      throw this.generateError(RangeError, `Invalid 'exitType' config value "${exitType}". Must be "display-none" or "visibility-hidden".`);
+      throw this.generateError(RangeError, [`Invalid 'exitType' config value "${exitType}". Must be "display-none" or "visibility-hidden".`]);
     }
     this.config.exitType = exitType;
 
@@ -412,10 +475,10 @@ export class ExitClip<TPresetEffectDefinition extends PresetEffectDefinition<Exi
     if (!hidingClassName || !hidden) { return; }
 
     throw this.generateError(CustomErrorClasses.InvalidExitAttempt,
-      `Exit() can only play on elements that are not already hidden. The element here is already hidden by the following:`
+      [`Exit() can only play on elements that are not already hidden. The element here is already hidden by the following:`
       + (hidingClassName ? `\n - Webchalk's CSS hiding class "${hidingClassName}"` : '')
       + ((hidingClassName !== 'webchalk-display-none' && hiddenDisplay) ? `\n - CSS property 'display: none'` : '')
-      + ((hidingClassName !== 'webchalk-visibility-hidden' && hiddenVisibility) ? `\n - CSS property 'visibility: hidden'` : '')
+      + ((hidingClassName !== 'webchalk-visibility-hidden' && hiddenVisibility) ? `\n - CSS property 'visibility: hidden'` : '')]
     );
   }
 
@@ -1003,15 +1066,15 @@ export class ConnectorSetterClip extends AnimClip<PresetEffectDefinition, Connec
     ) {
     super(connectorElem, effectName, presetEffectBank);
 
-    if (!(connectorElem instanceof WebchalkConnectorElement)) { throw this.generateError(CustomErrorClasses.InvalidElementError, `Must pass WebchalkConnectorElement element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
+    if (!(connectorElem instanceof WebchalkConnectorElement)) { throw this.generateError(CustomErrorClasses.InvalidElementError, [`Must pass WebchalkConnectorElement element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`]); }
 
     const pointAElement = pointA[0] === 'preserve' ? connectorElem!.pointA?.[0] : pointA?.[0];
     if (!(pointAElement instanceof Element)) {
-      throw this.generateError(CustomErrorClasses.InvalidElementError, `Point A element must not be null or undefined.`);
+      throw this.generateError(CustomErrorClasses.InvalidElementError, [`Point A element must not be null or undefined.`]);
     }
     const pointBElement = pointB[0] === 'preserve' ? connectorElem?.pointB?.[0] : pointB?.[0];
     if (!(pointBElement instanceof Element)) {
-      throw this.generateError(CustomErrorClasses.InvalidElementError, `Point B element must not be null or undefined.`);
+      throw this.generateError(CustomErrorClasses.InvalidElementError, [`Point B element must not be null or undefined.`]);
     }
 
     this.domElem = connectorElem;
@@ -1196,7 +1259,7 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
   constructor(connectorElem: WebchalkConnectorElement | null | undefined, effectName: string, presetEffectBank: PresetEffectBank) {
     super(connectorElem, effectName, presetEffectBank);
 
-    if (!(connectorElem instanceof WebchalkConnectorElement)) { throw this.generateError(CustomErrorClasses.InvalidElementError, `Must pass ${WebchalkConnectorElement.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
+    if (!(connectorElem instanceof WebchalkConnectorElement)) { throw this.generateError(CustomErrorClasses.InvalidElementError, [`Must pass ${WebchalkConnectorElement.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`]); }
     this.domElem = connectorElem;
   }
 
@@ -1235,12 +1298,12 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
         ` 3) manually add "webchalk-display-none" to its CSS class list in the HTML.`;
       }
       throw this.generateError(CustomErrorClasses.InvalidEntranceAttempt,
-        str +
+        [str +
         `${errorTip(
           `Tip: Adding "webchalk-display-none" to an element's CSS class list applies a 'display: none' CSS style, which completely unrenders an element.` +
           ` When using 'hideNowType' with ConnectorEntrance(), you may set the config option to "display-none",` +
           ` but behind the scenes, this just determines whether to adds the class "webchalk-display-none".`
-        )}`
+        )}`]
       );
     }
 
@@ -1352,7 +1415,7 @@ export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefin
   constructor(connectorElem: WebchalkConnectorElement | null | undefined, effectName: string, presetEffectBank: PresetEffectBank) {
     super(connectorElem, effectName, presetEffectBank);
 
-    if (!(connectorElem instanceof WebchalkConnectorElement)) { throw this.generateError(CustomErrorClasses.InvalidElementError, `Must pass ${WebchalkConnectorElement.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`); }
+    if (!(connectorElem instanceof WebchalkConnectorElement)) { throw this.generateError(CustomErrorClasses.InvalidElementError, [`Must pass ${WebchalkConnectorElement.name} element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`]); }
 
     this.domElem = connectorElem;
   }
@@ -1369,10 +1432,10 @@ export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefin
     if (!hidingClassName || !hidden) { return; }
 
     throw this.generateError(CustomErrorClasses.InvalidExitAttempt,
-      `ConnectorExit() can only play on elements that are not already hidden. The connector here is already hidden by the following:`
+      [`ConnectorExit() can only play on elements that are not already hidden. The connector here is already hidden by the following:`
       + (hidingClassName ? `\n - Webchalk's CSS hiding class "${hidingClassName}"` : '')
       + ((hidingClassName !== 'webchalk-display-none' && hiddenDisplay) ? `\n - CSS property 'display: none'` : '')
-      + ((hidingClassName !== 'webchalk-visibility-hidden' && hiddenVisibility) ? `\n - CSS property 'visibility: hidden'` : '')
+      + ((hidingClassName !== 'webchalk-visibility-hidden' && hiddenVisibility) ? `\n - CSS property 'visibility: hidden'` : '')]
     );
   }
 

@@ -6,6 +6,11 @@
   --color-gray-darkest: #121213;
   --color-primary-blue: #04448E;
   --color-glow-blue: #039BE5;
+  --color-glow-blue-light: #70efef;
+  // --color-glow-error: #e50395;
+  --color-glow-error: var(--color-error-dark);
+  // --color-glow-error-light: #ff90ff;
+  --color-glow-error-light: var(--color-error-light);
   --color-gray: #4E4E4E;
   --color-gray-light: #E0E0E0;
   --color-gray-lighter: #ECECEC;
@@ -69,6 +74,9 @@
   .timeline__header {
     border-bottom-color: var(--color-error-darkest);
   }
+  .timeline__error-panel {
+    display: block;
+  }
 }
 
 .timeline__resizer {
@@ -125,6 +133,8 @@
   line-height: 1.5;
   color: var(--color-error-light);
   overflow-y: auto;
+
+  display: none;
 }
 
 .timeline__error-panel-resizer {
@@ -163,6 +173,24 @@
   display: flex;
   flex-direction: column;
   gap: hem(1.5);
+}
+
+// TODO: really similar to clip info box styling. might do something to keep it DRY
+.timeline__error-panel-section {
+	display: flex;
+	flex-direction: column;
+	gap: calc(0.5 * var(--hem));
+}
+
+.timeline__error-panel-subheading {
+	background-color: var(--color-error-darkest);
+	color: var(--hue-light);
+	font-weight: 600;
+	padding: calc(0.5 * var(--hem)) calc(0.8 * var(--hem));
+}
+
+.timeline__error-panel-section-body {
+
 }
 
 .timeline__error-panel ul {

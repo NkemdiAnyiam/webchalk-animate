@@ -2,7 +2,7 @@ import { AnimClip } from "../1_playbackStructures/AnimationClip";
 import { AnimSequence } from "../1_playbackStructures/AnimationSequence";
 import { AnimTimeline } from "../1_playbackStructures/AnimationTimeline";
 import { ExtendableBankCategory } from "../2_animationEffects/presetEffectCreation";
-import { getOpeningTag, indexToOrdinal } from "./helpers";
+import { createElFromString, fragment, getOpeningTag, indexToOrdinal } from "./helpers";
 import { DOMElement } from "./interfaces";
 
 /**
@@ -22,7 +22,7 @@ export type ClipErrorGenerator = {
     /** The Error class that will be instantiated. */
     ErrorClass: new (message: string) => TError,
     /** The error message that will appear before the location information. */
-    msg: string,
+    msg: [logMsg: string, uiMsgFrags?: [description: DocumentFragment, tips?: DocumentFragment, location?: DocumentFragment]],
     /**
      * An element used to explicitly set the DOM element in the edge case where the error occurs in the clip's constructor
      * (where the field containing the DOM element is not yet set).
@@ -48,7 +48,7 @@ export type SequenceErrorGenerator = {
     /** The Error class that will be instantiated. */
     ErrorClass: new (message: string) => TError,
     /** The error message that will appear before the location information. */
-    msg: string
+    msg: [logMsg: string, uiMsgFrags?: [description: DocumentFragment, tips?: DocumentFragment, location?: DocumentFragment]]
   ): TError;
 };
 
@@ -68,7 +68,7 @@ export type TimelineErrorGenerator = {
     /** The Error class that will be instantiated. */
     ErrorClass: new (message: string) => TError,
     /** The error message that will appear before the location information. */
-    msg: string
+    msg: [logMsg: string, uiMsgFrags?: [description: DocumentFragment, tips?: DocumentFragment, location?: DocumentFragment]]
   ): TError;
 };
 
@@ -81,7 +81,7 @@ export type GeneralErrorGenerator = {
     /** The Error instance (or Error class to be instantiated) to be thrown. */
     ErrorClassOrInstance: TError | (new (message: string) => TError),
     /** The error message describing the issue. */
-    msg: string,
+    msg: [logMsg: string, uiMsgFrags?: [description: DocumentFragment, tips?: DocumentFragment, location?: DocumentFragment]],
     components?: {
       /** The {@link AnimTimeline} involved in the error. */
       timeline?: AnimTimeline,
@@ -227,11 +227,12 @@ export const errorTip = (tip: string) => {
  * 
  * @returns An Error containing details about where exactly in the timeline and/or sequence and/or clip the error occurred.
  */
-export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg = '<unspecified error>', components = {}) => {
+export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg = ['<unspecified error>'], components = {}) => {
   const {timeline, sequence, clip, element} = components;
   if (timeline?.webchalkTimelineEl) {
     // TODO: set directly on timeline structure instead of timeline UI element so that it can be reflected in a late-generated UI
     timeline.webchalkTimelineEl.classList.add('error');
+    timeline.webchalkTimelineEl.setErrorPanelContents(ErrorClassOrInstance.name, msg[1] ?? [fragment([`This error does not have a UI render yet. View the browser console to see this error's explanation. To view the console, right-click and select "Inspect", and then navigate the the "Console" tab.`])]);
   }
   if (sequence?.webchalkSequenceEl) {
     sequence.webchalkSequenceEl.classList.add('error');

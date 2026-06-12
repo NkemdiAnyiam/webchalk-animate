@@ -6,7 +6,8 @@ import { AnimSequence } from './src/1_playbackStructures/AnimationSequence';
 /** @ts-ignore */
 // TODO: figure out how to properly fix the implicit any error
 import { hljs } from './src/4_utils/highlightjs/index.js';
-import { dedent } from './src/4_utils/helpers';
+import { createElFromString, dedent } from './src/4_utils/helpers';
+import { DOMElement } from './src/4_utils/interfaces';
 
 const str = fs.readFileSync('./htmlComponents/timeline-pane.html', 'utf-8');
 
@@ -81,15 +82,15 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
 
     this.insertSequences(0, timeline.getHierarchy().sequences, timeline.getHierarchy().sequences);
 
-    // Use highlight.js directly on each code element since highlight.js cannot see the shadow dom by default.
-    const codeEls = [...this.shadowRoot!.querySelectorAll('pre code')];
-    for (let i = 0; i < codeEls.length; ++i) {
-      const codeEl = codeEls[i];
-      codeEl.textContent = codeEl.textContent.replace(/^\s*\n/, '');
-      codeEl.textContent = codeEl.textContent.replace(/\n\s*$/, '');
-      codeEl.textContent = dedent(codeEl.textContent);
-      hljs.highlightElement(codeEl);
-    }
+    // // Use highlight.js directly on each code element since highlight.js cannot see the shadow dom by default.
+    // const codeEls = [...this.shadowRoot!.querySelectorAll('pre code')];
+    // for (let i = 0; i < codeEls.length; ++i) {
+    //   const codeEl = codeEls[i];
+    //   codeEl.textContent = codeEl.textContent.replace(/^\s*\n/, '');
+    //   codeEl.textContent = codeEl.textContent.replace(/\n\s*$/, '');
+    //   codeEl.textContent = dedent(codeEl.textContent);
+    //   hljs.highlightElement(codeEl);
+    // }
   }
 
   attachTimelineUIResizer() {
@@ -162,5 +163,53 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     };
 
     errorPanel.addEventListener('mousedown', handleClick);
+  }
+  
+  setErrorPanelContents(errorName: string, errorStuff: [description: DocumentFragment, tips?: DocumentFragment, location?: DocumentFragment]) {
+    const errorPanelEl = this.shadowRoot!.querySelector('.timeline__error-panel') as HTMLElement;
+    const headingEl = errorPanelEl.querySelector('.timeline__error-panel-heading-text') as HTMLHeadingElement;
+    const bodyEl = errorPanelEl.querySelector('.timeline__error-panel-body') as HTMLHeadingElement;
+
+    headingEl.textContent = `ERROR: ${errorName}`;
+
+    const [description, tips, location] = errorStuff;
+
+    {
+      const sectionEl = createElFromString(`<div class="timeline__error-panel-section"></div>`);
+      const sectionBodyEl = createElFromString(`<div class="timeline__error-panel-section-body"></div>`);
+      const headingEl = createElFromString(`<h3 class="timeline__error-panel-subheading">Description</h3>`);
+      sectionEl.appendChild(headingEl);
+      sectionBodyEl.appendChild(description);
+      sectionEl.append(sectionBodyEl);
+      bodyEl.appendChild(sectionEl);
+    }
+    if (tips) {
+      const sectionEl = createElFromString(`<div class="timeline__error-panel-section"></div>`);
+      const sectionBodyEl = createElFromString(`<div class="timeline__error-panel-section-body"></div>`);
+      const headingEl = createElFromString(`<h3 class="timeline__error-panel-subheading">Tips</h3>`);
+      sectionEl.appendChild(headingEl);
+      sectionBodyEl.appendChild(tips);
+      sectionEl.append(sectionBodyEl);
+      bodyEl.appendChild(sectionEl);
+    }
+    if (location) {
+      const sectionEl = createElFromString(`<div class="timeline__error-panel-section"></div>`);
+      const sectionBodyEl = createElFromString(`<div class="timeline__error-panel-section-body"></div>`);
+      const headingEl = createElFromString(`<h3 class="timeline__error-panel-subheading">Location</h3>`);
+      sectionEl.appendChild(headingEl);
+      sectionBodyEl.appendChild(location);
+      sectionEl.append(sectionBodyEl);
+      bodyEl.appendChild(sectionEl);
+    }
+
+    // Use highlight.js directly on each code element since highlight.js cannot see the shadow dom by default.
+    const codeEls = [...this.shadowRoot!.querySelectorAll('pre code')];
+    for (let i = 0; i < codeEls.length; ++i) {
+      const codeEl = codeEls[i];
+      codeEl.textContent = codeEl.textContent.replace(/^\s*\n/, '');
+      codeEl.textContent = codeEl.textContent.replace(/\n\s*$/, '');
+      codeEl.textContent = dedent(codeEl.textContent);
+      hljs.highlightElement(codeEl);
+    }
   }
 }

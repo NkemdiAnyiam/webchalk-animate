@@ -5,6 +5,7 @@ import { getPartial, nor, TBA_DURATION } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { webchalk } from "../Webchalk";
 import { WebchalkSequenceElement } from "../../WebchalkSequenceElement";
+import { DOMElement } from "../4_utils/interfaces";
 
 // TYPE
 /**
@@ -507,7 +508,7 @@ export class AnimSequence {
   // constructor(...animClips: AnimClip[]);
   constructor(configOrClips: Partial<AnimSequenceConfig> | AnimClip[], animClips?: AnimClip[]) {
     if (webchalk.sequenceCreatorLock) {
-      throw this.generateError(TypeError, `Illegal constructor. Sequences can only be instantiated using webchalk.newSequence().`);
+      throw this.generateError(TypeError, [`Illegal constructor. Sequences can only be instantiated using webchalk.newSequence().`]);
     }
     webchalk.sequenceCreatorLock = true;
     
@@ -587,12 +588,12 @@ export class AnimSequence {
     for (let i = 0; i < clips.length; ++i) {
       const animClip = clips[i];
       if (!(animClip instanceof AnimClip)) {
-        throw this.generateError(CustomErrorClasses.InvalidChildError, `At least one of the objects being added is not an AnimClip.`);
+        throw this.generateError(CustomErrorClasses.InvalidChildError, [`At least one of the objects being added is not an AnimClip.`]);
       }
 
       if (animClip.parentSequence) {
         // TODO: Improve error message
-        throw this.generateError(CustomErrorClasses.InvalidChildError, `At least one of the clips being added is already part of some sequence.`);
+        throw this.generateError(CustomErrorClasses.InvalidChildError, [`At least one of the clips being added is already part of some sequence.`]);
       }
       
       if (!animClip.setLineage('sequence', this)) {
@@ -638,7 +639,7 @@ export class AnimSequence {
         // TODO: improve warning
         throw this.generateError(
           CustomErrorClasses.InvalidChildError,
-          `At least one of the clips being removed from this sequence was already not in the sequence.`
+          [`At least one of the clips being removed from this sequence was already not in the sequence.`]
         );
       }
       removedClips.push(...animClipsCopy.splice(index, 1));
@@ -1206,8 +1207,8 @@ export class AnimSequence {
   /*-:**************************************************************************************************************************/
   /*-:******************************************        ERRORS        **********************************************************/
   /*-:**************************************************************************************************************************/
-  protected generateError: SequenceErrorGenerator = (ErrorClassOrInstance, msg = '<unspecified error>') => {
-    return generateError(ErrorClassOrInstance, msg as string, {
+  protected generateError: SequenceErrorGenerator = (ErrorClassOrInstance, msg = ['<unspecified error>']) => {
+    return generateError(ErrorClassOrInstance, msg as [logMsg: string, uiMsgFrags?: [description: DocumentFragment, tips?: DocumentFragment, location?: DocumentFragment]], {
       sequence: this,
       timeline: this._parentTimeline
     });
@@ -1216,11 +1217,11 @@ export class AnimSequence {
   protected generateLockedStructureError = (methodName: string) => {
     return generateError(
       CustomErrorClasses.LockedOperationError,
-      `Cannot use ${methodName}() while the sequence is in progress or in a forward finished state.`
+      [`Cannot use ${methodName}() while the sequence is in progress or in a forward finished state.`
       + errorTip(
         `Tip: Generally, changes cannot be made to the structure of a sequence once it has left its starting point.`
         + ` This is to preserve continuity (once a sequence moves forward, it is locked in history until it is completely rewound).`
-      )
+      )]
     );
   }
 }

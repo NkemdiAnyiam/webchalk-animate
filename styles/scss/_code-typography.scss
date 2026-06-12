@@ -183,6 +183,10 @@ code.hljs {
 /*   font-size: hem(1.4); */
 }
 
+.pre--inline {
+  // display: inline-block;
+}
+
 .pre--block {
   display: block;
   border: 1px solid white; // only when surrounding background is dark
