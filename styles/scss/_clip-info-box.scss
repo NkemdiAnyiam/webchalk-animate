@@ -24,6 +24,7 @@
   font-size: hem(1.2);
   line-height: 1.2;
   margin-bottom: hem(3);
+  margin-left: -1.5px; // prevents double border with clip info button box border
 }
 
 .clip-info-box__resizer {
@@ -55,7 +56,7 @@
 .clip-info-box__inner-wrapper {
   // min-width: hem(30);
   overflow-y: auto;
-  max-height: calc(8 * var(--clip-height));
+  max-height: calc(11 * var(--clip-height));
   height: 100%;
   overscroll-behavior: contain;
 
@@ -78,12 +79,6 @@
   list-style: none;
 
   display: flex;
-}
-
-.clip-info-box__tab {
-  &:not(:last-child) .clip-info-box__tab-button {
-    border-right: none;
-  }
 }
 
 .clip-info-box__tab-button {
@@ -111,6 +106,18 @@
   }
 }
 
+.clip-info-box__tab {
+  &:first-child .clip-info-box__tab-button {
+    border-left: none;
+  }
+  &:not(:last-child) .clip-info-box__tab-button {
+    border-right: none;
+  }
+  &:last-child .clip-info-box__tab-button {
+    border-right-color: var(--hue-light);
+  }
+}
+
 .clip-info-box__body {
   padding: 0 hem(1) 17.5px;
   
@@ -133,9 +140,46 @@
 }
 
 .clip-info-box__section-body {
-  line-height: 1.2;
+  line-height: 1.3;
   padding: 0 hem(0.8); 
   display: flex;
   flex-direction: column;
   gap: hem(0.6);
+
+  .rows {
+    display: flex;
+    flex-direction: column;
+    gap: hem(0.5);
+  }
+
+  .row {
+    &:not(:last-child) {
+      border-bottom: 1px solid currentColor;
+      padding-bottom: hem(0.5);
+    }
+
+    display: flex;
+    flex-wrap: wrap;
+    // grid-template-columns: hem(7.5) 1fr;
+    column-gap: hem(1);
+    row-gap: hem(0.5);
+  }
+
+  .col--head {
+    font-style: italic;
+    font-weight: 600;
+    flex: 20;
+    white-space: nowrap;
+  }
+
+  .col--body {
+    flex: 80;
+    min-width: 200px;
+  }
+}
+
+@container clip-info-box (max-width: 200px) {
+  .clip-info-box__section-body .row {
+    // grid-template-columns: 1fr;
+  }
 }

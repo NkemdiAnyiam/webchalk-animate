@@ -30,6 +30,8 @@ export class WebchalkClipElement extends HTMLElement {
   private parentWebchalkSequenceEl: WebchalkSequenceElement | undefined;
   private infoBoxShown = false;
   private category: EffectCategory = '' as EffectCategory; // TODO: incorporate better
+
+  clip?: AnimClip;
   
   constructor() {
     super();
@@ -48,6 +50,8 @@ export class WebchalkClipElement extends HTMLElement {
   }
 
   readClip(clip: AnimClip) {
+    this.clip = clip;
+
     this.parentWebchalkSequenceEl = (this.getRootNode() as ShadowRoot).host as WebchalkSequenceElement;
     const clipEl = this.shadowRoot!.querySelector('.clip') as HTMLElement;
     const clipNumberEl = clipEl.querySelector('.clip__number') as HTMLElement;
@@ -117,6 +121,8 @@ export class WebchalkClipElement extends HTMLElement {
     }
     else {
       const infoBox = new WebchalkClipInfoBoxElement();
+      infoBox.clip = this.clip;
+      infoBox.changeTab(infoBox.currentTabButtonEl);
       infoBox.shadowRoot?.querySelector('.clip-info-box')!.classList.add(`clip-info-box--${this.category.toLowerCase().replaceAll(/\s/g, '-')}`);
       const clipEffect = this.shadowRoot?.querySelector('.clip__effect') as HTMLElement;
       clipEffect.insertAdjacentElement('afterend', infoBox);

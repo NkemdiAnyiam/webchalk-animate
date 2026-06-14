@@ -214,6 +214,10 @@
   display: inline-block;
 }
 
+.timeline__error-panel .pre--block {
+  border: 1px solid white; // only when surrounding background is dark
+}
+
 .timeline__error-panel code {
   background-color: #221212;
 }

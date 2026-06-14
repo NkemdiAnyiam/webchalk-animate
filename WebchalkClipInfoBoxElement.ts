@@ -1,5 +1,8 @@
 import * as fs from 'fs';
 import { stylesheet } from './componentStyleString';
+import { createCodeEl, createElFromString, dequoteJSON, getOpeningTag, highlightCodeEls, numToOrdinal } from './src/4_utils/helpers';
+/** @ts-ignore */
+import { AnimClip } from './src/1_playbackStructures/AnimationClip';
 
 const str = fs.readFileSync('./htmlComponents/clip-info-box.html', 'utf-8');
 const hostStyles = new CSSStyleSheet();
@@ -26,6 +29,9 @@ hostStyles.replaceSync(/*css*/`
 
 export class WebchalkClipInfoBoxElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-clip-info-box', WebchalkClipInfoBoxElement); }
+
+  currentTabButtonEl: HTMLButtonElement;
+  clip?: AnimClip;
   
   constructor() {
     super();
@@ -41,6 +47,129 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
     shadow.append(element);
 
     this.attachClipInfoBoxResizer();
+    this.attachTabListeners();
+
+    this.currentTabButtonEl = this.shadowRoot!.querySelector('.clip-info-box__tab-button--current') as HTMLButtonElement;
+  }
+
+  attachTabListeners() {
+    const tabEls = [...this.shadowRoot!.querySelectorAll('.clip-info-box__tab-button')] as HTMLButtonElement[];
+
+    for (const tabEl of tabEls) {
+      tabEl.addEventListener('click', () => {
+        // If tab already selected, do nothing.
+        if (tabEl === this.currentTabButtonEl) { return; }
+        this.changeTab(tabEl);
+      });
+    }
+  }
+
+  changeTab(tabEl: HTMLButtonElement) {
+    this.currentTabButtonEl.classList.remove('clip-info-box__tab-button--current');
+    tabEl.classList.add('clip-info-box__tab-button--current');
+    this.currentTabButtonEl = tabEl;
+
+    const oldBodyEl = this.shadowRoot!.querySelector('.clip-info-box__body') as HTMLElement;
+    const newBodyEl = createElFromString<HTMLElement>('<div class="clip-info-box__body"></div>');
+    const clip = this.clip!;
+
+    switch(tabEl.textContent.trim().toLowerCase().replaceAll(' ', '-')) {
+      case 'location':
+        const {parentTimeline, parentSequence, clipNumber} = clip.getHierarchy();
+        const { category, effectName } = clip.getEffectDetails();
+        const {description: sequenceDescription} = parentSequence!.getConfig();
+        const {sequenceNumber} = parentSequence!.getHierarchy();
+        const sequenceJumpTag = parentSequence!.getJumpTag();
+
+        newBodyEl.appendChild(createElFromString(/*html*/`
+          <section class="clip-info-box__section">
+            <p class="clip-info-box__section-name">Timeline</p>
+            <div class="clip-info-box__section-body">
+              <div class="rows">
+                <div class="row">
+                  <div class="col col--head">Name</div>
+                  <div class="col col--body">${parentTimeline?.getConfig().timelineName}</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        `));
+
+        newBodyEl.appendChild(createElFromString(/*html*/`
+          <section class="clip-info-box__section">
+            <p class="clip-info-box__section-name">Sequence</p>
+            <div class="clip-info-box__section-body">
+              <div class="rows">
+                <div class="row">
+                  <div class="col col--head">Number</div>
+                  <div class="col col--body">${numToOrdinal(sequenceNumber)}</div>
+                </div>
+                <div class="row">
+                  <div class="col col--head">Description</div>
+                  <div class="col col--body">${sequenceDescription}</div>
+                </div>
+                <div class="row">
+                  <div class="col col--head">Jump Tag</div>
+                  <div class="col col--body">${sequenceJumpTag}</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        `));
+
+        newBodyEl.appendChild(createElFromString(/*html*/`
+          <section class="clip-info-box__section">
+            <p class="clip-info-box__section-name">Clip</p>
+            <div class="clip-info-box__section-body">
+              <div class="rows">
+                <div class="row">
+                  <div class="col col--head">Number</div>
+                  <div class="col col--body">${numToOrdinal(clipNumber)}</div>
+                </div>
+                <div class="row">
+                  <div class="col col--head">Category</div>
+                  <div class="col col--body">${category}</div>
+                </div>
+                <div class="row">
+                  <div class="col col--head">Effect</div>
+                  <div class="col col--body">${effectName}</div>
+                </div>
+                <div class="row">
+                  <div class="col col--head">DOM Tag</div>
+                  <div class="col col--body">${createCodeEl(getOpeningTag(clip.domElem).replace('<', '&lt;').replace('>', '&gt;'), 'html', 'block').outerHTML}</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        `));
+        break;
+
+      case 'effect-options':
+        const args = clip.getEffectDetails('effectOptions');
+        for (let i = 0; i < args.length; ++i) {
+          const arg = args[i];
+
+          const sectionEl = createElFromString('<section class="clip-info-box__section"></section>');
+          sectionEl.appendChild(createElFromString(`<p class="clip-info-box__section-name">arg${i + 1}</p>`));
+          sectionEl.appendChild(createCodeEl(dequoteJSON(arg!), 'ts', 'block'));
+          newBodyEl.appendChild(sectionEl);
+        }
+        break;
+
+      case 'configuration':
+        const sectionEl = createElFromString('<section class="clip-info-box__section"></section>');
+        sectionEl.appendChild(createElFromString('<p class="clip-info-box__section-name">Final Configuration</p>'));
+        sectionEl.appendChild(createCodeEl(dequoteJSON(clip.getConfig()), 'ts', 'block'));
+        newBodyEl.appendChild(sectionEl);
+        break;
+
+      default: throw new RangeError(`Invalid content type "${tabEl.textContent}".`);
+    }
+
+    oldBodyEl.insertAdjacentElement('beforebegin', newBodyEl);
+    oldBodyEl.remove();
+
+    highlightCodeEls(newBodyEl);
   }
 
   attachClipInfoBoxResizer() {
@@ -71,6 +200,7 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
       handleDrag = (e: MouseEvent) => {
         // change box width based on mouse movement
         const x = e.movementX;
+        // TODO: fix the fact that this can still change even when hitting the boundaries of min-width and max-width
         this.style.flexBasis = `${Number.parseFloat(getComputedStyle(this).flexBasis) + x}px`;
       }
     }
