@@ -74,7 +74,7 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
     const clip = this.clip!;
 
     switch(tabEl.textContent.trim().toLowerCase().replaceAll(' ', '-')) {
-      case 'location':
+      case 'location': {
         const {parentTimeline, parentSequence, clipNumber} = clip.getHierarchy();
         const { category, effectName } = clip.getEffectDetails();
         const {description: sequenceDescription} = parentSequence!.getConfig();
@@ -142,26 +142,36 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
             </div>
           </section>
         `));
-        break;
+      }
+      break;
 
-      case 'effect-options':
+      case 'effect-options': {
         const args = clip.getEffectDetails('effectOptions');
-        for (let i = 0; i < args.length; ++i) {
-          const arg = args[i];
+        const sectionEl = createElFromString('<section class="clip-info-box__section"></section>');
 
-          const sectionEl = createElFromString('<section class="clip-info-box__section"></section>');
-          sectionEl.appendChild(createElFromString(`<p class="clip-info-box__section-name">arg${i + 1}</p>`));
-          sectionEl.appendChild(createCodeEl(dequoteJSON(arg!), 'ts', 'block'));
-          newBodyEl.appendChild(sectionEl);
+        if (args.length === 0) {
+          sectionEl.appendChild(createElFromString(`<p>No arguments were passed to this effect.</p>`));
         }
-        break;
+        else {
+          for (let i = 0; i < args.length; ++i) {
+            const arg = args[i];
+  
+            sectionEl.appendChild(createElFromString(`<p class="clip-info-box__section-name">arg${i + 1}</p>`));
+            sectionEl.appendChild(createCodeEl(dequoteJSON(arg!), 'ts', 'block'));
+          }
+        }
 
-      case 'configuration':
+        newBodyEl.appendChild(sectionEl);
+      }
+      break;
+
+      case 'configuration': {
         const sectionEl = createElFromString('<section class="clip-info-box__section"></section>');
         sectionEl.appendChild(createElFromString('<p class="clip-info-box__section-name">Final Configuration</p>'));
         sectionEl.appendChild(createCodeEl(dequoteJSON(clip.getConfig()), 'ts', 'block'));
         newBodyEl.appendChild(sectionEl);
-        break;
+      }
+      break;
 
       default: throw new RangeError(`Invalid content type "${tabEl.textContent}".`);
     }
