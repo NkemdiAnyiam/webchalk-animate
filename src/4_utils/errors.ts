@@ -232,7 +232,8 @@ export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg =
   if (timeline?.webchalkTimelineEl) {
     // TODO: set directly on timeline structure instead of timeline UI element so that it can be reflected in a late-generated UI
     timeline.webchalkTimelineEl.classList.add('error');
-    timeline.webchalkTimelineEl.setErrorPanelContents(ErrorClassOrInstance.name, msg[1] ?? [fragment([`This error does not have a UI render yet. View the browser console to see this error's explanation. To view the console, right-click and select "Inspect", and then navigate the the "Console" tab.`])]);
+    // TODO: account for when message is stored directly inside an Error instance
+    timeline.webchalkTimelineEl.setErrorPanelContents(ErrorClassOrInstance.name, msg[1] ?? [fragment([`This error does not have a UI render yet. View the browser console to see this error's explanation. To view the console, right-click and select "Inspect", and then navigate to the "Console" tab.`])]);
   }
   if (sequence?.webchalkSequenceEl) {
     sequence.webchalkSequenceEl.classList.add('error');
