@@ -75,7 +75,7 @@
 .sequence__schedule {
   position: relative;
   overflow: scroll;
-  overscroll-behavior: contain;
+  // overscroll-behavior: contain;
   max-height: clip-based-height-units(7.5);
   transition: max-height 0.1s;
   background-color: inherit;
