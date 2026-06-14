@@ -48,6 +48,7 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
 
     this.attachClipInfoBoxResizer();
     this.attachTabListeners();
+    this.attachCloseButtonListener();
 
     this.currentTabButtonEl = this.shadowRoot!.querySelector('.clip-info-box__tab-button--current') as HTMLButtonElement;
   }
@@ -64,13 +65,23 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
     }
   }
 
+  handleRemoval: () => void = () => {};
+
+  attachCloseButtonListener() {
+    const closeButtonEl = this.shadowRoot!.querySelector('.clip-info-box__close-button') as HTMLButtonElement;
+    const handleClick = () => {
+      this.handleRemoval();
+    };
+    closeButtonEl.addEventListener('click', handleClick, {once: true});
+  }
+
   changeTab(tabEl: HTMLButtonElement) {
     this.currentTabButtonEl.classList.remove('clip-info-box__tab-button--current');
     tabEl.classList.add('clip-info-box__tab-button--current');
     this.currentTabButtonEl = tabEl;
 
-    const oldBodyEl = this.shadowRoot!.querySelector('.clip-info-box__body') as HTMLElement;
-    const newBodyEl = createElFromString<HTMLElement>('<div class="clip-info-box__body"></div>');
+    const bodyEl = this.shadowRoot!.querySelector('.clip-info-box__body') as HTMLElement;
+    const frag = new DocumentFragment();
     const clip = this.clip!;
 
     switch(tabEl.textContent.trim().toLowerCase().replaceAll(' ', '-')) {
@@ -81,7 +92,7 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
         const {sequenceNumber} = parentSequence!.getHierarchy();
         const sequenceJumpTag = parentSequence!.getJumpTag();
 
-        newBodyEl.appendChild(createElFromString(/*html*/`
+        frag.appendChild(createElFromString(/*html*/`
           <section class="clip-info-box__section">
             <p class="clip-info-box__section-name">Timeline</p>
             <div class="clip-info-box__section-body">
@@ -95,7 +106,7 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
           </section>
         `));
 
-        newBodyEl.appendChild(createElFromString(/*html*/`
+        frag.appendChild(createElFromString(/*html*/`
           <section class="clip-info-box__section">
             <p class="clip-info-box__section-name">Sequence</p>
             <div class="clip-info-box__section-body">
@@ -117,7 +128,7 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
           </section>
         `));
 
-        newBodyEl.appendChild(createElFromString(/*html*/`
+        frag.appendChild(createElFromString(/*html*/`
           <section class="clip-info-box__section">
             <p class="clip-info-box__section-name">Clip</p>
             <div class="clip-info-box__section-body">
@@ -161,7 +172,7 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
           }
         }
 
-        newBodyEl.appendChild(sectionEl);
+        frag.appendChild(sectionEl);
       }
       break;
 
@@ -169,17 +180,17 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
         const sectionEl = createElFromString('<section class="clip-info-box__section"></section>');
         sectionEl.appendChild(createElFromString('<p class="clip-info-box__section-name">Final Configuration</p>'));
         sectionEl.appendChild(createCodeEl(dequoteJSON(clip.getConfig()), 'ts', 'block'));
-        newBodyEl.appendChild(sectionEl);
+        frag.appendChild(sectionEl);
       }
       break;
 
       default: throw new RangeError(`Invalid content type "${tabEl.textContent}".`);
     }
 
-    oldBodyEl.insertAdjacentElement('beforebegin', newBodyEl);
-    oldBodyEl.remove();
+    bodyEl.innerHTML = '';
+    bodyEl.appendChild(frag);
 
-    highlightCodeEls(newBodyEl);
+    highlightCodeEls(bodyEl);
   }
 
   attachClipInfoBoxResizer() {
@@ -221,15 +232,15 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
     else {
       // const timelineUI = (e.composedPath() as HTMLElement[]).find(target => target.classList?.contains('timeline'))!;
       // const scheduleEl = (e.composedPath() as HTMLElement[]).find(target => target.classList?.contains('sequence__schedule'))!;
-      const innerWrapperEl = this.shadowRoot?.querySelector('.clip-info-box__inner-wrapper') as HTMLElement;
+      const bodyEl = this.shadowRoot?.querySelector('.clip-info-box__body') as HTMLElement;
       handleDrag = (e: MouseEvent) => {
         // change box height based on mouse movement
         const y = e.movementY;
         // TODO: figure out how fine-tune if including overall scroll or timeline height
         // timelineUI.style.height = `${Number.parseFloat(getComputedStyle(timelineUI).height) - y}px`;
         // scheduleEl.scrollTo({top: scheduleEl.scrollTop + y, behavior: 'instant'});
-        const {height, minHeight, maxHeight} = getComputedStyle(innerWrapperEl);
-        innerWrapperEl.style.height = `${clamp(
+        const {height, minHeight, maxHeight} = getComputedStyle(bodyEl);
+        bodyEl.style.height = `${clamp(
           Number.parseFloat(minHeight),
           Number.parseFloat(height) + y,
           Number.parseFloat(maxHeight) || Infinity

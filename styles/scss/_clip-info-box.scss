@@ -55,27 +55,22 @@
 }
 .clip-info-box__inner-wrapper {
   // min-width: hem(30);
-  overflow-y: auto;
   // max-height: calc(11 * var(--clip-height));
   // height: 100%;
-  height: calc(11 * var(--clip-height));
-  min-height: hem(6);
-  max-height: calc(12 * var(--clip-height));;
-  overscroll-behavior: contain;
 
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
 .clip-info-box__nav {
   background-color: var(--hue-dark);
-  position: sticky;
-  top: 0;
-
   overflow-x: auto;
   flex-shrink: 0;
   width: auto;
+
+  display: flex;
+  justify-content: space-between;
+  gap: 1px;
 }
 
 .clip-info-box__tabs {
@@ -121,8 +116,32 @@
   }
 }
 
+.clip-info-box__close-button {
+  background-color: var(--hue-light);
+  border: none;
+  border-bottom: 1.5px solid var(--hue-dark);
+  width: hem(1.5);
+  font-size: hem(1.2);
+  font-weight: 900;
+  transition: background-color 0.1s, color 0.1s;
+
+  &:hover {
+    background-color: var-lighten(var(--hue-light), 40%);
+  }
+  &:active {
+    color: var(--hue-light);
+    background-color: var-lighten(var(--hue-dark), 20%);
+  }
+}
+
 .clip-info-box__body {
-  padding: 0 hem(1) 17.5px;
+  padding: hem(1) hem(1) 17.5px;
+
+  height: calc(11 * var(--clip-height));
+  min-height: hem(6);
+  max-height: calc(12 * var(--clip-height));
+  overflow-y: auto;
+  overscroll-behavior: contain;
   
   display: flex;
   flex-direction: column;

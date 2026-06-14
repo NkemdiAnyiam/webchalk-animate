@@ -112,15 +112,19 @@ export class WebchalkClipElement extends HTMLElement {
   }
 
   handleInfoButtonClick = (e: PointerEvent) => {
-    if (this.infoBoxShown) {
+    const handleRemoval = () => {
       const infoBox = this.shadowRoot!.querySelector('webchalk-clip-info-box') as WebchalkClipInfoBoxElement;
-      infoBox?.remove();
+      infoBox.remove();
       this.infoBoxShown = false;
       this.classList.remove('info-box-shown');
+    }
+    if (this.infoBoxShown) {
+      handleRemoval();
     }
     else {
       const infoBox = new WebchalkClipInfoBoxElement();
       infoBox.clip = this.animClip;
+      infoBox.handleRemoval = handleRemoval;
       infoBox.changeTab(infoBox.currentTabButtonEl);
       infoBox.shadowRoot?.querySelector('.clip-info-box')!.classList.add(`clip-info-box--${this.category.toLowerCase().replaceAll(/\s/g, '-')}`);
       const clipEffectEl = this.shadowRoot?.querySelector('.clip__effect') as HTMLElement;
