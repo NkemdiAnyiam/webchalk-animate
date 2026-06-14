@@ -33,7 +33,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     this.attachErrorPanelResizer();
   }
 
-  insertSequences(insertionIndex: number, newSequences: AnimSequence[], allSequences: AnimSequence[]) {
+  insertSequences(insertionIndex: number, newSequences: AnimSequence[]) {
     if (newSequences.length === 0) { return; }
 
     const timelineSequences = this.shadowRoot!.querySelector('.timeline__sequences-container') as HTMLElement;
@@ -54,7 +54,6 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       timelineSequences.insertAdjacentElement('beforeend', firstNewSequence.webchalkSequenceEl!);
     }
     firstNewSequence.writeUI();
-    firstNewSequence.updateSequenceNumber(insertionIndex + 1);
 
     let insertionPoint: AnimSequence;
     // insert new sequence elements
@@ -64,14 +63,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       newSequence.attachUI();
       insertionPoint.webchalkSequenceEl?.insertAdjacentElement('afterend', newSequence.webchalkSequenceEl!);
       newSequence.writeUI();
-      newSequence.updateSequenceNumber(i + 1);
     }
-
-    // update sequence numbers for any pre-existing sequences after the insertion index
-    for (let i = insertionIndex + newSequences.length; i < allSequences.length; ++i) {
-      allSequences[i].updateSequenceNumber(i + 1);
-    }
-
   }
 
   readTimeline() {
@@ -80,17 +72,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     const timelineEl = this.shadowRoot!.querySelector('.timeline') as HTMLElement;
     timelineEl.querySelector('.timeline__name')!.textContent = timeline.getConfig().timelineName;
 
-    this.insertSequences(0, timeline.getHierarchy().sequences, timeline.getHierarchy().sequences);
-
-    // // Use highlight.js directly on each code element since highlight.js cannot see the shadow dom by default.
-    // const codeEls = [...this.shadowRoot!.querySelectorAll('pre code')];
-    // for (let i = 0; i < codeEls.length; ++i) {
-    //   const codeEl = codeEls[i];
-    //   codeEl.textContent = codeEl.textContent.replace(/^\s*\n/, '');
-    //   codeEl.textContent = codeEl.textContent.replace(/\n\s*$/, '');
-    //   codeEl.textContent = dedent(codeEl.textContent);
-    //   hljs.highlightElement(codeEl);
-    // }
+    this.insertSequences(0, timeline.getHierarchy().sequences);
   }
 
   attachTimelineUIResizer() {

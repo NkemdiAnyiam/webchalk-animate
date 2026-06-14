@@ -606,14 +606,13 @@ export class AnimSequence {
     }
 
     // insert clips
-    if (loc) {
-      this.animClips.splice(loc.atIndex, 0, ...clips);
-      this.webchalkSequenceEl?.insertClips(loc.atIndex, clips, this.animClips);
+    const atIndex = loc ? loc.atIndex : this.animClips.length;
+    this.animClips.splice(atIndex, 0, ...clips);
+    // update the clip numbers of the new clips and any clips that are now after them in the array
+    for (let i = atIndex; i < this.animClips.length; ++i) {
+      this.animClips[i].updateClipNumber(i + 1);
     }
-    else {
-      this.animClips.push(...clips);
-      this.webchalkSequenceEl?.insertClips(this.animClips.length - clips.length, clips, this.animClips);
-    }
+    this.webchalkSequenceEl?.insertClips(atIndex, clips);
 
     this.commit();
 

@@ -630,6 +630,8 @@ export class AnimTimeline {
     
     if (sequences.length === 0) { return this; }
 
+    // TODO: handle possibility of adding at invalid atIndex
+
     for(const animSequence of sequences) {
       if (!(animSequence instanceof AnimSequence)) {
         throw this.generateError(CustomErrorClasses.InvalidChildError, [`At least one of the objects being added is not an AnimSequence.`]);
@@ -649,14 +651,14 @@ export class AnimTimeline {
       }
     };
     
-    if (loc) {
-      this.animSequences.splice(loc.atIndex, 0, ...sequences);
-      this.webchalkTimelineEl?.insertSequences(loc.atIndex, sequences, this.animSequences);
+    // insert clips
+    const atIndex = loc ? loc.atIndex : this.animSequences.length;
+    this.animSequences.splice(atIndex, 0, ...sequences);
+    // update the sequence numbers of the new sequences and any sequences that are now after them in the array
+    for (let i = atIndex; i < this.animSequences.length; ++i) {
+      this.animSequences[i].updateSequenceNumber(i + 1);
     }
-    else {
-      this.animSequences.push(...sequences);
-      this.webchalkTimelineEl?.insertSequences(this.animSequences.length - sequences.length, sequences, this.animSequences);
-    }
+    this.webchalkTimelineEl?.insertSequences(atIndex, sequences);
 
     // no need to worry about backward button because it's impossible to reach or leave index 0 by adding sequences
     this.playbackButtons.forwardButton?.classList.remove(DISABLED_FROM_EDGE);

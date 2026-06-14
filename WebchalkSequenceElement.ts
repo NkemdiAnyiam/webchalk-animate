@@ -95,7 +95,7 @@ export class WebchalkSequenceElement extends HTMLElement {
     this.maxSecondsDisplayed = newMaxTime;
   }
 
-  insertClips(insertionIndex: number, newClips: AnimClip[], allClips: AnimClip[]) {
+  insertClips(insertionIndex: number, newClips: AnimClip[]) {
     if (newClips.length === 0) { return; }
 
     const sequenceClips = this.shadowRoot!.querySelector('.sequence__clips') as HTMLElement;
@@ -116,7 +116,6 @@ export class WebchalkSequenceElement extends HTMLElement {
       sequenceClips.insertAdjacentElement('beforeend', firstNewClip.webchalkClipEl!);
     }
     firstNewClip.writeUI();
-    firstNewClip.updateClipNumber(insertionIndex + 1);
 
     // insert new clip elements
     let insertionPoint: AnimClip;
@@ -143,8 +142,9 @@ export class WebchalkSequenceElement extends HTMLElement {
     const sequenceEl = this.shadowRoot!.querySelector('.sequence') as HTMLElement;
 
     sequenceEl.querySelector('.sequence__description')!.textContent = sequence.getDescription();
+    sequenceEl.querySelector('.sequence__number')!.textContent = `${sequence.getHierarchy().sequenceNumber}.`;
 
-    this.insertClips(0, sequence.animClips, sequence.animClips);
+    this.insertClips(0, sequence.animClips);
     
     this.updateMaxSecondsDisplayed(sequence.maxTime / 1000);
   }
