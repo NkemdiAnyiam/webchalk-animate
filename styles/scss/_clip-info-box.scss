@@ -56,8 +56,11 @@
 .clip-info-box__inner-wrapper {
   // min-width: hem(30);
   overflow-y: auto;
-  max-height: calc(11 * var(--clip-height));
-  height: 100%;
+  // max-height: calc(11 * var(--clip-height));
+  // height: 100%;
+  height: calc(11 * var(--clip-height));
+  min-height: hem(6);
+  max-height: calc(12 * var(--clip-height));;
   overscroll-behavior: contain;
 
   display: flex;

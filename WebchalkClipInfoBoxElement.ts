@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { stylesheet } from './componentStyleString';
-import { createCodeEl, createElFromString, dequoteJSON, getOpeningTag, highlightCodeEls, numToOrdinal } from './src/4_utils/helpers';
+import { clamp, createCodeEl, createElFromString, dequoteJSON, getOpeningTag, highlightCodeEls, numToOrdinal } from './src/4_utils/helpers';
 /** @ts-ignore */
 import { AnimClip } from './src/1_playbackStructures/AnimationClip';
 
@@ -210,8 +210,12 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
       handleDrag = (e: MouseEvent) => {
         // change box width based on mouse movement
         const x = e.movementX;
-        // TODO: fix the fact that this can still change even when hitting the boundaries of min-width and max-width
-        this.style.flexBasis = `${Number.parseFloat(getComputedStyle(this).flexBasis) + x}px`;
+        const {flexBasis, minWidth, maxWidth} = getComputedStyle(this);
+        this.style.flexBasis = `${clamp(
+          Number.parseFloat(minWidth),
+          Number.parseFloat(flexBasis) + x,
+          Number.parseFloat(maxWidth) || Infinity
+        )}px`;
       }
     }
     else {
@@ -224,7 +228,12 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
         // TODO: figure out how fine-tune if including overall scroll or timeline height
         // timelineUI.style.height = `${Number.parseFloat(getComputedStyle(timelineUI).height) - y}px`;
         // scheduleEl.scrollTo({top: scheduleEl.scrollTop + y, behavior: 'instant'});
-        innerWrapperEl.style.maxHeight = `${Math.min(Number.parseFloat(getComputedStyle(innerWrapperEl).maxHeight) + y)}px`;
+        const {height, minHeight, maxHeight} = getComputedStyle(innerWrapperEl);
+        innerWrapperEl.style.height = `${clamp(
+          Number.parseFloat(minHeight),
+          Number.parseFloat(height) + y,
+          Number.parseFloat(maxHeight) || Infinity
+        )}px`;
       }
     }
 

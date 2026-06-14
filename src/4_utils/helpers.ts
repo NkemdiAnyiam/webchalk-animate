@@ -148,6 +148,15 @@ export function indexToOrdinal(value: number | `${number}`) {
 
 /**
  * 
+ * @param a 
+ * @param x 
+ * @param b 
+ * @returns 
+ */
+export function clamp(a: number, x: number, b: number) { return Math.max( a, Math.min(x, b) ); }
+
+/**
+ * 
  * @param rules 
  * 
  * @ignore
