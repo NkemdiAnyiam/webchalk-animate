@@ -236,6 +236,7 @@ export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg =
   }
   if (sequence?.webchalkSequenceEl) {
     sequence.webchalkSequenceEl.classList.add('error');
+    sequence.webchalkSequenceEl?.stopPlayhead();
   }
   if (clip?.webchalkClipEl) {
     clip.webchalkClipEl.classList.add('error');

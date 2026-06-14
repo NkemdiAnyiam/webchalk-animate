@@ -248,10 +248,12 @@ export class WebchalkSequenceElement extends HTMLElement {
 
   private stop = false;
 
-  stopPlayhead(maxTimeMs: number) {
+  stopPlayhead(maxTimeMs?: number) {
     this.stop = true;
-    this.playheadEl.style.translate = `${this.msToHemStr(maxTimeMs)}`;
-    this.playheadTrailEl.style.width = `${this.msToHemStr(maxTimeMs)}`;
+    if (maxTimeMs) {
+      this.playheadEl.style.translate = `${this.msToHemStr(maxTimeMs)}`;
+      this.playheadTrailEl.style.width = `${this.msToHemStr(maxTimeMs)}`;
+    }
   }
 
   attachScheduleDraggers() {
