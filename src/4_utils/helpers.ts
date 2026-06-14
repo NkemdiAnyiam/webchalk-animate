@@ -1027,3 +1027,22 @@ export function fragment(arr: (string | HTMLElement)[]): DocumentFragment {
 
   return frag;
 }
+
+export function dequoteJSON(val: any): string {
+  if (val === undefined) { return 'undefined'; }
+
+  return JSON.stringify(val, null, 2)
+    .replace(/^[\t ]*"[^:\n\r]+(?<!\\)":/gm, (match) => `${match.replace(/"/g, "")}`);
+}
+
+// Use highlight.js directly on each code element in an element since highlight.js cannot see the shadow dom by default.
+export function highlightCodeEls(containerEl: HTMLElement) {
+  const codeEls = [...containerEl.querySelectorAll('pre code')];
+  for (let i = 0; i < codeEls.length; ++i) {
+    const codeEl = codeEls[i];
+    codeEl.textContent = codeEl.textContent.replace(/^\s*\n/, '');
+    codeEl.textContent = codeEl.textContent.replace(/\n\s*$/, '');
+    codeEl.textContent = dedent(codeEl.textContent);
+    hljs.highlightElement(codeEl);
+  }
+}

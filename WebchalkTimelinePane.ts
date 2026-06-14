@@ -3,11 +3,7 @@ import { stylesheet } from './componentStyleString';
 import { AnimTimeline } from './src/1_playbackStructures/AnimationTimeline';
 import { AnimSequence } from './src/1_playbackStructures/AnimationSequence';
 
-/** @ts-ignore */
-// TODO: figure out how to properly fix the implicit any error
-import { hljs } from './src/4_utils/highlightjs/index.js';
-import { createElFromString, dedent } from './src/4_utils/helpers';
-import { DOMElement } from './src/4_utils/interfaces';
+import { createElFromString, highlightCodeEls } from './src/4_utils/helpers';
 
 const str = fs.readFileSync('./htmlComponents/timeline-pane.html', 'utf-8');
 
@@ -202,14 +198,6 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       bodyEl.appendChild(sectionEl);
     }
 
-    // Use highlight.js directly on each code element since highlight.js cannot see the shadow dom by default.
-    const codeEls = [...this.shadowRoot!.querySelectorAll('pre code')];
-    for (let i = 0; i < codeEls.length; ++i) {
-      const codeEl = codeEls[i];
-      codeEl.textContent = codeEl.textContent.replace(/^\s*\n/, '');
-      codeEl.textContent = codeEl.textContent.replace(/\n\s*$/, '');
-      codeEl.textContent = dedent(codeEl.textContent);
-      hljs.highlightElement(codeEl);
-    }
+    highlightCodeEls(bodyEl);
   }
 }
