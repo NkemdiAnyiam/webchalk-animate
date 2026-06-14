@@ -156,6 +156,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
 
     const [description, tips, location] = errorStuff;
 
+    bodyEl.innerHTML = '';
     {
       const sectionEl = createElFromString(`<div class="timeline__error-panel-section"></div>`);
       const sectionBodyEl = createElFromString(`<div class="timeline__error-panel-section-body"></div>`);
