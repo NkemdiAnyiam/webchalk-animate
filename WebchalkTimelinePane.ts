@@ -13,6 +13,8 @@ export function hem(numHem: number): string {
 
 export class WebchalkTimelinePaneElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-timeline-pane', WebchalkTimelinePaneElement); }
+
+  animTimeline?: AnimTimeline;
   
   constructor() {
     super();
@@ -72,7 +74,9 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
 
   }
 
-  readTimeline(timeline: AnimTimeline) {
+  readTimeline() {
+    const timeline = this.animTimeline!;
+    
     const timelineEl = this.shadowRoot!.querySelector('.timeline') as HTMLElement;
     timelineEl.querySelector('.timeline__name')!.textContent = timeline.getConfig().timelineName;
 

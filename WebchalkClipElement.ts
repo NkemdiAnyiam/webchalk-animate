@@ -31,7 +31,7 @@ export class WebchalkClipElement extends HTMLElement {
   private infoBoxShown = false;
   private category: EffectCategory = '' as EffectCategory; // TODO: incorporate better
 
-  clip?: AnimClip;
+  animClip?: AnimClip;
   
   constructor() {
     super();
@@ -49,9 +49,8 @@ export class WebchalkClipElement extends HTMLElement {
     this.attachInfoButtonHandler();
   }
 
-  readClip(clip: AnimClip) {
-    this.clip = clip;
-
+  readClip() {
+    const clip = this.animClip!;
     this.parentWebchalkSequenceEl = (this.getRootNode() as ShadowRoot).host as WebchalkSequenceElement;
     const clipEl = this.shadowRoot!.querySelector('.clip') as HTMLElement;
     const clipNumberEl = clipEl.querySelector('.clip__number') as HTMLElement;
@@ -121,11 +120,11 @@ export class WebchalkClipElement extends HTMLElement {
     }
     else {
       const infoBox = new WebchalkClipInfoBoxElement();
-      infoBox.clip = this.clip;
+      infoBox.clip = this.animClip;
       infoBox.changeTab(infoBox.currentTabButtonEl);
       infoBox.shadowRoot?.querySelector('.clip-info-box')!.classList.add(`clip-info-box--${this.category.toLowerCase().replaceAll(/\s/g, '-')}`);
-      const clipEffect = this.shadowRoot?.querySelector('.clip__effect') as HTMLElement;
-      clipEffect.insertAdjacentElement('afterend', infoBox);
+      const clipEffectEl = this.shadowRoot?.querySelector('.clip__effect') as HTMLElement;
+      clipEffectEl.insertAdjacentElement('afterend', infoBox);
       this.infoBoxShown = true;
       this.classList.add('info-box-shown');
       // webchalk.createAnimationClipFactories().Scroller(this.closest('.sequence__schedule'), '~scroll-self', [infoBox, {scrollableOffset: ['center', '20%']}], {duration: 100}).play();

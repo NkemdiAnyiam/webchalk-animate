@@ -4,12 +4,14 @@ import { stylesheet } from './componentStyleString';
 import { createElFromString } from './src/4_utils/helpers';
 import { AnimSequence } from './src/1_playbackStructures/AnimationSequence';
 import { AnimClip } from './src/1_playbackStructures/AnimationClip';
-import { hem, WebchalkTimelinePaneElement } from './WebchalkTimelinePane';
+import { hem } from './WebchalkTimelinePane';
 
 const str = fs.readFileSync('./htmlComponents/sequence.html', 'utf-8');
 
 export class WebchalkSequenceElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-sequence', WebchalkSequenceElement); }
+
+  animSequence?: AnimSequence;
 
   getHemsPerSecond() {
     return Number(getComputedStyle(this)
@@ -135,7 +137,9 @@ export class WebchalkSequenceElement extends HTMLElement {
 
   // TODO: implement removal of clips
 
-  readSequence(sequence: AnimSequence) {
+  readSequence() {
+    const sequence = this.animSequence!;
+
     const sequenceEl = this.shadowRoot!.querySelector('.sequence') as HTMLElement;
 
     sequenceEl.querySelector('.sequence__description')!.textContent = sequence.getDescription();
