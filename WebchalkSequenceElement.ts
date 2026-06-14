@@ -250,7 +250,7 @@ export class WebchalkSequenceElement extends HTMLElement {
 
   stopPlayhead(maxTimeMs?: number) {
     this.stop = true;
-    if (maxTimeMs) {
+    if (maxTimeMs !== undefined) {
       this.playheadEl.style.translate = `${this.msToHemStr(maxTimeMs)}`;
       this.playheadTrailEl.style.width = `${this.msToHemStr(maxTimeMs)}`;
     }
