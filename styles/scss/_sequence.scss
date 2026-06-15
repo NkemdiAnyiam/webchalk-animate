@@ -245,3 +245,23 @@ $schedule-wrapper-scroll-padding: 17.5px;
   width: 100%;
   // grid-area: clips;
 }
+
+.sequence__dark-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: gray;
+  z-index: $z--schedule-darkened-overlay;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.1s;
+
+  &--shown {
+    visibility: visible;
+    opacity: 0.7;
+  }
+}

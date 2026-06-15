@@ -314,4 +314,14 @@ export class WebchalkSequenceElement extends HTMLElement {
 
     jumpButtonEl.addEventListener('click', handleClick);
   }
+
+  toggleDarkenSchedule(state: boolean) {
+    const overlayEl = this.shadowRoot!.querySelector('.sequence__dark-overlay') as HTMLElement;
+    if (state === true) {
+      overlayEl.classList.add('sequence__dark-overlay--shown');
+    }
+    else {
+      overlayEl.classList.remove('sequence__dark-overlay--shown');
+    }
+  }
 }

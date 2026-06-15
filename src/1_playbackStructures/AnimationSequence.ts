@@ -864,6 +864,7 @@ export class AnimSequence {
     this.usingFinish = false;
     this.fullyFinished.resolve(this);
     this.onFinish.do();
+    this.webchalkSequenceEl?.toggleDarkenSchedule(true);
     return this;
   }
 
@@ -875,6 +876,7 @@ export class AnimSequence {
    */
   async rewind(): Promise<this> {
     if (this.inProgress) { return this; }
+    this.webchalkSequenceEl?.toggleDarkenSchedule(false);
     this.inProgress = true;
     this.isRunning = true;
     this.handleFinishState();
