@@ -91,6 +91,13 @@ export class WebchalkClipElement extends HTMLElement {
     descriptionEl.textContent = description;
   }
 
+  remove() {
+    super.remove();
+    this.removeInfoBox();
+    this.parentWebchalkSequenceEl = undefined;
+    this.animClip = undefined;
+  }
+
   updateDuration(newDurationMs: number) {
     const durationBarEl = this.shadowRoot!.querySelector('.clip__length-bar--duration') as HTMLElement;
     durationBarEl.style.width = this.parentWebchalkSequenceEl!.msToHemStr(newDurationMs === TBA_DURATION ? 0 : newDurationMs);
@@ -111,20 +118,21 @@ export class WebchalkClipElement extends HTMLElement {
     infoButton?.addEventListener('click', this.handleInfoButtonClick);
   }
 
+  removeInfoBox = () => {
+    const infoBox = this.shadowRoot!.querySelector('webchalk-clip-info-box') as WebchalkClipInfoBoxElement;
+    infoBox.remove();
+    this.infoBoxShown = false;
+    this.classList.remove('info-box-shown');
+  };
+
   handleInfoButtonClick = (e: PointerEvent) => {
-    const handleRemoval = () => {
-      const infoBox = this.shadowRoot!.querySelector('webchalk-clip-info-box') as WebchalkClipInfoBoxElement;
-      infoBox.remove();
-      this.infoBoxShown = false;
-      this.classList.remove('info-box-shown');
-    }
     if (this.infoBoxShown) {
-      handleRemoval();
+      this.removeInfoBox();
     }
     else {
       const infoBox = new WebchalkClipInfoBoxElement();
       infoBox.clip = this.animClip;
-      infoBox.handleRemoval = handleRemoval;
+      infoBox.handleRemoval = this.removeInfoBox;
       infoBox.changeTab(infoBox.currentTabButtonEl);
       infoBox.shadowRoot?.querySelector('.clip-info-box')!.classList.add(`clip-info-box--${this.category.toLowerCase().replaceAll(/\s/g, '-')}`);
       const clipEffectEl = this.shadowRoot?.querySelector('.clip__effect') as HTMLElement;

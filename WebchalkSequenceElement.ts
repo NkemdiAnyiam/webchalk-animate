@@ -125,16 +125,14 @@ export class WebchalkSequenceElement extends HTMLElement {
       newClip.attachUI();
       insertionPoint.webchalkClipEl?.insertAdjacentElement('afterend', newClip.webchalkClipEl!);
       newClip.writeUI();
-      newClip.updateClipNumber(i + 1);
-    }
-
-    // update clip numbers for any pre-existing clips after the insertion index
-    for (let i = insertionIndex + newClips.length; i < allClips.length; ++i) {
-      allClips[i].updateClipNumber(i + 1);
     }
   }
 
-  // TODO: implement removal of clips
+  removeClips(clipsToRemove: AnimClip[]) {
+    for (const clip of clipsToRemove) {
+      clip.detachUI();
+    }
+  }
 
   readSequence() {
     const sequence = this.animSequence!;
@@ -147,6 +145,11 @@ export class WebchalkSequenceElement extends HTMLElement {
     this.insertClips(0, sequence.animClips);
     
     this.updateMaxSecondsDisplayed(sequence.maxTime / 1000);
+  }
+
+  remove() {
+    super.remove();
+    this.animSequence = undefined;
   }
 
   updateSequenceNumber(sequenceNumber: number) {

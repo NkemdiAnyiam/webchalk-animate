@@ -5,7 +5,6 @@ import { PickFromArray } from "../4_utils/utilityTypes";
 import { WebchalkPlaybackButtonElement } from "../3_components/WebchalkPlaybackButtonElement";
 import { webchalk } from "../Webchalk";
 import { WebchalkTimelinePaneElement } from "../../WebchalkTimelinePane";
-import { DOMElement } from "../4_utils/interfaces";
 
 // TYPE
 /**
@@ -675,8 +674,17 @@ export class AnimTimeline {
   removeSequences(animSequences: AnimSequence[]): this {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeSequences.name); }
 
-    for (const animSequence of animSequences) {
-      const index = this.findSequenceIndex(animSequence);
+    // sort the array of sequences to remove so that we can traverse them in reverse order
+    const sortedTargetSequences = animSequences.toSorted((a, b) => a.getHierarchy().sequenceNumber - b.getHierarchy().sequenceNumber);
+    // final version of anim sequences that will replace array stored in this timeline
+    const finalAnimSequences = [...this.animSequences];
+    // array of removed sequences to return
+    const removedSequences: AnimSequence[] = [];
+
+    let lowestIndex = Infinity;
+
+    for (let i = sortedTargetSequences.length - 1; i >= 0; --i) {
+      const index = this.findSequenceIndex(sortedTargetSequences[i]);
       if (index === -1) {
         // TODO: improve warning
         throw this.generateError(
@@ -695,12 +703,26 @@ export class AnimTimeline {
           )],
         );
       }
-      this.animSequences.splice(index, 1);
-      animSequence.removeLineage();
+      removedSequences.push(...finalAnimSequences.splice(index, 1));
+      lowestIndex = Math.min(lowestIndex, index)
     }
 
-    // if the last sequences were removed, must account for forward button style.
-    // no need to worry about atBeginning because it's impossible to reach index = 0 by removing sequences
+    if (removedSequences.length === 0) { return this; }
+
+    // confirm deletion
+    for (const sequence of removedSequences) {
+      sequence.removeLineage();
+    }
+
+    // update
+    this.animSequences = finalAnimSequences;
+    for (let i = lowestIndex; i < finalAnimSequences.length; ++i) {
+      finalAnimSequences[i].updateSequenceNumber(i + 1);
+    }
+    this.webchalkTimelineEl?.removeSequences(removedSequences);
+
+    // If the last sequences were removed, must account for forward button style.
+    // No need to worry about atBeginning because it's impossible to reach index = 0 by removing sequences.
     if (this.atEnd) {
       this.playbackButtons.forwardButton?.classList.add(DISABLED_FROM_EDGE);
     }
@@ -730,16 +752,26 @@ export class AnimTimeline {
       );
     }
 
-    const removalArray = this.animSequences.splice(startIndex, endIndex - startIndex);
-    for (const sequence of removalArray) {
+    const removedSequences = this.animSequences.splice(startIndex, endIndex - startIndex);
+
+    if (removedSequences.length === 0) { return []; }
+
+    for (const sequence of removedSequences) {
       sequence.removeLineage();
     }
+
+    // update
+    const animSequences = this.animSequences;
+    for (let i = Math.max(0, startIndex); i < animSequences.length; ++i) {
+      animSequences[i].updateSequenceNumber(i + 1);
+    }
+    this.webchalkTimelineEl?.removeSequences(removedSequences);
 
     if (this.atEnd) {
       this.playbackButtons.forwardButton?.classList.add(DISABLED_FROM_EDGE);
     }
 
-    return removalArray;
+    return removedSequences;
   }
 
   /**

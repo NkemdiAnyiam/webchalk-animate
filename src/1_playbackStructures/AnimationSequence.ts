@@ -1,11 +1,10 @@
 import { AnimClip } from "./AnimationClip";
 import { AnimTimeline } from "./AnimationTimeline";
 import { CustomErrorClasses, errorTip, generateError, SequenceErrorGenerator } from "../4_utils/errors";
-import { getPartial, nor, TBA_DURATION } from "../4_utils/helpers";
+import { getPartial, TBA_DURATION } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { webchalk } from "../Webchalk";
 import { WebchalkSequenceElement } from "../../WebchalkSequenceElement";
-import { DOMElement } from "../4_utils/interfaces";
 
 // TYPE
 /**
@@ -553,6 +552,7 @@ export class AnimSequence {
    */
   removeLineage(): this {
     this._parentTimeline = undefined;
+    this.updateSequenceNumber(NaN);
     for (const clip of this.animClips) {
       clip.removeLineage('timeline');
     }
@@ -629,11 +629,17 @@ export class AnimSequence {
   removeClips(animClips: AnimClip[]): this {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeClips.name); }
 
-    const animClipsCopy = [...this.animClips];
+    // sort the array of clips to remove so that we can traverse them in reverse order
+    const sortedTargetClips = animClips.toSorted((a, b) => a.getHierarchy().clipNumber - b.getHierarchy().clipNumber);
+    // final version of anim clips that will replace array stored in this sequence
+    const finalAnimClips = [...this.animClips];
+    // array of removed clips to return
     const removedClips: AnimClip[] = [];
 
-    for (let i = 0; i < animClips.length; ++i) {
-      const index = this.findClipIndex(animClips[i]);
+    let lowestIndex = Infinity;
+
+    for (let i = sortedTargetClips.length - 1; i >= 0; --i) {
+      const index = this.findClipIndex(sortedTargetClips[i]);
       if (index === -1) {
         // TODO: improve warning
         throw this.generateError(
@@ -641,15 +647,23 @@ export class AnimSequence {
           [`At least one of the clips being removed from this sequence was already not in the sequence.`]
         );
       }
-      removedClips.push(...animClipsCopy.splice(index, 1));
+      removedClips.push(...finalAnimClips.splice(index, 1));
+      lowestIndex = Math.min(lowestIndex, index);
     }
+
+    if (removedClips.length === 0) { return this; }
     
     // confirm deletion
     for (let i = 0; i < removedClips.length; ++i) {
       removedClips[i].removeLineage('sequence');
     }
-
-    this.animClips = animClipsCopy;
+    
+    // update
+    this.animClips = finalAnimClips;
+    for (let i = lowestIndex; i < finalAnimClips.length; ++i) {
+      finalAnimClips[i].updateClipNumber(i + 1);
+    }
+    this.webchalkSequenceEl?.removeClips(removedClips);
 
     this.commit();
 
@@ -667,15 +681,22 @@ export class AnimSequence {
   removeClipsAt(startIndex: number, endIndex: number = startIndex + 1): AnimClip[] {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeClipsAt.name); }
 
-    const animClipsCopy = [...this.animClips];
-    const removedClips = animClipsCopy.splice(startIndex, endIndex - startIndex);
+    const finalAnimClips = [...this.animClips]; // replaces this.animClips at the end
+    const removedClips = finalAnimClips.splice(startIndex, endIndex - startIndex);
+
+    if (removedClips.length === 0) { return []; }
 
     // confirm deletion
     for (let i = 0; i < removedClips.length; ++i) {
       removedClips[i].removeLineage('sequence');
     }
-
-    this.animClips = animClipsCopy;
+    
+    // update
+    this.animClips = finalAnimClips;
+    for (let i = Math.max(0, startIndex); i < finalAnimClips.length; ++i) {
+      finalAnimClips[i].updateClipNumber(i + 1);
+    }
+    this.webchalkSequenceEl?.removeClips(removedClips);
 
     this.commit();
 
@@ -710,6 +731,18 @@ export class AnimSequence {
   writeUI() {
     // TODO: incorporate case of already-finished sequence
     this.webchalkSequenceEl?.readSequence();
+  }
+
+  /** @internal */
+  detachUI() {
+    // if (!this.uiAttached) { throw this.generateError(Error('AnimSequence UI is already not attached.')); }
+    if (!this.uiAttached) { return; }
+    this.webchalkSequenceEl!.remove();
+    this.webchalkSequenceEl = undefined;
+
+    for (const clip of this.animClips) {
+      clip.detachUI();
+    }
   }
 
   /*-:**************************************************************************************************************************/
@@ -1214,6 +1247,7 @@ export class AnimSequence {
     });
   }
 
+  // TODO: figure out why this doesn't return this.generateError()
   protected generateLockedStructureError = (methodName: string) => {
     return generateError(
       CustomErrorClasses.LockedOperationError,

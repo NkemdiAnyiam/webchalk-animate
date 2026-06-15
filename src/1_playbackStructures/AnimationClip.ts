@@ -871,6 +871,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       case "sequence":
         this._parentSequence = undefined;
         this._parentTimeline = undefined;
+        this.updateClipNumber(NaN);
         break;
       case "timeline":
         this._parentTimeline = undefined
@@ -997,14 +998,23 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   /** @internal */
   attachUI() {
     // TODO: improve error message
-    if (this.uiAttached) { throw new Error('AnimClip UI already attached'); }
+    if (this.uiAttached) { throw this.generateError(new Error('AnimClip UI already attached.')); }
     this.webchalkClipEl = new WebchalkClipElement();
     this.webchalkClipEl.animClip = this;
   }
 
   /** @internal */
   writeUI() {
+    if (!this.uiAttached) { throw this.generateError(new Error('AnimClip UI must be attached before writing.')); }
     this.webchalkClipEl?.readClip();
+  }
+
+  /** @internal */
+  detachUI() {
+    // if (!this.uiAttached) { throw this.generateError(Error('AnimClip UI is already not attached.')); }
+    if (!this.uiAttached) { return; }
+    this.webchalkClipEl!.remove();
+    this.webchalkClipEl = undefined;
   }
 
   /*-:**************************************************************************************************************************/

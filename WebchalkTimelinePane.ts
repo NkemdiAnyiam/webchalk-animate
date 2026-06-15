@@ -66,6 +66,12 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     }
   }
 
+  removeSequences(sequencesToRemove: AnimSequence[]) {
+    for (const sequence of sequencesToRemove) {
+      sequence.detachUI();
+    }
+  }
+
   readTimeline() {
     const timeline = this.animTimeline!;
     
