@@ -1,4 +1,4 @@
-import { AnimClip} from "./1_playbackStructures/AnimationClip";
+import { AnimClip } from "./1_playbackStructures/AnimationClip";
 import {
   EntranceClip, ExitClip, EmphasisClip, MotionClip, ScrollerClip, TransitionClip,
   ConnectorEntranceClip, ConnectorExitClip, ConnectorSetterClip,
