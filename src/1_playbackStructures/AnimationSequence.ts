@@ -81,6 +81,12 @@ export type AnimSequenceTiming = Pick<AnimSequenceConfig,
    * @see {@link AnimSequenceTiming.playbackRate}
    */
   compoundedPlaybackRate: AnimSequence['compoundedPlaybackRate'];
+  /**
+   * The current time in milliseconds elapsed by the currently running clips within the sequence.
+   * @remarks
+   *  * Does not include pauses, scheduled tasks, etc.
+   */
+  currentTime: number;
 };
 
 // TYPE
@@ -114,6 +120,11 @@ export type AnimSequenceStatus = {
    * @see {@link AnimTimelineStatus.isJumping}
    */
   skippingOn: boolean;
+  
+  /**
+   * The current direction of the sequence.
+   */
+  direction: 'forward' | 'backward';
 
   /**
    * `true` only if the sequence is currently using `finish()`.
@@ -335,6 +346,7 @@ export class AnimSequence {
     if (this.inProgress || this.wasPlayed) { return true; }
     return false;
   }
+  direction: AnimSequenceStatus['direction'] = 'forward';
   /**
    * Returns details about an sequence's current status.
    * @returns An object containing
@@ -375,6 +387,7 @@ export class AnimSequence {
       isPaused: this.isPaused,
       isRunning: this.isRunning,
       skippingOn: this.skippingOn,
+      direction: this.direction,
       usingFinish: this.usingFinish,
       isFinished: this.isFinished,
       wasPlayed: this.wasPlayed,
@@ -395,6 +408,20 @@ export class AnimSequence {
 
   protected get compoundedPlaybackRate() {
     return this.config.playbackRate * (this._parentTimeline?.getTiming().playbackRate ?? 1);
+  }
+
+  protected get currentTime(): number {
+    const referenceClip = [...this.inProgressClips.values()][0];
+    const currScheduleMs =  this.getStatus('direction') === 'forward'
+      ? referenceClip?.fullStartTime + referenceClip?.currentTime
+      : referenceClip?.fullFinishTime - referenceClip?.currentTime
+    ;
+
+    if (isNaN(currScheduleMs)) {
+      return this.getStatus('wasPlayed') ? this.maxTime : 0;
+    }
+
+    return currScheduleMs;
   }
 
   /**
@@ -443,6 +470,7 @@ export class AnimSequence {
       autoplaysNextSequence: config.autoplaysNextSequence,
       compoundedPlaybackRate: this.compoundedPlaybackRate, // / (this.pseudoJumpingEnabled ? AnimSequence.pseudoJumpingRate : 1),
       playbackRate: config.playbackRate,
+      currentTime: this.currentTime,
     };
 
     return specifics ? getPartial(result, specifics) : result;
@@ -771,6 +799,7 @@ export class AnimSequence {
     this.inProgress = true;
     this.isRunning = true;
     this.handleFinishState();
+    this.direction = 'forward';
 
     // this.commit();
 
@@ -801,7 +830,7 @@ export class AnimSequence {
     }
 
     let parallelClips: Promise<void>[] = [];
-    this.webchalkSequenceEl?.startPlayhead(this.inProgressClips, 'forward');
+    this.webchalkSequenceEl?.startPlayhead('forward');
     for (let i = 0; i < this.animClip_forwardGroupings.length; ++i) {
       parallelClips = [];
       const grouping = this.animClip_forwardGroupings[i];
@@ -876,10 +905,12 @@ export class AnimSequence {
    */
   async rewind(): Promise<this> {
     if (this.inProgress) { return this; }
+    this.direction = 'backward';
     this.webchalkSequenceEl?.toggleDarkenSchedule(false);
     this.inProgress = true;
     this.isRunning = true;
     this.handleFinishState();
+
 
     const animClipGroupings_backwardActiveFinishOrder = this.animClipGroupings_backwardActiveFinishOrder;
     const numGroupings = animClipGroupings_backwardActiveFinishOrder.length;
@@ -900,7 +931,7 @@ export class AnimSequence {
     const groupings = this.animClipGroupings_endDelayFinishOrder;
     const groupingsLength = groupings.length;
     
-    this.webchalkSequenceEl?.startPlayhead(this.inProgressClips, 'backward');
+    this.webchalkSequenceEl?.startPlayhead('backward');
     for (let i = groupingsLength - 1; i >= 0; --i) {
       parallelClips = [];
       const grouping = groupings[i];

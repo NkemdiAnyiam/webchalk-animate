@@ -199,70 +199,36 @@ export class WebchalkSequenceElement extends HTMLElement {
     }
   }
 
-  private playheadForwardLoop(inProgressClips: Map<number, AnimClip>) {
-    this.handlePlayheadEdge('forward');
+  private playheadLoop(direction: 'forward' | 'backward') {
+    this.handlePlayheadEdge(direction);
 
-    if (this.stop) {
-      this.stop = false;
+    if (this.playheadStopped) {
+      this.playheadStopped = false;
       return;
     }
 
-    const clip = [...inProgressClips.values()][0];
-    if (clip) {
-      const currScheduleMs = clip.fullStartTime + clip.currentTime;
-      this.playheadTrailEl.style.width = `${this.msToHemStr(currScheduleMs)}`;
-      this.playheadEl.style.translate = `${this.msToHemStr(currScheduleMs)}`;
-    }
+    const currScheduleMs = this.animSequence!.getTiming('currentTime');
+    this.playheadTrailEl.style.width = `${this.msToHemStr(currScheduleMs)}`;
+    this.playheadEl.style.translate = `${this.msToHemStr(currScheduleMs)}`;
 
     requestAnimationFrame(() => {
-      this.playheadForwardLoop(inProgressClips);
+      this.playheadLoop(direction);
     });
   }
 
-  private playheadBackwardLoop(inProgressClips: Map<number, AnimClip>) {
-    this.handlePlayheadEdge('backward');
-
-    if (this.stop) {
-      this.stop = false;
-      return;
-    }
-
-    const clip = [...inProgressClips.values()][0];
-    if (clip) {
-      const currScheduleMs = clip.fullFinishTime - clip.currentTime;
-      this.playheadTrailEl.style.width = `${this.msToHemStr(currScheduleMs)}`;
-      this.playheadEl.style.translate = `${this.msToHemStr(currScheduleMs)}`;
-    }
-
+  startPlayhead(direction: 'forward' | 'backward') {
     requestAnimationFrame(() => {
-      this.playheadBackwardLoop(inProgressClips);
+      this.playheadLoop(direction);
     });
   }
 
-  startPlayhead(inProgressClips: Map<number, AnimClip>, direction: 'forward' | 'backward') {
-    if (direction === 'forward') {
-      requestAnimationFrame(() => {
-        this.playheadForwardLoop(inProgressClips);
-      });
-    }
-    else if (direction === 'backward') {
-      requestAnimationFrame(() => {
-        this.playheadBackwardLoop(inProgressClips);
-      });
-    }
-    else {
-      throw new RangeError(`Invalid direction '${direction}'. Must be 'forward' or 'backward'.`)
-    }
-  }
-
-  private stop = false;
+  private playheadStopped = false;
 
   stopPlayhead(maxTimeMs?: number) {
-    this.stop = true;
-    if (maxTimeMs !== undefined) {
-      this.playheadEl.style.translate = `${this.msToHemStr(maxTimeMs)}`;
-      this.playheadTrailEl.style.width = `${this.msToHemStr(maxTimeMs)}`;
-    }
+    this.playheadStopped = true;
+    const time = maxTimeMs !== undefined ? maxTimeMs : this.animSequence!.getTiming('currentTime');
+    this.playheadEl.style.translate = `${this.msToHemStr(time)}`;
+    this.playheadTrailEl.style.width = `${this.msToHemStr(time)}`;
   }
 
   attachScheduleDraggers() {
