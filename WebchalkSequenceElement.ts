@@ -145,6 +145,8 @@ export class WebchalkSequenceElement extends HTMLElement {
     this.insertClips(0, sequence.animClips);
     
     this.updateMaxSecondsDisplayed(sequence.maxTime / 1000);
+
+    this.attachJumpButtonListener();
   }
 
   remove() {
@@ -301,5 +303,15 @@ export class WebchalkSequenceElement extends HTMLElement {
     };
 
     clipTracks.addEventListener('mousedown', handleClick);
+  }
+
+  attachJumpButtonListener() {
+    const jumpButtonEl = this.shadowRoot!.querySelector('.sequence__control--jump-button') as HTMLButtonElement;
+    const handleClick = () => {
+      const {sequenceNumber, parentTimeline} = this.animSequence!.getHierarchy();
+      parentTimeline!.jumpToPosition(sequenceNumber - 1);
+    };
+
+    jumpButtonEl.addEventListener('click', handleClick);
   }
 }

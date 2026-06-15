@@ -1105,6 +1105,7 @@ export class AnimTimeline {
     return this.jumpTo({ jumpTag, search, searchOffset, targetOffset, autoplayDetection });
   }
 
+  // TODO: add clarification that position as a number is a 0-based index. Might even want to change that
   /**
    * Jumps instantly to the position within the timeline based on the {@link position} argument.
    * @param position - The target position within the timeline.
