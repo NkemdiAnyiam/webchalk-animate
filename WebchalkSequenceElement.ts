@@ -4,12 +4,14 @@ import { stylesheet } from './componentStyleString';
 import { createElFromString } from './src/4_utils/helpers';
 import { AnimSequence } from './src/1_playbackStructures/AnimationSequence';
 import { AnimClip } from './src/1_playbackStructures/AnimationClip';
-import { hem } from './WebchalkTimelinePane';
+import { hem, WebchalkTimelinePaneElement } from './WebchalkTimelinePane';
 
 const str = fs.readFileSync('./htmlComponents/sequence.html', 'utf-8');
 
 export class WebchalkSequenceElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-sequence', WebchalkSequenceElement); }
+
+  private parentWebchalkTimelineEl: WebchalkTimelinePaneElement | undefined;
 
   animSequence?: AnimSequence;
 
@@ -136,6 +138,7 @@ export class WebchalkSequenceElement extends HTMLElement {
 
   readSequence() {
     const sequence = this.animSequence!;
+    this.parentWebchalkTimelineEl = (this.getRootNode() as ShadowRoot).host as WebchalkTimelinePaneElement;
 
     const sequenceEl = this.shadowRoot!.querySelector('.sequence') as HTMLElement;
 
@@ -151,6 +154,7 @@ export class WebchalkSequenceElement extends HTMLElement {
 
   remove() {
     super.remove();
+    this.parentWebchalkTimelineEl = undefined;
     this.animSequence = undefined;
   }
 
@@ -277,13 +281,23 @@ export class WebchalkSequenceElement extends HTMLElement {
       schedule.classList.add('user-select-none');
 
       const handleDrag = (e: MouseEvent) => {
-        const [x, y] = [e.movementX, e.movementY];
-        if (y !== 0) {
-          const newY = y < 0 ? Math.floor(schedule.scrollTop - y) : Math.ceil(schedule.scrollTop - y);
+        const [dx, dy] = [e.movementX, e.movementY];
+        if (dy !== 0) {
+          const newY = dy < 0 ? Math.floor(schedule.scrollTop - dy) : Math.ceil(schedule.scrollTop - dy);
           schedule.scrollTo({top: newY, behavior: 'instant'});
+          // if dragging past the top of schedule, scroll sequences container up
+          if (dy > 0 && schedule.scrollTop === 0) {
+            const sequencesContainer = this.parentWebchalkTimelineEl!.shadowRoot!.querySelector('.timeline__sequences-container') as HTMLElement;
+            sequencesContainer.scrollBy({top: -dy, behavior: 'instant'});
+          }
+          // if dragging past the bottom of schedule, scroll sequences container down
+          else if (dy < 0 && newY > schedule.scrollHeight - schedule.getBoundingClientRect().height) {
+            const sequencesContainer = this.parentWebchalkTimelineEl!.shadowRoot!.querySelector('.timeline__sequences-container') as HTMLElement;
+            sequencesContainer.scrollBy({top: -dy, behavior: 'instant'});
+          }
         }
-        if (x !== 0) {
-          const newX = x < 0 ? Math.floor(schedule.scrollLeft - x) : Math.ceil(schedule.scrollLeft - x);
+        if (dx !== 0) {
+          const newX = dx < 0 ? Math.floor(schedule.scrollLeft - dx) : Math.ceil(schedule.scrollLeft - dx);
           schedule.scrollTo({left: newX, behavior: 'instant'});
         }
       }
