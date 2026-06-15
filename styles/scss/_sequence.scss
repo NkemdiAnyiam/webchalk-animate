@@ -90,7 +90,8 @@
   position: relative;
   overflow: scroll;
   // overscroll-behavior: contain;
-  max-height: clip-based-height-units(7.5);
+  // max-height: clip-based-height-units(7.5);
+  max-height: clip-based-height-units(12.5);
   transition: max-height 0.1s;
   background-color: inherit;
 
@@ -98,7 +99,7 @@
 }
 
 .sequence__schedule:has(.info-box-shown) {
-  max-height: clip-based-height-units(12.5) !important;
+  max-height: unset !important;
 }
 
 $schedule-wrapper-scroll-padding: 17.5px;

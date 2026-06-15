@@ -284,16 +284,22 @@ export class WebchalkSequenceElement extends HTMLElement {
         const [dx, dy] = [e.movementX, e.movementY];
         if (dy !== 0) {
           const newY = dy < 0 ? Math.floor(schedule.scrollTop - dy) : Math.ceil(schedule.scrollTop - dy);
-          schedule.scrollTo({top: newY, behavior: 'instant'});
+          const sequencesContainer = this.parentWebchalkTimelineEl!.shadowRoot!.querySelector('.timeline__sequences-container') as HTMLElement;
+          
+          // if schedule header is out of view, scroll sequences container upward instead of schedule
+          if (dy > 0 && schedule.getBoundingClientRect().top < sequencesContainer.getBoundingClientRect().top) {
+            sequencesContainer.scrollBy({top: -dy, behavior: 'instant'});
+          }
           // if dragging past the top of schedule, scroll sequences container up
-          if (dy > 0 && schedule.scrollTop === 0) {
-            const sequencesContainer = this.parentWebchalkTimelineEl!.shadowRoot!.querySelector('.timeline__sequences-container') as HTMLElement;
+          else if (dy > 0 && schedule.scrollTop === 0) {
             sequencesContainer.scrollBy({top: -dy, behavior: 'instant'});
           }
           // if dragging past the bottom of schedule, scroll sequences container down
           else if (dy < 0 && newY > schedule.scrollHeight - schedule.getBoundingClientRect().height) {
-            const sequencesContainer = this.parentWebchalkTimelineEl!.shadowRoot!.querySelector('.timeline__sequences-container') as HTMLElement;
             sequencesContainer.scrollBy({top: -dy, behavior: 'instant'});
+          }
+          else {
+            schedule.scrollTo({top: newY, behavior: 'instant'});
           }
         }
         if (dx !== 0) {

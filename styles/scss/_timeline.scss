@@ -222,11 +222,13 @@
   background-color: #221212;
 }
 
-@container timeline-ui (min-height: 0px)   { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(1.0); } } }
-@container timeline-ui (min-height: 220px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(1.5); } } }
-@container timeline-ui (min-height: 255px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(2.5); } } }
-@container timeline-ui (min-height: 290px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(3.5); } } }
-@container timeline-ui (min-height: 325px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(4.5); } } }
-@container timeline-ui (min-height: 360px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(5.5); } } }
-@container timeline-ui (min-height: 395px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(6.5); } } }
-@container timeline-ui (min-height: 430px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(7.5); } } }
+@container timeline-ui (min-height: 0px)   { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(2.0); } } }
+@container timeline-ui (min-height: 220px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(2.5); } } }
+@container timeline-ui (min-height: 255px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(3.5); } } }
+@container timeline-ui (min-height: 290px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(4.5); } } }
+@container timeline-ui (min-height: 325px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(5.5); } } }
+@container timeline-ui (min-height: 360px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(6.5); } } }
+@container timeline-ui (min-height: 395px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(7.5); } } }
+@container timeline-ui (min-height: 430px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(8.5); } } }
+@container timeline-ui (min-height: 465px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(9.5); } } }
+@container timeline-ui (min-height: 500px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(10.5); } } }
