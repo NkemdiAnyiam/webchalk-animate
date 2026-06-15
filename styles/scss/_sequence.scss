@@ -65,7 +65,42 @@
 }
 
 .sequence__control--play-light {
+  position: relative;
   border-radius: 50%;
+  background-color: var(--color-primary-blue);
+  padding: hem(0.2);
+
+  display: grid;
+  place-content: center;
+
+  .sequence__control-light-svg {
+    position: absolute;
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    // transition: opacity 0.1s;
+    
+    &--active {
+      box-shadow: 0 0 4px hem(0.3) var(--color-glow-blue-light);
+      // display: none;
+      opacity: 0;
+      visibility: hidden;
+    }
+    &--inactive {
+      opacity: 75%;
+      mix-blend-mode: multiply;
+    }
+  }
+
+  &.sequence__control--active {
+    .sequence__control-light-svg--active {
+      visibility: visible;
+      opacity: 1;
+    }
+    .sequence__control-light-svg--inactive {
+      // display: none;
+    }
+  }
 }
 
 .sequence__control--jump-button {

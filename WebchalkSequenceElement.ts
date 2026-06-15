@@ -310,4 +310,14 @@ export class WebchalkSequenceElement extends HTMLElement {
       overlayEl.classList.remove('sequence__dark-overlay--shown');
     }
   }
+
+  togglePlayLight(state: boolean) {
+    const lightEl = this.shadowRoot!.querySelector('.sequence__control--play-light') as HTMLElement;
+    if (state === true) {
+      lightEl.classList.add('sequence__control--active');
+    }
+    else {
+      lightEl.classList.remove('sequence__control--active');
+    }
+  }
 }
