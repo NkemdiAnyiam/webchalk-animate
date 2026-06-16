@@ -43,6 +43,11 @@ const seq1 = webchalk.newSequence(
     Exit(redSquare, '~fade-out', [], {duration: 1000}),
     Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000}),
     Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000}),
+    // Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: false, description: 'Move blue circle', delay: 1000}),
+    // Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: false, description: 'Move blue circle', delay: 1000}),
+    // Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: false, description: 'Move blue circle', delay: 1000}),
+    // Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: false, description: 'Move blue circle', delay: 1000}),
+    // Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: false, description: 'Move blue circle', delay: 1000}),
     Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: false, description: 'Move blue circle', delay: 1000}),
     Entrance(redSquare, '~pinwheel', [1, 'clockwise'], {duration: 500, description: 'Enter red square'},),
     // Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 5000}),
@@ -50,7 +55,7 @@ const seq1 = webchalk.newSequence(
 ]);
 timeline.addSequences([seq1]);
 
-const seq2 = webchalk.newSequence();
+const seq2 = webchalk.newSequence({autoplays: true});
 seq2.addClips([
   Motion(blueCircle, '~translate', [{translate: '200px 200px'}], {duration: 1000}),
   Motion(blueCircle, '~translate', [{translate: '200px 0'}], {duration: 1000}),

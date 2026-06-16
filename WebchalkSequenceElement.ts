@@ -5,6 +5,7 @@ import { createElFromString } from './src/4_utils/helpers';
 import { AnimSequence } from './src/1_playbackStructures/AnimationSequence';
 import { AnimClip } from './src/1_playbackStructures/AnimationClip';
 import { hem, WebchalkTimelinePaneElement } from './WebchalkTimelinePane';
+import { defaultClipFactories } from './src/Webchalk';
 
 const str = fs.readFileSync('./htmlComponents/sequence.html', 'utf-8');
 
@@ -217,6 +218,8 @@ export class WebchalkSequenceElement extends HTMLElement {
   }
 
   startPlayhead(direction: 'forward' | 'backward') {
+    // this.shadowRoot?.host.scrollIntoView({behavior: 'smooth'});
+    
     requestAnimationFrame(() => {
       this.playheadLoop(direction);
     });

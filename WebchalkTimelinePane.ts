@@ -4,6 +4,8 @@ import { AnimTimeline } from './src/1_playbackStructures/AnimationTimeline';
 import { AnimSequence } from './src/1_playbackStructures/AnimationSequence';
 
 import { createElFromString, highlightCodeEls } from './src/4_utils/helpers';
+import { defaultClipFactories } from './src/Webchalk';
+import { AnimClip } from './src/1_playbackStructures/AnimationClip';
 
 const str = fs.readFileSync('./htmlComponents/timeline-pane.html', 'utf-8');
 
@@ -192,5 +194,25 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     }
 
     highlightCodeEls(bodyEl);
+  }
+
+  scrollToSequence(sequence: AnimSequence, direction: 'forward' | 'backward', block: 'nearest' | 'start' = 'nearest') {
+    // defaultClipFactories.Scroller(
+    //   this.shadowRoot!.querySelector('.timeline__sequences-container'),
+    //   '~scroll-self',
+    //   [sequence.webchalkSequenceEl, {preserveX: true, scrollableOffset: [0, 'center'], targetOffset: [0, direction === 'forward' ? 'top' : 'bottom']}],
+    //   {duration: 125}
+    // ).play();
+    sequence.webchalkSequenceEl?.scrollIntoView({block: block, 'behavior': 'smooth'})
+  }
+
+  scrollToClip(clip: AnimClip, direction: 'forward' | 'backward') {
+    // defaultClipFactories.Scroller(
+    //   this.shadowRoot!.querySelector('.timeline__sequences-container'),
+    //   '~scroll-self',
+    //   [clip.webchalkClipEl, {preserveX: true, scrollableOffset: [0, 'center + 20%'], targetOffset: [0, direction === 'forward' ? 'top' : 'bottom']}],
+    //   {duration: 1000, easing: 'ease-in-out'}
+    // ).play();
+    // clip.webchalkClipEl?.scrollIntoView({block: 'nearest', behavior: 'smooth'});
   }
 }

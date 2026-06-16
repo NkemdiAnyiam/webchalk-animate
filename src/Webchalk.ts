@@ -891,6 +891,7 @@ export class Webchalk {
  * @ignore
  */
 export const webchalk = new Webchalk();
+export const defaultClipFactories = webchalk.createAnimationClipFactories(); // TODO: do this better
 
 // const thing =  webchalk.createAnimationClipFactories({
 //   additionalEntranceEffectBank: definePresetEffectBank('Entrance', {

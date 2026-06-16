@@ -1452,6 +1452,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     else
       { animation.play(); }
     if (this._parentSequence?.getStatus('isPaused')) { this.pause(this.parentSequence); }
+    this._parentTimeline?.webchalkTimelineEl?.scrollToClip(this, direction);
     
     // After delay phase, apply class modifications and call onStart functions.
     animation.onDelayFinish = () => {

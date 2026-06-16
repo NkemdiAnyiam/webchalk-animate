@@ -3,7 +3,7 @@ import { CustomErrorClasses, errorTip, generateError, TimelineErrorGenerator } f
 import { getPartial } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { WebchalkPlaybackButtonElement } from "../3_components/WebchalkPlaybackButtonElement";
-import { webchalk } from "../Webchalk";
+import { defaultClipFactories, webchalk } from "../Webchalk";
 import { WebchalkTimelinePaneElement } from "../../WebchalkTimelinePane";
 
 // TYPE
@@ -223,7 +223,7 @@ export class AnimTimeline {
    * @group Structure
    */
   get root(): AnimTimeline { return this; }
-  private animSequences: AnimSequence[] = []; // array of every AnimSequence in this timeline
+  /** @internal */ animSequences: AnimSequence[] = []; // array of every AnimSequence in this timeline
   /**
    * The number of sequences in this timeline.
    * @group Structure
@@ -877,6 +877,7 @@ export class AnimTimeline {
     if (this.config.debugMode) { console.log(`${this.stepNumber} -->>: ${loadedSeq.getDescription()} [Jump tag: ${loadedSeq.getJumpTag() || '<blank sequence tag>'}]`); }
 
     const toPlay = sequences[this.loadedSeqIndex];
+    this.webchalkTimelineEl?.scrollToSequence(toPlay, this.currentDirection);
     this.inProgressSequences.set(toPlay.id, toPlay);
     await sequences[this.loadedSeqIndex].play(); // wait for the current AnimSequence to finish all of its animations
     this.inProgressSequences.delete(toPlay.id);
@@ -886,6 +887,10 @@ export class AnimTimeline {
       sequences[this.loadedSeqIndex - 1].getTiming('autoplaysNextSequence') // sequence that was just played
       || sequences[this.loadedSeqIndex].getTiming('autoplays') // new next sequence
     );
+
+    if (!autoplayNext && !this.atEnd) {
+      this.webchalkTimelineEl?.scrollToSequence(sequences[this.loadedSeqIndex], this.currentDirection);
+    }
 
     return autoplayNext;
   }
@@ -905,6 +910,7 @@ export class AnimTimeline {
     if (this.config.debugMode) { console.log(`<<-- ${this.stepNumber}: ${prevSeq.getDescription()} [Jump tag: ${prevSeq.getJumpTag() || '<blank sequence tag>'}]`); }
 
     const toRewind = sequences[prevSeqIndex];
+    this.webchalkTimelineEl?.scrollToSequence(toRewind, this.currentDirection);
     this.inProgressSequences.set(toRewind.id, toRewind);
     await sequences[prevSeqIndex].rewind();
     this.inProgressSequences.delete(toRewind.id);
@@ -913,6 +919,10 @@ export class AnimTimeline {
       sequences[prevSeqIndex - 1].getTiming('autoplaysNextSequence') // new prev sequence
       || sequences[prevSeqIndex].getTiming('autoplays') // sequence that was just rewound
     );
+
+    if (!autorewindPrevious && !this.atBeginning) {
+      this.webchalkTimelineEl?.scrollToSequence(sequences[prevSeqIndex - 1], this.currentDirection);
+    }
 
     return autorewindPrevious;
   }
@@ -1299,6 +1309,7 @@ export class AnimTimeline {
         default:
           break;
       }
+      this.webchalkTimelineEl?.scrollToSequence(this.animSequences[this.loadedSeqIndex], 'forward', 'start');
       this.playbackButtons.backwardButton?.styleDeactivation();
     }
 
