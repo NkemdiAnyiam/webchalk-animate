@@ -1277,22 +1277,35 @@ export class AnimTimeline {
 
     // play to the target sequence without playing the sequence
     if (this.loadedSeqIndex <= targetIndex) {
-      this.playbackButtons.forwardButton?.styleActivation();
-      while (this.loadedSeqIndex < targetIndex) { await this.stepForward(); }
-      switch(autoplayDetection) {
-        // if autoplay detection forward, play as long as the loaded sequence is supposed to be autoplayed
-        case "forward":
-          await continueAutoplayForward();
-          break;
-        // if autoplay detection backward, rewind as long as the loaded sequence is supposed to be autoplayed
-        case "backward":
-          await continueAutoplayBackward();
-          break;
-        case "none": // do nothing
-        default:
-          break;
+      // Only proceed if the target sequence is NOT the current index or auto next will execute
+      const sameSeq = this.loadedSeqIndex === targetIndex;
+      const wouldAutoNext = autoplayDetection === 'forward'
+        && (
+          this.animSequences[this.loadedSeqIndex].getTiming('autoplaysNextSequence')
+          || this.animSequences[this.loadedSeqIndex + 1]?.getTiming('autoplays')
+        );
+      if (!sameSeq || wouldAutoNext) {
+        this.playbackButtons.forwardButton?.styleActivation();
+        while (this.loadedSeqIndex < targetIndex) { await this.stepForward(); }
+        switch(autoplayDetection) {
+          // if autoplay detection forward, play as long as the loaded sequence is supposed to be autoplayed
+          case "forward":
+            // if the target sequence was never different but auto next is expected, we need to do the first step forward manually
+            if (sameSeq && wouldAutoNext) {
+              await this.stepForward();
+            }
+            await continueAutoplayForward();
+            break;
+          // if autoplay detection backward, rewind as long as the loaded sequence is supposed to be autoplayed
+          case "backward":
+            await continueAutoplayBackward();
+            break;
+          case "none": // do nothing
+          default:
+            break;
+        }
+        this.playbackButtons.forwardButton?.styleDeactivation();
       }
-      this.playbackButtons.forwardButton?.styleDeactivation();
     }
     // rewind to the target sequence and rewind the sequence as well
     else {
