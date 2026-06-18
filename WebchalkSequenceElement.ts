@@ -145,6 +145,8 @@ export class WebchalkSequenceElement extends HTMLElement {
 
     sequenceEl.querySelector('.sequence__description')!.textContent = sequence.getDescription();
     sequenceEl.querySelector('.sequence__number')!.textContent = `${sequence.getHierarchy().sequenceNumber}.`;
+    if (sequence.getTiming('autoplays')) { this.classList.add('autoplays'); }
+    if (sequence.getTiming('autoplaysNextSequence')) { this.classList.add('auto-next'); }
 
     this.insertClips(0, sequence.animClips);
     

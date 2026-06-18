@@ -55,7 +55,7 @@ const seq1 = webchalk.newSequence(
 ]);
 timeline.addSequences([seq1]);
 
-const seq2 = webchalk.newSequence({autoplays: true});
+const seq2 = webchalk.newSequence({autoplays: true, autoplaysNextSequence: true});
 seq2.addClips([
   Motion(blueCircle, '~translate', [{translate: '200px 200px'}], {duration: 1000}),
   Motion(blueCircle, '~translate', [{translate: '200px 0'}], {duration: 1000}),
