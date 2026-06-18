@@ -35,9 +35,7 @@
 }
 
 .clip__body {
-  position: relative;
   flex: 1 0 auto;
-  // height: 100%;
   background-color: var(--clip-bg);
 
   display: flex;
@@ -79,7 +77,6 @@
 .clip__length-bars {
   height: hem(2);
   position: absolute;
-  top: 0;
 
   display: flex;
 }
@@ -131,7 +128,6 @@
 /* EFFECT CATEGORY */
 .clip__effect-category {
   margin-right: -1.5px;
-  // width: hem(2);
   padding: 0 hem(0.15);
 
   display: flex;
@@ -140,7 +136,6 @@
 }
 
 .clip__effect-category-icon {
-  // font-family: "Roboto";
   font-weight: 900;
   text-align: center;
 }
