@@ -249,6 +249,7 @@ $schedule-wrapper-scroll-padding: 17.5px;
   border-left: hem(0.2) dashed var(--color-glow-light);
   position: sticky;
   top: hem(0);
+  margin-bottom: 17.5px; // accounts for padding below
   transform: translateX(calc(50% + $sequence-left-side-width)); // to center it
   // bottom: $schedule-wrapper-scroll-padding;
   z-index: $z--schedule-playhead;
