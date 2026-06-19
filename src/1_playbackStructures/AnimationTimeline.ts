@@ -802,6 +802,18 @@ export class AnimTimeline {
     this.webchalkTimelineEl.style.removeProperty('display');
   }
 
+  /** @internal */
+  detachUI() {
+    // if (!this.uiAttached) { throw this.generateError(Error('AnimTimeline UI is already not attached.')); }
+    if (!this.uiAttached) { return; }
+    this.webchalkTimelineEl!.remove();
+    this.webchalkTimelineEl = undefined;
+
+    for (const sequence of this.animSequences) {
+      sequence.detachUI();
+    }
+  }
+
   /*-:**************************************************************************************************************************/
   /*-:*************************************        PLAYBACK METHODS        *****************************************************/
   /*-:**************************************************************************************************************************/

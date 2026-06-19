@@ -83,6 +83,11 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     this.insertSequences(0, timeline.getHierarchy().sequences);
   }
 
+  remove() {
+    super.remove();
+    this.animTimeline = undefined;
+  }
+
   attachTimelineUIResizer() {
     const timelineUI = this.shadowRoot?.querySelector('.timeline') as HTMLDivElement;
 

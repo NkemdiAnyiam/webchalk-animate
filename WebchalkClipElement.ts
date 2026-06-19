@@ -120,7 +120,7 @@ export class WebchalkClipElement extends HTMLElement {
 
   removeInfoBox = () => {
     const infoBox = this.shadowRoot!.querySelector('webchalk-clip-info-box') as WebchalkClipInfoBoxElement;
-    infoBox.remove();
+    infoBox?.remove();
     this.infoBoxShown = false;
     this.classList.remove('info-box-shown');
   };
