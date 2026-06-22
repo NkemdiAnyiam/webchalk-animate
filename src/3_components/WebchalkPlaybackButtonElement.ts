@@ -122,6 +122,7 @@ export class WebchalkPlaybackButtonElement extends HTMLElement {
   setUpListeners(): void {
     // handle button activation with keyboard shortcut
     if (this.shortcutKey) {
+      // TODO: prevent this from eating keyboard presses while inside things like inputs
       window.addEventListener('keydown', this.handleShortcutPress);
       window.addEventListener('keyup', this.handleShortcutRelease);
       const actionTitleCase = this.action.split('-').map(stringFrag => stringFrag[0].toUpperCase()+stringFrag.slice(1)).join(' ');

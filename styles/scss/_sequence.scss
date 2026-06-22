@@ -142,22 +142,9 @@
 }
 
 .sequence__control--jump-button {
-  border: none;
-  border-radius: 2px;
-  padding: hem(0.4);
-  aspect-ratio: 1/1;
-  background-color: var(--color-gray-darkest);
-  border-radius: 25%;
-  box-shadow: 2px 2px 2px 1px #53535399;
-
-  display: grid;
-  place-content: center;
 }
 
 .sequence__control-icon {
-  fill: var(--color-gray-lightest);
-  width: 100%;
-  height: 100%;
 }
 
 /* SCHEDULE */

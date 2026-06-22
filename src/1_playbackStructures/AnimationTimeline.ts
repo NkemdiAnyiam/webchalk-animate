@@ -900,6 +900,7 @@ export class AnimTimeline {
       || sequences[this.loadedSeqIndex].getTiming('autoplays') // new next sequence
     );
 
+    // TODO: account for when jumping without autoplay detection enabled
     if (!autoplayNext && !this.atEnd) {
       this.webchalkTimelineEl?.scrollToSequence(sequences[this.loadedSeqIndex], this.currentDirection);
     }

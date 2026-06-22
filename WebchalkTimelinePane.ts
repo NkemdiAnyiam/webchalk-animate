@@ -33,6 +33,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
 
     this.attachTimelineUIResizer();
     this.attachErrorPanelResizer();
+    this.attachJumpButtonListener();
   }
 
   insertSequences(insertionIndex: number, newSequences: AnimSequence[]) {
@@ -57,6 +58,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     }
     firstNewSequence.writeUI();
 
+    // insert the rest of the new sequences
     let insertionPoint: AnimSequence;
     // insert new sequence elements
     for (let i = insertionIndex + 1; i < newSequences.length; ++i) {
@@ -66,11 +68,25 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       insertionPoint.webchalkSequenceEl?.insertAdjacentElement('afterend', newSequence.webchalkSequenceEl!);
       newSequence.writeUI();
     }
+
+    // update step number datalist
+    const datalistEl = this.shadowRoot!.querySelector('.timeline__step-selection-datalist') as HTMLDataListElement;
+    const frag = new DocumentFragment();
+    for (let i = datalistEl.childElementCount; i < this.animTimeline!.numSequences; ++i) {
+      frag.appendChild(createElFromString(/*html*/`<option value="${i + 1}">${i + 1}</option>`));
+    }
+    datalistEl.appendChild(frag);
   }
 
   removeSequences(sequencesToRemove: AnimSequence[]) {
     for (const sequence of sequencesToRemove) {
       sequence.detachUI();
+    }
+
+    // update step number datalist
+    const datalistEl = this.shadowRoot!.querySelector('.timeline__step-selection-datalist') as HTMLDataListElement;
+    for (let i = datalistEl.childElementCount; i > this.animTimeline!.numSequences; --i) {
+      datalistEl.lastChild?.remove();
     }
   }
 
@@ -133,6 +149,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       // only do process if resizer was clicked
       if (!errorPanelResizer.classList.contains('timeline__error-panel-resizer')) { return; }
 
+      const errorPanel = this.shadowRoot?.querySelector('.timeline__error-panel') as HTMLDivElement;
       // unhighlight all text to prevent annoying dragging issues
       document.getSelection()?.removeAllRanges();
       // prevent selection in order to prevent other annoying dragging issues
@@ -200,6 +217,18 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     }
 
     highlightCodeEls(bodyEl);
+  }
+
+  attachJumpButtonListener() {
+    const jumpButtonEl = this.shadowRoot!.querySelector('.timeline__jump-button') as HTMLButtonElement;
+    jumpButtonEl.addEventListener('click', () => {
+      const inputEl = this.shadowRoot!.querySelector('.timeline__step-selection-input') as HTMLInputElement;
+      const stepNumber = Number(inputEl.value);
+      
+      if (!stepNumber) { return; }
+
+      this.animTimeline?.jumpToPosition(stepNumber - 1);
+    });
   }
 
   scrollToSequence(sequence: AnimSequence, direction: 'forward' | 'backward', block: 'nearest' | 'start' = 'nearest') {

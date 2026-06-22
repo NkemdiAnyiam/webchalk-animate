@@ -2,6 +2,29 @@
   <div class="timeline__resizer" draggable="false"></div>
   <header class="timeline__header">
     <h1 class="timeline__name"></h1>
+    <div class="timeline__step-selection-container">
+      <label for="timeline__step-selection-input">Step</label>
+      <div class="timeline__step-selection-wrapper">
+        <div class="timeline__step-selection-input-container" onclick="this.querySelector('input').focus()">
+          <input
+            id="timeline__step-selection-input" class="timeline__step-selection-input" type="text" list="timeline__step-selection-datalist"
+            onclick="this.showPicker()"
+          />
+          <datalist name="timeline__step-selection-datalist" id="timeline__step-selection-datalist" class="timeline__step-selection-datalist">
+            <!-- <option value="1">1</option> -->
+          </datalist>
+        </div>
+        <button class="timeline__jump-button jump-button">
+        <svg class="sequence__control-icon jump-button__icon" viewBox="0 0 12 11" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+            <g transform="matrix(1,0,0,1,-1816,-1259.5)">
+              <g transform="matrix(1,0,0,0.983239,-180,15.3245)">
+                <path d="M1996,1265.38C1998.93,1270.29 2001.98,1269.89 2003,1270.04L2003,1267.89L2008,1272.36L2003,1276.57L2003,1274.79C2002.57,1274.71 1996.05,1273.85 1996,1265.38Z"/>
+              </g>
+            </g>
+        </svg>
+      </button>
+      </div>
+    </div>
   </header>
   <div class="timeline__sequences-container">
   </div>
@@ -14,59 +37,6 @@
     </div>
     <div class="timeline__error-panel-body-wrapper">
       <div class="timeline__error-panel-body">
-        <!-- <div class="timeline__error-panel-section">
-          <pre class="pre"><code class="language-typescript code">Entrance()</code></pre> can only play on elements that are already hidden, but this element was not hidden. To hide an element, you can do one of the following:
-          <ul>
-            <li>Use the <pre class="pre"><code class="language-typescript code">{hideNowType}</code></pre> config option to immediately hide the element from the very start.
-              </br>
-              <details>
-                <summary>Example:</summary>
-                  <pre class="pre--block"><code class="language-typescript code">
-                    const sequence = webchalk.newSequence([
-                      Entrance(elem, '~fly-in', ['from-left'], {hideNowType: 'display-none'}),
-                    ]);
-                </code></pre>
-              </details>
-            </li>
-            <li>Hide the element with <pre class="pre"><code class="language-typescript code">Exit()</code></pre> before the <pre class="pre"><code class="language-typescript code">Entrance()</code></pre> animation runs.
-              </br>
-              <details>
-                <summary>Example:</summary>
-                <pre class="pre--block"><code class="language-typescript code">
-                  const sequence = webchalk.newSequence([
-                    Exit(elem, '~fade-out', []),
-                    Entrance(elem, '~fly-in', ['from-left']),
-                  ]);
-                </code></pre>
-              </details>
-            </li>
-            <li>Manually add either <pre class="pre"><code class="code language-typescript">"webchalk-display-none"</code></pre> or <pre class="pre"><code class="code language-typescript">"webchalk-visibility-hidden"</code></pre> to its CSS class list in the HTML.
-              <br/>
-              <details>
-                <summary>Example:</summary>
-                <pre class="pre--block"><code class="language-html code">
-                  &lt;div class="some-class another-class webchalk-display-none"&gt;...&lt;/div&gt;
-                </code></pre>
-              </details>
-          </li>
-          </ul>
-        </div> -->
-
-        <!-- <div class="timeline__error-panel-section">
-          **********
-          <details>
-            <summary><h3>Tip</h3></summary>
-            <ul>
-              <li>Adding <pre class="pre"><code class="code language-typescript">"webchalk-display-none"</code></pre> to an element's CSS class list applies a <pre class="pre"><code class="code language-scss">{display: none;}</code></pre> CSS style, which completely unrenders an element.
-              </li>
-              <li>Adding <pre class="pre"><code class="code language-typescript">"webchalk-visibility-hidden"</code></pre> applies a <pre class="pre"><code class="code language-scss">{visibility: hidden;}</code></pre> CSS style, which just makes the element invisible while still taking up space.
-              </li>
-              <li>When using <pre class="pre"><code class="code language-typescript">{exitType}</code></pre> with <pre class="pre"><code class="code language-typescript">Exit()</code></pre> or <pre class="pre"><code class="code language-typescript">{hideNowType}</code></pre> with <pre class="pre"><code class="code language-typescript">Entrance()</code></pre>, you may set the config options to <pre class="pre"><code class="code language-typescript">"display-none"</code></pre> (the default for <pre class="pre"><code class="code language-typescript">{exitType}</code></pre>) or <pre class="pre"><code class="code language-typescript">"visibility-hidden"</code></pre>, but behind the scenes, this just determines whether to add the class <pre class="pre"><code class="code language-typescript">"webchalk-display-none"</code></pre> or the class <pre class="pre"><code class="code language-typescript">"webchalk-visibility-hidden"</code></pre>.
-              </li>
-            </ul>
-          </details>
-          **********
-        </div> -->
       </div>
     </div>
   </div>
