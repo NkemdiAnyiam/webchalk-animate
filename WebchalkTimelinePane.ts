@@ -4,7 +4,7 @@ import { AnimTimeline } from './src/1_playbackStructures/AnimationTimeline';
 import { AnimSequence } from './src/1_playbackStructures/AnimationSequence';
 
 import { createElFromString, highlightCodeEls } from './src/4_utils/helpers';
-import { defaultClipFactories } from './src/Webchalk';
+// import { defaultClipFactories } from './src/Webchalk';
 import { AnimClip } from './src/1_playbackStructures/AnimationClip';
 
 const str = fs.readFileSync('./htmlComponents/timeline-pane.html', 'utf-8');

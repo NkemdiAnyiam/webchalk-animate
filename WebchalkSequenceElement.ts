@@ -5,9 +5,7 @@ import { createElFromString } from './src/4_utils/helpers';
 import { AnimSequence } from './src/1_playbackStructures/AnimationSequence';
 import { AnimClip } from './src/1_playbackStructures/AnimationClip';
 import { hem, WebchalkTimelinePaneElement } from './WebchalkTimelinePane';
-import { defaultClipFactories } from './src/Webchalk';
-
-const str = fs.readFileSync('./htmlComponents/sequence.html', 'utf-8');
+// import { defaultClipFactories } from './src/Webchalk';
 
 export class WebchalkSequenceElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-sequence', WebchalkSequenceElement); }

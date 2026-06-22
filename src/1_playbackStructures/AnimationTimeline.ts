@@ -3,7 +3,7 @@ import { CustomErrorClasses, errorTip, generateError, TimelineErrorGenerator } f
 import { getPartial } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { WebchalkPlaybackButtonElement } from "../3_components/WebchalkPlaybackButtonElement";
-import { defaultClipFactories, webchalk } from "../Webchalk";
+import { /*defaultClipFactories,*/ webchalk } from "../Webchalk";
 import { WebchalkTimelinePaneElement } from "../../WebchalkTimelinePane";
 
 // TYPE
