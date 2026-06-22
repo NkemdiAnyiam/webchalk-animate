@@ -1,8 +1,6 @@
 import { CustomErrorClasses } from "./errors";
 import { CssLength, CssXAlignment, CssYAlignment, ScrollingOptions, ParsedMultiUnitPlacement, MultiUnitPlacementX, MultiUnitPlacementY, StyleProperty, TextNodeDatum, RootNodeEditStats, InfixTextNodeList } from "./interfaces";
 import { KeyOf, PickFromArray } from "./utilityTypes";
-// TODO: figure out how to fix the typing error here
-/** @ts-ignore */
 import { hljs } from './highlightjs/index.js';
 
 /**
