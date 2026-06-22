@@ -220,14 +220,23 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
   }
 
   attachJumpButtonListener() {
+    // read jump position from input and then jump to that position when button is pressed
     const jumpButtonEl = this.shadowRoot!.querySelector('.timeline__jump-button') as HTMLButtonElement;
     jumpButtonEl.addEventListener('click', () => {
       const inputEl = this.shadowRoot!.querySelector('.timeline__step-selection-input') as HTMLInputElement;
       const stepNumber = Number(inputEl.value);
       
       if (!stepNumber) { return; }
-
+      
       this.animTimeline?.jumpToPosition(stepNumber - 1);
+    });
+    
+    // treat pressing Enter inside the input as pressing the jump button
+    const inputEl = this.shadowRoot!.querySelector('.timeline__step-selection-input') as HTMLInputElement;
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        jumpButtonEl.click();
+      }
     });
   }
 
