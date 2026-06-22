@@ -15,4 +15,5 @@ export const tsup: Options = {
   // outDir: env === 'production' ? 'dist' : 'lib',
   outDir: 'dist',
   entry: ['src/**/*.ts', 'src/**/*.js'], // include all files under src
+  tsconfig: './tsconfig.build.json',
 };

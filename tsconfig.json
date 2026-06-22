@@ -11,6 +11,5 @@
     "types": ["node"],
     "allowJs": true
   },
-  // "include": ["src"], // ONLY NEEDED FOR BUILDING PACKAGE
   "exclude": ["node_modules", "**/__tests__/*"]
 }
