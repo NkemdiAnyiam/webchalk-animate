@@ -95,7 +95,8 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       const timelineResizer = (e.target as HTMLElement);
       // only do process if resizer was clicked
       if (!timelineResizer.classList.contains('timeline__resizer')) { return; }
-
+      
+      const timelineUI = this.shadowRoot?.querySelector('.timeline') as HTMLDivElement;
       // unhighlight all text to prevent annoying dragging issues
       document.getSelection()?.removeAllRanges();
       // prevent selection in order to prevent other annoying dragging issues
