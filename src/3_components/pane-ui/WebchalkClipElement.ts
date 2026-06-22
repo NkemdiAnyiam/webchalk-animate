@@ -1,5 +1,5 @@
-// import * as fs from 'fs';
-import { stylesheet } from './templates/ts/componentStyleSheet';
+import * as fs from 'fs';
+import { stylesheet } from './componentStyleSheet';
 import { htmlComponentStr } from './templates/ts/clip';
 
 import { AnimClip } from '../../1_playbackStructures/AnimationClip';
@@ -8,7 +8,10 @@ import { EffectCategory } from '../../4_utils/interfaces';
 import { WebchalkSequenceElement } from './WebchalkSequenceElement';
 import { WebchalkClipInfoBoxElement } from './WebchalkClipInfoBoxElement';
 
-// const htmlComponentStr = fs.readFileSync('./templates/html/clip.html', 'utf-8');
+let devHtmlComponentStr: string;
+if (process.env.NODE_ENV === 'development') {
+  devHtmlComponentStr = fs.readFileSync(__dirname+'/templates/html/clip.html', 'utf-8');
+}
 
 const categoryToAbbrev = (category: EffectCategory): string => {
   switch(category) {
@@ -40,7 +43,7 @@ export class WebchalkClipElement extends HTMLElement {
     const shadow = this.attachShadow({mode: 'open'});
     shadow.adoptedStyleSheets = [stylesheet];
     const htmlString = /*html*/`
-      ${htmlComponentStr}
+      ${devHtmlComponentStr ?? htmlComponentStr}
     `;
 
     const template = document.createElement('template');

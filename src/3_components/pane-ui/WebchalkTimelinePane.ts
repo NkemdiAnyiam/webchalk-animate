@@ -1,5 +1,5 @@
-// import * as fs from 'fs';
-import { stylesheet } from './templates/ts/componentStyleSheet';
+import * as fs from 'fs';
+import { stylesheet } from './componentStyleSheet';
 import { AnimTimeline } from '../../1_playbackStructures/AnimationTimeline';
 import { AnimSequence } from '../../1_playbackStructures/AnimationSequence';
 import { htmlComponentStr } from './templates/ts/timelinePane';
@@ -8,7 +8,10 @@ import { createElFromString, highlightCodeEls } from '../../4_utils/helpers';
 // import { defaultClipFactories } from './src/Webchalk';
 import { AnimClip } from '../../1_playbackStructures/AnimationClip';
 
-// const htmlComponentStr = fs.readFileSync('./templates/html/timeline-pane.html', 'utf-8');
+let devHtmlComponentStr: string;
+if (process.env.NODE_ENV === 'development') {
+  devHtmlComponentStr = fs.readFileSync(__dirname+'/templates/html/timeline-pane.html', 'utf-8');
+}
 
 export function hem(numHem: number): string {
   return `calc(${numHem} * var(--hem))`;
@@ -24,7 +27,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     const shadow = this.attachShadow({mode: 'open'});
     shadow.adoptedStyleSheets = [stylesheet];
     const htmlString = /*html*/`
-      ${htmlComponentStr}
+      ${devHtmlComponentStr ?? htmlComponentStr}
     `;
 
     const template = document.createElement('template');

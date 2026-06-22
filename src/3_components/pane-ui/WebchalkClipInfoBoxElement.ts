@@ -1,12 +1,15 @@
-// import * as fs from 'fs';
-import { stylesheet } from './templates/ts/componentStyleSheet';
+import * as fs from 'fs';
+import { stylesheet } from './componentStyleSheet';
 import { htmlComponentStr } from './templates/ts/clipInfoBox';
 
 import { clamp, createCodeEl, createElFromString, dequoteJSON, getOpeningTag, highlightCodeEls, numToOrdinal } from '../../4_utils/helpers';
 /** @ts-ignore */
 import { AnimClip } from '../../1_playbackStructures/AnimationClip';
 
-// const htmlComponentStr = fs.readFileSync('./templates/html/clip-info-box.html', 'utf-8');
+let devHtmlComponentStr: string;
+if (process.env.NODE_ENV === 'development') {
+  devHtmlComponentStr = fs.readFileSync(__dirname+'/templates/html/clip-info-box.html', 'utf-8');
+}
 
 const hostStyles = new CSSStyleSheet();
 hostStyles.replaceSync(/*css*/`
@@ -41,7 +44,7 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
     const shadow = this.attachShadow({mode: 'open'});
     shadow.adoptedStyleSheets = [stylesheet, hostStyles];
     const htmlString = /*html*/`
-      ${htmlComponentStr}
+      ${devHtmlComponentStr ?? htmlComponentStr}
     `;
 
     const template = document.createElement('template');

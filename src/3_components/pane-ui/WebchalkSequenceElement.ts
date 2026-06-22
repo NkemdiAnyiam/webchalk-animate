@@ -1,5 +1,5 @@
-// import * as fs from 'fs';
-import { stylesheet } from './templates/ts/componentStyleSheet';
+import * as fs from 'fs';
+import { stylesheet } from './componentStyleSheet';
 import { htmlComponentStr } from './templates/ts/sequence';
 
 import { createElFromString } from '../../4_utils/helpers';
@@ -8,7 +8,10 @@ import { AnimClip } from '../../1_playbackStructures/AnimationClip';
 import { hem, WebchalkTimelinePaneElement } from './WebchalkTimelinePane';
 // import { defaultClipFactories } from './src/Webchalk';
 
-// const htmlComponentStr = fs.readFileSync('./templates/html/sequence.html', 'utf-8');
+let devHtmlComponentStr: string;
+if (process.env.NODE_ENV === 'development') {
+  devHtmlComponentStr = fs.readFileSync(__dirname+'/templates/html/sequence.html', 'utf-8');
+}
 
 export class WebchalkSequenceElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-sequence', WebchalkSequenceElement); }
@@ -35,7 +38,7 @@ export class WebchalkSequenceElement extends HTMLElement {
     const shadow = this.attachShadow({mode: 'open'});
     shadow.adoptedStyleSheets = [stylesheet];
     const htmlString = /*html*/`
-      ${htmlComponentStr}
+      ${devHtmlComponentStr ?? htmlComponentStr}
     `;
 
     const template = document.createElement('template');

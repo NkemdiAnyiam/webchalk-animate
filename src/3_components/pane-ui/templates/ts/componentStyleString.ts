@@ -1,5 +1,4 @@
-export const stylesheet = new CSSStyleSheet();
-stylesheet.replaceSync(/*css*/`
+export const componentStyleString = /*css*/`
 @charset "UTF-8";
 :host :where(.timeline) {
   --hem: 10px;
@@ -1236,4 +1235,4 @@ code {
 @container clip-info-box (max-width: 200px) {}
 
 /*# sourceMappingURL=main.css.map */
-`);
+`;
