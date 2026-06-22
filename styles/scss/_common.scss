@@ -9,9 +9,19 @@
   background-color: var(--color-gray-darkest);
   border-radius: 25%;
   box-shadow: 2px 2px 2px 1px #53535399;
+  transition: scale 0.1s, box-shadow 0.1s;
 
   display: grid;
   place-content: center;
+
+  &:hover {
+    box-shadow: 1px 1px 1px 1px #53535399;
+    scale: 96%;
+  }
+  &:active {
+    box-shadow: 0.5px 0.5px 1px 1px #44444499;
+    scale: 90%;
+  }
 }
 
 .jump-button__icon {
