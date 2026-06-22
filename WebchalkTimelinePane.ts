@@ -1,13 +1,11 @@
-import * as fs from 'fs';
 import { stylesheet } from './componentStyleString';
 import { AnimTimeline } from './src/1_playbackStructures/AnimationTimeline';
 import { AnimSequence } from './src/1_playbackStructures/AnimationSequence';
+import { htmlComponentStr } from './componentTemplates/ts/timelinePane';
 
 import { createElFromString, highlightCodeEls } from './src/4_utils/helpers';
 // import { defaultClipFactories } from './src/Webchalk';
 import { AnimClip } from './src/1_playbackStructures/AnimationClip';
-
-const str = fs.readFileSync('./htmlComponents/timeline-pane.html', 'utf-8');
 
 export function hem(numHem: number): string {
   return `calc(${numHem} * var(--hem))`;
@@ -23,7 +21,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     const shadow = this.attachShadow({mode: 'open'});
     shadow.adoptedStyleSheets = [stylesheet];
     const htmlString = /*html*/`
-      ${str}
+      ${htmlComponentStr}
     `;
 
     const template = document.createElement('template');

@@ -1,0 +1,45 @@
+export const htmlComponentStr = /*html*/`
+<div class="timeline">
+  <div class="timeline__resizer" draggable="false"></div>
+  <header class="timeline__header">
+    <h1 class="timeline__name"></h1>
+    <div class="timeline__step-selection-container">
+      <label for="timeline__step-selection-input">Step</label>
+      <div class="timeline__step-selection-wrapper">
+        <div class="timeline__step-selection-input-container" onclick="this.querySelector('input').focus()">
+          <input
+            id="timeline__step-selection-input" class="timeline__step-selection-input" type="text" list="timeline__step-selection-datalist"
+            onclick="this.showPicker()"
+          />
+          <datalist name="timeline__step-selection-datalist" id="timeline__step-selection-datalist" class="timeline__step-selection-datalist">
+            <!-- <option value="1">1</option> -->
+          </datalist>
+        </div>
+        <button class="timeline__jump-button jump-button">
+        <svg class="sequence__control-icon jump-button__icon" viewBox="0 0 12 11" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+            <g transform="matrix(1,0,0,1,-1816,-1259.5)">
+              <g transform="matrix(1,0,0,0.983239,-180,15.3245)">
+                <path d="M1996,1265.38C1998.93,1270.29 2001.98,1269.89 2003,1270.04L2003,1267.89L2008,1272.36L2003,1276.57L2003,1274.79C2002.57,1274.71 1996.05,1273.85 1996,1265.38Z"/>
+              </g>
+            </g>
+        </svg>
+      </button>
+      </div>
+    </div>
+  </header>
+  <div class="timeline__sequences-container">
+  </div>
+  <div class="timeline__error-panel">
+    <div class="timeline__error-panel-resizer" draggable="false"></div>
+    <div class="timeline__error-panel-heading-container">
+      <h2 class="timeline__error-panel-heading-text">
+        <!-- ERROR: Invalid Entrance Attempt -->
+      </h2>
+    </div>
+    <div class="timeline__error-panel-body-wrapper">
+      <div class="timeline__error-panel-body">
+      </div>
+    </div>
+  </div>
+</div>
+`;

@@ -1,10 +1,10 @@
-import * as fs from 'fs';
 import { stylesheet } from './componentStyleString';
+import { htmlComponentStr } from './componentTemplates/ts/clipInfoBox';
+
 import { clamp, createCodeEl, createElFromString, dequoteJSON, getOpeningTag, highlightCodeEls, numToOrdinal } from './src/4_utils/helpers';
 /** @ts-ignore */
 import { AnimClip } from './src/1_playbackStructures/AnimationClip';
 
-const str = fs.readFileSync('./htmlComponents/clip-info-box.html', 'utf-8');
 const hostStyles = new CSSStyleSheet();
 hostStyles.replaceSync(/*css*/`
   :host {
@@ -38,7 +38,7 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
     const shadow = this.attachShadow({mode: 'open'});
     shadow.adoptedStyleSheets = [stylesheet, hostStyles];
     const htmlString = /*html*/`
-      ${str}
+      ${htmlComponentStr}
     `;
 
     const template = document.createElement('template');

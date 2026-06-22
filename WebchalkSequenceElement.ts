@@ -1,5 +1,5 @@
-import * as fs from 'fs';
 import { stylesheet } from './componentStyleString';
+import { htmlComponentStr } from './componentTemplates/ts/sequence';
 
 import { createElFromString } from './src/4_utils/helpers';
 import { AnimSequence } from './src/1_playbackStructures/AnimationSequence';
@@ -32,7 +32,7 @@ export class WebchalkSequenceElement extends HTMLElement {
     const shadow = this.attachShadow({mode: 'open'});
     shadow.adoptedStyleSheets = [stylesheet];
     const htmlString = /*html*/`
-      ${str}
+      ${htmlComponentStr}
     `;
 
     const template = document.createElement('template');

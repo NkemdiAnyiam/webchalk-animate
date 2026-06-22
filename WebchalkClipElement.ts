@@ -1,12 +1,11 @@
-import * as fs from 'fs';
 import { stylesheet } from './componentStyleString';
+import { htmlComponentStr } from './componentTemplates/ts/clip';
+
 import { AnimClip } from './src/1_playbackStructures/AnimationClip';
 import { TBA_DURATION } from './src/4_utils/helpers';
 import { EffectCategory } from './src/4_utils/interfaces';
 import { WebchalkSequenceElement } from './WebchalkSequenceElement';
 import { WebchalkClipInfoBoxElement } from './WebchalkClipInfoBoxElement';
-
-const str = fs.readFileSync('./htmlComponents/clip.html', 'utf-8');
 
 const categoryToAbbrev = (category: EffectCategory): string => {
   switch(category) {
@@ -38,7 +37,7 @@ export class WebchalkClipElement extends HTMLElement {
     const shadow = this.attachShadow({mode: 'open'});
     shadow.adoptedStyleSheets = [stylesheet];
     const htmlString = /*html*/`
-      ${str}
+      ${htmlComponentStr}
     `;
 
     const template = document.createElement('template');

@@ -1,0 +1,18 @@
+export const htmlComponentStr = /*html*/`
+<div class="clip-info-box">
+  <div class="clip-info-box__resizer clip-info-box__resizer--width" draggable="false"></div>
+  <div class="clip-info-box__resizer clip-info-box__resizer--height" draggable="false"></div>
+  <div class="clip-info-box__inner-wrapper">
+    <nav class="clip-info-box__nav">
+      <ul class="clip-info-box__tabs">
+        <li class="clip-info-box__tab"><button class="clip-info-box__tab-button clip-info-box__tab-button--current">Location</button></li>
+        <li class="clip-info-box__tab"><button class="clip-info-box__tab-button">Effect Options</button></li>
+        <li class="clip-info-box__tab"><button class="clip-info-box__tab-button">Configuration</button></li>
+      </ul>
+      <button class="clip-info-box__close-button">X</button>
+    </nav>
+    <div class="clip-info-box__body">
+    </div>
+  </div>
+</div>
+`;
