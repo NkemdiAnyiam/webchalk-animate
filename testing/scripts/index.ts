@@ -589,6 +589,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   const timeline = webchalk.newTimeline({timelineName: 'Basic', autoLinksButtons: false, debugMode: true});
   timeline.linkPlaybackButtons();
+  timeline.attachUI();
   // await wait(1000);
   const testAdjacency = webchalk.newSequence([
     tEdit,
