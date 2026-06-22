@@ -236,7 +236,7 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
       handleDrag = (e: MouseEvent) => {
         // change box height based on mouse movement
         const y = e.movementY;
-        // TODO: figure out how fine-tune if including overall scroll or timeline height
+        // TODO: figure out how to fine-tune if including overall scroll or timeline height
         // timelineUI.style.height = `${Number.parseFloat(getComputedStyle(timelineUI).height) - y}px`;
         // scheduleEl.scrollTo({top: scheduleEl.scrollTop + y, behavior: 'instant'});
         const {height, minHeight, maxHeight} = getComputedStyle(bodyEl);
