@@ -15,7 +15,7 @@ for (const htmlFileName of htmlFileNames) {
     `${htmlFolderPath}/${htmlFileName}.html`,
     {encoding: 'utf-8'},
     (err, htmlStr) => {
-      if (err) { throw new Error(err.message + ` HTML Path: ${tsFolderPath}/${htmlFileName}.ts}`); }
+      if (err) { throw new Error(err.message + ` HTML Path: ${htmlFolderPath}/${htmlFileName}.html}`); }
 
       const tsStr = `export const htmlComponentStr = /*html*/\`\n${htmlStr.trim()}\n\`;\n`
       const tsFileName = htmlFileNameToTsFileName(htmlFileName);
