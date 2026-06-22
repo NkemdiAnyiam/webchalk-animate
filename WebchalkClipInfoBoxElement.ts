@@ -1,9 +1,12 @@
-import { stylesheet } from './componentStyleString';
+// import * as fs from 'fs';
+import { stylesheet } from './componentTemplates/ts/componentStyleSheet';
 import { htmlComponentStr } from './componentTemplates/ts/clipInfoBox';
 
 import { clamp, createCodeEl, createElFromString, dequoteJSON, getOpeningTag, highlightCodeEls, numToOrdinal } from './src/4_utils/helpers';
 /** @ts-ignore */
 import { AnimClip } from './src/1_playbackStructures/AnimationClip';
+
+// const htmlComponentStr = fs.readFileSync('./componentTemplates/html/clip-info-box.html', 'utf-8');
 
 const hostStyles = new CSSStyleSheet();
 hostStyles.replaceSync(/*css*/`

@@ -1,4 +1,5 @@
-import { stylesheet } from './componentStyleString';
+// import * as fs from 'fs';
+import { stylesheet } from './componentTemplates/ts/componentStyleSheet';
 import { htmlComponentStr } from './componentTemplates/ts/sequence';
 
 import { createElFromString } from './src/4_utils/helpers';
@@ -6,6 +7,8 @@ import { AnimSequence } from './src/1_playbackStructures/AnimationSequence';
 import { AnimClip } from './src/1_playbackStructures/AnimationClip';
 import { hem, WebchalkTimelinePaneElement } from './WebchalkTimelinePane';
 // import { defaultClipFactories } from './src/Webchalk';
+
+// const htmlComponentStr = fs.readFileSync('./componentTemplates/html/sequence.html', 'utf-8');
 
 export class WebchalkSequenceElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-sequence', WebchalkSequenceElement); }
