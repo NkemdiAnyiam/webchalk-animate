@@ -10,7 +10,7 @@ import { DOMElement, EffectCategory, Mutator, StyleProperty } from "../4_utils/i
 import { WebchalkConnectorElement } from "../3_components/WebchalkConnectorElement";
 import { WebchalkAnimation, NestedWebchalkAnimation } from "./WebchalkAnimation";
 import { PartialPick, PickFromArray, WithRequired } from "../4_utils/utilityTypes";
-import { WebchalkClipElement } from "../../WebchalkClipElement";
+import { WebchalkClipElement } from "../3_components/pane-ui/WebchalkClipElement";
 
 // /**
 //  * Spreads {@link objOrIterable} whether it is an array of keyframes

@@ -62,7 +62,15 @@
   @include category-color(entrance);
 }
 
+.clip__effect--connector-entrance {
+  @include category-color(entrance);
+}
+
 .clip__effect--exit {
+  @include category-color(exit);
+}
+
+.clip__effect--connector-exit {
   @include category-color(exit);
 }
 
@@ -72,6 +80,18 @@
 
 .clip__effect--text-editor {
   @include category-color(text-editor);
+}
+
+.clip__effect--scroller {
+  @include category-color(text-editor);
+}
+
+.clip__effect--connector-setter {
+  @include category-color(text-editor);
+}
+
+.clip__effect--emphasis {
+  @include category-color(emphasis);
 }
 
 .clip__length-bars {

@@ -1,10 +1,18 @@
 import { createStyles } from "./4_utils/helpers";
 import { WebchalkConnectorElement } from "./3_components/WebchalkConnectorElement";
 import { WebchalkPlaybackButtonElement } from "./3_components/WebchalkPlaybackButtonElement";
+import { WebchalkClipElement } from "./3_components/pane-ui/WebchalkClipElement";
+import { WebchalkClipInfoBoxElement } from "./3_components/pane-ui/WebchalkClipInfoBoxElement";
+import { WebchalkSequenceElement } from "./3_components/pane-ui/WebchalkSequenceElement";
+import { WebchalkTimelinePaneElement } from "./3_components/pane-ui/WebchalkTimelinePane";
 
 export function injectGlobals() {
   WebchalkConnectorElement.addToCustomElementRegistry();
   WebchalkPlaybackButtonElement.addToCustomElementRegistry();
+  WebchalkTimelinePaneElement.addToCustomElementRegistry();
+  WebchalkSequenceElement.addToCustomElementRegistry();
+  WebchalkClipElement.addToCustomElementRegistry();
+  WebchalkClipInfoBoxElement.addToCustomElementRegistry();
 
   // opacity of connector markers
   if (window.CSS.registerProperty) {

@@ -1,19 +1,44 @@
 @use 'utils' as *;
 
-.clip-info-box--entrance {
+.clip-info-box__effect {
+  transition: margin-left 0.1s;
+  height: min-content;
+}
+
+.clip-info-box__effect--entrance {
   @include category-color(entrance);
 }
 
-.clip-info-box--exit {
+.clip-info-box__effect--connector-entrance {
+  @include category-color(entrance);
+}
+
+.clip-info-box__effect--exit {
   @include category-color(exit);
 }
 
-.clip-info-box--motion {
+.clip-info-box__effect--connector-exit {
+  @include category-color(exit);
+}
+
+.clip-info-box__effect--motion {
   @include category-color(motion);
 }
 
-.clip-info-box--text-editor {
+.clip-info-box__effect--text-editor {
   @include category-color(text-editor);
+}
+
+.clip-info-box__effect--scroller {
+  @include category-color(text-editor);
+}
+
+.clip-info-box__effect--connector-setter {
+  @include category-color(text-editor);
+}
+
+.clip-info-box__effect--emphasis {
+  @include category-color(emphasis);
 }
 
 .clip-info-box {

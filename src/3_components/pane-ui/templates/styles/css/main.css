@@ -1,5 +1,3 @@
-export const stylesheet = new CSSStyleSheet();
-stylesheet.replaceSync(/*css*/`
 @charset "UTF-8";
 :host :where(.timeline) {
   --hem: 10px;
@@ -111,7 +109,19 @@ button {
   --hue-darkest: var(--color-entrance-darkest);
 }
 
+.clip__effect--connector-entrance {
+  --hue-light: var(--color-entrance-light);
+  --hue-dark: var(--color-entrance-dark);
+  --hue-darkest: var(--color-entrance-darkest);
+}
+
 .clip__effect--exit {
+  --hue-light: var(--color-exit-light);
+  --hue-dark: var(--color-exit-dark);
+  --hue-darkest: var(--color-exit-darkest);
+}
+
+.clip__effect--connector-exit {
   --hue-light: var(--color-exit-light);
   --hue-dark: var(--color-exit-dark);
   --hue-darkest: var(--color-exit-darkest);
@@ -127,6 +137,24 @@ button {
   --hue-light: var(--color-text-editor-light);
   --hue-dark: var(--color-text-editor-dark);
   --hue-darkest: var(--color-text-editor-darkest);
+}
+
+.clip__effect--scroller {
+  --hue-light: var(--color-text-editor-light);
+  --hue-dark: var(--color-text-editor-dark);
+  --hue-darkest: var(--color-text-editor-darkest);
+}
+
+.clip__effect--connector-setter {
+  --hue-light: var(--color-text-editor-light);
+  --hue-dark: var(--color-text-editor-dark);
+  --hue-darkest: var(--color-text-editor-darkest);
+}
+
+.clip__effect--emphasis {
+  --hue-light: var(--color-emphasis-light);
+  --hue-dark: var(--color-emphasis-dark);
+  --hue-darkest: var(--color-emphasis-darkest);
 }
 
 .clip__length-bars {
@@ -260,6 +288,9 @@ button {
   --color-motion-light: #F4BCFF;
   --color-motion-dark: #24002B;
   --color-motion-darkest: #24002B;
+  --color-emphasis-light: #eeea99;
+  --color-emphasis-dark: #444000;
+  --color-emphasis-darkest: #242200;
   --color-text-editor-light: #CDCDCD;
   --color-text-editor-dark: #242424;
   --color-text-editor-darkest: #141414;
@@ -979,28 +1010,63 @@ code {
   opacity: 0.7;
 }
 
-.clip-info-box--entrance {
+.clip-info-box__effect {
+  transition: margin-left 0.1s;
+  height: min-content;
+}
+
+.clip-info-box__effect--entrance {
   --hue-light: var(--color-entrance-light);
   --hue-dark: var(--color-entrance-dark);
   --hue-darkest: var(--color-entrance-darkest);
 }
 
-.clip-info-box--exit {
+.clip-info-box__effect--connector-entrance {
+  --hue-light: var(--color-entrance-light);
+  --hue-dark: var(--color-entrance-dark);
+  --hue-darkest: var(--color-entrance-darkest);
+}
+
+.clip-info-box__effect--exit {
   --hue-light: var(--color-exit-light);
   --hue-dark: var(--color-exit-dark);
   --hue-darkest: var(--color-exit-darkest);
 }
 
-.clip-info-box--motion {
+.clip-info-box__effect--connector-exit {
+  --hue-light: var(--color-exit-light);
+  --hue-dark: var(--color-exit-dark);
+  --hue-darkest: var(--color-exit-darkest);
+}
+
+.clip-info-box__effect--motion {
   --hue-light: var(--color-motion-light);
   --hue-dark: var(--color-motion-dark);
   --hue-darkest: var(--color-motion-darkest);
 }
 
-.clip-info-box--text-editor {
+.clip-info-box__effect--text-editor {
   --hue-light: var(--color-text-editor-light);
   --hue-dark: var(--color-text-editor-dark);
   --hue-darkest: var(--color-text-editor-darkest);
+}
+
+.clip-info-box__effect--scroller {
+  --hue-light: var(--color-text-editor-light);
+  --hue-dark: var(--color-text-editor-dark);
+  --hue-darkest: var(--color-text-editor-darkest);
+}
+
+.clip-info-box__effect--connector-setter {
+  --hue-light: var(--color-text-editor-light);
+  --hue-dark: var(--color-text-editor-dark);
+  --hue-darkest: var(--color-text-editor-darkest);
+}
+
+.clip-info-box__effect--emphasis {
+  --hue-light: var(--color-emphasis-light);
+  --hue-dark: var(--color-emphasis-dark);
+  --hue-darkest: var(--color-emphasis-darkest);
 }
 
 .clip-info-box {
@@ -1168,4 +1234,3 @@ code {
 @container clip-info-box (max-width: 200px) {}
 
 /*# sourceMappingURL=main.css.map */
-`);

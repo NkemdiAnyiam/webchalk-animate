@@ -4,7 +4,7 @@ import { getPartial } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { WebchalkPlaybackButtonElement } from "../3_components/WebchalkPlaybackButtonElement";
 import { /*defaultClipFactories,*/ webchalk } from "../Webchalk";
-import { WebchalkTimelinePaneElement } from "../../WebchalkTimelinePane";
+import { WebchalkTimelinePaneElement } from "../3_components/pane-ui/WebchalkTimelinePane";
 
 // TYPE
 /**
@@ -790,7 +790,6 @@ export class AnimTimeline {
   webchalkTimelineEl?: WebchalkTimelinePaneElement;
   get uiAttached(): boolean { return this.webchalkTimelineEl ? true : false; }
 
-  /** @internal */
   attachUI() {
     // TODO: improve error message
     if (this.uiAttached) { throw new Error('AnimTimeline UI already attached'); }
@@ -802,7 +801,6 @@ export class AnimTimeline {
     this.webchalkTimelineEl.style.removeProperty('display');
   }
 
-  /** @internal */
   detachUI() {
     // if (!this.uiAttached) { throw this.generateError(Error('AnimTimeline UI is already not attached.')); }
     if (!this.uiAttached) { return; }

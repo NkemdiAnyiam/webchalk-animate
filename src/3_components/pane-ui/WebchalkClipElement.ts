@@ -1,14 +1,14 @@
 // import * as fs from 'fs';
-import { stylesheet } from './componentTemplates/ts/componentStyleSheet';
-import { htmlComponentStr } from './componentTemplates/ts/clip';
+import { stylesheet } from './templates/ts/componentStyleSheet';
+import { htmlComponentStr } from './templates/ts/clip';
 
-import { AnimClip } from './src/1_playbackStructures/AnimationClip';
-import { TBA_DURATION } from './src/4_utils/helpers';
-import { EffectCategory } from './src/4_utils/interfaces';
+import { AnimClip } from '../../1_playbackStructures/AnimationClip';
+import { TBA_DURATION } from '../../4_utils/helpers';
+import { EffectCategory } from '../../4_utils/interfaces';
 import { WebchalkSequenceElement } from './WebchalkSequenceElement';
 import { WebchalkClipInfoBoxElement } from './WebchalkClipInfoBoxElement';
 
-// const htmlComponentStr = fs.readFileSync('./componentTemplates/html/clip.html', 'utf-8');
+// const htmlComponentStr = fs.readFileSync('./templates/html/clip.html', 'utf-8');
 
 const categoryToAbbrev = (category: EffectCategory): string => {
   switch(category) {

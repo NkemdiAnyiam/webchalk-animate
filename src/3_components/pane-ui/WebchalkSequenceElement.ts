@@ -1,14 +1,14 @@
 // import * as fs from 'fs';
-import { stylesheet } from './componentTemplates/ts/componentStyleSheet';
-import { htmlComponentStr } from './componentTemplates/ts/sequence';
+import { stylesheet } from './templates/ts/componentStyleSheet';
+import { htmlComponentStr } from './templates/ts/sequence';
 
-import { createElFromString } from './src/4_utils/helpers';
-import { AnimSequence } from './src/1_playbackStructures/AnimationSequence';
-import { AnimClip } from './src/1_playbackStructures/AnimationClip';
+import { createElFromString } from '../../4_utils/helpers';
+import { AnimSequence } from '../../1_playbackStructures/AnimationSequence';
+import { AnimClip } from '../../1_playbackStructures/AnimationClip';
 import { hem, WebchalkTimelinePaneElement } from './WebchalkTimelinePane';
 // import { defaultClipFactories } from './src/Webchalk';
 
-// const htmlComponentStr = fs.readFileSync('./componentTemplates/html/sequence.html', 'utf-8');
+// const htmlComponentStr = fs.readFileSync('./templates/html/sequence.html', 'utf-8');
 
 export class WebchalkSequenceElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-sequence', WebchalkSequenceElement); }

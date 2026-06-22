@@ -1,14 +1,14 @@
 // import * as fs from 'fs';
-import { stylesheet } from './componentTemplates/ts/componentStyleSheet';
-import { AnimTimeline } from './src/1_playbackStructures/AnimationTimeline';
-import { AnimSequence } from './src/1_playbackStructures/AnimationSequence';
-import { htmlComponentStr } from './componentTemplates/ts/timelinePane';
+import { stylesheet } from './templates/ts/componentStyleSheet';
+import { AnimTimeline } from '../../1_playbackStructures/AnimationTimeline';
+import { AnimSequence } from '../../1_playbackStructures/AnimationSequence';
+import { htmlComponentStr } from './templates/ts/timelinePane';
 
-import { createElFromString, highlightCodeEls } from './src/4_utils/helpers';
+import { createElFromString, highlightCodeEls } from '../../4_utils/helpers';
 // import { defaultClipFactories } from './src/Webchalk';
-import { AnimClip } from './src/1_playbackStructures/AnimationClip';
+import { AnimClip } from '../../1_playbackStructures/AnimationClip';
 
-// const htmlComponentStr = fs.readFileSync('./componentTemplates/html/timeline-pane.html', 'utf-8');
+// const htmlComponentStr = fs.readFileSync('./templates/html/timeline-pane.html', 'utf-8');
 
 export function hem(numHem: number): string {
   return `calc(${numHem} * var(--hem))`;

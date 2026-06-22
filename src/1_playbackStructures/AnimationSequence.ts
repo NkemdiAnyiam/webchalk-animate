@@ -4,7 +4,7 @@ import { CustomErrorClasses, errorTip, generateError, SequenceErrorGenerator } f
 import { getPartial, TBA_DURATION } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { webchalk } from "../Webchalk";
-import { WebchalkSequenceElement } from "../../WebchalkSequenceElement";
+import { WebchalkSequenceElement } from "../3_components/pane-ui/WebchalkSequenceElement";
 
 // TYPE
 /**
