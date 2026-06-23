@@ -185,13 +185,14 @@ input::-webkit-calendar-picker-indicator {
 
 .timeline__opacity-slider {
   accent-color: var(--color-gray-darkest);
+  width: hem(8);
 }
 
-.timeline__clickthrough-button-container {
-  background-color: var(--color-gray-lightest);
-  padding: hem(0.4);
-  border-radius: 2px;
-}
+// .timeline__clickthrough-button-container {
+//   background-color: var(--color-gray-lightest);
+//   padding: hem(0.4);
+//   border-radius: 2px;
+// }
 
 /* SEQUENCES CONTAINER */
 .timeline__sequences-container {
