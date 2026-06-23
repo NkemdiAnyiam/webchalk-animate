@@ -187,6 +187,7 @@ export type AddSequencesOptions = {
  */
 export class AnimTimeline {
   private static id = 0;
+  private static currentUiAttachedTimeline: AnimTimeline | null = null;
 
   private config: AnimTimelineConfig = {
     autoLinksButtons: true,
@@ -793,12 +794,14 @@ export class AnimTimeline {
   attachUI() {
     // TODO: improve error message
     if (this.uiAttached) { throw new Error('AnimTimeline UI already attached'); }
+    if (AnimTimeline.currentUiAttachedTimeline) { throw new Error(`An AnimTimeline UI is already attach {name: "${AnimTimeline.currentUiAttachedTimeline.getConfig().timelineName}". It must be detached first.`); }
     this.webchalkTimelineEl = new WebchalkTimelinePaneElement();
     this.webchalkTimelineEl.animTimeline = this;
     this.webchalkTimelineEl.style.display = 'none';
     document.documentElement.querySelector('body')?.insertAdjacentElement('beforeend', this.webchalkTimelineEl);
     this.webchalkTimelineEl.readTimeline();
     this.webchalkTimelineEl.style.removeProperty('display');
+    AnimTimeline.currentUiAttachedTimeline = this;
   }
 
   detachUI() {
@@ -810,6 +813,8 @@ export class AnimTimeline {
     for (const sequence of this.animSequences) {
       sequence.detachUI();
     }
+
+    AnimTimeline.currentUiAttachedTimeline = null;
   }
 
   /*-:**************************************************************************************************************************/
