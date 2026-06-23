@@ -211,7 +211,7 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
   }
 
   handleResizerClick = (e: MouseEvent) => {
-    const infoBox = this.shadowRoot!.querySelector('.clip-info-box') as HTMLElement;
+    const infoBox = e.currentTarget as HTMLElement;
 
     const clickTarget = (e.target as HTMLElement);
     // only do process if resizer was clicked

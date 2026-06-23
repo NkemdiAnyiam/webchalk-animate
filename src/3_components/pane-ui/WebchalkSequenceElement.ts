@@ -244,7 +244,7 @@ export class WebchalkSequenceElement extends HTMLElement {
     const clipTracks = this.shadowRoot?.querySelector('.sequence__clips') as HTMLDivElement;
     
     const handleClick = (e: MouseEvent) => {
-      const clipTracks = this.shadowRoot?.querySelector('.sequence__clips') as HTMLDivElement;
+      const clipTracks = e.currentTarget as HTMLDivElement;
       const schedule = clipTracks.closest('.sequence__schedule') as HTMLDivElement;
       // need to select from composedPath() because e.target would just see webchalk-clip
       const clickTarget = e.composedPath()[0] as HTMLElement;

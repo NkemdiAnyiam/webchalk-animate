@@ -38,6 +38,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     this.attachTimelineUIResizer();
     this.attachErrorPanelResizer();
     this.attachJumpButtonListener();
+    this.attachOpacitySliderListener();
   }
 
   insertSequences(insertionIndex: number, newSequences: AnimSequence[]) {
@@ -116,7 +117,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       // only do process if resizer was clicked
       if (!timelineResizer.classList.contains('timeline__resizer')) { return; }
       
-      const timelineUI = this.shadowRoot?.querySelector('.timeline') as HTMLDivElement;
+      const timelineUI = e.currentTarget as HTMLElement;
       // unhighlight all text to prevent annoying dragging issues
       document.getSelection()?.removeAllRanges();
       // prevent selection in order to prevent other annoying dragging issues
@@ -153,7 +154,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       // only do process if resizer was clicked
       if (!errorPanelResizer.classList.contains('timeline__error-panel-resizer')) { return; }
 
-      const errorPanel = this.shadowRoot?.querySelector('.timeline__error-panel') as HTMLDivElement;
+      const errorPanel = e.currentTarget as HTMLDivElement;
       // unhighlight all text to prevent annoying dragging issues
       document.getSelection()?.removeAllRanges();
       // prevent selection in order to prevent other annoying dragging issues
@@ -239,6 +240,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     const inputEl = this.shadowRoot!.querySelector('.timeline__step-selection-input') as HTMLInputElement;
     inputEl.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
+        const jumpButtonEl = this.shadowRoot!.querySelector('.timeline__jump-button') as HTMLButtonElement;
         jumpButtonEl.click();
       }
     });
