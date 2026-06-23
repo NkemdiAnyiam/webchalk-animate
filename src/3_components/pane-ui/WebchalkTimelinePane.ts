@@ -299,7 +299,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
   attachOpacitySliderListener() {
     const opacitySliderEl = this.shadowRoot?.querySelector('.timeline__opacity-slider') as HTMLInputElement;
     opacitySliderEl.value = '100';
-    opacitySliderEl.addEventListener('input', (e: InputEvent) => {
+    opacitySliderEl.addEventListener('input', (e) => {
       const val = (e.currentTarget as HTMLInputElement).value;
       const timelineEl = this.shadowRoot!.querySelector('.timeline') as HTMLElement;
       timelineEl.style.setProperty('--timeline-opacity', `${val}%`);
