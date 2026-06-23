@@ -122,7 +122,7 @@
 }
 
 .timeline__step-selection-wrapper {
-  // position: relative;
+  position: relative;
   font-size: inherit;
   background-color: var(--color-gray-lightest);
   border-radius: 2px;
@@ -148,12 +148,12 @@
 }
 
 .timeline__step-selection-input {
-  align-self: flex-end;
+  // align-self: flex-end;
   appearance: none;
   background-color: transparent;
   border: none;
   min-width: hem(4);
-  padding: 0 2px;
+  padding: 1px 2px;
   field-sizing: content;
   // width: fit-content;
 }
@@ -178,9 +178,16 @@ input::-webkit-calendar-picker-indicator {
 }
 
 .timeline__opacity-slider-wrapper {
+  position: relative;
+  bottom: hem(0.4);
   background-color: var(--color-gray-lightest);
   border-radius: 2px;
-  padding: hem(0.2) hem(0.4);
+  padding: hem(0.8) hem(0.4);
+
+  display: grid;
+  place-content: center;
+  align-self: center;
+  height: 0;
 }
 
 .timeline__opacity-slider {
