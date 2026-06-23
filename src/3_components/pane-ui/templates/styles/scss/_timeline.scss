@@ -115,13 +115,13 @@
   font-weight: 700;
 }
 
-.timeline__step-selection-container {
+.timeline__jump-container {
   display: flex;
   gap: hem(0.6);
   align-items: baseline;
 }
 
-.timeline__step-selection-wrapper {
+.timeline__jump-wrapper {
   position: relative;
   font-size: inherit;
   background-color: var(--color-gray-lightest);
@@ -133,11 +133,11 @@
   gap: hem(0.5);
 }
 
-.timeline__step-selection-input-container {
+.timeline__jump-input-container {
   display: flex;
 }
 
-.timeline__step-selection-input-container::after {
+.timeline__jump-input-container::after {
   content: "▼";
   align-self: center;
   display: block;
@@ -147,7 +147,7 @@
   pointer-events: none;
 }
 
-.timeline__step-selection-input {
+.timeline__jump-input {
   // align-self: flex-end;
   appearance: none;
   background-color: transparent;
@@ -158,7 +158,7 @@
   // width: fit-content;
 }
 
-.timeline__step-selection-datalist {
+.timeline__jump-datalist {
 }
 
 input::-webkit-calendar-picker-indicator {

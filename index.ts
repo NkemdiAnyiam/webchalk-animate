@@ -20,7 +20,10 @@ const blueCircle = document.querySelector('.circle');
 const timeline = webchalk.newTimeline({timelineName: 'Main'});
 
 const seq1 = webchalk.newSequence(
-  {description: 'Move the thingamabob to the other element, demonstrating how doing things in an orderly manner accomplishes some cool example.'},
+  {
+    description: 'Move the thingamabob to the other element, demonstrating how doing things in an orderly manner accomplishes some cool example.',
+    jumpTag: 'JIMMINY!'
+  },
   [
   ]);
   seq1.addClips([
@@ -55,7 +58,7 @@ seq2.addClips([
 ]);
 timeline.addSequences([seq2]);
 
-const seq3 = webchalk.newSequence();
+const seq3 = webchalk.newSequence({jumpTag: 'Iteration 8'});
 seq3.addClips([
   Entrance(blueCircle, '~fade-in', []),
   Exit(blueCircle, '~fade-out', []),

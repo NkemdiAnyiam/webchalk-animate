@@ -37,7 +37,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
 
     this.attachTimelineUIResizer();
     this.attachErrorPanelResizer();
-    this.attachJumpButtonListener();
+    this.attachJumpButtonListeners();
     this.attachOpacitySliderListener();
   }
 
@@ -74,13 +74,29 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       newSequence.writeUI();
     }
 
-    // update step number datalist
-    const datalistEl = this.shadowRoot!.querySelector('.timeline__step-selection-datalist') as HTMLDataListElement;
-    const frag = new DocumentFragment();
-    for (let i = datalistEl.childElementCount; i < this.animTimeline!.numSequences; ++i) {
-      frag.appendChild(createElFromString(/*html*/`<option value="${i + 1}">${i + 1}</option>`));
+    {
+      // update step number datalist
+      const datalistEl = this.shadowRoot!.querySelector('.timeline__jump-container--step .timeline__jump-datalist') as HTMLDataListElement;
+      const frag = new DocumentFragment();
+      for (let i = datalistEl.childElementCount; i < this.animTimeline!.numSequences; ++i) {
+        frag.appendChild(createElFromString(/*html*/`<option value="${i + 1}">${i + 1}</option>`));
+      }
+      datalistEl.appendChild(frag);
     }
-    datalistEl.appendChild(frag);
+
+    {
+      // update jump tag datalist
+      const datalistEl = this.shadowRoot!.querySelector('.timeline__jump-container--tag .timeline__jump-datalist') as HTMLDataListElement;
+      const frag = new DocumentFragment();
+      // TODO: Decide whether to sort alphabetically (or add option to change the sort).
+      const uniqueJumpTags = [...new Set(this.animTimeline!.animSequences.map(sequence => sequence.getJumpTag()))].filter(str => str);
+      for (let i = 0; i < uniqueJumpTags.length; ++i) {
+        const str = uniqueJumpTags[i];
+        frag.appendChild(createElFromString(/*html*/`<option value="${str}">${str}</option>`));
+      }
+      datalistEl.innerHTML = '';
+      datalistEl.appendChild(frag);
+    }
   }
 
   removeSequences(sequencesToRemove: AnimSequence[]) {
@@ -88,10 +104,25 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       sequence.detachUI();
     }
 
-    // update step number datalist
-    const datalistEl = this.shadowRoot!.querySelector('.timeline__step-selection-datalist') as HTMLDataListElement;
-    for (let i = datalistEl.childElementCount; i > this.animTimeline!.numSequences; --i) {
-      datalistEl.lastChild?.remove();
+    {
+      // update step number datalist
+      const datalistEl = this.shadowRoot!.querySelector('.timeline__jump-container--step .timeline__jump-datalist') as HTMLDataListElement;
+      for (let i = datalistEl.childElementCount; i > this.animTimeline!.numSequences; --i) {
+        datalistEl.lastChild?.remove();
+      }
+    }
+
+    {
+      // update jump tag datalist
+      const datalistEl = this.shadowRoot!.querySelector('.timeline__jump-container--tag .timeline__jump-datalist') as HTMLDataListElement;
+      const frag = new DocumentFragment();
+      const uniqueJumpTags = [...new Set(this.animTimeline!.animSequences.map(sequence => sequence.getJumpTag()))].filter(str => str);
+      for (let i = 0; i < uniqueJumpTags.length; ++i) {
+        const str = uniqueJumpTags[i];
+        frag.appendChild(createElFromString(/*html*/`<option value="${str}">${str}</option>`));
+      }
+      datalistEl.innerHTML = '';
+      datalistEl.appendChild(frag);
     }
   }
 
@@ -224,26 +255,45 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     highlightCodeEls(bodyEl);
   }
 
-  attachJumpButtonListener() {
-    // read jump position from input and then jump to that position when button is pressed
-    const jumpButtonEl = this.shadowRoot!.querySelector('.timeline__jump-button') as HTMLButtonElement;
-    jumpButtonEl.addEventListener('click', () => {
-      const inputEl = this.shadowRoot!.querySelector('.timeline__step-selection-input') as HTMLInputElement;
-      const stepNumber = Number(inputEl.value);
+  attachJumpButtonListeners() {
+    for (const jumpType of ['step', 'tag']) {
+      // read jump position from input and then jump to that position when button is pressed
+      const jumpButtonEl = this.shadowRoot!.querySelector(`.timeline__jump-container--${jumpType} .timeline__jump-button`) as HTMLButtonElement;
+      jumpButtonEl.addEventListener('click', (e) => {
+        const inputEl = (e.currentTarget as HTMLButtonElement)
+          .closest('.timeline__jump-container')
+          ?.querySelector('.timeline__jump-input') as HTMLInputElement;
+        
+          switch(jumpType) {
+            case 'step': {
+              const stepNumber = Number(inputEl.value);
+              if (!stepNumber) { return; }
+              this.animTimeline?.jumpToPosition(stepNumber - 1);
+            }
+            break;
+            case 'tag': {
+              const tag = inputEl.value;
+              if (!tag) { return; }
+              this.animTimeline?.jumpToSequenceTag(tag);
+            }
+            break;
+          }
+      });
       
-      if (!stepNumber) { return; }
-      
-      this.animTimeline?.jumpToPosition(stepNumber - 1);
-    });
-    
-    // treat pressing Enter inside the input as pressing the jump button
-    const inputEl = this.shadowRoot!.querySelector('.timeline__step-selection-input') as HTMLInputElement;
-    inputEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        const jumpButtonEl = this.shadowRoot!.querySelector('.timeline__jump-button') as HTMLButtonElement;
-        jumpButtonEl.click();
-      }
-    });
+      // treat pressing Enter inside the input as pressing the jump button
+      const inputEl = jumpButtonEl.closest('.timeline__jump-container')?.querySelector('.timeline__jump-input') as HTMLInputElement;
+      inputEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const jumpButtonEl = (e.currentTarget as HTMLInputElement)
+            .closest('.timeline__jump-container')
+            ?.querySelector('.timeline__jump-button') as HTMLButtonElement;
+          jumpButtonEl.click();
+        }
+      });
+      inputEl.addEventListener('click', (e) => {
+        (e.currentTarget as HTMLInputElement).value = '';
+      });
+    }
   }
 
   attachOpacitySliderListener() {
