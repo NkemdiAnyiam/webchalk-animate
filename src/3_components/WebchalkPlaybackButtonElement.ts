@@ -164,7 +164,8 @@ export class WebchalkPlaybackButtonElement extends HTMLElement {
 
   private handleShortcutPress = (e: KeyboardEvent): void => {
     // only register keypress as playback button shortcut if reasonable to assume the user intended to use the shortcuts
-    if (!(e.target instanceof HTMLBodyElement)) { return; }
+    const target = e.composedPath()[0];
+    if (!(target instanceof HTMLBodyElement || target instanceof HTMLButtonElement)) { return; }
     if (this.disabled) { return; }
     if (e.key.toLowerCase() !== this.shortcutKey?.toLowerCase() && e.code !== this.shortcutKey) { return; }
     // if the key is held down and holding is not allowed, return
