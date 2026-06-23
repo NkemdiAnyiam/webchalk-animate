@@ -324,6 +324,7 @@ button {
   position: fixed;
   bottom: 0;
   left: 0;
+  z-index: calc(infinity);
   width: 100vw;
   height: 500px;
   min-height: 15px;
@@ -963,7 +964,6 @@ code {
   border-left: calc(0.2 * var(--hem)) dashed var(--color-glow-light);
   position: sticky;
   top: calc(0 * var(--hem));
-  margin-bottom: 17.5px;
   transform: translateX(calc(50% + 3.2 * var(--hem)));
   z-index: 1;
 }
