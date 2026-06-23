@@ -405,7 +405,7 @@ button {
   align-self: center;
   display: block;
   color: currentColor;
-  font-size: 1rem;
+  font-size: calc(1 * var(--hem));
   scale: 1 0.7;
   pointer-events: none;
 }
