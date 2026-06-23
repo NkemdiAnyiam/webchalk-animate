@@ -42,6 +42,8 @@
 
   --hems-per-second: #{hem(15)};
 
+  --timeline-opacity: 100%;
+
   container-name: timeline-ui;
   container-type: size;
 
@@ -55,6 +57,7 @@
   overflow-y: auto;
   // background-color: lightgray;
   background-color: var(--color-primary-blue);
+  opacity: var(--timeline-opacity);
   font-family: var(--font-primary-family);
   font-size: hem(1.2);
   font-weight: 400;
@@ -132,7 +135,6 @@
 }
 
 .timeline__step-selection-input-container {
-  position: relative;
   display: flex;
 }
 
@@ -147,22 +149,17 @@
 }
 
 .timeline__step-selection-input {
+  align-self: flex-end;
   appearance: none;
   background-color: transparent;
   border: none;
   min-width: hem(4);
-  padding: 1px 2px;
+  padding: 0 2px;
   field-sizing: content;
   // width: fit-content;
 }
 
 .timeline__step-selection-datalist {
-  // appearance: none;
-  background-color: transparent;
-  border: none;
-  height: 100%;
-  width: 100%;
-  // width: hem(3);
 }
 
 input::-webkit-calendar-picker-indicator {
@@ -171,6 +168,24 @@ input::-webkit-calendar-picker-indicator {
 
 .timeline__jump-button {
   height: hem(2);
+}
+
+.timeline__opacity-container {
+  // align-self: center;
+
+  display: flex;
+  gap: hem(0.6);
+  align-items: baseline;
+}
+
+.timeline__opacity-slider-wrapper {
+  background-color: var(--color-gray-lightest);
+  border-radius: 2px;
+  padding: hem(0.2) hem(0.4);
+}
+
+.timeline__opacity-slider {
+  accent-color: var(--color-gray-darkest);
 }
 
 /* SEQUENCES CONTAINER */
