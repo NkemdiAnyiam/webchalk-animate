@@ -1,13 +1,11 @@
 @use "utils" as *;
 
-.jump-button {
+.jump-button,
+.btn {
   border: none;
-  border-radius: 2px;
   padding: hem(0.4);
   height: hem(2);
-  aspect-ratio: 1/1;
   background-color: var(--color-gray-darkest);
-  border-radius: 25%;
   box-shadow: 2px 2px 2px 1px #53535399;
   transition: scale 0.1s, box-shadow 0.1s;
 
@@ -16,11 +14,25 @@
 
   &:hover {
     box-shadow: 1px 1px 1px 1px #53535399;
-    scale: 96%;
+    scale: 97%;
   }
   &:active {
     box-shadow: 0.5px 0.5px 1px 1px #44444499;
-    scale: 90%;
+    scale: 94%;
+  }
+}
+
+.jump-button {
+  aspect-ratio: 1/1;
+  border-radius: 25%;
+}
+
+.btn {
+  border-radius: 2px;
+  display: inline-block;
+
+  span {
+    display: block;
   }
 }
 

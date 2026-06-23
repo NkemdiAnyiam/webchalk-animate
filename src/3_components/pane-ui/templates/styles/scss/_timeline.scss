@@ -188,6 +188,12 @@ input::-webkit-calendar-picker-indicator {
   accent-color: var(--color-gray-darkest);
 }
 
+.timeline__clickthrough-button-container {
+  background-color: var(--color-gray-lightest);
+  padding: hem(0.4);
+  border-radius: 2px;
+}
+
 /* SEQUENCES CONTAINER */
 .timeline__sequences-container {
   flex: 1;
