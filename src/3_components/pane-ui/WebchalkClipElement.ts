@@ -32,7 +32,7 @@ const categoryToAbbrev = (category: EffectCategory): string => {
 export class WebchalkClipElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-clip', WebchalkClipElement); }
 
-  private parentWebchalkSequenceEl: WebchalkSequenceElement | undefined;
+   /** @internal */ parentWebchalkSequenceEl: WebchalkSequenceElement | undefined;
   private infoBoxShown = false;
   private category: EffectCategory = '' as EffectCategory; // TODO: incorporate better
 

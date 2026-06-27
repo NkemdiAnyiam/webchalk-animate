@@ -7,6 +7,7 @@ import { htmlComponentStr } from './templates/ts/timelinePane';
 import { createElFromString, highlightCodeEls } from '../../4_utils/helpers';
 // import { defaultClipFactories } from './src/Webchalk';
 import { AnimClip } from '../../1_playbackStructures/AnimationClip';
+import { WebchalkClipElement } from './WebchalkClipElement';
 
 let devHtmlComponentStr: string;
 if (process.env.NODE_ENV === 'development') {
@@ -39,6 +40,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     this.attachErrorPanelResizer();
     this.attachJumpButtonListeners();
     this.attachOpacitySliderListener();
+    this.attachScheduleDraggers();
   }
 
   insertSequences(insertionIndex: number, newSequences: AnimSequence[]) {
@@ -304,6 +306,70 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       const timelineEl = this.shadowRoot!.querySelector('.timeline') as HTMLElement;
       timelineEl.style.setProperty('--timeline-opacity', `${val}%`);
     });
+  }
+
+  attachScheduleDraggers() {
+    const sequencesContainer = this.shadowRoot?.querySelector('.timeline__sequences-container') as HTMLElement;
+    
+    const handleClick = (e: MouseEvent) => {
+      // need to select from composedPath() because e.target would just see webchalk-clip
+      const clickTarget = e.composedPath()[0] as HTMLElement;
+      // only do process if a track was clicked
+      if (!clickTarget.classList.contains('clip__body')) { return; }
+      const schedule = (
+        (clickTarget.getRootNode() as ShadowRoot)
+        .host as WebchalkClipElement)
+        .parentWebchalkSequenceEl!
+        .shadowRoot!.querySelector('.sequence__schedule') as HTMLElement;
+      const sequencesContainer = e.currentTarget as HTMLElement;
+
+      // unhighlight all text to prevent annoying dragging issues
+      document.getSelection()?.removeAllRanges();
+      // prevent user selection to handle other annoying dragging issues
+      schedule.classList.add('user-select-none');
+
+      const handleDrag = (e: MouseEvent) => {
+        const [dx, dy] = [e.movementX, e.movementY];
+        if (dy !== 0) {
+          const newY = dy < 0 ? Math.floor(schedule.scrollTop - dy) : Math.ceil(schedule.scrollTop - dy);
+          
+          // if schedule header is out of view, scroll sequences container upward instead of schedule
+          if (dy > 0 && schedule.getBoundingClientRect().top < sequencesContainer.getBoundingClientRect().top) {
+            sequencesContainer.scrollBy({top: -dy, behavior: 'instant'});
+          }
+          // if dragging past the top of schedule, scroll sequences container up
+          else if (dy > 0 && schedule.scrollTop === 0) {
+            sequencesContainer.scrollBy({top: -dy, behavior: 'instant'});
+          }
+          // if dragging past the bottom of schedule, scroll sequences container down
+          else if (dy < 0 && newY > schedule.scrollHeight - schedule.getBoundingClientRect().height) {
+            sequencesContainer.scrollBy({top: -dy, behavior: 'instant'});
+          }
+          else {
+            schedule.scrollTo({top: newY, behavior: 'instant'});
+          }
+        }
+        if (dx !== 0) {
+          const newX = dx < 0 ? Math.floor(schedule.scrollLeft - dx) : Math.ceil(schedule.scrollLeft - dx);
+          schedule.scrollTo({left: newX, behavior: 'instant'});
+        }
+      }
+
+      const handleRelease = (e: MouseEvent) => {
+        // remove all event listeners related to dragging this schedule
+        schedule.classList.remove('user-select-none');
+        window.removeEventListener('mousemove', handleDrag);
+        window.removeEventListener('mouseup', handleRelease);
+        window.removeEventListener('mouseleave', handleRelease);
+      }
+
+      // add listeners for handling drag and release to window
+      window.addEventListener('mousemove', handleDrag);
+      window.addEventListener('mouseup', handleRelease);
+      window.addEventListener('mouseleave', handleRelease);
+    };
+
+    sequencesContainer.addEventListener('mousedown', handleClick);
   }
 
   scrollToSequence(sequence: AnimSequence, direction: 'forward' | 'backward', block: 'nearest' | 'start' = 'nearest') {

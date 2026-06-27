@@ -50,7 +50,6 @@ export class WebchalkSequenceElement extends HTMLElement {
     this.playheadTrailEl = shadow.querySelector('.sequence__playhead-trail') as HTMLElement;
 
     this.updateMaxSecondsDisplayed(11);
-    this.attachScheduleDraggers();
   }
 
   updateMaxSecondsDisplayed(seconds: number) {
@@ -238,67 +237,6 @@ export class WebchalkSequenceElement extends HTMLElement {
     const time = maxTimeMs !== undefined ? maxTimeMs : this.animSequence!.getTiming('currentTime');
     this.playheadEl.style.translate = `${this.msToHemStr(time)}`;
     this.playheadTrailEl.style.width = `${this.msToHemStr(time)}`;
-  }
-
-  attachScheduleDraggers() {
-    const clipTracks = this.shadowRoot?.querySelector('.sequence__clips') as HTMLDivElement;
-    
-    const handleClick = (e: MouseEvent) => {
-      const clipTracks = e.currentTarget as HTMLDivElement;
-      const schedule = clipTracks.closest('.sequence__schedule') as HTMLDivElement;
-      // need to select from composedPath() because e.target would just see webchalk-clip
-      const clickTarget = e.composedPath()[0] as HTMLElement;
-      // only do process if a track was clicked
-      if (!clickTarget.classList.contains('clip__body')) { return; }
-
-      // unhighlight all text to prevent annoying dragging issues
-      document.getSelection()?.removeAllRanges();
-      // prevent user selection to handle other annoying dragging issues
-      schedule.classList.add('user-select-none');
-
-      const handleDrag = (e: MouseEvent) => {
-        const [dx, dy] = [e.movementX, e.movementY];
-        if (dy !== 0) {
-          const newY = dy < 0 ? Math.floor(schedule.scrollTop - dy) : Math.ceil(schedule.scrollTop - dy);
-          const sequencesContainer = this.parentWebchalkTimelineEl!.shadowRoot!.querySelector('.timeline__sequences-container') as HTMLElement;
-          
-          // if schedule header is out of view, scroll sequences container upward instead of schedule
-          if (dy > 0 && schedule.getBoundingClientRect().top < sequencesContainer.getBoundingClientRect().top) {
-            sequencesContainer.scrollBy({top: -dy, behavior: 'instant'});
-          }
-          // if dragging past the top of schedule, scroll sequences container up
-          else if (dy > 0 && schedule.scrollTop === 0) {
-            sequencesContainer.scrollBy({top: -dy, behavior: 'instant'});
-          }
-          // if dragging past the bottom of schedule, scroll sequences container down
-          else if (dy < 0 && newY > schedule.scrollHeight - schedule.getBoundingClientRect().height) {
-            sequencesContainer.scrollBy({top: -dy, behavior: 'instant'});
-          }
-          else {
-            schedule.scrollTo({top: newY, behavior: 'instant'});
-          }
-        }
-        if (dx !== 0) {
-          const newX = dx < 0 ? Math.floor(schedule.scrollLeft - dx) : Math.ceil(schedule.scrollLeft - dx);
-          schedule.scrollTo({left: newX, behavior: 'instant'});
-        }
-      }
-
-      const handleRelease = (e: MouseEvent) => {
-        // remove all event listeners related to dragging this schedule
-        schedule.classList.remove('user-select-none');
-        window.removeEventListener('mousemove', handleDrag);
-        window.removeEventListener('mouseup', handleRelease);
-        window.removeEventListener('mouseleave', handleRelease);
-      }
-
-      // add listeners for handling drag and release to window
-      window.addEventListener('mousemove', handleDrag);
-      window.addEventListener('mouseup', handleRelease);
-      window.addEventListener('mouseleave', handleRelease);
-    };
-
-    clipTracks.addEventListener('mousedown', handleClick);
   }
 
   attachJumpButtonListener() {
