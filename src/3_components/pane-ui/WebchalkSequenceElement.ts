@@ -183,7 +183,7 @@ export class WebchalkSequenceElement extends HTMLElement {
     switch(direction) {
       case 'forward': {
         const pEdge = playheadEl.getBoundingClientRect().right;
-        const {right: scheduleEdgeRight, left: scheduleEdgeLeft} = scheduleEl.getBoundingClientRect();
+        const {right: scheduleEdgeRight, left: scheduleEdgeLeft} = scheduleBox;
         // if right edge of playhead is close to right edge of schedule, scroll schedule
         if (pEdge >= scheduleEdgeRight - 10) {
           const schedule = playheadEl.closest('.sequence__schedule') as HTMLElement;
@@ -193,7 +193,7 @@ export class WebchalkSequenceElement extends HTMLElement {
       }
       case 'backward': {
         const pEdge = playheadEl.getBoundingClientRect().left;
-        const scheduleEdge = scheduleEl.getBoundingClientRect().left;
+        const scheduleEdge = scheduleBox.left;
         const clipHeaderWidth = scheduleEl.querySelector('webchalk-clip')!.shadowRoot!.querySelector('.clip__header')!.getBoundingClientRect().width;
         if (pEdge <= scheduleEdge + 10 + clipHeaderWidth) {
           scheduleEl.scrollTo({left: scheduleEl.scrollLeft - scheduleBox.width + clipHeaderWidth + 100, behavior: 'instant'});
