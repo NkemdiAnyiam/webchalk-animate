@@ -104,7 +104,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
 
     {
       // update step number datalist
-      const datalistEl = this.shadowRoot!.querySelector('.timeline__jump-container--step .timeline__jump-datalist') as HTMLDataListElement;
+      const datalistEl = this.shadowRoot!.querySelector('.timeline__control--jump--step .timeline__jump-datalist') as HTMLDataListElement;
       const frag = new DocumentFragment();
       for (let i = datalistEl.childElementCount; i < this.animTimeline!.numSequences; ++i) {
         frag.appendChild(createElFromString(/*html*/`<option value="${i + 1}">${i + 1}</option>`));
@@ -114,7 +114,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
 
     {
       // update jump tag datalist
-      const datalistEl = this.shadowRoot!.querySelector('.timeline__jump-container--tag .timeline__jump-datalist') as HTMLDataListElement;
+      const datalistEl = this.shadowRoot!.querySelector('.timeline__control--jump--tag .timeline__jump-datalist') as HTMLDataListElement;
       const frag = new DocumentFragment();
       // TODO: Decide whether to sort alphabetically (or add option to change the sort).
       const uniqueJumpTags = [...new Set(this.animTimeline!.animSequences.map(sequence => sequence.getJumpTag()))].filter(str => str);
@@ -291,10 +291,10 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
   attachJumpButtonListeners() {
     for (const jumpType of ['step', 'tag']) {
       // read jump position from input and then jump to that position when button is pressed
-      const jumpButtonEl = this.shadowRoot!.querySelector(`.timeline__jump-container--${jumpType} .timeline__jump-button`) as HTMLButtonElement;
+      const jumpButtonEl = this.shadowRoot!.querySelector(`.timeline__control--jump--${jumpType} .timeline__jump-button`) as HTMLButtonElement;
       jumpButtonEl.addEventListener('click', (e) => {
         const inputEl = (e.currentTarget as HTMLButtonElement)
-          .closest('.timeline__jump-container')
+          .closest('.timeline__jump-selection-container')
           ?.querySelector('.timeline__jump-input') as HTMLInputElement;
         
           switch(jumpType) {
@@ -314,11 +314,11 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       });
       
       // treat pressing Enter inside the input as pressing the jump button
-      const inputEl = jumpButtonEl.closest('.timeline__jump-container')?.querySelector('.timeline__jump-input') as HTMLInputElement;
+      const inputEl = jumpButtonEl.closest('.timeline__jump-selection-container')?.querySelector('.timeline__jump-input') as HTMLInputElement;
       inputEl.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           const jumpButtonEl = (e.currentTarget as HTMLInputElement)
-            .closest('.timeline__jump-container')
+            .closest('.timeline__jump-selection-container')
             ?.querySelector('.timeline__jump-button') as HTMLButtonElement;
           jumpButtonEl.click();
         }

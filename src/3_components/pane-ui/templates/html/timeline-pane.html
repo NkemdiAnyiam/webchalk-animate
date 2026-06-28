@@ -2,14 +2,15 @@
   <div class="timeline__resizer timeline__resizer--dock-bottom" draggable="false"></div>
   <div class="timeline__resizer timeline__resizer--dock-right" draggable="false"></div>
   <div class="timeline__resizer timeline__resizer--dock-left" draggable="false"></div>
+  
   <div class="timeline__inner-wrapper">
     <header class="timeline__header">
       <h1 class="timeline__name"></h1>
       
-      <div class="timeline__control timeline__jump-container timeline__jump-container--step">
-        <label for="timeline__jump-input--step">Step</label>
-        <div class="timeline__jump-wrapper">
-          <div class="timeline__jump-input-container" onclick="this.querySelector('input').focus()">
+      <div class="timeline__control timeline__control--jump timeline__control--jump--step">
+        <label for="timeline__jump-input timeline__jump-input--step">Step</label>
+        <div class="timeline__jump-selection-container">
+          <div class="timeline__jump-input-wrapper" onclick="this.querySelector('input').focus()">
             <input
               id="timeline__jump-input--step" class="timeline__jump-input timeline__jump-input--step" type="text" list="timeline__jump-datalist--step"
               onclick="this.showPicker()"
@@ -29,10 +30,10 @@
         </div>
       </div>
 
-      <div class="timeline__control timeline__jump-container timeline__jump-container--tag">
-        <label for="timeline__jump-input--tag">Tag</label>
-        <div class="timeline__jump-wrapper">
-          <div class="timeline__jump-input-container" onclick="this.querySelector('input').focus()">
+      <div class="timeline__control timeline__control--jump timeline__control--jump--tag">
+        <label class="timeline__control-label" for="timeline__jump-input timeline__jump-input--tag">Tag</label>
+        <div class="timeline__jump-selection-container">
+          <div class="timeline__jump-input-wrapper" onclick="this.querySelector('input').focus()">
             <input
               id="timeline__jump-input--tag" class="timeline__jump-input timline__jump-input--tag" type="text" list="timeline__jump-datalist--tag"
               onclick="this.showPicker()"
@@ -52,17 +53,17 @@
         </div>
       </div>
 
-      <div class="timeline__control timeline__opacity-container">
+      <div class="timeline__control timeline__control--opacity">
         <label for="timeline__opacity-slider">Opacity</label>
         <div class="timeline__opacity-slider-wrapper">
           <input type="range" class="timeline__opacity-slider" id="timeline__opacity-slider" min="5" />
         </div>
       </div>
 
-      <div class="timeline__control timeline__dock-container">
-        <label for="timeline__dock-select">Dock</label>
-        <div class="timeline__dock-wrapper">
-          <div class="timeline__dock-select-container">
+      <div class="timeline__control timeline__control--dock">
+        <label class="timeline__control-label" for="timeline__dock-select">Dock</label>
+        <div class="timeline__dock-selection-container">
+          <div class="timeline__dock-select-wrapper">
             <select id="timeline__dock-select" class="timeline__dock-select">
               <option value="left">Left</option>
               <option value="right">Right</option>
@@ -71,10 +72,12 @@
           </div>
         </div>
       </div>
+
       <!-- <div class="timeline__clickthrough-button-container">
         <button class="timeline__clickthrough-button btn"><span>Click Through</span></button>
       </div> -->
     </header>
+
     <div class="timeline__sequences-container">
     </div>
     <div class="timeline__error-panel">
