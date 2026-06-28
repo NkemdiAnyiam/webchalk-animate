@@ -177,26 +177,29 @@ export class WebchalkSequenceElement extends HTMLElement {
   private handlePlayheadEdge(direction: 'forward' | 'backward') {
     const playheadEl = this.playheadEl;
     const scheduleEl = playheadEl.closest('.sequence__schedule') as HTMLElement;
-    const scheduleBox = scheduleEl.getBoundingClientRect();
+    const { right: scheduleEdgeRight, left: scheduleEdgeLeft, width: scheduleWidth } = scheduleEl.getBoundingClientRect();
+    const intersectionTolerance = Math.max(1, Math.ceil(scheduleWidth * 0.006));
+    const clipHeaderWidth = scheduleEl.querySelector('webchalk-clip')!.shadowRoot!.querySelector('.clip__header')!.getBoundingClientRect().width;
+    // prevents the playhead from ending up right on the edge of the schedule
+    const scheduleScrollInset = Math.ceil(scheduleWidth * 0.04);
 
-    // TODO: swap hard-coded 100 with something related to hem
     switch(direction) {
       case 'forward': {
-        const pEdge = playheadEl.getBoundingClientRect().right;
-        const {right: scheduleEdgeRight, left: scheduleEdgeLeft} = scheduleBox;
+        const { right: playheadEdgeRight } = playheadEl.getBoundingClientRect();
         // if right edge of playhead is close to right edge of schedule, scroll schedule
-        if (pEdge >= scheduleEdgeRight - 10) {
-          const schedule = playheadEl.closest('.sequence__schedule') as HTMLElement;
-          schedule.scrollTo({left: schedule.scrollLeft + (pEdge - scheduleEdgeLeft) - 100, behavior: 'instant'});
+        if (playheadEdgeRight >= scheduleEdgeRight - intersectionTolerance) {
+          scheduleEl.scrollTo(
+            {left: scheduleEl.scrollLeft + (playheadEdgeRight - scheduleEdgeLeft) - clipHeaderWidth - scheduleScrollInset, behavior: 'instant'}
+          );
         }
         break;
       }
       case 'backward': {
-        const pEdge = playheadEl.getBoundingClientRect().left;
-        const scheduleEdge = scheduleBox.left;
-        const clipHeaderWidth = scheduleEl.querySelector('webchalk-clip')!.shadowRoot!.querySelector('.clip__header')!.getBoundingClientRect().width;
-        if (pEdge <= scheduleEdge + 10 + clipHeaderWidth) {
-          scheduleEl.scrollTo({left: scheduleEl.scrollLeft - scheduleBox.width + clipHeaderWidth + 100, behavior: 'instant'});
+        const { left: playheadEdgeLeft } = playheadEl.getBoundingClientRect();
+        if (playheadEdgeLeft <= scheduleEdgeLeft + intersectionTolerance + clipHeaderWidth) {
+          scheduleEl.scrollTo(
+            {left: scheduleEl.scrollLeft - scheduleWidth + clipHeaderWidth + scheduleScrollInset, behavior: 'instant'}
+          );
         }
         break;
       }
