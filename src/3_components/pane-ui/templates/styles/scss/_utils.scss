@@ -2,6 +2,10 @@
   @return calc(#{$num-hem} * var(--hem));
 }
 
+@function hemSeconds($num-hem) {
+  @return calc(#{$num-hem} * var(--hem) * var(--hems-per-second))
+}
+
 @function clip-based-height-units($multiplier) {
   @return calc(var(--clip-height) * $multiplier + hem(4.2));
 }

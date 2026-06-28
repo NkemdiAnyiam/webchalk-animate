@@ -14,8 +14,12 @@ if (process.env.NODE_ENV === 'development') {
   devHtmlComponentStr = fs.readFileSync(__dirname+'/templates/html/timeline-pane.html', 'utf-8');
 }
 
-export function hem(numHem: number): string {
-  return `calc(${numHem} * var(--hem))`;
+// export function hem(numHem: number): string {
+//   return `calc(${numHem} * var(--hem))`;
+// }
+
+export function hemSecs(numHem: number): string {
+  return `calc(var(--hems-per-second) * ${numHem} * var(--hem))`;
 }
 
 export class WebchalkTimelinePaneElement extends HTMLElement {

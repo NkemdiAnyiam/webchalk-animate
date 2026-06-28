@@ -5,7 +5,7 @@ import { htmlComponentStr } from './templates/ts/sequence';
 import { createElFromString } from '../../4_utils/helpers';
 import { AnimSequence } from '../../1_playbackStructures/AnimationSequence';
 import { AnimClip } from '../../1_playbackStructures/AnimationClip';
-import { hem, WebchalkTimelinePaneElement } from './WebchalkTimelinePane';
+import { hemSecs, WebchalkTimelinePaneElement } from './WebchalkTimelinePane';
 // import { defaultClipFactories } from './src/Webchalk';
 
 let devHtmlComponentStr: string;
@@ -20,14 +20,15 @@ export class WebchalkSequenceElement extends HTMLElement {
 
   animSequence?: AnimSequence;
 
-  getHemsPerSecond() {
-    return Number(getComputedStyle(this)
-      .getPropertyValue('--hems-per-second')
-      .match(/calc\((-?\d+(?:\.\d+)?|-?\.\d+) \* \d+px\)/)![1]
-    );
-  }
-  msToNumHem(ms: number) { return ms / 1000 * this.getHemsPerSecond(); }
-  msToHemStr(ms: number): string { return hem(this.msToNumHem(ms)); }
+  // getHemsPerSecond() {
+  //   return Number(getComputedStyle(this)
+  //     .getPropertyValue('--hems-per-second')
+  //     .match(/\d+/)![0]
+  //   );
+  // }
+  // msToNumHem(ms: number) { return ms / 1000 * this.getHemsPerSecond(); }
+  // msToHemStr(ms: number): string { return hem(this.msToNumHem(ms)); }
+  msToHemStr(ms: number): string { return hemSecs(ms / 1000); }
 
   private maxSecondsDisplayed: number = 0;
   private playheadEl: HTMLElement;
