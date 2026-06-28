@@ -255,6 +255,13 @@ input::-webkit-calendar-picker-indicator {
 .timeline__error-panel-heading-text {
   font-family: "Fira Code";
   font-size: hem(1.4);
+  
+  line-break: anywhere;
+  display: -webkit-box;
+  overflow: auto;
+  -webkit-line-clamp: 1; /* number of lines to show */
+          line-clamp: 1; 
+  -webkit-box-orient: vertical;
 }
 
 // TODO: probably don't need this

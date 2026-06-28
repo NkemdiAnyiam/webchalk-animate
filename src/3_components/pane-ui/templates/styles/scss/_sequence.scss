@@ -36,6 +36,12 @@
 
 .sequence__description {
   font-weight: normal;
+  
+  display: -webkit-box;
+  overflow: auto;
+  -webkit-line-clamp: 2; /* number of lines to show */
+          line-clamp: 2; 
+  -webkit-box-orient: vertical;
 }
 
 /* SEQUENCE CONTROLS */
@@ -47,8 +53,10 @@
 .sequence__controls {
   background-color: var(--color-gray-light);
   height: 100%;
-  width: fit-content;
   padding: hem(0.4) hem(1);
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
 
   display: flex;
   align-items: center;
