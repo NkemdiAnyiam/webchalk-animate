@@ -1,6 +1,6 @@
 @use 'utils' as *;
 
-.timeline {
+.timeline__inner-wrapper {
   --clip-height: calc(#{hem(3.5)} + 1px);
 }
 

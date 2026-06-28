@@ -24,6 +24,7 @@ export function hemSecs(numHem: number): string {
 
 export class WebchalkTimelinePaneElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-timeline-pane', WebchalkTimelinePaneElement); }
+  static observedAttributes = ['dock'];
 
   animTimeline?: AnimTimeline;
   
@@ -39,12 +40,33 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     template.innerHTML = htmlString;
     const element = template.content.cloneNode(true);
     shadow.append(element);
+    this.setAttribute('dock', 'bottom');
 
     this.attachTimelineUIResizer();
     this.attachErrorPanelResizer();
     this.attachJumpButtonListeners();
     this.attachOpacitySliderListener();
     this.attachScheduleDraggers();
+    this.attachDockListener();
+  }
+
+  attributeChangedCallback(attrName: string, oldValue: string, newValue: string) {
+    if (attrName === 'dock') {
+      const timelineEl = this.shadowRoot!.querySelector('.timeline') as HTMLElement;
+      const errorPanelEl = timelineEl.querySelector('.timeline__error-panel') as HTMLElement;
+      timelineEl.setAttribute('dock', newValue);
+      errorPanelEl.setAttribute('dock', newValue);
+
+      // if swapping dock from bottom to the side, remove sizing styling that would mess up UI
+      if (oldValue?.match(/bottom/) && newValue.match(/right|left/)) {
+        timelineEl.style.removeProperty('height');
+        errorPanelEl.style.removeProperty('width');
+      }
+      if (oldValue?.match(/right|left/) && newValue.match(/bottom/)) {
+        timelineEl.style.removeProperty('width');
+        errorPanelEl.style.removeProperty('height');
+      }
+    }
   }
 
   insertSequences(insertionIndex: number, newSequences: AnimSequence[]) {
@@ -147,7 +169,8 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
   }
 
   attachTimelineUIResizer() {
-    const timelineUI = this.shadowRoot?.querySelector('.timeline') as HTMLDivElement;
+    const timelineUI = this.shadowRoot?.querySelector('.timeline') as HTMLElement;
+    timelineUI.setAttribute('dock', this.getAttribute('dock')!);
 
     const handleClick = (e: MouseEvent) => {
       const timelineResizer = (e.target as HTMLElement);
@@ -160,11 +183,15 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       // prevent selection in order to prevent other annoying dragging issues
       timelineUI.classList.add('user-select-none');
 
-      const handleDrag = (e: MouseEvent) => {
-        // change UI height based on mouse movement
-        const y = e.movementY;
-        timelineUI.style.height = `${Number.parseFloat(getComputedStyle(timelineUI).height) - y}px`;
-      }
+      const dock = this.getAttribute('dock');
+      const handleDrag = dock === 'bottom'
+        ? (e: MouseEvent) => {
+          // timelineUI.style.height = `${Number.parseFloat(getComputedStyle(timelineUI).height) - e.movementY}px`;
+          timelineUI.style.height = `${window.innerHeight - e.y}px`;
+        }
+        : dock === 'right'
+          ? (e: MouseEvent) => { timelineUI.style.width = `${Number.parseFloat(getComputedStyle(timelineUI).width) - e.movementX}px`; }
+          : (e: MouseEvent) => { timelineUI.style.width = `${Number.parseFloat(getComputedStyle(timelineUI).width) + e.movementX}px`; }
 
       const handleRelease = (e: MouseEvent) => {
         // remove all event listeners
@@ -185,6 +212,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
 
   attachErrorPanelResizer() {
     const errorPanel = this.shadowRoot?.querySelector('.timeline__error-panel') as HTMLDivElement;
+    errorPanel.setAttribute('dock', this.getAttribute('dock')!);
 
     const handleClick = (e: MouseEvent) => {
       const errorPanelResizer = (e.target as HTMLElement);
@@ -197,11 +225,10 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       // prevent selection in order to prevent other annoying dragging issues
       errorPanel.classList.add('user-select-none');
 
-      const handleDrag = (e: MouseEvent) => {
-        // change panel width based on mouse movement
-        const x = e.movementX;
-        errorPanel.style.width = `${Number.parseFloat(getComputedStyle(errorPanel).width) - x}px`;
-      }
+      const dock = this.getAttribute('dock');
+      const handleDrag = dock === 'bottom'
+        ? (e: MouseEvent) => { errorPanel.style.width = `${Number.parseFloat(getComputedStyle(errorPanel).width) - e.movementX}px`; }
+        : (e: MouseEvent) => { errorPanel.style.height = `${Number.parseFloat(getComputedStyle(errorPanel).height) - e.movementY}px`; } 
 
       const handleRelease = (e: MouseEvent) => {
         // remove all event listeners
@@ -374,6 +401,15 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     };
 
     sequencesContainer.addEventListener('mousedown', handleClick);
+  }
+
+  attachDockListener() {
+    const dockSelectEl = this.shadowRoot!.querySelector('.timeline__dock-select') as HTMLSelectElement;
+    dockSelectEl.value = this.getAttribute('dock')!;
+    dockSelectEl.addEventListener('change', (e) => {
+      const dockSelectEl = e.currentTarget as HTMLSelectElement;
+      this.setAttribute('dock', dockSelectEl.value);
+    });
   }
 
   scrollToSequence(sequence: AnimSequence, direction: 'forward' | 'backward', block: 'nearest' | 'start' = 'nearest') {

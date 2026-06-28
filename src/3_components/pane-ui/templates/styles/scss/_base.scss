@@ -1,6 +1,9 @@
-:host :where(.timeline) {
-  --hem: 10px;
+.timeline {
   line-height: 1;
+
+  &__inner-wrapper {
+    --hem: 10px;
+  }
 }
 
 *,
