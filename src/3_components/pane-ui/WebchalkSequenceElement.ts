@@ -5,7 +5,7 @@ import { htmlComponentStr } from './templates/ts/sequence';
 import { createElFromString } from '../../4_utils/helpers';
 import { AnimSequence } from '../../1_playbackStructures/AnimationSequence';
 import { AnimClip } from '../../1_playbackStructures/AnimationClip';
-import { hemSecs, WebchalkTimelinePaneElement } from './WebchalkTimelinePane';
+import { hem, hemSecs, WebchalkTimelinePaneElement } from './WebchalkTimelinePane';
 // import { defaultClipFactories } from './src/Webchalk';
 
 let devHtmlComponentStr: string;
@@ -133,12 +133,16 @@ export class WebchalkSequenceElement extends HTMLElement {
       insertionPoint.webchalkClipEl?.insertAdjacentElement('afterend', newClip.webchalkClipEl!);
       newClip.writeUI();
     }
+
+    this.updateEmptyTimeFillWidth();
   }
 
   removeClips(clipsToRemove: AnimClip[]) {
     for (const clip of clipsToRemove) {
       clip.detachUI();
     }
+
+    this.updateEmptyTimeFillWidth();
   }
 
   readSequence() {
@@ -173,6 +177,11 @@ export class WebchalkSequenceElement extends HTMLElement {
   updateDescription(description: string) {
     const sequenceDescriptionEl = this.shadowRoot!.querySelector('.sequence__description') as HTMLElement;
     sequenceDescriptionEl.textContent = `${description}.`;
+  }
+
+  updateEmptyTimeFillWidth() {
+    const fillerEl = this.shadowRoot!.querySelector('.sequence__empty-time-fill') as HTMLElement;
+    fillerEl.style.left = `calc(${this.msToHemStr(this.animSequence!.maxTime)} + ${hem(3.2)})`;
   }
 
   private handlePlayheadEdge(direction: 'forward' | 'backward') {

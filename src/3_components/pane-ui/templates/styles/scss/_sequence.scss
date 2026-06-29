@@ -245,8 +245,8 @@ $schedule-wrapper-scroll-padding: 17.5px;
   border-left: hem(0.2) dashed var(--color-glow-light);
   position: sticky;
   top: hem(0);
-  // margin-bottom: 17.5px; // accounts for padding below
   transform: translateX(calc(50% + $sequence-left-side-width)); // to center it
+  // margin-bottom: 17.5px; // accounts for padding below
   // bottom: $schedule-wrapper-scroll-padding;
   z-index: $z--schedule-playhead;
 
@@ -309,7 +309,22 @@ $schedule-wrapper-scroll-padding: 17.5px;
 /* CLIPS */
 .sequence__clips {
   width: 100%;
-  // grid-area: clips;
+}
+
+.sequence__empty-time-fill {
+  position: absolute;
+  z-index: $z--empty-time-fill;
+  top: 0;
+  right: 0;
+  height: calc(100% - $schedule-wrapper-scroll-padding);
+  left: hem(30);
+  // background: linear-gradient(to right, var(--color-gray-lightest), var(--color-gray-darkest) 10%);
+  // // border-left: 1px solid var(--color-gray-darkest);
+  // opacity: 50%;
+  background-color: var(--color-gray-darkest);
+  // border-left: 1px solid var(--color-gray-darkest);
+  opacity: 10%;
+  transition: left 0.1s;
 }
 
 .sequence__dark-overlay {

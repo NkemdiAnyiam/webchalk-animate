@@ -1165,6 +1165,7 @@ export class AnimSequence {
     this.animClipGroupings_endDelayFinishOrder.push(currEndDelayGrouping);
 
     this.webchalkSequenceEl?.updateMaxSecondsDisplayed(this.maxTime / 1000);
+    this.webchalkSequenceEl?.updateEmptyTimeFillWidth();
 
     return this;
   }
@@ -1227,6 +1228,7 @@ export class AnimSequence {
     }
 
     this.webchalkSequenceEl?.updateMaxSecondsDisplayed(this.maxTime / 1000);
+    this.webchalkSequenceEl?.updateEmptyTimeFillWidth();
   }
 
   // get all currently running animations that belong to this timeline and perform operation() with them

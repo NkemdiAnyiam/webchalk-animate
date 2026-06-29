@@ -38,6 +38,7 @@
 
 .clip-info-box {
   position: relative;
+  z-index: $z--clip-info-box;
   background-color: var(--hue-light);
   border: 2px solid var(--hue-dark);
   color: var(--hue-darkest);

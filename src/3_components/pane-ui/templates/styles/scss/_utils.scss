@@ -12,14 +12,17 @@
 
 $sequence-left-side-width: hem(3.2);
 
-$z--timeline-header: 6;
-$z--timeline-error-panel: 5;
-$z--schedule-darkened-overlay: 4;
-$z--schedule-header-padding: 3;
-$z--schedule-header: 3;
-$z--clip-header: 2;
-$z--schedule-playhead: 1;
-$z--schedule-ticks: 1;
+$z--timeline-header: 8;
+$z--timeline-error-panel: 7;
+$z--schedule-darkened-overlay: 6;
+$z--schedule-header-padding: 5;
+$z--schedule-header: 5;
+$z--clip-header: 4;
+$z--schedule-playhead: 3;
+$z--schedule-ticks: 3;
+$z--clip-effect: 2;
+$z--clip-info-box: 2;
+$z--empty-time-fill: 1;
 
 @mixin category-color($category) {
   --hue-light: var(--color-#{$category}-light);

@@ -56,6 +56,7 @@
 .clip__effect {
   transition: margin-left 0.1s;
   height: min-content;
+  z-index: $z--clip-effect;
 }
 
 .clip__effect--entrance {
