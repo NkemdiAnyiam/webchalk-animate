@@ -21,6 +21,7 @@
   z-index: $z--clip-header;
   left: 0;
   flex: 0 0 $sequence-left-side-width;
+  overflow-x: auto;
   // box-shadow: 1.75px 0 1px rgba(50, 50, 50, .55);
   box-shadow: 3px 0 2px #53535399;
 
