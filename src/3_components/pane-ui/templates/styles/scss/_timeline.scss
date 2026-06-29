@@ -159,6 +159,7 @@
 
 .timeline__resizer {
   // background-color: red;
+  z-index: 1;
   position: absolute;
   display: none;
 
