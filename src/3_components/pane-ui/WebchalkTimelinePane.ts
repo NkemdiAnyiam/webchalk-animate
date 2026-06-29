@@ -47,6 +47,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     this.attachJumpButtonListeners();
     this.attachOpacitySliderListener();
     this.attachScheduleDraggers();
+    this.attachControlsButtonListener();
     this.attachDockListener();
   }
 
@@ -66,6 +67,8 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
         timelineEl.style.removeProperty('width');
         errorPanelEl.style.removeProperty('height');
       }
+
+      this.repositionControlsPopover(this.shadowRoot!.querySelector('.timeline__controls-wrapper--popover'));
     }
   }
 
@@ -401,6 +404,45 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     };
 
     sequencesContainer.addEventListener('mousedown', handleClick);
+  }
+
+  attachControlsButtonListener() {
+    const controlsWrapperEl = this.shadowRoot!.querySelector(".timeline__controls-wrapper") as HTMLElement;
+    controlsWrapperEl.addEventListener('toggle', (e) => {
+      const controlsWrapperEl = e.currentTarget as HTMLElement;
+
+      if (e.newState === 'closed') {
+        // To prevent flash of positioning styling when popover is eventually reopened.
+        controlsWrapperEl.toggleAttribute('popover-invisible', true);
+        return;
+      }
+
+      this.repositionControlsPopover(controlsWrapperEl);
+
+      controlsWrapperEl.toggleAttribute('popover-invisible', false);
+    });
+  }
+
+  private repositionControlsPopover(controlsWrapperEl: HTMLElement | null) {
+    if (!controlsWrapperEl) { return; }
+    
+    // Need to remove these first so that it can properly compute whether they are needed.
+    controlsWrapperEl.toggleAttribute('popover-showabove', false);
+    controlsWrapperEl.toggleAttribute('popover-showleft', false);
+
+    if (controlsWrapperEl.getBoundingClientRect().bottom >= window.innerHeight) {
+      controlsWrapperEl.toggleAttribute('popover-showabove', true);
+    }
+    else {
+      controlsWrapperEl.toggleAttribute('popover-showabove', false);
+    }
+
+    if (controlsWrapperEl.getBoundingClientRect().right >= window.innerWidth) {
+      controlsWrapperEl.toggleAttribute('popover-showleft', true);
+    }
+    else {
+      controlsWrapperEl.toggleAttribute('popover-showleft', false);
+    }
   }
 
   attachDockListener() {
