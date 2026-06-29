@@ -32,45 +32,40 @@ const seq1 = webchalk.newSequence(
       {startsWithPrevious: true, description: 'Move blue circle', delay: 1000, cssClasses: {toAddOnFinish: ['yo', 'bro']}}
     ),
     TextEditor(redSquare, '~insert-text', ['HELLO WORLD! To what do I owe you all the pleasure?'],
-      {durationOrRate: '300wpm', startsWithPrevious: true, description: 'Insert text', delay: 1000}
+      {durationOrRate: '300wpm', startsWithPrevious: true, description: 'Insert text to square', delay: 1000}
     ),
-    Exit(redSquare, '~fade-out', [], {duration: 1000}),
+    Exit(redSquare, '~fade-out', [], {duration: 1000, description: 'Exit red square'}),
     Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000}),
     Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000}),
-    // Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: false, description: 'Move blue circle', delay: 1000}),
-    // Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: false, description: 'Move blue circle', delay: 1000}),
-    // Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: false, description: 'Move blue circle', delay: 1000}),
-    // Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: false, description: 'Move blue circle', delay: 1000}),
-    // Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: false, description: 'Move blue circle', delay: 1000}),
     Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: false, description: 'Move blue circle', delay: 1000}),
     Entrance(redSquare, '~pinwheel', [1, 'clockwise'], {duration: 500, description: 'Enter red square'},),
     // Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 5000}),
-    Exit(redSquare, '~fade-out', []),
+    Exit(redSquare, '~fade-out', [], {description: 'Exit red square'}),
 ]);
 timeline.addSequences([seq1]);
 
 const seq2 = webchalk.newSequence({autoplays: true, autoplaysNextSequence: true});
 seq2.addClips([
-  Motion(blueCircle, '~translate', [{translate: '200px 200px'}], {duration: 1000}),
-  Motion(blueCircle, '~translate', [{translate: '200px 0'}], {duration: 1000}),
+  Motion(blueCircle, '~translate', [{translate: '200px 200px'}], {duration: 1000, description: 'Move blue circle diagonally'}),
+  Motion(blueCircle, '~translate', [{translate: '200px 0'}], {duration: 1000, description: 'Move blue circle'}),
   // TextEditor(blueCircle, '~insert-text', ['HELLO WORLD! To what do I owe you all the pleasure?'], {durationOrRate: '300wpm', startsWithPrevious: true}),
-  Exit(blueCircle, '~fade-out', []),
+  Exit(blueCircle, '~fade-out', [], {description: 'Exit blue circle'}),
 ]);
 timeline.addSequences([seq2]);
 
 const seq3 = webchalk.newSequence({jumpTag: 'Iteration 8'});
 seq3.addClips([
-  Entrance(blueCircle, '~fade-in', []),
-  Exit(blueCircle, '~fade-out', []),
-  Entrance(blueCircle, '~fade-in', []),
+  Entrance(blueCircle, '~fade-in', [], {description: 'Enter blue circle'}),
+  Exit(blueCircle, '~fade-out', [], {description: 'Exit blue circle'}),
+  Entrance(blueCircle, '~fade-in', [], {description: 'Enter blue circle'}),
 ]);
 timeline.addSequences([seq3]);
 
 const seq4 = webchalk.newSequence();
 seq4.addClips([
-  Motion(blueCircle, '~translate', [{translate: '-200px -200px'}], {duration: 1000}),
-  Motion(blueCircle, '~translate', [{translate: '-200px 0'}], {duration: 1000}),
-  Motion(blueCircle, '~translate', [{translate: '-200px 0'}], {duration: 1000}),
+  Motion(blueCircle, '~translate', [{translate: '-200px -200px'}], {duration: 1000, description: 'Move blue circle up and left'}),
+  Motion(blueCircle, '~translate', [{translate: '-200px 0'}], {duration: 1000, description: 'Move blue circle left'}),
+  Motion(blueCircle, '~translate', [{translate: '-200px 0'}], {duration: 1000, description: 'Move blue circle left'}),
 ]);
 timeline.addSequences([seq4]);
 
