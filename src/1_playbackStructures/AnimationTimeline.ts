@@ -687,7 +687,7 @@ export class AnimTimeline {
     for (let i = sortedTargetSequences.length - 1; i >= 0; --i) {
       const index = this.findSequenceIndex(sortedTargetSequences[i]);
       if (index === -1) {
-        // TODO: improve warning
+        // TODO: improve error
         throw this.generateError(
           CustomErrorClasses.InvalidChildError,
           [`At least one of the sequences being removed from this timeline was already not in the timeline.`]

@@ -669,7 +669,7 @@ export class AnimSequence {
     for (let i = sortedTargetClips.length - 1; i >= 0; --i) {
       const index = this.findClipIndex(sortedTargetClips[i]);
       if (index === -1) {
-        // TODO: improve warning
+        // TODO: improve error
         throw this.generateError(
           CustomErrorClasses.InvalidChildError,
           [`At least one of the clips being removed from this sequence was already not in the sequence.`]
