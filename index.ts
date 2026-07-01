@@ -69,6 +69,23 @@ seq4.addClips([
 ]);
 timeline.addSequences([seq4]);
 
+// for (let i = 0; i < 150; ++i) {
+//   // timeline.addSequences([
+//   //   webchalk.newSequence([
+//   //     Motion(blueCircle, '~translate', [{translate: '200px 200px'}]),
+//   //     Motion(blueCircle, '~translate', [{translate: '-200px -200px'}]),
+//   //     Motion(blueCircle, '~translate', [{translate: '-200px -200px'}]),
+//   //     Motion(blueCircle, '~translate', [{translate: '-200px -200px'}]),
+//   //   ])
+//   // ])
+//   seq4.addClips([
+//     Motion(blueCircle, '~translate', [{translate: '-200px -200px'}], {duration: 1000, description: 'Move blue circle up and left'}),
+//     Motion(blueCircle, '~translate', [{translate: '-200px -200px'}], {duration: 1000, description: 'Move blue circle up and left'}),
+//     // Motion(blueCircle, '~translate', [{translate: '-200px -200px'}], {duration: 1000, description: 'Move blue circle up and left'}),
+//     // Motion(blueCircle, '~translate', [{translate: '-200px -200px'}], {duration: 1000, description: 'Move blue circle up and left'}),
+//   ]);
+// }
+
 // seq2.removeClipsAt(0, 2);
 
 // timeline.removeSequencesAt(1, 3)

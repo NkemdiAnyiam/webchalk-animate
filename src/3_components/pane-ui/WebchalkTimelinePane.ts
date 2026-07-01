@@ -181,27 +181,38 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       if (!timelineResizer.classList.contains('timeline__resizer')) { return; }
       
       const timelineUI = e.currentTarget as HTMLElement;
+      const sequencesContainerEl = timelineUI.querySelector('.timeline__sequences-container') as HTMLElement;
       // unhighlight all text to prevent annoying dragging issues
       document.getSelection()?.removeAllRanges();
       // prevent selection in order to prevent other annoying dragging issues
       timelineUI.classList.add('user-select-none');
+
+      // Drastically decreases cost of reflows for high numbers of sequences (~150+) and clips (~300+).
+      // Also provides a nice visual purpose for removing the sequences (letting user see behind the timeline pane).
+      sequencesContainerEl.style.display = 'none';
+      timelineUI.style.opacity = '0.5';
 
       const dock = this.getAttribute('dock');
       const handleDrag = dock === 'bottom'
         ? (e: MouseEvent) => {
           // timelineUI.style.height = `${Number.parseFloat(getComputedStyle(timelineUI).height) - e.movementY}px`;
           timelineUI.style.height = `${window.innerHeight - e.y}px`;
+          // timelineUI.style.contentVisibility = 'hidden';
         }
         : dock === 'right'
           ? (e: MouseEvent) => { timelineUI.style.width = `${Number.parseFloat(getComputedStyle(timelineUI).width) - e.movementX}px`; }
           : (e: MouseEvent) => { timelineUI.style.width = `${Number.parseFloat(getComputedStyle(timelineUI).width) + e.movementX}px`; }
+          // timelineUI.style.contentVisibility = 'hidden';
 
       const handleRelease = (e: MouseEvent) => {
         // remove all event listeners
-        timelineUI.classList.remove('user-select-none');
         window.removeEventListener('mousemove', handleDrag);
         window.removeEventListener('mouseup', handleRelease);
         window.removeEventListener('mouseleave', handleRelease);
+        timelineUI.classList.remove('user-select-none');
+        // timelineUI.style.contentVisibility = 'visible';
+        sequencesContainerEl.style.removeProperty('display');
+        timelineUI.style.removeProperty('opacity');
       }
 
       // add listeners for handling drag and release to window
