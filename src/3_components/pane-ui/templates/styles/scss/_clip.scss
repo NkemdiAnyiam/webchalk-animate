@@ -114,7 +114,7 @@
 
 .clip__length-bar--duration {
   width: hem(7.8);
-  min-width: hem(0.25); // TODO: make slightly thicker if next to a delay/end-delay bar so its location is clearly visible
+  min-width: hem(0.5); // TODO: make slightly thicker if next to a delay/end-delay bar so its location is clearly visible
   background-color: var(--hue-dark);
 
   transition: width 0.1s;
