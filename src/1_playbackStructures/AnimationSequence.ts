@@ -481,8 +481,12 @@ export class AnimSequence {
     let maxTime = 0;
     for (let i = 0; i < lastGrouping.length; ++i) {
       const clip = lastGrouping[i];
-      if (clip.getTiming('duration') === TBA_DURATION) { continue; }
-      maxTime = Math.max(maxTime, clip.fullFinishTime);
+      if (clip.getTiming('duration') === TBA_DURATION) {
+        maxTime = Math.max(maxTime, clip.fullStartTime + clip.getTiming('delay') + clip.getTiming('endDelay'));
+      }
+      else {
+        maxTime = Math.max(maxTime, clip.fullFinishTime);
+      }
     }
 
     return maxTime;
