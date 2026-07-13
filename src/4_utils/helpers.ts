@@ -535,7 +535,7 @@ export const WORDS_REGEX = /\W*((\w+)'?(\w+)?)\W*|\W+/g;
 /**
  * @ignore
  */
-export const TBA_DURATION = 1234567.7654321;
+export const TBA_DURATION = 1234567.76;
 
 /**
  * @ignore
