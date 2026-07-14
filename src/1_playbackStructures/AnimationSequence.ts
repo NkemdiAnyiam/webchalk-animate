@@ -1157,7 +1157,16 @@ export class AnimSequence {
 
       currAnimClip.updateFullStartTime(currFullStartTime);
 
-      maxFinishTime = currAnimClip.getTiming('timescaleType') === 'duration' ? Math.max(currAnimClip.fullFinishTime, maxFinishTime) : maxFinishTime;
+      const timeScaleType = currAnimClip.getTiming('timescaleType');
+      if (timeScaleType === 'duration') {
+        maxFinishTime = Math.max(currAnimClip.fullFinishTime, maxFinishTime);
+      }
+      else {
+        maxFinishTime = Math.max(
+          currAnimClip.fullStartTime + currAnimClip.getTiming('delay') + currAnimClip.getTiming('endDelay'),
+          maxFinishTime
+        )
+      }
     }
 
     currActiveFinishGrouping.sort(activeFinishComparator);
@@ -1209,7 +1218,9 @@ export class AnimSequence {
     if (nextForwardGrouping) {
       // Compute the new max finish time of current group resulting from the change to clip's duration.
       const oldMaxFinishTime = nextForwardGrouping[0].fullStartTime;
-      let newMaxFinishTime = clip.getTiming('duration') === TBA_DURATION ? clip.fullStartTime : clip.fullFinishTime;
+      let newMaxFinishTime = clip.getTiming('duration') === TBA_DURATION
+        ? clip.fullStartTime + clip.getTiming('delay') + clip.getTiming('endDelay')
+        : clip.fullFinishTime;
       const currEndDelayGrouping: AnimClip[] = this.animClipGroupings_endDelayFinishOrder[indexOfGrouping];
       for (let i = 0; i < currEndDelayGrouping.length; ++i) {
         const currClip = currEndDelayGrouping[i];
