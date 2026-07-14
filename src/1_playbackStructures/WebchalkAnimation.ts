@@ -585,6 +585,97 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     return promise;
   }
 
+  // TODO: rename to TimeGate instead of Promise
+  unschedulePromise<T extends Parameters<AnimClip['unschedulePromise']>>(promiseId: T[0]): (value: void | PromiseLike<void>) => void {
+    let callbackObj: PhaseSegment['callbacks'][number] | undefined = undefined;
+
+    // find segment containing the promise with matching id, then remove resolver
+    for (let i = 0; i < this.phaseSegmentsForward.length; ++i) {
+      const callbackObjs = this.phaseSegmentsForward[i].callbacks;
+      for (let j = 0; j < callbackObjs.length; ++j) {
+        const currCallbackObj = callbackObjs[j];
+        if (currCallbackObj.id === promiseId) {
+          const segment = this.phaseSegmentsForward[i];
+          [callbackObj] = callbackObjs.splice(j, 1);
+          --this.numPromisesForward;
+
+          // if removing the resolver causes segment to be empty, cut the segment
+          if (WebchalkAnimation.isEmptySegment(segment)) {
+            this.phaseSegmentsForward.splice(i, 1);
+          }
+          segment.phaseSegmentEl?.update('forward');
+          break;
+        }
+      }
+    }
+
+    if (!callbackObj) {
+      for (let i = 0; i < this.phaseSegmentsBackward.length; ++i) {
+        const callbackObjs = this.phaseSegmentsBackward[i].callbacks;
+        for (let j = 0; j < callbackObjs.length; ++j) {
+          const currCallbackObj = callbackObjs[j];
+          if (currCallbackObj.id === promiseId) {
+            const segment = this.phaseSegmentsBackward[i];
+            [callbackObj] = callbackObjs.splice(j, 1);
+            --this.numPromisesBackward;
+
+            // if removing the resolver causes segment to be empty, cut the segment
+            if (WebchalkAnimation.isEmptySegment(segment)) {
+              this.phaseSegmentsBackward.splice(i, 1);
+            }
+            segment.phaseSegmentEl?.update('backward');
+            break;
+          }
+        }
+      }
+    }
+
+    if (!(callbackObj)) {
+      throw this.errorGenerator(RangeError, [`Resolver with id "${promiseId}" was not found within this clip's scheduled promises.`]);
+    }
+
+    delete this.promiseReschedulingQueue[promiseId];
+
+    return callbackObj.callback as (value: void | PromiseLike<void>) => void;
+  }
+
+  private reschedulePromise(
+    promiseReschedulingData: WebchalkAnimation['promiseReschedulingQueue'][string]
+  ) {
+    const {
+      reschedulingArgs
+    } = promiseReschedulingData;
+
+    this.unschedulePromise(reschedulingArgs[2].id);
+
+    const direction = reschedulingArgs[0];
+    const phase = reschedulingArgs[1];
+    const {origTimePosition: timePosition, label, id: previousId, callback: previousResolver} = reschedulingArgs[2];
+
+    this.generatePromise(direction, phase, timePosition, {label, previousId, previousResolver: previousResolver as (value: void | PromiseLike<void>) => void});
+    reschedulingArgs[0] === 'forward' ? (++this.numPromisesForward) : (++this.numPromisesBackward);
+  }
+
+  private queuePromiseForRescheduling<T extends Parameters<WebchalkAnimation['generatePromise']>>(
+    direction: 'forward' | 'backward',
+    phase: T[1],
+    callbackObj: ScheduledCallback
+  ): void {
+    const id = callbackObj.id;
+    this.promiseReschedulingQueue[id] = { reschedulingArgs: [direction, phase, callbackObj] };
+  }
+
+  private renewScheduledPromise<T extends Parameters<AnimClip['generatePromise']>>(
+    direction: T[0],
+    phase: T[1],
+    callbackObj: ScheduledCallback,
+  ): void {
+    this.generatePromise(direction, phase, callbackObj.origTimePosition, {label: callbackObj.label});
+    if (typeof callbackObj.origTimePosition === 'string' && callbackObj.origTimePosition.includes('%')) {
+      this.queuePromiseForRescheduling(direction, phase, callbackObj);
+    }
+  }
+
   /**@internal*/
   addIntegrityblock<T extends Parameters<AnimClip['addIntegrityblock']>>(
     phase: T[0],
@@ -641,109 +732,6 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     return id;
   }
 
-  private renewScheduledTaskPart<T extends Parameters<AnimClip['scheduleTask']>>(
-    direction: 'forward' | 'backward',
-    phase: T[0],
-    taskPart: ScheduledTaskPart,
-    phaseSegmentEl?: WebchalkPhaseSegmentElement
-  ): void {
-    const sharedObj = {sharedPhaseSegmentEl: phaseSegmentEl};
-    this.addAwaiteds(direction, phase, taskPart.origTimePosition, 'task', taskPart, sharedObj);
-    sharedObj.sharedPhaseSegmentEl?.update(direction);
-
-    if (typeof taskPart.origTimePosition === 'string' && taskPart.origTimePosition.includes('%')) {
-      this.queueForRescheduling(direction, phase, taskPart);
-    }
-  }
-
-  private rescheduleTask(
-    taskReschedulingData: WebchalkAnimation['taskReschedulingQueue'][string]
-  ) {
-    const {
-      onPlayReschedulingArgs,
-      onRewindReschedulingArgs,
-    } = taskReschedulingData;
-
-    const eitherArgs = (onPlayReschedulingArgs || onRewindReschedulingArgs)!;
-
-    this.unscheduleTask(eitherArgs[2].id);
-
-    const timePosition = eitherArgs[2].origTimePosition;
-    const phase = eitherArgs[1];
-
-    const options: {sharedPhaseSegmentEl?: WebchalkPhaseSegmentElement} = {};
-    if (onPlayReschedulingArgs) {
-      const taskPart = onPlayReschedulingArgs[2];
-      this.addAwaiteds('forward', phase, timePosition, 'task', taskPart, options);
-      ++this.numTaskPartsForward;
-    }
-    if (onRewindReschedulingArgs) {
-      const taskPart = onRewindReschedulingArgs[2];
-      this.addAwaiteds('backward', phase, timePosition, 'task', taskPart, options);
-      ++this.numTaskPartsBackward;
-    }
-
-    options.sharedPhaseSegmentEl?.update('both');
-  }
-
-  private renewScheduledPromise<T extends Parameters<AnimClip['generatePromise']>>(
-    direction: T[0],
-    phase: T[1],
-    callbackObj: ScheduledCallback,
-  ): void {
-    this.generatePromise(direction, phase, callbackObj.origTimePosition, {label: callbackObj.label});
-    if (typeof callbackObj.origTimePosition === 'string' && callbackObj.origTimePosition.includes('%')) {
-      this.queuePromiseForRescheduling(direction, phase, callbackObj);
-    }
-  }
-
-  private reschedulePromise(
-    promiseReschedulingData: WebchalkAnimation['promiseReschedulingQueue'][string]
-  ) {
-    const {
-      reschedulingArgs
-    } = promiseReschedulingData;
-
-    this.unschedulePromise(reschedulingArgs[2].id);
-
-    const direction = reschedulingArgs[0];
-    const phase = reschedulingArgs[1];
-    const {origTimePosition: timePosition, label, id: previousId, callback: previousResolver} = reschedulingArgs[2];
-
-    this.generatePromise(direction, phase, timePosition, {label, previousId, previousResolver: previousResolver as (value: void | PromiseLike<void>) => void});
-    reschedulingArgs[0] === 'forward' ? (++this.numPromisesForward) : (++this.numPromisesBackward);
-  }
-
-  private queueForRescheduling<T extends Parameters<WebchalkAnimation['scheduleTask']>>(
-    direction: 'forward' | 'backward',
-    phase: T[0],
-    taskPart: ScheduledTaskPart
-  ): void {
-
-    const id = taskPart.id;
-    if (!this.taskReschedulingQueue[id]) { this.taskReschedulingQueue[id] = {}; }
-
-    switch(direction) {
-      case "forward":
-        this.taskReschedulingQueue[id].onPlayReschedulingArgs = [direction, phase, taskPart];
-        break;
-      case "backward":
-        this.taskReschedulingQueue[id].onRewindReschedulingArgs = [direction, phase, taskPart];
-        break;
-      default:
-        throw this.errorGenerator(RangeError, [`Invalid direction "${direction}". Must be "forward" or "backward".`]);
-    }
-  }
-
-  private queuePromiseForRescheduling<T extends Parameters<WebchalkAnimation['generatePromise']>>(
-    direction: 'forward' | 'backward',
-    phase: T[1],
-    callbackObj: ScheduledCallback
-  ): void {
-    const id = callbackObj.id;
-    this.promiseReschedulingQueue[id] = { reschedulingArgs: [direction, phase, callbackObj] };
-  }
-
   unscheduleTask<T extends Parameters<AnimClip['unscheduleTask']>>(taskId: T[0]): ScheduledTask {
     let taskF: PhaseSegment['taskParts'][number] | undefined = undefined;
     let taskB: PhaseSegment['taskParts'][number] | undefined = undefined;
@@ -796,58 +784,70 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     return { ...(taskF ? {onPlay: taskF.callback} : {}), ...(taskB ? {onRewind: taskB.callback} : {}) };
   }
 
-  // TODO: rename to TimeGate instead of Promise
-  unschedulePromise<T extends Parameters<AnimClip['unschedulePromise']>>(promiseId: T[0]): (value: void | PromiseLike<void>) => void {
-    let callbackObj: PhaseSegment['callbacks'][number] | undefined = undefined;
+  private rescheduleTask(
+    taskReschedulingData: WebchalkAnimation['taskReschedulingQueue'][string]
+  ) {
+    const {
+      onPlayReschedulingArgs,
+      onRewindReschedulingArgs,
+    } = taskReschedulingData;
 
-    // find segment containing the promise with matching id, then remove resolver
-    for (let i = 0; i < this.phaseSegmentsForward.length; ++i) {
-      const callbackObjs = this.phaseSegmentsForward[i].callbacks;
-      for (let j = 0; j < callbackObjs.length; ++j) {
-        const currCallbackObj = callbackObjs[j];
-        if (currCallbackObj.id === promiseId) {
-          const segment = this.phaseSegmentsForward[i];
-          [callbackObj] = callbackObjs.splice(j, 1);
-          --this.numPromisesForward;
+    const eitherArgs = (onPlayReschedulingArgs || onRewindReschedulingArgs)!;
 
-          // if removing the resolver causes segment to be empty, cut the segment
-          if (WebchalkAnimation.isEmptySegment(segment)) {
-            this.phaseSegmentsForward.splice(i, 1);
-          }
-          segment.phaseSegmentEl?.update('forward');
-          break;
-        }
-      }
+    this.unscheduleTask(eitherArgs[2].id);
+
+    const timePosition = eitherArgs[2].origTimePosition;
+    const phase = eitherArgs[1];
+
+    const options: {sharedPhaseSegmentEl?: WebchalkPhaseSegmentElement} = {};
+    if (onPlayReschedulingArgs) {
+      const taskPart = onPlayReschedulingArgs[2];
+      this.addAwaiteds('forward', phase, timePosition, 'task', taskPart, options);
+      ++this.numTaskPartsForward;
+    }
+    if (onRewindReschedulingArgs) {
+      const taskPart = onRewindReschedulingArgs[2];
+      this.addAwaiteds('backward', phase, timePosition, 'task', taskPart, options);
+      ++this.numTaskPartsBackward;
     }
 
-    if (!callbackObj) {
-      for (let i = 0; i < this.phaseSegmentsBackward.length; ++i) {
-        const callbackObjs = this.phaseSegmentsBackward[i].callbacks;
-        for (let j = 0; j < callbackObjs.length; ++j) {
-          const currCallbackObj = callbackObjs[j];
-          if (currCallbackObj.id === promiseId) {
-            const segment = this.phaseSegmentsBackward[i];
-            [callbackObj] = callbackObjs.splice(j, 1);
-            --this.numPromisesBackward;
+    options.sharedPhaseSegmentEl?.update('both');
+  }
 
-            // if removing the resolver causes segment to be empty, cut the segment
-            if (WebchalkAnimation.isEmptySegment(segment)) {
-              this.phaseSegmentsBackward.splice(i, 1);
-            }
-            segment.phaseSegmentEl?.update('backward');
-            break;
-          }
-        }
-      }
+  private queueForRescheduling<T extends Parameters<WebchalkAnimation['scheduleTask']>>(
+    direction: 'forward' | 'backward',
+    phase: T[0],
+    taskPart: ScheduledTaskPart
+  ): void {
+
+    const id = taskPart.id;
+    if (!this.taskReschedulingQueue[id]) { this.taskReschedulingQueue[id] = {}; }
+
+    switch(direction) {
+      case "forward":
+        this.taskReschedulingQueue[id].onPlayReschedulingArgs = [direction, phase, taskPart];
+        break;
+      case "backward":
+        this.taskReschedulingQueue[id].onRewindReschedulingArgs = [direction, phase, taskPart];
+        break;
+      default:
+        throw this.errorGenerator(RangeError, [`Invalid direction "${direction}". Must be "forward" or "backward".`]);
     }
+  }
 
-    if (!(callbackObj)) {
-      throw this.errorGenerator(RangeError, [`Resolver with id "${promiseId}" was not found within this clip's scheduled promises.`]);
+  private renewScheduledTaskPart<T extends Parameters<AnimClip['scheduleTask']>>(
+    direction: 'forward' | 'backward',
+    phase: T[0],
+    taskPart: ScheduledTaskPart,
+    phaseSegmentEl?: WebchalkPhaseSegmentElement
+  ): void {
+    const sharedObj = {sharedPhaseSegmentEl: phaseSegmentEl};
+    this.addAwaiteds(direction, phase, taskPart.origTimePosition, 'task', taskPart, sharedObj);
+    sharedObj.sharedPhaseSegmentEl?.update(direction);
+
+    if (typeof taskPart.origTimePosition === 'string' && taskPart.origTimePosition.includes('%')) {
+      this.queueForRescheduling(direction, phase, taskPart);
     }
-
-    delete this.promiseReschedulingQueue[promiseId];
-
-    return callbackObj.callback as (value: void | PromiseLike<void>) => void;
   }
 
   private addAwaiteds(
