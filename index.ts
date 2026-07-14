@@ -43,8 +43,30 @@ const seq1 = webchalk.newSequence(
     Exit(redSquare, '~fade-out', [], {description: 'Exit red square'}),
 ]);
 timeline.addSequences([seq1]);
+// // seq1.animClips[0].generatePromise('forward', 'activePhase', 'beginning').then(() => {
+// //   console.log('HIIIIIII')
+// // })
+// // seq1.animClips[1].generatePromise('forward', 'delayPhase', '25%').then(() => {
+// //   console.log('HOOOOOOOO')
+// // })
+// // seq1.animClips[1].generatePromise('backward', 'delayPhase', '25%', {label: 'Log "HEEEEEEEE"'}).then(() => {
+// //   console.log('HEEEEEEEEEE')
+// // })
+// // seq1.animClips[1].generatePromise('backward', 'delayPhase', '25%', {label: 'Show off'}).then(() => {
+// //   console.log('HEEEEEEEEEE')
+// // })
+// // seq1.animClips[1].generatePromise('backward', 'delayPhase', '25%', {label: 'Log "HEEEEEEEE"'}).then(() => {
+// //   console.log('HEEEEEEEEEE')
+// // })
+// seq1.animClips[1].generatePromise('backward', 'activePhase', '25%', {label: 'Show off'}).then(() => {
+//   console.log('HEEEEEEEEEE');
+// });
+// // seq1.animClips[1].unschedulePromise(prom.id);
+// const id = seq1.animClips[1].scheduleTask('activePhase', '0%', {onPlay: () => {console.log('YO')}, onRewind: () => {console.log('YOOOOOO')}}, {frequencyLimit: 2, description: 'Log "YO"'});
+// // seq1.animClips[1].unscheduleTask(id);
+// // seq1.animClips[1].scheduleTask('activePhase', '35%',  {onRewind: () => {console.log('YO')}}, {frequencyLimit: 2, description: 'fhj'});
 
-const seq2 = webchalk.newSequence({autoplays: true, autoplaysNextSequence: true});
+const seq2 = webchalk.newSequence({autoplays: false, autoplaysNextSequence: true});
 seq2.addClips([
   Motion(blueCircle, '~translate', [{translate: '200px 200px'}], {duration: 1000, description: 'Move blue circle diagonally'}),
   Motion(blueCircle, '~translate', [{translate: '200px 0'}], {duration: 1000, description: 'Move blue circle'}),

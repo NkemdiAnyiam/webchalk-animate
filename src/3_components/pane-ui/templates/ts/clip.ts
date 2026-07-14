@@ -9,6 +9,7 @@ export const htmlComponentStr = /*html*/`
         <div class="clip__length-bar clip__length-bar--delay"></div>
         <div class="clip__length-bar clip__length-bar--duration"></div>
         <div class="clip__length-bar clip__length-bar--end-delay"></div>
+        <div class="clip__phase-segments"></div>
       </div>
       <div class="clip__label">
         <div class="clip__effect-category">

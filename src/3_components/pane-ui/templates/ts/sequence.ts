@@ -77,6 +77,7 @@ export const htmlComponentStr = /*html*/`
         </div>
       </div>
       <div class="sequence__clips"></div>
+      <div class="sequence__empty-time-fill pointer-events-none"></div>
       <div class="sequence__dark-overlay"></div>
     </div>
   </div>

@@ -4,7 +4,7 @@ import { AnimTimeline } from '../../1_playbackStructures/AnimationTimeline';
 import { AnimSequence } from '../../1_playbackStructures/AnimationSequence';
 import { htmlComponentStr } from './templates/ts/timelinePane';
 
-import { createElFromString, highlightCodeEls } from '../../4_utils/helpers';
+import { createElFromString, escapeHtml, highlightCodeEls } from '../../4_utils/helpers';
 // import { defaultClipFactories } from './src/Webchalk';
 import { AnimClip } from '../../1_playbackStructures/AnimationClip';
 import { WebchalkClipElement } from './WebchalkClipElement';
@@ -122,7 +122,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       // TODO: Decide whether to sort alphabetically (or add option to change the sort).
       const uniqueJumpTags = [...new Set(this.animTimeline!.animSequences.map(sequence => sequence.getJumpTag()))].filter(str => str);
       for (let i = 0; i < uniqueJumpTags.length; ++i) {
-        const str = uniqueJumpTags[i];
+        const str = escapeHtml(uniqueJumpTags[i]);
         frag.appendChild(createElFromString(/*html*/`<option value="${str}">${str}</option>`));
       }
       datalistEl.innerHTML = '';
@@ -149,7 +149,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       const frag = new DocumentFragment();
       const uniqueJumpTags = [...new Set(this.animTimeline!.animSequences.map(sequence => sequence.getJumpTag()))].filter(str => str);
       for (let i = 0; i < uniqueJumpTags.length; ++i) {
-        const str = uniqueJumpTags[i];
+        const str = escapeHtml(uniqueJumpTags[i]);
         frag.appendChild(createElFromString(/*html*/`<option value="${str}">${str}</option>`));
       }
       datalistEl.innerHTML = '';
@@ -266,7 +266,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     const headingEl = errorPanelEl.querySelector('.timeline__error-panel-heading-text') as HTMLHeadingElement;
     const bodyEl = errorPanelEl.querySelector('.timeline__error-panel-body') as HTMLHeadingElement;
 
-    headingEl.textContent = `ERROR: ${errorName}`;
+    headingEl.textContent = `ERROR: ${escapeHtml(errorName)}`;
 
     const [description, tips, location] = errorStuff;
 

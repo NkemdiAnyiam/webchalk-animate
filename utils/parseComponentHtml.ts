@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 
 const htmlFileNames = [
+  'phase-segment',
   'clip-info-box',
   'clip',
   'sequence',

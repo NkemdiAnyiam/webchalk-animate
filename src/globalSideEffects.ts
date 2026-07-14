@@ -5,6 +5,7 @@ import { WebchalkClipElement } from "./3_components/pane-ui/WebchalkClipElement"
 import { WebchalkClipInfoBoxElement } from "./3_components/pane-ui/WebchalkClipInfoBoxElement";
 import { WebchalkSequenceElement } from "./3_components/pane-ui/WebchalkSequenceElement";
 import { WebchalkTimelinePaneElement } from "./3_components/pane-ui/WebchalkTimelinePane";
+import { WebchalkPhaseSegmentElement } from "./3_components/pane-ui/WebchalkPhaseSegmentElement";
 
 export function injectGlobals() {
   WebchalkConnectorElement.addToCustomElementRegistry();
@@ -13,6 +14,7 @@ export function injectGlobals() {
   WebchalkSequenceElement.addToCustomElementRegistry();
   WebchalkClipElement.addToCustomElementRegistry();
   WebchalkClipInfoBoxElement.addToCustomElementRegistry();
+  WebchalkPhaseSegmentElement.addToCustomElementRegistry();
 
   // opacity of connector markers
   if (window.CSS.registerProperty) {

@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import { stylesheet } from './componentStyleSheet';
 import { htmlComponentStr } from './templates/ts/sequence';
 
-import { createElFromString } from '../../4_utils/helpers';
+import { createElFromString, secondsToHMMSS } from '../../4_utils/helpers';
 import { AnimSequence } from '../../1_playbackStructures/AnimationSequence';
 import { AnimClip } from '../../1_playbackStructures/AnimationClip';
 import { hem, hemSecs, WebchalkTimelinePaneElement } from './WebchalkTimelinePane';
@@ -80,7 +80,7 @@ export class WebchalkSequenceElement extends HTMLElement {
       for (let currSeconds = oldMaxTime + 1; currSeconds <= newMaxTime; ++currSeconds) {
         const scheduleTimeWrapper = createElFromString<HTMLElement>(/*html*/`
           <div class="sequence__schedule-time-wrapper">
-            <span class="sequence__schedule-time">${Math.floor(currSeconds / (60 * 60))}:${String(Math.floor(currSeconds / 60) % 60).padStart(2, '0')}:${String(currSeconds % 60).padStart(2, '0')}</span>
+            <span class="sequence__schedule-time">${secondsToHMMSS(currSeconds)}</span>
           </div>`
         );
 

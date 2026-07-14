@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import { stylesheet } from './componentStyleSheet';
 import { htmlComponentStr } from './templates/ts/clipInfoBox';
 
-import { clamp, createCodeEl, createElFromString, dequoteJSON, getOpeningTag, highlightCodeEls, numToOrdinal } from '../../4_utils/helpers';
+import { clamp, createCodeEl, createElFromString, dequoteJSON, escapeHtml, getOpeningTag, highlightCodeEls, numToOrdinal } from '../../4_utils/helpers';
 /** @ts-ignore */
 import { AnimClip } from '../../1_playbackStructures/AnimationClip';
 
@@ -105,7 +105,7 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
               <div class="rows">
                 <div class="row">
                   <div class="col col--head">Name</div>
-                  <div class="col col--body">${parentTimeline?.getConfig().timelineName}</div>
+                  <div class="col col--body">${escapeHtml(parentTimeline?.getConfig().timelineName ?? '')}</div>
                 </div>
               </div>
             </div>
@@ -123,11 +123,11 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
                 </div>
                 <div class="row">
                   <div class="col col--head">Description</div>
-                  <div class="col col--body">${sequenceDescription}</div>
+                  <div class="col col--body">${escapeHtml(sequenceDescription)}</div>
                 </div>
                 <div class="row">
                   <div class="col col--head">Jump Tag</div>
-                  <div class="col col--body">${sequenceJumpTag}</div>
+                  <div class="col col--body">${escapeHtml(sequenceJumpTag)}</div>
                 </div>
               </div>
             </div>
@@ -145,15 +145,15 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
                 </div>
                 <div class="row">
                   <div class="col col--head">Category</div>
-                  <div class="col col--body">${category}</div>
+                  <div class="col col--body">${escapeHtml(category)}</div>
                 </div>
                 <div class="row">
                   <div class="col col--head">Effect</div>
-                  <div class="col col--body">${effectName}</div>
+                  <div class="col col--body">${escapeHtml(effectName)}</div>
                 </div>
                 <div class="row">
                   <div class="col col--head">DOM Tag</div>
-                  <div class="col col--body">${createCodeEl(getOpeningTag(clip.domElem).replace('<', '&lt;').replace('>', '&gt;'), 'html', 'block').outerHTML}</div>
+                  <div class="col col--body">${createCodeEl(escapeHtml(getOpeningTag(clip.domElem)), 'html', 'block').outerHTML}</div>
                 </div>
               </div>
             </div>
@@ -174,7 +174,7 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
             const arg = args[i];
   
             sectionEl.appendChild(createElFromString(`<p class="clip-info-box__section-name">arg${i + 1}</p>`));
-            sectionEl.appendChild(createCodeEl(dequoteJSON(arg!), 'ts', 'block'));
+            sectionEl.appendChild(createCodeEl(escapeHtml(dequoteJSON(arg!)), 'ts', 'block'));
           }
         }
 
@@ -185,7 +185,7 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
       case 'configuration': {
         const sectionEl = createElFromString('<section class="clip-info-box__section"></section>');
         sectionEl.appendChild(createElFromString('<p class="clip-info-box__section-name">Final Configuration</p>'));
-        sectionEl.appendChild(createCodeEl(dequoteJSON(clip.getConfig()), 'ts', 'block'));
+        sectionEl.appendChild(createCodeEl(escapeHtml(dequoteJSON(clip.getConfig())), 'ts', 'block'));
         frag.appendChild(sectionEl);
       }
       break;

@@ -36,6 +36,7 @@
 }
 
 .clip__body {
+  position: relative;
   flex: 1 0 auto;
   background-color: var(--clip-bg);
 
@@ -124,6 +125,12 @@
   width: hem(4);
   border: 3.5px solid var(--hue-dark);
   border-left: none;
+}
+
+.clip__phase-segments {
+  position: absolute;
+  left: 0;
+  top: 0;
 }
 
 /* LABEL */

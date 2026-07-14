@@ -1,8 +1,9 @@
-import { AnimClip, ScheduledTask } from "./AnimationClip";
+import { AnimClip, PromiseWithId, ScheduledTask } from "./AnimationClip";
 import { CustomErrorClasses, ClipErrorGenerator } from "../4_utils/errors";
 import { DOMElement, Keyframes } from "../4_utils/interfaces";
 import { useEasing } from "../2_animationEffects/easing";
 import { detab, equalWithinTol, generateId, PERCENTAGE_REGEX, RELATIVE_TIME_POSITION_REGEX, TBA_DURATION } from "../4_utils/helpers";
+import { WebchalkPhaseSegmentElement } from "../3_components/pane-ui/WebchalkPhaseSegmentElement";
 
 abstract class WebchalkAnimationBase extends Animation {
   forwardEffect: KeyframeEffect;
@@ -13,7 +14,7 @@ abstract class WebchalkAnimationBase extends Animation {
   protected inProgress = false;
   get durationPending(): boolean { return equalWithinTol(this.effect!.getTiming().duration as number, TBA_DURATION); }
 
-  constructor(target: Element | null | undefined, keyframeOptions: KeyframeEffectOptions, protected errorGenerator: ClipErrorGenerator) {
+  constructor(target: Element | null | undefined, keyframeOptions: KeyframeEffectOptions, protected errorGenerator: ClipErrorGenerator, protected animClip: AnimClip) {
     super();
 
     if (!target) { throw this.errorGenerator(CustomErrorClasses.InvalidElementError, [`Animation target must not be null or undefined`]); }
@@ -135,24 +136,46 @@ abstract class WebchalkAnimationBase extends Animation {
   }
 }
 
-type PhaseSegment = {
+export type PhaseSegment = {
   endDelay: number,
-  callbacks: Function[],
+  functionalCallbacks: {callback: Function}[],
+  callbacks: ScheduledCallback[],
   taskParts: ScheduledTaskPart[],
+  integrityCallbacks: Function[],
   integrityblocks: {id: string, callback: Function}[],
   // true when awaiting delay/endDelay periods while the awaited delay/endDelay duration is 0
   skipEndDelayUpdation: boolean,
   header: Partial<{
     completed: boolean;
     activated: boolean;
-    phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole';
     timePosition: number | 'beginning' | 'end' | `${number}%`;
-  }>,
+    cached: boolean;
+  }> & {
+    direction: 'forward' | 'backward';
+    phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole';
+  },
+  phaseSegmentEl?: WebchalkPhaseSegmentElement;
 };
 
 type PhaseEndSegmentsCache = [delayPhaseEnd: PhaseSegment, activePhaseEnd: PhaseSegment, endDelayPhaseEnd: PhaseSegment];
 
-type ScheduledTaskPart = {id: string; callback: Function; frequencyLimit: number; origTimePosition: Parameters<AnimClip['scheduleTask']>[1]};
+type ScheduledCallback = {
+  id: string;
+  origTimePosition: Parameters<AnimClip['generatePromise']>[2];
+  callback: Function;
+  called?: boolean;
+  hideFromUI?: boolean;
+  label?: string;
+};
+type ScheduledTaskPart = {
+  id: string;
+  callback: Function;
+  frequencyLimit: number;
+  initialFrequencyLimit: number;
+  origTimePosition: Parameters<AnimClip['scheduleTask']>[1];
+  hideFromUI?: boolean;
+  description?: string;
+};
 
 type FullyFinishedPromise = {
   promise: Promise<WebchalkAnimation>;
@@ -170,22 +193,33 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
 
   // holds list of stopping points and resolvers to control segmentation of animation...
   // ... to help with Promises-based sequencing
-  private phaseSegmentsForward: PhaseSegment[] = [];
+  /** @internal */ phaseSegmentsForward: PhaseSegment[] = [];
   private phaseEndSegmentsForwardCache: PhaseEndSegmentsCache;
-  private phaseSegmentsBackward: PhaseSegment[] = [];
+  /** @internal */ phaseSegmentsBackward: PhaseSegment[] = [];
   private phaseEndSegmentsBackwardCache: PhaseEndSegmentsCache;
 
   private taskReschedulingQueue: {
     [id: string]: {
       onPlayReschedulingArgs?: Parameters<WebchalkAnimation['renewScheduledTaskPart']>;
       onRewindReschedulingArgs?: Parameters<WebchalkAnimation['renewScheduledTaskPart']>;
-    }
+    };
+  } = {};
+
+  private promiseReschedulingQueue: {
+    [id: string]: {
+      reschedulingArgs: Parameters<WebchalkAnimation['renewScheduledPromise']>;
+    };
   } = {};
 
   private numTaskPartsForward = 0;
   private numTaskPartsBackward = 0;
+  private numPromisesForward = 0;
+  private numPromisesBackward = 0;
   hasTaskParts(direction: 'forward' | 'backward'): boolean {
     return direction === 'forward' ? (this.numTaskPartsForward > 0) : (this.numTaskPartsBackward > 0);
+  }
+  hasPromises(direction: 'forward' | 'backward'): boolean {
+    return direction === 'forward' ? (this.numPromisesForward > 0) : (this.numPromisesBackward > 0);
   }
   
   onDelayFinish: Function = () => {};
@@ -212,8 +246,8 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     this.nestedAnimations = [];
   }
 
-  constructor(target: Element | null | undefined, keyframeOptions: KeyframeEffectOptions, protected errorGenerator: ClipErrorGenerator) {
-    super(target, keyframeOptions, errorGenerator);
+  constructor(target: Element | null | undefined, keyframeOptions: KeyframeEffectOptions, errorGenerator: ClipErrorGenerator, animClip: AnimClip) {
+    super(target, keyframeOptions, errorGenerator, animClip);
 
     this.resetPhaseSegments('both');
     this.phaseEndSegmentsForwardCache = [...this.phaseSegmentsForward] as PhaseEndSegmentsCache;
@@ -255,7 +289,9 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     let blockedForTasks: boolean | null = null;
     // Traverse live array instead of static length since entries could be added mid-loop
     for (const segment of phaseSegments) {
-      const { endDelay, callbacks, taskParts, integrityblocks, skipEndDelayUpdation, header }: PhaseSegment = segment;
+      const {
+        endDelay, functionalCallbacks, callbacks, taskParts, integrityCallbacks, integrityblocks, skipEndDelayUpdation, header, phaseSegmentEl
+      }: PhaseSegment = segment;
       header.activated = true;
 
       if (!skipEndDelayUpdation) {
@@ -296,7 +332,10 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         // ... to ensure that side-effects from tasks are stable
         await Promise.all(
           (this.direction === 'forward' ? taskParts : taskParts.toReversed())
-            .map(rBlock => rBlock.callback())
+            .map(taskPart => {
+              --taskPart.frequencyLimit; return taskPart.callback();
+            }
+          )
         );
       }
       if (integrityblocks.length > 0) {
@@ -304,8 +343,18 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         await Promise.all(integrityblocks.map(iBlock => iBlock.callback()));
       }
       // Call all callbacks that awaited the completion of this phase
-      for (const callback of callbacks) { callback(); }
-
+      for (const callbackObj of functionalCallbacks) {
+        callbackObj.callback();
+      }
+      for (const callbackObj of callbacks) {
+        callbackObj.callback();
+        callbackObj.called = true;
+        this.direction === 'forward' ? (--this.numPromisesForward) : (--this.numPromisesBackward);
+        delete this.promiseReschedulingQueue[callbackObj.id];
+      }
+      for (const callback of integrityCallbacks) { callback(); }
+      
+      phaseSegmentEl?.update(this.direction);
       // extra await allows additional pushes to preempt next segment when they should
       await Promise.resolve();
     }
@@ -368,13 +417,13 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
   }
 
   /** @internal */
-  updateDuration(duration: number, rescheduleTasks: boolean = true): void {
+  updateDuration(duration: number, reschedule: boolean = true): void {
     super.updateDuration(duration);
     for (let i = 0; i < this.nestedAnimations.length; ++i) {
       this.nestedAnimations[i].updateDuration(duration);
     }
 
-    if (!rescheduleTasks) { return; }
+    if (!reschedule) { return; }
 
     this.phaseEndSegmentsForwardCache[0].endDelay = -duration;
     this.phaseEndSegmentsBackwardCache[0].endDelay = -duration;
@@ -383,93 +432,157 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     for (let i = 0; i < taskIds.length; ++i) {
       this.rescheduleTask(this.taskReschedulingQueue[taskIds[i]]);
     }
+
+    const promiseIds = Object.keys(this.promiseReschedulingQueue);
+    for (let i = 0; i < promiseIds.length; ++i) {
+      this.reschedulePromise(this.promiseReschedulingQueue[promiseIds[i]]);
+    }
   }
 
   // accepts a time to wait for (converted to an endDelay) and returns a Promise that is resolved at that time
-  generatePromise<T extends Parameters<AnimClip['generatePromise']>>(direction: T[0], phase: T[1], timePosition: T[2]): Promise<void> {
-    return new Promise(resolve => {
-      // if the animation is already finished in the given direction, resolve immediately
-      if (this.isFinished && this.direction === direction) { resolve(); return; }
+  generatePromise<T extends Parameters<AnimClip['generatePromise']>>(
+    direction: T[0], phase: T[1], timePosition: T[2], schedulingOptions: {
+      /**@internal*/forIntegrity?: boolean;
+      /**@internal*/previousId?: string;
+      /**@internal*/previousResolver?: (value: void | PromiseLike<void>) => void;
+      label?: string;
+    } = {}
+  ): PromiseWithId<void> {
+    const id = schedulingOptions.forIntegrity ? '' : (schedulingOptions.previousId ?? generateId());
+    const withResolversObj = Promise.withResolvers<void>() as unknown as {
+      promise: PromiseWithId<void>;
+      resolve: (value: void | PromiseLike<void>) => void;
+    };
+    const promise = withResolversObj.promise;
+    const resolve = schedulingOptions.previousResolver ?? withResolversObj.resolve;
+    // (no need to do anything special with the promise in the former case because we know the promise will not be used anywhere)
 
-      if (this.durationPending && !String(timePosition).match(RELATIVE_TIME_POSITION_REGEX)) {
+    // if the animation is already finished in the given direction, resolve immediately
+    if (this.isFinished && this.direction === direction) { resolve(); }
+
+    else if (this.durationPending && !String(timePosition).match(RELATIVE_TIME_POSITION_REGEX)) {
+      throw this.errorGenerator(
+        CustomErrorClasses.EarlySchedulingError,
+        [detab`The new promise requested for time position "${timePosition}" could not be scheduled because\
+          the duration of the clip is not yet known. A clip whose length is set with a rate rather than a duration\
+          can only schedule promises using a relative 'timePosition' value (such as {timePosition: "20%"} or {timePosition: "end"})\
+          before the duration is known. The duration of a rate-based clip is only known while in one of these 3 states:\
+          1) The clip is currently playing; 2) The clip has finished playing and is waiting to be rewound' 3) The clip is\
+          currently rewinding.`]
+      );
+    }
+
+    const [
+      phaseSegments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition
+    ] = WebchalkAnimation.computePhaseEmplacement(this, direction, phase, timePosition);
+
+    // check for out of bounds time positions
+    if (phaseTimePosition < 0) {
+      if (typeof timePosition === 'number') {
         throw this.errorGenerator(
-          CustomErrorClasses.EarlySchedulingError,
-          [detab`The new promise requested for time position "${timePosition}" could not be scheduled because\
-            the duration of the clip is not yet known. A clip whose length is set with a rate rather than a duration\
-            can only schedule promises using a relative 'timePosition' value (such as {timePosition: "20%"} or {timePosition: "end"})\
-            before the duration is known. The duration of a rate-based clip is only known while in one of these 3 states:\
-            1) The clip is currently playing; 2) The clip has finished playing and is waiting to be rewound' 3) The clip is\
-            currently rewinding.`]
+          CustomErrorClasses.InvalidPhasePositionError,
+          [detab`Negative 'timePosition' ${timePosition} for phase "${phase}" resulted in invalid time ${phaseTimePosition}\
+            (i.e., ${phaseDuration} - ${Math.abs(timePosition)}).\
+            Negative 'timePosition' values must result in the range [0, ${phaseDuration}] for this "${phase}".`]
         );
       }
-
-      const [
-        phaseSegments, initialArrIndex, phaseDuration, phaseEndDelayOffset, phaseTimePosition
-      ] = WebchalkAnimation.computePhaseEmplacement(this, direction, phase, timePosition);
-
-      // check for out of bounds time positions
-      if (phaseTimePosition < 0) {
-        if (typeof timePosition === 'number') {
-          throw this.errorGenerator(
-            CustomErrorClasses.InvalidPhasePositionError,
-            [detab`Negative 'timePosition' ${timePosition} for phase "${phase}" resulted in invalid time ${phaseTimePosition}\
-              (i.e., ${phaseDuration} - ${Math.abs(timePosition)}).\
-              Negative 'timePosition' values must result in the range [0, ${phaseDuration}] for this "${phase}".`]
-          );
-        }
-        else {
-          throw this.errorGenerator(
-            CustomErrorClasses.InvalidPhasePositionError,
-            [`Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`]
-          );
-        }
+      else {
+        throw this.errorGenerator(
+          CustomErrorClasses.InvalidPhasePositionError,
+          [`Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`]
+        );
       }
-      if (phaseTimePosition > phaseDuration) {
-        if (typeof timePosition === 'number') {
-          throw this.errorGenerator(
-            CustomErrorClasses.InvalidPhasePositionError,
-            [detab`Invalid positive timePosition value ${timePosition} for phase "${phase}".\
-            Positive time position values must be in the range [0, ${phaseDuration}] for this "${phase}".`]
-          );
-        }
-        else {
-          throw this.errorGenerator(
-            CustomErrorClasses.InvalidPhasePositionError,
-            [`Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`]
-          );
-        }
+    }
+    if (phaseTimePosition > phaseDuration) {
+      if (typeof timePosition === 'number') {
+        throw this.errorGenerator(
+          CustomErrorClasses.InvalidPhasePositionError,
+          [detab`Invalid positive timePosition value ${timePosition} for phase "${phase}".\
+          Positive time position values must be in the range [0, ${phaseDuration}] for this "${phase}".`]
+        );
       }
+      else {
+        throw this.errorGenerator(
+          CustomErrorClasses.InvalidPhasePositionError,
+          [`Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`]
+        );
+      }
+    }
 
-      const endDelay: number = phaseEndDelayOffset + phaseTimePosition;
-      const numSegments = phaseSegments.length;
+    const callbackObj: ScheduledCallback = {id, callback: resolve, origTimePosition: timePosition, label: schedulingOptions.label ?? '<blank label>'};
+    const { forIntegrity = false } = schedulingOptions;
+
+    const endDelay: number = phaseEndDelayOffset + phaseTimePosition;
+    const numSegments = phaseSegments.length;
+    
+    for (let i = initialArrIndex; i < numSegments; ++i) {
+      const currSegment = phaseSegments[i];
       
-      for (let i = initialArrIndex; i < numSegments; ++i) {
-        const currSegment = phaseSegments[i];
-        
-        // if new endDelay is less than curr, new segment should be inserted to list
-        if (endDelay < currSegment.endDelay) {
-          // but if the proceeding segment has already been reached in the loop, then the awaited time has already passed
-          if (currSegment.header.activated) { resolve(); return; }
-
+      // if new endDelay is less than curr, new segment should be inserted to list
+      if (endDelay < currSegment.endDelay) {
+        // but if the proceeding segment has already been reached in the loop, then the awaited time has already passed
+        if (currSegment.header.activated) { resolve(); }
+        else {
           // insert new segment to list
-          phaseSegments.splice(i, 0, { endDelay, callbacks: [resolve], taskParts: [], integrityblocks: [], skipEndDelayUpdation: phaseTimePosition === 0, header: {} });
-          return;
+          const newSegment: PhaseSegment = {
+            endDelay, functionalCallbacks: [], callbacks: [], taskParts: [], integrityCallbacks: [], integrityblocks: [], skipEndDelayUpdation: phaseTimePosition === 0, header: {phase, timePosition, direction},
+          }
+          if (forIntegrity) { newSegment.integrityCallbacks.push(resolve); }
+          // TODO: if necessary, incorporate hideFromUI
+          else {
+            newSegment.callbacks.push(callbackObj);
+            const sisterSegment = (direction === 'forward' ? this.phaseSegmentsBackward : this.phaseSegmentsForward)
+              .find(potentialSis => newSegment.endDelay === -(potentialSis.endDelay + this.animClip.getTiming('duration')));
+            if (sisterSegment?.phaseSegmentEl) {
+              newSegment.phaseSegmentEl = sisterSegment.phaseSegmentEl;
+              newSegment.phaseSegmentEl.readSegment(newSegment, direction);
+            }
+            else {
+              newSegment.phaseSegmentEl = new WebchalkPhaseSegmentElement();
+              newSegment.phaseSegmentEl?.readSegment(newSegment, direction);
+              this.animClip.webchalkClipEl?.insertPhaseSegmentEls([newSegment.phaseSegmentEl]);
+            }
+          }
+          phaseSegments.splice(i, 0, newSegment);
         }
-
-        // if new endDelay matches that of curr, the resolver should be called with others in the same segment
-        if (endDelay === currSegment.endDelay) {
-          // but if curr segment is already completed, the awaited time has already passed
-          if (currSegment.header.completed) { resolve(); return; }
-
-          // add resolver to current segment
-          currSegment.callbacks.push(resolve);
-          return;
-        }
+        break;
       }
 
-      // note: this error should never be reached
-      throw this.errorGenerator(Error, ['Something very wrong occurred for addAwaited() to not be completed.']);
-    });
+      // if new endDelay matches that of curr, the resolver should be called with others in the same segment
+      else if (endDelay === currSegment.endDelay) {
+        // but if curr segment is already completed, the awaited time has already passed
+        if (currSegment.header.completed) { resolve(); }
+        else {
+          // add resolver to current segment
+          if (forIntegrity) { currSegment.integrityCallbacks.push(resolve); }
+          else {
+            currSegment.callbacks.push(callbackObj);
+            if (!currSegment.phaseSegmentEl) {
+              const sisterSegment = (direction === 'forward' ? this.phaseSegmentsBackward : this.phaseSegmentsForward)
+                .find(segment => currSegment.endDelay === -(segment.endDelay + this.animClip.getTiming('duration')));
+              if (sisterSegment?.phaseSegmentEl) {
+                currSegment.phaseSegmentEl = sisterSegment.phaseSegmentEl;
+                currSegment.phaseSegmentEl.readSegment(currSegment, direction);
+              }
+              else {
+                currSegment.phaseSegmentEl = new WebchalkPhaseSegmentElement();
+                currSegment.phaseSegmentEl.readSegment(currSegment, direction);
+                this.animClip.webchalkClipEl?.insertPhaseSegmentEls([currSegment.phaseSegmentEl]);
+              }
+            }
+          }
+        }
+        break;
+      }
+    }
+
+    promise.id = id;
+
+    if (!forIntegrity && typeof timePosition === 'string' && timePosition.match(RELATIVE_TIME_POSITION_REGEX)) {
+      this.queuePromiseForRescheduling(direction, phase, callbackObj);
+    }
+
+    return promise;
   }
 
   /**@internal*/
@@ -479,8 +592,8 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     task: T[2]
   ): void {
     const id = generateId();
-    if (task.onPlay) { this.addAwaiteds('forward', phase, timePosition, 'integrityblock', {id, callback: task.onPlay, frequencyLimit: 1, origTimePosition: timePosition}) };
-    if (task.onRewind) { this.addAwaiteds('backward', phase, timePosition, 'integrityblock', {id, callback: task.onRewind, frequencyLimit: 1, origTimePosition: timePosition}) };
+    if (task.onPlay) { this.addAwaiteds('forward', phase, timePosition, 'integrityblock', {id, callback: task.onPlay, frequencyLimit: 1, initialFrequencyLimit: 1, origTimePosition: timePosition}) };
+    if (task.onRewind) { this.addAwaiteds('backward', phase, timePosition, 'integrityblock', {id, callback: task.onRewind, frequencyLimit: 1, initialFrequencyLimit: 1, origTimePosition: timePosition}) };
   }
 
   scheduleTask<T extends Parameters<AnimClip['scheduleTask']>>(
@@ -493,6 +606,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
 
     const {
       frequencyLimit = Infinity,
+      description = '<blank task description>'
     } = schedulingOptions;
 
     if (!task.onPlay && !task.onRewind) {
@@ -504,14 +618,17 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     let onPlayTaskPart: ScheduledTaskPart | undefined;
     let onRewindTaskPart: ScheduledTaskPart | undefined;
 
+    const options: {sharedPhaseSegmentEl?: WebchalkPhaseSegmentElement} = {};
     if (task.onPlay) {
-      onPlayTaskPart = {id, callback: task.onPlay, frequencyLimit, origTimePosition: timePosition};
-      this.addAwaiteds('forward', phase, timePosition, 'task', onPlayTaskPart);
+      onPlayTaskPart = {id, callback: task.onPlay, frequencyLimit, initialFrequencyLimit: frequencyLimit, origTimePosition: timePosition, description};
+      this.addAwaiteds('forward', phase, timePosition, 'task', onPlayTaskPart, options);
     }
     if (task.onRewind) {
-      onRewindTaskPart = {id, callback: task.onRewind, frequencyLimit, origTimePosition: timePosition};
-      this.addAwaiteds('backward', phase, timePosition, 'task', onRewindTaskPart);
+      onRewindTaskPart = {id, callback: task.onRewind, frequencyLimit, initialFrequencyLimit: frequencyLimit, origTimePosition: timePosition, description};
+      this.addAwaiteds('backward', phase, timePosition, 'task', onRewindTaskPart, options);
     }
+
+    options.sharedPhaseSegmentEl?.update('both');
 
     if (onPlayTaskPart) { ++this.numTaskPartsForward; }
     if (onRewindTaskPart) { ++this.numTaskPartsBackward; }
@@ -527,9 +644,13 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
   private renewScheduledTaskPart<T extends Parameters<AnimClip['scheduleTask']>>(
     direction: 'forward' | 'backward',
     phase: T[0],
-    taskPart: ScheduledTaskPart
+    taskPart: ScheduledTaskPart,
+    phaseSegmentEl?: WebchalkPhaseSegmentElement
   ): void {
-    this.addAwaiteds(direction, phase, taskPart.origTimePosition, 'task', taskPart);
+    const sharedObj = {sharedPhaseSegmentEl: phaseSegmentEl};
+    this.addAwaiteds(direction, phase, taskPart.origTimePosition, 'task', taskPart, sharedObj);
+    sharedObj.sharedPhaseSegmentEl?.update(direction);
+
     if (typeof taskPart.origTimePosition === 'string' && taskPart.origTimePosition.includes('%')) {
       this.queueForRescheduling(direction, phase, taskPart);
     }
@@ -550,16 +671,47 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     const timePosition = eitherArgs[2].origTimePosition;
     const phase = eitherArgs[1];
 
+    const options: {sharedPhaseSegmentEl?: WebchalkPhaseSegmentElement} = {};
     if (onPlayReschedulingArgs) {
       const taskPart = onPlayReschedulingArgs[2];
-      this.addAwaiteds('forward', phase, timePosition, 'task', taskPart);
+      this.addAwaiteds('forward', phase, timePosition, 'task', taskPart, options);
       ++this.numTaskPartsForward;
     }
     if (onRewindReschedulingArgs) {
       const taskPart = onRewindReschedulingArgs[2];
-      this.addAwaiteds('backward', phase, timePosition, 'task', taskPart);
+      this.addAwaiteds('backward', phase, timePosition, 'task', taskPart, options);
       ++this.numTaskPartsBackward;
     }
+
+    options.sharedPhaseSegmentEl?.update('both');
+  }
+
+  private renewScheduledPromise<T extends Parameters<AnimClip['generatePromise']>>(
+    direction: T[0],
+    phase: T[1],
+    callbackObj: ScheduledCallback,
+  ): void {
+    this.generatePromise(direction, phase, callbackObj.origTimePosition, {label: callbackObj.label});
+    if (typeof callbackObj.origTimePosition === 'string' && callbackObj.origTimePosition.includes('%')) {
+      this.queuePromiseForRescheduling(direction, phase, callbackObj);
+    }
+  }
+
+  private reschedulePromise(
+    promiseReschedulingData: WebchalkAnimation['promiseReschedulingQueue'][string]
+  ) {
+    const {
+      reschedulingArgs
+    } = promiseReschedulingData;
+
+    this.unschedulePromise(reschedulingArgs[2].id);
+
+    const direction = reschedulingArgs[0];
+    const phase = reschedulingArgs[1];
+    const {origTimePosition: timePosition, label, id: previousId, callback: previousResolver} = reschedulingArgs[2];
+
+    this.generatePromise(direction, phase, timePosition, {label, previousId, previousResolver: previousResolver as (value: void | PromiseLike<void>) => void});
+    reschedulingArgs[0] === 'forward' ? (++this.numPromisesForward) : (++this.numPromisesBackward);
   }
 
   private queueForRescheduling<T extends Parameters<WebchalkAnimation['scheduleTask']>>(
@@ -583,6 +735,15 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     }
   }
 
+  private queuePromiseForRescheduling<T extends Parameters<WebchalkAnimation['generatePromise']>>(
+    direction: 'forward' | 'backward',
+    phase: T[1],
+    callbackObj: ScheduledCallback
+  ): void {
+    const id = callbackObj.id;
+    this.promiseReschedulingQueue[id] = { reschedulingArgs: [direction, phase, callbackObj] };
+  }
+
   unscheduleTask<T extends Parameters<AnimClip['unscheduleTask']>>(taskId: T[0]): ScheduledTask {
     let taskF: PhaseSegment['taskParts'][number] | undefined = undefined;
     let taskB: PhaseSegment['taskParts'][number] | undefined = undefined;
@@ -593,13 +754,15 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       for (let j = 0; j < tasks.length; ++j) {
         const task = tasks[j];
         if (task.id === taskId) {
+          const segment = this.phaseSegmentsForward[i];
           [taskF] = tasks.splice(j, 1);
           --this.numTaskPartsForward;
 
           // if removing the task causes segment to be empty, cut the segment
-          if (WebchalkAnimation.isEmptySegment(this.phaseSegmentsForward[i])) {
+          if (WebchalkAnimation.isEmptySegment(segment)) {
             this.phaseSegmentsForward.splice(i, 1);
           }
+          segment.phaseSegmentEl?.update('forward');
           break;
         }
       }
@@ -610,6 +773,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       for (let j = 0; j < tasks.length; ++j) {
         const task = tasks[j];
         if (task.id === taskId) {
+          const segment = this.phaseSegmentsBackward[i];
           [taskB] = tasks.splice(j, 1);
           --this.numTaskPartsBackward;
 
@@ -617,6 +781,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
           if (WebchalkAnimation.isEmptySegment(this.phaseSegmentsBackward[i])) {
             this.phaseSegmentsBackward.splice(i, 1);
           }
+          segment.phaseSegmentEl?.update('backward');
           break;
         }
       }
@@ -631,15 +796,72 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     return { ...(taskF ? {onPlay: taskF.callback} : {}), ...(taskB ? {onRewind: taskB.callback} : {}) };
   }
 
+  // TODO: rename to TimeGate instead of Promise
+  unschedulePromise<T extends Parameters<AnimClip['unschedulePromise']>>(promiseId: T[0]): (value: void | PromiseLike<void>) => void {
+    let callbackObj: PhaseSegment['callbacks'][number] | undefined = undefined;
+
+    // find segment containing the promise with matching id, then remove resolver
+    for (let i = 0; i < this.phaseSegmentsForward.length; ++i) {
+      const callbackObjs = this.phaseSegmentsForward[i].callbacks;
+      for (let j = 0; j < callbackObjs.length; ++j) {
+        const currCallbackObj = callbackObjs[j];
+        if (currCallbackObj.id === promiseId) {
+          const segment = this.phaseSegmentsForward[i];
+          [callbackObj] = callbackObjs.splice(j, 1);
+          --this.numPromisesForward;
+
+          // if removing the resolver causes segment to be empty, cut the segment
+          if (WebchalkAnimation.isEmptySegment(segment)) {
+            this.phaseSegmentsForward.splice(i, 1);
+          }
+          segment.phaseSegmentEl?.update('forward');
+          break;
+        }
+      }
+    }
+
+    if (!callbackObj) {
+      for (let i = 0; i < this.phaseSegmentsBackward.length; ++i) {
+        const callbackObjs = this.phaseSegmentsBackward[i].callbacks;
+        for (let j = 0; j < callbackObjs.length; ++j) {
+          const currCallbackObj = callbackObjs[j];
+          if (currCallbackObj.id === promiseId) {
+            const segment = this.phaseSegmentsBackward[i];
+            [callbackObj] = callbackObjs.splice(j, 1);
+            --this.numPromisesBackward;
+
+            // if removing the resolver causes segment to be empty, cut the segment
+            if (WebchalkAnimation.isEmptySegment(segment)) {
+              this.phaseSegmentsBackward.splice(i, 1);
+            }
+            segment.phaseSegmentEl?.update('backward');
+            break;
+          }
+        }
+      }
+    }
+
+    if (!(callbackObj)) {
+      throw this.errorGenerator(RangeError, [`Resolver with id "${promiseId}" was not found within this clip's scheduled promises.`]);
+    }
+
+    delete this.promiseReschedulingQueue[promiseId];
+
+    return callbackObj.callback as (value: void | PromiseLike<void>) => void;
+  }
+
   private addAwaiteds(
     direction: 'forward' | 'backward',
     phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
     timePosition: number | 'beginning' | 'end' | `${number}%`,
     awaitedType: 'integrityblock' | 'task',
-    taskPart: ScheduledTaskPart
+    taskPart: ScheduledTaskPart,
+    options: {sharedPhaseSegmentEl?: WebchalkPhaseSegmentElement} = {}
   ): void {
-    if (taskPart.frequencyLimit < 0) {
-      throw this.errorGenerator(RangeError, [`Invalid 'frequencyLimit' ${taskPart.frequencyLimit}. Must be at least 0.`]);
+    if (taskPart.frequencyLimit !== Infinity 
+      && (Number.parseInt(String(taskPart.frequencyLimit)) !== taskPart.frequencyLimit || taskPart.frequencyLimit < 0)
+    ) {
+      throw this.errorGenerator(RangeError, [`Invalid 'frequencyLimit' ${taskPart.frequencyLimit}. Must be either an integer at least 0 or Infinity.`]);
     }
     
     if (this.durationPending && !String(timePosition).match(RELATIVE_TIME_POSITION_REGEX)) {
@@ -727,14 +949,41 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         }
 
         // insert new segment to list
-        phaseSegments.splice(i, 0, {
+        const newSegment: PhaseSegment = {
           endDelay,
+          functionalCallbacks: [],
           callbacks: [],
           taskParts: awaitedType === 'task' ? [taskPart] : [],
+          integrityCallbacks: [],
           integrityblocks: awaitedType === 'integrityblock' ? [taskPart] : [],
           skipEndDelayUpdation: phaseTimePosition === 0,
-          header: {phase, timePosition}
-        });
+          header: {phase, timePosition, direction},
+        }
+
+        // If this is a task that wants to be shown in the UI...
+        if (awaitedType === 'task' && !taskPart.hideFromUI) {
+          // If there is an existing phase segment element in the directional counterpart segment, use it.
+          const sisterSegment = (direction === 'forward' ? this.phaseSegmentsBackward : this.phaseSegmentsForward)
+            .find(segment => newSegment.endDelay === -(segment.endDelay + this.animClip.getTiming('duration')));
+          if (sisterSegment?.phaseSegmentEl) {
+            newSegment.phaseSegmentEl = sisterSegment.phaseSegmentEl;
+            options.sharedPhaseSegmentEl = newSegment.phaseSegmentEl;
+          }
+          // If there is an existing phase segment element passed in from the same call to scheduleTask(), use it.
+          else if (options.sharedPhaseSegmentEl) {
+            newSegment.phaseSegmentEl = options.sharedPhaseSegmentEl;
+          }
+          // Otherwise, create a new phase segment element.
+          else {
+            newSegment.phaseSegmentEl = new WebchalkPhaseSegmentElement();
+            options.sharedPhaseSegmentEl = newSegment.phaseSegmentEl;
+          }
+          newSegment.phaseSegmentEl.readSegment(newSegment, direction);
+          if (!newSegment.phaseSegmentEl.isConnected) {
+            this.animClip.webchalkClipEl?.insertPhaseSegmentEls([newSegment.phaseSegmentEl]);
+          }
+        }
+        phaseSegments.splice(i, 0, newSegment);
         return;
       }
 
@@ -750,7 +999,29 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         }
 
         // add promises to current segment
-        currSegment[awaitedType === 'task' ? 'taskParts' : 'integrityblocks'].push(taskPart);
+        if (awaitedType === 'integrityblock') { currSegment.integrityblocks.push(taskPart); }
+        else {
+          currSegment.taskParts.push(taskPart);
+          if (!taskPart.hideFromUI && !currSegment.phaseSegmentEl) {
+            const sisterSegment = (direction === 'forward' ? this.phaseSegmentsBackward : this.phaseSegmentsForward)
+              .find(segment => currSegment.endDelay === -(segment.endDelay + this.animClip.getTiming('duration')));
+            if (sisterSegment?.phaseSegmentEl) {
+              currSegment.phaseSegmentEl = sisterSegment.phaseSegmentEl;
+              options.sharedPhaseSegmentEl = currSegment.phaseSegmentEl; // might not be necessary
+            }
+            else if (options.sharedPhaseSegmentEl) {
+              currSegment.phaseSegmentEl = options.sharedPhaseSegmentEl;
+            }
+            else {
+              currSegment.phaseSegmentEl = new WebchalkPhaseSegmentElement();
+              options.sharedPhaseSegmentEl = currSegment.phaseSegmentEl; // might not be necessary
+            }
+            currSegment.phaseSegmentEl.readSegment(currSegment, direction);
+            if (!currSegment.phaseSegmentEl.isConnected) {
+              this.animClip.webchalkClipEl?.insertPhaseSegmentEls([currSegment.phaseSegmentEl]);
+            }
+          }
+        }
         return;
       }
     }
@@ -823,18 +1094,24 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     // COMPUTE TIME POSITION RELATIVE TO PHASE
     let initialPhaseTimePos: number;
 
-    if (timePosition === 'beginning') { initialPhaseTimePos = 0; }
-    else if (timePosition === 'end') {  initialPhaseTimePos = phaseDuration; }
-    else if (typeof timePosition === 'number') { initialPhaseTimePos = timePosition; }
+    // if TBA_DURATION, just hard code so all TBA_DURATION tasks get placed in the same segment
+    if (duration === TBA_DURATION) {
+      initialPhaseTimePos = duration / 2;
+    }
     else {
+      if (timePosition === 'beginning') { initialPhaseTimePos = 0; }
+      else if (timePosition === 'end') {  initialPhaseTimePos = phaseDuration; }
+      else if (typeof timePosition === 'number') { initialPhaseTimePos = timePosition; }
       // if timePosition is in percent format, convert to correct time value based on phase
-      const match = timePosition.toString().match(PERCENTAGE_REGEX);
-      // note: this error should never occur
-      if (!match) {
-        throw anim.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, [`Invalid timePosition value "${timePosition}".`]);
+      else {
+        const match = timePosition.toString().match(PERCENTAGE_REGEX);
+        // note: this error should never occur
+        if (!match) {
+          throw anim.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, [`Invalid timePosition value "${timePosition}".`]);
+        }
+  
+        initialPhaseTimePos = phaseDuration * (Number(match[1]) / 100);
       }
-
-      initialPhaseTimePos = phaseDuration * (Number(match[1]) / 100);
     }
 
     // wrap any negative time values to count backwards from end of phase
@@ -854,9 +1131,9 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       // ->end of active phase->,
       // ->end of endDelay phase->
       const freshPhaseSegmentsForward: PhaseSegment[] = [
-        { endDelay: -duration, callbacks: [() => this.onDelayFinish()], taskParts: [], integrityblocks: [], skipEndDelayUpdation: delay === 0, header: {phase: 'delayPhase', timePosition: 'end'} },
-        { endDelay: 0, callbacks: [() => this.onActiveFinish()], taskParts: [], integrityblocks: [], skipEndDelayUpdation: false, header: {phase: 'activePhase', timePosition: 'end'} },
-        { endDelay: endDelay, callbacks: [() => this.onEndDelayFinish()], taskParts: [], integrityblocks: [], skipEndDelayUpdation: endDelay === 0, header: {phase: 'endDelayPhase',  timePosition: 'end'} },
+        { endDelay: -duration, functionalCallbacks: [{callback: () => this.onDelayFinish()}], callbacks: [], taskParts: [], integrityCallbacks: [], integrityblocks: [], skipEndDelayUpdation: delay === 0, header: {phase: 'delayPhase', timePosition: 'end', cached: true, direction: 'forward'} },
+        { endDelay: 0, functionalCallbacks: [{callback: () => this.onActiveFinish()}], callbacks: [], taskParts: [], integrityCallbacks: [], integrityblocks: [], skipEndDelayUpdation: false, header: {phase: 'activePhase', timePosition: 'end', cached: true, direction: 'forward'} },
+        { endDelay: endDelay, functionalCallbacks: [{callback: () => this.onEndDelayFinish()}], callbacks: [], taskParts: [], integrityCallbacks: [], integrityblocks: [], skipEndDelayUpdation: endDelay === 0, header: {phase: 'endDelayPhase',  timePosition: 'end', cached: true, direction: 'forward'} },
       ];
 
       // for tasks that are scheduled to reoccur, schedule them again
@@ -864,8 +1141,9 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       this.phaseSegmentsForward = freshPhaseSegmentsForward;
       this.phaseEndSegmentsForwardCache = [...freshPhaseSegmentsForward] as PhaseEndSegmentsCache;
       for (const segment of tempSegments) {
+        segment.phaseSegmentEl?.remove();
         for (const taskPart of segment.taskParts) {
-          if (--taskPart.frequencyLimit > 0) {
+          if (taskPart.frequencyLimit > 0) {
             this.renewScheduledTaskPart('forward', segment.header.phase!, taskPart);
           }
           else {
@@ -885,17 +1163,18 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       // <-beginning of active phase<- (which corresponds to the end of the rewinding frames' active),
       // <-beginning of delay phase<- (which corresponds to the end of the rewinding frames' end delay)
       const freshPhaseSegmentsBackward: PhaseSegment[] = [
-        { endDelay: -duration, callbacks: [() => this.onDelayFinish()], taskParts: [], integrityblocks: [], skipEndDelayUpdation: delay === 0, header: {phase: 'endDelayPhase', timePosition: 'beginning'} },
-        { endDelay: 0, callbacks: [() => this.onActiveFinish()], taskParts: [], integrityblocks: [], skipEndDelayUpdation: false, header: {phase: 'activePhase', timePosition: 'beginning'} },
-        { endDelay: endDelay, callbacks: [() => this.onEndDelayFinish()], taskParts: [], integrityblocks: [], skipEndDelayUpdation: endDelay === 0, header: {phase: 'delayPhase', timePosition: 'beginning'} },
+        { endDelay: -duration, functionalCallbacks: [{callback: () => this.onDelayFinish()}], callbacks: [], taskParts: [], integrityCallbacks: [], integrityblocks: [], skipEndDelayUpdation: delay === 0, header: {phase: 'endDelayPhase', timePosition: 'beginning', cached: true, direction: 'backward'} },
+        { endDelay: 0, functionalCallbacks: [{callback: () => this.onActiveFinish()}], callbacks: [], taskParts: [], integrityCallbacks: [], integrityblocks: [], skipEndDelayUpdation: false, header: {phase: 'activePhase', timePosition: 'beginning', cached: true, direction: 'backward'} },
+        { endDelay: endDelay, functionalCallbacks: [{callback: () => this.onEndDelayFinish()}], callbacks: [], taskParts: [], integrityCallbacks: [], integrityblocks: [], skipEndDelayUpdation: endDelay === 0, header: {phase: 'delayPhase', timePosition: 'beginning', cached: true, direction: 'backward'} },
       ];
       
       const tempSegments = this.phaseSegmentsBackward;
       this.phaseSegmentsBackward = freshPhaseSegmentsBackward;
       this.phaseEndSegmentsBackwardCache = [...freshPhaseSegmentsBackward] as PhaseEndSegmentsCache;
       for (const segment of tempSegments) {
+        segment.phaseSegmentEl?.remove();
         for (const taskPart of segment.taskParts) {
-          if (--taskPart.frequencyLimit > 0) {
+          if (taskPart.frequencyLimit > 0) {
             this.renewScheduledTaskPart('backward', segment.header.phase!, taskPart);
           }
           else {
@@ -925,7 +1204,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
   }
 
   private static isEmptySegment(phaseSegment: PhaseSegment): boolean {
-    return [phaseSegment.callbacks, phaseSegment.taskParts, phaseSegment.integrityblocks].every(arr => arr.length === 0);
+    return [phaseSegment.functionalCallbacks, phaseSegment.callbacks, phaseSegment.taskParts, phaseSegment.integrityCallbacks, phaseSegment.integrityblocks].every(arr => arr.length === 0);
   }
 }
 

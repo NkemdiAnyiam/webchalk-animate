@@ -3,76 +3,104 @@ export const htmlComponentStr = /*html*/`
   <div class="timeline__resizer timeline__resizer--dock-bottom" draggable="false"></div>
   <div class="timeline__resizer timeline__resizer--dock-right" draggable="false"></div>
   <div class="timeline__resizer timeline__resizer--dock-left" draggable="false"></div>
+
   <div class="timeline__inner-wrapper">
     <header class="timeline__header">
       <h1 class="timeline__name"></h1>
-      <div class="timeline__control timeline__jump-container timeline__jump-container--step">
-        <label for="timeline__jump-input--step">Step</label>
-        <div class="timeline__jump-wrapper">
-          <div class="timeline__jump-input-container" onclick="this.querySelector('input').focus()">
-            <input
-              id="timeline__jump-input--step" class="timeline__jump-input timeline__jump-input--step" type="text" list="timeline__jump-datalist--step"
-              onclick="this.showPicker()"
-            />
-            <datalist name="timeline__jump-datalist--step" id="timeline__jump-datalist--step" class="timeline__jump-datalist">
-              <!-- <option value="1">1</option> -->
-            </datalist>
-          </div>
-          <button class="timeline__jump-button jump-button">
-            <svg class="sequence__control-icon jump-button__icon" viewBox="0 0 12 11" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
-                <g transform="matrix(1,0,0,1,-1816,-1259.5)">
-                  <g transform="matrix(1,0,0,0.983239,-180,15.3245)">
-                    <path d="M1996,1265.38C1998.93,1270.29 2001.98,1269.89 2003,1270.04L2003,1267.89L2008,1272.36L2003,1276.57L2003,1274.79C2002.57,1274.71 1996.05,1273.85 1996,1265.38Z"/>
-                  </g>
+
+      
+      <div class="timeline__controls timeline__controls">
+        <div class="timeline__controls-button-container">
+          <button class="timeline__controls-button btn" popovertarget="timeline__controls-wrapper">
+            <svg class="btn-icon" viewBox="0 0 12 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+                <g transform="matrix(1,0,0,1,-752.589,-1174)">
+                    <g transform="matrix(0.25,0,0,0.25,758.589,1180)">
+                        <g transform="matrix(1,0,0,1,-24,-24)">
+                            <g id="Layer-1" serif:id="Layer 1">
+                                <path id="path2989" d="M24.04,0.143C22.664,0.143 21.314,0.267 20.001,0.49L19.361,7.276C18.004,7.654 16.72,8.183 15.518,8.861L10.274,4.529C8.059,6.097 6.12,8.024 4.553,10.239L8.895,15.483C8.218,16.683 7.677,17.97 7.299,19.326L0.525,19.966C0.301,21.279 0.177,22.629 0.177,24.005C0.177,25.384 0.3,26.729 0.525,28.044L7.299,28.684C7.677,30.04 8.218,31.327 8.895,32.527L4.563,37.771C6.128,39.98 8.054,41.917 10.263,43.482L15.518,39.139C16.72,39.817 18.003,40.356 19.361,40.735L20.001,47.52C21.314,47.744 22.664,47.857 24.04,47.857C25.416,47.857 26.755,47.744 28.068,47.52L28.708,40.735C30.066,40.356 31.349,39.817 32.551,39.139L37.806,43.482C40.015,41.917 41.941,39.98 43.506,37.771L39.174,32.527C39.851,31.327 40.392,30.04 40.77,28.684L47.544,28.044C47.769,26.729 47.892,25.384 47.892,24.005C47.892,22.628 47.768,21.279 47.544,19.966L40.77,19.326C40.392,17.97 39.851,16.683 39.174,15.483L43.517,10.239C41.949,8.024 40.01,6.097 37.795,4.529L32.551,8.861C31.349,8.183 30.065,7.654 28.708,7.276L28.067,0.49C26.754,0.267 25.415,0.143 24.039,0.143L24.04,0.143ZM24.04,14.919C29.058,14.919 33.116,18.988 33.116,24.006C33.116,29.024 29.058,33.093 24.04,33.093C19.022,33.093 14.953,29.024 14.953,24.006C14.953,18.988 19.022,14.919 24.04,14.919Z" style="fill-rule:nonzero;"/>
+                            </g>
+                        </g>
+                    </g>
                 </g>
             </svg>
           </button>
         </div>
-      </div>
-      <div class="timeline__control timeline__jump-container timeline__jump-container--tag">
-        <label for="timeline__jump-input--tag">Tag</label>
-        <div class="timeline__jump-wrapper">
-          <div class="timeline__jump-input-container" onclick="this.querySelector('input').focus()">
-            <input
-              id="timeline__jump-input--tag" class="timeline__jump-input timline__jump-input--tag" type="text" list="timeline__jump-datalist--tag"
-              onclick="this.showPicker()"
-            />
-            <datalist name="timeline__jump-datalist--tag" id="timeline__jump-datalist--tag" class="timeline__jump-datalist">
-            </datalist>
+
+        <div class="timeline__controls-wrapper timeline__controls-wrapper--popover" id="timeline__controls-wrapper" popover>
+          <div class="timeline__control timeline__control--jump timeline__control--jump--step">
+            <label for="timeline__jump-input timeline__jump-input--step">Step</label>
+            <div class="timeline__jump-selection-container">
+              <div class="timeline__jump-input-wrapper" onclick="this.querySelector('input').focus()">
+                <input
+                  id="timeline__jump-input--step" class="timeline__jump-input timeline__jump-input--step" type="text" list="timeline__jump-datalist--step"
+                  onclick="this.showPicker()"
+                />
+                <datalist name="timeline__jump-datalist--step" id="timeline__jump-datalist--step" class="timeline__jump-datalist">
+                </datalist>
+              </div>
+              <button class="timeline__jump-button jump-button">
+                <svg class="sequence__control-icon jump-button__icon" viewBox="0 0 12 11" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+                    <g transform="matrix(1,0,0,1,-1816,-1259.5)">
+                      <g transform="matrix(1,0,0,0.983239,-180,15.3245)">
+                        <path d="M1996,1265.38C1998.93,1270.29 2001.98,1269.89 2003,1270.04L2003,1267.89L2008,1272.36L2003,1276.57L2003,1274.79C2002.57,1274.71 1996.05,1273.85 1996,1265.38Z"/>
+                      </g>
+                    </g>
+                </svg>
+              </button>
+            </div>
           </div>
-          <button class="timeline__jump-button jump-button">
-            <svg class="sequence__control-icon jump-button__icon" viewBox="0 0 12 11" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
-                <g transform="matrix(1,0,0,1,-1816,-1259.5)">
-                  <g transform="matrix(1,0,0,0.983239,-180,15.3245)">
-                    <path d="M1996,1265.38C1998.93,1270.29 2001.98,1269.89 2003,1270.04L2003,1267.89L2008,1272.36L2003,1276.57L2003,1274.79C2002.57,1274.71 1996.05,1273.85 1996,1265.38Z"/>
-                  </g>
-                </g>
-            </svg>
-          </button>
-        </div>
-      </div>
-      <div class="timeline__control timeline__opacity-container">
-        <label for="timeline__opacity-slider">Opacity</label>
-        <div class="timeline__opacity-slider-wrapper">
-          <input type="range" class="timeline__opacity-slider" id="timeline__opacity-slider" min="5" />
-        </div>
-      </div>
-      <div class="timeline__control timeline__dock-container">
-        <label for="timeline__dock-select">Dock</label>
-        <div class="timeline__dock-wrapper">
-          <div class="timeline__dock-select-container">
-            <select id="timeline__dock-select" class="timeline__dock-select">
-              <option value="left">Left</option>
-              <option value="right">Right</option>
-              <option value="bottom">Bottom</option>
-            </select>
+          
+          <div class="timeline__control timeline__control--jump timeline__control--jump--tag">
+            <label class="timeline__control-label" for="timeline__jump-input timeline__jump-input--tag">Tag</label>
+            <div class="timeline__jump-selection-container">
+              <div class="timeline__jump-input-wrapper" onclick="this.querySelector('input').focus()">
+                <input
+                  id="timeline__jump-input--tag" class="timeline__jump-input timline__jump-input--tag" type="text" list="timeline__jump-datalist--tag"
+                  onclick="this.showPicker()"
+                />
+                <datalist name="timeline__jump-datalist--tag" id="timeline__jump-datalist--tag" class="timeline__jump-datalist">
+                </datalist>
+              </div>
+              <button class="timeline__jump-button jump-button">
+                <svg class="sequence__control-icon jump-button__icon" viewBox="0 0 12 11" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+                    <g transform="matrix(1,0,0,1,-1816,-1259.5)">
+                      <g transform="matrix(1,0,0,0.983239,-180,15.3245)">
+                        <path d="M1996,1265.38C1998.93,1270.29 2001.98,1269.89 2003,1270.04L2003,1267.89L2008,1272.36L2003,1276.57L2003,1274.79C2002.57,1274.71 1996.05,1273.85 1996,1265.38Z"/>
+                      </g>
+                    </g>
+                </svg>
+              </button>
+            </div>
+          </div>
+    
+          <div class="timeline__control timeline__control--opacity">
+            <label for="timeline__opacity-slider">Opacity</label>
+            <div class="timeline__opacity-slider-wrapper">
+              <input type="range" class="timeline__opacity-slider" id="timeline__opacity-slider" min="5" />
+            </div>
+          </div>
+    
+          <div class="timeline__control timeline__control--dock">
+            <label class="timeline__control-label" for="timeline__dock-select">Dock</label>
+            <div class="timeline__dock-selection-container">
+              <div class="timeline__dock-select-wrapper">
+                <select id="timeline__dock-select" class="timeline__dock-select">
+                  <option value="left">Left</option>
+                  <option value="right">Right</option>
+                  <option value="bottom">Bottom</option>
+                </select>
+              </div>
+            </div>
           </div>
         </div>
+  
       </div>
+
       <!-- <div class="timeline__clickthrough-button-container">
         <button class="timeline__clickthrough-button btn"><span>Click Through</span></button>
       </div> -->
     </header>
+
     <div class="timeline__sequences-container">
     </div>
     <div class="timeline__error-panel">
@@ -81,7 +109,6 @@ export const htmlComponentStr = /*html*/`
       <div class="timeline__error-panel-inner-wrapper">
         <div class="timeline__error-panel-heading-container">
           <h2 class="timeline__error-panel-heading-text">
-            <!-- ERROR: Invalid Entrance Attempt -->
           </h2>
         </div>
         <div class="timeline__error-panel-body-wrapper">

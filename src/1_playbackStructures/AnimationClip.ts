@@ -301,6 +301,18 @@ export type ScheduledTask = {
   onRewind?: Function;
 };
 
+// TYPE
+/**
+ * A {@link Promise} that contains an `id` field.
+ * Used in {@link AnimClip.generatePromise}.
+ * 
+ * @category Subtypes
+ */
+export class PromiseWithId<T> extends Promise<T> {
+  id: string = '';
+};
+
+
 // CLASS
 /**
  * <!-- EX:S id="AnimClip.desc" code-type="comment-block" -->
@@ -588,7 +600,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     }
   }
 
-  protected animation!: WebchalkAnimation;
+  /** @internal */ animation!: WebchalkAnimation;
   protected get nestedAnimations(): NestedWebchalkAnimation[] { return this.animation.nestedAnimations; };
   /**@internal*/
   get rafLoopsProgress(): number {
@@ -932,7 +944,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       composite: composite,
     };
 
-    this.animation = new WebchalkAnimation(this.domElem, keyframeOptions, this.generateError);
+    this.animation = new WebchalkAnimation(this.domElem, keyframeOptions, this.generateError, this);
 
     // TODO: Figure out how to disable any pausing/stepping functionality in the timeline while stopped for tasks
     this.animation.pauseForTasks = () => {
@@ -1173,9 +1185,31 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   generatePromise(
     direction: 'forward' | 'backward',
     phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
+    timePosition: number | 'beginning' | 'end' | `${number}%`,
+    schedulingOptions?: {
+      /**
+       * A text description for what is awaiting the specified time point. This can be displayed in the UI.
+       * @defaultValue
+       * ```ts
+       * '<blank label>'
+       * ```
+       */
+      label?: string;
+    }
+  ): PromiseWithId<void> {
+    return this.animation.generatePromise(direction, phase, timePosition, schedulingOptions);
+  }
+
+  /**
+   * @internal
+   * @grouping Timing Event Methods
+   */
+  generateIntegrityPromise(
+    direction: 'forward' | 'backward',
+    phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
     timePosition: number | 'beginning' | 'end' | `${number}%`
   ): Promise<void> {
-    return this.animation.generatePromise(direction, phase, timePosition);
+    return this.animation.generatePromise(direction, phase, timePosition, {forIntegrity: true});
   }
 
   /**
@@ -1295,6 +1329,14 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
        * ```
        */
       frequencyLimit?: number;
+      /**
+       * A text description for the task that can be displayed in the UI.
+       * @defaultValue
+       * ```ts
+       * '<blank task description>'
+       * ```
+       */
+      description?: string;
     } = {}
   ): string {
     return this.animation.scheduleTask(phase, timePosition, task, schedulingOptions);
@@ -1312,10 +1354,27 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   }
 
   /**
+   * Removes the resolver for the promise represented by the string id (id obtained from {@link AnimClip.generatePromise | generatePromise()}.id).
+   * @param promiseId - The string id of the promise whose resolver to remove.
+   * @returns The removed resolver.
+   * 
+   * @group Timing Event Methods
+   */
+  unschedulePromise(promiseId: string): (value: void | PromiseLike<void>) => void {
+    return this.animation.unschedulePromise(promiseId);
+  }
+
+  /**
    * @internal
    */
   hasTaskParts(direction: 'forward' | 'backward') {
     return this.animation.hasTaskParts(direction);
+  }
+  /**
+   * @internal
+   */
+  hasPromises(direction: 'forward' | 'backward') {
+    return this.animation.hasPromises(direction);
   }
 
   /**
@@ -1692,7 +1751,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
           composite: composite,
         };
 
-        this.animation.createNestedAnimation(nestedEffectFrameGeneratorSet.domElem, keyframeOptions, this.generateError);
+        this.animation.createNestedAnimation(nestedEffectFrameGeneratorSet.domElem, keyframeOptions, this.generateError, this);
       }
     }
     catch (err: unknown) { throw this.generateError(err as Error); }

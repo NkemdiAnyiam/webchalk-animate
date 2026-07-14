@@ -7,6 +7,7 @@ import { TBA_DURATION } from '../../4_utils/helpers';
 import { EffectCategory } from '../../4_utils/interfaces';
 import { WebchalkSequenceElement } from './WebchalkSequenceElement';
 import { WebchalkClipInfoBoxElement } from './WebchalkClipInfoBoxElement';
+import { WebchalkPhaseSegmentElement } from './WebchalkPhaseSegmentElement';
 
 let devHtmlComponentStr: string;
 if (process.env.NODE_ENV === 'development') {
@@ -94,11 +95,19 @@ export class WebchalkClipElement extends HTMLElement {
     effectCategoryEl.textContent = categoryToAbbrev(category);
     effectNameEl.textContent = effectName;
     descriptionEl.textContent = description;
+
+    const phaseSegmentEls = [...new Set(
+      [...clip.animation.phaseSegmentsForward, ...clip.animation.phaseSegmentsBackward]
+      .map(segment => segment.phaseSegmentEl as WebchalkPhaseSegmentElement)
+      .filter(segmentEl => segmentEl)
+    )];
+    this.insertPhaseSegmentEls(phaseSegmentEls);
   }
 
   remove() {
     super.remove();
     this.removeInfoBox();
+    [...this.shadowRoot?.querySelector('.clip__phase-segments')?.children!].forEach(phaseSegmentEl => phaseSegmentEl.remove());
     this.parentWebchalkSequenceEl = undefined;
     this.animClip = undefined;
   }
@@ -116,6 +125,22 @@ export class WebchalkClipElement extends HTMLElement {
   updateClipNumber(clipNumber: number) {
     const clipNumberEl = this.shadowRoot!.querySelector('.clip__number') as HTMLElement;
     clipNumberEl.textContent = `${clipNumber}.`;
+  }
+
+  insertPhaseSegmentEls(phaseSegmentEls: WebchalkPhaseSegmentElement[]) {
+    if (phaseSegmentEls.length === 0) { return; }
+
+    const phaseSegmentsEl = this.shadowRoot!.querySelector('.clip__phase-segments') as HTMLElement;
+    // TODO: sort by timing
+    // phaseSegments.sort()
+    
+    const frag = new DocumentFragment();
+    for (const phaseSegmentEl of phaseSegmentEls) {
+      phaseSegmentEl.parentWebchalkClipEl = this;
+      phaseSegmentEl.addUI();
+      frag.append(phaseSegmentEl);
+    }
+    phaseSegmentsEl.appendChild(frag);
   }
 
   attachInfoButtonHandler() {

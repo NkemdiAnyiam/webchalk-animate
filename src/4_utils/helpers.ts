@@ -155,6 +155,22 @@ export function clamp(a: number, x: number, b: number) { return Math.max( a, Mat
 
 /**
  * 
+ * @param seconds 
+ * @param depth 
+ * @returns 
+ */
+export function secondsToHMMSS(seconds: number, depth: 0 | 1 | 2 | 3 = 2) {
+  let timeString = '';
+  if (depth < 0 || depth > 3) { throw new RangeError(`Invalid depth ${depth}. Must be integer in range [0, 3].`) }
+  if (depth >= 0) { timeString += `${Math.floor(seconds / (60 * 60))}`; } // hour
+  if (depth >= 1) { timeString += `:${String(Math.floor(seconds / 60) % 60).padStart(2, '0')}`; } // minute
+  if (depth >= 2) { timeString += `:${String(Math.floor(seconds % 60)).padStart(2, '0')}`; } // second
+  if (depth >= 3) { timeString += `.${String(Math.floor((seconds - Math.floor(seconds)) * 1000)).padEnd(3, '0')}`; } // millisecond
+  return timeString;
+}
+
+/**
+ * 
  * @param rules 
  * 
  * @ignore
@@ -1055,4 +1071,13 @@ export function highlightCodeEls(containerEl: HTMLElement) {
     codeEl.textContent = dedent(codeEl.textContent);
     hljs.highlightElement(codeEl);
   }
+}
+
+export function escapeHtml(unsafeString: string) {
+  return unsafeString
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }

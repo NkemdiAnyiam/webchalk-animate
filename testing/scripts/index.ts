@@ -582,10 +582,10 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   const tEdit = TextEditor(textBox, '~delete-text', [], {startsNextClipToo: true, durationOrRate: '500wpm'});
   // tEdit.scheduleTask('activePhase', 'end', {onPlay: () => wait(500), onRewind: () => wait(500)}, {frequencyLimit: 2});
   tEdit.scheduleTask('activePhase', 'beginning', {onPlay: () => {
-    tEdit.scheduleTask('activePhase', '50%', {onPlay: () => wait(500), onRewind: () => wait(500)}, {frequencyLimit: 1});
-  }}, {frequencyLimit: 2});
+    tEdit.scheduleTask('activePhase', '50%', {onPlay: () => wait(500), onRewind: () => wait(500)}, {frequencyLimit: 1, description: 'Wait 0.5s both ways.'});
+  }}, {frequencyLimit: 2, description: 'Schedule waits halfway through effect.'});
   const tEdit2 = TextEditor(textBox2, '~replace-text', ['What in tarnation was supposed to happen when you did that?'], {startsWithPrevious: true});
-  tEdit2.scheduleTask('activePhase', '80%', {onPlay: () => wait(2000), onRewind: () => wait(2000)}, {frequencyLimit: 1});
+  tEdit2.scheduleTask('activePhase', '80%', {onPlay: () => wait(2000), onRewind: () => wait(2000)}, {frequencyLimit: 1, description: 'Pause for 2s.'});
 
   const timeline = webchalk.newTimeline({timelineName: 'Basic', autoLinksButtons: false, debugMode: true});
   timeline.linkPlaybackButtons();
