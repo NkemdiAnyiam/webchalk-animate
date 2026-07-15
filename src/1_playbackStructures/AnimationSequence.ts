@@ -824,7 +824,7 @@ export class AnimSequence {
         // ensure that no clip finishes its active phase before any clip that should finish its active phase first (according to the calculated "perfect" timing)
         const noRateClips = grouping.filter(clip => clip.getTiming('timescaleType') !== 'rate');
         for (let j = 1; j < noRateClips.length; ++j) {
-          noRateClips[j].addIntegrityblock('activePhase', 'end', { onPlay: () => noRateClips[j-1].generateIntegrityPromise('forward', 'activePhase', 'end') });
+          noRateClips[j].addIntegrityAsyncCb('activePhase', 'end', { onPlay: () => noRateClips[j-1].scheduleIntegrityOuterResolver('forward', 'activePhase', 'end') });
           // activeGrouping2[j].animation.addIntegrityblocks('forward', 'endDelayPhase', 'end', activeGrouping2[j-1].animation.getFinished('forward', 'endDelayPhase'));
         }
       // }
@@ -865,7 +865,7 @@ export class AnimSequence {
       for (let j = 1; j < grouping.length; ++j) {
         // the start of any clip within a grouping should line up with the beginning of the preceding clip's active phase
         // (akin to PowerPoint timing)
-        await grouping[j-1].generateIntegrityPromise('forward', 'activePhase', 'beginning');
+        await grouping[j-1].scheduleIntegrityOuterResolver('forward', 'activePhase', 'beginning');
         const currAnimClip = grouping[j];
         this.inProgressClips.set(currAnimClip.id, currAnimClip);
         parallelClips.push(currAnimClip.play(this)
@@ -880,7 +880,7 @@ export class AnimSequence {
       //   // TODO: probably don't look at grouping? Use a newly sorted array? No, this sentence doesn't make sense.
       //   for (let j = 1; j < grouping.length; ++j) {
       //     console.log(animClipGroupings_activeFinishOrder[i][j].getConfig().description, animClipGroupings_activeFinishOrder[i][j-1].getConfig().description);
-      //     animClipGroupings_activeFinishOrder[i][j].addIntegrityblock('activePhase', 'end', { onPlay: () => animClipGroupings_activeFinishOrder[i][j-1].generatePromise('forward', 'activePhase', 'end') });
+      //     animClipGroupings_activeFinishOrder[i][j].addIntegrityblock('activePhase', 'end', { onPlay: () => animClipGroupings_activeFinishOrder[i][j-1].scheduleResolver('forward', 'activePhase', 'end') });
       //     // activeGrouping2[j].animation.addIntegrityblocks('forward', 'endDelayPhase', 'end', activeGrouping2[j-1].animation.getFinished('forward', 'endDelayPhase'));
       //   }
       // }
@@ -930,7 +930,7 @@ export class AnimSequence {
 
       // ensure that no clip finishes rewinding its active phase before any clip that should finishing doing so first (according to the calculated "perfect" timing)
       for (let j = 1; j < groupingLength; ++j) {
-        grouping[j].addIntegrityblock('activePhase', 'beginning', { onRewind: () => grouping[j-1].generateIntegrityPromise('backward', 'activePhase', 'beginning') });
+        grouping[j].addIntegrityAsyncCb('activePhase', 'beginning', { onRewind: () => grouping[j-1].scheduleIntegrityOuterResolver('backward', 'activePhase', 'beginning') });
       }
     }
     
@@ -963,7 +963,7 @@ export class AnimSequence {
         for (let k = j + 1; k < groupingLength; ++k) {
           let intersectingClip = grouping[k];
           if (currAnimClip.fullFinishTime >= intersectingClip.fullStartTime) {
-            await intersectingClip.generateIntegrityPromise('backward', 'whole', currAnimClip.fullFinishTime - intersectingClip.fullStartTime);
+            await intersectingClip.scheduleIntegrityOuterResolver('backward', 'whole', currAnimClip.fullFinishTime - intersectingClip.fullStartTime);
             break;
           }
         }

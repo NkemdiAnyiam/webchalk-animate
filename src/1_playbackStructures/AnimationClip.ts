@@ -304,7 +304,7 @@ export type ScheduledTask = {
 // TYPE
 /**
  * A {@link Promise} that contains an `id` field.
- * Used in {@link AnimClip.generatePromise}.
+ * Used in {@link AnimClip.scheduleResolver}.
  * 
  * @category Subtypes
  */
@@ -1149,40 +1149,40 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
    * @returns A promise that is resolved at the specific time point of the animation.
    * 
    * @example
-   * <!-- EX:S id="AnimClip.generatePromise-1" code-type="ts" -->
+   * <!-- EX:S id="AnimClip.scheduleResolver-1" code-type="ts" -->
    * ```ts
    * async function testFunc() {
    *   const { Entrance } = webchalk.createAnimationClipFactories();
    *   const square = document.querySelector('.square');
    *   const ent = Entrance(square, '~fade-in', []);
    *   // wait until ent is played and gets 1/5 of the way through the active phase of the animation
-   *   await ent.generatePromise('forward', 'activePhase', '20%');
+   *   await ent.scheduleResolver('forward', 'activePhase', '20%');
    *   console.log('1/5 done playing!');
    * }
    * 
    * testFunc();
    * ```
-   * <!-- EX:E id="AnimClip.generatePromise-1" -->
+   * <!-- EX:E id="AnimClip.scheduleResolver-1" -->
    * 
    * @example
-   * <!-- EX:S id="AnimClip.generatePromise-2" code-type="ts" -->
+   * <!-- EX:S id="AnimClip.scheduleResolver-2" code-type="ts" -->
    * ```ts
    * async function testFunc() {
    *   const { Entrance } = webchalk.createAnimationClipFactories();
    *   const square = document.querySelector('.square');
    *   const ent = Entrance(square, '~fade-in', []);
    *    // wait until ent is eventually rewound and gets 4/5 of the way through rewinding the active phase of the animation
-   *    await ent.generatePromise('backward', 'activePhase', '20%');
+   *    await ent.scheduleResolver('backward', 'activePhase', '20%');
    *    console.log('4/5 done rewinding!');
    * }
    * 
    * testFunc();
    * ```
-   * <!-- EX:E id="AnimClip.generatePromise-2" -->
+   * <!-- EX:E id="AnimClip.scheduleResolver-2" -->
    * 
    * @group Timing Event Methods
    */
-  generatePromise(
+  scheduleResolver(
     direction: 'forward' | 'backward',
     phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
     timePosition: number | 'beginning' | 'end' | `${number}%`,
@@ -1197,31 +1197,31 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       label?: string;
     }
   ): PromiseWithId<void> {
-    return this.animation.generatePromise(direction, phase, timePosition, schedulingOptions);
+    return this.animation.scheduleResolver(direction, phase, timePosition, schedulingOptions);
   }
 
   /**
    * @internal
    * @grouping Timing Event Methods
    */
-  generateIntegrityPromise(
+  scheduleIntegrityOuterResolver(
     direction: 'forward' | 'backward',
     phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
     timePosition: number | 'beginning' | 'end' | `${number}%`
   ): Promise<void> {
-    return this.animation.generatePromise(direction, phase, timePosition, {forIntegrity: true});
+    return this.animation.scheduleResolver(direction, phase, timePosition, {forIntegrity: true});
   }
 
   /**
    * @internal
    * @group Timing Event Methods
    */
-  addIntegrityblock(
+  addIntegrityAsyncCb(
     phase: 'delayPhase' | 'activePhase' | 'endDelayPhase' | 'whole',
     timePosition: number | 'beginning' | 'end' | `${number}%`,
     promises: {onPlay?: Function, onRewind?: Function},
   ): void {
-    return this.animation.addIntegrityblock(phase, timePosition, promises);
+    return this.animation.addIntegrityAsyncCb(phase, timePosition, promises);
   }
 
   /**
@@ -1354,14 +1354,14 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   }
 
   /**
-   * Removes the resolver for the promise represented by the string id (id obtained from {@link AnimClip.generatePromise | generatePromise()}.id).
+   * Removes the resolver for the promise represented by the string id (id obtained from {@link AnimClip.scheduleResolver | scheduleResolver()}.id).
    * @param promiseId - The string id of the promise whose resolver to remove.
    * @returns The removed resolver.
    * 
    * @group Timing Event Methods
    */
-  unschedulePromise(promiseId: string): (value: void | PromiseLike<void>) => void {
-    return this.animation.unschedulePromise(promiseId);
+  unscheduleResolver(promiseId: string): (value: void | PromiseLike<void>) => void {
+    return this.animation.unscheduleResolver(promiseId);
   }
 
   /**

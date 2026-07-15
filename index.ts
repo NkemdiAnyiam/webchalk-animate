@@ -43,25 +43,25 @@ const seq1 = webchalk.newSequence(
     Exit(redSquare, '~fade-out', [], {description: 'Exit red square'}),
 ]);
 timeline.addSequences([seq1]);
-// // seq1.animClips[0].generatePromise('forward', 'activePhase', 'beginning').then(() => {
+// // seq1.animClips[0].scheduleResolver('forward', 'activePhase', 'beginning').then(() => {
 // //   console.log('HIIIIIII')
 // // })
-// // seq1.animClips[1].generatePromise('forward', 'delayPhase', '25%').then(() => {
+// // seq1.animClips[1].scheduleResolver('forward', 'delayPhase', '25%').then(() => {
 // //   console.log('HOOOOOOOO')
 // // })
-// // seq1.animClips[1].generatePromise('backward', 'delayPhase', '25%', {label: 'Log "HEEEEEEEE"'}).then(() => {
+// // seq1.animClips[1].scheduleResolver('backward', 'delayPhase', '25%', {label: 'Log "HEEEEEEEE"'}).then(() => {
 // //   console.log('HEEEEEEEEEE')
 // // })
-// // seq1.animClips[1].generatePromise('backward', 'delayPhase', '25%', {label: 'Show off'}).then(() => {
+// // seq1.animClips[1].scheduleResolver('backward', 'delayPhase', '25%', {label: 'Show off'}).then(() => {
 // //   console.log('HEEEEEEEEEE')
 // // })
-// // seq1.animClips[1].generatePromise('backward', 'delayPhase', '25%', {label: 'Log "HEEEEEEEE"'}).then(() => {
+// // seq1.animClips[1].scheduleResolver('backward', 'delayPhase', '25%', {label: 'Log "HEEEEEEEE"'}).then(() => {
 // //   console.log('HEEEEEEEEEE')
 // // })
-// seq1.animClips[1].generatePromise('backward', 'activePhase', '25%', {label: 'Show off'}).then(() => {
+// seq1.animClips[1].scheduleResolver('backward', 'activePhase', '25%', {label: 'Show off'}).then(() => {
 //   console.log('HEEEEEEEEEE');
 // });
-// // seq1.animClips[1].unschedulePromise(prom.id);
+// // seq1.animClips[1].unscheduleResolver(prom.id);
 // const id = seq1.animClips[1].scheduleTask('activePhase', '0%', {onPlay: () => {console.log('YO')}, onRewind: () => {console.log('YOOOOOO')}}, {frequencyLimit: 2, description: 'Log "YO"'});
 // // seq1.animClips[1].unscheduleTask(id);
 // // seq1.animClips[1].scheduleTask('activePhase', '35%',  {onRewind: () => {console.log('YO')}}, {frequencyLimit: 2, description: 'fhj'});

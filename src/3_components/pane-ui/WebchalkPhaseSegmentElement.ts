@@ -101,14 +101,14 @@ export class WebchalkPhaseSegmentElement extends HTMLElement {
 
   update(direction: 'forward' | 'backward' | 'both') {
     if ((direction === 'forward' || direction === 'both') && this.forwardPhaseSegment) {
-      const { callbacks, taskParts } = this.forwardPhaseSegment;
-      if (callbacks.every(callbackObj => callbackObj.called || callbackObj.hideFromUI) && taskParts.every(taskPart => taskPart.frequencyLimit === 0)) {
+      const { resolverContainers, taskParts } = this.forwardPhaseSegment;
+      if (resolverContainers.every(callbackObj => callbackObj.called || callbackObj.hideFromUI) && taskParts.every(taskPart => taskPart.frequencyLimit === 0)) {
         this.remove('forward');
       }
     }
     if ((direction === 'backward' || direction === 'both') && this.backwardPhaseSegment) {
-      const { callbacks, taskParts } = this.backwardPhaseSegment;
-      if (callbacks.every(callbackObj => callbackObj.called || callbackObj.hideFromUI) && taskParts.every(taskPart => taskPart.frequencyLimit === 0)) {
+      const { resolverContainers, taskParts } = this.backwardPhaseSegment;
+      if (resolverContainers.every(callbackObj => callbackObj.called || callbackObj.hideFromUI) && taskParts.every(taskPart => taskPart.frequencyLimit === 0)) {
         this.remove('backward');
       }
     }
@@ -267,7 +267,7 @@ export class WebchalkPhaseSegmentElement extends HTMLElement {
         }
       }
 
-      const shownPromises = phaseSegment?.callbacks.filter(({hideFromUI, called}) => !(hideFromUI || called)) ?? [];
+      const shownPromises = phaseSegment?.resolverContainers.filter(({hideFromUI, called}) => !(hideFromUI || called)) ?? [];
       if (shownPromises.length === 0) {
         const promiseEl = createElFromString(/*html*/`<p class="phase-segment__empty-list-note">No scheduled promises.</p>`);
         promiseListEl.appendChild(promiseEl);
