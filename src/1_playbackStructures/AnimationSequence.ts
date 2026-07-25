@@ -6,6 +6,7 @@ import { PickFromArray } from "../4_utils/utilityTypes";
 import { webchalk } from "../Webchalk";
 import { WebchalkSequenceElement } from "../3_components/pane-ui/WebchalkSequenceElement";
 
+// TODO: update field descriptions
 // TYPE
 /**
  * An object containing configuration options used to define the timing and details of the animation sequence.
@@ -21,6 +22,21 @@ export type AnimSequenceConfig = {
    * ```
    */
   description: string;
+
+  /**
+   * An object that specifies new section headings that should start at this sequence, which will be displayed in the UI.
+   * @defaultValue
+   * ```ts
+   * null
+   * ```
+   */
+  headings: {
+    h2?: string;
+    h3?: string;
+    h4?: string;
+    h5?: string;
+    h6?: string;
+  } | null;
 
   /**
    * A string that can be used to identify the sequence as a jump point (like a bookmark in a document).
@@ -250,6 +266,7 @@ export class AnimSequence {
     autoplays: false,
     autoplaysNextSequence: false,
     description: '<blank sequence description>',
+    headings: null,
     playbackRate: 1,
     jumpTag: '',
   };
@@ -506,6 +523,13 @@ export class AnimSequence {
    * @group Property Getter Methods
    */
   getJumpTag() { return this.config.jumpTag; }
+
+  /**
+   * @returns The {@link AnimSequenceConfig.headings|headingOptions} for this sequence.
+   * @see {@link AnimSequenceConfig.headings|headingOptions}
+   * @group Property Getter Methods
+   */
+  getHeadings() { return this.config.headings ? {...this.config.headings} : null; }
   
   /**
    * Sets the {@link AnimSequenceConfig.description|description} for this sequence.
@@ -526,6 +550,28 @@ export class AnimSequence {
    * @group Property Setter Methods
    */
   setJumpTag(jumpTag: string): this { this.config.jumpTag = jumpTag; return this; }
+
+  /**
+   * Sets the {@link AnimSequenceConfig.headings|headings} for this sequence (or deletes it if `null` or `{}` is provided).
+   * @param headings - The new heading options.
+   * @remarks
+   * Setting a heading to the empty string `''` will delete it.
+   * @see {@link AnimSequenceConfig.headings}
+   * @group Property Setter Methods
+   */
+  setHeadings(headings: AnimSequenceConfig['headings']): this {
+    if (!headings || (Object.keys(headings).length === 0)) { this.config.headings = null; return this; }
+    
+    this.config.headings = {...this.config.headings, ...headings};
+    for (const key in this.config.headings) {
+      if (!this.config.headings[key as keyof typeof this.config.headings]) {
+        delete this.config.headings[key as keyof typeof this.config.headings];
+      }
+    }
+
+    this.webchalkSequenceEl?.updateHeadings(this.config.headings);
+    return this;
+  }
 
   /*-:**************************************************************************************************************************/
   /*-:*********************************        CONSTRUCTOR & INITIALIZERS        ***********************************************/

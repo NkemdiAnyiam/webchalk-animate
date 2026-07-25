@@ -42,6 +42,7 @@ const seq1 = webchalk.newSequence(
     // Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 5000}),
     Exit(redSquare, '~fade-out', [], {description: 'Exit red square'}),
 ]);
+seq1.setHeadings({h2: 'Iteration 1', h3: 'Create array'});
 timeline.addSequences([seq1]);
 // // seq1.animClips[0].scheduleResolver('forward', 'activePhase', 'beginning').then(() => {
 // //   console.log('HIIIIIII')
@@ -75,7 +76,7 @@ seq2.addClips([
 ]);
 timeline.addSequences([seq2]);
 
-const seq3 = webchalk.newSequence({jumpTag: 'Iteration 8'});
+const seq3 = webchalk.newSequence({jumpTag: 'Iteration 8', headings: {h3: "Compare x and y",}});
 seq3.addClips([
   Entrance(blueCircle, '~fade-in', [], {description: 'Enter blue circle'}),
   Exit(blueCircle, '~fade-out', [], {description: 'Exit blue circle'}),

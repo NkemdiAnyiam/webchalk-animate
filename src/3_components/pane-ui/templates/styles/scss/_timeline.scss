@@ -201,6 +201,10 @@
   -webkit-line-clamp: 1; /* number of lines to show */
           line-clamp: 1; 
   -webkit-box-orient: vertical;
+
+  &::before {
+    content: '# ';
+  }
 }
 
 .timeline__controls {

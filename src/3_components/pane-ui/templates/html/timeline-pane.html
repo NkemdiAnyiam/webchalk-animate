@@ -26,6 +26,7 @@
         </div>
 
         <div class="timeline__controls-wrapper timeline__controls-wrapper--popover" id="timeline__controls-wrapper" popover>
+          
           <div class="timeline__control timeline__control--jump timeline__control--jump--step">
             <label for="timeline__jump-input timeline__jump-input--step">Step</label>
             <div class="timeline__jump-selection-container">
@@ -58,6 +59,29 @@
                   onclick="this.showPicker()"
                 />
                 <datalist name="timeline__jump-datalist--tag" id="timeline__jump-datalist--tag" class="timeline__jump-datalist">
+                </datalist>
+              </div>
+              <button class="timeline__jump-button jump-button">
+                <svg class="sequence__control-icon jump-button__icon" viewBox="0 0 12 11" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+                    <g transform="matrix(1,0,0,1,-1816,-1259.5)">
+                      <g transform="matrix(1,0,0,0.983239,-180,15.3245)">
+                        <path d="M1996,1265.38C1998.93,1270.29 2001.98,1269.89 2003,1270.04L2003,1267.89L2008,1272.36L2003,1276.57L2003,1274.79C2002.57,1274.71 1996.05,1273.85 1996,1265.38Z"/>
+                      </g>
+                    </g>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="timeline__control timeline__control--jump timeline__control--jump--heading">
+            <label class="timeline__control-label" for="timeline__jump-input timeline__jump-input--tag">Heading</label>
+            <div class="timeline__jump-selection-container">
+              <div class="timeline__jump-input-wrapper" onclick="this.querySelector('input').focus()">
+                <input
+                  id="timeline__jump-input--heading" class="timeline__jump-input timline__jump-input--heading" type="text" list="timeline__jump-datalist--heading"
+                  onclick="this.showPicker()"
+                />
+                <datalist name="timeline__jump-datalist--heading" id="timeline__jump-datalist--heading" class="timeline__jump-datalist">
                 </datalist>
               </div>
               <button class="timeline__jump-button jump-button">

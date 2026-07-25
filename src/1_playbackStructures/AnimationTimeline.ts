@@ -1,6 +1,6 @@
-import { AnimSequence } from "./AnimationSequence";
+import { AnimSequence, AnimSequenceConfig } from "./AnimationSequence";
 import { CustomErrorClasses, errorTip, generateError, TimelineErrorGenerator } from "../4_utils/errors";
-import { getPartial } from "../4_utils/helpers";
+import { getPartial, xor } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { WebchalkPlaybackButtonElement } from "../3_components/WebchalkPlaybackButtonElement";
 import { /*defaultClipFactories,*/ webchalk } from "../Webchalk";
@@ -1131,6 +1131,33 @@ export class AnimTimeline {
     return this.jumpTo({ jumpTag, search, searchOffset, targetOffset, autoplayDetection });
   }
 
+  jumpToSequenceHeading(
+    headingSpecifics: {h2?: string | RegExp; h3?: string | RegExp; h4?: string | RegExp; h5?: string | RegExp; h6?: string | RegExp;},
+    options: {
+      /** An offset that adds to the initial landing position. */
+      targetOffset?: number;
+      /**
+       * Determines how the timeline should handle sequences set to autoplay once the
+       * jump destination (after considering {@link options.targetOffset}) has been reached.
+       *  * If `'none`', the timeline stays at the final landing position after the initial jumping operation.
+       *  * If `'forward'`, the timeline will jump forward for as long as the next sequence is supposed to autoplay after the current sequence.
+       *  * If `'backward'`, the timeline will jump backward for as long as the previous sequence is supposed to automatically
+       * rewind after the current sequence is rewound (this is naturally only true when the current sequence is set to autoplay when the timeline steps forward).
+       * @defaultValue
+       * ```ts
+       * 'none'
+       * ```
+       */
+      autoplayDetection?: 'forward' | 'backward' | 'none';
+    } = {},
+  ): Promise<this> {
+    const {
+      targetOffset = 0,
+      autoplayDetection = 'none',
+    } = options;
+    return this.jumpTo({ headingSpecifics, targetOffset, autoplayDetection });
+  }
+
   // TODO: add clarification that position as a number is a 0-based index. Might even want to change that
   /**
    * Jumps instantly to the position within the timeline based on the {@link position} argument.
@@ -1172,6 +1199,11 @@ export class AnimTimeline {
    * @group Playback Methods
    */
   private async jumpTo(options: {
+    headingSpecifics: {h2?: string | RegExp; h3?: string | RegExp; h4?: string | RegExp; h5?: string | RegExp; h6?: string | RegExp;};
+    targetOffset: number;
+    autoplayDetection: 'forward' | 'backward' | 'none';
+  }): Promise<this>;
+  private async jumpTo(options: {
     jumpTag: string | RegExp;
     search: 'forward' | 'backward' | 'forward-from-beginning' | 'backward-from-end';
     searchOffset: number;
@@ -1180,32 +1212,46 @@ export class AnimTimeline {
   }): Promise<this>;
   private async jumpTo(options: {position: 'beginning' | 'end' | number; targetOffset: number; autoplayDetection: 'forward' | 'backward' | 'none';}): Promise<this>;
   private async jumpTo(
-    options: { targetOffset: number; autoplayDetection: 'forward' | 'backward' | 'none'; } & (
-      {jumpTag: string | RegExp; search?: 'forward' | 'backward' | 'forward-from-beginning' | 'backward-from-end'; searchOffset?: number; position?: never}
-      | {position: 'beginning' | 'end' | number; jumpTag?: never}
+    options: {
+      targetOffset: number; autoplayDetection: 'forward' | 'backward' | 'none';
+    }
+    & (
+      {
+        jumpTag: string | RegExp;
+        search?: 'forward' | 'backward' | 'forward-from-beginning' | 'backward-from-end';
+        searchOffset?: number;
+        position?: never;
+        headingSpecifics?: never;
+      }
+      | {
+        headingSpecifics: {h2?: string | RegExp; h3?: string | RegExp; h4?: string | RegExp; h5?: string | RegExp; h6?: string | RegExp;};
+        position?: never;
+        jumpTag?: never;
+      }
+      | {position: 'beginning' | 'end' | number; jumpTag?: never; headingSpecifics?: never;}
     ),
   ): Promise<this> {
     if (this.isAnimating) { throw new Error('Cannot use jumpTo() while currently animating.'); }
     // Calls to jumpTo() must be separated using await or something that similarly prevents simultaneous execution of code
     if (this.isJumping) { throw new Error('Cannot perform simultaneous calls to jumpTo() in timeline.'); }
 
-    const { targetOffset, autoplayDetection, position, jumpTag } = options;
+    const { targetOffset, autoplayDetection, position, jumpTag, headingSpecifics } = options;
 
-    // cannot specify both tag and position
-    if (jumpTag !== undefined && position !== undefined) {
-      throw new TypeError(`jumpTo() must receive either the tag or the position, not both. Received tag="${jumpTag}" and position="${position}."`);
+    // cannot specify multiple jump types
+    if (!xor(jumpTag !== undefined, xor(position !== undefined, headingSpecifics))) {
+      throw new TypeError(`jumpTo() must receive exactly one of tag, position, or headingSpecifics, not multiple. Received: ${jumpTag !== undefined ? `tag="${jumpTag}";` : ''} ${position !== undefined ? `position="${position}";` : ''}" ${headingSpecifics !== null ? `headingSpecifics="${headingSpecifics}";` : ''}.`);
     }
-    // can only specify one of tag or position, not both
-    if (jumpTag === undefined && position === undefined) {
-      throw new TypeError(`jumpTo() must receive either the tag or the position. Neither were received.`);
+    // must specify at least one jump type
+    if ((jumpTag === undefined) && (position === undefined) && !headingSpecifics) {
+      throw new TypeError(`jumpTo() must receive a tag, position, or headingSpecifics. None were received.`);
     }
     if (!Number.isSafeInteger(targetOffset)) { throw new TypeError(`Invalid offset "${targetOffset}". Value must be an integer.`); }
 
-    let targetIndex: number;
+    let finalTargetIndex: number;
 
     // find target index based on finding sequence with matching tag
     // Math.max(0) prevents wrapping
-    if (jumpTag) {
+    if (jumpTag !== undefined) {
       const { search = 'forward-from-beginning', searchOffset = 0 } = options;
       if (!Number.isSafeInteger(targetOffset)) { throw new TypeError(`Invalid searchOffset "${searchOffset}". Value must be an integer.`); }
       
@@ -1239,32 +1285,97 @@ export class AnimTimeline {
         { for (let i = fromIndex; i >= 0; --i) { if (sequenceMatchesTag(this.animSequences[i], jumpTag)) { initialIndex = i; break; } } }
 
       if (initialIndex === -1) { throw new Error(`Sequence tag "${jumpTag}" not found given conditions: search: ${search}; searchOffset: ${searchOffset}.`); }
-      targetIndex = initialIndex + targetOffset;
+      finalTargetIndex = initialIndex + targetOffset;
     }
-    // find target index based on either the beginning or end of the timeline
-    else {
+    // find target index based on either the beginning or end of the timeline or a specific step
+    else if (position !== undefined) {
       switch(true) {
         case position === "beginning":
-          targetIndex = 0 + targetOffset;
+          finalTargetIndex = 0 + targetOffset;
           break;
         case position === "end":
-          targetIndex = this.numSequences + targetOffset;
+          finalTargetIndex = this.numSequences + targetOffset;
           break;
         case typeof position === 'number':
           if (!Number.isSafeInteger(position)) { throw new TypeError(`Invalid position "${position}". When using a number, value must be an integer.`); }
-          targetIndex = position;
+          finalTargetIndex = position;
           break;
         default: throw new RangeError(`Invalid jumpTo() position "${position}". Must be "beginning", "end", or an integer.`);
       }
+    }
+    // find target index based on multi-level search using headingSpecifics
+    else {
+      const {h2, h3, h4, h5, h6} = headingSpecifics;
+      if (!(h2 || h3 || h4 || h5 || h6)) {
+        throw new TypeError(`Invalid headingSpecifics. None of h2, h3, h4, h5, or h6 were specified.`);
+      }
+      
+      // index min/max that will be narrowed down while looking for matching headings
+      let searchRangeStart = 0;
+      let searchRangeEnd = this.numSequences;
+
+      let deepestLevel: `h${number}` = 'h2';
+      let initialTargetIndex = -1;
+      switch(true) {
+        case (Boolean(h6)): deepestLevel = 'h6'; break;
+        case (Boolean(h5)): deepestLevel = 'h5'; break;
+        case (Boolean(h4)): deepestLevel = 'h4'; break;
+        case (Boolean(h3)): deepestLevel = 'h3'; break;
+        case (Boolean(h2)): deepestLevel = 'h2'; break;
+      }
+
+      const sequenceMatchesHeading = (sequence: AnimSequence, level?: keyof typeof headingSpecifics, text?: RegExp | string): boolean => {
+        const seqHeadings = sequence.getHeadings();
+        if (!seqHeadings) { return false; }
+
+        // If both level and text, match on both.
+        if (level && text) { return (text instanceof RegExp ? text.test(seqHeadings[level]!) : seqHeadings[level] === text); }
+        // If only text, search for any heading on this sequence with matching text.
+        else if (!level && text) { return Object.values(seqHeadings).some(heading => (text instanceof RegExp ? text.test(heading) : heading === text)); }
+        // If only level, search for any heading on this sequence with the same level.
+        else if (level && !text) { return Object.keys(seqHeadings).includes(level!); }
+        else { throw new TypeError(`One of level or text needs to be specified.`); }
+      };
+
+      const narrowSearchRange = (level: keyof typeof headingSpecifics, text?: string | RegExp) => {
+        if (typeof text !== 'string') { return; }
+        
+        for (let i = searchRangeStart; i < searchRangeEnd; ++i) {
+          const currSequence = this.animSequences[i];
+          if (sequenceMatchesHeading(currSequence, level, text)) {
+            if (deepestLevel === level) { initialTargetIndex = i; }
+            else {
+              searchRangeStart = i;
+              for (let j = searchRangeStart + 1; j < searchRangeEnd; ++j) {
+                if (sequenceMatchesHeading(this.animSequences[j], level)) {
+                  searchRangeEnd = j;
+                  break;
+                }
+              }
+            }
+            break;
+          }
+        }
+      };
+
+      narrowSearchRange('h2', h2);
+      narrowSearchRange('h3', h3);
+      narrowSearchRange('h4', h4);
+      narrowSearchRange('h5', h5);
+      narrowSearchRange('h6', h6);
+
+      // TODO: pretty print object
+      if (initialTargetIndex === -1) { throw new Error(`Sequence heading search failed given the following conditions: headingSpecifics: ${headingSpecifics}.`); }
+      finalTargetIndex = initialTargetIndex + targetOffset;
     }
 
     // check to see if requested target index is within timeline bounds
     {
       const errorPrefixString = `Jumping to ${jumpTag ? `tag "${jumpTag}"` : `position "${position}"`} with offset "${targetOffset}" goes`;
-      const errorPostfixString = `but requested index was ${targetIndex}.`;
-      if (targetIndex < 0)
+      const errorPostfixString = `but requested index was ${finalTargetIndex}.`;
+      if (finalTargetIndex < 0)
       { throw new RangeError(`${errorPrefixString} before timeline bounds. Minimum index = 0, ${errorPostfixString}`); }
-      if (targetIndex > this.numSequences)
+      if (finalTargetIndex > this.numSequences)
         { throw new RangeError(`${errorPrefixString} ahead of timeline bounds. Max index = ${this.numSequences}, ${errorPostfixString}`); }
     }
 
@@ -1292,9 +1403,9 @@ export class AnimTimeline {
     }
 
     // play to the target sequence without playing the sequence
-    if (this.loadedSeqIndex <= targetIndex) {
+    if (this.loadedSeqIndex <= finalTargetIndex) {
       // Only proceed if the target sequence is NOT the current index or auto next will execute
-      const sameSeq = this.loadedSeqIndex === targetIndex;
+      const sameSeq = this.loadedSeqIndex === finalTargetIndex;
       const wouldAutoNext = autoplayDetection === 'forward'
         && (
           this.animSequences[this.loadedSeqIndex].getTiming('autoplaysNextSequence')
@@ -1302,7 +1413,7 @@ export class AnimTimeline {
         );
       if (!sameSeq || wouldAutoNext) {
         this.playbackButtons.forwardButton?.styleActivation();
-        while (this.loadedSeqIndex < targetIndex) { await this.stepForward(); }
+        while (this.loadedSeqIndex < finalTargetIndex) { await this.stepForward(); }
         switch(autoplayDetection) {
           // if autoplay detection forward, play as long as the loaded sequence is supposed to be autoplayed
           case "forward":
@@ -1326,7 +1437,7 @@ export class AnimTimeline {
     // rewind to the target sequence and rewind the sequence as well
     else {
       this.playbackButtons.backwardButton?.styleActivation();
-      while (this.loadedSeqIndex > targetIndex) { await this.stepBackward(); }
+      while (this.loadedSeqIndex > finalTargetIndex) { await this.stepBackward(); }
       switch(autoplayDetection) {
         case "forward":
           await continueAutoplayForward();

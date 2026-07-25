@@ -128,6 +128,31 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       datalistEl.innerHTML = '';
       datalistEl.appendChild(frag);
     }
+
+    // TODO: update list whenever menu is opened (or whenever updates are made to timeline sequences)
+    {
+      // update heading datalist
+      const datalistEl = this.shadowRoot!.querySelector('.timeline__control--jump--heading .timeline__jump-datalist') as HTMLDataListElement;
+      const frag = new DocumentFragment();
+      const headingsObjs = [...this.animTimeline!.animSequences.map(sequence => sequence.getHeadings())].filter(headings => Boolean(headings));
+      const headingsArr: [h2: string, h3: string, h4: string, h5: string, h6: string] = ['', '', '', '', ''];
+
+      for (let i = 0; i < headingsObjs.length; ++i) {
+        const headings = headingsObjs[i]!;
+        for (const [level, text] of Object.entries(headings)) {
+          const levelNumber = Number(level[1]);
+          const safeText = escapeHtml(text);
+          // Set the entry at the appropriate index to the new heading text and then clear the deeper levels.
+          headingsArr[levelNumber - 2] = safeText;
+          for (let j = levelNumber - 2 + 1; j < headingsArr.length; ++j) { headingsArr[j] = ''; }
+          const optionEl = createElFromString(/*html*/`<option>${'#'.repeat(levelNumber)} ${safeText}</option>`);
+          optionEl.setAttribute('value', JSON.stringify(headingsArr));
+          frag.appendChild(optionEl);
+        }
+      }
+      datalistEl.innerHTML = '';
+      datalistEl.appendChild(frag);
+    }
   }
 
   removeSequences(sequencesToRemove: AnimSequence[]) {
@@ -303,7 +328,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
   }
 
   attachJumpButtonListeners() {
-    for (const jumpType of ['step', 'tag']) {
+    for (const jumpType of ['step', 'tag', 'heading']) {
       // read jump position from input and then jump to that position when button is pressed
       const jumpButtonEl = this.shadowRoot!.querySelector(`.timeline__control--jump--${jumpType} .timeline__jump-button`) as HTMLButtonElement;
       jumpButtonEl.addEventListener('click', (e) => {
@@ -322,6 +347,22 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
               const tag = inputEl.value;
               if (!tag) { return; }
               this.animTimeline?.jumpToSequenceTag(tag);
+            }
+            break;
+            case 'heading': {
+              const headingText = inputEl.value;
+              if (!headingText) { return; }
+              const headingsArr = JSON.parse(inputEl.value);
+              const headingSpecifics = {h2: '', h3: '', h4: '', h5: '', h6: ''};
+
+              for (let levelNumber = 2; levelNumber <= 6; ++levelNumber) {
+                const arrIndex = levelNumber - 2;
+                const key = `h${levelNumber}` as keyof typeof headingSpecifics;
+
+                if (!headingsArr[arrIndex]) { delete headingSpecifics[key]; }
+                else { headingSpecifics[key] = headingsArr[arrIndex]; }
+              }
+              this.animTimeline?.jumpToSequenceHeading(headingSpecifics);
             }
             break;
           }

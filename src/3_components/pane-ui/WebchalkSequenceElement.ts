@@ -2,8 +2,8 @@ import * as fs from 'fs';
 import { stylesheet } from './componentStyleSheet';
 import { htmlComponentStr } from './templates/ts/sequence';
 
-import { createElFromString, secondsToHMMSS } from '../../4_utils/helpers';
-import { AnimSequence } from '../../1_playbackStructures/AnimationSequence';
+import { createElFromString, escapeHtml, secondsToHMMSS } from '../../4_utils/helpers';
+import { AnimSequence, AnimSequenceConfig } from '../../1_playbackStructures/AnimationSequence';
 import { AnimClip } from '../../1_playbackStructures/AnimationClip';
 import { hem, hemSecs, WebchalkTimelinePaneElement } from './WebchalkTimelinePane';
 // import { defaultClipFactories } from './src/Webchalk';
@@ -149,10 +149,12 @@ export class WebchalkSequenceElement extends HTMLElement {
     const sequence = this.animSequence!;
     this.parentWebchalkTimelineEl = (this.getRootNode() as ShadowRoot).host as WebchalkTimelinePaneElement;
 
-    const sequenceEl = this.shadowRoot!.querySelector('.sequence') as HTMLElement;
+    // const sequenceEl = this.shadowRoot!.querySelector('.sequence') as HTMLElement;
 
-    sequenceEl.querySelector('.sequence__description')!.textContent = sequence.getDescription();
-    sequenceEl.querySelector('.sequence__number')!.textContent = `${sequence.getHierarchy().sequenceNumber}.`;
+    this.updateHeadings(sequence.getConfig().headings);
+    this.updateDescription(sequence.getDescription());
+    this.updateSequenceNumber(sequence.getHierarchy().sequenceNumber);
+
     if (sequence.getTiming('autoplays')) { this.classList.add('autoplays'); }
     if (sequence.getTiming('autoplaysNextSequence')) { this.classList.add('auto-next'); }
 
@@ -177,6 +179,38 @@ export class WebchalkSequenceElement extends HTMLElement {
   updateDescription(description: string) {
     const sequenceDescriptionEl = this.shadowRoot!.querySelector('.sequence__description') as HTMLElement;
     sequenceDescriptionEl.textContent = `${description}.`;
+  }
+
+  updateHeadings(headings: AnimSequenceConfig['headings']) {
+    let sequenceHeadingsEl = this.shadowRoot?.querySelector('.sequence__headings') as HTMLElement | null;
+    // If completely empty, remove the headings element.
+    if (!headings || Object.entries(headings).length === 0) {
+      sequenceHeadingsEl?.remove();
+    }
+    else {
+      // If didn't already have headings, create it.
+      if (!sequenceHeadingsEl) {
+        const newHeadingsEl = createElFromString(/*html*/`
+          <div class="sequence__headings">
+          </div>`
+        ) as HTMLElement;
+        this.shadowRoot!.querySelector('.sequence__header')!.insertAdjacentElement('beforebegin', newHeadingsEl);
+        sequenceHeadingsEl = newHeadingsEl;
+      }
+      else {
+        sequenceHeadingsEl.innerHTML = '';
+      }
+
+      // TODO: incorporate aria
+      for (const [level, text] of Object.entries(headings)) {
+        const newHeadingEl = createElFromString(/*html*/`
+          <div class="sequence__heading-container">
+            <p class="sequence__heading sequence__heading--${escapeHtml(level)}">${escapeHtml(text)}</p>
+          </div>`
+        );
+        sequenceHeadingsEl.append(newHeadingEl);
+      }
+    }
   }
 
   updateEmptyTimeFillWidth() {
