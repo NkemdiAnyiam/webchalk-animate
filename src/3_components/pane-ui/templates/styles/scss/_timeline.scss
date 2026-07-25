@@ -241,31 +241,35 @@
 
 // TODO: make this just the only version and not a modifier
 .timeline__controls-wrapper--popover {
-  flex-direction: column;
-  row-gap: hem(1.8);
   position: fixed;
+  position-anchor: --controls-popover-anchor;
+  top: anchor(50%);
+  left: anchor(50%);
   padding: hem(1);
   background-color: var(--color-primary-blue);
   border: 4px solid var(--color-gray-darkest);
   border-radius: 6px;
-  position-anchor: --controls-popover-anchor;
-  top: anchor(--controls-popover-anchor 50%);
-  left: anchor(--controls-popover-anchor 50%);
   max-height: 400px;
   overflow-y: auto;
+
+  flex-direction: column;
+  row-gap: hem(1.8);
 
   &:not(:popover-open) {
     display: none;
   }
+  &:not([popover-visible]) {
+    opacity: 0;
+  }
 
   &[popover-showabove] {
     top: unset;
-    bottom: anchor(--controls-popover-anchor 50%);
+    bottom: anchor(50%);
   }
 
   &[popover-showleft] {
     left: unset;
-    right: anchor(--controls-popover-anchor 50%);
+    right: anchor(50%);
   }
 
   &:not([popover-showleft]):not([popover-showabove]) {
@@ -281,9 +285,6 @@
     border-bottom-right-radius: initial;
   }
 
-  &[popover-invisible] {
-    opacity: 0;
-  }
 
   .timeline__control {
     flex-direction: column;

@@ -1081,3 +1081,25 @@ export function escapeHtml(unsafeString: string) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
+
+export function repositionPopover(element: HTMLElement | null) {
+    if (!element) { return; }
+    
+    // Need to remove these first so that it can properly compute whether they are needed.
+    element.toggleAttribute('popover-showabove', false);
+    element.toggleAttribute('popover-showleft', false);
+
+    if (element.getBoundingClientRect().bottom >= window.innerHeight) {
+      element.toggleAttribute('popover-showabove', true);
+    }
+    else {
+      element.toggleAttribute('popover-showabove', false);
+    }
+
+    if (element.getBoundingClientRect().right >= window.innerWidth) {
+      element.toggleAttribute('popover-showleft', true);
+    }
+    else {
+      element.toggleAttribute('popover-showleft', false);
+    }
+  }

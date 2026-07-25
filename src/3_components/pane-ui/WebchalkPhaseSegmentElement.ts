@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import { stylesheet } from './componentStyleSheet';
 import { htmlComponentStr } from './templates/ts/phaseSegment';
 
-import { createElFromString, escapeHtml, secondsToHMMSS, TBA_DURATION } from '../../4_utils/helpers';
+import { createElFromString, escapeHtml, repositionPopover, secondsToHMMSS, TBA_DURATION } from '../../4_utils/helpers';
 import { PhaseSegment } from '../../1_playbackStructures/WebchalkAnimation';
 import { hemSecs } from './WebchalkTimelinePane';
 import { WebchalkClipElement } from './WebchalkClipElement';
@@ -40,18 +40,6 @@ export class WebchalkPhaseSegmentElement extends HTMLElement {
 
         .phase-segment__info-box {
           position-anchor: --phase-segment-info-box-anchor-${this.popoverId};
-          top: anchor(--phase-segment-info-box-anchor-${this.popoverId} 100%);
-          left: anchor(--phase-segment-info-box-anchor-${this.popoverId} 10%);
-        }
-
-        .phase-segment__info-box[popover-showabove] {
-          top: unset;
-          bottom: anchor(--phase-segment-info-box-anchor-${this.popoverId} 0%);
-        }
-
-        .phase-segment__info-box[popover-showleft] {
-          left: unset;
-          right: anchor(--phase-segment-info-box-anchor-${this.popoverId} 90%);
         }
       </style>
       ${devHtmlComponentStr ?? htmlComponentStr}
@@ -124,38 +112,16 @@ export class WebchalkPhaseSegmentElement extends HTMLElement {
 
       if (e.newState === 'closed') {
         // To prevent flash of positioning styling when popover is eventually reopened.
-        phaseSegmentInfoBoxEl.toggleAttribute('popover-invisible', true);
+        phaseSegmentInfoBoxEl.toggleAttribute('popover-visible', false);
         const listEls = [...this.shadowRoot!.querySelectorAll('.phase-segment__info-box-section .phase-segment__info-box-list')] as HTMLUListElement[];
         listEls.forEach(listEl => listEl.innerHTML = '');
         return;
       }
 
       this.fillInfoBoxContents();
-      this.repositionInfoBoxPopover(phaseSegmentInfoBoxEl);
-      phaseSegmentInfoBoxEl.toggleAttribute('popover-invisible', false);
+      repositionPopover(phaseSegmentInfoBoxEl);
+      phaseSegmentInfoBoxEl.toggleAttribute('popover-visible', true);
     });
-  }
-
-  private repositionInfoBoxPopover(infoBoxEl: HTMLElement | null) {
-    if (!infoBoxEl) { return; }
-    
-    // Need to remove these first so that it can properly compute whether they are needed.
-    infoBoxEl.toggleAttribute('popover-showabove', false);
-    infoBoxEl.toggleAttribute('popover-showleft', false);
-
-    if (infoBoxEl.getBoundingClientRect().bottom >= window.innerHeight) {
-      infoBoxEl.toggleAttribute('popover-showabove', true);
-    }
-    else {
-      infoBoxEl.toggleAttribute('popover-showabove', false);
-    }
-
-    if (infoBoxEl.getBoundingClientRect().right >= window.innerWidth) {
-      infoBoxEl.toggleAttribute('popover-showleft', true);
-    }
-    else {
-      infoBoxEl.toggleAttribute('popover-showleft', false);
-    }
   }
 
   fillInfoBoxContents() {

@@ -4,7 +4,7 @@ import { AnimTimeline } from '../../1_playbackStructures/AnimationTimeline';
 import { AnimSequence } from '../../1_playbackStructures/AnimationSequence';
 import { htmlComponentStr } from './templates/ts/timelinePane';
 
-import { createElFromString, escapeHtml, highlightCodeEls } from '../../4_utils/helpers';
+import { createElFromString, escapeHtml, highlightCodeEls, repositionPopover } from '../../4_utils/helpers';
 // import { defaultClipFactories } from './src/Webchalk';
 import { AnimClip } from '../../1_playbackStructures/AnimationClip';
 import { WebchalkClipElement } from './WebchalkClipElement';
@@ -68,7 +68,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
         errorPanelEl.style.removeProperty('height');
       }
 
-      this.repositionControlsPopover(this.shadowRoot!.querySelector('.timeline__controls-wrapper--popover'));
+      repositionPopover(this.shadowRoot!.querySelector('.timeline__controls-wrapper--popover'));
     }
   }
 
@@ -465,36 +465,14 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
 
       if (e.newState === 'closed') {
         // To prevent flash of positioning styling when popover is eventually reopened.
-        controlsWrapperEl.toggleAttribute('popover-invisible', true);
+        controlsWrapperEl.toggleAttribute('popover-visible', false);
         return;
       }
 
-      this.repositionControlsPopover(controlsWrapperEl);
+      repositionPopover(controlsWrapperEl);
 
-      controlsWrapperEl.toggleAttribute('popover-invisible', false);
+      controlsWrapperEl.toggleAttribute('popover-visible', true);
     });
-  }
-
-  private repositionControlsPopover(controlsWrapperEl: HTMLElement | null) {
-    if (!controlsWrapperEl) { return; }
-    
-    // Need to remove these first so that it can properly compute whether they are needed.
-    controlsWrapperEl.toggleAttribute('popover-showabove', false);
-    controlsWrapperEl.toggleAttribute('popover-showleft', false);
-
-    if (controlsWrapperEl.getBoundingClientRect().bottom >= window.innerHeight) {
-      controlsWrapperEl.toggleAttribute('popover-showabove', true);
-    }
-    else {
-      controlsWrapperEl.toggleAttribute('popover-showabove', false);
-    }
-
-    if (controlsWrapperEl.getBoundingClientRect().right >= window.innerWidth) {
-      controlsWrapperEl.toggleAttribute('popover-showleft', true);
-    }
-    else {
-      controlsWrapperEl.toggleAttribute('popover-showleft', false);
-    }
   }
 
   attachDockListener() {

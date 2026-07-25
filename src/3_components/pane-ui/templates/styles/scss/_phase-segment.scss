@@ -12,6 +12,7 @@
 
 .phase-segment__button {
   // position: absolute;
+  // anchor name dynamically set in shadow
   // left: 0;
   // top: 0;
   width: 100%;
@@ -23,6 +24,9 @@
 
 .phase-segment__info-box {
   position: fixed;
+  // position anchor dynamically set in constructor
+  top: anchor(100%);
+  left: anchor(10%);
   // width: hem(22);
   padding: hem(0.5);
   max-height: hem(30);
@@ -39,9 +43,18 @@
   &:not(:popover-open) {
     display: none;
   }
-
-  &[popover-invisible] {
+  &:not([popover-visible]) {
     opacity: 0;
+  }
+
+  &[popover-showabove] {
+    top: unset;
+    bottom: anchor(0%);
+  }
+
+  &[popover-showleft] {
+    left: unset;
+    right: anchor(90%);
   }
 
   &:not([popover-showleft]):not([popover-showabove]) {
