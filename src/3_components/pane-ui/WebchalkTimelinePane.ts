@@ -135,18 +135,22 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       const datalistEl = this.shadowRoot!.querySelector('.timeline__control--jump--heading .timeline__jump-datalist') as HTMLDataListElement;
       const frag = new DocumentFragment();
       const headingsObjs = [...this.animTimeline!.animSequences.map(sequence => sequence.getHeadings())].filter(headings => Boolean(headings));
-      const headingsArr: [h2: string, h3: string, h4: string, h5: string, h6: string] = ['', '', '', '', ''];
+      const headingSpecifics: {h2?: string, h3?: string, h4?: string, h5?: string, h6?: string} = {};
 
       for (let i = 0; i < headingsObjs.length; ++i) {
         const headings = headingsObjs[i]!;
         for (const [level, text] of Object.entries(headings)) {
           const levelNumber = Number(level[1]);
           const safeText = escapeHtml(text);
-          // Set the entry at the appropriate index to the new heading text and then clear the deeper levels.
-          headingsArr[levelNumber - 2] = safeText;
-          for (let j = levelNumber - 2 + 1; j < headingsArr.length; ++j) { headingsArr[j] = ''; }
+          
+          // Set the entry corresponding to the current to the new heading text and then clear the deeper levels.
+          headingSpecifics[level as keyof typeof headingSpecifics] = safeText;
+          for (let j = levelNumber + 1; j <= 6; ++j) { delete headingSpecifics[`h${j}` as keyof typeof headingSpecifics]; }
+
+          // create option whose value is the full heading path to the current heading level
           const optionEl = createElFromString(/*html*/`<option>${'#'.repeat(levelNumber)} ${safeText}</option>`);
-          optionEl.setAttribute('value', JSON.stringify(headingsArr));
+          optionEl.setAttribute('value', JSON.stringify(headingSpecifics));
+
           frag.appendChild(optionEl);
         }
       }
@@ -352,16 +356,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
             case 'heading': {
               const headingText = inputEl.value;
               if (!headingText) { return; }
-              const headingsArr = JSON.parse(inputEl.value);
-              const headingSpecifics = {h2: '', h3: '', h4: '', h5: '', h6: ''};
-
-              for (let levelNumber = 2; levelNumber <= 6; ++levelNumber) {
-                const arrIndex = levelNumber - 2;
-                const key = `h${levelNumber}` as keyof typeof headingSpecifics;
-
-                if (!headingsArr[arrIndex]) { delete headingSpecifics[key]; }
-                else { headingSpecifics[key] = headingsArr[arrIndex]; }
-              }
+              const headingSpecifics = JSON.parse(inputEl.value);
               this.animTimeline?.jumpToSequenceHeading(headingSpecifics);
             }
             break;
@@ -379,8 +374,10 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
         }
       });
       
-      inputEl.addEventListener('click', (e) => {
+      inputEl.addEventListener('mousedown', (e) => {
         (e.currentTarget as HTMLInputElement).value = '';
+      });
+      inputEl.addEventListener('click', (e) => {
         try { (e.currentTarget as HTMLInputElement).showPicker?.(); }
         catch(e) {}
       });
