@@ -36,3 +36,12 @@ $z--empty-time-fill: 1;
 @function var-darken($color, $percent) {
   @return color-mix(in srgb, $color (100% - $percent), black);
 }
+
+@mixin line-clamp($max-lines) {
+  line-height: 1.2;
+  display: -webkit-box;
+  overflow: auto;
+  -webkit-line-clamp: $max-lines; /* number of lines to show */
+          line-clamp: $max-lines; 
+  -webkit-box-orient: vertical;
+}
