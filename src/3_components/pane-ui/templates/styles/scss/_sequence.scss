@@ -184,7 +184,7 @@
 
 /* SCHEDULE */
 .sequence__schedule {
-  overflow: scroll;
+  overflow: auto;
   // overscroll-behavior: contain;
   // max-height: clip-based-height-units(7.5);
   max-height: clip-based-height-units(12.5);
