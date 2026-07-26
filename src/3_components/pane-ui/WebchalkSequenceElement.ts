@@ -178,7 +178,7 @@ export class WebchalkSequenceElement extends HTMLElement {
 
   updateDescription(description: string) {
     const sequenceDescriptionEl = this.shadowRoot!.querySelector('.sequence__description') as HTMLElement;
-    sequenceDescriptionEl.textContent = `${description}.`;
+    sequenceDescriptionEl.textContent = `${description}`;
   }
 
   updateHeadings(headings: AnimSequenceConfig['headings']) {
