@@ -903,8 +903,7 @@ export class AnimTimeline {
       || sequences[this.loadedSeqIndex].getTiming('autoplays') // new next sequence
     );
 
-    // TODO: account for when jumping without autoplay detection enabled
-    if (!autoplayNext && !this.atEnd) {
+    if ((!autoplayNext || this.isJumping) && !this.atEnd) {
       this.webchalkTimelineEl?.scrollToSequence(sequences[this.loadedSeqIndex], this.currentDirection);
     }
 
@@ -936,7 +935,7 @@ export class AnimTimeline {
       || sequences[prevSeqIndex].getTiming('autoplays') // sequence that was just rewound
     );
 
-    if (!autorewindPrevious && !this.atBeginning) {
+    if ((!autorewindPrevious || this.isJumping) && !this.atBeginning) {
       this.webchalkTimelineEl?.scrollToSequence(sequences[prevSeqIndex - 1], this.currentDirection);
     }
 
