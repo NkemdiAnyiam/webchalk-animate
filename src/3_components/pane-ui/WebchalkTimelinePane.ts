@@ -104,58 +104,66 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       insertionPoint.webchalkSequenceEl?.insertAdjacentElement('afterend', newSequence.webchalkSequenceEl!);
       newSequence.writeUI();
     }
-
-    {
+  }
+  
+  updateJumpDatalist(jumpType: 'step' | 'tag' | 'heading') {
+    switch(jumpType) {
       // update step number datalist
-      const datalistEl = this.shadowRoot!.querySelector('.timeline__control--jump--step .timeline__jump-datalist') as HTMLDataListElement;
-      const frag = new DocumentFragment();
-      for (let i = datalistEl.childElementCount; i < this.animTimeline!.numSequences; ++i) {
-        frag.appendChild(createElFromString(/*html*/`<option value="${i + 1}">${i + 1}</option>`));
-      }
-      datalistEl.appendChild(frag);
-    }
-
-    {
-      // update jump tag datalist
-      const datalistEl = this.shadowRoot!.querySelector('.timeline__control--jump--tag .timeline__jump-datalist') as HTMLDataListElement;
-      const frag = new DocumentFragment();
-      // TODO: Decide whether to sort alphabetically (or add option to change the sort).
-      const uniqueJumpTags = [...new Set(this.animTimeline!.animSequences.map(sequence => sequence.getJumpTag()))].filter(str => str);
-      for (let i = 0; i < uniqueJumpTags.length; ++i) {
-        const str = escapeHtml(uniqueJumpTags[i]);
-        frag.appendChild(createElFromString(/*html*/`<option value="${str}">${str}</option>`));
-      }
-      datalistEl.innerHTML = '';
-      datalistEl.appendChild(frag);
-    }
-
-    // TODO: update list whenever menu is opened (or whenever updates are made to timeline sequences)
-    {
-      // update heading datalist
-      const datalistEl = this.shadowRoot!.querySelector('.timeline__control--jump--heading .timeline__jump-datalist') as HTMLDataListElement;
-      const frag = new DocumentFragment();
-      const headingsObjs = [...this.animTimeline!.animSequences.map(sequence => sequence.getHeadings())].filter(headings => Boolean(headings));
-      const headingSpecifics: {h2?: string, h3?: string, h4?: string, h5?: string, h6?: string} = {};
-
-      for (let i = 0; i < headingsObjs.length; ++i) {
-        const headings = headingsObjs[i]!;
-        for (const [level, text] of Object.entries(headings)) {
-          const levelNumber = Number(level[1]);
-          const safeText = escapeHtml(text);
-          
-          // Set the entry corresponding to the current to the new heading text and then clear the deeper levels.
-          headingSpecifics[level as keyof typeof headingSpecifics] = safeText;
-          for (let j = levelNumber + 1; j <= 6; ++j) { delete headingSpecifics[`h${j}` as keyof typeof headingSpecifics]; }
-
-          // create option whose value is the full heading path to the current heading level
-          const optionEl = createElFromString(/*html*/`<option>${'#'.repeat(levelNumber)} ${safeText}</option>`);
-          optionEl.setAttribute('value', JSON.stringify(headingSpecifics));
-
-          frag.appendChild(optionEl);
+      case 'step': {
+        const datalistEl = this.shadowRoot!.querySelector('.timeline__control--jump--step .timeline__jump-datalist') as HTMLDataListElement;
+        const frag = new DocumentFragment();
+        for (let i = datalistEl.childElementCount; i < this.animTimeline!.numSequences; ++i) {
+          frag.appendChild(createElFromString(/*html*/`<option value="${i + 1}">${i + 1}</option>`));
         }
+        datalistEl.appendChild(frag);
       }
-      datalistEl.innerHTML = '';
-      datalistEl.appendChild(frag);
+      break;
+
+      // update jump tag datalist
+      case 'tag': {
+        const datalistEl = this.shadowRoot!.querySelector('.timeline__control--jump--tag .timeline__jump-datalist') as HTMLDataListElement;
+        const frag = new DocumentFragment();
+        // TODO: Decide whether to sort alphabetically (or add option to change the sort).
+        const uniqueJumpTags = [...new Set(this.animTimeline!.animSequences.map(sequence => sequence.getJumpTag()))].filter(str => str);
+        for (let i = 0; i < uniqueJumpTags.length; ++i) {
+          const str = escapeHtml(uniqueJumpTags[i]);
+          frag.appendChild(createElFromString(/*html*/`<option value="${str}">${str}</option>`));
+        }
+        datalistEl.innerHTML = '';
+        datalistEl.appendChild(frag);
+      }
+      break;
+
+      // update heading datalist
+      case 'heading': {
+        const datalistEl = this.shadowRoot!.querySelector('.timeline__control--jump--heading .timeline__jump-datalist') as HTMLDataListElement;
+        const frag = new DocumentFragment();
+        const headingsObjs = [...this.animTimeline!.animSequences.map(sequence => sequence.getHeadings())].filter(headings => Boolean(headings));
+        const headingSpecifics: {h2?: string, h3?: string, h4?: string, h5?: string, h6?: string} = {};
+
+        for (let i = 0; i < headingsObjs.length; ++i) {
+          const headings = headingsObjs[i]!;
+          for (const [level, text] of Object.entries(headings)) {
+            const levelNumber = Number(level[1]);
+            const safeText = escapeHtml(text);
+
+            // Set the entry corresponding to the current to the new heading text and then clear the deeper levels.
+            headingSpecifics[level as keyof typeof headingSpecifics] = safeText;
+            for (let j = levelNumber + 1; j <= 6; ++j) { delete headingSpecifics[`h${j}` as keyof typeof headingSpecifics]; }
+
+            // create option whose value is the full heading path to the current heading level
+            const optionEl = createElFromString(/*html*/`<option>${'#'.repeat(levelNumber)} ${safeText}</option>`);
+            optionEl.setAttribute('value', JSON.stringify(headingSpecifics));
+
+            frag.appendChild(optionEl);
+          }
+        }
+        datalistEl.innerHTML = '';
+        datalistEl.appendChild(frag);
+      }
+      break;
+      
+      default: throw new RangeError(`Invalid jumpType ${jumpType}.`);
     }
   }
 
@@ -376,6 +384,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       
       inputEl.addEventListener('mousedown', (e) => {
         (e.currentTarget as HTMLInputElement).value = '';
+        this.updateJumpDatalist(jumpType as 'step' | 'tag' | 'heading');
       });
       inputEl.addEventListener('click', (e) => {
         try { (e.currentTarget as HTMLInputElement).showPicker?.(); }
