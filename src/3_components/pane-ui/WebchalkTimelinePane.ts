@@ -378,8 +378,11 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
           jumpButtonEl.click();
         }
       });
+      
       inputEl.addEventListener('click', (e) => {
         (e.currentTarget as HTMLInputElement).value = '';
+        try { (e.currentTarget as HTMLInputElement).showPicker?.(); }
+        catch(e) {}
       });
     }
   }
