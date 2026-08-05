@@ -163,6 +163,23 @@ export class WebchalkSequenceElement extends HTMLElement {
     this.updateMaxSecondsDisplayed(sequence.maxTime / 1000);
 
     this.attachJumpButtonListener();
+
+    // If sequence is already playing or finished, set the UI accordingly.
+    if (sequence.getStatus('isFinished') && sequence.getStatus('direction') === 'forward') {
+      this.updatePlayheadPosition();
+      this.handlePlayheadEdge('forward');
+      this.toggleDarkenSchedule(true);
+    }
+    else if (sequence.getStatus('inProgress')) {
+      this.togglePlayLight(true);
+      if (sequence.getStatus('isPaused')) {
+        this.updatePlayheadPosition();
+        this.handlePlayheadEdge(sequence.getStatus('direction'));
+      }
+      else {
+        this.startPlayhead(sequence.getStatus('direction'));
+      }
+    }
   }
 
   remove() {
@@ -251,6 +268,12 @@ export class WebchalkSequenceElement extends HTMLElement {
     }
   }
 
+  private updatePlayheadPosition() {
+    const currScheduleMs = this.animSequence!.getTiming('currentTime');
+    this.playheadTrailEl.style.width = `${this.msToHemStr(currScheduleMs)}`;
+    this.playheadEl.style.translate = `${this.msToHemStr(currScheduleMs)}`;
+  }
+
   private playheadLoop(direction: 'forward' | 'backward') {
     this.handlePlayheadEdge(direction);
 
@@ -259,9 +282,7 @@ export class WebchalkSequenceElement extends HTMLElement {
       return;
     }
 
-    const currScheduleMs = this.animSequence!.getTiming('currentTime');
-    this.playheadTrailEl.style.width = `${this.msToHemStr(currScheduleMs)}`;
-    this.playheadEl.style.translate = `${this.msToHemStr(currScheduleMs)}`;
+    this.updatePlayheadPosition();
 
     requestAnimationFrame(() => {
       this.playheadLoop(direction);
