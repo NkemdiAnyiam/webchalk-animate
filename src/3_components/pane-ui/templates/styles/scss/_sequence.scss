@@ -77,7 +77,7 @@
 }
 
 .sequence__controls {
-  background-color: var(--color-gray-light);
+  background-color: var-darken(var(--color-gray-light), 30%);
   height: 100%;
   padding: hem(0.4) hem(1);
   width: fit-content;
