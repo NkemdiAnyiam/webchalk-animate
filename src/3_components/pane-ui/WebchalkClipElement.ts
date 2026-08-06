@@ -102,6 +102,15 @@ export class WebchalkClipElement extends HTMLElement {
       .filter(segmentEl => segmentEl)
     )];
     this.insertPhaseSegmentEls(phaseSegmentEls);
+    
+    this.catchUpUI();
+  }
+
+  catchUpUI() {
+    const clip = this.animClip!;
+
+    // If clip has an error
+    if (clip.getStatus('errored')) { this.handleErrorState(); }
   }
 
   remove() {
@@ -172,4 +181,8 @@ export class WebchalkClipElement extends HTMLElement {
       // webchalk.createAnimationClipFactories().Scroller(this.closest('.sequence__schedule'), '~scroll-self', [infoBox, {scrollableOffset: ['center', '20%']}], {duration: 100}).play();
     }
   };
+  
+  handleErrorState() {
+    this.classList.add('error');
+  }
 }

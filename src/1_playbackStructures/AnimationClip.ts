@@ -254,6 +254,11 @@ export type AnimClipStatus = {
    * The current direction of the animation.
    */
   direction: 'forward' | 'backward';
+
+  /**
+   * `true` only if the clip has experienced an irrecoverable error.
+   */
+  errored: boolean;
 };
 
 // TYPE
@@ -812,6 +817,12 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   //   // return this.timescaleType === 'rate' && (this.firstRun || this.direction === 'backward' && !this.inProgress);
   //   return this.animation.durationPending;
   // }
+  private errored = false;
+  /** @internal */
+  setErrored() {
+    this.errored = true;
+    this.webchalkClipEl?.handleErrorState();
+  }
   /**
    * Returns details about the animation's current status.
    * @returns An object containing
@@ -846,6 +857,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       isRunning: this.isRunning,
       isPaused: this.isPaused,
       direction: this.direction,
+      errored: this.errored,
     };
 
     return specifics ? getPartial(result, specifics) : result;

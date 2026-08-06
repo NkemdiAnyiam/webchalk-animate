@@ -177,6 +177,11 @@ export type AnimSequenceStatus = {
    * and allowed to accept changes).
    */
   lockedStructure: boolean;
+
+  /**
+   * `true` only if the sequence has experienced an irrecoverable error.
+   */
+  errored: boolean;
 };
 
 // TYPE
@@ -363,6 +368,12 @@ export class AnimSequence {
     if (this.inProgress || this.wasPlayed) { return true; }
     return false;
   }
+  private errored = false;
+  /** @internal */
+  setErrored() {
+    this.errored = true;
+    this.webchalkSequenceEl?.handleErrorState();
+  }
   direction: AnimSequenceStatus['direction'] = 'forward';
   /**
    * Returns details about an sequence's current status.
@@ -410,6 +421,7 @@ export class AnimSequence {
       wasPlayed: this.wasPlayed,
       wasRewound: this.wasRewound,
       lockedStructure: this.lockedStructure,
+      errored: this.errored,
     };
 
     return specifics ? getPartial(result, specifics) : result;

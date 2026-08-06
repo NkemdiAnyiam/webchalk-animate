@@ -229,19 +229,10 @@ export const errorTip = (tip: string) => {
  */
 export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg = ['<unspecified error>'], components = {}) => {
   const {timeline, sequence, clip, element} = components;
-  if (timeline?.webchalkTimelineEl) {
-    // TODO: set directly on timeline structure instead of timeline UI element so that it can be reflected in a late-generated UI
-    timeline.webchalkTimelineEl.classList.add('error');
-    // TODO: account for when message is stored directly inside an Error instance
-    timeline.webchalkTimelineEl.setErrorPanelContents(ErrorClassOrInstance.name, msg[1] ?? [fragment([`This error does not have a UI render yet. View the browser console to see this error's explanation. To view the console, right-click and select "Inspect", and then navigate to the "Console" tab.`])]);
-  }
-  if (sequence?.webchalkSequenceEl) {
-    sequence.webchalkSequenceEl.classList.add('error');
-    sequence.webchalkSequenceEl?.stopPlayhead();
-  }
-  if (clip?.webchalkClipEl) {
-    clip.webchalkClipEl.classList.add('error');
-  }
+  // TODO: account for when message is stored directly inside an Error instance
+  if (timeline) { timeline.setError({errorName: ErrorClassOrInstance.name, uiMsgFrags: msg[1]}); }
+  if (sequence) { sequence.setErrored(); }
+  if (clip) { clip.setErrored(); }
 
   const locationPostfix = (
     `\n\n${'-'.repeat(25)}LOCATION${'-'.repeat(25)}` +

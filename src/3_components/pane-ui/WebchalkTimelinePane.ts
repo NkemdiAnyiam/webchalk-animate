@@ -201,6 +201,15 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     timelineEl.querySelector('.timeline__name')!.textContent = timeline.getConfig().timelineName;
 
     this.insertSequences(0, timeline.getHierarchy().sequences);
+
+    this.catchUpUI();
+  }
+
+  catchUpUI() {
+    const timeline = this.animTimeline!;
+
+    // If timeline has an error
+    if (timeline.getStatus('error')) { this.handleErrorState(); }
   }
 
   remove() {
@@ -298,45 +307,40 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     errorPanel.addEventListener('mousedown', handleClick);
   }
   
-  setErrorPanelContents(errorName: string, errorStuff: [description: DocumentFragment, tips?: DocumentFragment, location?: DocumentFragment]) {
+  handleErrorState() {
     const errorPanelEl = this.shadowRoot!.querySelector('.timeline__error-panel') as HTMLElement;
     const headingEl = errorPanelEl.querySelector('.timeline__error-panel-heading-text') as HTMLHeadingElement;
     const bodyEl = errorPanelEl.querySelector('.timeline__error-panel-body') as HTMLHeadingElement;
+    const {errorName, uiMsgFrags} = this.animTimeline!.getStatus('error')!;
 
     headingEl.textContent = `ERROR: ${escapeHtml(errorName)}`;
-
-    const [description, tips, location] = errorStuff;
-
     bodyEl.innerHTML = '';
-    {
+
+    const appendSection = (sectionName: string, sectionContents: Node) => {
       const sectionEl = createElFromString(`<div class="timeline__error-panel-section"></div>`);
       const sectionBodyEl = createElFromString(`<div class="timeline__error-panel-section-body"></div>`);
-      const headingEl = createElFromString(`<h3 class="timeline__error-panel-subheading">Description</h3>`);
+      const headingEl = createElFromString(`<h3 class="timeline__error-panel-subheading">${sectionName}</h3>`);
       sectionEl.appendChild(headingEl);
-      sectionBodyEl.appendChild(description);
+      sectionBodyEl.appendChild(sectionContents);
       sectionEl.append(sectionBodyEl);
       bodyEl.appendChild(sectionEl);
+    };
+
+    if (uiMsgFrags) {
+      const [description, tips, location] = uiMsgFrags;
+      appendSection('Description', description);
+      if (tips) { appendSection('Tips', tips); }
+      if (location) { appendSection('Location', location); }
     }
-    if (tips) {
-      const sectionEl = createElFromString(`<div class="timeline__error-panel-section"></div>`);
-      const sectionBodyEl = createElFromString(`<div class="timeline__error-panel-section-body"></div>`);
-      const headingEl = createElFromString(`<h3 class="timeline__error-panel-subheading">Tips</h3>`);
-      sectionEl.appendChild(headingEl);
-      sectionBodyEl.appendChild(tips);
-      sectionEl.append(sectionBodyEl);
-      bodyEl.appendChild(sectionEl);
-    }
-    if (location) {
-      const sectionEl = createElFromString(`<div class="timeline__error-panel-section"></div>`);
-      const sectionBodyEl = createElFromString(`<div class="timeline__error-panel-section-body"></div>`);
-      const headingEl = createElFromString(`<h3 class="timeline__error-panel-subheading">Location</h3>`);
-      sectionEl.appendChild(headingEl);
-      sectionBodyEl.appendChild(location);
-      sectionEl.append(sectionBodyEl);
-      bodyEl.appendChild(sectionEl);
+    else {
+      appendSection(
+        'Description',
+        new Text(`This error does not have a UI render yet. View the browser console to see this error's explanation. To view the console, right-click and select "Inspect", and then navigate to the "Console" tab.`)
+      );
     }
 
     highlightCodeEls(bodyEl);
+    this.classList.add('error');
   }
 
   attachJumpButtonListeners() {

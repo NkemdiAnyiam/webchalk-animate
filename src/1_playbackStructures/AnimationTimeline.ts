@@ -99,6 +99,14 @@ export type AnimTimelineStatus = {
    * `true` only if the timeline is at the very end (i.e., the last sequence has been played).
    */
   atEnd: boolean;
+
+  /**
+   * If defined, this is an object containing the breaking error that has interrupted the timeline.
+   */
+  error?: {
+    errorName: string;
+    uiMsgFrags?: [description: DocumentFragment, tips?: DocumentFragment, location?: DocumentFragment];
+  };
 };
 
 // TYPE
@@ -252,11 +260,20 @@ export class AnimTimeline {
   private get stepNumber(): number { return this.loadedSeqIndex + 1; }
   private get atBeginning(): boolean { return this.loadedSeqIndex === 0; }
   private get atEnd(): boolean { return this.loadedSeqIndex === this.numSequences; }
+  // TODO: lock the structure if an error is present
   private get lockedStructure(): boolean {
     if (this.isAnimating || this.isJumping) { return true; }
     return false;
   }
-
+  private error?: {
+    errorName: string;
+    uiMsgFrags?: [description: DocumentFragment, tips?: DocumentFragment, location?: DocumentFragment];
+  };
+  /** @internal */
+  setError(error: AnimTimelineStatus['error']) {
+    this.error = error;
+    this.webchalkTimelineEl?.handleErrorState();
+  }
   /**
    * Returns details about an timeline's current status.
    * @returns An object containing
@@ -268,6 +285,7 @@ export class AnimTimeline {
    *  * {@link AnimTimelineStatus.stepNumber|stepNumber},
    *  * {@link AnimTimelineStatus.atBeginning|atBeginning},
    *  * {@link AnimTimelineStatus.atEnd|atEnd},
+   *  * {@link AnimTimelineStatus.error|error},
    * @group Property Getter Methods
    */
   getStatus(): AnimTimelineStatus;
@@ -300,6 +318,7 @@ export class AnimTimeline {
       stepNumber: this.stepNumber,
       atBeginning: this.atBeginning,
       atEnd: this.atEnd,
+      error: this.error,
     };
 
     return specifics ? getPartial(result, specifics) : result;

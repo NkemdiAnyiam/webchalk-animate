@@ -164,7 +164,13 @@ export class WebchalkSequenceElement extends HTMLElement {
 
     this.attachJumpButtonListener();
 
-    // If sequence is already playing or finished, set the UI accordingly.
+    this.catchUpUI();
+  }
+
+  catchUpUI() {
+    const sequence = this.animSequence!;
+
+    // If sequence is playing or finished
     if (sequence.getStatus('isFinished') && sequence.getStatus('direction') === 'forward') {
       this.updatePlayheadPosition();
       this.handlePlayheadEdge('forward');
@@ -180,6 +186,9 @@ export class WebchalkSequenceElement extends HTMLElement {
         this.startPlayhead(sequence.getStatus('direction'));
       }
     }
+
+    // If sequence has an error
+    if (sequence.getStatus('errored')) { this.handleErrorState(); }
   }
 
   remove() {
@@ -334,5 +343,10 @@ export class WebchalkSequenceElement extends HTMLElement {
     else {
       lightEl.classList.remove('sequence__control--active');
     }
+  }
+
+  handleErrorState() {
+    this.classList.add('error');
+    this.stopPlayhead();
   }
 }
