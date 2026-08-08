@@ -643,6 +643,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   protected effectName: string;
   protected presetEffectDefinition: TPresetEffectDefinition;
   protected effectOptions: EffectOptions<TPresetEffectDefinition> = {} as EffectOptions<TPresetEffectDefinition>;
+  /** @internal */ usageConfig: Partial<TClipConfig> = {}; // ONLY used for printing to clip info box UI
   
   /**@internal*/
   effectFrameGeneratorSet = {} as WithRequired<EffectFrameGeneratorSet, 'keyframesGenerator_play' | 'keyframesGenerator_rewind' | 'nestedEffectFrameGeneratorSets'>;
@@ -940,6 +941,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     if (!this.presetEffectDefinition) { throw this.generateError(RangeError, [`Invalid effect name: "${this.effectName}" does not exists in the "${this.category}" category.`]); }
 
     this.effectOptions = effectOptions;
+    this.usageConfig = effectConfig;
 
     this.config = this.mergeConfigs(effectConfig, this.presetEffectDefinition.defaultConfig ?? {}, this.presetEffectDefinition.immutableConfig ?? {});
     // cannot be exactly 0 because that causes some Animation-related bugs that can't be easily worked around

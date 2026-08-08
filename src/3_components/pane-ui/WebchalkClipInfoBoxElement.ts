@@ -167,14 +167,22 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
         const sectionEl = createElFromString('<section class="clip-info-box__section"></section>');
 
         if (args.length === 0) {
-          sectionEl.appendChild(createElFromString(`<p>No arguments were passed to this effect.</p>`));
+          frag.appendChild(createElFromString(/*html*/`
+            <section class="clip-info-box__section">
+              <p>No arguments were passed to this effect.</p>
+            </section>
+          `));
         }
         else {
           for (let i = 0; i < args.length; ++i) {
             const arg = args[i];
-  
-            sectionEl.appendChild(createElFromString(`<p class="clip-info-box__section-name">arg${i + 1}</p>`));
-            sectionEl.appendChild(createCodeEl(escapeHtml(dequoteJSON(arg!)), 'ts', 'block'));
+            
+            frag.appendChild(createElFromString(/*html*/`
+              <section class="clip-info-box__section">
+                ${createElFromString(`<p class="clip-info-box__section-name">arg${i + 1}</p>`).outerHTML}
+                ${createCodeEl(escapeHtml(dequoteJSON(arg!)), 'ts', 'block').outerHTML}
+              </section>
+            `));
           }
         }
 
@@ -183,10 +191,24 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
       break;
 
       case 'configuration': {
-        const sectionEl = createElFromString('<section class="clip-info-box__section"></section>');
-        sectionEl.appendChild(createElFromString('<p class="clip-info-box__section-name">Final Configuration</p>'));
-        sectionEl.appendChild(createCodeEl(escapeHtml(dequoteJSON(clip.getConfig())), 'ts', 'block'));
-        frag.appendChild(sectionEl);
+        const usageConfig = clip.usageConfig;
+
+        frag.appendChild(createElFromString(/*html*/`
+          <section class="clip-info-box__section">
+            ${createElFromString('<p class="clip-info-box__section-name">Your Configuration</p>').outerHTML}
+            ${Object.entries(usageConfig).length > 0
+              ? createCodeEl(escapeHtml(dequoteJSON(clip.usageConfig)), 'ts', 'block').outerHTML
+              : `<p>No configuration was passed to this effect.</p>`
+            }
+          </section>
+        `));
+
+        frag.appendChild(createElFromString(/*html*/`
+          <section class="clip-info-box__section">
+            ${createElFromString('<p class="clip-info-box__section-name">Final Configuration</p>').outerHTML}
+            ${createCodeEl(escapeHtml(dequoteJSON(clip.getConfig())), 'ts', 'block').outerHTML}
+          </section>
+        `));
       }
       break;
 
