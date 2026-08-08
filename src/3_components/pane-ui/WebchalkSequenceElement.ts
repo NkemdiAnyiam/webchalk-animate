@@ -220,7 +220,7 @@ export class WebchalkSequenceElement extends HTMLElement {
           <div class="sequence__headings">
           </div>`
         ) as HTMLElement;
-        this.shadowRoot!.querySelector('.sequence__header')!.insertAdjacentElement('beforebegin', newHeadingsEl);
+        this.shadowRoot!.querySelector('.sequence')!.insertAdjacentElement('afterbegin', newHeadingsEl);
         sequenceHeadingsEl = newHeadingsEl;
       }
       else {

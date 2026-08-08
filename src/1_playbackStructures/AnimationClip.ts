@@ -5,7 +5,7 @@ import { webchalk, Webchalk } from "../Webchalk";
 import { EffectOptions, PresetEffectBank, PresetEffectDefinition, EffectFrameGeneratorSet } from "../2_animationEffects/presetEffectCreation";
 import { call, detab, getPartial, mergeArrays, TBA_DURATION, xor } from "../4_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
-import { CustomErrorClasses, ClipErrorGenerator, errorTip, generateError } from "../4_utils/errors";
+import { CustomErrorClasses, ClipErrorGenerator, errorTip, generateError, ErrorUIMessageFragments } from "../4_utils/errors";
 import { DOMElement, EffectCategory, Mutator, StyleProperty } from "../4_utils/interfaces";
 import { WebchalkConnectorElement } from "../3_components/WebchalkConnectorElement";
 import { WebchalkAnimation, NestedWebchalkAnimation } from "./WebchalkAnimation";
@@ -1925,7 +1925,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   /*-:*****************************************         ERRORS         *********************************************************/
   /*-:**************************************************************************************************************************/
   protected generateError: ClipErrorGenerator = (ErrorClassOrInstance, msg = ['<unspecified error>'], elementOverride?: DOMElement) => {
-    return generateError(ErrorClassOrInstance, msg as [logMsg: string, uiMsgFrags?: [description: DocumentFragment, tips?: DocumentFragment, location?: DocumentFragment]], {
+    return generateError(ErrorClassOrInstance, msg as [logMessageStr: string, uiMessageFrags?: ErrorUIMessageFragments], {
       timeline: this._parentTimeline,
       sequence: this._parentSequence,
       clip: this,

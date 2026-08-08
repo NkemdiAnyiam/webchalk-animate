@@ -1,5 +1,5 @@
 import { AnimSequence, AnimSequenceConfig } from "./AnimationSequence";
-import { CustomErrorClasses, errorTip, generateError, TimelineErrorGenerator } from "../4_utils/errors";
+import { CustomErrorClasses, errorTip, generateError, TimelineErrorGenerator, ErrorUIMessageFragments } from "../4_utils/errors";
 import { getPartial, xor } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { WebchalkPlaybackButtonElement } from "../3_components/WebchalkPlaybackButtonElement";
@@ -101,11 +101,12 @@ export type AnimTimelineStatus = {
   atEnd: boolean;
 
   /**
-   * If defined, this is an object containing the breaking error that has interrupted the timeline.
+   * If defined, this is an object containing the name and UI message fragments of the error that broke the timeline.
+   * For your practical purposes, the presence of `error` can just be treated as a Boolean.
    */
   error?: {
     errorName: string;
-    uiMsgFrags?: [description: DocumentFragment, tips?: DocumentFragment, location?: DocumentFragment];
+    uiMessageFrags?: ErrorUIMessageFragments;
   };
 };
 
@@ -267,7 +268,7 @@ export class AnimTimeline {
   }
   private error?: {
     errorName: string;
-    uiMsgFrags?: [description: DocumentFragment, tips?: DocumentFragment, location?: DocumentFragment];
+    uiMessageFrags?: ErrorUIMessageFragments;
   };
   /** @internal */
   setError(error: AnimTimelineStatus['error']) {
@@ -1578,7 +1579,7 @@ export class AnimTimeline {
   /*-:******************************************        ERRORS        **********************************************************/
   /*-:**************************************************************************************************************************/
   protected generateError: TimelineErrorGenerator = (ErrorClassOrInstance, msg = ['<unspecified error>']) => {
-    return generateError(ErrorClassOrInstance, msg as [logMsg: string, uiMsgFrags?: [description: DocumentFragment, tips?: DocumentFragment, location?: DocumentFragment]], {
+    return generateError(ErrorClassOrInstance, msg as [logMessageStr: string, uiMessageFrags?: ErrorUIMessageFragments], {
       timeline: this
     });
   }

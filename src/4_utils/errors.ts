@@ -2,8 +2,14 @@ import { AnimClip } from "../1_playbackStructures/AnimationClip";
 import { AnimSequence } from "../1_playbackStructures/AnimationSequence";
 import { AnimTimeline } from "../1_playbackStructures/AnimationTimeline";
 import { ExtendableBankCategory } from "../2_animationEffects/presetEffectCreation";
-import { createElFromString, fragment, getOpeningTag, indexToOrdinal } from "./helpers";
+import { getOpeningTag, indexToOrdinal } from "./helpers";
 import { DOMElement } from "./interfaces";
+
+export type ErrorUIMessageFragments = {
+  description: DocumentFragment,
+  tips?: DocumentFragment,
+  location?: DocumentFragment; // TODO: maybe actually use
+};
 
 /**
  * A function that throws detailed error using additional location information based on
@@ -22,7 +28,7 @@ export type ClipErrorGenerator = {
     /** The Error class that will be instantiated. */
     ErrorClass: new (message: string) => TError,
     /** The error message that will appear before the location information. */
-    msg: [logMsg: string, uiMsgFrags?: [description: DocumentFragment, tips?: DocumentFragment, location?: DocumentFragment]],
+    msg: [logMessageStr: string, uiMessageFrags?: ErrorUIMessageFragments],
     /**
      * An element used to explicitly set the DOM element in the edge case where the error occurs in the clip's constructor
      * (where the field containing the DOM element is not yet set).
@@ -48,7 +54,7 @@ export type SequenceErrorGenerator = {
     /** The Error class that will be instantiated. */
     ErrorClass: new (message: string) => TError,
     /** The error message that will appear before the location information. */
-    msg: [logMsg: string, uiMsgFrags?: [description: DocumentFragment, tips?: DocumentFragment, location?: DocumentFragment]]
+    msg: [logMessageStr: string, uiMessageFrags?: ErrorUIMessageFragments]
   ): TError;
 };
 
@@ -68,7 +74,7 @@ export type TimelineErrorGenerator = {
     /** The Error class that will be instantiated. */
     ErrorClass: new (message: string) => TError,
     /** The error message that will appear before the location information. */
-    msg: [logMsg: string, uiMsgFrags?: [description: DocumentFragment, tips?: DocumentFragment, location?: DocumentFragment]]
+    msg: [logMessageStr: string, uiMessageFrags?: ErrorUIMessageFragments]
   ): TError;
 };
 
@@ -81,7 +87,7 @@ export type GeneralErrorGenerator = {
     /** The Error instance (or Error class to be instantiated) to be thrown. */
     ErrorClassOrInstance: TError | (new (message: string) => TError),
     /** The error message describing the issue. */
-    msg: [logMsg: string, uiMsgFrags?: [description: DocumentFragment, tips?: DocumentFragment, location?: DocumentFragment]],
+    msg: [logMessageStr: string, uiMessageFrags?: ErrorUIMessageFragments],
     components?: {
       /** The {@link AnimTimeline} involved in the error. */
       timeline?: AnimTimeline,
@@ -229,8 +235,9 @@ export const errorTip = (tip: string) => {
  */
 export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg = ['<unspecified error>'], components = {}) => {
   const {timeline, sequence, clip, element} = components;
-  // TODO: account for when message is stored directly inside an Error instance
-  if (timeline) { timeline.setError({errorName: ErrorClassOrInstance.name, uiMsgFrags: msg[1]}); }
+  const [logMessageStr, uiMessageFrags] = msg;
+  
+  if (timeline) { timeline.setError({errorName: ErrorClassOrInstance.name, uiMessageFrags}); }
   if (sequence) { sequence.setErrored(); }
   if (clip) { clip.setErrored(); }
 
@@ -262,7 +269,7 @@ export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg =
     /** @ts-ignore */
     return (new ErrorClassOrInstance.constructor(ErrorClassOrInstance.message + locationPostfix, {cause: ErrorClassOrInstance}));
   }
-  return new ErrorClassOrInstance(`${msg}` + locationPostfix);
+  return new ErrorClassOrInstance(`${logMessageStr}` + locationPostfix);
 };
 
 /**@ignore*/

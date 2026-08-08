@@ -1,5 +1,5 @@
 import { AnimClip, AnimClipConfig, AnimClipModifiers, AnimClipTiming } from "./AnimationClip";
-import { CustomErrorClasses, errorTip } from "../4_utils/errors";
+import { CustomErrorClasses, errorTip, ErrorUIMessageFragments } from "../4_utils/errors";
 import { createCodeEl, createDetailsEl, fragment, getPartial, parseMultiUnitPlacement, TBA_DURATION, createUListEl } from "../4_utils/helpers";
 import { Webchalk } from "../Webchalk";
 import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement, RootNodeEditStats, TextEditRate } from "../4_utils/interfaces";
@@ -203,11 +203,11 @@ export class EntranceClip<TPresetEffectDefinition extends PresetEffectDefinition
       // getComputedStyle() for a child element
       const { display, visibility } = getComputedStyle(this.domElem);
       let str = ``;
-      const frags: [description: DocumentFragment, tips?: DocumentFragment, location?: DocumentFragment] = [new DocumentFragment()];
+      const frags: ErrorUIMessageFragments = {description: new DocumentFragment()};
       if (display === 'none') {
         str = `The element being entered is hidden with CSS {display: none;}, but it was not using the class "webchalk-display-none".` +
         ` An element needs to be unrendered using the class "webchalk-display-none" in order for Entrance() to act on it.`;
-        frags[0] = fragment([
+        frags.description = fragment([
           `The element being entered is hidden with CSS `, createCodeEl(`{display: none;}`, 'css'), `, but it was not using the class `, createCodeEl("webchalk-display-none", 'ts'),
         `. An element needs to be unrendered using the class `, createCodeEl(`"webchalk-display-none"`, 'ts'), ` in order for`, createCodeEl(`Entrance()`, 'ts'), ` to act on it.`
         ]);
@@ -215,7 +215,7 @@ export class EntranceClip<TPresetEffectDefinition extends PresetEffectDefinition
       else if (visibility === 'hidden') {
         str = `The element being entered is hidden with CSS {visibility: hidden;}, but it was not using the class "webchalk-visibility-hidden".` +
         ` An element needs to be unrendered using the class "webchalk-visibility-hidden" in order for Entrance() to act on it.`;
-        frags[0] = fragment([
+        frags.description = fragment([
           `The element being entered is hidden with CSS `, createCodeEl(`{visibility: hidden;}`, 'css'), `, but it was not using the class `,
           createCodeEl(`"webchalk-visibility-hidden"`, 'ts'), `. An element needs to be unrendered using the class `, createCodeEl(`"webchalk-visibility-hidden"`, 'css'),
           ` in order for `, createCodeEl(`Entrance()`, 'ts'), ` to act on it.`
@@ -226,7 +226,7 @@ export class EntranceClip<TPresetEffectDefinition extends PresetEffectDefinition
         ` To hide an element, you can do one of the following: 1) Use the {hideNowType:} config option to immediately hide the element from the very start;` +
         ` 2) Hide the element with Exit() before the Entrance() animation runs;` +
         ` 3) Manually add either "webchalk-display-none" or "webchalk-visibility-hidden" to its CSS class list in the HTML.`;
-        frags[0] = fragment([
+        frags.description = fragment([
           createCodeEl(`Entrance()`, 'ts'), ` can only play on elements that are already hidden, but this element was not hidden. To hide an element, you can do one of the following:`,
           createUListEl([
             [
@@ -263,7 +263,7 @@ export class EntranceClip<TPresetEffectDefinition extends PresetEffectDefinition
         ]);
       }
 
-      frags[1] = fragment([
+      frags.tips = fragment([
         createDetailsEl(`Tips:`, createUListEl([
           [
             `Adding `, createCodeEl(`"webchalk-display-none"`, 'ts'), ` to an element's CSS class list applies a `, createCodeEl(`{display: none;}`, 'css'),
@@ -280,6 +280,7 @@ export class EntranceClip<TPresetEffectDefinition extends PresetEffectDefinition
           ]
         ]))
       ]);
+
       throw this.generateError(CustomErrorClasses.InvalidEntranceAttempt,
         [str +
         `${errorTip(

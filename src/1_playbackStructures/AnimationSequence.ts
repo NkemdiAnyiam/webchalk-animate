@@ -1,6 +1,6 @@
 import { AnimClip } from "./AnimationClip";
 import { AnimTimeline } from "./AnimationTimeline";
-import { CustomErrorClasses, errorTip, generateError, SequenceErrorGenerator } from "../4_utils/errors";
+import { CustomErrorClasses, errorTip, generateError, SequenceErrorGenerator, ErrorUIMessageFragments } from "../4_utils/errors";
 import { getPartial, TBA_DURATION } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { webchalk } from "../Webchalk";
@@ -1353,7 +1353,7 @@ export class AnimSequence {
   /*-:******************************************        ERRORS        **********************************************************/
   /*-:**************************************************************************************************************************/
   protected generateError: SequenceErrorGenerator = (ErrorClassOrInstance, msg = ['<unspecified error>']) => {
-    return generateError(ErrorClassOrInstance, msg as [logMsg: string, uiMsgFrags?: [description: DocumentFragment, tips?: DocumentFragment, location?: DocumentFragment]], {
+    return generateError(ErrorClassOrInstance, msg as [logMessageStr: string, uiMessageFrags?: ErrorUIMessageFragments], {
       sequence: this,
       timeline: this._parentTimeline
     });
