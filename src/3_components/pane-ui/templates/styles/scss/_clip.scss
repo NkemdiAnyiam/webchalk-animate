@@ -48,9 +48,14 @@
 }
 
 :host(.error) {
-  .clip__body,
-  .clip__header {
+  .clip__body {
     background-color: var(--color-error-light);
+  }
+  .clip__header {
+    background-color: var(--color-error-dark);
+  }
+  .clip__number {
+    color: var(--color-gray-lightest);
   }
 }
 

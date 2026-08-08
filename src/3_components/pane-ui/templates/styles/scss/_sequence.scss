@@ -11,6 +11,9 @@
 }
 
 :host(.error) {
+  .sequence__content {
+    border: 2px solid var(--color-glow-error-light);
+  }
   .sequence {
     background-color: var(--color-error-dark);
     --color-glow-light: var(--color-glow-error-light);
@@ -41,6 +44,10 @@
   &--h4::before { content: "#### "; }
   &--h5::before { content: "##### "; }
   &--h6::before { content: "###### "; }
+}
+
+.sequence__content {
+  background-color: inherit;
 }
 
 .sequence__header {
