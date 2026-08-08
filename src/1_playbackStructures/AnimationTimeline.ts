@@ -4,7 +4,7 @@ import { getPartial, xor } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { WebchalkPlaybackButtonElement } from "../3_components/WebchalkPlaybackButtonElement";
 import { /*defaultClipFactories,*/ webchalk } from "../Webchalk";
-import { WebchalkTimelinePaneElement } from "../3_components/pane-ui/WebchalkTimelinePane";
+import { WebchalkTimelinePaneElement } from "../3_components/pane-ui/WebchalkTimelinePaneElement";
 
 // TYPE
 /**

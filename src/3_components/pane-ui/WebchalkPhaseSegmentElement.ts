@@ -4,7 +4,7 @@ import { htmlComponentStr } from './templates/ts/phaseSegment';
 
 import { createElFromString, escapeHtml, repositionPopover, secondsToHMMSS, TBA_DURATION } from '../../4_utils/helpers';
 import { PhaseSegment } from '../../1_playbackStructures/WebchalkAnimation';
-import { hemSecs } from './WebchalkTimelinePane';
+import { hemSecs } from './WebchalkTimelinePaneElement';
 import { WebchalkClipElement } from './WebchalkClipElement';
 
 let devHtmlComponentStr: string;

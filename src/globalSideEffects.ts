@@ -4,7 +4,7 @@ import { WebchalkPlaybackButtonElement } from "./3_components/WebchalkPlaybackBu
 import { WebchalkClipElement } from "./3_components/pane-ui/WebchalkClipElement";
 import { WebchalkClipInfoBoxElement } from "./3_components/pane-ui/WebchalkClipInfoBoxElement";
 import { WebchalkSequenceElement } from "./3_components/pane-ui/WebchalkSequenceElement";
-import { WebchalkTimelinePaneElement } from "./3_components/pane-ui/WebchalkTimelinePane";
+import { WebchalkTimelinePaneElement } from "./3_components/pane-ui/WebchalkTimelinePaneElement";
 import { WebchalkPhaseSegmentElement } from "./3_components/pane-ui/WebchalkPhaseSegmentElement";
 
 export function injectGlobals() {

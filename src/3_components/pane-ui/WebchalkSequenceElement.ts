@@ -5,7 +5,7 @@ import { htmlComponentStr } from './templates/ts/sequence';
 import { createElFromString, escapeHtml, secondsToHMMSS } from '../../4_utils/helpers';
 import { AnimSequence, AnimSequenceConfig } from '../../1_playbackStructures/AnimationSequence';
 import { AnimClip } from '../../1_playbackStructures/AnimationClip';
-import { hem, hemSecs, WebchalkTimelinePaneElement } from './WebchalkTimelinePane';
+import { hem, hemSecs, WebchalkTimelinePaneElement } from './WebchalkTimelinePaneElement';
 // import { defaultClipFactories } from './src/Webchalk';
 
 let devHtmlComponentStr: string;
