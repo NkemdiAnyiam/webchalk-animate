@@ -159,6 +159,31 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
             </div>
           </section>
         `));
+
+        frag.appendChild(createElFromString(`
+          <section class="clip-info-box__section">
+            <p class="clip-info-box__section-name">Clip Code Template</p>
+            ${createCodeEl(`
+${escapeHtml(category)}(
+  elementPlaceholder,
+  "${escapeHtml(effectName)}",
+  ${escapeHtml(dequoteJSON(clip.getEffectDetails('effectOptions')))
+    .split('\n')
+    .map((line, index) => index === 0 ? line : `\t${line}`)
+    .join('\n')
+  },
+  ${escapeHtml(dequoteJSON(clip.usageConfig))
+    .split('\n')
+    .map((line, index) => index === 0 ? line : `\t${line}`)
+    .join('\n')
+  }
+)
+                    `,
+                    'ts',
+                    'block'
+                  ).outerHTML}
+          </section>
+        `));
       }
       break;
 
