@@ -165,7 +165,7 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
             <p class="clip-info-box__section-name">Clip Code Template</p>
             ${createCodeEl(`
 ${escapeHtml(category)}(
-  elementPlaceholder,
+  domElemVariable,
   "${escapeHtml(effectName)}",
   ${escapeHtml(dequoteJSON(clip.getEffectDetails('effectOptions')))
     .split('\n')
