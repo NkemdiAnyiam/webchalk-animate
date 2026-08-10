@@ -94,6 +94,7 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
       case 'location': {
         const {parentTimeline, parentSequence, clipNumber} = clip.getHierarchy();
         const { category, effectName } = clip.getEffectDetails();
+        const { description: clipDescription } = clip.getConfig();
         const {description: sequenceDescription} = parentSequence!.getConfig();
         const {sequenceNumber} = parentSequence!.getHierarchy();
         const sequenceJumpTag = parentSequence!.getJumpTag();
@@ -150,6 +151,10 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
                 <div class="row">
                   <div class="col col--head">Effect</div>
                   <div class="col col--body">${escapeHtml(effectName)}</div>
+                </div>
+                <div class="row">
+                  <div class="col col--head">Description</div>
+                  <div class="col col--body">${escapeHtml(clipDescription)}</div>
                 </div>
                 <div class="row">
                   <div class="col col--head">DOM Tag</div>
