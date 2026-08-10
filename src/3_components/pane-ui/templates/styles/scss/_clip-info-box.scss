@@ -158,7 +158,7 @@
 .clip-info-box__body {
   padding: hem(1) hem(1) 17.5px;
 
-  height: calc(11 * var(--clip-height));
+  height: calc(9 * var(--clip-height));
   min-height: hem(6);
   max-height: calc(12 * var(--clip-height));
   overflow-y: auto;
