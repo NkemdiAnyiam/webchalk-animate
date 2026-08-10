@@ -164,6 +164,11 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
             </div>
           </section>
         `));
+      }
+      break;
+
+      case 'code-template': {
+        const { category, effectName } = clip.getEffectDetails();
 
         frag.appendChild(createElFromString(`
           <section class="clip-info-box__section">
