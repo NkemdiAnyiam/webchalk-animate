@@ -1,3 +1,5 @@
+import { KeyboardKey } from "../4_utils/interfaces";
+
 const stylesheet = new CSSStyleSheet();
 stylesheet.replaceSync(
   /*css*/`:host {
@@ -52,8 +54,8 @@ export class WebchalkPlaybackButtonElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-playback-button', WebchalkPlaybackButtonElement); }
 
   action: `step-${'forward' | 'backward'}` | 'pause' | 'fast-forward' | 'toggle-skipping';
-  shortcutKey: KeyboardEvent['key'] | null;
-  setShortcutKey(key: KeyboardEvent['key'] | null) {
+  shortcutKey: KeyboardKey | null;
+  setShortcutKey(key: KeyboardKey | null) {
     this.shortcutKey = key;
     if (!key) {
       this.removeAttribute('shortcut');

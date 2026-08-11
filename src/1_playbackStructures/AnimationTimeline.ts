@@ -5,6 +5,7 @@ import { PickFromArray } from "../4_utils/utilityTypes";
 import { WebchalkPlaybackButtonElement } from "../3_components/WebchalkPlaybackButtonElement";
 import { /*defaultClipFactories,*/ webchalk } from "../Webchalk";
 import { WebchalkTimelinePaneElement } from "../3_components/pane-ui/WebchalkTimelinePaneElement";
+import { KeyboardKey } from "../4_utils/interfaces";
 
 // TYPE
 /**
@@ -38,11 +39,11 @@ export type AnimTimelineConfig = {
    * will just be applied when they _are_ attached).
    */
   keyboardShortcuts: {
-    stepForward?: KeyboardEvent['key'] | null;
-    stepBackward?: KeyboardEvent['key'] | null;
-    pause?: KeyboardEvent['key'] | null;
-    fastForward?: KeyboardEvent['key'] | null;
-    toggleSkipping?: KeyboardEvent['key'] | null;
+    stepForward?: KeyboardKey | null;
+    stepBackward?: KeyboardKey | null;
+    pause?: KeyboardKey | null;
+    fastForward?: KeyboardKey | null;
+    toggleSkipping?: KeyboardKey | null;
   };
 };
 
