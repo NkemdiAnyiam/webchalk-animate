@@ -1,6 +1,6 @@
-import { AnimSequence, AnimSequenceConfig } from "./AnimationSequence";
+import { AnimSequence } from "./AnimationSequence";
 import { CustomErrorClasses, errorTip, generateError, TimelineErrorGenerator, ErrorUIMessageFragments } from "../4_utils/errors";
-import { getPartial, xor } from "../4_utils/helpers";
+import { createElFromString, getPartial, xor } from "../4_utils/helpers";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { WebchalkPlaybackButtonElement } from "../3_components/WebchalkPlaybackButtonElement";
 import { /*defaultClipFactories,*/ webchalk } from "../Webchalk";
@@ -14,12 +14,10 @@ import { WebchalkTimelinePaneElement } from "../3_components/pane-ui/WebchalkTim
  */
 export type AnimTimelineConfig = {
   /**
-   * A string representing the name of the timeline.
-   * This value is used to sync with `<webchalk-playback-button>` elements that share the same
-   * value in their `timeline-name` attribute.
+   * A string representing the name of the timeline. This will be shown in any UI where appropriate.
    * @defaultValue
    * ```ts
-   * ''
+   * '<unnamed timeline>'
    * ```
    */
   timelineName: string;
@@ -35,17 +33,17 @@ export type AnimTimelineConfig = {
   debugMode: boolean;
 
   /**
-   * If `true`, the timeline will instantly attempt to find `<webchalk-playback-button>` elements whose
-   * `timeline-name` attributes are equivalent to the timeline's `timelineName` configuration option
-   * using {@link AnimTimeline.linkPlaybackButtons|linkPlaybackButtons()}.
-   * @defaultValue
-   * ```ts
-   * true
-   * ```
-   * @see {@link AnimTimelineConfig.timelineName|timelineName}
-   * @see {@link AnimTimeline.linkPlaybackButtons|linkPlaybackButtons()}
+   * An object specifying keyboard shortcuts for the specified buttons
+   * (if the playback buttons have not yet been attached, the shortcuts
+   * will just be applied when they _are_ attached).
    */
-  autoLinksButtons: boolean;
+  keyboardShortcuts: {
+    stepForward?: KeyboardEvent['key'] | null;
+    stepBackward?: KeyboardEvent['key'] | null;
+    pause?: KeyboardEvent['key'] | null;
+    fastForward?: KeyboardEvent['key'] | null;
+    toggleSkipping?: KeyboardEvent['key'] | null;
+  };
 };
 
 // TYPE
@@ -158,7 +156,7 @@ const DISABLED_FROM_PAUSE = 'playback-button--disabledFromPause';
 
 // TYPE
 type PlaybackButtons = {
-  [key in `${'forward' | 'backward' | 'pause' | 'toggleSkipping' | 'fastForward'}Button`]: WebchalkPlaybackButtonElement | null | undefined;
+  [key in `${'stepForward' | 'stepBackward' | 'pause' | 'toggleSkipping' | 'fastForward'}Button`]: WebchalkPlaybackButtonElement | null | undefined;
 };
 // TYPE
 type PlaybackButtonPurpose = `Step ${'Forward' | 'Backward'}` | 'Pause' | 'Fast Forward' | 'Toggle Skipping';
@@ -199,18 +197,18 @@ export class AnimTimeline {
   private static currentUiAttachedTimeline: AnimTimeline | null = null;
 
   private config: AnimTimelineConfig = {
-    autoLinksButtons: true,
     debugMode: false,
-    timelineName: '',
+    timelineName: '<unnamed timeline>',
+    keyboardShortcuts: {},
   };
 
   /**
    * Returns an object containing the configuration options used to
    * define the name, debugging behavior, and button-linking behavior of the timeline.
    * @returns An object containing
-   *  * {@link AnimTimelineConfig.autoLinksButtons|autoLinksButtons},
    *  * {@link AnimTimelineConfig.debugMode|debugMode},
    *  * {@link AnimTimelineConfig.timelineName|timelineName},
+   *  * {@link AnimTimelineConfig.keyboardShortcuts|keyboardShortcuts},
    * @group Property Getter Methods
    * @group Configuration
    */
@@ -388,19 +386,15 @@ export class AnimTimeline {
       Object.assign<AnimTimelineConfig, Partial<AnimTimelineConfig>>(this.config, configOrSequences);
       this.addSequences(animSequences ?? [])
     }
-
-    if (this.config.autoLinksButtons) {
-      this.linkPlaybackButtons();
-    }
   }
 
   /*-:**************************************************************************************************************************/
   /*-:****************************************        PLAYBACK UI        *******************************************************/
   /*-:**************************************************************************************************************************/
   private _playbackButtons: PlaybackButtons = {
-    backwardButton: null,
+    stepBackwardButton: null,
     fastForwardButton: null,
-    forwardButton: null,
+    stepForwardButton: null,
     pauseButton: null,
     toggleSkippingButton: null,
   };
@@ -413,93 +407,120 @@ export class AnimTimeline {
   get playbackButtons(): Readonly<PlaybackButtons> { return {...this._playbackButtons}; }
 
   /**
-   * Searches the page for `<webchalk-playback-button>` elements whose
+   * Inserts a container into the page containing `<webchalk-playback-button>` elements whose
    * `timeline-name` attributes are equivalent to this timeline's `timelineName` configuration option,
    * then links those buttons to this timeline.
-   *  * By default, all button types are searched for.
-   * @param options - An object containing settings to define the behavior of the search
-   * @param options.searchRoot - The HTML element from which to begin searching for the buttons.
+   *  * By default, all button types are injected.
+   * @param options - An object containing settings to define the behavior of the buttons setup.
+   * @param options.buttonsContainerLocation - The HTML element where the buttons container should be placed.
    * @param options.buttonsSubset - An array of strings indicating which specific buttons we want to link.
    * @returns 
    * @group Playback UI
    */
-  linkPlaybackButtons(options: {
-    /** The HTML element from which to begin searching for the buttons. */
-    searchRoot?: HTMLElement,
+  attachPlaybackButtonsUI(options: {
+    /** The HTML element where the buttons container should be placed. */
+    buttonsContainerLocation?: HTMLElement;
     /** An array of strings indicating which specific buttons we want to link. By default, all buttons are searched for. */
-    buttonsSubset?: PlaybackButtonPurpose[]
+    buttonsSubset?: PlaybackButtonPurpose[];
   } = {}): this {
+    // TODO: prevent call if buttons are already created
+    // TODO: improve error
+    if (this.playbackButtonsContainer) { throw new Error('The playback buttons for this timeline have already been attached. To remove the current ones, call the detachPlaybackButtons() method.'); }
+    if (this.lockedStructure) { throw this.generateLockedStructureError(this.attachPlaybackButtonsUI.name); }
+    // if (!this.config.timelineName) { throw new Error(`A timeline cannot link playback buttons if the timeline's timelineName config option is not set.`); }
+
+    // Get button container location, subset of buttons to attach, and any keyboard shortcuts.
     const {
-      searchRoot,
+      buttonsContainerLocation = document.querySelector('.webchalk-assets-container')!,
       buttonsSubset = [`Step Forward`, `Step Backward`, `Fast Forward`, `Pause`, `Toggle Skipping`],
     } = options;
-    const potentialButtonsContainer = (searchRoot ?? document).querySelector(`[timeline-name="${this.config.timelineName}"]`);
+    const { keyboardShortcuts } = this.config;
+    this.playbackButtonsContainer = createElFromString(/*html*/`
+      <div class="playback-buttons" ${this.config.timelineName ? `timeline-name="${this.config.timelineName}"` : ''}>
+        <div class="playback-buttons-inner-wrapper"></div>
+      </div>
+    `);
+    buttonsContainerLocation.appendChild(this.playbackButtonsContainer);
 
-    // find the button if it has the correct timeline-name directly on it
-    const getButtonDirect = (action: WebchalkPlaybackButtonElement['action']) => (searchRoot ?? document).querySelector<WebchalkPlaybackButtonElement>(`webchalk-playback-button[action="${action}"][timeline-name="${this.config.timelineName}"]`);
-    // find the button if it is nested in a container with the correct timeline-name and does not have a timeline-name of its own
-    const getButtonGroupChild = (action: WebchalkPlaybackButtonElement['action']) => potentialButtonsContainer?.querySelector<WebchalkPlaybackButtonElement>(`webchalk-playback-button[action="${action}"]:not([timeline-name])`);
-    // search for button directly, then search for child of button group
-    const getButton = (action: WebchalkPlaybackButtonElement['action']) => getButtonDirect(action) ?? getButtonGroupChild(action);
+    // create playback button element and attach to DOM
+    const createButton = (action: WebchalkPlaybackButtonElement['action'], options: {allowHolding?: boolean} = {}) => {
+      const {
+        allowHolding = false,
+      } = options;
+      const shortcut = keyboardShortcuts[
+        action.replaceAll(/(\-)(.)/g, (match, dash, letter) => letter.toUpperCase()) as keyof typeof keyboardShortcuts
+      ] ?? null;
+      const button = createElFromString(/*html*/`
+        <webchalk-playback-button
+          action="${action}"
+          ${shortcut ? `shortcut="${shortcut}"` : ''}
+          ${allowHolding ? `allow-holding` : ''}
+        >
+        </webchalk-playback-button>
+      `);
+      this.playbackButtonsContainer!.querySelector('.playback-buttons-inner-wrapper')!.append(button);
+      return button as WebchalkPlaybackButtonElement;
+    };
 
-    const forwardButton = buttonsSubset.includes('Step Forward') ? getButton("step-forward") : undefined;
-    const backwardButton = buttonsSubset.includes('Step Backward') ? getButton("step-backward") : undefined;
-    const pauseButton = buttonsSubset.includes('Pause') ? getButton("pause") : undefined;
-    const fastForwardButton = buttonsSubset.includes('Fast Forward') ? getButton("fast-forward") : undefined;
-    const toggleSkippingButton = buttonsSubset.includes('Toggle Skipping') ? getButton("toggle-skipping") : undefined;
+    // create buttons
+    const stepBackwardButton = buttonsSubset.includes('Step Backward') ? createButton("step-backward", {allowHolding: true}) : undefined;
+    const pauseButton = buttonsSubset.includes('Pause') ? createButton("pause") : undefined;
+    const stepForwardButton = buttonsSubset.includes('Step Forward') ? createButton("step-forward", {allowHolding: true}) : undefined;
+    const fastForwardButton = buttonsSubset.includes('Fast Forward') ? createButton("fast-forward") : undefined;
+    const toggleSkippingButton = buttonsSubset.includes('Toggle Skipping') ? createButton("toggle-skipping") : undefined;
 
-    if (forwardButton) {
-      forwardButton.activate = () => {
+    if (stepForwardButton) {
+      stepForwardButton.activate = () => {
         if (this.isAnimating || this.isPaused || this.atEnd) { return; }
         
-        forwardButton.styleActivation();
-        this.step('forward', {viaButton: true}).then(() => { forwardButton.styleDeactivation(); });
+        stepForwardButton.styleActivation();
+        this.step('forward', {viaButton: true}).then(() => { stepForwardButton.styleDeactivation(); });
       }
-      forwardButton.styleActivation = () => {
-        const backwardButton = this.playbackButtons.backwardButton;
-        forwardButton.classList.add(PRESSED);
+      stepForwardButton.styleActivation = () => {
+        const backwardButton = this.playbackButtons.stepBackwardButton;
+        stepForwardButton.classList.add(PRESSED);
         backwardButton?.classList.remove(DISABLED_FROM_EDGE); // if stepping forward, we of course won't be at the left edge of timeline
         backwardButton?.classList.add(DISABLED_FROM_STEPPING);
-        forwardButton.classList.add(DISABLED_POINTER_FROM_STEPPING);
+        stepForwardButton.classList.add(DISABLED_POINTER_FROM_STEPPING);
       };
-      forwardButton.styleDeactivation = () => {
-        const backwardButton = this.playbackButtons.backwardButton;
-        forwardButton.classList.remove(PRESSED);
-        forwardButton.classList.remove(DISABLED_POINTER_FROM_STEPPING);
+      stepForwardButton.styleDeactivation = () => {
+        const backwardButton = this.playbackButtons.stepBackwardButton;
+        stepForwardButton.classList.remove(PRESSED);
+        stepForwardButton.classList.remove(DISABLED_POINTER_FROM_STEPPING);
         backwardButton?.classList.remove(DISABLED_FROM_STEPPING);
-        if (this.atEnd) { forwardButton.classList.add(DISABLED_FROM_EDGE); }
+        if (this.atEnd) { stepForwardButton.classList.add(DISABLED_FROM_EDGE); }
       };
 
       if (this.atEnd) {
-        forwardButton.classList.add(DISABLED_FROM_EDGE);
+        stepForwardButton.classList.add(DISABLED_FROM_EDGE);
       }
     }
 
-    if (backwardButton) {
-      backwardButton.activate = () => {
+    if (stepBackwardButton) {
+      stepBackwardButton.activate = () => {
         if (this.isAnimating || this.isPaused || this.atBeginning) { return; }
 
-        backwardButton.styleActivation();
-        this.step('backward', {viaButton: true}).then(() => { backwardButton.styleDeactivation(); });
+        stepBackwardButton.styleActivation();
+        this.step('backward', {viaButton: true}).then(() => { stepBackwardButton.styleDeactivation(); });
       };
 
-      backwardButton.styleActivation = () => {
-        const forwardButton = this.playbackButtons.forwardButton;
-        backwardButton.classList.add(PRESSED);
+      stepBackwardButton.styleActivation = () => {
+        const forwardButton = this.playbackButtons.stepForwardButton;
+        stepBackwardButton.classList.add(PRESSED);
         forwardButton?.classList.remove(DISABLED_FROM_EDGE);
         forwardButton?.classList.add(DISABLED_FROM_STEPPING);
-        backwardButton.classList.add(DISABLED_POINTER_FROM_STEPPING);
+        stepBackwardButton.classList.add(DISABLED_POINTER_FROM_STEPPING);
       };
-      backwardButton.styleDeactivation = () => {
-        const forwardButton = this.playbackButtons.forwardButton;
-        backwardButton.classList.remove(PRESSED);
+      stepBackwardButton.styleDeactivation = () => {
+        const forwardButton = this.playbackButtons.stepForwardButton;
+        stepBackwardButton.classList.remove(PRESSED);
         forwardButton?.classList.remove(DISABLED_FROM_STEPPING);
-        backwardButton.classList.remove(DISABLED_POINTER_FROM_STEPPING);
-        if (this.atBeginning) { backwardButton.classList.add(DISABLED_FROM_EDGE); }
+        stepBackwardButton.classList.remove(DISABLED_POINTER_FROM_STEPPING);
+        if (this.atBeginning) { stepBackwardButton.classList.add(DISABLED_FROM_EDGE); }
       };
 
       if (this.atBeginning) {
-        backwardButton.classList.add(DISABLED_FROM_EDGE);
+        stepBackwardButton.classList.add(DISABLED_FROM_EDGE);
       }
     }
 
@@ -514,16 +535,16 @@ export class AnimTimeline {
       };
 
       pauseButton.styleActivation = () => {
-        const forwardButton = this.playbackButtons.forwardButton;
-        const backwardButton = this.playbackButtons.backwardButton;
+        const forwardButton = this.playbackButtons.stepForwardButton;
+        const backwardButton = this.playbackButtons.stepBackwardButton;
         pauseButton.active = true;
         pauseButton.classList.add(PRESSED);
         forwardButton?.classList.add(DISABLED_FROM_PAUSE);
         backwardButton?.classList.add(DISABLED_FROM_PAUSE);
       };
       pauseButton.styleDeactivation = () => {
-        const forwardButton = this.playbackButtons.forwardButton;
-        const backwardButton = this.playbackButtons.backwardButton;
+        const forwardButton = this.playbackButtons.stepForwardButton;
+        const backwardButton = this.playbackButtons.stepBackwardButton;
         pauseButton.active = false;
         pauseButton.classList.remove(PRESSED);
         forwardButton?.classList.remove(DISABLED_FROM_PAUSE);
@@ -570,6 +591,7 @@ export class AnimTimeline {
       };
     }
 
+    // TODO: update the warning code below
     let wasWarned = false;
     const warnedList: string[] = [];
 
@@ -580,9 +602,9 @@ export class AnimTimeline {
       }
     }
 
-    warnButton(forwardButton, 'Step Forward');
+    warnButton(stepForwardButton, 'Step Forward');
     warnButton(pauseButton, 'Pause');
-    warnButton(backwardButton, 'Step Backward');
+    warnButton(stepBackwardButton, 'Step Backward');
     warnButton(fastForwardButton, 'Fast Forward');
     warnButton(toggleSkippingButton, 'Toggle Skipping');
     if (wasWarned) {
@@ -598,8 +620,41 @@ export class AnimTimeline {
     }
 
     Object.assign(this._playbackButtons, {
-      forwardButton, backwardButton, pauseButton, fastForwardButton, toggleSkippingButton,
+      stepForwardButton, stepBackwardButton, pauseButton, fastForwardButton, toggleSkippingButton,
     });
+
+    return this;
+  }
+
+  /**
+   * Removes the playback buttons attached to the timeline.
+   */
+  detachPlaybackButtons() {
+    if (this.lockedStructure) { throw this.generateLockedStructureError(this.detachPlaybackButtons.name); }
+
+    for (const [prop, button] of Object.entries(this.playbackButtons) as [keyof typeof this.playbackButtons, WebchalkPlaybackButtonElement][]) {
+      button.remove();
+      this._playbackButtons[prop] = null;
+    }
+    this.playbackButtonsContainer?.remove();
+    this.playbackButtonsContainer = undefined;
+  }
+
+  /**
+   * @param keyboardShortcuts - An object specifying keyboard shortcuts for the specified buttons.
+   * @remarks
+   * Unspecified buttons will not be affected. To delete keyboard shortcuts, explicitly set `null` as the key value.
+   * @returns
+   * @group Playback UI
+   */
+  setKeyboardShortcuts(keyboardShortcuts: AnimTimelineConfig['keyboardShortcuts']): this {
+    for (const [prop, keyVal] of Object.entries(keyboardShortcuts)) {
+      if (keyVal) { this.config.keyboardShortcuts[prop as keyof typeof this.config.keyboardShortcuts] = keyVal; }
+      else { delete this.config.keyboardShortcuts[prop as keyof typeof this.config.keyboardShortcuts]; }
+
+      const button = this.playbackButtons[`${prop}Button` as keyof typeof this.playbackButtons];
+      if (button) { button.setShortcutKey(keyVal); }
+    }
 
     return this;
   }
@@ -635,7 +690,7 @@ export class AnimTimeline {
   addSequences(animSequences: AnimSequence[]): this;
   /**
    * Adds {@link AnimSequence} objects to the specified location within the timeline.
-   * @param location - Object containing options specifying the location at which the sequences should be inserted.
+   * @param location - An object containing options specifying the location at which the sequences should be inserted.
    * @param animSequences - An array of animation sequences to add.
    * @returns 
    * @group Structure
@@ -681,7 +736,7 @@ export class AnimTimeline {
     this.webchalkTimelineEl?.insertSequences(atIndex, sequences);
 
     // no need to worry about backward button because it's impossible to reach or leave index 0 by adding sequences
-    this.playbackButtons.forwardButton?.classList.remove(DISABLED_FROM_EDGE);
+    this.playbackButtons.stepForwardButton?.classList.remove(DISABLED_FROM_EDGE);
 
     return this;
   }
@@ -745,7 +800,7 @@ export class AnimTimeline {
     // If the last sequences were removed, must account for forward button style.
     // No need to worry about atBeginning because it's impossible to reach index = 0 by removing sequences.
     if (this.atEnd) {
-      this.playbackButtons.forwardButton?.classList.add(DISABLED_FROM_EDGE);
+      this.playbackButtons.stepForwardButton?.classList.add(DISABLED_FROM_EDGE);
     }
 
     return this;
@@ -789,7 +844,7 @@ export class AnimTimeline {
     this.webchalkTimelineEl?.removeSequences(removedSequences);
 
     if (this.atEnd) {
-      this.playbackButtons.forwardButton?.classList.add(DISABLED_FROM_EDGE);
+      this.playbackButtons.stepForwardButton?.classList.add(DISABLED_FROM_EDGE);
     }
 
     return removedSequences;
@@ -808,25 +863,34 @@ export class AnimTimeline {
   /*-:**************************************************************************************************************************/
   /*-:**************************************        USER INTERFACE        ******************************************************/
   /*-:**************************************************************************************************************************/
-  webchalkTimelineEl?: WebchalkTimelinePaneElement;
-  get uiAttached(): boolean { return this.webchalkTimelineEl ? true : false; }
+  /** @internal */ webchalkTimelineEl?: WebchalkTimelinePaneElement;
+  /** @internal */ playbackButtonsContainer?: HTMLElement;
+  // TODO: put in some kind of config that user can see
+  /** @internal */get playbackButtonsAttached(): boolean { return this.playbackButtonsContainer ? true : false; }
+  /** @internal */get uiPaneAttached(): boolean { return this.webchalkTimelineEl ? true : false; }
 
-  attachUI() {
+  attachPaneUI() {
     // TODO: improve error message
-    if (this.uiAttached) { throw new Error('AnimTimeline UI already attached'); }
+    if (this.uiPaneAttached) { throw new Error('AnimTimeline Pane UI already attached'); }
     if (AnimTimeline.currentUiAttachedTimeline) { throw new Error(`An AnimTimeline UI is already attach {name: "${AnimTimeline.currentUiAttachedTimeline.getConfig().timelineName}". It must be detached first.`); }
     this.webchalkTimelineEl = new WebchalkTimelinePaneElement();
     this.webchalkTimelineEl.animTimeline = this;
     this.webchalkTimelineEl.style.display = 'none';
-    document.documentElement.querySelector('body')?.insertAdjacentElement('beforeend', this.webchalkTimelineEl);
+
+    // If there is a set of playback buttons in the assets container, make sure the timeline does not cover it up.
+    const assetsContainerEl = document.querySelector('.webchalk-assets-container')!;
+    const fixedPlaybackButtons = assetsContainerEl.querySelector('.playback-buttons');
+    if (fixedPlaybackButtons) { fixedPlaybackButtons.insertAdjacentElement('beforebegin', this.webchalkTimelineEl); }
+    else { assetsContainerEl.insertAdjacentElement('beforeend', this.webchalkTimelineEl); }
+
     this.webchalkTimelineEl.readTimeline();
     this.webchalkTimelineEl.style.removeProperty('display');
     AnimTimeline.currentUiAttachedTimeline = this;
   }
 
-  detachUI() {
+  detachPaneUI() {
     // if (!this.uiAttached) { throw this.generateError(Error('AnimTimeline UI is already not attached.')); }
-    if (!this.uiAttached) { return; }
+    if (!this.uiPaneAttached) { return; }
     this.webchalkTimelineEl!.remove();
     this.webchalkTimelineEl = undefined;
 
@@ -875,19 +939,19 @@ export class AnimTimeline {
     let continueOn;
     switch(direction) {
       case 'forward':
-        if (!options?.viaButton) { this.playbackButtons.forwardButton?.styleActivation(); }
+        if (!options?.viaButton) { this.playbackButtons.stepForwardButton?.styleActivation(); }
         // reject promise if trying to step forward at the end of the timeline
         if (this.atEnd) { return new Promise((_, reject) => {this.isAnimating = false; reject('Cannot stepForward() at end of timeline.')}); }
         do {continueOn = await this.stepForward();} while(continueOn);
-        if (!options?.viaButton) { this.playbackButtons.forwardButton?.styleDeactivation(); }
+        if (!options?.viaButton) { this.playbackButtons.stepForwardButton?.styleDeactivation(); }
         break;
 
       case 'backward':
-        if (!options?.viaButton) { this.playbackButtons.backwardButton?.styleActivation(); }
+        if (!options?.viaButton) { this.playbackButtons.stepBackwardButton?.styleActivation(); }
         // reject promise if trying to step backward at the beginning of the timeline
         if (this.atBeginning) { return new Promise((_, reject) => {this.isAnimating = false; reject('Cannot stepBackward() at beginning of timeline.')}); }
         do {continueOn = await this.stepBackward();} while(continueOn);
-        if (!options?.viaButton) { this.playbackButtons.backwardButton?.styleDeactivation(); }
+        if (!options?.viaButton) { this.playbackButtons.stepBackwardButton?.styleDeactivation(); }
         break;
 
       default:
@@ -1431,7 +1495,7 @@ export class AnimTimeline {
           || this.animSequences[this.loadedSeqIndex + 1]?.getTiming('autoplays')
         );
       if (!sameSeq || wouldAutoNext) {
-        this.playbackButtons.forwardButton?.styleActivation();
+        this.playbackButtons.stepForwardButton?.styleActivation();
         while (this.loadedSeqIndex < finalTargetIndex) { await this.stepForward(); }
         switch(autoplayDetection) {
           // if autoplay detection forward, play as long as the loaded sequence is supposed to be autoplayed
@@ -1450,12 +1514,12 @@ export class AnimTimeline {
           default:
             break;
         }
-        this.playbackButtons.forwardButton?.styleDeactivation();
+        this.playbackButtons.stepForwardButton?.styleDeactivation();
       }
     }
     // rewind to the target sequence and rewind the sequence as well
     else {
-      this.playbackButtons.backwardButton?.styleActivation();
+      this.playbackButtons.stepBackwardButton?.styleActivation();
       while (this.loadedSeqIndex > finalTargetIndex) { await this.stepBackward(); }
       switch(autoplayDetection) {
         case "forward":
@@ -1469,7 +1533,7 @@ export class AnimTimeline {
           break;
       }
       this.webchalkTimelineEl?.scrollToSequence(this.animSequences[this.loadedSeqIndex], 'forward', 'start');
-      this.playbackButtons.backwardButton?.styleDeactivation();
+      this.playbackButtons.stepBackwardButton?.styleDeactivation();
     }
 
     if (!wasSkipping) { this.playbackButtons.toggleSkippingButton?.styleDeactivation(); }

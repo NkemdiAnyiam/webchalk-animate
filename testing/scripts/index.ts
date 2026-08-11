@@ -588,7 +588,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   tEdit2.scheduleTask('activePhase', '80%', {onPlay: () => wait(2000), onRewind: () => wait(2000)}, {frequencyLimit: 1, description: 'Pause for 2s.'});
 
   const timeline = webchalk.newTimeline({timelineName: 'Basic', autoLinksButtons: false, debugMode: true});
-  timeline.linkPlaybackButtons();
+  timeline.attachPlaybackButtons();
   timeline.attachUI();
   // await wait(1000);
   const testAdjacency = webchalk.newSequence([

@@ -18,6 +18,15 @@ const blueCircle = document.querySelector('.circle');
 // Motion(redSquare, '~translate', [{translate: '20rem 20rem'}])
 
 const timeline = webchalk.newTimeline({timelineName: 'Main'});
+timeline.attachPaneUI();
+timeline.attachPlaybackButtonsUI();
+timeline.setKeyboardShortcuts({
+  stepBackward: 'ArrowLeft',
+  pause: 'Space',
+  stepForward: 'ArrowRight',
+  fastForward: 'F',
+  toggleSkipping: 'S',
+});
 
 const seq1 = webchalk.newSequence(
   {
@@ -28,12 +37,8 @@ const seq1 = webchalk.newSequence(
   ]);
   seq1.addClips([
     Motion(redSquare, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move red square'}),
-    Motion(blueCircle, '~translate', [{translate: '200px 0'}],
-      {startsWithPrevious: true, description: 'Move blue circle', delay: 1000, cssClasses: {toAddOnFinish: ['yo', 'bro']}}
-    ),
-    TextEditor(redSquare, '~insert-text', ['HELLO WORLD! To what do I owe you all the pleasure?'],
-      {durationOrRate: '300wpm', startsWithPrevious: true, description: 'Insert text to square', delay: 1000}
-    ),
+    Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000, cssClasses: {toAddOnFinish: ['yo', 'bro']}}),
+    TextEditor(redSquare, '~insert-text', ['HELLO WORLD! To what do I owe you all the pleasure?'], {durationOrRate: '300wpm', startsWithPrevious: true, description: 'Insert text to square', delay: 1000}),
     Exit(redSquare, '~fade-out', [], {duration: 1000, description: 'Exit red square'}),
     Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000}),
     Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000}),
@@ -112,5 +117,3 @@ timeline.addSequences([seq4]);
 // seq2.removeClipsAt(0, 2);
 
 // timeline.removeSequencesAt(1, 3)
-
-timeline.attachUI();

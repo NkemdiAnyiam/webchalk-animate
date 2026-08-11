@@ -179,7 +179,7 @@ export const createStyles = (rules: string = ''): void => {
   const sheet = document.createElement('style');
   sheet.id = `webchalk-global-styles`;
   sheet.innerHTML = rules;
-  document.body.appendChild(sheet);
+  document.querySelector('.webchalk-assets-container')!.appendChild(sheet);
 };
 
 export const getOpeningTag = (element: Element | null | undefined): string => {

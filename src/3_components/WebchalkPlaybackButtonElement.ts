@@ -5,9 +5,11 @@ stylesheet.replaceSync(
     height: 25.6px;
     display: inline-block;
     background-color: var(--webchalk-playback-button-background-color);
-    padding: 1.6px !important;
+    border: 1.4px solid var(--webchalk-playback-button-background-color);
+    border-radius: 2px;
+    padding: 1.8px !important;
   
-    box-shadow: -3.2px 3.2px 3.2px rgba(0, 0, 0, 0.4);
+    box-shadow: 3.2px 3.2px 3.2px rgba(0, 0, 0, 0.4);
     transform: scale(1);
     transition: all 0.02s;
   
@@ -28,7 +30,7 @@ stylesheet.replaceSync(
   
   :host(.playback-button--pressed) {
     transform: scale(0.90);
-    box-shadow: -0.64px 0.64px 0.64px rgba(0, 0, 0, 0.8);
+    box-shadow: 0.64px 0.64px 0.64px rgba(0, 0, 0, 0.8);
   }
   
   :host(.playback-button--pressed[trigger="press"]) {
@@ -51,6 +53,16 @@ export class WebchalkPlaybackButtonElement extends HTMLElement {
 
   action: `step-${'forward' | 'backward'}` | 'pause' | 'fast-forward' | 'toggle-skipping';
   shortcutKey: KeyboardEvent['key'] | null;
+  setShortcutKey(key: KeyboardEvent['key'] | null) {
+    this.shortcutKey = key;
+    if (!key) {
+      this.removeAttribute('shortcut');
+      this.removeAttribute('title');
+    }
+    else {
+      this.setUpListeners();
+    }
+  }
   triggerMode: 'press' | 'hold' = 'press';
   allowHolding: boolean = false; // repeat key
   private _mouseHeld: boolean = false;
@@ -119,7 +131,16 @@ export class WebchalkPlaybackButtonElement extends HTMLElement {
     this.setUpListeners();
   }
 
+  remove() {
+    super.remove();
+
+    this.removeListeners();
+  }
+
   setUpListeners(): void {
+    // remove current ones if already present
+    this.removeListeners();
+
     // handle button activation with keyboard shortcut
     if (this.shortcutKey) {
       window.addEventListener('keydown', this.handleShortcutPress);
@@ -131,6 +152,13 @@ export class WebchalkPlaybackButtonElement extends HTMLElement {
     // handle button activation with mouse click
     this.addEventListener('mousedown', this.handleMousePress);
     window.addEventListener('mouseup', this.handleMouseRelease);
+  }
+  
+  removeListeners() {
+    window.removeEventListener('keydown', this.handleShortcutPress);
+    window.removeEventListener('keyup', this.handleShortcutRelease);
+    this.removeEventListener('mousedown', this.handleMousePress);
+    window.removeEventListener('mouseup', this.handleMouseRelease);
   }
 
   activate: () => void = (): void => {};

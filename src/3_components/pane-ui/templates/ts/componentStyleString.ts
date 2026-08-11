@@ -304,12 +304,12 @@ button {
 
 /* TIMELINE */
 .timeline {
-  --color-gray-darkest: #121213;
   --color-primary-blue: #04448E;
   --color-glow-blue: #039BE5;
   --color-glow-blue-light: #70efef;
   --color-glow-error: var(--color-error-dark);
   --color-glow-error-light: var(--color-error-light);
+  --color-gray-darkest: #121213;
   --color-gray: #4E4E4E;
   --color-gray-light: #E0E0E0;
   --color-gray-lighter: #ECECEC;
@@ -1525,7 +1525,7 @@ code {
 
 .clip-info-box__body {
   padding: calc(1 * var(--hem)) calc(1 * var(--hem)) 17.5px;
-  height: calc(11 * var(--clip-height));
+  height: calc(9 * var(--clip-height));
   min-height: calc(6 * var(--hem));
   max-height: calc(12 * var(--clip-height));
   overflow-y: auto;

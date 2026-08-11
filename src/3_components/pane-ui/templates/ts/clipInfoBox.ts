@@ -6,6 +6,7 @@ export const htmlComponentStr = /*html*/`
     <nav class="clip-info-box__nav">
       <ul class="clip-info-box__tabs">
         <li class="clip-info-box__tab"><button class="clip-info-box__tab-button clip-info-box__tab-button--current">Location</button></li>
+        <li class="clip-info-box__tab"><button class="clip-info-box__tab-button">Code Template</button></li>
         <li class="clip-info-box__tab"><button class="clip-info-box__tab-button">Effect Options</button></li>
         <li class="clip-info-box__tab"><button class="clip-info-box__tab-button">Configuration</button></li>
       </ul>
