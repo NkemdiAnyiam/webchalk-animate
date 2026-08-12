@@ -587,9 +587,16 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   const tEdit2 = TextEditor(textBox2, '~replace-text', ['What in tarnation was supposed to happen when you did that?'], {startsWithPrevious: true});
   tEdit2.scheduleTask('activePhase', '80%', {onPlay: () => wait(2000), onRewind: () => wait(2000)}, {frequencyLimit: 1, description: 'Pause for 2s.'});
 
-  const timeline = webchalk.newTimeline({timelineName: 'Basic', autoLinksButtons: false, debugMode: true});
-  timeline.attachPlaybackButtons();
-  timeline.attachUI();
+  const timeline = webchalk.newTimeline({timelineName: 'Basic', debugMode: true});
+  timeline.attachPlaybackButtonsUI();
+  timeline.setKeyboardShortcuts({
+    fastForward: 'F', 
+    pause: 'Space',
+    stepBackward: 'ArrowLeft',
+    stepForward: 'ArrowRight',
+    toggleSkipping: 'S'
+  });
+  timeline.attachPaneUI();
   // await wait(1000);
   const testAdjacency = webchalk.newSequence([
     tEdit,
