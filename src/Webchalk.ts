@@ -147,27 +147,27 @@ export class Webchalk {
    * 
    * // create first sequence
    * const seq1 = webchalk.newSequence(
-   *    {description: 'Fade in square, move it, and fade out', playbackRate: 2},
-   *    [
-   *      Entrance(squareEl, '~fade-in', []),
-   *      Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
-   *      Exit(squareEl, '~fade-out', []),
-   *    ]
+   *   {description: 'Fade in square, move it, and fade out', playbackRate: 2},
+   *   [
+   *     Entrance(squareEl, '~fade-in', []),
+   *     Motion(squareEl, '~translate', [{translate: '200px 500px'}]),
+   *     Exit(squareEl, '~fade-out', []),
+   *   ]
    * );
    * 
    * // create second sequence
    * const seq2 = webchalk.newSequence(
-   *    {description: 'Fade in circle and move it'},
-   *    [
-   *      Entrance(circleEl, '~fly-in', ['from-left']),
-   *      Motion(circleEl, '~translate', [{translate: '250px 0px'}]),
-   *    ]
+   *   {description: 'Fade in circle and move it'},
+   *   [
+   *     Entrance(circleEl, '~fly-in', ['from-left']),
+   *     Motion(circleEl, '~translate', [{translate: '250px 0px'}]),
+   *   ]
    * );
    * 
    * // create timeline with some configuration and both sequences
    * const timeline = webchalk.newTimeline(
-   *    {timelineName: 'Moving Shapes', autoLinksButtons: true},
-   *    [seq1, seq2]
+   *   {timelineName: 'Moving Shapes'},
+   *   [seq1, seq2]
    * );
    * 
    * // step forward twice, playing both sequences
