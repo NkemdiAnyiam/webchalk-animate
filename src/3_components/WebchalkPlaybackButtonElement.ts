@@ -3,9 +3,12 @@ import { KeyboardKey } from "../4_utils/interfaces";
 const stylesheet = new CSSStyleSheet();
 stylesheet.replaceSync(
   /*css*/`:host {
+    display: inline-block;
+  }
+
+  .playback-button {
     width: 25.6px;
     height: 25.6px;
-    display: inline-block;
     background-color: var(--webchalk-playback-button-background-color);
     border: 1.4px solid var(--webchalk-playback-button-background-color);
     border-radius: 2px;
@@ -16,30 +19,32 @@ stylesheet.replaceSync(
     transition: all 0.02s;
   
     cursor: pointer;
+    
+    display: inline-block;
   }
   
-  :host(.playback-button--disabledPointerFromPause),
-  :host(.playback-button--disabledPointerFromStepping) {
+  .playback-button--disabledPointerFromPause,
+  .playback-button--disabledPointerFromStepping {
     cursor: not-allowed;
   }
   
-  :host(.playback-button--disabledFromTimelineEdge),
-  :host(.playback-button--disabledFromPause),
-  :host(.playback-button--disabledFromStepping) {
+  .playback-button--disabledFromTimelineEdge,
+  .playback-button--disabledFromPause,
+  .playback-button--disabledFromStepping {
     background-color: var(--webchalk-playback-button-disabled-color);
     cursor: not-allowed;
   }
   
-  :host(.playback-button--pressed) {
+  .playback-button--pressed {
     transform: scale(0.90);
     box-shadow: 0.64px 0.64px 0.64px rgba(0, 0, 0, 0.8);
   }
   
-  :host(.playback-button--pressed[trigger="press"]) {
+  :host([trigger="press"]) .playback-button--pressed {
     background-color: var(--webchalk-playback-button-press-color);
   }
   
-  :host(.playback-button--pressed[trigger="hold"]) {
+  :host([trigger="hold"]) .playback-button--pressed {
     background-color: var(--webchalk-playback-button-hold-color);
   }
   
@@ -53,6 +58,7 @@ stylesheet.replaceSync(
 export class WebchalkPlaybackButtonElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-playback-button', WebchalkPlaybackButtonElement); }
 
+  buttonElement: HTMLButtonElement;
   action: `step-${'forward' | 'backward'}` | 'pause' | 'fast-forward' | 'toggle-skipping';
   shortcutKey: KeyboardKey | null;
   setShortcutKey(key: KeyboardKey | null) {
@@ -69,12 +75,15 @@ export class WebchalkPlaybackButtonElement extends HTMLElement {
   allowHolding: boolean = false; // repeat key
   private _mouseHeld: boolean = false;
   private _shortcutHeld: boolean = false;
+  private _enterHeld: boolean = false;
   private _active: boolean = false;
   private _disabled: boolean = false;
   get mouseHeld(): boolean { return this._mouseHeld; }
   /**@internal*/set mouseHeld(value: boolean) { this._mouseHeld = value; }
   get shortcutHeld(): boolean { return this._shortcutHeld; }
   /**@internal*/set shortcutHeld(value: boolean) { this._shortcutHeld = value; }
+  get enterHeld(): boolean { return this._enterHeld; }
+  /**@internal*/set enterHeld(value: boolean) { this._enterHeld = value; }
   get active(): boolean { return this._active; }
   /**@internal*/set active(value: boolean) { this._active = value; }
   get disabled(): boolean { return this._disabled; }
@@ -119,16 +128,19 @@ export class WebchalkPlaybackButtonElement extends HTMLElement {
     this.action = action;
 
     const htmlString = /*html*/`
+    <button class="playback-button">
       <svg class="playback-button__symbol" xmlns="http://www.w3.org/2000/svg" width="81.83" height="81.83" viewBox="0 0 81.83 81.83">
         <rect width="81.83" height="81.83" transform="translate(81.83 81.83) rotate(-180)" fill="none"/>
         ${buttonShapeHtmlStr}
       </svg>
+    </button>
     `;
 
     const template = document.createElement('template');
     template.innerHTML = htmlString;
     const element = template.content.cloneNode(true);
     shadow.append(element);
+    this.buttonElement = this.shadowRoot!.querySelector('.playback-button') as HTMLButtonElement;
 
     this.setUpListeners();
   }
@@ -138,6 +150,8 @@ export class WebchalkPlaybackButtonElement extends HTMLElement {
 
     this.removeListeners();
   }
+
+  get classList() { return this.shadowRoot!.querySelector('.playback-button')!.classList; }
 
   setUpListeners(): void {
     // remove current ones if already present
@@ -152,14 +166,19 @@ export class WebchalkPlaybackButtonElement extends HTMLElement {
     }
     
     // handle button activation with mouse click
-    this.addEventListener('mousedown', this.handleMousePress);
+    this.buttonElement.addEventListener('mousedown', this.handleMousePress);
     window.addEventListener('mouseup', this.handleMouseRelease);
+    // handle button activation with 'Enter'
+    this.buttonElement.addEventListener('keydown', this.handlePressEnter);
+    this.buttonElement.addEventListener('keyup', this.handleReleaseEnter);
   }
   
   removeListeners() {
     window.removeEventListener('keydown', this.handleShortcutPress);
     window.removeEventListener('keyup', this.handleShortcutRelease);
-    this.removeEventListener('mousedown', this.handleMousePress);
+    this.buttonElement.removeEventListener('keydown', this.handlePressEnter);
+    this.buttonElement.removeEventListener('keyup', this.handleReleaseEnter);
+    this.buttonElement.removeEventListener('mousedown', this.handleMousePress);
     window.removeEventListener('mouseup', this.handleMouseRelease);
   }
 
@@ -168,14 +187,15 @@ export class WebchalkPlaybackButtonElement extends HTMLElement {
   styleActivation: () => void = (): void => {};
   styleDeactivation: () => void = (): void => {};
 
-  disable = () => { this.disabled = true; }
-  enable = () => { this.disabled = false; }
+  disable = () => { this.disabled = true; this.buttonElement.disabled = true; }
+  enable = () => { this.disabled = false; this.buttonElement.disabled = false; }
 
   private handleMousePress = (e: MouseEvent): void => {
     if (this.disabled) { return; }
     if (e.button !== 0) { return; } // only allow left mouse click
     this.mouseHeld = true;
-    if (this.shortcutHeld) { return; }
+    if (this.shortcutHeld || this.enterHeld) { return; }
+    // If trigger mode is press, then the second press should deactivate the button.
     if (this.triggerMode === 'press' && this.active === true && this.deactivate) {
       return this.deactivate();
     }
@@ -187,7 +207,7 @@ export class WebchalkPlaybackButtonElement extends HTMLElement {
     if (e.button !== 0) { return; } // only allow left mouse click
     if (!this.mouseHeld) { return; }
     this.mouseHeld = false;
-    if (this.shortcutHeld) { return; }
+    if (this.shortcutHeld || this.enterHeld) { return; }
     if (this.triggerMode !== 'hold') { return; }
     this.deactivate?.();
   }
@@ -203,7 +223,7 @@ export class WebchalkPlaybackButtonElement extends HTMLElement {
 
     e.preventDefault();
     this.shortcutHeld = true;
-    if (this.mouseHeld) { return; }
+    if (this.mouseHeld || this.enterHeld) { return; }
     if (this.triggerMode === 'press' && this.active === true && this.deactivate) {
       return this.deactivate();
     }
@@ -215,8 +235,34 @@ export class WebchalkPlaybackButtonElement extends HTMLElement {
     if (e.key.toLowerCase() !== this.shortcutKey?.toLowerCase() && e.code !== this.shortcutKey) { return; }
     if (!this.shortcutHeld) { return; }
     this.shortcutHeld = false;
-    if (this.mouseHeld) { return; }
+    if (this.mouseHeld || this.enterHeld) { return; }
+    if (this.triggerMode !== 'hold') { return; }
+    this.deactivate?.();
+  }
+
+  private handlePressEnter = (e: KeyboardEvent): void => {
+    if (this.disabled) { return; }
+    if (e.key.toLowerCase() !== 'enter') { return; }
+    // if the key is held down and holding is not allowed, return
+    if (e.repeat && !this.allowHolding) { return; }
+
+    e.preventDefault();
+    this.enterHeld = true;
+    if (this.mouseHeld || this.shortcutHeld) { return; }
+    if (this.triggerMode === 'press' && this.active === true && this.deactivate) {
+      return this.deactivate();
+    }
+    this.activate();
+  }
+
+  private handleReleaseEnter = (e: KeyboardEvent): void => {
+    if (this.disabled) { return; }
+    if (e.key.toLowerCase() !== 'enter') { return; }
+    if (!this.enterHeld) { return; }
+    this.enterHeld = false;
+    if (this.mouseHeld || this.shortcutHeld) { return; }
     if (this.triggerMode !== 'hold') { return; }
     this.deactivate?.();
   }
 }
+

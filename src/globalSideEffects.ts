@@ -72,7 +72,8 @@ export function injectGlobals() {
       transform-origin: bottom left;
     }
 
-    .playback-buttons:hover {
+    .playback-buttons:hover,
+    .playback-buttons:focus-within {
       opacity: 1;
     }
 
