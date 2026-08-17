@@ -419,6 +419,7 @@ export class AnimTimeline {
    * @group Playback UI
    */
   attachPlaybackButtonsUI(options: {
+    // TODO: Include jumping menu inside playback buttons container
     /** The HTML element where the buttons container should be placed. */
     buttonsContainerLocation?: HTMLElement;
     /** An array of strings indicating which specific buttons we want to link. By default, all buttons are searched for. */
@@ -870,6 +871,8 @@ export class AnimTimeline {
   /** @internal */get uiPaneAttached(): boolean { return this.webchalkTimelineEl ? true : false; }
 
   attachPaneUI() {
+    // TODO: include some way to close the pane ui or something
+    // TODO: maybe allow only one pane UI to exist at a time (in the case of multiple timelines)
     // TODO: improve error message
     if (this.uiPaneAttached) { throw new Error('AnimTimeline Pane UI already attached'); }
     if (AnimTimeline.currentUiAttachedTimeline) { throw new Error(`An AnimTimeline UI is already attach {name: "${AnimTimeline.currentUiAttachedTimeline.getConfig().timelineName}". It must be detached first.`); }
