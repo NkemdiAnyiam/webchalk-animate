@@ -424,7 +424,6 @@ export class AnimTimeline {
     /** An array of strings indicating which specific buttons we want to link. By default, all buttons are searched for. */
     buttonsSubset?: PlaybackButtonPurpose[];
   } = {}): this {
-    // TODO: prevent call if buttons are already created
     // TODO: improve error
     if (this.playbackButtonsContainer) { throw new Error('The playback buttons for this timeline have already been attached. To remove the current ones, call the detachPlaybackButtons() method.'); }
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.attachPlaybackButtonsUI.name); }
