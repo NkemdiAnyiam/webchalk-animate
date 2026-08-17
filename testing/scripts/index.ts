@@ -178,6 +178,7 @@ const customExits = definePresetEffectBank(
           mutatorGenerator_play: () => {
             // return Mutator
             return () => {
+              // note that this completely replaces the contents of the element
               this.domElem.textContent = `${this.computeTween(0, 100)}%`;
             };
           },
