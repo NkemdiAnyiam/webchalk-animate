@@ -497,6 +497,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     });
   }
 
+  // TODO: Implement intuitive automatic scrolling
   scrollToSequence(sequence: AnimSequence, direction: 'forward' | 'backward', block: 'nearest' | 'start' = 'nearest') {
     // defaultClipFactories.Scroller(
     //   this.shadowRoot!.querySelector('.timeline__sequences-container'),
