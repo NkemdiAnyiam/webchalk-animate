@@ -3,7 +3,7 @@ import { AnimTimeline } from "./AnimationTimeline";
 import { EntranceClip, MotionClip, TransitionClip } from "./AnimationClipCategories";
 import { webchalk, Webchalk } from "../Webchalk";
 import { EffectOptions, PresetEffectBank, PresetEffectDefinition, EffectFrameGeneratorSet } from "../2_animationEffects/presetEffectCreation";
-import { call, detab, getPartial, mergeArrays, TBA_DURATION, xor } from "../4_utils/helpers";
+import { call, deepComparison, detab, getPartial, mergeArrays, TBA_DURATION, xor } from "../4_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
 import { CustomErrorClasses, ClipErrorGenerator, errorTip, generateError, ErrorUIMessageFragments } from "../4_utils/errors";
 import { DOMElement, EffectCategory, Mutator, StyleProperty } from "../4_utils/interfaces";
@@ -1921,6 +1921,57 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
 
     // return linear interpolation between initial value and final value based on progress of animation
     return initialVal + (finalVal - initialVal) * (flipProgress ? 1 - this.rafLoopsProgress : this.rafLoopsProgress);
+  }
+
+  /*-:**************************************************************************************************************************/
+  /*-:***************************************         OPERATIONS         *******************************************************/
+  /*-:**************************************************************************************************************************/
+  // TODO: Make compare() work for subclass-specific properties as well.
+  /**
+   * Compares this animation clip with another animation clip on the specified fields and returns `true` only if the fields are equivalent.
+   * Possible fields for comparison are
+   *  * {@link AnimClip.domElem|domElem},
+   *  * {@link AnimClipEffectDetails.category|category},
+   *  * {@link AnimClipEffectDetails.effectName|effectName},
+   *  * {@link AnimClipEffectDetails.effectOptions|effectOptions},
+   *  * {@link AnimClipTiming.duration|duration},
+   *  * {@link AnimClipTiming.delay|delay},
+   *  * {@link AnimClipTiming.endDelay|endDelay},
+   *  * {@link AnimClipTiming.startsNextClipToo|startsNextClipToo},
+   *  * {@link AnimClipTiming.startsWithPrevious|startsWithPrevious},
+   *  * {@link AnimClipTiming.playbackRate|playbackRate},
+   * @remarks
+   * If no fields are specified, all of the possible options for comparison are tested.
+   * @param otherClip - The clip to compare the current clip to.
+   * @param fields - An array of strings indicating which fields to compare the clips on.
+   * @returns A boolean value indicating the result of comparing the clips on the specified fields.
+   */
+  compare<TClip extends AnimClip>(
+    otherClip: TClip,
+    fields: (
+      keyof Pick<AnimClip,
+        'domElem'
+      >
+      | keyof Pick<ReturnType<AnimClip['getEffectDetails']>, 'category' | 'effectName' | 'effectOptions'>
+      | keyof Pick<ReturnType<AnimClip['getTiming']>, 'duration' | 'delay' | 'endDelay' | 'startsNextClipToo' | 'startsWithPrevious' | 'playbackRate'>
+    )[]
+  ): boolean {
+    let isEquivalent = true;
+
+    for (const field of fields) {
+      if (field === 'domElem') { isEquivalent &&= this.domElem === otherClip.domElem; }
+      else if (field === 'category') { isEquivalent &&= this.category === otherClip.category; }
+      else if (field === 'effectName') { isEquivalent &&= this.effectName === otherClip.effectName; }
+      else if (field === 'effectOptions') { isEquivalent &&= deepComparison(this.effectOptions, otherClip.effectOptions); }
+      else if (field === 'duration') {  isEquivalent &&= this.getTiming('duration') === otherClip.getTiming('duration'); }
+      else if (field === 'delay') {  isEquivalent &&= this.getTiming('delay') === otherClip.getTiming('delay'); }
+      else if (field === 'endDelay') {  isEquivalent &&= this.getTiming('endDelay') === otherClip.getTiming('endDelay'); }
+      else if (field === 'playbackRate') {  isEquivalent &&= this.getTiming('playbackRate') === otherClip.getTiming('playbackRate'); }
+      else if (field === 'startsNextClipToo') {  isEquivalent &&= this.getTiming('startsNextClipToo') === otherClip.getTiming('startsNextClipToo'); }
+      else if (field === 'startsWithPrevious') {  isEquivalent &&= this.getTiming('startsWithPrevious') === otherClip.getTiming('startsWithPrevious'); }
+    }
+
+    return isEquivalent;
   }
 
   /*-:**************************************************************************************************************************/

@@ -15,7 +15,10 @@ const {
 
 const redSquare = document.querySelector('.square');
 const blueCircle = document.querySelector('.circle');
-// Motion(redSquare, '~translate', [{translate: '20rem 20rem'}])
+const correctClip = Motion(redSquare, '~translate', [{translate: '20rem 20rem'}], {duration: 1000});
+const studentClip = Motion(redSquare, '~translate', [{translate: '10rem 20rem'}], {duration: 1000});
+const result = correctClip.compare(studentClip, ['category', 'effectName']);
+console.log('comparison result:', result);
 
 const timeline = webchalk.newTimeline({timelineName: 'Main'});
 timeline.attachPaneUI();

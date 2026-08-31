@@ -110,6 +110,43 @@ export const deepFreeze = <T extends object>(obj: T) => {
 };
 
 /**
+ * Deeply compares values.
+ * @param first - The first value in the comparison.
+ * @param second - The second value in the comparison.
+ * @returns The boolean result of the comparison between {@link first} and {@link second}.
+ */
+export function deepComparison(first: unknown, second: unknown) {
+  /* Checking if the types and values of the two arguments are the same. */
+  if (first === second) { return true; }
+
+  /* Checking if any arguments are null/undefined */
+  if ((first === null || first === undefined) || (second === null || second === undefined)) { return false; }
+
+  /* Checking if any argument is none object */
+  if (typeof first !== 'object' || typeof second !== 'object') { return false; }
+
+  /* Using Object.getOwnPropertyNames() method to return the list of the objects’ properties */
+  const first_keys = Object.getOwnPropertyNames(first);
+  const second_keys = Object.getOwnPropertyNames(second);
+
+  /* Checking if the objects' length are same*/
+  if (first_keys.length !== second_keys.length) { return false; }
+
+  /* Iterating through all the properties of the first object with the for of method*/
+  for (const key of first_keys) {
+    /* Making sure that every property in the first object also exists in second object. */ 
+    if (!Object.hasOwn(second, key)) { return false; }
+
+    /* Using the deepComparison function recursively (calling itself) and passing the values of each property into it to check if they are equal. */
+    /**@ts-ignore*/
+    if (deepComparison((first)[key], second[key]) === false) { return false; }
+  }
+
+  /* if no case matches, returning true */ 
+  return true;
+}
+
+/**
  * 
  * @param value 
  * @returns 
