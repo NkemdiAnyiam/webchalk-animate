@@ -260,9 +260,8 @@ export class AnimTimeline {
   private get stepNumber(): number { return this.loadedSeqIndex + 1; }
   private get atBeginning(): boolean { return this.loadedSeqIndex === 0; }
   private get atEnd(): boolean { return this.loadedSeqIndex === this.numSequences; }
-  // TODO: lock the structure if an error is present
   private get lockedStructure(): boolean {
-    if (this.isAnimating || this.isJumping) { return true; }
+    if (this.isAnimating || this.isJumping || this.error) { return true; }
     return false;
   }
   private error?: {
