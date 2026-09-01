@@ -142,9 +142,8 @@ type KeyframeTimingOptions = {
  * @interface
  */
 export type AnimClipConfig = KeyframeTimingOptions & CustomKeyframeEffectOptions & {
-  // TODO: update documentation
   /**
-   * A string that is logged when debugging mode is enabled.
+   * A string that is displayed in the UI if the timeline pane UI is opened and logged to the console if debugging mode is enabled.
    * @defaultValue
    * ```ts
    * '<blank sequence description>'
