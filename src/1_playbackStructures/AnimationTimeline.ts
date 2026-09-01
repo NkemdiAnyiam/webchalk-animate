@@ -389,6 +389,7 @@ export class AnimTimeline {
     }
   }
 
+  // TODO: Put this all under User Interface group
   /*-:**************************************************************************************************************************/
   /*-:****************************************        PLAYBACK UI        *******************************************************/
   /*-:**************************************************************************************************************************/
@@ -867,9 +868,14 @@ export class AnimTimeline {
   /** @internal */ webchalkTimelineEl?: WebchalkTimelinePaneElement;
   /** @internal */ playbackButtonsContainer?: HTMLElement;
   // TODO: put in some kind of config that user can see
-  /** @internal */get playbackButtonsAttached(): boolean { return this.playbackButtonsContainer ? true : false; }
-  /** @internal */get uiPaneAttached(): boolean { return this.webchalkTimelineEl ? true : false; }
+  /** @internal */ get playbackButtonsAttached(): boolean { return this.playbackButtonsContainer ? true : false; }
+  /** @internal */ get uiPaneAttached(): boolean { return this.webchalkTimelineEl ? true : false; }
 
+  /**
+   * Reveals a graphical user interface representing the timeline.
+   * @returns
+   * @group User Interface
+   */
   attachPaneUI() {
     // TODO: include some way to close the pane ui or something
     // TODO: maybe allow only one pane UI to exist at a time (in the case of multiple timelines)
@@ -891,6 +897,11 @@ export class AnimTimeline {
     AnimTimeline.currentUiAttachedTimeline = this;
   }
 
+  /**
+   * Detaches the graphic user interface representing the timeline.
+   * @returns
+   * @group User Interface
+   */
   detachPaneUI() {
     // if (!this.uiAttached) { throw this.generateError(Error('AnimTimeline UI is already not attached.')); }
     if (!this.uiPaneAttached) { return; }
