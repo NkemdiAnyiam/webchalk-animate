@@ -1015,14 +1015,14 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   }
 
   /*-:**************************************************************************************************************************/
-  /*-:**************************************        USER INTERFACE        ******************************************************/
+  /*-:****************************************        UI METHODS        ********************************************************/
   /*-:**************************************************************************************************************************/
   /** @internal */ webchalkClipEl?: WebchalkClipElement;
   /** @internal */ get uiAttached(): boolean { return this.webchalkClipEl ? true : false; } // TODO: probably put this in status???
   
   /**
    * @internal
-   * @group User Interface
+   * @group UI Methods
    */
   attachUI() {
     // TODO: improve error message
@@ -1033,7 +1033,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
 
   /**
    * @internal
-   * @group User Interface
+   * @group UI Methods
   */
   writeUI() {
     if (!this.uiAttached) { throw this.generateError(new Error('AnimClip UI must be attached before writing.')); }
@@ -1042,7 +1042,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
 
   /**
    * @internal
-   * @group User Interface
+   * @group UI Methods
    */
   detachUI() {
     // if (!this.uiAttached) { throw this.generateError(Error('AnimClip UI is already not attached.')); }

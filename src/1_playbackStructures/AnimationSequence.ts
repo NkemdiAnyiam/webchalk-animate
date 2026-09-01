@@ -804,14 +804,14 @@ export class AnimSequence {
   }
   
   /*-:**************************************************************************************************************************/
-  /*-:**************************************        USER INTERFACE        ******************************************************/
+  /*-:****************************************        UI METHODS        ********************************************************/
   /*-:**************************************************************************************************************************/
   /** @internal */ webchalkSequenceEl?: WebchalkSequenceElement;
   /** @internal */ get uiAttached(): boolean { return this.webchalkSequenceEl ? true : false; }
   
   /**
    * @internal
-   * @group User Interface
+   * @group UI Methods
    */
   attachUI() {
     // TODO: improve error message
@@ -822,7 +822,7 @@ export class AnimSequence {
 
   /**
    * @internal
-   * @group User Interface
+   * @group UI Methods
    */
   writeUI() {
     this.webchalkSequenceEl?.readSequence();
@@ -830,7 +830,7 @@ export class AnimSequence {
 
   /**
    * @internal
-   * @group User Interface
+   * @group UI Methods
    */
   detachUI() {
     // if (!this.uiAttached) { throw this.generateError(Error('AnimSequence UI is already not attached.')); }

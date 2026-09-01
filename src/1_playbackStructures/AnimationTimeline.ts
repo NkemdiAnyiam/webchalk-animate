@@ -187,11 +187,11 @@ export type AddSequencesOptions = {
  * @groupDescription Timing Event Methods
  * Methods that involve listening to the progress of the animation timeline to perform tasks at specific times.
  * 
- * @groupDescription Playback UI Methods
- * Methods that control the connection between the timeline and HTML buttons.
- * 
  * @groupDescription Structure
  * Methods that relate to building the timeline or locating sequences within it.
+ * 
+ * @groupDescription UI Methods
+ * Methods that control the connection between the timeline and visible HTML UI.
  */
 export class AnimTimeline {
   private static id = 0;
@@ -388,10 +388,241 @@ export class AnimTimeline {
     }
   }
 
-  // TODO: Put this all under User Interface group
   /*-:**************************************************************************************************************************/
-  /*-:****************************************        PLAYBACK UI        *******************************************************/
+  /*-:*************************************        STRUCTURE        ****************************************************/
   /*-:**************************************************************************************************************************/
+  /**
+   * Adds {@link AnimSequence} objects to the end of the timeline.
+   * @param animSequences - An array of animation sequences to add.
+   * @returns 
+   * @group Structure
+   */
+  addSequences(animSequences: AnimSequence[]): this;
+  /**
+   * Adds {@link AnimSequence} objects to the specified location within the timeline.
+   * @param location - An object containing options specifying the location at which the sequences should be inserted.
+   * @param animSequences - An array of animation sequences to add.
+   * @returns 
+   * @group Structure
+   */
+  addSequences(location: AddSequencesOptions, animSequences: AnimSequence[]): this;
+  addSequences(locationOrSequences: AddSequencesOptions | AnimSequence[], animSequences: AnimSequence[] = []): this {
+    if (this.lockedStructure) { throw this.generateLockedStructureError(this.addSequences.name); }
+
+    const [sequences, loc] = (locationOrSequences instanceof Array)
+    ? [locationOrSequences, undefined]
+    : [animSequences, locationOrSequences];
+    
+    if (sequences.length === 0) { return this; }
+
+    // TODO: handle possibility of adding at invalid atIndex
+
+    for(const animSequence of sequences) {
+      if (!(animSequence instanceof AnimSequence)) {
+        throw this.generateError(CustomErrorClasses.InvalidChildError, [`At least one of the objects being added is not an AnimSequence.`]);
+      }
+      if (animSequence.parentTimeline) {
+        // TODO: Improve error message
+        throw this.generateError(CustomErrorClasses.InvalidChildError, [`At least one of the sequences being added is already part of some timeline.`]);
+      }
+      if (animSequence.getStatus('lockedStructure')) {
+        throw this.generateError(CustomErrorClasses.InvalidChildError, [`At least one of the sequences being added is in progress or in a forward finished state.`]);
+      }
+      if (!animSequence.setLineage(this)) {
+        throw this.generateError(
+          CustomErrorClasses.InvalidChildError,
+          [`At least one of the sequences being added appears in the given array multiple times.`]
+        );
+      }
+    };
+    
+    // insert clips
+    const atIndex = loc ? loc.atIndex : this.animSequences.length;
+    this.animSequences.splice(atIndex, 0, ...sequences);
+    // update the sequence numbers of the new sequences and any sequences that are now after them in the array
+    for (let i = atIndex; i < this.animSequences.length; ++i) {
+      this.animSequences[i].updateSequenceNumber(i + 1);
+    }
+    this.webchalkTimelineEl?.insertSequences(atIndex, sequences);
+
+    // no need to worry about backward button because it's impossible to reach or leave index 0 by adding sequences
+    this.playbackButtons.stepForwardButton?.classList.remove(DISABLED_FROM_EDGE);
+
+    return this;
+  }
+
+  /**
+   * Removes specified {@link AnimSequence} objects from the timeline.
+   * @param animSequences - An array of animation sequences to remove.
+   * @returns 
+   * @group Structure
+   */
+  removeSequences(animSequences: AnimSequence[]): this {
+    if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeSequences.name); }
+
+    // sort the array of sequences to remove so that we can traverse them in reverse order
+    const sortedTargetSequences = animSequences.toSorted((a, b) => a.getHierarchy().sequenceNumber - b.getHierarchy().sequenceNumber);
+    // final version of anim sequences that will replace array stored in this timeline
+    const finalAnimSequences = [...this.animSequences];
+    // array of removed sequences to return
+    const removedSequences: AnimSequence[] = [];
+
+    let lowestIndex = Infinity;
+
+    for (let i = sortedTargetSequences.length - 1; i >= 0; --i) {
+      const index = this.findSequenceIndex(sortedTargetSequences[i]);
+      if (index === -1) {
+        // TODO: improve error
+        throw this.generateError(
+          CustomErrorClasses.InvalidChildError,
+          [`At least one of the sequences being removed from this timeline was already not in the timeline.`]
+        );
+      }
+      if (index <= this.loadedSeqIndex - 1) {
+        throw this.generateError(
+          CustomErrorClasses.TimeParadoxError,
+          [`Removing sequences that have already been played is prohibited.` +
+          errorTip(
+            `Tip: Just as changing the past is not possible, changing parts of the timeline that have already passed is not allowed.` +
+            ` In order to remove sequences from a part of the timeline that has already been played, the timeline must be rewound to before that point` +
+            ` (conceptually, it is always possible to change the future but never the past).`
+          )],
+        );
+      }
+      removedSequences.push(...finalAnimSequences.splice(index, 1));
+      lowestIndex = Math.min(lowestIndex, index)
+    }
+
+    if (removedSequences.length === 0) { return this; }
+
+    // confirm deletion
+    for (const sequence of removedSequences) {
+      sequence.removeLineage();
+    }
+
+    // update
+    this.animSequences = finalAnimSequences;
+    for (let i = lowestIndex; i < finalAnimSequences.length; ++i) {
+      finalAnimSequences[i].updateSequenceNumber(i + 1);
+    }
+    this.webchalkTimelineEl?.removeSequences(removedSequences);
+
+    // If the last sequences were removed, must account for forward button style.
+    // No need to worry about atBeginning because it's impossible to reach index = 0 by removing sequences.
+    if (this.atEnd) {
+      this.playbackButtons.stepForwardButton?.classList.add(DISABLED_FROM_EDGE);
+    }
+
+    return this;
+  }
+
+  /**
+   * Removes a number of {@link AnimSequence} objects from the timeline based on the provided indices range (0-based).
+   * @param startIndex - The starting index, inclusive.
+   * @param endIndex - The ending index, exclusive (if not specified, {@link startIndex} `+ 1` is used, removing one sequence).
+   * @returns An array containing the sequences that were removed from the timeline.
+   * @group Structure
+   */
+  removeSequencesAt(startIndex: number, endIndex: number = startIndex + 1): AnimSequence[] {
+    if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeSequencesAt.name); }
+    if (startIndex <= this.loadedSeqIndex - 1) {
+      throw this.generateError(
+        CustomErrorClasses.TimeParadoxError,
+        [`startIndex '${startIndex}' falls within the range of sequences that have already been played,` +
+        ` but removing sequences that have already been played is prohibited.` +
+        errorTip(
+          `Tip: Just as changing the past is not possible, changing parts of the timeline that have already passed is not allowed.` +
+          ` In order to remove sequences from a part of the timeline that has already been played, the timeline must be rewound to before that point` +
+          ` (conceptually, it is always possible to change the future but never the past).`
+        )],
+      );
+    }
+
+    const removedSequences = this.animSequences.splice(startIndex, endIndex - startIndex);
+
+    if (removedSequences.length === 0) { return []; }
+
+    for (const sequence of removedSequences) {
+      sequence.removeLineage();
+    }
+
+    // update
+    const animSequences = this.animSequences;
+    for (let i = Math.max(0, startIndex); i < animSequences.length; ++i) {
+      animSequences[i].updateSequenceNumber(i + 1);
+    }
+    this.webchalkTimelineEl?.removeSequences(removedSequences);
+
+    if (this.atEnd) {
+      this.playbackButtons.stepForwardButton?.classList.add(DISABLED_FROM_EDGE);
+    }
+
+    return removedSequences;
+  }
+
+  /**
+   * Finds the index of a given {@link AnimSequence} object within the timeline
+   * @param animSequence - The animation sequence to search for within the timeline.
+   * @returns The index of {@link animSequence} within the timeline or `-1` if the sequence is not part of the timeline.
+   * @group Structure
+   */
+  findSequenceIndex(animSequence: AnimSequence): number {
+    return this.animSequences.findIndex((_animSequence) => _animSequence === animSequence);
+  }
+    
+  /*-:**************************************************************************************************************************/
+  /*-:****************************************        UI METHODS        ********************************************************/
+  /*-:**************************************************************************************************************************/
+  /** @internal */ webchalkTimelineEl?: WebchalkTimelinePaneElement;
+  /** @internal */ playbackButtonsContainer?: HTMLElement;
+  // TODO: put in some kind of config that user can see
+  /** @internal */ get playbackButtonsAttached(): boolean { return this.playbackButtonsContainer ? true : false; }
+  /** @internal */ get uiPaneAttached(): boolean { return this.webchalkTimelineEl ? true : false; }
+
+  /**
+   * Reveals a graphical user interface representing the timeline.
+   * @returns
+   * @group UI Methods
+   */
+  attachPaneUI() {
+    // TODO: include some way to close the pane ui or something
+    // TODO: maybe allow only one pane UI to exist at a time (in the case of multiple timelines)
+    // TODO: improve error message
+    if (this.uiPaneAttached) { throw new Error('AnimTimeline Pane UI already attached'); }
+    if (AnimTimeline.currentUiAttachedTimeline) { throw new Error(`An AnimTimeline UI is already attach {name: "${AnimTimeline.currentUiAttachedTimeline.getConfig().timelineName}". It must be detached first.`); }
+    this.webchalkTimelineEl = new WebchalkTimelinePaneElement();
+    this.webchalkTimelineEl.animTimeline = this;
+    this.webchalkTimelineEl.style.display = 'none';
+
+    // If there is a set of playback buttons in the assets container, make sure the timeline does not cover it up.
+    const assetsContainerEl = document.querySelector('.webchalk-assets-container')!;
+    const fixedPlaybackButtons = assetsContainerEl.querySelector('.playback-buttons');
+    if (fixedPlaybackButtons) { fixedPlaybackButtons.insertAdjacentElement('beforebegin', this.webchalkTimelineEl); }
+    else { assetsContainerEl.insertAdjacentElement('beforeend', this.webchalkTimelineEl); }
+
+    this.webchalkTimelineEl.readTimeline();
+    this.webchalkTimelineEl.style.removeProperty('display');
+    AnimTimeline.currentUiAttachedTimeline = this;
+  }
+
+  /**
+   * Detaches the graphic user interface representing the timeline.
+   * @returns
+   * @group UI Methods
+   */
+  detachPaneUI() {
+    // if (!this.uiAttached) { throw this.generateError(Error('AnimTimeline UI is already not attached.')); }
+    if (!this.uiPaneAttached) { return; }
+    this.webchalkTimelineEl!.remove();
+    this.webchalkTimelineEl = undefined;
+
+    for (const sequence of this.animSequences) {
+      sequence.detachUI();
+    }
+
+    AnimTimeline.currentUiAttachedTimeline = null;
+  }
+
   private _playbackButtons: PlaybackButtons = {
     stepBackwardButton: null,
     fastForwardButton: null,
@@ -403,7 +634,7 @@ export class AnimTimeline {
   /**
    * Object containing properties that are either references to `<webchalk-playback-button>` elements that are connected to this timeline or `null`.
    *  * A property being `null` indicates that there is currently no corresponding button on the page that is linked to this timeline.
-   * @group Playback UI
+   * @group UI Methods
    */
   get playbackButtons(): Readonly<PlaybackButtons> { return {...this._playbackButtons}; }
 
@@ -416,7 +647,7 @@ export class AnimTimeline {
    * @param options.buttonsContainerLocation - The HTML element where the buttons container should be placed.
    * @param options.buttonsSubset - An array of strings indicating which specific buttons we want to link.
    * @returns 
-   * @group Playback UI
+   * @group UI Methods
    */
   attachPlaybackButtonsUI(options: {
     // TODO: Include jumping menu inside playback buttons container
@@ -629,6 +860,8 @@ export class AnimTimeline {
 
   /**
    * Removes the playback buttons attached to the timeline.
+   * @returns
+   * @group UI Methods
    */
   detachPlaybackButtons() {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.detachPlaybackButtons.name); }
@@ -646,7 +879,7 @@ export class AnimTimeline {
    * @remarks
    * Unspecified buttons will not be affected. To delete keyboard shortcuts, explicitly set `null` as the key value.
    * @returns
-   * @group Playback UI
+   * @group UI Methods
    */
   setKeyboardShortcuts(keyboardShortcuts: AnimTimelineConfig['keyboardShortcuts']): this {
     for (const [prop, keyVal] of Object.entries(keyboardShortcuts)) {
@@ -663,7 +896,7 @@ export class AnimTimeline {
   /**
    * Disables this timeline's connection to its playback buttons until re-enabled
    * using {@link AnimTimeline.enablePlaybackButtons|enablePlaybackButtons()}.
-   * @group Playback UI
+   * @group UI Methods
    */
   disablePlaybackButtons() {
     for (const button of Object.values(this.playbackButtons)) { button?.disable(); }
@@ -673,246 +906,12 @@ export class AnimTimeline {
    * Allows this timeline's linked playback buttons to trigger (and be triggered by) this timeline's playback methods.
    *  * This method is only useful if the buttons were previously
    * disabled using {@link AnimTimeline.disablePlaybackButtons|disablePlaybackButtons()}.
-   * @group Playback UI
+   * @group UI Methods
    */
   enablePlaybackButtons() {
     for (const button of Object.values(this.playbackButtons)) { button?.enable(); }
   }
 
-  /*-:**************************************************************************************************************************/
-  /*-:*************************************        STRUCTURE        ****************************************************/
-  /*-:**************************************************************************************************************************/
-  /**
-   * Adds {@link AnimSequence} objects to the end of the timeline.
-   * @param animSequences - An array of animation sequences to add.
-   * @returns 
-   * @group Structure
-   */
-  addSequences(animSequences: AnimSequence[]): this;
-  /**
-   * Adds {@link AnimSequence} objects to the specified location within the timeline.
-   * @param location - An object containing options specifying the location at which the sequences should be inserted.
-   * @param animSequences - An array of animation sequences to add.
-   * @returns 
-   * @group Structure
-   */
-  addSequences(location: AddSequencesOptions, animSequences: AnimSequence[]): this;
-  addSequences(locationOrSequences: AddSequencesOptions | AnimSequence[], animSequences: AnimSequence[] = []): this {
-    if (this.lockedStructure) { throw this.generateLockedStructureError(this.addSequences.name); }
-
-    const [sequences, loc] = (locationOrSequences instanceof Array)
-    ? [locationOrSequences, undefined]
-    : [animSequences, locationOrSequences];
-    
-    if (sequences.length === 0) { return this; }
-
-    // TODO: handle possibility of adding at invalid atIndex
-
-    for(const animSequence of sequences) {
-      if (!(animSequence instanceof AnimSequence)) {
-        throw this.generateError(CustomErrorClasses.InvalidChildError, [`At least one of the objects being added is not an AnimSequence.`]);
-      }
-      if (animSequence.parentTimeline) {
-        // TODO: Improve error message
-        throw this.generateError(CustomErrorClasses.InvalidChildError, [`At least one of the sequences being added is already part of some timeline.`]);
-      }
-      if (animSequence.getStatus('lockedStructure')) {
-        throw this.generateError(CustomErrorClasses.InvalidChildError, [`At least one of the sequences being added is in progress or in a forward finished state.`]);
-      }
-      if (!animSequence.setLineage(this)) {
-        throw this.generateError(
-          CustomErrorClasses.InvalidChildError,
-          [`At least one of the sequences being added appears in the given array multiple times.`]
-        );
-      }
-    };
-    
-    // insert clips
-    const atIndex = loc ? loc.atIndex : this.animSequences.length;
-    this.animSequences.splice(atIndex, 0, ...sequences);
-    // update the sequence numbers of the new sequences and any sequences that are now after them in the array
-    for (let i = atIndex; i < this.animSequences.length; ++i) {
-      this.animSequences[i].updateSequenceNumber(i + 1);
-    }
-    this.webchalkTimelineEl?.insertSequences(atIndex, sequences);
-
-    // no need to worry about backward button because it's impossible to reach or leave index 0 by adding sequences
-    this.playbackButtons.stepForwardButton?.classList.remove(DISABLED_FROM_EDGE);
-
-    return this;
-  }
-
-  /**
-   * Removes specified {@link AnimSequence} objects from the timeline.
-   * @param animSequences - An array of animation sequences to remove.
-   * @returns 
-   * @group Structure
-   */
-  removeSequences(animSequences: AnimSequence[]): this {
-    if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeSequences.name); }
-
-    // sort the array of sequences to remove so that we can traverse them in reverse order
-    const sortedTargetSequences = animSequences.toSorted((a, b) => a.getHierarchy().sequenceNumber - b.getHierarchy().sequenceNumber);
-    // final version of anim sequences that will replace array stored in this timeline
-    const finalAnimSequences = [...this.animSequences];
-    // array of removed sequences to return
-    const removedSequences: AnimSequence[] = [];
-
-    let lowestIndex = Infinity;
-
-    for (let i = sortedTargetSequences.length - 1; i >= 0; --i) {
-      const index = this.findSequenceIndex(sortedTargetSequences[i]);
-      if (index === -1) {
-        // TODO: improve error
-        throw this.generateError(
-          CustomErrorClasses.InvalidChildError,
-          [`At least one of the sequences being removed from this timeline was already not in the timeline.`]
-        );
-      }
-      if (index <= this.loadedSeqIndex - 1) {
-        throw this.generateError(
-          CustomErrorClasses.TimeParadoxError,
-          [`Removing sequences that have already been played is prohibited.` +
-          errorTip(
-            `Tip: Just as changing the past is not possible, changing parts of the timeline that have already passed is not allowed.` +
-            ` In order to remove sequences from a part of the timeline that has already been played, the timeline must be rewound to before that point` +
-            ` (conceptually, it is always possible to change the future but never the past).`
-          )],
-        );
-      }
-      removedSequences.push(...finalAnimSequences.splice(index, 1));
-      lowestIndex = Math.min(lowestIndex, index)
-    }
-
-    if (removedSequences.length === 0) { return this; }
-
-    // confirm deletion
-    for (const sequence of removedSequences) {
-      sequence.removeLineage();
-    }
-
-    // update
-    this.animSequences = finalAnimSequences;
-    for (let i = lowestIndex; i < finalAnimSequences.length; ++i) {
-      finalAnimSequences[i].updateSequenceNumber(i + 1);
-    }
-    this.webchalkTimelineEl?.removeSequences(removedSequences);
-
-    // If the last sequences were removed, must account for forward button style.
-    // No need to worry about atBeginning because it's impossible to reach index = 0 by removing sequences.
-    if (this.atEnd) {
-      this.playbackButtons.stepForwardButton?.classList.add(DISABLED_FROM_EDGE);
-    }
-
-    return this;
-  }
-
-  /**
-   * Removes a number of {@link AnimSequence} objects from the timeline based on the provided indices range (0-based).
-   * @param startIndex - The starting index, inclusive.
-   * @param endIndex - The ending index, exclusive (if not specified, {@link startIndex} `+ 1` is used, removing one sequence).
-   * @returns An array containing the sequences that were removed from the timeline.
-   * @group Structure
-   */
-  removeSequencesAt(startIndex: number, endIndex: number = startIndex + 1): AnimSequence[] {
-    if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeSequencesAt.name); }
-    if (startIndex <= this.loadedSeqIndex - 1) {
-      throw this.generateError(
-        CustomErrorClasses.TimeParadoxError,
-        [`startIndex '${startIndex}' falls within the range of sequences that have already been played,` +
-        ` but removing sequences that have already been played is prohibited.` +
-        errorTip(
-          `Tip: Just as changing the past is not possible, changing parts of the timeline that have already passed is not allowed.` +
-          ` In order to remove sequences from a part of the timeline that has already been played, the timeline must be rewound to before that point` +
-          ` (conceptually, it is always possible to change the future but never the past).`
-        )],
-      );
-    }
-
-    const removedSequences = this.animSequences.splice(startIndex, endIndex - startIndex);
-
-    if (removedSequences.length === 0) { return []; }
-
-    for (const sequence of removedSequences) {
-      sequence.removeLineage();
-    }
-
-    // update
-    const animSequences = this.animSequences;
-    for (let i = Math.max(0, startIndex); i < animSequences.length; ++i) {
-      animSequences[i].updateSequenceNumber(i + 1);
-    }
-    this.webchalkTimelineEl?.removeSequences(removedSequences);
-
-    if (this.atEnd) {
-      this.playbackButtons.stepForwardButton?.classList.add(DISABLED_FROM_EDGE);
-    }
-
-    return removedSequences;
-  }
-
-  /**
-   * Finds the index of a given {@link AnimSequence} object within the timeline
-   * @param animSequence - The animation sequence to search for within the timeline.
-   * @returns The index of {@link animSequence} within the timeline or `-1` if the sequence is not part of the timeline.
-   * @group Structure
-   */
-  findSequenceIndex(animSequence: AnimSequence): number {
-    return this.animSequences.findIndex((_animSequence) => _animSequence === animSequence);
-  }
-    
-  /*-:**************************************************************************************************************************/
-  /*-:**************************************        USER INTERFACE        ******************************************************/
-  /*-:**************************************************************************************************************************/
-  /** @internal */ webchalkTimelineEl?: WebchalkTimelinePaneElement;
-  /** @internal */ playbackButtonsContainer?: HTMLElement;
-  // TODO: put in some kind of config that user can see
-  /** @internal */ get playbackButtonsAttached(): boolean { return this.playbackButtonsContainer ? true : false; }
-  /** @internal */ get uiPaneAttached(): boolean { return this.webchalkTimelineEl ? true : false; }
-
-  /**
-   * Reveals a graphical user interface representing the timeline.
-   * @returns
-   * @group User Interface
-   */
-  attachPaneUI() {
-    // TODO: include some way to close the pane ui or something
-    // TODO: maybe allow only one pane UI to exist at a time (in the case of multiple timelines)
-    // TODO: improve error message
-    if (this.uiPaneAttached) { throw new Error('AnimTimeline Pane UI already attached'); }
-    if (AnimTimeline.currentUiAttachedTimeline) { throw new Error(`An AnimTimeline UI is already attach {name: "${AnimTimeline.currentUiAttachedTimeline.getConfig().timelineName}". It must be detached first.`); }
-    this.webchalkTimelineEl = new WebchalkTimelinePaneElement();
-    this.webchalkTimelineEl.animTimeline = this;
-    this.webchalkTimelineEl.style.display = 'none';
-
-    // If there is a set of playback buttons in the assets container, make sure the timeline does not cover it up.
-    const assetsContainerEl = document.querySelector('.webchalk-assets-container')!;
-    const fixedPlaybackButtons = assetsContainerEl.querySelector('.playback-buttons');
-    if (fixedPlaybackButtons) { fixedPlaybackButtons.insertAdjacentElement('beforebegin', this.webchalkTimelineEl); }
-    else { assetsContainerEl.insertAdjacentElement('beforeend', this.webchalkTimelineEl); }
-
-    this.webchalkTimelineEl.readTimeline();
-    this.webchalkTimelineEl.style.removeProperty('display');
-    AnimTimeline.currentUiAttachedTimeline = this;
-  }
-
-  /**
-   * Detaches the graphic user interface representing the timeline.
-   * @returns
-   * @group User Interface
-   */
-  detachPaneUI() {
-    // if (!this.uiAttached) { throw this.generateError(Error('AnimTimeline UI is already not attached.')); }
-    if (!this.uiPaneAttached) { return; }
-    this.webchalkTimelineEl!.remove();
-    this.webchalkTimelineEl = undefined;
-
-    for (const sequence of this.animSequences) {
-      sequence.detachUI();
-    }
-
-    AnimTimeline.currentUiAttachedTimeline = null;
-  }
 
   /*-:**************************************************************************************************************************/
   /*-:*************************************        PLAYBACK METHODS        *****************************************************/
