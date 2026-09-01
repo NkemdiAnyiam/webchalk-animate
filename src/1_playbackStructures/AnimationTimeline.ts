@@ -606,7 +606,7 @@ export class AnimTimeline {
   }
 
   /**
-   * Detaches the graphic user interface representing the timeline.
+   * Detaches the graphical user interface representing the timeline.
    * @returns
    * @group UI Methods
    */
