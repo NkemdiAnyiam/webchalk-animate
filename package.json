@@ -1,6 +1,6 @@
 {
   "name": "webchalk-animate",
-  "version": "0.31.0",
+  "version": "0.32.0",
   "description": "Web animation framework built for creating interactive animated visualizations.",
   "repository": {
     "type": "git",
@@ -27,7 +27,6 @@
     "parseComponentHtml": "npx ts-node ./utils/parseComponentHtml.ts",
     "parseComponentCss": "npx ts-node ./utils/parseComponentCss.ts",
     "clean-up": "rm -rf ./.parcel-cache ./.cache",
-    
     "build": "tsup",
     "inject-tsdoc": "npx ts-node ./utils/TSDocExamplesInjector.ts",
     "inject-markdown": "npx ts-node ./utils/readmeInjector.ts && doctoc README.md --notitle",
