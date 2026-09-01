@@ -36,7 +36,8 @@ export type AnimTimelineConfig = {
   /**
    * An object specifying keyboard shortcuts for the specified buttons
    * (if the playback buttons have not yet been attached, the shortcuts
-   * will just be applied when they _are_ attached).
+   * will just be applied when they _are_ attached. Until then, the shortcuts
+   * will not trigger).
    */
   keyboardShortcuts: {
     stepForward?: KeyboardKey | null;
