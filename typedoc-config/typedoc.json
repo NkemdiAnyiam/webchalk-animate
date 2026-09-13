@@ -15,6 +15,9 @@
     "**/TSDocExamples.ts",
     "**/utilityTypes.ts",
     "**/color.ts",
+    "**/highlightjs/**/*",
+    "**/pane-ui/templates/**/*",
+    "**/componentStyleSheet.ts",
   ],
   "entryPoints": ["../src"],
   "entryPointStrategy": "expand",
@@ -28,5 +31,6 @@
   "projectDocuments": [
     "../markdown-code/public/images"
   ],
+  "tsconfig": "./tsconfig.typedoc.json",
   "groupOrder": ["Structure", "Properties", "Property Getter Methods", "Property Setter Methods", "Accessors", "Playback Methods", "Timing Event Methods"],
 }

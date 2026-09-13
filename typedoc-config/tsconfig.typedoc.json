@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2024",
+    "declaration": true,
+    "outDir": "./dist",
+    "strict": true,
+    "stripInternal": true,
+    "noEmit": true,
+    "noErrorTruncation": true,
+    "types": ["node"],
+    "allowJs": true,
+    "esModuleInterop": true,
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
+  },
+  "include": ["../src"],
+}
