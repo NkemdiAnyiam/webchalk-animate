@@ -323,7 +323,7 @@ export class AnimTimeline {
     else {
       switch(propName) {
         case "root": return this.root;
-        case "sequences": return this.animSequences;
+        case "sequences": return [...this.animSequences];
         case "numSequences": return this.numSequences;
         default: throw new RangeError(`Invalid propName "${propName}"`);
       }
