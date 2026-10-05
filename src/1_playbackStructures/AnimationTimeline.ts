@@ -181,6 +181,64 @@ export type AddSequencesOptions = {
   atIndex: number;
 };
 
+// TYPE
+/**
+ * An object containing methods related to the visible HTML UI for the timeline.
+ * @category Interfaces
+ * @interface
+ */
+export type AnimTimelineUIMethods = {
+  /**
+   * Reveals a graphical user interface representing the timeline.
+   * @group UI Methods
+   */
+  attachTimelinePane(): void;
+  /**
+   * Detaches the graphical user interface representing the timeline.
+   * @group UI Methods
+   */
+  detachTimelinePane(): void;
+  // TODO: update description
+  /**
+   * Inserts a container into the page containing `<webchalk-playback-button>` elements whose
+   * `timeline-name` attributes are equivalent to this timeline's `timelineName` configuration option,
+   * then links those buttons to this timeline.
+   *  * By default, all button types are injected.
+   * @param options - An object containing settings to define the behavior of the buttons setup.
+   * @param options.buttonsContainerLocation - The HTML element where the buttons container should be placed.
+   * @param options.buttonsSubset - An array of strings indicating which specific buttons we want to link.
+   * @group UI Methods
+   */
+  attachPlaybackButtons(): void;
+  /**
+   * Removes the playback buttons attached to the timeline.
+   * @group UI Methods
+   */
+  detachPlaybackButtons(): void;
+  /**
+   * Assigns the specified keys to the specified playback buttons.
+   * @param keyboardShortcuts - An object specifying keyboard shortcuts for the specified buttons.
+   * @remarks
+   * Unspecified buttons will not be affected. To delete keyboard shortcuts, explicitly set `null` as the key value.
+   * @returns
+   * @group UI Methods
+   */
+  setKeyboardShortcuts(keyboardShortcuts: AnimTimelineConfig['keyboardShortcuts']): AnimTimeline;
+  /**
+   * Disables this timeline's connection to its playback buttons until re-enabled
+   * using {@link AnimTimeline.enablePlaybackButtons|enablePlaybackButtons()}.
+   * @group UI Methods
+   */
+  disablePlaybackButtons(): void;
+  /**
+   * Allows this timeline's linked playback buttons to trigger (and be triggered by) this timeline's playback methods.
+   *  * This method is only useful if the buttons were previously
+   * disabled using {@link AnimTimeline.disablePlaybackButtons|disablePlaybackButtons()}.
+   * @group UI Methods
+   */
+  enablePlaybackButtons(): void;
+}
+
 /**
  * @hideconstructor
  * 
@@ -603,13 +661,31 @@ export class AnimTimeline {
   // TODO: put in some kind of config that user can see
   /** @internal */ get playbackButtonsAttached(): boolean { return this.playbackButtonsContainer ? true : false; }
   /** @internal */ get uiPaneAttached(): boolean { return this.webchalkTimelineEl ? true : false; }
-
+  
   /**
-   * Reveals a graphical user interface representing the timeline.
-   * @returns
+   * An object containing methods related to the visible HTML UI for the timeline. Contains:
+   *  * {@link AnimTimelineUIMethods.attachTimelinePane | attachTimelinePane} 
+   *  * {@link AnimTimelineUIMethods.detachTimelinePane | detachTimelinePane}
+   *  * {@link AnimTimelineUIMethods.attachPlaybackButtons | attachPlaybackButtons}
+   *  * {@link AnimTimelineUIMethods.detachPlaybackButtons | detachPlaybackButtons}
+   *  * {@link AnimTimelineUIMethods.disablePlaybackButtons | disablePlaybackButtons}
+   *  * {@link AnimTimelineUIMethods.enablePlaybackButtons | enablePlaybackButtons}
+   *  * {@link AnimTimelineUIMethods.setKeyboardShortcuts | setKeyboardShortcuts}
    * @group UI Methods
    */
-  attachPaneUI() {
+  get ui(): AnimTimelineUIMethods {
+    return {
+      attachTimelinePane: () => this.attachTimelinePane(),
+      detachTimelinePane: () => this.detachTimelinePane(),
+      attachPlaybackButtons: () => this.attachPlaybackButtons(),
+      detachPlaybackButtons: () => this.detachPlaybackButtons(),
+      setKeyboardShortcuts: (keyboardShortcuts) => this.setKeyboardShortcuts(keyboardShortcuts),
+      enablePlaybackButtons: () => this.enablePlaybackButtons(),
+      disablePlaybackButtons: () => this.disablePlaybackButtons(),
+    };
+  }
+
+  private attachTimelinePane() {
     // TODO: include some way to close the pane ui or something
     // TODO: maybe allow only one pane UI to exist at a time (in the case of multiple timelines)
     // TODO: improve error message
@@ -630,12 +706,7 @@ export class AnimTimeline {
     AnimTimeline.currentUiAttachedTimeline = this;
   }
 
-  /**
-   * Detaches the graphical user interface representing the timeline.
-   * @returns
-   * @group UI Methods
-   */
-  detachPaneUI() {
+  private detachTimelinePane() {
     // if (!this.uiAttached) { throw this.generateError(Error('AnimTimeline UI is already not attached.')); }
     if (!this.uiPaneAttached) { return; }
     this.webchalkTimelineEl!.remove();
@@ -664,18 +735,7 @@ export class AnimTimeline {
    */
   get playbackButtons(): Readonly<PlaybackButtons> { return {...this._playbackButtons}; }
 
-  /**
-   * Inserts a container into the page containing `<webchalk-playback-button>` elements whose
-   * `timeline-name` attributes are equivalent to this timeline's `timelineName` configuration option,
-   * then links those buttons to this timeline.
-   *  * By default, all button types are injected.
-   * @param options - An object containing settings to define the behavior of the buttons setup.
-   * @param options.buttonsContainerLocation - The HTML element where the buttons container should be placed.
-   * @param options.buttonsSubset - An array of strings indicating which specific buttons we want to link.
-   * @returns 
-   * @group UI Methods
-   */
-  attachPlaybackButtonsUI(options: {
+  private attachPlaybackButtons(options: {
     // TODO: Include jumping menu inside playback buttons container
     /** The HTML element where the buttons container should be placed. */
     buttonsContainerLocation?: HTMLElement;
@@ -684,7 +744,7 @@ export class AnimTimeline {
   } = {}): this {
     // TODO: improve error
     if (this.playbackButtonsContainer) { throw new Error('The playback buttons for this timeline have already been attached. To remove the current ones, call the detachPlaybackButtons() method.'); }
-    if (this.lockedStructure) { throw this.generateLockedStructureError(this.attachPlaybackButtonsUI.name); }
+    if (this.lockedStructure) { throw this.generateLockedStructureError(this.attachPlaybackButtons.name); }
     // if (!this.config.timelineName) { throw new Error(`A timeline cannot link playback buttons if the timeline's timelineName config option is not set.`); }
 
     // Get button container location, subset of buttons to attach, and any keyboard shortcuts.
@@ -884,12 +944,7 @@ export class AnimTimeline {
     return this;
   }
 
-  /**
-   * Removes the playback buttons attached to the timeline.
-   * @returns
-   * @group UI Methods
-   */
-  detachPlaybackButtons() {
+  private detachPlaybackButtons() {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.detachPlaybackButtons.name); }
 
     for (const [prop, button] of Object.entries(this.playbackButtons) as [keyof typeof this.playbackButtons, WebchalkPlaybackButtonElement][]) {
@@ -900,14 +955,7 @@ export class AnimTimeline {
     this.playbackButtonsContainer = undefined;
   }
 
-  /**
-   * @param keyboardShortcuts - An object specifying keyboard shortcuts for the specified buttons.
-   * @remarks
-   * Unspecified buttons will not be affected. To delete keyboard shortcuts, explicitly set `null` as the key value.
-   * @returns
-   * @group UI Methods
-   */
-  setKeyboardShortcuts(keyboardShortcuts: AnimTimelineConfig['keyboardShortcuts']): this {
+  private setKeyboardShortcuts(keyboardShortcuts: AnimTimelineConfig['keyboardShortcuts']): this {
     for (const [prop, keyVal] of Object.entries(keyboardShortcuts)) {
       if (keyVal) { this.config.keyboardShortcuts[prop as keyof typeof this.config.keyboardShortcuts] = keyVal; }
       else { delete this.config.keyboardShortcuts[prop as keyof typeof this.config.keyboardShortcuts]; }
@@ -919,22 +967,11 @@ export class AnimTimeline {
     return this;
   }
 
-  /**
-   * Disables this timeline's connection to its playback buttons until re-enabled
-   * using {@link AnimTimeline.enablePlaybackButtons|enablePlaybackButtons()}.
-   * @group UI Methods
-   */
-  disablePlaybackButtons() {
+  private disablePlaybackButtons() {
     for (const button of Object.values(this.playbackButtons)) { button?.disable(); }
   }
 
-  /**
-   * Allows this timeline's linked playback buttons to trigger (and be triggered by) this timeline's playback methods.
-   *  * This method is only useful if the buttons were previously
-   * disabled using {@link AnimTimeline.disablePlaybackButtons|disablePlaybackButtons()}.
-   * @group UI Methods
-   */
-  enablePlaybackButtons() {
+  private enablePlaybackButtons() {
     for (const button of Object.values(this.playbackButtons)) { button?.enable(); }
   }
 

@@ -978,12 +978,12 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
 
     // TODO: Figure out how to disable any pausing/stepping functionality in the timeline while stopped for tasks
     this.animation.pauseForTasks = () => {
-      this.parentTimeline?.disablePlaybackButtons();
+      this.parentTimeline?.ui.disablePlaybackButtons();
       this.root.pause();
     }
     this.animation.unpauseFromTasks = () => {
       this.root.unpause();
-      this.parentTimeline?.enablePlaybackButtons();
+      this.parentTimeline?.ui.enablePlaybackButtons();
     }
 
     return this;

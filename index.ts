@@ -21,9 +21,9 @@ const result = correctClip.compare(studentClip, ['category', 'effectName']);
 console.log('comparison result:', result);
 
 const timeline = webchalk.newTimeline({timelineName: 'Main'});
-timeline.attachPaneUI();
-timeline.attachPlaybackButtonsUI();
-timeline.setKeyboardShortcuts({
+timeline.ui.attachTimelinePane();
+timeline.ui.attachPlaybackButtons();
+timeline.ui.setKeyboardShortcuts({
   stepBackward: 'ArrowLeft',
   pause: 'Space',
   stepForward: 'ArrowRight',
