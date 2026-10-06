@@ -492,7 +492,6 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       ...this.config,
       // prevents access to actual config cssClasses object (and we're using this.getModifiers() to avoid repeating the logic)
       cssClasses: this.getModifiers('cssClasses'),
-      // TODO: provide some kind of config for when domElem is undefined or null so that the fields aren't just undefined (this is caused by mergeConfigs being in initialize())
     };
   }
 
@@ -939,11 +938,12 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
 
     this.id = AnimClip.id++;
     
+    this.effectName = effectName;
+    
     if (!domElem) {
       throw this.generateError(CustomErrorClasses.InvalidElementError, [`Element must not be null or undefined.`]);
     }
     this.domElem = domElem;
-    this.effectName = effectName;
     
     this.presetEffectDefinition = bank[effectName] as TPresetEffectDefinition;
 
