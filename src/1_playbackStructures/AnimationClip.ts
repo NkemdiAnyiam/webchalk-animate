@@ -490,7 +490,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   getConfig(): TClipConfig {
     return {
       ...this.config,
-      // TODO: figure out why this line needs to be here (it's causing the wrong error to be received when domElem is undefined or null)
+      // prevents access to actual config cssClasses object (and we're using this.getModifiers() to avoid repeating the logic)
       cssClasses: this.getModifiers('cssClasses'),
       // TODO: provide some kind of config for when domElem is undefined or null so that the fields aren't just undefined (this is caused by mergeConfigs being in initialize())
     };
@@ -810,10 +810,10 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     const config = this.config;
     const result: AnimClipModifiers = {
       cssClasses: {
-        toAddOnStart: [...(config.cssClasses.toAddOnStart ?? [])],
-        toAddOnFinish: [...(config.cssClasses.toAddOnFinish ?? [])],
-        toRemoveOnStart: [...(config.cssClasses.toRemoveOnStart ?? [])],
-        toRemoveOnFinish: [...(config.cssClasses.toRemoveOnFinish ?? [])],
+        toAddOnStart: [...(config.cssClasses?.toAddOnStart ?? [])],
+        toAddOnFinish: [...(config.cssClasses?.toAddOnFinish ?? [])],
+        toRemoveOnStart: [...(config.cssClasses?.toRemoveOnStart ?? [])],
+        toRemoveOnFinish: [...(config.cssClasses?.toRemoveOnFinish ?? [])],
       },
       composite: config.composite,
       commitsStyles: config.commitsStyles,
