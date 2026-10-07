@@ -243,6 +243,11 @@ export type AnimClipStatus = {
    * `true` only if the clip is in the process of playback and unpaused.
    */
   isRunning: boolean;
+
+  /**
+   * `true` only if the clip is not currently in progress (and has been played at least once).
+   */
+  isFinished: boolean;
   
   /**
    * `true` only if the clip is in the process of playback and paused.
@@ -827,7 +832,6 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   protected isPaused: AnimClipStatus['isPaused'] = false;
   protected direction: AnimClipStatus['direction'] = 'forward';
   protected firstRun: boolean = true;
-  // TODO: Add to AnimClipStatus
   protected isFinished: boolean = false;
   // protected get durationPending(): boolean {
   //   // return this.timescaleType === 'rate' && (this.firstRun || this.direction === 'backward' && !this.inProgress);
@@ -844,6 +848,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
    * @returns An object containing
    *  * {@link AnimClipStatus.inProgress|inProgress},
    *  * {@link AnimClipStatus.isRunning|isRunning},
+   *  * {@link AnimClipStatus.isFinished|isFinished},
    *  * {@link AnimClipStatus.isPaused|isPaused},
    *  * {@link AnimClipStatus.direction|direction},
    */
@@ -871,6 +876,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     const result: AnimClipStatus = {
       inProgress: this.inProgress,
       isRunning: this.isRunning,
+      isFinished: this.isFinished,
       isPaused: this.isPaused,
       direction: this.direction,
       errored: this.errored,
@@ -1035,7 +1041,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   /*-:****************************************        UI METHODS        ********************************************************/
   /*-:**************************************************************************************************************************/
   /** @internal */ webchalkClipEl?: WebchalkClipElement;
-  /** @internal */ get uiAttached(): boolean { return this.webchalkClipEl ? true : false; } // TODO: probably put this in status???
+  /** @internal */ get uiAttached(): boolean { return this.webchalkClipEl ? true : false; }
   
   /**
    * @internal
