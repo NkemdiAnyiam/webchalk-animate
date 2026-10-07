@@ -701,16 +701,40 @@ export function constructInfixTextNodeList(node: Node, options: {
   //   }
   // }
 
-  const meta = {
-    matchFound: false,
-    matchString,
-    ranges,
-    currRangeIndex: 0,
-    matchEndFound: false,
-    indexCount: 0,
-    textLength: node.textContent?.length ?? 0,
-  };
-  constructInfixTextNodeListR(node, infixTextNodeList, meta);
+  // Handle special case where element has no text nodes (or no text nodes with any text). Putting it in recursive function
+  // results in an empty infixTextNodeList, which will break things.
+  if (textContent === '') {
+    const currTextNodes = [...node.childNodes].filter(child => child instanceof Text);
+    const noTextNodes = currTextNodes.length === 0;
+    const emptyTextNode = noTextNodes ? new Text() : currTextNodes[0];
+    if (noTextNodes) {
+      node.appendChild(emptyTextNode);
+    }
+
+    const datum: TextNodeDatum = {
+      textNode: emptyTextNode,
+      origVal: '', words: [],
+      numWordsRestored: 0, numCharsRestored: 0, numCharsToDelete: 0, numWordsToDelete: 0,
+      head: true,
+      captureIndex: 0,
+    };
+    datum.numWordsToDelete = numWordsInNode(datum); // set number of words that can be removed
+    datum.numCharsToDelete = numCharsInNode(datum); // set number of chars that can be removed
+    infixTextNodeList.push(datum);
+  }
+  // Happy path.
+  else {
+    const meta = {
+      matchFound: false,
+      matchString,
+      ranges,
+      currRangeIndex: 0,
+      matchEndFound: false,
+      indexCount: 0,
+      textLength: node.textContent?.length ?? 0,
+    };
+    constructInfixTextNodeListR(node, infixTextNodeList, meta);
+  }
   
   // if (!meta.matchFound) {
   //   throw new RangeError(`Matching string "${match}" not found.`);
@@ -764,12 +788,12 @@ function constructInfixTextNodeListR(
       // if start still not fully contained by this point, push the node and move on to the next node
       if (endIndex > indexCount + nodeTextLength) {
         const datum: TextNodeDatum = {
-        textNode: node,
-        origVal: node.nodeValue!, words: node.nodeValue!.match(WORDS_REGEX) ?? [],
-        numWordsRestored: 0, numCharsRestored: 0, numCharsToDelete: 0, numWordsToDelete: 0,
-        head: false,
-        captureIndex,
-      };
+          textNode: node,
+          origVal: node.nodeValue!, words: node.nodeValue!.match(WORDS_REGEX) ?? [],
+          numWordsRestored: 0, numCharsRestored: 0, numCharsToDelete: 0, numWordsToDelete: 0,
+          head: false,
+          captureIndex,
+        };
         datum.numWordsToDelete = numWordsInNode(datum); // set number of words that can be removed
         datum.numCharsToDelete = numCharsInNode(datum); // set number of chars that can be removed
         infixTextNodeList.push(datum);
@@ -930,7 +954,6 @@ export function infixTextDelete(infixTextNodeList: TextNodeDatum[], percentage: 
   }
 }
 
-// TODO: if no text node present in element, add one so error is not thrown (this TODO should be in preset effects file)
 // add to the Text nodes such that only the given percentage of total words or characters are shown overall
 // Note that if 'by-word' is used, only ttStats.wordsAdded gets updated, not ttStats.charsAdded (and vice versa)
 /**
