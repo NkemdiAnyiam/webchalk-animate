@@ -465,7 +465,7 @@ export class AnimSequence {
 
   protected get currentTime(): number {
     const referenceClip = [...this.inProgressClips.values()][0];
-    const currScheduleMs =  this.getStatus('direction') === 'forward'
+    const currScheduleMs = this.getStatus('direction') === 'forward'
       ? referenceClip?.fullStartTime + referenceClip?.currentTime
       : referenceClip?.fullFinishTime - referenceClip?.currentTime
     ;
