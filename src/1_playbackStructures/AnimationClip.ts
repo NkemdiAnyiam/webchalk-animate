@@ -182,6 +182,20 @@ export type AnimClipTiming = Pick<AnimClip['config'],
    *  * `"rate"` indicates that the animation length depends on some variable change.
    */
   timescaleType: AnimClip['timescaleType'];
+  /**
+   * The current time value of the clip in milliseconds (including any delay and endDelay time).
+   *  * Example: A clip that has a whole duration of 2 seconds...
+   *    * Unplayed, it will have a `currentTime` value of `0`.
+   *    * After playing for 0.5 seconds, it will have a `currentTime` value of `500`.
+   *    * After finishing, it will have a `currentTime` value of `2000`.
+   *    * After rewinding for 0.5 seconds, it will have a `currentTime` value of `1500`.
+   */
+  currentTime: AnimClip['currentTime'];
+  /**
+   * The summation of the clip's {@link AnimClipTiming.delay|delay},
+   * {@link AnimClipTiming.duration|duration}, and {@link AnimClipTiming.endDelay|endDelay}.
+   */
+  wholeDuration: AnimClip['wholeDuration'];
 };
 
 // TYPE
@@ -734,9 +748,15 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   /**@internal*/ get activeStartTime() { return (this.fullStartTime + this.getTiming('delay')) / this.getTiming('playbackRate'); }
   /**@internal*/ get activeFinishTime() { return (this.fullStartTime + this.getTiming('delay') + this.getTiming('duration')) / this.getTiming('playbackRate'); }
   /**@internal*/ get fullFinishTime() { return (this.fullStartTime + this.getTiming('delay') + this.getTiming('duration') + this.getTiming('endDelay')) / this.getTiming('playbackRate'); }
+  private get wholeDuration() { return this.config.duration === TBA_DURATION ? TBA_DURATION : this.config.delay + this.config.duration + this.config.endDelay; }
+  private get currentTime() {
+    if (!this.animation) { return 0; }
+    return this.direction === 'forward'
+      ? this.animation.currentTime as number
+      : this.wholeDuration - (this.animation.currentTime as number)
+    ;
+  }
 
-  // TODO: position this somewhere better
-  get currentTime() { return this.animation.currentTime as number; }
   /**
    * Returns timing-related details about the animation.
    * @returns An object containing
@@ -745,6 +765,8 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
    *  * {@link AnimClipTiming.duration|duration},
    *  * {@link AnimClipTiming.delay|delay},
    *  * {@link AnimClipTiming.endDelay|endDelay},
+   *  * {@link AnimClipTiming.currentTime|currentTime},
+   *  * {@link AnimClipTiming.wholeDuration|wholeDuration},
    *  * {@link AnimClipTiming.easing|easing},
    *  * {@link AnimClipTiming.playbackRate|playbackRate},
    *  * {@link AnimClipTiming.compoundedPlaybackRate|compoundedPlaybackRate},
@@ -774,9 +796,11 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     const result: AnimClipTiming = {
       startsWithPrevious: config.startsWithPrevious,
       startsNextClipToo: config.startsNextClipToo,
-      duration: config.duration,
+      duration: config.duration, // TODO: try printing something besides the TBA_DURATION value to timeline pane info box
       delay: config.delay,
       endDelay: config.endDelay,
+      currentTime: this.currentTime,
+      wholeDuration: this.wholeDuration,
       easing: config.easing,
       playbackRate: config.playbackRate,
       compoundedPlaybackRate: this.compoundedPlaybackRate,
