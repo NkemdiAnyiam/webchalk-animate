@@ -7,7 +7,7 @@ import {
 } from "./1_playbackStructures/AnimationClipCategories";
 import { AnimSequence, AnimSequenceConfig } from "./1_playbackStructures/AnimationSequence";
 import { AnimTimeline, AnimTimelineConfig } from "./1_playbackStructures/AnimationTimeline";
-import { WebchalkConnectorElement, WebchalkConnectorElementConfig } from "./3_components/WebchalkConnectorElement";
+import { CreateConnector, WebchalkConnectorElement, WebchalkConnectorElementConfig } from "./3_components/WebchalkConnectorElement";
 import {
   libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions,
   libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions,
@@ -882,6 +882,12 @@ export class Webchalk {
       },
     };
   }
+
+  get shapeFactories(): CreateConnector {
+    return {
+      createConnector: WebchalkConnectorElement.create,
+    }
+  } 
 
   /**@internal*/
   scrollAnchorsStack: [target: Element, scrollOptions: ScrollingOptions][] = [];

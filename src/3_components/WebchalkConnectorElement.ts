@@ -1,5 +1,6 @@
-import { equalWithinTol, getBoundingClientRectOfHidden } from "../4_utils/helpers";
-import { DOMElement, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
+import { CustomErrorClasses } from "../4_utils/errors";
+import { equalWithinTol, getBoundingClientRectOfHidden, parseMultiUnitPlacement } from "../4_utils/helpers";
+import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
 
 const stylesheet = new CSSStyleSheet();
 stylesheet.replaceSync(
@@ -57,10 +58,102 @@ export type WebchalkConnectorElementConfig = {
   pointTrackingEnabled: boolean;
 };
 
-// CHANGE NOTE: Completely get rid of obsolete AnimClipLineUpdater
+type CreateConnectorConfig = {
+  /**
+   * A tuple specifying the location in the DOM where the connector should be inserted. If `null`, the connector will not
+   * be automatically inserted to the DOM.
+   * @defaultValue
+   * ```ts
+   * ['last-child', document.querySelector('.webchalk-assets-container')]
+   * ```
+   */
+  domLocation?: [where: 'before' | 'after' | 'first-child' | 'last-child', element: Element | null | undefined] | null;
+  /**
+   * If `true`, the endpoints of the connector will continuously update to match any positional changes in the target elements.
+   * @remarks
+   * If {@link CreateConnectorConfig.domLocation|domLocation} is used to insert the connector close to the target endpoints
+   * and neither endpoints will undergo transformations, specifying `false` is appropriate for optimization since the target elements will
+   * not be moving with respect to the connector.
+   * @defaultValue
+   * ```ts
+   * true
+   * ```
+   */
+  pointTrackingEnabled?: boolean; // TODO: rename to something simple like `tracking`
+  /**
+   * An array of CSS classes that will be added to the connector's HTML class attribute.
+   */
+  cssClasses?: string[];
+  /**
+   * An id that will be applied to the connectors HTML id attribute.
+   */
+  cssId?: string;
+};
+
+export interface CreateConnector {
+  /**
+   * Creates a new {@link WebchalkConnectorElement} and (by default) attached it to the DOM.
+   * @param pointA - The element target for endpoint A of the connector.
+   * @param pointB - The element target for endpoint B of the connector.
+   * @param config - A configuration object for defining the behavior, location, and some attributes of the connector.
+   * @returns A new {@link WebchalkConnectorElement} instance.
+   */
+  createConnector(
+    // TODO: prohibit `number` as an option
+    pointA: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY],
+    pointB: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY],
+    config: CreateConnectorConfig
+  ): WebchalkConnectorElement;
+}
+
 export class WebchalkConnectorElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-connector', WebchalkConnectorElement); }
   private static staticId: number = 0;
+
+  static create<T extends Parameters<CreateConnector['createConnector']>>(pointA: T[0], pointB: T[1], config: T[2]): WebchalkConnectorElement {
+    // validate endpoints
+    if (!(pointA[0] instanceof Element)) { throw new CustomErrorClasses.InvalidElementError(`Point A element must not be null or undefined.`); }
+    if (!(pointB[0] instanceof Element)) { throw new CustomErrorClasses.InvalidElementError(`Point B element must not be null or undefined.`); }
+    
+    // create connector and set endpoints
+    const newConnector = new WebchalkConnectorElement();
+    newConnector.pointA = [pointA[0] as DOMElement, parseMultiUnitPlacement(pointA[1], 'horizontal'), parseMultiUnitPlacement(pointA[2], 'vertical')];
+    newConnector.pointB = [pointB[0] as DOMElement, parseMultiUnitPlacement(pointB[1], 'horizontal'), parseMultiUnitPlacement(pointB[2], 'vertical')];
+
+    // handle config
+    const {
+      domLocation = ['last-child', document.querySelector('.webchalk-assets-container')],
+      cssClasses = [],
+      cssId,
+      pointTrackingEnabled = true,
+    } = config;
+
+    newConnector.pointTrackingEnabled = pointTrackingEnabled;
+    newConnector.classList.add(...cssClasses);
+    if (cssId) { newConnector.id = cssId; }
+
+    // insert connector into DOM
+    if (domLocation !== null) {
+      const [insLocation, insRefPoint] = domLocation;
+      if (!insRefPoint) { throw new CustomErrorClasses.InvalidElementError(`The DOM element used as an insertion reference point must not be null or undefined.`); }
+      let where = '' as InsertPosition;
+
+      switch(insLocation) {
+        case "before": where = 'beforebegin'; break;
+        case "after": where = 'afterend'; break;
+        case "first-child": where = 'afterbegin'; break;
+        case "last-child": where = 'beforeend'; break;
+        default: throw new RangeError(`Invalid insertion location "${insLocation}". Must be "before", "first-child", "last-child", or "after".`);
+      }
+
+      insRefPoint.insertAdjacentElement(where, newConnector);
+      
+      if (pointTrackingEnabled) { newConnector.continuouslyUpdateEndpoints(); }
+      else { newConnector.updateEndpoints(); }
+    }
+
+    return newConnector;
+  }
 
   private connectorId: number = 0;
   readonly markerIdPrefix: string;

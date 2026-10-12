@@ -20,6 +20,19 @@ const studentClip = Motion(redSquare, '~translate', [{translate: '10rem 20rem'}]
 const result = correctClip.compare(studentClip, ['category', 'effectName']);
 console.log('comparison result:', result);
 
+// console.log(TextEditor(blueCircle, '~insert-text', ['aerstgf'], {durationOrRate: '500wpm'}).getTiming());
+
+// webchalk.shapeFactories.newConnector([[square, `0 100px`], [circle, `top center`]], {
+//   domLocation: ['firstChild', body],
+//   tracking: false,
+//   cssClasses: ['connector', 'connector--white'],
+//   cssId: 'connector--124',
+// }).setHtmlAttrs();
+// ConnectorEntrance(webchalk.shapes.newConnector([square, `0 100px`], [circle, `top center`], {insertAfter}), '~trace', [], {});
+// ConnectorEntrance(connector, '~trace', [], {newEndpoints: [ [square, '100% 100%'], [circle, 'right center'] ]});
+
+webchalk.shapeFactories.createConnector([redSquare, 'center', 'center'], [blueCircle, 'center', 'center'], {});
+
 const timeline = webchalk.newTimeline({timelineName: 'Main'});
 timeline.ui.attachTimelinePane();
 timeline.ui.attachPlaybackButtons();
