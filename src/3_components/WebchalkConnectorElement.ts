@@ -290,6 +290,11 @@ export class WebchalkConnectorElement extends HTMLElement {
     this.mask = this.gBody.querySelector('mask') as SVGMaskElement;
   }
 
+  resetEndpoints() {
+    this.pointA = [document.body, [0,0], [0,0]];
+    this.pointB = [document.body, [0,100], [0,100]];
+  }
+
   updateEndpoints = (/*errorGenerator?: ErrorGenerator*/): void => {
     const pointA = this.pointA;
     const pointB = this.pointB;
