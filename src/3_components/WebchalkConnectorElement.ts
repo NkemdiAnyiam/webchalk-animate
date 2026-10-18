@@ -377,13 +377,19 @@ export class WebchalkConnectorElement extends HTMLElement {
     }
   }
 
-  // CHANGE NOTE: Use requestAnimationFrame() loop instead of setInterval() to update endpoints without lag
-  continuouslyUpdateEndpoints = (): void => {
-    this.updateEndpoints();
-    this.continuousTrackingReqId = window.requestAnimationFrame(this.continuouslyUpdateEndpoints);
+  continuouslyUpdateEndpoints(): void {
+    if (!isNaN(this.continuousTrackingReqId)) { return; }
+    this.continuouslyUpdateEndpointsRAF();
   }
 
-  cancelContinuousUpdates (): void {
+  continuouslyUpdateEndpointsRAF = (): void => {
+    this.updateEndpoints();
+    this.continuousTrackingReqId = window.requestAnimationFrame(this.continuouslyUpdateEndpointsRAF);
+  }
+
+  cancelContinuousUpdates(): void {
+    if (isNaN(this.continuousTrackingReqId)) { return; }
     window.cancelAnimationFrame(this.continuousTrackingReqId);
+    this.continuousTrackingReqId = NaN;
   }
 }
