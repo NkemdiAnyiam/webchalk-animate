@@ -175,19 +175,19 @@ export class WebchalkConnectorElement extends HTMLElement {
   get ay(): number { return this.lineLayer.y1.baseVal.value; }
   get by(): number { return this.lineLayer.y2.baseVal.value; }
 
-  set ax(val: number) {
+  private set ax(val: number) {
     this.lineLayer.x1.baseVal.value = val;
     this.lineMask.x1.baseVal.value = val;
   }
-  set bx(val: number) {
+  private set bx(val: number) {
     this.lineLayer.x2.baseVal.value = val;
     this.lineMask.x2.baseVal.value = val;
   }
-  set ay(val: number) {
+  private set ay(val: number) {
     this.lineLayer.y1.baseVal.value = val;
     this.lineMask.y1.baseVal.value = val;
   }
-  set by(val: number) {
+  private set by(val: number) {
     this.lineLayer.y2.baseVal.value = val;
     this.lineMask.y2.baseVal.value = val;
   }
