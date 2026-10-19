@@ -165,6 +165,7 @@ export class WebchalkConnectorElement extends HTMLElement {
   private mask: SVGMaskElement;
   get lineElement(): Readonly<SVGLineElement> { return this.lineLayer; }
 
+  // TODO: create getter and setter or some setter functions
   pointA: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] = [document.body, [0,0], [0,0]];
   pointB: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] = [document.body, [0,100], [0,100]];
   pointTrackingEnabled: boolean = true;

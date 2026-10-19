@@ -1123,6 +1123,12 @@ export class ConnectorSetterClip extends AnimClip<PresetEffectDefinition, Connec
  */
 export interface ConnectorEntranceClipConfig extends AnimClipConfig {
   hideNowType: 'display-none' | null;
+  newEndpoints: {
+    // TODO: remove preserve as an option
+    pointA?: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve']
+    pointB?: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve']
+  };
+  pointTrackingEnabled: boolean | 'use-current';
 };
 
 /**
@@ -1198,6 +1204,12 @@ export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<
 export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectDefinition<ConnectorEntranceClip, ConnectorEntranceClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, ConnectorEntranceClipConfig> {
   protected get category(): 'Connector Entrance' { return 'Connector Entrance'; }
   domElem: WebchalkConnectorElement;
+  protected previousPointA?: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
+  protected previousPointB?: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
+  protected pointA: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | 'use-preserved' = 'use-preserved';
+  protected pointB: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | 'use-preserved' = 'use-preserved';
+
+  protected previousConnectorConfig: WebchalkConnectorElementConfig = {} as WebchalkConnectorElementConfig;
 
   get categoryImmutableConfig() {
     return {
@@ -1209,6 +1221,8 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
     return {
       ...AnimClip.baseDefaultConfig,
       hideNowType: null,
+      newEndpoints: {pointA: ['preserve'], pointB: ['preserve']},
+      pointTrackingEnabled: 'use-current',
       ...this.categoryImmutableConfig,
     } satisfies ConnectorEntranceClipConfig;
   }
@@ -1277,6 +1291,24 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
         break;
     }
 
+    const pointA = (effectConfig as ConnectorEntranceClipConfig).newEndpoints?.pointA ?? this.presetEffectDefinition.defaultConfig?.newEndpoints?.pointA ?? this.categoryDefaultConfig.newEndpoints.pointA;
+    const pointB = (effectConfig as ConnectorEntranceClipConfig).newEndpoints?.pointB ?? this.presetEffectDefinition.defaultConfig?.newEndpoints?.pointB ?? this.categoryDefaultConfig.newEndpoints.pointB;
+    const pointAElement = pointA
+      ? (pointA[0] === 'preserve' ? this.domElem.pointA[0] : pointA[0])
+      : (this.domElem.pointA[0]);
+    if (!(pointAElement instanceof Element)) {
+      throw this.generateError(CustomErrorClasses.InvalidElementError, [`Point A element must not be null or undefined.`]);
+    }
+    const pointBElement = pointB
+      ? (pointB[0] === 'preserve' ? this.domElem.pointB[0] : pointB[0])
+      : (this.domElem.pointB[0]);
+    if (!(pointBElement instanceof Element)) {
+      throw this.generateError(CustomErrorClasses.InvalidElementError, [`Point B element must not be null or undefined.`]);
+    }
+
+    this.pointA = pointA[0] === 'preserve' ? 'use-preserved' : [pointAElement as DOMElement, parseMultiUnitPlacement(pointA[1], 'horizontal'), parseMultiUnitPlacement(pointA[2], 'vertical')];
+    this.pointB = pointB[0] === 'preserve' ? 'use-preserved' : [pointBElement as DOMElement, parseMultiUnitPlacement(pointB[1], 'horizontal'), parseMultiUnitPlacement(pointB[2], 'vertical')];
+
     return this;
   }
 
@@ -1308,16 +1340,51 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
       );
     }
 
+    // set new points and config
+    this.previousPointA = this.domElem.pointA;
+    this.previousPointB = this.domElem.pointB;
+    if (this.pointA !== 'use-preserved') { this.domElem.pointA = this.pointA; }
+    if (this.pointB !== 'use-preserved') { this.domElem.pointB = this.pointB; }
+    this.previousConnectorConfig.pointTrackingEnabled = this.domElem.pointTrackingEnabled;
+    if (this.config.pointTrackingEnabled !== 'use-current') { this.domElem.pointTrackingEnabled = this.config.pointTrackingEnabled; }
+
     this.domElem.classList.remove('webchalk-display-none');
-    this.domElem.updateEndpoints();
+
     if (this.domElem.pointTrackingEnabled) {
       this.domElem.continuouslyUpdateEndpoints();
+    }
+    else {
+      this.domElem.cancelContinuousUpdates();
+      this.domElem.updateEndpoints();
+    }
+  }
+
+  // protected _onFinishForward(): void {
+  //   // avoids visual discrepancies that would probably arise with jumping
+  //   if (!this.domElem.pointTrackingEnabled) { this.domElem.updateEndpoints(); }
+  // }
+
+  protected _onStartBackward(): void {
+    if (this.pointA !== 'use-preserved') { this.domElem.pointA = this.pointA; }
+    else { this.domElem.pointA = this.previousPointA!; }
+
+    if (this.pointB !== 'use-preserved') { this.domElem.pointB = this.pointB; }
+    else { this.domElem.pointB = this.previousPointB!; }
+
+    if (this.config.pointTrackingEnabled) { this.domElem.continuouslyUpdateEndpoints(); }
+    else {
+      this.domElem.cancelContinuousUpdates();
+      // this.domElem.updateEndpoints();
     }
   }
 
   protected _onFinishBackward(): void {
     this.domElem.cancelContinuousUpdates();
     this.domElem.classList.add('webchalk-display-none');
+
+    this.domElem.pointA = this.previousPointA!;
+    this.domElem.pointB = this.previousPointB!;
+    this.domElem.pointTrackingEnabled = this.previousConnectorConfig.pointTrackingEnabled;
   }
 }
 
@@ -1335,7 +1402,7 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
  * @category Connector Exit
  */
 export interface ConnectorExitClipConfig extends AnimClipConfig {
-  
+  pointTrackingEnabled: boolean | 'use-current';
 };
 
 /**
@@ -1393,7 +1460,11 @@ export interface ConnectorExitClipConfig extends AnimClipConfig {
  */
 export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefinition<ConnectorExitClip, ConnectorExitClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, ConnectorExitClipConfig> {
   protected get category(): 'Connector Exit' { return 'Connector Exit'; }
-  domElem: WebchalkConnectorElement;
+  domElem: WebchalkConnectorElement; // TODO: make readonly
+  protected previousPointA?: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
+  protected previousPointB?: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
+  
+  protected previousConnectorConfig: WebchalkConnectorElementConfig = {} as WebchalkConnectorElementConfig;
 
   get categoryImmutableConfig() {
     return {
@@ -1404,6 +1475,7 @@ export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefin
   get categoryDefaultConfig() {
     return {
       ...AnimClip.baseDefaultConfig,
+      pointTrackingEnabled:'use-current',
       ...this.categoryImmutableConfig,
     } satisfies ConnectorExitClipConfig;
   }
@@ -1430,7 +1502,13 @@ export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefin
     const hiddenVisibility = visibility === 'hidden';
     const hidden = hiddenDisplay || hiddenVisibility;
 
-    if (!hidingClassName || !hidden) { return; }
+    if (!hidingClassName || !hidden) { // TODO: check to make sure the logic on this condition makes sense
+      this.previousPointA = this.domElem.pointA;
+      this.previousPointB = this.domElem.pointB;
+      this.previousConnectorConfig.pointTrackingEnabled = this.domElem.pointTrackingEnabled;  
+      if (this.config.pointTrackingEnabled !== 'use-current') { this.domElem.pointTrackingEnabled = this.config.pointTrackingEnabled; }
+      return;
+    }
 
     throw this.generateError(CustomErrorClasses.InvalidExitAttempt,
       [`ConnectorExit() can only play on elements that are not already hidden. The connector here is already hidden by the following:`
@@ -1441,16 +1519,23 @@ export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefin
   }
 
   protected _onStartBackward(): void {
+    // here in case some non-timeline changes were made ahead of this clip
+    this.domElem.pointA = this.previousPointA!;
+    this.domElem.pointB = this.previousPointB!;
+    if (this.config.pointTrackingEnabled) { this.domElem.continuouslyUpdateEndpoints(); }
+    else { this.domElem.updateEndpoints(); }
+
     this.domElem.classList.remove('webchalk-display-none');
-    this.domElem.updateEndpoints();
-    if (this.domElem.pointTrackingEnabled) {
-      this.domElem.continuouslyUpdateEndpoints();
-    }
   }
 
   protected _onFinishForward(): void {
     this.domElem.cancelContinuousUpdates();
     this.domElem.classList.add('webchalk-display-none');
+  }
+
+  protected _onFinishBackward(): void {
+    this.domElem.pointTrackingEnabled = this.previousConnectorConfig.pointTrackingEnabled;
+    if (!this.domElem.pointTrackingEnabled) { this.domElem.updateEndpoints(); }
   }
 }
 
