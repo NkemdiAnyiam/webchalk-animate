@@ -885,7 +885,7 @@ export class Webchalk {
 
   get shapeFactories(): CreateConnector {
     return {
-      createConnector: WebchalkConnectorElement.create,
+      drawConnector: WebchalkConnectorElement.create,
     }
   } 
 

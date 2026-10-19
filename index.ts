@@ -31,7 +31,7 @@ console.log('comparison result:', result);
 // ConnectorEntrance(webchalk.shapes.newConnector([square, `0 100px`], [circle, `top center`], {insertAfter}), '~trace', [], {});
 // ConnectorEntrance(connector, '~trace', [], {newEndpoints: [ [square, '100% 100%'], [circle, 'right center'] ]});
 
-const conn = webchalk.shapeFactories.createConnector([redSquare, 'center', 'center'], [blueCircle, 'center', 'center'], {});
+const conn = webchalk.shapeFactories.drawConnector([redSquare, 'center', 'center'], [blueCircle, 'center', 'center'], {});
 
 const timeline = webchalk.newTimeline({timelineName: 'Main'});
 timeline.ui.attachTimelinePane();
@@ -62,7 +62,7 @@ const seq1 = webchalk.newSequence(
     Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: false, description: 'Move blue circle', delay: 1000}),
     Entrance(redSquare, '~pinwheel', [1, 'clockwise'], {duration: 500, description: 'Enter red square'}),
     ConnectorExit(conn, '~trace', [], {}),
-    ConnectorEntrance(conn, '~trace', [], {newEndpoints: { pointA: [blueCircle, 'left', 'top'], pointB: [blueCircle, 'right', 'bottom'] }}),
+    ConnectorEntrance(conn, '~trace', [], {newPoints: { A: [blueCircle, 'left', 'top'], B: [blueCircle, 'right', 'bottom'] }}),
     Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 5000}),
     Exit(redSquare, '~fade-out', [], {description: 'Exit red square'}),
 ]);

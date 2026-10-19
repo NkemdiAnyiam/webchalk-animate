@@ -1123,10 +1123,10 @@ export class ConnectorSetterClip extends AnimClip<PresetEffectDefinition, Connec
  */
 export interface ConnectorEntranceClipConfig extends AnimClipConfig {
   hideNowType: 'display-none' | null;
-  newEndpoints: {
+  newPoints: {
     // TODO: remove preserve as an option
-    pointA?: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve']
-    pointB?: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve']
+    A?: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve']
+    B?: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve']
   };
   pointTrackingEnabled: boolean | 'use-current';
 };
@@ -1221,7 +1221,7 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
     return {
       ...AnimClip.baseDefaultConfig,
       hideNowType: null,
-      newEndpoints: {pointA: ['preserve'], pointB: ['preserve']},
+      newPoints: {A: ['preserve'], B: ['preserve']},
       pointTrackingEnabled: 'use-current',
       ...this.categoryImmutableConfig,
     } satisfies ConnectorEntranceClipConfig;
@@ -1291,8 +1291,8 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
         break;
     }
 
-    const pointA = (effectConfig as ConnectorEntranceClipConfig).newEndpoints?.pointA ?? this.presetEffectDefinition.defaultConfig?.newEndpoints?.pointA ?? this.categoryDefaultConfig.newEndpoints.pointA;
-    const pointB = (effectConfig as ConnectorEntranceClipConfig).newEndpoints?.pointB ?? this.presetEffectDefinition.defaultConfig?.newEndpoints?.pointB ?? this.categoryDefaultConfig.newEndpoints.pointB;
+    const pointA = (effectConfig as ConnectorEntranceClipConfig).newPoints?.A ?? this.presetEffectDefinition.defaultConfig?.newPoints?.A ?? this.categoryDefaultConfig.newPoints.A;
+    const pointB = (effectConfig as ConnectorEntranceClipConfig).newPoints?.B ?? this.presetEffectDefinition.defaultConfig?.newPoints?.B ?? this.categoryDefaultConfig.newPoints.B;
     const pointAElement = pointA
       ? (pointA[0] === 'preserve' ? this.domElem.pointA[0] : pointA[0])
       : (this.domElem.pointA[0]);

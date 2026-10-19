@@ -98,7 +98,7 @@ export interface CreateConnector {
    * @param config - A configuration object for defining the behavior, location, and some attributes of the connector.
    * @returns A new {@link WebchalkConnectorElement} instance.
    */
-  createConnector(
+  drawConnector(
     // TODO: prohibit `number` as an option
     pointA: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY],
     pointB: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY],
@@ -110,7 +110,7 @@ export class WebchalkConnectorElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-connector', WebchalkConnectorElement); }
   private static staticId: number = 0;
 
-  static create<T extends Parameters<CreateConnector['createConnector']>>(pointA: T[0], pointB: T[1], config: T[2]): WebchalkConnectorElement {
+  static create<T extends Parameters<CreateConnector['drawConnector']>>(pointA: T[0], pointB: T[1], config: T[2]): WebchalkConnectorElement {
     // validate endpoints
     if (!(pointA[0] instanceof Element)) { throw new CustomErrorClasses.InvalidElementError(`Point A element must not be null or undefined.`); }
     if (!(pointB[0] instanceof Element)) { throw new CustomErrorClasses.InvalidElementError(`Point B element must not be null or undefined.`); }
