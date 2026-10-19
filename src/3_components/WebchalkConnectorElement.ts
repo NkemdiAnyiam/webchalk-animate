@@ -298,7 +298,11 @@ export class WebchalkConnectorElement extends HTMLElement {
   updateEndpoints = (/*errorGenerator?: ErrorGenerator*/): void => {
     const pointA = this.pointA;
     const pointB = this.pointB;
-    if (!pointA || !pointB) { return; }
+    if (!pointA || !pointB) {
+      console.warn(`This connector is missing at least one point and thus cannot be updated.`);
+      this.cancelContinuousUpdates();
+      return;
+    }
 
     // to properly place the endpoints, we need the positions of their bounding boxes
     
