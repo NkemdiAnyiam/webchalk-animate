@@ -1135,7 +1135,7 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
     }
 
     if (pointA) { this.newPointA = [pointAElement as DOMElement, ...parseMultiUnitPlacement(pointA[1])]; }
-    if (pointB) { this.newPointB = [pointAElement as DOMElement, ...parseMultiUnitPlacement(pointB[1])]; }
+    if (pointB) { this.newPointB = [pointBElement as DOMElement, ...parseMultiUnitPlacement(pointB[1])]; }
 
     return this;
   }
