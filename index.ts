@@ -31,7 +31,7 @@ console.log('comparison result:', result);
 // ConnectorEntrance(webchalk.shapes.newConnector([square, `0 100px`], [circle, `top center`], {insertAfter}), '~trace', [], {});
 // ConnectorEntrance(connector, '~trace', [], {newEndpoints: [ [square, '100% 100%'], [circle, 'right center'] ]});
 
-const conn = webchalk.shapeFactories.drawConnector([redSquare, '(center, center)'], [blueCircle, '(center, center)'], {});
+const conn = webchalk.shapeFactories.drawConnector([redSquare, '(center, middle)'], [blueCircle, '(center, middle)'], {});
 
 const timeline = webchalk.newTimeline({timelineName: 'Main'});
 timeline.ui.attachTimelinePane();

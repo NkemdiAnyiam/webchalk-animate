@@ -686,7 +686,7 @@ export const libPresetMotions = definePresetEffectBank('Motion', {
       const baseXTrans: number = alignmentX === 'center'
         ? ((rectTarget.left + rectTarget.width/2) - (rectSelf.left + rectSelf.width/2))
         : (preserveX ? 0 : rectTarget[alignmentX] - rectSelf[alignmentX]);
-      const baseYTrans: number = alignmentY === 'center'
+      const baseYTrans: number = alignmentY === 'middle'
         ? ((rectTarget.top + rectTarget.height/2) - (rectSelf.top + rectSelf.height/2))
         : (preserveY ? 0 : rectTarget[alignmentY] - rectSelf[alignmentY]);
 

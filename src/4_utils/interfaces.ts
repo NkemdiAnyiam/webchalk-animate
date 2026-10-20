@@ -118,17 +118,17 @@ export type CssLength = `${number}${CssLengthUnit}` | '0';
 /**
  * Keywords for common alignments along the y-axis.
  *  * `"top"` indicates a distance of 0% from the top of an element.
- *  * `"center"` indicates a distance of 50% from the top of an element.
+ *  * `"middle"` indicates a distance of 50% from the top of an element.
  *  * `"bottom"` indicates a distance of 100% from the top of an element.
  */
-export type CssYAlignment = | 'top' | 'bottom' | 'center';
+export type CssYAlignment = | 'top' | 'middle' | 'bottom';
 /**
  * Keywords for common alignments along the x-axis.
  *  * `"left"` indicates a distance of 0% from the left of an element.
  *  * `"center"` indicates a distance of 50% from the left of an element.
  *  * `"right"` indicates a distance of 100% from the left of an element.
  */
-export type CssXAlignment = | 'left' | 'right' | 'center';
+export type CssXAlignment = | 'left' | 'center' | 'right';
 
 /** A string in the form of a number and the '%' sign, such as `"50%"`. */
 export type percentage = `${number}%`;
@@ -151,9 +151,9 @@ export type MultiUnitPlacementX = percentage | pixels | CssXAlignment | `${perce
  * Denotes an X coordinate alignment in the following formats:
  *  * {@link percentage} (such as `"50%"`).
  *  * {@link pixels} (such as `"12px"`).
- *  * {@link CssYAlignment} (such as `"center"` (which is equivalent to `"50%"`) and `"top"` (which is equivalent to `"0%"`)).
+ *  * {@link CssYAlignment} (such as `"middle"` (which is equivalent to `"50%"`) and `"top"` (which is equivalent to `"0%"`)).
  *  * {@link percentage} (+|-) {@link pixels} or {@link pixels} (+|-) {@link percentage} (such as `"50% - 12px"` and `"30px - 20%"`).
- *  * {@link CssYAlignment} (+|-) ({@link pixels}|{@link percentage}) (such as `"top + 50%"` and `"center - 12px"`).
+ *  * {@link CssYAlignment} (+|-) ({@link pixels}|{@link percentage}) (such as `"top + 50%"` and `"middle - 12px"`).
  */
 export type MultiUnitPlacementY = percentage | pixels | CssYAlignment | `${percentage} ${operator} ${pixels}` | `${pixels} ${operator} ${percentage}` | `${CssYAlignment} ${operator} ${pixels | percentage}`;
 
@@ -163,6 +163,7 @@ export type MultiUnitPlacementY = percentage | pixels | CssYAlignment | `${perce
  *  * `"(50%, 20px)"`
  *  * `"(50% + 35px, bottom)"`
  *  * `"(center + 40%, 30px - 12%)"`
+ *  * `"(center, middle)"`
  */
 export type MultiUnitOrderedPairString = `(${MultiUnitPlacementX}, ${MultiUnitPlacementY})`;
 

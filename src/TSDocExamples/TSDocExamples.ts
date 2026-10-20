@@ -415,7 +415,7 @@ const triangle = document.querySelector('.triangle');
 //                   A       B             C
 const clip1 = Motion(square, '~translate', [{translate: '200px 300rem'}]);
 //                   A       B           C
-const clip2 = Motion(circle, '~move-to', [document.querySelector('body'), {alignment: 'center center'}]);
+const clip2 = Motion(circle, '~move-to', [document.querySelector('body'), {alignment: 'center middle'}]);
 //                   A         B           C                                                             D
 const clip3 = Motion(triangle, '~move-to', [circle, {alignment: 'center top', selfOffset: '0% -100%'}], {duration: 2000});
 
@@ -448,7 +448,7 @@ const clip2 = Scroller(
   [ // C
     mainPage?.querySelector('.testimonials'),
     {
-      scrollableOffset: ['0px', 'center'],
+      scrollableOffset: ['0px', 'middle'],
       targetOffset: ['0px', 'top'],
     },
   ],
@@ -516,13 +516,13 @@ const circle2 = document.querySelector('.circle--right');
 //                            A             B                           C
 const clip1 = ConnectorSetter(topConnector, [circle1, 'center', 'top'], [circle2, 'center', 'top']);
 //                            A                B                             C
-const clip2 = ConnectorSetter(middleConnector, [circle1, 'right', 'center'], [circle2, 'left', 'center']);
+const clip2 = ConnectorSetter(middleConnector, [circle1, 'right', 'middle'], [circle2, 'left', 'middle']);
 //                            A                  B                                   C
-const clip3 = ConnectorSetter(verticalConnector, [topConnector, 'center', 'center'], [middleConnector, 'center', 'center']);
+const clip3 = ConnectorSetter(verticalConnector, [topConnector, 'center', 'middle'], [middleConnector, 'center', 'middle']);
 const clip4 = ConnectorSetter(
   bottomConnector, // A
-  [circle1, 'center', 'center'], // B
-  [circle2, 'center', 'center'], // C
+  [circle1, 'center', 'middle'], // B
+  [circle2, 'center', 'middle'], // C
   {pointTrackingEnabled: false}, // D
 );
 

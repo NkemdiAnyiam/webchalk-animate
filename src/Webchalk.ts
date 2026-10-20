@@ -698,8 +698,8 @@ export class Webchalk {
        */
       ConnectorSetter: function(
         connectorElem: WebchalkConnectorElement | Element | null | undefined,
-        pointA: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
-        pointB: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
+        pointA: [elemA: Element | null | undefined, xPlacement: MultiUnitPlacementX, yPlacement: MultiUnitPlacementY] | ['preserve'],
+        pointB: [elemB: Element | null | undefined, xPlacement: MultiUnitPlacementX, yPlacement: MultiUnitPlacementY] | ['preserve'],
         connectorConfig: WebchalkConnectorElementConfig = {} as WebchalkConnectorElementConfig,
       ) {
         self.clipCreatorLock = false;

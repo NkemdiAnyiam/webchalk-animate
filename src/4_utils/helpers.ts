@@ -260,10 +260,9 @@ export function parseMultiUnitPlacement(offset: MultiUnitOrderedPairString): [Pa
   matchX =
     offset.match(/^\(((?:-)?\d+(?:\.\d+)?\%|left|center|right)(?: (\+|-) ((?:-)?\d+(?:\.\d+)?px))?/)
     || offset.match(/^\(((?:-)?\d+(?:\.\d+)?px|left|center|right)(?: (\+|-) ((?:-)?\d+(?:\.\d+)?\%))?/);
-  // TODO: change vertical 'center' to 'middle'
   matchY =
-    offset.match(/((?:-)?\d+(?:\.\d+)?\%|top|center|bottom)(?: (\+|-) ((?:-)?\d+(?:\.\d+)?px))?\)$/)
-    || offset.match(/((?:-)?\d+(?:\.\d+)?px|top|center|bottom)(?: (\+|-) ((?:-)?\d+(?:\.\d+)?\%))?\)$/);
+    offset.match(/((?:-)?\d+(?:\.\d+)?\%|top|middle|bottom)(?: (\+|-) ((?:-)?\d+(?:\.\d+)?px))?\)$/)
+    || offset.match(/((?:-)?\d+(?:\.\d+)?px|top|middle|bottom)(?: (\+|-) ((?:-)?\d+(?:\.\d+)?\%))?\)$/);
 
   
   if (!matchX || !matchY) {
@@ -303,6 +302,7 @@ function parseMultiUnitPlacementHelper(val1: string, val2: string, operator: str
         alignmentPerc = 1;
         break;
       case "center":
+      case "middle":
         alignmentPerc = 0.5;
         break;
       default:
