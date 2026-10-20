@@ -7,7 +7,7 @@ import {
 } from "./1_playbackStructures/AnimationClipCategories";
 import { AnimSequence, AnimSequenceConfig } from "./1_playbackStructures/AnimationSequence";
 import { AnimTimeline, AnimTimelineConfig } from "./1_playbackStructures/AnimationTimeline";
-import { CreateConnector, WebchalkConnectorElement, WebchalkConnectorElementConfig } from "./3_components/WebchalkConnectorElement";
+import { DrawConnector, WebchalkConnectorElement, WebchalkConnectorElementConfig } from "./3_components/WebchalkConnectorElement";
 import {
   libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions,
   libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions,
@@ -668,7 +668,7 @@ export class Webchalk {
        * 
        * // create connector entrance clips using factory function
        * //                              A             B           C   D             
-       * const clip1 = ConnectorEntrance(topConnector, '~fade-in', [], {duration: 2000, playbackRate: 2, pointTrackingEnabled: false});
+       * const clip1 = ConnectorEntrance(topConnector, '~fade-in', [], {duration: 2000, playbackRate: 2, disableAutoTracking: false});
        * //                              A                B         C
        * const clip2 = ConnectorEntrance(middleConnector, '~trace', ['from-A']);
        * //                              A                  B         C                D
@@ -820,7 +820,7 @@ export class Webchalk {
     };
   }
 
-  get shapeFactories(): CreateConnector {
+  get shapeFactories(): DrawConnector {
     return {
       drawConnector: WebchalkConnectorElement.create,
     }

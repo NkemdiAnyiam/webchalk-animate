@@ -55,7 +55,7 @@ stylesheet.replaceSync(
 );
 
 export type WebchalkConnectorElementConfig = {
-  pointTrackingEnabled: boolean;
+  disableAutoTracking: boolean;
 };
 
 type CreateConnectorConfig = {
@@ -69,17 +69,17 @@ type CreateConnectorConfig = {
    */
   domLocation?: [where: 'before' | 'after' | 'first-child' | 'last-child', element: Element | null | undefined] | null;
   /**
-   * If `true`, the endpoints of the connector will continuously update to match any positional changes in the target elements.
+   * If `true`, the endpoints of the connector will be prevented from continuously updating to match any positional changes in the target elements.
    * @remarks
    * If {@link CreateConnectorConfig.domLocation|domLocation} is used to insert the connector close to the target endpoints
-   * and neither endpoints will undergo transformations, specifying `false` is appropriate for optimization since the target elements will
+   * and neither endpoints will undergo transformations, specifying `true` is appropriate for optimization since the target elements will
    * not be moving with respect to the connector.
    * @defaultValue
    * ```ts
    * true
    * ```
    */
-  pointTrackingEnabled?: boolean; // TODO: rename to something simple like `tracking`
+  disableAutoTracking?: boolean;
   /**
    * An array of CSS classes that will be added to the connector's HTML class attribute.
    */
@@ -90,10 +90,10 @@ type CreateConnectorConfig = {
   cssId?: string;
 };
 
-export interface CreateConnector {
+export interface DrawConnector {
   // TODO: add code examples
   /**
-   * Creates a new {@link WebchalkConnectorElement} and (by default) attached it to the DOM.
+   * Creates a new {@link WebchalkConnectorElement} and (by default) attaches it to the DOM.
    * @param pointA - The element target for endpoint A of the connector.
    * @param pointB - The element target for endpoint B of the connector.
    * @param config - A configuration object for defining the behavior, location, and some attributes of the connector.
@@ -110,7 +110,7 @@ export class WebchalkConnectorElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-connector', WebchalkConnectorElement); }
   private static staticId: number = 0;
 
-  static create<T extends Parameters<CreateConnector['drawConnector']>>(pointA: T[0], pointB: T[1], config: T[2]): WebchalkConnectorElement {
+  static create<T extends Parameters<DrawConnector['drawConnector']>>(pointA: T[0], pointB: T[1], config: T[2]): WebchalkConnectorElement {
     // validate endpoints
     if (!(pointA[0] instanceof Element)) { throw new CustomErrorClasses.InvalidElementError(`Point A element must not be null or undefined.`); }
     if (!(pointB[0] instanceof Element)) { throw new CustomErrorClasses.InvalidElementError(`Point B element must not be null or undefined.`); }
@@ -125,10 +125,10 @@ export class WebchalkConnectorElement extends HTMLElement {
       domLocation = ['last-child', document.querySelector('.webchalk-assets-container')],
       cssClasses = [],
       cssId,
-      pointTrackingEnabled = true,
+      disableAutoTracking = false,
     } = config;
 
-    newConnector.pointTrackingEnabled = pointTrackingEnabled;
+    newConnector.disableAutoTracking = disableAutoTracking;
     newConnector.classList.add(...cssClasses);
     if (cssId) { newConnector.id = cssId; }
 
@@ -148,8 +148,8 @@ export class WebchalkConnectorElement extends HTMLElement {
 
       insRefPoint.insertAdjacentElement(where, newConnector);
       
-      if (pointTrackingEnabled) { newConnector.continuouslyUpdateEndpoints(); }
-      else { newConnector.updateEndpoints(); }
+      if (disableAutoTracking) { newConnector.updateEndpoints(); }
+      else { newConnector.continuouslyUpdateEndpoints(); }
     }
 
     return newConnector;
@@ -168,7 +168,7 @@ export class WebchalkConnectorElement extends HTMLElement {
   // TODO: create getter and setter or some setter functions
   pointA: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] = [document.body, [0,0], [0,0]];
   pointB: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] = [document.body, [0,100], [0,100]];
-  pointTrackingEnabled: boolean = true;
+  disableAutoTracking: boolean = true;
   private continuousTrackingReqId: number = NaN;
 
   get ax(): number { return this.lineLayer.x1.baseVal.value; }
@@ -208,7 +208,7 @@ export class WebchalkConnectorElement extends HTMLElement {
     const maskId = `mask--${this.connectorId}`;
     this.usesMarkerA = this.hasAttribute('a-marker');
     this.usesMarkerB = this.hasAttribute('b-marker');
-    this.pointTrackingEnabled = !this.hasAttribute('tracking-disabled');
+    this.disableAutoTracking = this.getAttribute('tracking-disabled') === 'true';
     const markerWidth: number = Number(this.getAttribute('marker-width')) || 5;
     const markerHeight: number = Number(this.getAttribute('marker-height')) || 7;
 
