@@ -550,9 +550,15 @@ clip4.play();
 // retrieve connector entrance clip factory function;
 const { ConnectorEntrance } = webchalk.createAnimationClipFactories();
 
-// select connector elements from the DOM
+// select elements from the DOM
+const circle1 = document.querySelector('.circle--left');
+const circle2 = document.querySelector('.circle--right');
+
+// select connector elements from the DOM or create them using drawConnector()
 const topConnector = document.querySelector('.connector--thick');
-const middleConnector = document.querySelector('.connector--skinny');
+const middleConnector = webchalk.shapeFactories.drawConnector([circle1, '(right, middle)'], [circle2, '(left, middle)'], {
+  cssClasses: ['connector--skinny']
+});
 const verticalConnector = document.querySelector('.connector--red');
 const bottomConnector = document.querySelector('.connector--dashed');
 
@@ -560,19 +566,21 @@ const bottomConnector = document.querySelector('.connector--dashed');
 
 // create connector entrance clips using factory function
 //                              A             B           C   D             
-const clip1 = ConnectorEntrance(topConnector, '~fade-in', [], {duration: 2000, playbackRate: 2});
+const clip1 = ConnectorEntrance(topConnector, '~fade-in', [], {duration: 2000, playbackRate: 2, pointTrackingEnabled: false});
 //                              A                B         C
 const clip2 = ConnectorEntrance(middleConnector, '~trace', ['from-A']);
 //                              A                  B         C                D
 const clip3 = ConnectorEntrance(verticalConnector, '~trace', ['from-bottom'], {delay: 500});
-//                              A                B          C
-const clip4 = ConnectorEntrance(bottomConnector, '~appear', []);
+//                              A                B          C   D
+const clip4 = ConnectorEntrance(bottomConnector, '~appear', [], {
+  newPoints: {A: [circle2, '(left, -20px)'], B: [circle2, '(right, bottom + 20px)']}
+});
 
 // play clips (all will play at the same time because they are asynchronous)
-clip1.play(); // topConnector fades in
+clip1.play(); // topConnector fades in, and its endpoint tracking is disabled (meaning it will not update even if the targets move)
 clip2.play(); // middleConnector is drawn from its point A to its point B
 clip3.play(); // verticalConnector is draw starting from whichever endpoint is lower
-clip4.play(); // bottomConnector appears instantly
+clip4.play(); // bottomConnector appears instantly, and whatever its endpoints used to be were replaced by newPoints
 /**** EX:E id="ConnectorEntranceClip.example" */
 }
 

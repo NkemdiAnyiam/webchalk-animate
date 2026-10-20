@@ -571,7 +571,7 @@ export class Webchalk {
        * //                   A       B             C
        * const clip1 = Motion(square, '~translate', [{translate: '200px 300rem'}]);
        * //                   A       B           C
-       * const clip2 = Motion(circle, '~move-to', [document.querySelector('body'), {alignment: 'center center'}]);
+       * const clip2 = Motion(circle, '~move-to', [document.querySelector('body'), {alignment: 'center middle'}]);
        * //                   A         B           C                                                             D
        * const clip3 = Motion(triangle, '~move-to', [circle, {alignment: 'center top', selfOffset: '0% -100%'}], {duration: 2000});
        * 
@@ -667,13 +667,13 @@ export class Webchalk {
        * //                            A             B                           C
        * const clip1 = ConnectorSetter(topConnector, [circle1, 'center', 'top'], [circle2, 'center', 'top']);
        * //                            A                B                             C
-       * const clip2 = ConnectorSetter(middleConnector, [circle1, 'right', 'center'], [circle2, 'left', 'center']);
+       * const clip2 = ConnectorSetter(middleConnector, [circle1, 'right', 'middle'], [circle2, 'left', 'middle']);
        * //                            A                  B                                   C
-       * const clip3 = ConnectorSetter(verticalConnector, [topConnector, 'center', 'center'], [middleConnector, 'center', 'center']);
+       * const clip3 = ConnectorSetter(verticalConnector, [topConnector, 'center', 'middle'], [middleConnector, 'center', 'middle']);
        * const clip4 = ConnectorSetter(
        *   bottomConnector, // A
-       *   [circle1, 'center', 'center'], // B
-       *   [circle2, 'center', 'center'], // C
+       *   [circle1, 'center', 'middle'], // B
+       *   [circle2, 'center', 'middle'], // C
        *   {pointTrackingEnabled: false}, // D
        * );
        * 
@@ -723,9 +723,15 @@ export class Webchalk {
        * // retrieve connector entrance clip factory function;
        * const { ConnectorEntrance } = webchalk.createAnimationClipFactories();
        * 
-       * // select connector elements from the DOM
+       * // select elements from the DOM
+       * const circle1 = document.querySelector('.circle--left');
+       * const circle2 = document.querySelector('.circle--right');
+       * 
+       * // select connector elements from the DOM or create them using drawConnector()
        * const topConnector = document.querySelector('.connector--thick');
-       * const middleConnector = document.querySelector('.connector--skinny');
+       * const middleConnector = webchalk.shapeFactories.drawConnector([circle1, '(right, middle)'], [circle2, '(left, middle)'], {
+       *   cssClasses: ['connector--skinny']
+       * });
        * const verticalConnector = document.querySelector('.connector--red');
        * const bottomConnector = document.querySelector('.connector--dashed');
        * 
@@ -733,19 +739,21 @@ export class Webchalk {
        * 
        * // create connector entrance clips using factory function
        * //                              A             B           C   D             
-       * const clip1 = ConnectorEntrance(topConnector, '~fade-in', [], {duration: 2000, playbackRate: 2});
+       * const clip1 = ConnectorEntrance(topConnector, '~fade-in', [], {duration: 2000, playbackRate: 2, pointTrackingEnabled: false});
        * //                              A                B         C
        * const clip2 = ConnectorEntrance(middleConnector, '~trace', ['from-A']);
        * //                              A                  B         C                D
        * const clip3 = ConnectorEntrance(verticalConnector, '~trace', ['from-bottom'], {delay: 500});
-       * //                              A                B          C
-       * const clip4 = ConnectorEntrance(bottomConnector, '~appear', []);
+       * //                              A                B          C   D
+       * const clip4 = ConnectorEntrance(bottomConnector, '~appear', [], {
+       *   newPoints: {A: [circle2, '(left, -20px)'], B: [circle2, '(right, bottom + 20px)']}
+       * });
        * 
        * // play clips (all will play at the same time because they are asynchronous)
-       * clip1.play(); // topConnector fades in
+       * clip1.play(); // topConnector fades in, and its endpoint tracking is disabled (meaning it will not update even if the targets move)
        * clip2.play(); // middleConnector is drawn from its point A to its point B
        * clip3.play(); // verticalConnector is draw starting from whichever endpoint is lower
-       * clip4.play(); // bottomConnector appears instantly
+       * clip4.play(); // bottomConnector appears instantly, and whatever its endpoints used to be were replaced by newPoints
        * ```
        * <!-- EX:E id="ConnectorEntranceClip.example" -->
        */
@@ -838,7 +846,7 @@ export class Webchalk {
        *   [ // C
        *     mainPage?.querySelector('.testimonials'),
        *     {
-       *       scrollableOffset: ['0px', 'center'],
+       *       scrollableOffset: ['0px', 'middle'],
        *       targetOffset: ['0px', 'top'],
        *     },
        *   ],
