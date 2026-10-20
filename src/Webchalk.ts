@@ -15,8 +15,8 @@ import {
 } from "./2_animationEffects/webchalkPresetEffectBanks";
 import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./4_utils/interfaces";
 import { PresetEffectBank, EffectNameIn, PresetEffectDefinition, EffectOptions, definePresetEffectBank, ExtendableBankCategoryToClipType, PresetEffectBankToCategory, definePresetEffect } from "./2_animationEffects/presetEffectCreation";
-import { StrictPropertyCheck } from "./4_utils/utilityTypes";
-import { DEFAULT_CONFIG_ERROR, IMMUTABLE_CONFIG_ERROR } from "./4_utils/errors";
+// import { StrictPropertyCheck } from "./4_utils/utilityTypes";
+// import { DEFAULT_CONFIG_ERROR, IMMUTABLE_CONFIG_ERROR } from "./4_utils/errors";
 
 /**
  * @hideconstructor
