@@ -96,9 +96,9 @@ export interface MoveToOptions extends TranslationOffset {
  */
 export interface ScrollingOptions {
   /** Determines the intersection point of the scrolling container with respect to its top-left bound. */
-  scrollableOffset?: [x: MultiUnitPlacementX | number, y: MultiUnitPlacementY | number];
+  scrollableOffset?: [x: MultiUnitPlacementX, y: MultiUnitPlacementY];
   /** Determines the intersection point of the scroll target with respect to its top-left corner. */
-  targetOffset?: [x: MultiUnitPlacementX | number, y: MultiUnitPlacementY | number];
+  targetOffset?: [x: MultiUnitPlacementX, y: MultiUnitPlacementY];
   /** If `true`, the scrolling container will not scroll horizontally. */
   preserveX?: boolean;
   /** If `true`, the scrolling container will not scroll vertically. */
@@ -156,6 +156,15 @@ export type MultiUnitPlacementX = percentage | pixels | CssXAlignment | `${perce
  *  * {@link CssYAlignment} (+|-) ({@link pixels}|{@link percentage}) (such as `"top + 50%"` and `"center - 12px"`).
  */
 export type MultiUnitPlacementY = percentage | pixels | CssYAlignment | `${percentage} ${operator} ${pixels}` | `${pixels} ${operator} ${percentage}` | `${CssYAlignment} ${operator} ${pixels | percentage}`;
+
+/**
+ * Denotes an (X, Y) coordinate pair in the string form `"(X, Y)"`,
+ * where X is a {@link MultiUnitPlacementX} and Y is a {@link MultiUnitPlacementY}. Examples:
+ *  * `"(50%, 20px)"`
+ *  * `"(50% + 35px, bottom)"`
+ *  * `"(center + 40%, 30px - 12%)"`
+ */
+export type MultiUnitOrderedPairString = `(${MultiUnitPlacementX}, ${MultiUnitPlacementY})`;
 
 /**
  * A tuple containing the result of parsing a multi-unit placement string

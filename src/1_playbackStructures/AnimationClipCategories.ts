@@ -2,7 +2,7 @@ import { AnimClip, AnimClipConfig, AnimClipModifiers, AnimClipTiming } from "./A
 import { CustomErrorClasses, errorTip, ErrorUIMessageFragments } from "../4_utils/errors";
 import { createCodeEl, createDetailsEl, fragment, getPartial, parseMultiUnitPlacement, TBA_DURATION, createUListEl } from "../4_utils/helpers";
 import { Webchalk } from "../Webchalk";
-import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement, RootNodeEditStats, TextEditRate } from "../4_utils/interfaces";
+import { DOMElement, MultiUnitOrderedPairString, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement, RootNodeEditStats, TextEditRate } from "../4_utils/interfaces";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { WebchalkConnectorElement, WebchalkConnectorElementConfig } from "../3_components/WebchalkConnectorElement";
 import { PresetEffectDefinition, PresetEffectBank, EffectOptions, Layer3MutableClipConfig, EffectNameIn } from "../2_animationEffects/presetEffectCreation";
@@ -1059,8 +1059,8 @@ export class ConnectorSetterClip extends AnimClip<PresetEffectDefinition, Connec
   /**@internal*/
   constructor(
     connectorElem: WebchalkConnectorElement | null | undefined,
-    pointA: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
-    pointB: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve'],
+    pointA: [elemA: Element | null | undefined, xPlacement: MultiUnitPlacementX, yPlacement: MultiUnitPlacementY] | ['preserve'],
+    pointB: [elemB: Element | null | undefined, xPlacement: MultiUnitPlacementX, yPlacement: MultiUnitPlacementY] | ['preserve'],
     effectName: string,
     presetEffectBank: PresetEffectBank,
     connectorConfig: Partial<WebchalkConnectorElementConfig> = {},
@@ -1079,8 +1079,8 @@ export class ConnectorSetterClip extends AnimClip<PresetEffectDefinition, Connec
     }
 
     this.domElem = connectorElem;
-    this.pointA = pointA[0] === 'preserve' ? 'use-preserved' : [pointAElement as DOMElement, parseMultiUnitPlacement(pointA[1], 'horizontal'), parseMultiUnitPlacement(pointA[2], 'vertical')];
-    this.pointB = pointB[0] === 'preserve' ? 'use-preserved' : [pointBElement as DOMElement, parseMultiUnitPlacement(pointB[1], 'horizontal'), parseMultiUnitPlacement(pointB[2], 'vertical')];
+    this.pointA = pointA[0] === 'preserve' ? 'use-preserved' : [pointAElement as DOMElement, ...parseMultiUnitPlacement(`(${pointA[1]}, ${pointA[2]})`)];
+    this.pointB = pointB[0] === 'preserve' ? 'use-preserved' : [pointAElement as DOMElement, ...parseMultiUnitPlacement(`(${pointB[1]}, ${pointB[2]})`)];
 
     this.connectorConfig = this.applyLineConfig(connectorConfig);
   }
@@ -1125,8 +1125,8 @@ export interface ConnectorEntranceClipConfig extends AnimClipConfig {
   hideNowType: 'display-none' | null;
   newPoints: {
     // TODO: remove preserve as an option
-    A?: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve']
-    B?: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY] | ['preserve']
+    A?: [elemA: Element | null | undefined, MultiUnitOrderedPairString] | ['preserve']
+    B?: [elemB: Element | null | undefined, MultiUnitOrderedPairString] | ['preserve']
   };
   pointTrackingEnabled: boolean | 'use-current';
 };
@@ -1306,8 +1306,8 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
       throw this.generateError(CustomErrorClasses.InvalidElementError, [`Point B element must not be null or undefined.`]);
     }
 
-    this.pointA = pointA[0] === 'preserve' ? 'use-preserved' : [pointAElement as DOMElement, parseMultiUnitPlacement(pointA[1], 'horizontal'), parseMultiUnitPlacement(pointA[2], 'vertical')];
-    this.pointB = pointB[0] === 'preserve' ? 'use-preserved' : [pointBElement as DOMElement, parseMultiUnitPlacement(pointB[1], 'horizontal'), parseMultiUnitPlacement(pointB[2], 'vertical')];
+    this.pointA = pointA[0] === 'preserve' ? 'use-preserved' : [pointAElement as DOMElement, ...parseMultiUnitPlacement(pointA[1])];
+    this.pointB = pointB[0] === 'preserve' ? 'use-preserved' : [pointAElement as DOMElement, ...parseMultiUnitPlacement(pointB[1])];
 
     return this;
   }

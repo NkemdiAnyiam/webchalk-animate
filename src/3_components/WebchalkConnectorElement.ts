@@ -1,6 +1,6 @@
 import { CustomErrorClasses } from "../4_utils/errors";
 import { equalWithinTol, getBoundingClientRectOfHidden, parseMultiUnitPlacement } from "../4_utils/helpers";
-import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
+import { DOMElement, MultiUnitOrderedPairString, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
 
 const stylesheet = new CSSStyleSheet();
 stylesheet.replaceSync(
@@ -91,6 +91,7 @@ type CreateConnectorConfig = {
 };
 
 export interface CreateConnector {
+  // TODO: add code examples
   /**
    * Creates a new {@link WebchalkConnectorElement} and (by default) attached it to the DOM.
    * @param pointA - The element target for endpoint A of the connector.
@@ -99,9 +100,8 @@ export interface CreateConnector {
    * @returns A new {@link WebchalkConnectorElement} instance.
    */
   drawConnector(
-    // TODO: prohibit `number` as an option
-    pointA: [elemA: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY],
-    pointB: [elemB: Element | null | undefined, xPlacement: number | MultiUnitPlacementX, yPlacement: number | MultiUnitPlacementY],
+    pointA: [elemA: Element | null | undefined, placement: MultiUnitOrderedPairString],
+    pointB: [elemB: Element | null | undefined, placement: MultiUnitOrderedPairString],
     config: CreateConnectorConfig
   ): WebchalkConnectorElement;
 }
@@ -117,8 +117,8 @@ export class WebchalkConnectorElement extends HTMLElement {
     
     // create connector and set endpoints
     const newConnector = new WebchalkConnectorElement();
-    newConnector.pointA = [pointA[0] as DOMElement, parseMultiUnitPlacement(pointA[1], 'horizontal'), parseMultiUnitPlacement(pointA[2], 'vertical')];
-    newConnector.pointB = [pointB[0] as DOMElement, parseMultiUnitPlacement(pointB[1], 'horizontal'), parseMultiUnitPlacement(pointB[2], 'vertical')];
+    newConnector.pointA = [pointA[0] as DOMElement, ...parseMultiUnitPlacement(pointA[1])];
+    newConnector.pointB = [pointB[0] as DOMElement, ...parseMultiUnitPlacement(pointB[1])];
 
     // handle config
     const {

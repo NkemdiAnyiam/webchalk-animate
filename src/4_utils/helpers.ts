@@ -1,5 +1,5 @@
 import { CustomErrorClasses } from "./errors";
-import { CssLength, CssXAlignment, CssYAlignment, ScrollingOptions, ParsedMultiUnitPlacement, MultiUnitPlacementX, MultiUnitPlacementY, StyleProperty, TextNodeDatum, RootNodeEditStats, InfixTextNodeList } from "./interfaces";
+import { CssLength, CssXAlignment, CssYAlignment, ScrollingOptions, ParsedMultiUnitPlacement, MultiUnitPlacementX, MultiUnitPlacementY, StyleProperty, TextNodeDatum, RootNodeEditStats, InfixTextNodeList, MultiUnitOrderedPairString } from "./interfaces";
 import { KeyOf, PickFromArray } from "./utilityTypes";
 import { hljs } from './highlightjs/index.js';
 
@@ -252,34 +252,34 @@ export const parseXYAlignmentString = (tupleStr: `${CssXAlignment} ${CssYAlignme
   return tupleStr?.split(' ') as [x: CssXAlignment, y: CssYAlignment] | undefined;
 };
 
-export function parseMultiUnitPlacement(offset: number | MultiUnitPlacementY, alignment: 'vertical'): ParsedMultiUnitPlacement;
-export function parseMultiUnitPlacement(offset: number | MultiUnitPlacementX, alignment: 'horizontal'): ParsedMultiUnitPlacement;
-export function parseMultiUnitPlacement(offset: number | MultiUnitPlacementX | MultiUnitPlacementY, alignment: 'vertical' | 'horizontal'): ParsedMultiUnitPlacement {
-  if (typeof offset === 'number') { return [offset, 0]; }
+export function parseMultiUnitPlacement(offset: MultiUnitOrderedPairString): [ParsedMultiUnitPlacement, ParsedMultiUnitPlacement] {
+  // if (typeof offset === 'number') { return [offset, 0]; }
 
-  let match;
+  let matchX, matchY;
   
-  switch(alignment) {
-    case 'horizontal':
-      match =
-        offset.match(/^((?:-)?\d+(?:\.\d+)?\%|left|center|right)(?: (\+|-) ((?:-)?\d+(?:\.\d+)?px))?$/)
-        || offset.match(/^((?:-)?\d+(?:\.\d+)?px|left|center|right)(?: (\+|-) ((?:-)?\d+(?:\.\d+)?\%))?$/);
-      break;
-    case 'vertical':
-      match =
-        offset.match(/^((?:-)?\d+(?:\.\d+)?\%|top|center|bottom)(?: (\+|-) ((?:-)?\d+(?:\.\d+)?px))?$/)
-        || offset.match(/^((?:-)?\d+(?:\.\d+)?px|top|center|bottom)(?: (\+|-) ((?:-)?\d+(?:\.\d+)?\%))?$/);
-      break;
-    default:
-      throw new RangeError(`Invalid alignment value ${alignment}. Must be 'horizontal' or 'vertical'.`);
-  }
+  matchX =
+    offset.match(/^\(((?:-)?\d+(?:\.\d+)?\%|left|center|right)(?: (\+|-) ((?:-)?\d+(?:\.\d+)?px))?/)
+    || offset.match(/^\(((?:-)?\d+(?:\.\d+)?px|left|center|right)(?: (\+|-) ((?:-)?\d+(?:\.\d+)?\%))?/);
+  // TODO: change vertical 'center' to 'middle'
+  matchY =
+    offset.match(/((?:-)?\d+(?:\.\d+)?\%|top|center|bottom)(?: (\+|-) ((?:-)?\d+(?:\.\d+)?px))?\)$/)
+    || offset.match(/((?:-)?\d+(?:\.\d+)?px|top|center|bottom)(?: (\+|-) ((?:-)?\d+(?:\.\d+)?\%))?\)$/);
 
   
-  if (!match) {
-    throw new RangeError(`Invalid offset string ${offset} using alignment ${alignment}.`);
+  if (!matchX || !matchY) {
+    throw new RangeError(`Invalid offset string "${offset}".`);
   }
 
-  const [val1, operator = '+', val2] = match.slice(1, 4);
+  const [valX1, operatorX = '+', valX2] = matchX.slice(1, 4);
+  const [valY1, operatorY = '+', valY2] = matchY.slice(1, 4);
+
+  return [
+    parseMultiUnitPlacementHelper(valX1, valX2, operatorX),
+    parseMultiUnitPlacementHelper(valY1, valY2, operatorY)
+  ];
+}
+
+function parseMultiUnitPlacementHelper(val1: string, val2: string, operator: string): ParsedMultiUnitPlacement {
   const sign = operator === '+' ? 1 : -1;
 
   // if first value is a percentage, then the second MUST be px (or nothing)
@@ -306,7 +306,7 @@ export function parseMultiUnitPlacement(offset: number | MultiUnitPlacementX | M
         alignmentPerc = 0.5;
         break;
       default:
-        throw new RangeError(`Something wrong occurred for ${val1} to be ${val1}`);
+        throw new RangeError(`Something wrong occurred for val1 to be "${val1}"`);
     }
 
     // if second value is a percentage
@@ -331,11 +331,16 @@ export function parseMultiUnitPlacement(offset: number | MultiUnitPlacementX | M
  */
 export const computeSelfScrollingBounds = (scrollable: Element, target: Element, scrollOptions: ScrollingOptions): {fromXY: [number, number], toXY: [number, number]} => {
   // determines the intersection point of the target
-  const [offsetPercX, offsetPixelsX] = parseMultiUnitPlacement(scrollOptions.targetOffset?.[0] ?? '0px', 'horizontal');
-  const [offsetPercY, offsetPixelsY] = parseMultiUnitPlacement(scrollOptions.targetOffset?.[1] ?? '0px', 'vertical');
+  const [
+    [offsetPercX, offsetPixelsX],
+    [offsetPercY, offsetPixelsY]
+  ] = parseMultiUnitPlacement(`(${scrollOptions.targetOffset?.[0] ?? '0px'}, ${scrollOptions.targetOffset?.[1] ?? '0px'})`);
   // determines the intersection point of the scrolling container
-  const [placementOffsetPercX, placementOffsetPixelsX] = parseMultiUnitPlacement(scrollOptions.scrollableOffset?.[0] ?? '0px', 'horizontal');
-  const [placementOffsetPercY, placementOffsetPixelsY] = parseMultiUnitPlacement(scrollOptions.scrollableOffset?.[1] ?? '0px', 'vertical');
+
+  const [
+    [placementOffsetPercX, placementOffsetPixelsX],
+    [placementOffsetPercY, placementOffsetPixelsY]
+  ] = parseMultiUnitPlacement(`(${scrollOptions.scrollableOffset?.[0] ?? '0px'}, ${scrollOptions.scrollableOffset?.[1] ?? '0px'})`);
 
   const selfRect = scrollable.getBoundingClientRect();
   const targetRect = target!.getBoundingClientRect();
