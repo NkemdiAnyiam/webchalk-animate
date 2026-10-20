@@ -1388,6 +1388,12 @@ code {
   --hue-darkest: var(--color-exit-darkest);
 }
 
+.clip-info-box--emphasis {
+  --hue-light: var(--color-emphasis-light);
+  --hue-dark: var(--color-emphasis-dark);
+  --hue-darkest: var(--color-emphasis-darkest);
+}
+
 .clip-info-box--motion {
   --hue-light: var(--color-motion-light);
   --hue-dark: var(--color-motion-dark);
@@ -1404,18 +1410,6 @@ code {
   --hue-light: var(--color-text-editor-light);
   --hue-dark: var(--color-text-editor-dark);
   --hue-darkest: var(--color-text-editor-darkest);
-}
-
-.clip-info-box--connector-setter {
-  --hue-light: var(--color-text-editor-light);
-  --hue-dark: var(--color-text-editor-dark);
-  --hue-darkest: var(--color-text-editor-darkest);
-}
-
-.clip-info-box--emphasis {
-  --hue-light: var(--color-emphasis-light);
-  --hue-dark: var(--color-emphasis-dark);
-  --hue-darkest: var(--color-emphasis-darkest);
 }
 
 .clip-info-box {

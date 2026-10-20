@@ -16,6 +16,10 @@
   @include category-color(exit);
 }
 
+.clip-info-box--emphasis {
+  @include category-color(emphasis);
+}
+
 .clip-info-box--motion {
   @include category-color(motion);
 }
@@ -26,14 +30,6 @@
 
 .clip-info-box--scroller {
   @include category-color(text-editor);
-}
-
-.clip-info-box--connector-setter {
-  @include category-color(text-editor);
-}
-
-.clip-info-box--emphasis {
-  @include category-color(emphasis);
 }
 
 .clip-info-box {

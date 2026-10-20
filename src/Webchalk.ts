@@ -1,7 +1,7 @@
 import { AnimClip } from "./1_playbackStructures/AnimationClip";
 import {
   EntranceClip, ExitClip, EmphasisClip, MotionClip, ScrollerClip, TransitionClip,
-  ConnectorEntranceClip, ConnectorExitClip, ConnectorSetterClip,
+  ConnectorEntranceClip, ConnectorExitClip,
   Layer4MutableConfig,
   TextEditorClip,
 } from "./1_playbackStructures/AnimationClipCategories";
@@ -637,77 +637,6 @@ export class Webchalk {
       ) {
         self.clipCreatorLock = false;
         return new TransitionClip<TPresetEffectDefinition>(domElem as DOMElement, effectName, combinedTransitionBank).initialize(effectOptions, effectConfig);
-      },
-
-      /**
-       * Creates a {@link ConnectorSetterClip}, which can be used to set the endpoints of a {@link WebchalkConnectorElement}.
-       * @param connectorElem - The {@link WebchalkConnectorElement} element to which the animation effect will be applied.
-       * @param pointA - The new target of endpoint A (or `"preserve"` if it should not change).
-       * @param pointB - The new target of endpoint B (or `"preserve"` if it should not change).
-       * @param connectorConfig A {@link WebchalkConnectorElementConfig} object.
-       * @returns A new {@link ConnectorSetter} instance.
-       * 
-       * <!-- EX:S id="ConnectorSetterClip.example" code-type="ts" -->
-       * ```ts
-       * // retrieve connector setter clip factory function;
-       * const { ConnectorSetter } = webchalk.createAnimationClipFactories();
-       * 
-       * // select connector elements from the DOM
-       * const topConnector = document.querySelector('.connector--thick');
-       * const middleConnector = document.querySelector('.connector--skinny');
-       * const verticalConnector = document.querySelector('.connector--red');
-       * const bottomConnector = document.querySelector('.connector--dashed');
-       * // select other elements from the DOM
-       * const circle1 = document.querySelector('.circle--left');
-       * const circle2 = document.querySelector('.circle--right');
-       * 
-       * // A = connector element, B = point a, C = point b, D = configuration (optional)
-       * 
-       * // create connector setter clips using factory function
-       * //                            A             B                           C
-       * const clip1 = ConnectorSetter(topConnector, [circle1, 'center', 'top'], [circle2, 'center', 'top']);
-       * //                            A                B                             C
-       * const clip2 = ConnectorSetter(middleConnector, [circle1, 'right', 'middle'], [circle2, 'left', 'middle']);
-       * //                            A                  B                                   C
-       * const clip3 = ConnectorSetter(verticalConnector, [topConnector, 'center', 'middle'], [middleConnector, 'center', 'middle']);
-       * const clip4 = ConnectorSetter(
-       *   bottomConnector, // A
-       *   [circle1, 'center', 'middle'], // B
-       *   [circle2, 'center', 'middle'], // C
-       *   {pointTrackingEnabled: false}, // D
-       * );
-       * 
-       * // play clips (all will play at the same time because they are asynchronous)
-       * // topConnector's endpoints are set to the center-tops of circle1 and circle2
-       * clip1.play();
-       * 
-       * // middleConnector's endpoints are set to the right-center of circle1 and left-center of circle2
-       * clip2.play();
-       * 
-       * // verticalConnector's endpoints are set to the midpoints of topConnector and middleConnector
-       * clip3.play();
-       * 
-       * // bottomConnector's endpoints are set to the center-bottoms of circle1 and circle2,
-       * // but its endpoints will NOT be updated if the circles move
-       * clip4.play();
-       * 
-       * // if the connectors are then drawn using ConnectorEntrance(), their endpoints will match
-       * // what was set according to ConnectorSetter()
-       * ```
-       * <!-- EX:E id="ConnectorSetterClip.example" -->
-       */
-      ConnectorSetter: function(
-        connectorElem: WebchalkConnectorElement | Element | null | undefined,
-        pointA: [elemA: Element | null | undefined, xPlacement: MultiUnitPlacementX, yPlacement: MultiUnitPlacementY] | ['preserve'],
-        pointB: [elemB: Element | null | undefined, xPlacement: MultiUnitPlacementX, yPlacement: MultiUnitPlacementY] | ['preserve'],
-        connectorConfig: WebchalkConnectorElementConfig = {} as WebchalkConnectorElementConfig,
-      ) {
-        self.clipCreatorLock = false;
-        const effectName = `~set-line-points`;
-        // TODO: define the bank outside like all the other banks
-        return new ConnectorSetterClip(
-          connectorElem as Exclude<typeof connectorElem, Element>, pointA, pointB, effectName, {[effectName]: {...AnimClip.createNoOpPresetEffectDefinition(), /*effectName*/}}, connectorConfig
-        ).initialize([]);
       },
 
       /**

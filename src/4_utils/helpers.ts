@@ -1,5 +1,5 @@
 // import { CustomErrorClasses } from "./errors";
-import { CssLength, CssXAlignment, CssYAlignment, ScrollingOptions, ParsedMultiUnitPlacement, MultiUnitPlacementX, MultiUnitPlacementY, StyleProperty, TextNodeDatum, RootNodeEditStats, InfixTextNodeList, MultiUnitOrderedPairString } from "./interfaces";
+import { CssLength, CssXAlignment, CssYAlignment, ScrollingOptions, ParsedMultiUnitPlacement, TextNodeDatum, RootNodeEditStats, InfixTextNodeList, MultiUnitOrderedPairString } from "./interfaces";
 import { KeyOf, PickFromArray } from "./utilityTypes";
 import { hljs } from './highlightjs/index.js';
 

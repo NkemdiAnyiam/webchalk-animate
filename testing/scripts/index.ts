@@ -401,7 +401,7 @@ const customMotions = definePresetEffectBank(
           const baseXTrans: number = alignmentX === 'center'
             ? ((rectTarget.left + rectTarget.width/2) - (rectSelf.left + rectSelf.width/2))
             : (preserveX ? 0 : rectTarget[alignmentX] - rectSelf[alignmentX]);
-          const baseYTrans: number = alignmentY === 'center'
+          const baseYTrans: number = alignmentY === 'middle'
             ? ((rectTarget.top + rectTarget.height/2) - (rectSelf.top + rectSelf.height/2))
             : (preserveY ? 0 : rectTarget[alignmentY] - rectSelf[alignmentY]);
 
@@ -464,7 +464,6 @@ const {
   Entrance,
   Emphasis,
   Exit,
-  ConnectorSetter,
   ConnectorEntrance,
   TextEditor,
 } = webchalk.createAnimationClipFactories({
@@ -555,8 +554,9 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
       Emphasis(square, '~un-highlight', [], {}),
       Emphasis(square, '~highlight', ['purple'], {}),
       Emphasis(square, '~un-highlight', [], {}),
-      ConnectorSetter(document.querySelector('.connector--2'), [square, 'left', 'top'], [square, 'right', 'bottom']),
-      ConnectorEntrance(document.querySelector('.connector--2'), '~trace', ['from-A']),
+      ConnectorEntrance(document.querySelector('.connector--2'), '~trace', ['from-A'], {
+        newPoints: {A: [square, '(left, top)'], B: [square, '(right, bottom)']}
+      }),
     ]
   );
   
@@ -609,7 +609,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   const array = document.querySelector('.array');
   const arrayVal = document.querySelector('.array__value');
-  Motion(array, '~move-to', [document.querySelector('body'), {alignment: 'center center'}], {duration: 0}).play();
+  Motion(array, '~move-to', [document.querySelector('body'), {alignment: 'center middle'}], {duration: 0}).play();
 
   timeline.addSequences(
     [

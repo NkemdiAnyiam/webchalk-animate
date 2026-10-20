@@ -15,7 +15,6 @@ export type {
   ConnectorEntranceClipConfig,  
   ConnectorEntranceClipModifiers,
   ConnectorExitClipConfig,
-  ConnectorSetterClipConfig,
   EmphasisClipConfig,
   EntranceClipConfig,
   EntranceClipModifiers,
@@ -29,7 +28,6 @@ export type {
 export {
   ConnectorEntranceClip,
   ConnectorExitClip,
-  ConnectorSetterClip,
   EmphasisClip,
   EntranceClip,
   ExitClip,

@@ -183,7 +183,6 @@ export type EffectCategory =
   | 'Motion'
   | 'Transition'
   | 'Scroller'
-  | 'Connector Setter'
   | 'Connector Entrance'
   | 'Connector Exit'
   | 'Text Editor';

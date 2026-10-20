@@ -2,7 +2,7 @@ import { AnimClip, AnimClipConfig, AnimClipModifiers, AnimClipTiming } from "./A
 import { CustomErrorClasses, errorTip, ErrorUIMessageFragments } from "../4_utils/errors";
 import { createCodeEl, createDetailsEl, fragment, getPartial, parseMultiUnitPlacement, TBA_DURATION, createUListEl } from "../4_utils/helpers";
 import { Webchalk } from "../Webchalk";
-import { DOMElement, MultiUnitOrderedPairString, MultiUnitPlacementX, MultiUnitPlacementY, ParsedMultiUnitPlacement, RootNodeEditStats, TextEditRate } from "../4_utils/interfaces";
+import { DOMElement, MultiUnitOrderedPairString, ParsedMultiUnitPlacement, RootNodeEditStats, TextEditRate } from "../4_utils/interfaces";
 import { PickFromArray } from "../4_utils/utilityTypes";
 import { WebchalkConnectorElement, WebchalkConnectorElementConfig } from "../3_components/WebchalkConnectorElement";
 import { PresetEffectDefinition, PresetEffectBank, EffectOptions, Layer3MutableClipConfig, EffectNameIn } from "../2_animationEffects/presetEffectCreation";
@@ -938,177 +938,6 @@ export class TransitionClip<TPresetEffectDefinition extends PresetEffectDefiniti
 }
 
 /*-:***************************************************************************************************************************/
-/*-:***************************************        CONNECTOR SETTER        ****************************************************/
-/*-:***************************************************************************************************************************/
-/**
- * Used to set the endpoints of a {@link WebchalkConnectorElement}.
- * 
- * Contains configuration options used to define both the timing and effects of the animation clip.
- * Returned by {@link ConnectorSetterClip.getConfig}.
- *  * Contains additional properties:
- *    * (none)
- * @see {@link EntranceClip.getConfig}
- * 
- * @category Connector Setter
- */
-export interface ConnectorSetterClipConfig extends AnimClipConfig {
-  
-};
-
-/**
- * <!-- EX:S id="AnimClip.desc" code-type="comment-block" -->
- * A "clip" is the smallest building block of a timeline. It is essentially a [DOM element, effect] pair,
- * where a "DOM element" is some HTML element on the page and the effect is the animation effect that
- * will be applied to it (asynchronously).
- * 
- * The {@link AnimClip} class is abstract, meaning it cannot be instantiated. But it has several subclasses such as 
- * {@link EntranceClip}, {@link MotionClip}, {@link TransitionClip}, etc. Webchalk provides convenient factory functions
- * that can be used to create such clips—the factory functions can be obtained from {@link Webchalk.createAnimationClipFactories}.
- * Examples are shown below.
- * 
- * Generally (with some exceptions), using a clip factory function follows this format:
- * `const clip = <factory func>(<some element>, <effect name>, [<effect options>], {<optional clip configuration>});`
- * <!-- EX:E id="AnimClip.desc" -->
- * The factory function for creating {@link ConnectorSetterClip}s is one such exception.
- * It follows the form `<factory func>(<connector element>, [<point A>], [<point B>], {<optional configuration>})`.
- * Additionally, "\<some element\>" must be of type {@link WebchalkConnectorElement} (our custom `<webchalk-connector>` HTML element).
- * 
- * @example
- * <!-- EX:S id="ConnectorSetterClip.example" code-type="ts" -->
- * ```ts
- * // retrieve connector setter clip factory function;
- * const { ConnectorSetter } = webchalk.createAnimationClipFactories();
- * 
- * // select connector elements from the DOM
- * const topConnector = document.querySelector('.connector--thick');
- * const middleConnector = document.querySelector('.connector--skinny');
- * const verticalConnector = document.querySelector('.connector--red');
- * const bottomConnector = document.querySelector('.connector--dashed');
- * // select other elements from the DOM
- * const circle1 = document.querySelector('.circle--left');
- * const circle2 = document.querySelector('.circle--right');
- * 
- * // A = connector element, B = point a, C = point b, D = configuration (optional)
- * 
- * // create connector setter clips using factory function
- * //                            A             B                           C
- * const clip1 = ConnectorSetter(topConnector, [circle1, 'center', 'top'], [circle2, 'center', 'top']);
- * //                            A                B                             C
- * const clip2 = ConnectorSetter(middleConnector, [circle1, 'right', 'middle'], [circle2, 'left', 'middle']);
- * //                            A                  B                                   C
- * const clip3 = ConnectorSetter(verticalConnector, [topConnector, 'center', 'middle'], [middleConnector, 'center', 'middle']);
- * const clip4 = ConnectorSetter(
- *   bottomConnector, // A
- *   [circle1, 'center', 'middle'], // B
- *   [circle2, 'center', 'middle'], // C
- *   {pointTrackingEnabled: false}, // D
- * );
- * 
- * // play clips (all will play at the same time because they are asynchronous)
- * // topConnector's endpoints are set to the center-tops of circle1 and circle2
- * clip1.play();
- * 
- * // middleConnector's endpoints are set to the right-center of circle1 and left-center of circle2
- * clip2.play();
- * 
- * // verticalConnector's endpoints are set to the midpoints of topConnector and middleConnector
- * clip3.play();
- * 
- * // bottomConnector's endpoints are set to the center-bottoms of circle1 and circle2,
- * // but its endpoints will NOT be updated if the circles move
- * clip4.play();
- * 
- * // if the connectors are then drawn using ConnectorEntrance(), their endpoints will match
- * // what was set according to ConnectorSetter()
- * ```
- * <!-- EX:E id="ConnectorSetterClip.example" -->
- * 
- * @category Connector Setter
- * @hideconstructor
- */
-export class ConnectorSetterClip extends AnimClip<PresetEffectDefinition, ConnectorSetterClipConfig> {
-  protected get category(): 'Connector Setter' { return 'Connector Setter'; }
-  domElem: WebchalkConnectorElement;
-  previousPointA?: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
-  previousPointB?: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
-  pointA: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | 'use-preserved';
-  pointB: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | 'use-preserved';
-
-  connectorConfig: WebchalkConnectorElementConfig = {} as WebchalkConnectorElementConfig;
-  previousConnectorConfig: WebchalkConnectorElementConfig = {} as WebchalkConnectorElementConfig;
-
-  get categoryImmutableConfig() {
-    return {
-      duration: 0,
-      commitsStyles: false,
-      startsNextClipToo: true,
-    } satisfies Partial<ConnectorSetterClipConfig>;
-  }
-
-  get categoryDefaultConfig() {
-    return {
-      ...AnimClip.baseDefaultConfig,
-      ...this.categoryImmutableConfig,
-    } satisfies ConnectorSetterClipConfig;
-  }
-
-  getConfig() {
-    return super.getConfig();
-  }
-  
-  /**@internal*/
-  constructor(
-    connectorElem: WebchalkConnectorElement | null | undefined,
-    pointA: [elemA: Element | null | undefined, xPlacement: MultiUnitPlacementX, yPlacement: MultiUnitPlacementY] | ['preserve'],
-    pointB: [elemB: Element | null | undefined, xPlacement: MultiUnitPlacementX, yPlacement: MultiUnitPlacementY] | ['preserve'],
-    effectName: string,
-    presetEffectBank: PresetEffectBank,
-    connectorConfig: Partial<WebchalkConnectorElementConfig> = {},
-    ) {
-    super(connectorElem, effectName, presetEffectBank);
-
-    if (!(connectorElem instanceof WebchalkConnectorElement)) { throw this.generateError(CustomErrorClasses.InvalidElementError, [`Must pass WebchalkConnectorElement element. The element received was instead ${Object.getPrototypeOf(connectorElem).constructor.name}.`]); }
-
-    const pointAElement = pointA[0] === 'preserve' ? connectorElem!.pointA?.[0] : pointA?.[0];
-    if (!(pointAElement instanceof Element)) {
-      throw this.generateError(CustomErrorClasses.InvalidElementError, [`Point A element must not be null or undefined.`]);
-    }
-    const pointBElement = pointB[0] === 'preserve' ? connectorElem?.pointB?.[0] : pointB?.[0];
-    if (!(pointBElement instanceof Element)) {
-      throw this.generateError(CustomErrorClasses.InvalidElementError, [`Point B element must not be null or undefined.`]);
-    }
-
-    this.domElem = connectorElem;
-    this.pointA = pointA[0] === 'preserve' ? 'use-preserved' : [pointAElement as DOMElement, ...parseMultiUnitPlacement(`(${pointA[1]}, ${pointA[2]})`)];
-    this.pointB = pointB[0] === 'preserve' ? 'use-preserved' : [pointAElement as DOMElement, ...parseMultiUnitPlacement(`(${pointB[1]}, ${pointB[2]})`)];
-
-    this.connectorConfig = this.applyLineConfig(connectorConfig);
-  }
-
-  protected _onStartForward(): void {
-    this.previousPointA = this.domElem.pointA;
-    this.previousPointB = this.domElem.pointB;
-    this.previousConnectorConfig.pointTrackingEnabled = this.domElem.pointTrackingEnabled;
-    if (this.pointA !== 'use-preserved') { this.domElem.pointA = this.pointA; }
-    if (this.pointB !== 'use-preserved') { this.domElem.pointB = this.pointB; }
-    this.domElem.pointTrackingEnabled = this.connectorConfig.pointTrackingEnabled;
-  }
-
-  protected _onStartBackward(): void {
-    this.domElem.pointA = this.previousPointA!;
-    this.domElem.pointB = this.previousPointB!;
-    this.domElem.pointTrackingEnabled = this.previousConnectorConfig.pointTrackingEnabled;
-  }
-
-  applyLineConfig(connectorConfig: Partial<WebchalkConnectorElementConfig>): WebchalkConnectorElementConfig {
-    return {
-      pointTrackingEnabled: this.domElem.pointTrackingEnabled,
-      ...connectorConfig,
-    };
-  }
-}
-
-/*-:***************************************************************************************************************************/
 /*-:**************************************        CONNECTOR ENTRANCE        ***************************************************/
 /*-:***************************************************************************************************************************/
 /**
@@ -1162,10 +991,6 @@ export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<
  * 
  * "\<some element\>" here must be of type {@link WebchalkConnectorElement} (our custom `<webchalk-connector>` HTML element).
  * 
- * Note that {@link ConnectorEntranceClip}s are merely for _entering_ connectors, not setting their endpoints.
- * A connector's endpoints must be set (using a {@link ConnectorSetterClip}), and then a {@link ConnectorEntranceClip}
- * can be used to draw the connector.
- * 
  * @example
  * <!-- EX:S id="ConnectorEntranceClip.example" code-type="ts" -->
  * ```ts
@@ -1211,7 +1036,7 @@ export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<
  */
 export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectDefinition<ConnectorEntranceClip, ConnectorEntranceClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, ConnectorEntranceClipConfig> {
   protected get category(): 'Connector Entrance' { return 'Connector Entrance'; }
-  domElem: WebchalkConnectorElement;
+  readonly domElem: WebchalkConnectorElement;
   protected previousPointA?: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
   protected previousPointB?: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
   protected pointA: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | 'use-preserved' = 'use-preserved';
@@ -1476,7 +1301,7 @@ export interface ConnectorExitClipConfig extends AnimClipConfig {
  */
 export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefinition<ConnectorExitClip, ConnectorExitClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, ConnectorExitClipConfig> {
   protected get category(): 'Connector Exit' { return 'Connector Exit'; }
-  domElem: WebchalkConnectorElement; // TODO: make readonly
+  readonly domElem: WebchalkConnectorElement;
   protected previousPointA?: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
   protected previousPointB?: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
   

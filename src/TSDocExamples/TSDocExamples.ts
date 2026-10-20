@@ -497,55 +497,6 @@ clip3.play(); // triangle transitions FROM 0 opacity to its current opacity
 }
 
 {
-/**** EX:S id="ConnectorSetterClip.example" */
-// retrieve connector setter clip factory function;
-const { ConnectorSetter } = webchalk.createAnimationClipFactories();
-
-// select connector elements from the DOM
-const topConnector = document.querySelector('.connector--thick');
-const middleConnector = document.querySelector('.connector--skinny');
-const verticalConnector = document.querySelector('.connector--red');
-const bottomConnector = document.querySelector('.connector--dashed');
-// select other elements from the DOM
-const circle1 = document.querySelector('.circle--left');
-const circle2 = document.querySelector('.circle--right');
-
-// A = connector element, B = point a, C = point b, D = configuration (optional)
-
-// create connector setter clips using factory function
-//                            A             B                           C
-const clip1 = ConnectorSetter(topConnector, [circle1, 'center', 'top'], [circle2, 'center', 'top']);
-//                            A                B                             C
-const clip2 = ConnectorSetter(middleConnector, [circle1, 'right', 'middle'], [circle2, 'left', 'middle']);
-//                            A                  B                                   C
-const clip3 = ConnectorSetter(verticalConnector, [topConnector, 'center', 'middle'], [middleConnector, 'center', 'middle']);
-const clip4 = ConnectorSetter(
-  bottomConnector, // A
-  [circle1, 'center', 'middle'], // B
-  [circle2, 'center', 'middle'], // C
-  {pointTrackingEnabled: false}, // D
-);
-
-// play clips (all will play at the same time because they are asynchronous)
-// topConnector's endpoints are set to the center-tops of circle1 and circle2
-clip1.play();
-
-// middleConnector's endpoints are set to the right-center of circle1 and left-center of circle2
-clip2.play();
-
-// verticalConnector's endpoints are set to the midpoints of topConnector and middleConnector
-clip3.play();
-
-// bottomConnector's endpoints are set to the center-bottoms of circle1 and circle2,
-// but its endpoints will NOT be updated if the circles move
-clip4.play();
-
-// if the connectors are then drawn using ConnectorEntrance(), their endpoints will match
-// what was set according to ConnectorSetter()
-/**** EX:E id="ConnectorSetterClip.example" */
-}
-
-{
 /**** EX:S id="ConnectorEntranceClip.example" */
 // retrieve connector entrance clip factory function;
 const { ConnectorEntrance } = webchalk.createAnimationClipFactories();

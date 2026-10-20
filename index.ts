@@ -8,7 +8,6 @@ const {
   TextEditor,
   ConnectorEntrance,
   ConnectorExit,
-  ConnectorSetter,
   Scroller,
   Transition,
 } = webchalk.createAnimationClipFactories();

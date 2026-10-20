@@ -22,7 +22,7 @@ const categoryToAbbrev = (category: EffectCategory): string => {
     case 'Motion': return 'Mo';
     case 'Transition': return 'Tr';
     case 'Scroller': return 'Sc';
-    case 'Connector Setter': return 'CSe';
+    // case 'Connector Setter': return 'CSe';
     case 'Connector Entrance': return 'CEn';
     case 'Connector Exit': return 'CEx';
     case 'Text Editor': return 'TE';
