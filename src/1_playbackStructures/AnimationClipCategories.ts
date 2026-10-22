@@ -1036,10 +1036,10 @@ export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<
 export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectDefinition<ConnectorEntranceClip, ConnectorEntranceClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, ConnectorEntranceClipConfig> {
   protected get category(): 'Connector Entrance' { return 'Connector Entrance'; }
   readonly domElem: WebchalkConnectorElement;
-  protected prevPointA?: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | null;
-  protected prevPointB?: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | null;
-  protected newPointA?: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
-  protected newPointB?: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement];
+  protected prevPointA?: [elemA: Element, placement: MultiUnitOrderedPairString] | null;
+  protected prevPointB?: [elemB: Element, placement: MultiUnitOrderedPairString] | null;
+  protected newPointA?: [elemA: Element, placement: MultiUnitOrderedPairString];
+  protected newPointB?: [elemB: Element, placement: MultiUnitOrderedPairString];
 
   protected prevConnectorConfig: WebchalkConnectorElementConfig = {} as WebchalkConnectorElementConfig;
 
@@ -1131,7 +1131,7 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
       if (!(pointAElement instanceof Element)) {
         throw this.generateError(CustomErrorClasses.InvalidElementError, [`Point A was specified, but the provided element (${pointAElement}) is not a valid element.`]);
       }
-      this.newPointA = [pointAElement as DOMElement, ...parseMultiUnitPlacement(newPointA[1])];
+      this.newPointA = [pointAElement as DOMElement, newPointA[1]];
     }
     // else if (newPointA === null) {
     //   throw this.generateError(
@@ -1147,7 +1147,7 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
       if (!(pointBElement instanceof Element)) {
         throw this.generateError(CustomErrorClasses.InvalidElementError, [`Point B was specified, but the provided element (${pointBElement}) is not a valid element.`]);
       }
-      this.newPointB = [pointBElement as DOMElement, ...parseMultiUnitPlacement(newPointB[1])];
+      this.newPointB = [pointBElement as DOMElement, newPointB[1]];
     }
     // else if (newPointB === null) {
     //   throw this.generateError(
@@ -1189,19 +1189,23 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
       );
     }
 
+    const {A, B} = this.domElem.getEndpoints();
+    const {newPointA, newPointB} = this;
     // check to make sure points actually exist by this time
-    if (!this.newPointA && !this.domElem.pointA) {
+    if (!newPointA && !A) {
       throw this.generateError(CustomErrorClasses.InvalidConnectorError, [`Point A must be provided by the time the connector's entrance begins playing.`]);
     }
-    if (!this.newPointB && !this.domElem.pointB) {
+    if (!newPointB && !B) {
       throw this.generateError(CustomErrorClasses.InvalidConnectorError, [`Point B must be provided by the time the connector's entrance begins playing.`]);
     }
 
     // set new points and config
-    this.prevPointA = this.domElem.pointA;
-    this.prevPointB = this.domElem.pointB;
-    if (this.newPointA) { this.domElem.pointA = this.newPointA; }
-    if (this.newPointB) { this.domElem.pointB = this.newPointB; }
+    this.prevPointA = this.domElem.getEndpoints().A;
+    this.prevPointB = this.domElem.getEndpoints().B;
+    this.domElem.setEndpoints({
+      ...(newPointA ? {A: newPointA} : {}),
+      ...(newPointB ? {B: newPointB} : {}),
+    });
 
     this.prevConnectorConfig.autoTrackingEnabled = this.domElem.autoTrackingEnabled;
     if (this.config.autoTrackingEnabled !== null) { this.domElem.autoTrackingEnabled = this.config.autoTrackingEnabled; }
@@ -1218,18 +1222,19 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
   // }
 
   protected _onStartBackward(): void {
-    this.domElem.pointA = this.newPointA ?? this.prevPointA!;
-    this.domElem.pointB = this.newPointB ?? this.prevPointB!;
+    this.domElem.setEndpoints(
+      {A: this.newPointA ?? this.prevPointA, B: this.newPointB ?? this.prevPointB},
+      {updateNow: false}
+    );
 
     if (
       this.config.autoTrackingEnabled === true
-      || this.config.autoTrackingEnabled === null && this.prevConnectorConfig.autoTrackingEnabled === true
+      || (this.config.autoTrackingEnabled === null && this.prevConnectorConfig.autoTrackingEnabled === true)
     ) {
       this.domElem.resumeAutoPointTracking();
     }
     else {
       this.domElem.pauseAutoPointTracking();
-      // this.domElem.updateEndpoints();
     }
   }
 
@@ -1237,8 +1242,7 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
     this.domElem.pauseAutoPointTracking();
     this.domElem.classList.add('webchalk-display-none');
 
-    this.domElem.pointA = this.prevPointA!;
-    this.domElem.pointB = this.prevPointB!;
+    this.domElem.setEndpoints({A: this.prevPointA, B: this.prevPointB});
     this.domElem.autoTrackingEnabled = this.prevConnectorConfig.autoTrackingEnabled;
   }
 }
@@ -1324,8 +1328,8 @@ export interface ConnectorExitClipConfig extends AnimClipConfig {
 export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefinition<ConnectorExitClip, ConnectorExitClipConfig> = PresetEffectDefinition> extends AnimClip<TPresetEffectDefinition, ConnectorExitClipConfig> {
   protected get category(): 'Connector Exit' { return 'Connector Exit'; }
   readonly domElem: WebchalkConnectorElement;
-  protected prevPointA?: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | null;
-  protected prevPointB?: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | null;
+  protected prevPointA?: [elemA: Element, placement: MultiUnitOrderedPairString] | null;
+  protected prevPointB?: [elemB: Element, placement: MultiUnitOrderedPairString] | null;
   
   protected prevConnectorConfig: WebchalkConnectorElementConfig = {} as WebchalkConnectorElementConfig;
 
@@ -1366,8 +1370,8 @@ export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefin
     const hidden = hiddenDisplay || hiddenVisibility;
 
     if (!hidingClassName || !hidden) { // TODO: check to make sure the logic on this condition makes sense
-      this.prevPointA = this.domElem.pointA;
-      this.prevPointB = this.domElem.pointB;
+      this.prevPointA = this.domElem.getEndpoints().A;
+      this.prevPointB = this.domElem.getEndpoints().B;
       this.prevConnectorConfig.autoTrackingEnabled = this.domElem.autoTrackingEnabled;  
       if (this.config.autoTrackingEnabled !== null) { this.domElem.autoTrackingEnabled = this.config.autoTrackingEnabled; }
       return;
@@ -1383,9 +1387,8 @@ export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefin
 
   protected _onStartBackward(): void {
     // here in case some non-timeline changes were made ahead of this clip
-    this.domElem.pointA = this.prevPointA!;
-    this.domElem.pointB = this.prevPointB!;
     this.domElem.classList.remove('webchalk-display-none');
+    this.domElem.setEndpoints({A: this.prevPointA, B: this.prevPointB});
 
     if (this.config.autoTrackingEnabled === true
       || (this.config.autoTrackingEnabled === null && this.prevConnectorConfig.autoTrackingEnabled === true)
@@ -1394,7 +1397,6 @@ export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefin
     }
     else {
       this.domElem.pauseAutoPointTracking();
-      this.domElem.updateEndpoints();
     }
   }
 

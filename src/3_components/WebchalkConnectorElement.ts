@@ -157,8 +157,10 @@ export class WebchalkConnectorElement extends HTMLElement {
   private mask: SVGMaskElement;
   get lineElement(): Readonly<SVGLineElement> { return this.lineLayer; }
 
-  /** @internal */ pointA: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | null = null;
-  /** @internal */ pointB: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | null = null;
+  private pointAComputed: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | null = null;
+  private pointBComputed: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | null = null;
+  private pointA: [elemA: DOMElement, placement: MultiUnitOrderedPairString] | null = null;
+  private pointB: [elemA: DOMElement, placement: MultiUnitOrderedPairString] | null = null;
   get autoTrackingEnabled(): boolean { return !this.hasAttribute('tracking-disabled') || this.getAttribute('tracking-disabled') === 'false'; };
   set autoTrackingEnabled(trackingEnabled: boolean) {
     if (trackingEnabled) { this.removeAttribute('tracking-disabled'); }
@@ -339,15 +341,15 @@ export class WebchalkConnectorElement extends HTMLElement {
 
   getEndpoints() {
     return {
-      A: this.pointA ? [...this.pointA] : null,
-      B: this.pointB ? [...this.pointB] : null
+      A: this.pointA ? [...this.pointA] as [DOMElement, MultiUnitOrderedPairString] : null,
+      B: this.pointB ? [...this.pointB] as [DOMElement, MultiUnitOrderedPairString] : null
     }
   }
 
   setEndpoints(newPoints: {
-    A?: [elemA: Element | null | undefined, placement: MultiUnitOrderedPairString] | null,
-    B?: [elemB: Element | null | undefined, placement: MultiUnitOrderedPairString] | null
-  }) {
+    A?: [elemA: Element | null | undefined, placement: MultiUnitOrderedPairString] | null;
+    B?: [elemB: Element | null | undefined, placement: MultiUnitOrderedPairString] | null;
+  }, options: {updateNow?: boolean;} = {}) {
     const {A, B} = newPoints;
 
     // validate endpoints
@@ -355,17 +357,23 @@ export class WebchalkConnectorElement extends HTMLElement {
       throw new CustomErrorClasses.InvalidElementError(`Point A was specified, but the provided element (${A[0]}) is not a valid element.`);    
     }
     else if (A === null) {
-      this.pointA = null;
+      this.pointAComputed = this.pointA = null;
     }
     if (B && !(B[0] instanceof Element)) {
       throw new CustomErrorClasses.InvalidElementError(`Point B was specified, but the provided element (${B[0]}) is not a valid element.`);
     }
     else if (B === null) {
-      this.pointB = null;
+      this.pointBComputed = this.pointB = null;
     }
 
-    if (A) { this.pointA = [A[0] as DOMElement, ...parseMultiUnitPlacement(A[1])]; }
-    if (B) { this.pointB = [B[0] as DOMElement, ...parseMultiUnitPlacement(B[1])]; }
+    if (A) {
+      this.pointA = [...A] as [DOMElement, MultiUnitOrderedPairString]; // we already know A[0] must be a valid element by here
+      this.pointAComputed = [A[0] as DOMElement, ...parseMultiUnitPlacement(A[1])];
+    }
+    if (B) {
+      this.pointB = [...B] as [DOMElement, MultiUnitOrderedPairString];
+      this.pointBComputed = [B[0] as DOMElement, ...parseMultiUnitPlacement(B[1])];
+    }
 
     // if (preventUpdate) {
     //   if (!this.autoTrackingDisabled) {
@@ -373,30 +381,32 @@ export class WebchalkConnectorElement extends HTMLElement {
     //   }
     //   return;
     // }
-
-    if (this.autoTrackingEnabled) { this.resumeAutoPointTracking(); }
-    else { this.updateEndpoints(); }
+    const {updateNow = true} = options;
+    if (!updateNow) { this.pauseAutoPointTracking(); }
+    else {
+      if (this.autoTrackingEnabled) { this.resumeAutoPointTracking(); }
+      else { this.updateEndpoints(); }
+    }
   }
 
   removeEndpoints(endpoints: 'A' | 'B' | 'both') {
     switch(endpoints) {
       case "A":
-        this.pointA = null;
+        this.setEndpoints({A: null});
         break;
       case "B":
-        this.pointB = null;
+        this.setEndpoints({B: null});
         break;
       case "both":
-        this.pointA = null;
-        this.pointB = null;
+        this.setEndpoints({A: null, B: null});
         break;
       default: throw new RangeError(`Invalid string value "${endpoints}". Must specify "A", "B", or "both".`);
     }
   }
 
   updateEndpoints = (/*errorGenerator?: ErrorGenerator*/): void => {
-    const pointA = this.pointA;
-    const pointB = this.pointB;
+    const pointA = this.pointAComputed;
+    const pointB = this.pointBComputed;
     if (!this.isConnected) {
       this.pauseAutoPointTracking();
       return;
