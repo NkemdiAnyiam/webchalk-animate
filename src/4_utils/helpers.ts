@@ -258,11 +258,13 @@ export function parseMultiUnitPlacement(offset: MultiUnitOrderedPairString): [Pa
   let matchX, matchY;
   
   matchX =
-    offset.match(/^\(((?:-)?\d+(?:\.\d+)?\%|left|center|right)(?:\s*(\+|-)\s*((?:-)?\d+(?:\.\d+)?px))?/)
-    || offset.match(/^\(((?:-)?\d+(?:\.\d+)?px|left|center|right)(?:\s*(\+|-)\s*((?:-)?\d+(?:\.\d+)?\%))?/);
+    offset.match(/^\((left|center|right)(?:\s*(\+|-)\s*((?:-)?\d+(?:\.\d+)?(?:\%|px)))?/)
+    || offset.match(/^\(((?:-)?\d+(?:\.\d+)?\%)(?:\s*(\+|-)\s*((?:-)?\d+(?:\.\d+)?px))?/)
+    || offset.match(/^\(((?:-)?\d+(?:\.\d+)?px)(?:\s*(\+|-)\s*((?:-)?\d+(?:\.\d+)?\%))?/);
   matchY =
-    offset.match(/((?:-)?\d+(?:\.\d+)?\%|top|middle|bottom)(?:\s*(\+|-)\s*((?:-)?\d+(?:\.\d+)?px))?\)$/)
-    || offset.match(/((?:-)?\d+(?:\.\d+)?px|top|middle|bottom)(?:\s*(\+|-)\s*((?:-)?\d+(?:\.\d+)?\%))?\)$/);
+    offset.match(/(top|middle|bottom)(?:\s*(\+|-)\s*((?:-)?\d+(?:\.\d+)?(?:\%|px)))?\)$/)
+    || offset.match(/((?:-)?\d+(?:\.\d+)?\%)(?:\s*(\+|-)\s*((?:-)?\d+(?:\.\d+)?px))?\)$/)
+    || offset.match(/((?:-)?\d+(?:\.\d+)?px)(?:\s*(\+|-)\s*((?:-)?\d+(?:\.\d+)?\%))?\)$/);
 
   
   if (!matchX || !matchY) {
