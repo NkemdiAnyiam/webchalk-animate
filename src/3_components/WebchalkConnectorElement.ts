@@ -413,7 +413,7 @@ export class WebchalkConnectorElement extends HTMLElement {
     }
     if (!pointA || !pointB || !pointA[0].isConnected || !pointB[0].isConnected) {
       this.ax = this.ay = this.bx = this.by = 0;
-      this.pauseAutoPointTracking();
+      // this.pauseAutoPointTracking();
       return;
     }
 
