@@ -21,10 +21,10 @@ console.log('comparison result:', result);
 
 // console.log(TextEditor(blueCircle, '~insert-text', ['aerstgf'], {durationOrRate: '500wpm'}).getTiming());
 
-const conn = webchalk.shapeFactories.drawConnector([redSquare, '(center, middle)'], [blueCircle, '(center, middle)'], {
-  cssClasses: ['connector', 'connector--green'],
-});
-// const conn = document.querySelector('.connector');
+// const conn = webchalk.shapeFactories.drawConnector([redSquare, '(center, middle)'], [blueCircle, '(center, middle)'], {
+//   cssClasses: ['connector', 'connector--green'],
+// });
+const conn = document.querySelector('.connector');
 // setTimeout(() => {conn.removeEndpoints('A')}, 1000);
 // setTimeout(() => {blueCircle?.remove()}, 1000);
 

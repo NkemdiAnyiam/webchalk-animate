@@ -284,6 +284,35 @@ export class WebchalkConnectorElement extends HTMLElement {
     this.lineLayer = this.gBody.querySelector('.connector__line--layer') as SVGLineElement;
     this.lineMask = this.gBody.querySelector('.connector__line--mask') as SVGLineElement;
     this.mask = this.gBody.querySelector('mask') as SVGMaskElement;
+
+    this.checkInlinePoints();
+  }
+
+  /**
+   * Checks to see if the connector was defined with attributes specifying what points to use and then applies them.
+   */
+  private checkInlinePoints() {
+    const A = this.checkInlinePointsHelper('A');
+    const B = this.checkInlinePointsHelper('B');
+    if (A && B) {
+      this.setEndpoints({A: A, B: B});
+    }
+  }
+
+  private checkInlinePointsHelper(pointLetter: string): [Element, MultiUnitOrderedPairString] | null {
+    const pointSpecifier = this.getAttribute(`point-${pointLetter.toLowerCase()}`);
+    if (!pointSpecifier) { return null; }
+    
+    // ".first-block, (left, 20% + 30px)"
+    const matchPointFormat = pointSpecifier.match(/(.+),\s*(\(.+\))/);
+    if (!matchPointFormat) { throw new CustomErrorClasses.InvalidConnectorError(``); }
+
+    const [selector, ordPair] = matchPointFormat.slice(1) as [string, MultiUnitOrderedPairString];
+
+    const targElem = document.querySelector(selector);
+    if (!targElem) { throw new CustomErrorClasses.InvalidConnectorError(''); }
+
+    return [targElem, ordPair];
   }
 
   attributeChangedCallback(attrName: string, oldValue: string, newValue: string) {
