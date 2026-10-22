@@ -47,7 +47,8 @@ const seq1 = webchalk.newSequence(
   [
   ]);
   seq1.addClips([
-    ConnectorEntrance(conn, '~trace', [], { hideNowType: 'display-none' }),
+    // ConnectorEntrance(conn, '~trace', [], { hideNowType: 'display-none' }),
+    Exit(redSquare, '~fade-out', [], {duration: 1000, description: 'Exit red square'}),
     Motion(redSquare, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move red square'}),
     Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000, cssClasses: {toAddOnFinish: ['yo', 'bro']}}),
     TextEditor(redSquare, '~insert-text', ['HELLO WORLD! To what do I owe you all the pleasure?'], {durationOrRate: '300wpm', startsWithPrevious: true, description: 'Insert text to square', delay: 1000}),

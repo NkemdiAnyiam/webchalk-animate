@@ -465,6 +465,7 @@ export class ExitClip<TPresetEffectDefinition extends PresetEffectDefinition<Exi
   }
 
   protected _onStartForward(): void {
+    // check to see if there is anything hiding the element
     let hidingClassName = '';
     if (this.domElem.classList.contains('webchalk-display-none')) { hidingClassName = 'webchalk-display-none'; }
     if (this.domElem.classList.contains('webchalk-visibility-hidden')) { hidingClassName = 'webchalk-visibility-hidden'; }
@@ -473,14 +474,15 @@ export class ExitClip<TPresetEffectDefinition extends PresetEffectDefinition<Exi
     const hiddenVisibility = visibility === 'hidden';
     const hidden = hiddenDisplay || hiddenVisibility;
 
-    if (!hidingClassName || !hidden) { return; }
-
-    throw this.generateError(CustomErrorClasses.InvalidExitAttempt,
-      [`Exit() can only play on elements that are not already hidden. The element here is already hidden by the following:`
-      + (hidingClassName ? `\n - Webchalk's CSS hiding class "${hidingClassName}"` : '')
-      + ((hidingClassName !== 'webchalk-display-none' && hiddenDisplay) ? `\n - CSS property 'display: none'` : '')
-      + ((hidingClassName !== 'webchalk-visibility-hidden' && hiddenVisibility) ? `\n - CSS property 'visibility: hidden'` : '')]
-    );
+    // if anything is hiding the element, throw error detailing what it is
+    if (hidingClassName || hidden) {
+      throw this.generateError(CustomErrorClasses.InvalidExitAttempt,
+        [`Exit() can only play on elements that are not already hidden. The element here is already hidden by the following:`
+        + (hidingClassName ? `\n - Webchalk's CSS hiding class "${hidingClassName}"` : '')
+        + ((hidingClassName !== 'webchalk-display-none' && hiddenDisplay) ? `\n - CSS property 'display: none'` : '')
+        + ((hidingClassName !== 'webchalk-visibility-hidden' && hiddenVisibility) ? `\n - CSS property 'visibility: hidden'` : '')]
+      );
+    }
   }
 
   protected _onFinishForward(): void {
@@ -1369,20 +1371,20 @@ export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefin
     const hiddenVisibility = visibility === 'hidden';
     const hidden = hiddenDisplay || hiddenVisibility;
 
-    if (!hidingClassName || !hidden) { // TODO: check to make sure the logic on this condition makes sense
-      this.prevPointA = this.domElem.getEndpoints().A;
-      this.prevPointB = this.domElem.getEndpoints().B;
-      this.prevConnectorConfig.autoTrackingEnabled = this.domElem.autoTrackingEnabled;  
-      if (this.config.autoTrackingEnabled !== null) { this.domElem.autoTrackingEnabled = this.config.autoTrackingEnabled; }
-      return;
+    if (hidingClassName || hidden) {
+      throw this.generateError(CustomErrorClasses.InvalidExitAttempt,
+        [`ConnectorExit() can only play on elements that are not already hidden. The connector here is already hidden by the following:`
+        + (hidingClassName ? `\n - Webchalk's CSS hiding class "${hidingClassName}"` : '')
+        + ((hidingClassName !== 'webchalk-display-none' && hiddenDisplay) ? `\n - CSS property 'display: none'` : '')
+        + ((hidingClassName !== 'webchalk-visibility-hidden' && hiddenVisibility) ? `\n - CSS property 'visibility: hidden'` : '')]
+      );
     }
 
-    throw this.generateError(CustomErrorClasses.InvalidExitAttempt,
-      [`ConnectorExit() can only play on elements that are not already hidden. The connector here is already hidden by the following:`
-      + (hidingClassName ? `\n - Webchalk's CSS hiding class "${hidingClassName}"` : '')
-      + ((hidingClassName !== 'webchalk-display-none' && hiddenDisplay) ? `\n - CSS property 'display: none'` : '')
-      + ((hidingClassName !== 'webchalk-visibility-hidden' && hiddenVisibility) ? `\n - CSS property 'visibility: hidden'` : '')]
-    );
+    this.prevPointA = this.domElem.getEndpoints().A;
+    this.prevPointB = this.domElem.getEndpoints().B;
+    this.prevConnectorConfig.autoTrackingEnabled = this.domElem.autoTrackingEnabled;  
+    if (this.config.autoTrackingEnabled !== null) { this.domElem.autoTrackingEnabled = this.config.autoTrackingEnabled; }
+    return;
   }
 
   protected _onStartBackward(): void {
