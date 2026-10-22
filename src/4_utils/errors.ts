@@ -115,6 +115,13 @@ class InvalidElementError extends TypeError {
   }
 }
 
+class InvalidConnectorError extends TypeError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'InvalidConnectorError';
+  }
+}
+
 class InvalidEntranceAttempt extends Error {
   constructor(message: string) {
     super(message);
@@ -191,6 +198,7 @@ class InvalidEffectError extends Error {
 export const CustomErrorClasses = {
   CommitStylesError,
   InvalidElementError,
+  InvalidConnectorError,
   InvalidEntranceAttempt,
   InvalidExitAttempt,
   InvalidPhasePositionError,

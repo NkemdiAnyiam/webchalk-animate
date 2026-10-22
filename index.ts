@@ -21,16 +21,12 @@ console.log('comparison result:', result);
 
 // console.log(TextEditor(blueCircle, '~insert-text', ['aerstgf'], {durationOrRate: '500wpm'}).getTiming());
 
-// webchalk.shapeFactories.newConnector([[square, `0 100px`], [circle, `top center`]], {
-//   domLocation: ['firstChild', body],
-//   tracking: false,
-//   cssClasses: ['connector', 'connector--white'],
-//   cssId: 'connector--124',
-// }).setHtmlAttrs();
-// ConnectorEntrance(webchalk.shapes.newConnector([square, `0 100px`], [circle, `top center`], {insertAfter}), '~trace', [], {});
-// ConnectorEntrance(connector, '~trace', [], {newEndpoints: [ [square, '100% 100%'], [circle, 'right center'] ]});
-
-const conn = webchalk.shapeFactories.drawConnector([redSquare, '(center, middle)'], [blueCircle, '(center, middle)'], {});
+const conn = webchalk.shapeFactories.drawConnector([redSquare, '(center, middle)'], [blueCircle, '(center, middle)'], {
+  cssClasses: ['connector', 'connector--green'],
+});
+// const conn = document.querySelector('.connector');
+// setTimeout(() => {conn.removeEndpoints('A')}, 1000);
+// setTimeout(() => {blueCircle?.remove()}, 1000);
 
 const timeline = webchalk.newTimeline({timelineName: 'Main'});
 timeline.ui.attachTimelinePane();
@@ -51,7 +47,7 @@ const seq1 = webchalk.newSequence(
   [
   ]);
   seq1.addClips([
-    ConnectorEntrance(conn, '~trace', [], {hideNowType: 'display-none'}),
+    ConnectorEntrance(conn, '~trace', [], { hideNowType: 'display-none' }),
     Motion(redSquare, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move red square'}),
     Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000, cssClasses: {toAddOnFinish: ['yo', 'bro']}}),
     TextEditor(redSquare, '~insert-text', ['HELLO WORLD! To what do I owe you all the pleasure?'], {durationOrRate: '300wpm', startsWithPrevious: true, description: 'Insert text to square', delay: 1000}),

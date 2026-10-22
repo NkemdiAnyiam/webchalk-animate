@@ -55,7 +55,7 @@ stylesheet.replaceSync(
 );
 
 export type WebchalkConnectorElementConfig = {
-  disableAutoTracking: boolean;
+  autoTrackingEnabled: boolean;
 };
 
 type CreateConnectorConfig = {
@@ -69,17 +69,17 @@ type CreateConnectorConfig = {
    */
   domLocation?: [where: 'before' | 'after' | 'first-child' | 'last-child', element: Element | null | undefined] | null;
   /**
-   * If `true`, the endpoints of the connector will be prevented from continuously updating to match any positional changes in the target elements.
+   * If `true`, the endpoints of the connector will continuously update to match any positional changes in the target elements.
    * @remarks
    * If {@link CreateConnectorConfig.domLocation|domLocation} is used to insert the connector close to the target endpoints
-   * and neither endpoints will undergo transformations, specifying `true` is appropriate for optimization since the target elements will
-   * not be moving with respect to the connector.
+   * and neither endpoints will undergo transformations, specifying `false` is appropriate for optimization since the
+   * target elements will not be moving with respect to the connector.
    * @defaultValue
    * ```ts
    * true
    * ```
    */
-  disableAutoTracking?: boolean;
+  autoTrackingEnabled?: boolean;
   /**
    * An array of CSS classes that will be added to the connector's HTML class attribute.
    */
@@ -100,35 +100,30 @@ export interface DrawConnector {
    * @returns A new {@link WebchalkConnectorElement} instance.
    */
   drawConnector(
-    pointA: [elemA: Element | null | undefined, placement: MultiUnitOrderedPairString],
-    pointB: [elemB: Element | null | undefined, placement: MultiUnitOrderedPairString],
-    config: CreateConnectorConfig
+    pointA: [elemA: Element | null | undefined, placement: MultiUnitOrderedPairString] | null,
+    pointB: [elemB: Element | null | undefined, placement: MultiUnitOrderedPairString] | null,
+    config?: CreateConnectorConfig
   ): WebchalkConnectorElement;
 }
 
 export class WebchalkConnectorElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-connector', WebchalkConnectorElement); }
   private static staticId: number = 0;
+  static observedAttributes = ['tracking-disabled'];
 
-  static create<T extends Parameters<DrawConnector['drawConnector']>>(pointA: T[0], pointB: T[1], config: T[2]): WebchalkConnectorElement {
-    // validate endpoints
-    if (!(pointA[0] instanceof Element)) { throw new CustomErrorClasses.InvalidElementError(`Point A element must not be null or undefined.`); }
-    if (!(pointB[0] instanceof Element)) { throw new CustomErrorClasses.InvalidElementError(`Point B element must not be null or undefined.`); }
-    
-    // create connector and set endpoints
+  static create<T extends Parameters<DrawConnector['drawConnector']>>(pointA: T[0], pointB: T[1], config: T[2] = {}): WebchalkConnectorElement {
     const newConnector = new WebchalkConnectorElement();
-    newConnector.pointA = [pointA[0] as DOMElement, ...parseMultiUnitPlacement(pointA[1])];
-    newConnector.pointB = [pointB[0] as DOMElement, ...parseMultiUnitPlacement(pointB[1])];
+    newConnector.setEndpoints({A: pointA, B: pointB});
 
     // handle config
     const {
       domLocation = ['last-child', document.querySelector('.webchalk-assets-container')],
       cssClasses = [],
       cssId,
-      disableAutoTracking = false,
+      autoTrackingEnabled = true,
     } = config;
 
-    newConnector.disableAutoTracking = disableAutoTracking;
+    newConnector.autoTrackingEnabled = autoTrackingEnabled;
     newConnector.classList.add(...cssClasses);
     if (cssId) { newConnector.id = cssId; }
 
@@ -147,9 +142,6 @@ export class WebchalkConnectorElement extends HTMLElement {
       }
 
       insRefPoint.insertAdjacentElement(where, newConnector);
-      
-      if (disableAutoTracking) { newConnector.updateEndpoints(); }
-      else { newConnector.continuouslyUpdateEndpoints(); }
     }
 
     return newConnector;
@@ -165,10 +157,14 @@ export class WebchalkConnectorElement extends HTMLElement {
   private mask: SVGMaskElement;
   get lineElement(): Readonly<SVGLineElement> { return this.lineLayer; }
 
-  // TODO: create getter and setter or some setter functions
-  pointA: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] = [document.body, [0,0], [0,0]];
-  pointB: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] = [document.body, [0,100], [0,100]];
-  disableAutoTracking: boolean = true;
+  /** @internal */ pointA: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | null = null;
+  /** @internal */ pointB: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | null = null;
+  get autoTrackingEnabled(): boolean { return !this.hasAttribute('tracking-disabled') || this.getAttribute('tracking-disabled') === 'false'; };
+  set autoTrackingEnabled(trackingEnabled: boolean) {
+    if (trackingEnabled) { this.removeAttribute('tracking-disabled'); }
+    else { this.setAttribute('tracking-disabled', 'true'); }
+  }
+  private haltContinuousUpdates = false;
   private continuousTrackingReqId: number = NaN;
 
   get ax(): number { return this.lineLayer.x1.baseVal.value; }
@@ -208,7 +204,6 @@ export class WebchalkConnectorElement extends HTMLElement {
     const maskId = `mask--${this.connectorId}`;
     this.usesMarkerA = this.hasAttribute('a-marker');
     this.usesMarkerB = this.hasAttribute('b-marker');
-    this.disableAutoTracking = this.getAttribute('tracking-disabled') === 'true';
     const markerWidth: number = Number(this.getAttribute('marker-width')) || 5;
     const markerHeight: number = Number(this.getAttribute('marker-height')) || 7;
 
@@ -291,17 +286,95 @@ export class WebchalkConnectorElement extends HTMLElement {
     this.mask = this.gBody.querySelector('mask') as SVGMaskElement;
   }
 
-  resetEndpoints() {
-    this.pointA = [document.body, [0,0], [0,0]];
-    this.pointB = [document.body, [0,100], [0,100]];
+  attributeChangedCallback(attrName: string, oldValue: string, newValue: string) {
+    if (oldValue === newValue) { return; }
+
+    if (attrName === 'tracking-disabled') {
+      if (newValue === null || newValue === 'false') {
+        this.resumeAutoPointTracking();
+      }
+      else {
+        this.pauseAutoPointTracking();
+      }
+    }
+  }
+
+  connectedCallback() {
+    if (this.autoTrackingEnabled) { this.resumeAutoPointTracking(); }
+    else { this.updateEndpoints(); }
+  }
+
+  disconnectedCallback() {
+    this.pauseAutoPointTracking();
+  }
+
+  getEndpoints() {
+    return {
+      A: this.pointA ? [...this.pointA] : null,
+      B: this.pointB ? [...this.pointB] : null
+    }
+  }
+
+  setEndpoints(newPoints: {
+    A?: [elemA: Element | null | undefined, placement: MultiUnitOrderedPairString] | null,
+    B?: [elemB: Element | null | undefined, placement: MultiUnitOrderedPairString] | null
+  }) {
+    const {A, B} = newPoints;
+
+    // validate endpoints
+    if (A && !(A[0] instanceof Element)) {
+      throw new CustomErrorClasses.InvalidElementError(`Point A was specified, but the provided element (${A[0]}) is not a valid element.`);    
+    }
+    else if (A === null) {
+      this.pointA = null;
+    }
+    if (B && !(B[0] instanceof Element)) {
+      throw new CustomErrorClasses.InvalidElementError(`Point B was specified, but the provided element (${B[0]}) is not a valid element.`);
+    }
+    else if (B === null) {
+      this.pointB = null;
+    }
+
+    if (A) { this.pointA = [A[0] as DOMElement, ...parseMultiUnitPlacement(A[1])]; }
+    if (B) { this.pointB = [B[0] as DOMElement, ...parseMultiUnitPlacement(B[1])]; }
+
+    // if (preventUpdate) {
+    //   if (!this.autoTrackingDisabled) {
+    //     console.warn(`{preventUpdate: true} will not prevent updates because this connector is currently set to auto update.`);
+    //   }
+    //   return;
+    // }
+
+    if (this.autoTrackingEnabled) { this.resumeAutoPointTracking(); }
+    else { this.updateEndpoints(); }
+  }
+
+  removeEndpoints(endpoints: 'A' | 'B' | 'both') {
+    switch(endpoints) {
+      case "A":
+        this.pointA = null;
+        break;
+      case "B":
+        this.pointB = null;
+        break;
+      case "both":
+        this.pointA = null;
+        this.pointB = null;
+        break;
+      default: throw new RangeError(`Invalid string value "${endpoints}". Must specify "A", "B", or "both".`);
+    }
   }
 
   updateEndpoints = (/*errorGenerator?: ErrorGenerator*/): void => {
     const pointA = this.pointA;
     const pointB = this.pointB;
-    if (!pointA || !pointB) {
-      console.warn(`This connector is missing at least one point and thus cannot be updated.`);
-      this.cancelContinuousUpdates();
+    if (!this.isConnected) {
+      this.pauseAutoPointTracking();
+      return;
+    }
+    if (!pointA || !pointB || !pointA[0].isConnected || !pointB[0].isConnected) {
+      this.ax = this.ay = this.bx = this.by = 0;
+      this.pauseAutoPointTracking();
       return;
     }
 
@@ -382,18 +455,24 @@ export class WebchalkConnectorElement extends HTMLElement {
     }
   }
 
-  continuouslyUpdateEndpoints(): void {
-    if (!isNaN(this.continuousTrackingReqId)) { return; }
-    this.continuouslyUpdateEndpointsRAF();
+  resumeAutoPointTracking(): void {
+    if (!this.autoTrackingEnabled) {
+      throw new CustomErrorClasses.InvalidConnectorError(`Cannot initiate automatic point tracking while {autoTrackingEnabled: false}.`);
+    }
+    if (!isNaN(this.continuousTrackingReqId)) { this.pauseAutoPointTracking(); }
+    this.haltContinuousUpdates = false;
+    this.trackPointsRAF();
   }
 
-  continuouslyUpdateEndpointsRAF = (): void => {
+  private trackPointsRAF = (): void => {
+    if (this.haltContinuousUpdates) { return; }
     this.updateEndpoints();
-    this.continuousTrackingReqId = window.requestAnimationFrame(this.continuouslyUpdateEndpointsRAF);
+    this.continuousTrackingReqId = window.requestAnimationFrame(this.trackPointsRAF);
   }
 
-  cancelContinuousUpdates(): void {
+  pauseAutoPointTracking(): void {
     if (isNaN(this.continuousTrackingReqId)) { return; }
+    this.haltContinuousUpdates = true;
     window.cancelAnimationFrame(this.continuousTrackingReqId);
     this.continuousTrackingReqId = NaN;
   }

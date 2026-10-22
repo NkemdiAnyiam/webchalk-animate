@@ -668,7 +668,7 @@ export class Webchalk {
        * 
        * // create connector entrance clips using factory function
        * //                              A             B           C   D             
-       * const clip1 = ConnectorEntrance(topConnector, '~fade-in', [], {duration: 2000, playbackRate: 2, disableAutoTracking: false});
+       * const clip1 = ConnectorEntrance(topConnector, '~fade-in', [], {duration: 2000, playbackRate: 2, autoTrackingEnabled: false});
        * //                              A                B         C
        * const clip2 = ConnectorEntrance(middleConnector, '~trace', ['from-A']);
        * //                              A                  B         C                D

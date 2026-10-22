@@ -34,6 +34,13 @@ body {
   border-radius: 50%;
 }
 
+.connector {
+  stroke-width: 3px;
+}
+
+.connector--green {
+  stroke: darkgreen;}
+
 .playback-buttons {
   /* position: fixed;
   top: 0;
