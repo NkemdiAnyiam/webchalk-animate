@@ -34,7 +34,7 @@ export function hemSecs(numHem: number): string {
 
 export class WebchalkTimelinePaneElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-timeline-pane', WebchalkTimelinePaneElement); }
-  static observedAttributes = ['dock'];
+  private static observedAttributes = ['dock'];
 
   animTimeline?: AnimTimeline;
   

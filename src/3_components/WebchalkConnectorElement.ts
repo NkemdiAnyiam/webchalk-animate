@@ -109,7 +109,7 @@ export interface DrawConnector {
 export class WebchalkConnectorElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-connector', WebchalkConnectorElement); }
   private static staticId: number = 0;
-  static observedAttributes = ['tracking-disabled'];
+  private static observedAttributes = ['tracking-disabled'];
 
   static create<T extends Parameters<DrawConnector['drawConnector']>>(pointA: T[0], pointB: T[1], config: T[2] = {}): WebchalkConnectorElement {
     const newConnector = new WebchalkConnectorElement();
