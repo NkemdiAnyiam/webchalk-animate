@@ -61,7 +61,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     this.attachDockListener();
   }
 
-  attributeChangedCallback(attrName: string, oldValue: string, newValue: string) {
+  private attributeChangedCallback(attrName: string, oldValue: string, newValue: string) {
     if (attrName === 'dock') {
       const timelineEl = this.shadowRoot!.querySelector('.timeline') as HTMLElement;
       const errorPanelEl = timelineEl.querySelector('.timeline__error-panel') as HTMLElement;

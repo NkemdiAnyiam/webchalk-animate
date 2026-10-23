@@ -317,7 +317,7 @@ export class WebchalkConnectorElement extends HTMLElement {
     return [targElem, ordPair];
   }
 
-  attributeChangedCallback(attrName: string, oldValue: string, newValue: string) {
+  private attributeChangedCallback(attrName: string, oldValue: string, newValue: string) {
     if (oldValue === newValue) { return; }
 
     if (attrName === 'tracking-disabled') {
@@ -330,12 +330,12 @@ export class WebchalkConnectorElement extends HTMLElement {
     }
   }
 
-  connectedCallback() {
+  private connectedCallback() {
     if (this.autoTrackingEnabled) { this.resumeAutoPointTracking(); }
     else { this.updateEndpoints(); }
   }
 
-  disconnectedCallback() {
+  private disconnectedCallback() {
     this.pauseAutoPointTracking();
   }
 
