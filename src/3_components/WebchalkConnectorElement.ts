@@ -15,11 +15,11 @@ stylesheet.replaceSync(
     fill: black;
     display: initial;
     line-height: 0 !important;
-    overflow: visible !important;
-    visibility: hidden !important;
+    pointer-events: none;
   }
   
   .connector__svg {
+    pointer-events: all;
     visibility: hidden !important;
     overflow: visible !important;
   }
