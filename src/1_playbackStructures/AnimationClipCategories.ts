@@ -958,7 +958,7 @@ export interface ConnectorEntranceClipConfig extends AnimClipConfig {
     A?: [elemA: Element | null | undefined, MultiUnitOrderedPairString];
     B?: [elemB: Element | null | undefined, MultiUnitOrderedPairString];
   };
-  autoTrackingEnabled: boolean | null;
+  autoRedrawEnabled: boolean | null;
 };
 
 /**
@@ -995,8 +995,9 @@ export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<
  * @example
  * <!-- EX:S id="ConnectorEntranceClip.example" code-type="ts" -->
  * ```ts
- * // retrieve connector entrance clip factory function;
+ * // retrieve connector entrance clip factory function and connector factory function
  * const { ConnectorEntrance } = webchalk.createAnimationClipFactories();
+ * const { drawConnector } = webchalk.shapeFactories;
  * 
  * // select elements from the DOM
  * const circle1 = document.querySelector('.circle--left');
@@ -1004,7 +1005,7 @@ export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<
  * 
  * // select connector elements from the DOM or create them using drawConnector()
  * const topConnector = document.querySelector('.connector--thick');
- * const middleConnector = webchalk.shapeFactories.drawConnector([circle1, '(right, middle)'], [circle2, '(left, middle)'], {
+ * const middleConnector = drawConnector([circle1, '(right, middle)'], [circle2, '(left, middle)'], {
  *   cssClasses: ['connector--skinny']
  * });
  * const verticalConnector = document.querySelector('.connector--red');
@@ -1014,21 +1015,21 @@ export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<
  * 
  * // create connector entrance clips using factory function
  * //                              A             B           C   D             
- * const clip1 = ConnectorEntrance(topConnector, '~fade-in', [], {duration: 2000, playbackRate: 2, autoTrackingEnabled: false});
+ * const clip1 = ConnectorEntrance(topConnector, '~fade-in', [], {duration: 2000, playbackRate: 2, autoRedrawEnabled: false});
  * //                              A                B         C
  * const clip2 = ConnectorEntrance(middleConnector, '~trace', ['from-A']);
  * //                              A                  B         C                D
  * const clip3 = ConnectorEntrance(verticalConnector, '~trace', ['from-bottom'], {delay: 500});
  * //                              A                B          C   D
  * const clip4 = ConnectorEntrance(bottomConnector, '~appear', [], {
- *   newPoints: {A: [circle2, '(left, -20px)'], B: [circle2, '(right, bottom + 20px)']}
+ *   newPoints: {A: [circle2, '(left, -20px)'], B: [circle2, '(90%, bottom + 20px)']}
  * });
  * 
  * // play clips (all will play at the same time because they are asynchronous)
  * clip1.play(); // topConnector fades in, and its endpoint tracking is disabled (meaning it will not update even if the targets move)
  * clip2.play(); // middleConnector is drawn from its point A to its point B
- * clip3.play(); // verticalConnector is draw starting from whichever endpoint is lower
- * clip4.play(); // bottomConnector appears instantly, and whatever its endpoints used to be were replaced by newPoints
+ * clip3.play(); // verticalConnector is drawn starting from whichever endpoint is lower
+ * clip4.play(); // bottomConnector appears instantly, with its previous endpoints replaced by newPoints
  * ```
  * <!-- EX:E id="ConnectorEntranceClip.example" -->
  * 
@@ -1056,7 +1057,7 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
       ...AnimClip.baseDefaultConfig,
       hideNowType: null,
       newPoints: {} as ConnectorEntranceClipConfig['newPoints'],
-      autoTrackingEnabled: null,
+      autoRedrawEnabled: null,
       ...this.categoryImmutableConfig,
     } satisfies ConnectorEntranceClipConfig;
   }
@@ -1191,7 +1192,7 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
       );
     }
 
-    const {A, B} = this.domElem.getEndpoints();
+    const {A, B} = this.domElem.getPoints();
     const {newPointA, newPointB} = this;
     // check to make sure points actually exist by this time
     if (!newPointA && !A) {
@@ -1202,50 +1203,50 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
     }
 
     // set new points and config
-    this.prevPointA = this.domElem.getEndpoints().A;
-    this.prevPointB = this.domElem.getEndpoints().B;
-    this.domElem.setEndpoints({
+    this.prevPointA = this.domElem.getPoints().A;
+    this.prevPointB = this.domElem.getPoints().B;
+    this.domElem.setPoints({
       ...(newPointA ? {A: newPointA} : {}),
       ...(newPointB ? {B: newPointB} : {}),
     });
 
-    this.prevConnectorConfig.autoTrackingEnabled = this.domElem.autoTrackingEnabled;
-    if (this.config.autoTrackingEnabled !== null) { this.domElem.autoTrackingEnabled = this.config.autoTrackingEnabled; }
+    this.prevConnectorConfig.autoRedrawEnabled = this.domElem.autoRedrawEnabled;
+    if (this.config.autoRedrawEnabled !== null) { this.domElem.autoRedrawEnabled = this.config.autoRedrawEnabled; }
 
     this.domElem.classList.remove('webchalk-display-none');
 
-    if (this.domElem.autoTrackingEnabled) { this.domElem.resumeAutoPointTracking(); }
-    else { this.domElem.updateEndpoints(); }
+    if (this.domElem.autoRedrawEnabled) { this.domElem.resumeAutoRedraw(); }
+    else { this.domElem.redraw(); }
   }
 
   // protected _onFinishForward(): void {
   //   // avoids visual discrepancies that would probably arise with jumping
-  //   if (!this.domElem.pointTrackingEnabled) { this.domElem.updateEndpoints(); }
+  //   if (!this.domElem.pointTrackingEnabled) { this.domElem.redraw(); }
   // }
 
   protected _onStartBackward(): void {
-    this.domElem.setEndpoints(
+    this.domElem.setPoints(
       {A: this.newPointA ?? this.prevPointA, B: this.newPointB ?? this.prevPointB},
       {updateNow: false}
     );
 
     if (
-      this.config.autoTrackingEnabled === true
-      || (this.config.autoTrackingEnabled === null && this.prevConnectorConfig.autoTrackingEnabled === true)
+      this.config.autoRedrawEnabled === true
+      || (this.config.autoRedrawEnabled === null && this.prevConnectorConfig.autoRedrawEnabled === true)
     ) {
-      this.domElem.resumeAutoPointTracking();
+      this.domElem.resumeAutoRedraw();
     }
     else {
-      this.domElem.pauseAutoPointTracking();
+      this.domElem.pauseAutoRedraw();
     }
   }
 
   protected _onFinishBackward(): void {
-    this.domElem.pauseAutoPointTracking();
+    this.domElem.pauseAutoRedraw();
     this.domElem.classList.add('webchalk-display-none');
 
-    this.domElem.setEndpoints({A: this.prevPointA, B: this.prevPointB});
-    this.domElem.autoTrackingEnabled = this.prevConnectorConfig.autoTrackingEnabled;
+    this.domElem.setPoints({A: this.prevPointA, B: this.prevPointB});
+    this.domElem.autoRedrawEnabled = this.prevConnectorConfig.autoRedrawEnabled;
   }
 }
 
@@ -1263,7 +1264,7 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
  * @category Connector Exit
  */
 export interface ConnectorExitClipConfig extends AnimClipConfig {
-  autoTrackingEnabled: boolean | null;
+  autoRedrawEnabled: boolean | null;
 };
 
 /**
@@ -1287,8 +1288,9 @@ export interface ConnectorExitClipConfig extends AnimClipConfig {
  * @example
  * <!-- EX:S id="ConnectorEntranceClip.example" code-type="ts" -->
  * ```ts
- * // retrieve connector entrance clip factory function;
+ * // retrieve connector entrance clip factory function and connector factory function
  * const { ConnectorEntrance } = webchalk.createAnimationClipFactories();
+ * const { drawConnector } = webchalk.shapeFactories;
  * 
  * // select elements from the DOM
  * const circle1 = document.querySelector('.circle--left');
@@ -1296,7 +1298,7 @@ export interface ConnectorExitClipConfig extends AnimClipConfig {
  * 
  * // select connector elements from the DOM or create them using drawConnector()
  * const topConnector = document.querySelector('.connector--thick');
- * const middleConnector = webchalk.shapeFactories.drawConnector([circle1, '(right, middle)'], [circle2, '(left, middle)'], {
+ * const middleConnector = drawConnector([circle1, '(right, middle)'], [circle2, '(left, middle)'], {
  *   cssClasses: ['connector--skinny']
  * });
  * const verticalConnector = document.querySelector('.connector--red');
@@ -1306,21 +1308,21 @@ export interface ConnectorExitClipConfig extends AnimClipConfig {
  * 
  * // create connector entrance clips using factory function
  * //                              A             B           C   D             
- * const clip1 = ConnectorEntrance(topConnector, '~fade-in', [], {duration: 2000, playbackRate: 2, autoTrackingEnabled: false});
+ * const clip1 = ConnectorEntrance(topConnector, '~fade-in', [], {duration: 2000, playbackRate: 2, autoRedrawEnabled: false});
  * //                              A                B         C
  * const clip2 = ConnectorEntrance(middleConnector, '~trace', ['from-A']);
  * //                              A                  B         C                D
  * const clip3 = ConnectorEntrance(verticalConnector, '~trace', ['from-bottom'], {delay: 500});
  * //                              A                B          C   D
  * const clip4 = ConnectorEntrance(bottomConnector, '~appear', [], {
- *   newPoints: {A: [circle2, '(left, -20px)'], B: [circle2, '(right, bottom + 20px)']}
+ *   newPoints: {A: [circle2, '(left, -20px)'], B: [circle2, '(90%, bottom + 20px)']}
  * });
  * 
  * // play clips (all will play at the same time because they are asynchronous)
  * clip1.play(); // topConnector fades in, and its endpoint tracking is disabled (meaning it will not update even if the targets move)
  * clip2.play(); // middleConnector is drawn from its point A to its point B
- * clip3.play(); // verticalConnector is draw starting from whichever endpoint is lower
- * clip4.play(); // bottomConnector appears instantly, and whatever its endpoints used to be were replaced by newPoints
+ * clip3.play(); // verticalConnector is drawn starting from whichever endpoint is lower
+ * clip4.play(); // bottomConnector appears instantly, with its previous endpoints replaced by newPoints
  * ```
  * <!-- EX:E id="ConnectorEntranceClip.example" -->
  * 
@@ -1344,7 +1346,7 @@ export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefin
   get categoryDefaultConfig() {
     return {
       ...AnimClip.baseDefaultConfig,
-      autoTrackingEnabled: null,
+      autoRedrawEnabled: null,
       ...this.categoryImmutableConfig,
     } satisfies ConnectorExitClipConfig;
   }
@@ -1371,6 +1373,7 @@ export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefin
     const hiddenVisibility = visibility === 'hidden';
     const hidden = hiddenDisplay || hiddenVisibility;
 
+    console.log(hidingClassName, hiddenDisplay, hiddenVisibility, hidden)
     if (hidingClassName || hidden) {
       throw this.generateError(CustomErrorClasses.InvalidExitAttempt,
         [`ConnectorExit() can only play on elements that are not already hidden. The connector here is already hidden by the following:`
@@ -1380,36 +1383,36 @@ export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefin
       );
     }
 
-    this.prevPointA = this.domElem.getEndpoints().A;
-    this.prevPointB = this.domElem.getEndpoints().B;
-    this.prevConnectorConfig.autoTrackingEnabled = this.domElem.autoTrackingEnabled;  
-    if (this.config.autoTrackingEnabled !== null) { this.domElem.autoTrackingEnabled = this.config.autoTrackingEnabled; }
+    this.prevPointA = this.domElem.getPoints().A;
+    this.prevPointB = this.domElem.getPoints().B;
+    this.prevConnectorConfig.autoRedrawEnabled = this.domElem.autoRedrawEnabled;  
+    if (this.config.autoRedrawEnabled !== null) { this.domElem.autoRedrawEnabled = this.config.autoRedrawEnabled; }
     return;
   }
 
   protected _onStartBackward(): void {
     // here in case some non-timeline changes were made ahead of this clip
     this.domElem.classList.remove('webchalk-display-none');
-    this.domElem.setEndpoints({A: this.prevPointA, B: this.prevPointB});
+    this.domElem.setPoints({A: this.prevPointA, B: this.prevPointB});
 
-    if (this.config.autoTrackingEnabled === true
-      || (this.config.autoTrackingEnabled === null && this.prevConnectorConfig.autoTrackingEnabled === true)
+    if (this.config.autoRedrawEnabled === true
+      || (this.config.autoRedrawEnabled === null && this.prevConnectorConfig.autoRedrawEnabled === true)
     ) {
-      this.domElem.resumeAutoPointTracking();
+      this.domElem.resumeAutoRedraw();
     }
     else {
-      this.domElem.pauseAutoPointTracking();
+      this.domElem.pauseAutoRedraw();
     }
   }
 
   protected _onFinishForward(): void {
-    this.domElem.pauseAutoPointTracking();
+    this.domElem.pauseAutoRedraw();
     this.domElem.classList.add('webchalk-display-none');
   }
 
   protected _onFinishBackward(): void {
-    this.domElem.autoTrackingEnabled = this.prevConnectorConfig.autoTrackingEnabled;
-    if (this.domElem.autoTrackingEnabled) { this.domElem.updateEndpoints(); }
+    this.domElem.autoRedrawEnabled = this.prevConnectorConfig.autoRedrawEnabled;
+    if (this.domElem.autoRedrawEnabled) { this.domElem.redraw(); }
   }
 }
 

@@ -498,8 +498,9 @@ clip3.play(); // triangle transitions FROM 0 opacity to its current opacity
 
 {
 /**** EX:S id="ConnectorEntranceClip.example" */
-// retrieve connector entrance clip factory function;
+// retrieve connector entrance clip factory function and connector factory function
 const { ConnectorEntrance } = webchalk.createAnimationClipFactories();
+const { drawConnector } = webchalk.shapeFactories;
 
 // select elements from the DOM
 const circle1 = document.querySelector('.circle--left');
@@ -507,7 +508,7 @@ const circle2 = document.querySelector('.circle--right');
 
 // select connector elements from the DOM or create them using drawConnector()
 const topConnector = document.querySelector('.connector--thick');
-const middleConnector = webchalk.shapeFactories.drawConnector([circle1, '(right, middle)'], [circle2, '(left, middle)'], {
+const middleConnector = drawConnector([circle1, '(right, middle)'], [circle2, '(left, middle)'], {
   cssClasses: ['connector--skinny']
 });
 const verticalConnector = document.querySelector('.connector--red');
@@ -517,21 +518,21 @@ const bottomConnector = document.querySelector('.connector--dashed');
 
 // create connector entrance clips using factory function
 //                              A             B           C   D             
-const clip1 = ConnectorEntrance(topConnector, '~fade-in', [], {duration: 2000, playbackRate: 2, autoTrackingEnabled: false});
+const clip1 = ConnectorEntrance(topConnector, '~fade-in', [], {duration: 2000, playbackRate: 2, autoRedrawEnabled: false});
 //                              A                B         C
 const clip2 = ConnectorEntrance(middleConnector, '~trace', ['from-A']);
 //                              A                  B         C                D
 const clip3 = ConnectorEntrance(verticalConnector, '~trace', ['from-bottom'], {delay: 500});
 //                              A                B          C   D
 const clip4 = ConnectorEntrance(bottomConnector, '~appear', [], {
-  newPoints: {A: [circle2, '(left, -20px)'], B: [circle2, '(right, bottom + 20px)']}
+  newPoints: {A: [circle2, '(left, -20px)'], B: [circle2, '(90%, bottom + 20px)']}
 });
 
 // play clips (all will play at the same time because they are asynchronous)
 clip1.play(); // topConnector fades in, and its endpoint tracking is disabled (meaning it will not update even if the targets move)
 clip2.play(); // middleConnector is drawn from its point A to its point B
-clip3.play(); // verticalConnector is draw starting from whichever endpoint is lower
-clip4.play(); // bottomConnector appears instantly, and whatever its endpoints used to be were replaced by newPoints
+clip3.play(); // verticalConnector is drawn starting from whichever endpoint is lower
+clip4.play(); // bottomConnector appears instantly, with its previous endpoints replaced by newPoints
 /**** EX:E id="ConnectorEntranceClip.example" */
 }
 
@@ -1963,63 +1964,97 @@ const ent6 = clipFactories.Entrance(square, '~rise-up', []); // default easing =
 
 
 {
-  /**** EX:S id="Transition.~from" */
-  const { Transition } = webchalk.createAnimationClipFactories();
+/**** EX:S id="Transition.~from" */
+const { Transition } = webchalk.createAnimationClipFactories();
 
-  // get element from DOM and set its styles (just to give some explicit values to look at)
-  const square = document.querySelector('.square') as HTMLElement;
-  square.style.opacity = '0.5';
-  square.style.backgroundColor = 'black';
-  square.style.width = '200px';
+// get element from DOM and set its styles (just to give some explicit values to look at)
+const square = document.querySelector('.square') as HTMLElement;
+square.style.opacity = '0.5';
+square.style.backgroundColor = 'black';
+square.style.width = '200px';
 
-  // A = element, B = effect name, C = effect options, D = configuration (optional)
-  
-  //                       A       B        C                                                     D
-  const clip1 = Transition(square, '~from', [{opacity: '0', backgroundColor: 'red', width: '0'}], {duration: 2000});
-  //                       A       B        C                    D
-  const clip2 = Transition(square, '~from', [{width: '5000px'}], {duration: 1000});
+// A = element, B = effect name, C = effect options, D = configuration (optional)
 
-  (async () => {
-    // The square instantly becomes invisible (0 opacity), turns red, and has 0 width. Then over 2 seconds, it
-    // transitions back to its state before the transition (0.5 opacity, black background, and 200px width).
-    await clip1.play();
+//                       A       B        C                                                     D
+const clip1 = Transition(square, '~from', [{opacity: '0', backgroundColor: 'red', width: '0'}], {duration: 2000});
+//                       A       B        C                    D
+const clip2 = Transition(square, '~from', [{width: '5000px'}], {duration: 1000});
 
-    // The square instantly becomes 5000px. Then over 1 second, it transitions back to 200px width.
-    await clip2.play();
-  })();
-  /**** EX:E id="Transition.~from" */
+(async () => {
+  // The square instantly becomes invisible (0 opacity), turns red, and has 0 width. Then over 2 seconds, it
+  // transitions back to its state before the transition (0.5 opacity, black background, and 200px width).
+  await clip1.play();
+
+  // The square instantly becomes 5000px. Then over 1 second, it transitions back to 200px width.
+  await clip2.play();
+})();
+/**** EX:E id="Transition.~from" */
 }
 
 {
-  /**** EX:S id="Transition.~to" */
-  const { Transition } = webchalk.createAnimationClipFactories();
+/**** EX:S id="Transition.~to" */
+const { Transition } = webchalk.createAnimationClipFactories();
 
-  // get element from DOM and set its styles (just to give some explicit values to look at)
-  const square = document.querySelector('.square') as HTMLElement;
-  square.style.opacity = '0.5';
-  square.style.backgroundColor = 'black';
-  square.style.width = '200px';
+// get element from DOM and set its styles (just to give some explicit values to look at)
+const square = document.querySelector('.square') as HTMLElement;
+square.style.opacity = '0.5';
+square.style.backgroundColor = 'black';
+square.style.width = '200px';
 
-  // A = element, B = effect name, C = effect options, D = configuration (optional)
-  
-  //                       A       B      C                                                     D
-  const clip1 = Transition(square, '~to', [{opacity: '0', backgroundColor: 'red', width: '0'}], {duration: 2000});
-  //                       A       B      C                            D
-  const clip2 = Transition(square, '~to', [{opacity: '1', width: '5000px'}], {duration: 1000});
-  const clip3 = Transition(square, '~to', [{width: '200px'}], {duration: 0.5, removeInlineStylesOnFinish: true});
+// A = element, B = effect name, C = effect options, D = configuration (optional)
 
-  (async () => {
-    // Over 2 seconds, the square transitions to having 0 opacity, a red background color, and 0 width.
-    await clip1.play();
+//                       A       B      C                                                     D
+const clip1 = Transition(square, '~to', [{opacity: '0', backgroundColor: 'red', width: '0'}], {duration: 2000});
+//                       A       B      C                            D
+const clip2 = Transition(square, '~to', [{opacity: '1', width: '5000px'}], {duration: 1000});
+const clip3 = Transition(square, '~to', [{width: '200px'}], {duration: 0.5, removeInlineStylesOnFinish: true});
 
-    // Over 1 second, the square transitions to have 100% opacity and 5000px width.
-    await clip2.play();
+(async () => {
+  // Over 2 seconds, the square transitions to having 0 opacity, a red background color, and 0 width.
+  await clip1.play();
 
-    // Over 0.5 seconds, the square transitions to having 200px.
-    // Because of removeInlineStylesOnFinish, the inline styles related to this clip (i.e., just the width) will be
-    // removed from the element in the HTML after the clip finishes. This is reasonable here since the very original
-    // width of the square is 200px.
-    await clip3.play();
-  })();
-  /**** EX:E id="Transition.~to" */
+  // Over 1 second, the square transitions to have 100% opacity and 5000px width.
+  await clip2.play();
+
+  // Over 0.5 seconds, the square transitions to having 200px.
+  // Because of removeInlineStylesOnFinish, the inline styles related to this clip (i.e., just the width) will be
+  // removed from the element in the HTML after the clip finishes. This is reasonable here since the very original
+  // width of the square is 200px.
+  await clip3.play();
+})();
+/**** EX:E id="Transition.~to" */
+}
+
+
+
+
+
+
+
+{
+/**** EX:S id="drawConnector.example" */
+const { drawConnector } = webchalk.shapeFactories;
+
+// SELECT ELEMENTS FROM THE SCREEN
+const square = document.querySelector('.square');
+const circle = document.querySelector('.circle');
+
+// CREATE VARIOUS CONNECTORS
+// Creates a connector and immediately displays it on the screen.
+// It connects the center points of the two selected elements (presumably a square and circle).
+const conn = drawConnector([square, '(center, middle)'], [circle, '(center, middle)']);
+
+// Creates a connector that also gets added to the screen, but it doesn't point to anything.
+const connEmpty = drawConnector(null, null);
+// The endpoints can be set later using connEmpty.setPoints() or ConnectorEntrance().
+connEmpty.setPoints({A: [square, '(center, bottom + 20px)'], B: [circle, '(20% + 30px, 50px)']});
+
+// A configuration object can be used to configure the connector.
+// For example, the default insertion location can be changed with the {domLocation:} option.
+const connModified = drawConnector([square, '(center, top)'], [circle, '(center, top)'], {
+  cssClasses: ['cool-styling', 'my-css-class', 'another-class'],
+  domLocation: ['first-child', document.querySelector('.my-container')],
+  autoRedrawEnabled: false, // prevents connector from following the two elements if they move
+});
+/**** EX:E id="drawConnector.example" */
 }

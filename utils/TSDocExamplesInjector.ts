@@ -18,6 +18,7 @@ const targets = {
     `${directoryPrefix}/2_animationEffects/easing.ts`,
     `${directoryPrefix}/2_animationEffects/presetEffectCreation.ts`,
     `${directoryPrefix}/2_animationEffects/webchalkPresetEffectBanks.ts`,
+    `${directoryPrefix}/3_components/WebchalkConnectorElement.ts`,
   ],
   startMarker: /\* \<\!-- EX:S .*? --\>/,
   endMarker: /\* \<\!-- EX:E .*? --\>/,

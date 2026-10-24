@@ -19,6 +19,13 @@ import { PresetEffectBank, EffectNameIn, PresetEffectDefinition, EffectOptions, 
 // import { DEFAULT_CONFIG_ERROR, IMMUTABLE_CONFIG_ERROR } from "./4_utils/errors";
 
 /**
+ * An object containing functions that can be used to create specific HTML components (such as connectors).
+ */
+export interface ShapeFactories extends DrawConnector {
+
+}
+
+/**
  * @hideconstructor
  */
 export class Webchalk {
@@ -649,8 +656,9 @@ export class Webchalk {
        * 
        * <!-- EX:S id="ConnectorEntranceClip.example" code-type="ts" -->
        * ```ts
-       * // retrieve connector entrance clip factory function;
+       * // retrieve connector entrance clip factory function and connector factory function
        * const { ConnectorEntrance } = webchalk.createAnimationClipFactories();
+       * const { drawConnector } = webchalk.shapeFactories;
        * 
        * // select elements from the DOM
        * const circle1 = document.querySelector('.circle--left');
@@ -658,7 +666,7 @@ export class Webchalk {
        * 
        * // select connector elements from the DOM or create them using drawConnector()
        * const topConnector = document.querySelector('.connector--thick');
-       * const middleConnector = webchalk.shapeFactories.drawConnector([circle1, '(right, middle)'], [circle2, '(left, middle)'], {
+       * const middleConnector = drawConnector([circle1, '(right, middle)'], [circle2, '(left, middle)'], {
        *   cssClasses: ['connector--skinny']
        * });
        * const verticalConnector = document.querySelector('.connector--red');
@@ -668,21 +676,21 @@ export class Webchalk {
        * 
        * // create connector entrance clips using factory function
        * //                              A             B           C   D             
-       * const clip1 = ConnectorEntrance(topConnector, '~fade-in', [], {duration: 2000, playbackRate: 2, autoTrackingEnabled: false});
+       * const clip1 = ConnectorEntrance(topConnector, '~fade-in', [], {duration: 2000, playbackRate: 2, autoRedrawEnabled: false});
        * //                              A                B         C
        * const clip2 = ConnectorEntrance(middleConnector, '~trace', ['from-A']);
        * //                              A                  B         C                D
        * const clip3 = ConnectorEntrance(verticalConnector, '~trace', ['from-bottom'], {delay: 500});
        * //                              A                B          C   D
        * const clip4 = ConnectorEntrance(bottomConnector, '~appear', [], {
-       *   newPoints: {A: [circle2, '(left, -20px)'], B: [circle2, '(right, bottom + 20px)']}
+       *   newPoints: {A: [circle2, '(left, -20px)'], B: [circle2, '(90%, bottom + 20px)']}
        * });
        * 
        * // play clips (all will play at the same time because they are asynchronous)
        * clip1.play(); // topConnector fades in, and its endpoint tracking is disabled (meaning it will not update even if the targets move)
        * clip2.play(); // middleConnector is drawn from its point A to its point B
-       * clip3.play(); // verticalConnector is draw starting from whichever endpoint is lower
-       * clip4.play(); // bottomConnector appears instantly, and whatever its endpoints used to be were replaced by newPoints
+       * clip3.play(); // verticalConnector is drawn starting from whichever endpoint is lower
+       * clip4.play(); // bottomConnector appears instantly, with its previous endpoints replaced by newPoints
        * ```
        * <!-- EX:E id="ConnectorEntranceClip.example" -->
        */
@@ -820,11 +828,12 @@ export class Webchalk {
     };
   }
 
-  get shapeFactories(): DrawConnector {
-    return {
-      drawConnector: WebchalkConnectorElement.create,
-    }
-  } 
+  /**
+   * An object containing functions that can be used to create specific HTML components (such as connectors).
+   */
+  readonly shapeFactories: ShapeFactories = {
+    drawConnector: WebchalkConnectorElement.create,
+  };
 
   /**@internal*/
   scrollAnchorsStack: [target: Element, scrollOptions: ScrollingOptions][] = [];

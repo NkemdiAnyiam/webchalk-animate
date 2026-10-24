@@ -1,6 +1,7 @@
 import { CustomErrorClasses } from "../4_utils/errors";
 import { equalWithinTol, getBoundingClientRectOfHidden, parseMultiUnitPlacement } from "../4_utils/helpers";
 import { DOMElement, MultiUnitOrderedPairString, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
+import { ShapeFactories } from "../Webchalk";
 
 const stylesheet = new CSSStyleSheet();
 stylesheet.replaceSync(
@@ -55,9 +56,12 @@ stylesheet.replaceSync(
 );
 
 export type WebchalkConnectorElementConfig = {
-  autoTrackingEnabled: boolean;
+  autoRedrawEnabled: boolean;
 };
 
+/**
+ * An object containing configuration options to define the styling, location, and behavior of the new connector.
+ */
 type CreateConnectorConfig = {
   /**
    * A tuple specifying the location in the DOM where the connector should be inserted. If `null`, the connector will not
@@ -79,7 +83,7 @@ type CreateConnectorConfig = {
    * true
    * ```
    */
-  autoTrackingEnabled?: boolean;
+  autoRedrawEnabled?: boolean;
   /**
    * An array of CSS classes that will be added to the connector's HTML class attribute.
    */
@@ -91,39 +95,92 @@ type CreateConnectorConfig = {
 };
 
 export interface DrawConnector {
-  // TODO: add code examples
   /**
-   * Creates a new {@link WebchalkConnectorElement} and (by default) attaches it to the DOM.
-   * @param pointA - The element target for endpoint A of the connector.
-   * @param pointB - The element target for endpoint B of the connector.
-   * @param config - A configuration object for defining the behavior, location, and some attributes of the connector.
+   * Factory function for creating a new {@link WebchalkConnectorElement}.
+   * By default, the new connector will automatically be attached to the DOM.
+   * @param pointA - A {@link ConnectorPointInput} representing the target for point A of the connector.
+   * @param pointB - A {@link ConnectorPointInput} representing the target for point B of the connector.
+   * @param config - A {@link CreateConnectorConfig} configuration object for defining the behavior, location, and some attributes of the connector.
    * @returns A new {@link WebchalkConnectorElement} instance.
+   * 
+   * @remarks
+   * If `null` is provided for {@link pointA} or {@link pointB}, then the point will be empty and the connector will not be drawn.
+   * Points can be added later using {@link WebchalkConnectorElement.setPoints}
+   * 
+   * @example
+   * <!-- EX:S id="drawConnector.example" code-type="ts" -->
+   * ```ts
+   * const { drawConnector } = webchalk.shapeFactories;
+   * 
+   * // SELECT ELEMENTS FROM THE SCREEN
+   * const square = document.querySelector('.square');
+   * const circle = document.querySelector('.circle');
+   * 
+   * // CREATE VARIOUS CONNECTORS
+   * // Creates a connector and immediately displays it on the screen.
+   * // It connects the center points of the two selected elements (presumably a square and circle).
+   * const conn = drawConnector([square, '(center, middle)'], [circle, '(center, middle)']);
+   * 
+   * // Creates a connector that also gets added to the screen, but it doesn't point to anything.
+   * const connEmpty = drawConnector(null, null);
+   * // The endpoints can be set later using connEmpty.setPoints() or ConnectorEntrance().
+   * connEmpty.setPoints({A: [square, '(center, bottom + 20px)'], B: [circle, '(20% + 30px, 50px)']});
+   * 
+   * // A configuration object can be used to configure the connector.
+   * // For example, the default insertion location can be changed with the {domLocation:} option.
+   * const connModified = drawConnector([square, '(center, top)'], [circle, '(center, top)'], {
+   *   cssClasses: ['cool-styling', 'my-css-class', 'another-class'],
+   *   domLocation: ['first-child', document.querySelector('.my-container')],
+   *   autoRedrawEnabled: false, // prevents connector from following the two elements if they move
+   * });
+   * ```
+   * <!-- EX:E id="drawConnector.example" -->
    */
   drawConnector(
-    pointA: [elemA: Element | null | undefined, placement: MultiUnitOrderedPairString] | null,
-    pointB: [elemB: Element | null | undefined, placement: MultiUnitOrderedPairString] | null,
+    pointA: ConnectorPointInput | null,
+    pointB: ConnectorPointInput | null,
     config?: CreateConnectorConfig
   ): WebchalkConnectorElement;
 }
+
+/**
+ * A tuple representing an endpoint for a {@link WebchalkConnectorElement}. Returned by {@link WebchalkConnectorElement.getPoints}
+ *  * The first entry is the element that will be pointed at.
+ *  * The second entry is a string ({@link MultiUnitOrderedPairString}) representing the offset of the point with respect to the element.
+ * 
+ * @see {@link WebchalkConnectorElement.getPoints}
+ */
+export type ConnectorPoint = [element: DOMElement, placement: MultiUnitOrderedPairString];
+
+/**
+ * A tuple representing an endpoint for a {@link WebchalkConnectorElement}. Used in {@link ShapeFactories.drawConnector}.
+ *  * The first entry of the tuple is the element that will be pointed at.
+ *  * The second entry of the tuple is a string ({@link MultiUnitOrderedPairString})
+ * representing the offset of the point with respect to the element.
+ * 
+ * @see {@link ShapeFactories.drawConnector}
+ */
+export type ConnectorPointInput = [element: Element | null | undefined, placement: MultiUnitOrderedPairString];
 
 export class WebchalkConnectorElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-connector', WebchalkConnectorElement); }
   private static staticId: number = 0;
   private static observedAttributes = ['tracking-disabled'];
 
+  /** @see {@link ShapeFactories.drawConnector} */
   static create<T extends Parameters<DrawConnector['drawConnector']>>(pointA: T[0], pointB: T[1], config: T[2] = {}): WebchalkConnectorElement {
     const newConnector = new WebchalkConnectorElement();
-    newConnector.setEndpoints({A: pointA, B: pointB});
+    newConnector.setPoints({A: pointA, B: pointB});
 
     // handle config
     const {
       domLocation = ['last-child', document.querySelector('.webchalk-assets-container')],
       cssClasses = [],
       cssId,
-      autoTrackingEnabled = true,
+      autoRedrawEnabled = true,
     } = config;
 
-    newConnector.autoTrackingEnabled = autoTrackingEnabled;
+    newConnector.autoRedrawEnabled = autoRedrawEnabled;
     newConnector.classList.add(...cssClasses);
     if (cssId) { newConnector.id = cssId; }
 
@@ -149,6 +206,7 @@ export class WebchalkConnectorElement extends HTMLElement {
 
   private connectorId: number = 0;
   readonly markerIdPrefix: string;
+  // TODO: do something with the marker fields
   usesMarkerB: boolean = false;
   usesMarkerA: boolean = false;
   private lineLayer: SVGLineElement;
@@ -159,10 +217,10 @@ export class WebchalkConnectorElement extends HTMLElement {
 
   private pointAComputed: [elemA: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | null = null;
   private pointBComputed: [elemB: DOMElement, xPlacement: ParsedMultiUnitPlacement, yPlacement: ParsedMultiUnitPlacement] | null = null;
-  private pointA: [elemA: DOMElement, placement: MultiUnitOrderedPairString] | null = null;
-  private pointB: [elemA: DOMElement, placement: MultiUnitOrderedPairString] | null = null;
-  get autoTrackingEnabled(): boolean { return !this.hasAttribute('tracking-disabled') || this.getAttribute('tracking-disabled') === 'false'; };
-  set autoTrackingEnabled(trackingEnabled: boolean) {
+  private pointA: ConnectorPoint | null = null;
+  private pointB: ConnectorPoint | null = null;
+  get autoRedrawEnabled(): boolean { return !this.hasAttribute('tracking-disabled') || this.getAttribute('tracking-disabled') === 'false'; };
+  set autoRedrawEnabled(trackingEnabled: boolean) {
     if (trackingEnabled) { this.removeAttribute('tracking-disabled'); }
     else { this.setAttribute('tracking-disabled', 'true'); }
   }
@@ -297,7 +355,7 @@ export class WebchalkConnectorElement extends HTMLElement {
     const A = this.checkInlinePointsHelper('A');
     const B = this.checkInlinePointsHelper('B');
     if (A && B) {
-      this.setEndpoints({A: A, B: B});
+      this.setPoints({A: A, B: B});
     }
   }
 
@@ -305,7 +363,7 @@ export class WebchalkConnectorElement extends HTMLElement {
     const pointSpecifier = this.getAttribute(`point-${pointLetter.toLowerCase()}`);
     if (!pointSpecifier) { return null; }
     
-    // ".first-block, (left, 20% + 30px)"
+    // example: ".first-block, (left, 20% + 30px)"
     const matchPointFormat = pointSpecifier.match(/(.+),\s*(\(.+\))/);
     if (!matchPointFormat) { throw new CustomErrorClasses.InvalidConnectorError(``); }
 
@@ -322,34 +380,54 @@ export class WebchalkConnectorElement extends HTMLElement {
 
     if (attrName === 'tracking-disabled') {
       if (newValue === null || newValue === 'false') {
-        this.resumeAutoPointTracking();
+        this.resumeAutoRedraw();
       }
       else {
-        this.pauseAutoPointTracking();
+        this.pauseAutoRedraw();
       }
     }
   }
 
   private connectedCallback() {
-    if (this.autoTrackingEnabled) { this.resumeAutoPointTracking(); }
-    else { this.updateEndpoints(); }
+    if (this.autoRedrawEnabled) { this.resumeAutoRedraw(); }
+    else { this.redraw(); }
   }
 
   private disconnectedCallback() {
-    this.pauseAutoPointTracking();
+    this.pauseAutoRedraw();
   }
 
-  getEndpoints() {
+  /**
+   * Returns an object containing the connector's points.
+   * @returns An object containing each {@link ConnectorPoint} for the connector.
+   */
+  getPoints() {
     return {
-      A: this.pointA ? [...this.pointA] as [DOMElement, MultiUnitOrderedPairString] : null,
-      B: this.pointB ? [...this.pointB] as [DOMElement, MultiUnitOrderedPairString] : null
+      A: this.pointA ? [...this.pointA] as ConnectorPoint : null,
+      B: this.pointB ? [...this.pointB] as ConnectorPoint : null
     }
   }
 
-  setEndpoints(newPoints: {
-    A?: [elemA: Element | null | undefined, placement: MultiUnitOrderedPairString] | null;
-    B?: [elemB: Element | null | undefined, placement: MultiUnitOrderedPairString] | null;
-  }, options: {updateNow?: boolean;} = {}) {
+  /**
+   * Sets the points of the connector using either {@link ConnectorPointInput} to set a point or `null` to remove a point.
+   * @param newPoints - An object that indicates which points to edit. Unspecified points are not changed.
+   * @param options - An options object specifying additional configuration options.
+   * @param options.updateNow - If `true`, the connector will visually update immediately after the new points are set.
+   * @returns The now current points of the connector (result of {@link WebchalkConnectorElement.getPoints | getPoints()}).
+   */
+  setPoints(newPoints: {
+    A?: ConnectorPointInput | null;
+    B?: ConnectorPointInput | null;
+  }, options: {
+    /**
+     * If `true`, the connector will visually update after the new points are set.
+     * @defaultValue
+     * ```ts
+     * true
+     * ```
+    */
+    updateNow?: boolean;
+  } = {}) {
     const {A, B} = newPoints;
 
     // validate endpoints
@@ -375,45 +453,50 @@ export class WebchalkConnectorElement extends HTMLElement {
       this.pointBComputed = [B[0] as DOMElement, ...parseMultiUnitPlacement(B[1])];
     }
 
-    // if (preventUpdate) {
-    //   if (!this.autoTrackingDisabled) {
-    //     console.warn(`{preventUpdate: true} will not prevent updates because this connector is currently set to auto update.`);
-    //   }
-    //   return;
-    // }
     const {updateNow = true} = options;
-    if (!updateNow) { this.pauseAutoPointTracking(); }
+    if (!updateNow) { this.pauseAutoRedraw(); }
     else {
-      if (this.autoTrackingEnabled) { this.resumeAutoPointTracking(); }
-      else { this.updateEndpoints(); }
+      if (this.autoRedrawEnabled) { this.resumeAutoRedraw(); }
+      else { this.redraw(); }
     }
+
+    return this.getPoints();
   }
 
-  removeEndpoints(endpoints: 'A' | 'B' | 'both') {
+  /**
+   * Sets the specified points of the connector to `null`. This is equivalent to calling {@link WebchalkConnectorElement.setPoints | setPoints()}
+   * and setting the specified points to `null`.
+   * @param endpoints - A string indicating which points to remove.
+   */
+  removePoints(endpoints: 'A' | 'B' | 'both') {
     switch(endpoints) {
       case "A":
-        this.setEndpoints({A: null});
+        this.setPoints({A: null});
         break;
       case "B":
-        this.setEndpoints({B: null});
+        this.setPoints({B: null});
         break;
       case "both":
-        this.setEndpoints({A: null, B: null});
+        this.setPoints({A: null, B: null});
         break;
       default: throw new RangeError(`Invalid string value "${endpoints}". Must specify "A", "B", or "both".`);
     }
   }
 
-  updateEndpoints = (/*errorGenerator?: ErrorGenerator*/): void => {
+  /**
+   * Recomputes the positions of the connector's points and updates them accordingly.
+   * @returns 
+   */
+  redraw = (): void => {
     const pointA = this.pointAComputed;
     const pointB = this.pointBComputed;
     if (!this.isConnected) {
-      this.pauseAutoPointTracking();
+      this.pauseAutoRedraw();
       return;
     }
     if (!pointA || !pointB || !pointA[0].isConnected || !pointB[0].isConnected) {
       this.ax = this.ay = this.bx = this.by = 0;
-      // this.pauseAutoPointTracking();
+      // this.pauseAutoRedraw();
       return;
     }
 
@@ -422,43 +505,27 @@ export class WebchalkConnectorElement extends HTMLElement {
     // CHANGE NOTE: Use offsetParent instead of direct parent to properly get nearest positioned ancestor
     const offsetParent = this.offsetParent;
 
-    // if offsetParent is null, then the connector or an ancestry is invisible (so no point in updating)
-    if (!offsetParent) {
-      return;
-      // this.clearTrackingInterval();
-      // const parentElement = this.parentElement;
-      // const parentInvisible = parentElement && !parentElement.offsetParent
-      //   && (parentElement !== document.documentElement)
-      //   && (parentElement !== document.querySelector('body'))
-      //   && (getComputedStyle(parentElement).position !== 'fixed');
-      // const errorArr = [
-      //   `Cannot call updateEndpoints() while the connector or its parent element is invisible.${parentInvisible ? ` In this case, the parent was found to be hidden.` : ''}`,
-      //   this.pointTrackingEnabled ? `\nThis connector also has points-tracking enabled (which allows it to continuously update its endpoints), so we have disabled it.` : '',
-      //   this.pointTrackingEnabled ? `If this connector does not need to continuously update its endpoints, you can set its 'pointTrackingEnabled' config setting to false to prevent this error.` : '',
-      //   this.pointTrackingEnabled && parentInvisible ?
-      //     `If this connector needs to continuously update its endpoints, make sure to Exit it if its parent is about to be hidden—this safely pauses the tracking until the connector is visible again.` : '',
-      // ]
-      // throw errorGenerator ? errorGenerator(ConnectorError, errorArr.join(' ')) : new ConnectorError(errorArr.join(' '));
-    }
+    // if offsetParent is null, then the connector or an ancestor is invisible (so no point in updating)
+    if (!offsetParent) { return; }
 
-    // The x and y coordinates of the line need to be with respect to the top left of document
-    // Thus, we must subtract the offsetParent element's current top and left from the total offset
-    // But because elements start in their parent's Content box (which excludes the border) instead of the Fill area,...
-    // (which includes the border), our element's top and left are offset by the offsetParent element's border width with...
-    // ...respect to the actual bounding box of the offsetParent. Therefore, we must subtract the offsetParent's border thicknesses as well.
+    // The x and y coordinates of the line need to be with respect to the left top of document.
+    // Thus, we must subtract the offsetParent element's current left and top from the total offset.
+    // But because elements start in their parent's Content box (which excludes the border) instead of the Fill area,
+    // (which includes the border), our element's left and top are offset by the offsetParent element's border width with
+    // respect to the actual bounding box of the offsetParent. Therefore, we must subtract the offsetParent's border thicknesses as well.
     const {left: offsetParentLeft, top: offsetParentTop} = offsetParent.getBoundingClientRect();
     const connectorLeftOffset = -offsetParentLeft - Number.parseFloat(getComputedStyle(offsetParent).borderLeftWidth);
     const connectorTopOffset = -offsetParentTop - Number.parseFloat(getComputedStyle(offsetParent).borderTopWidth);
 
-    // get the bounding rectangles for A reference element and B reference element
-    // CHANGE NOTE: elements are unhidden using override to allow access to bounding box
-    // the override class is appended without classList.add() so that multiple applications...
-    // of the class do not interfere with each other upon removal
+    // Get the bounding rectangles for A reference element and B reference element.
+    // Elements are forcefully unhidden using override to allow access to bounding box.
+    // The override class is appended without classList.add() so that multiple applications
+    // of the class do not interfere with each other upon removal.
     const {left: aLeft, right: aRight, top: aTop, bottom: aBottom} = getBoundingClientRectOfHidden(pointA[0]);
     const {left: bLeft, right: bRight, top: bTop, bottom: bBottom} = getBoundingClientRectOfHidden(pointB[0]);
 
-    // change x and y coords of our <svg>'s nested <line> based on the bounding boxes of the A and B reference elements
-    // the offset with respect to the reference elements' tops and lefts is calculated using linear interpolation
+    // Change x and y coords of our <svg>'s nested <line> based on the bounding boxes of the A and B reference elements.
+    // The offset with respect to the reference elements' lefts and tops is calculated using linear interpolation.
     const ax = (1 - pointA[1][0]) * aLeft + (pointA[1][0]) * aRight  + pointA[1][1] + connectorLeftOffset;
     const ay = (1 - pointA[2][0]) * aTop  + (pointA[2][0]) * aBottom + pointA[2][1] + connectorTopOffset;
     const bx = (1 - pointB[1][0]) * bLeft + (pointB[1][0]) * bRight  + pointB[1][1] + connectorLeftOffset;
@@ -494,22 +561,38 @@ export class WebchalkConnectorElement extends HTMLElement {
     }
   }
 
-  resumeAutoPointTracking(): void {
-    if (!this.autoTrackingEnabled) {
-      throw new CustomErrorClasses.InvalidConnectorError(`Cannot initiate automatic point tracking while {autoTrackingEnabled: false}.`);
+  /**
+   * Tells the connector to continuously call {@link WebchalkConnectorElement.redraw | redraw()} (meaning the points will automatically
+   * update if the target elements change position).
+   *  * This method is automatically called whenever the connector is reattached to the DOM.
+   * 
+   * @remarks
+   * This is generally activated by default because it is useful for keeping connectors updated when elements change positions
+   * on the screen. But for deliberate optimization, it can be completely disabled
+   * by setting {@link WebchalkConnectorElement.autoRedrawEnabled | autoRedrawEnabled} to `false`.
+   */
+  resumeAutoRedraw(): void {
+    if (!this.autoRedrawEnabled) {
+      throw new CustomErrorClasses.InvalidConnectorError(`Cannot initiate automatic point tracking while {autoRedrawEnabled: false}.`);
     }
-    if (!isNaN(this.continuousTrackingReqId)) { this.pauseAutoPointTracking(); }
+    if (!isNaN(this.continuousTrackingReqId)) { this.pauseAutoRedraw(); }
     this.haltContinuousUpdates = false;
-    this.trackPointsRAF();
+    this.redrawRAF();
   }
 
-  private trackPointsRAF = (): void => {
+  private redrawRAF = (): void => {
     if (this.haltContinuousUpdates) { return; }
-    this.updateEndpoints();
-    this.continuousTrackingReqId = window.requestAnimationFrame(this.trackPointsRAF);
+    this.redraw();
+    this.continuousTrackingReqId = window.requestAnimationFrame(this.redrawRAF);
   }
 
-  pauseAutoPointTracking(): void {
+  /**
+   * Tells the connector to stop continuously calling {@link WebchalkConnectorElement.redraw | redraw()} (meaning the points will not
+   * be updated even if the target elements change position).
+   *  * This method is automatically called whenever the connector is removed from the DOM.
+   * @returns 
+   */
+  pauseAutoRedraw(): void {
     if (isNaN(this.continuousTrackingReqId)) { return; }
     this.haltContinuousUpdates = true;
     window.cancelAnimationFrame(this.continuousTrackingReqId);

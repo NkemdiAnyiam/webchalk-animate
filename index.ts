@@ -12,6 +12,10 @@ const {
   Transition,
 } = webchalk.createAnimationClipFactories();
 
+const {
+  drawConnector
+} = webchalk.shapeFactories;
+
 const redSquare = document.querySelector('.square');
 const blueCircle = document.querySelector('.circle');
 const correctClip = Motion(redSquare, '~translate', [{translate: '20rem 20rem'}], {duration: 1000});
@@ -21,7 +25,7 @@ console.log('comparison result:', result);
 
 // console.log(TextEditor(blueCircle, '~insert-text', ['aerstgf'], {durationOrRate: '500wpm'}).getTiming());
 
-const conn = webchalk.shapeFactories.drawConnector([redSquare, '(center, middle)'], [blueCircle, '(center, middle)'], {
+const conn = drawConnector([redSquare, '(center, middle)'], [blueCircle, '(center, middle)'], {
   cssClasses: ['connector', 'connector--green'],
 });
 // const conn = document.querySelector('.connector');
@@ -47,8 +51,7 @@ const seq1 = webchalk.newSequence(
   [
   ]);
   seq1.addClips([
-    // ConnectorEntrance(conn, '~trace', [], { hideNowType: 'display-none' }),
-    Exit(redSquare, '~fade-out', [], {duration: 1000, description: 'Exit red square'}),
+    ConnectorEntrance(conn, '~trace', [], { hideNowType: 'display-none' }),
     Motion(redSquare, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move red square'}),
     Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000, cssClasses: {toAddOnFinish: ['yo', 'bro']}}),
     TextEditor(redSquare, '~insert-text', ['HELLO WORLD! To what do I owe you all the pleasure?'], {durationOrRate: '300wpm', startsWithPrevious: true, description: 'Insert text to square', delay: 1000}),
