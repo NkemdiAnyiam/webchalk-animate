@@ -737,7 +737,13 @@ export class AnimTimeline {
 
   private attachPlaybackButtons(options: {
     // TODO: Include jumping menu inside playback buttons container
-    /** The HTML element where the buttons container should be placed. */
+    /**
+     * The HTML element where the buttons container should be placed.
+     * @defaultValue
+     * ```ts
+     * document.querySelector('.webchalk-assets-container')
+     * ```
+     */
     buttonsContainerLocation?: HTMLElement;
     /** An array of strings indicating which specific buttons we want to link. By default, all buttons are searched for. */
     buttonsSubset?: PlaybackButtonPurpose[];
