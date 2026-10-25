@@ -209,7 +209,7 @@ export type ConnectorPointArg = [element: Element | null | undefined, placement:
 export class WebchalkConnectorElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-connector', WebchalkConnectorElement); }
   private static staticId: number = 0;
-  private static observedAttributes = ['tracking-disabled', 'marker-a', 'marker-b'];
+  private static observedAttributes = ['tracking-disabled'];
 
   /** @see {@link ShapeFactories.drawConnector} */
   static create<T extends Parameters<DrawConnector['drawConnector']>>(pointA: T[0], pointB: T[1], config: T[2] = {}): WebchalkConnectorElement {
