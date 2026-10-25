@@ -4,7 +4,7 @@ import { createCodeEl, createDetailsEl, fragment, getPartial, TBA_DURATION, crea
 import { Webchalk } from "../Webchalk";
 import { DOMElement, MultiUnitOrderedPairString, RootNodeEditStats, TextEditRate } from "../4_utils/interfaces";
 import { PickFromArray } from "../4_utils/utilityTypes";
-import { WebchalkConnectorElement, WebchalkConnectorElementConfig } from "../3_components/WebchalkConnectorElement";
+import { DrawConnectorConfig, WebchalkConnectorElement } from "../3_components/WebchalkConnectorElement";
 import { PresetEffectDefinition, PresetEffectBank, EffectOptions, Layer3MutableClipConfig, EffectNameIn } from "../2_animationEffects/presetEffectCreation";
 import { libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions, libPresetConnectorEntrances, libPresetConnectorExits, libPresetTransitions, libPresetScrolls, libPresetTextEdits } from "../2_animationEffects/webchalkPresetEffectBanks";
 
@@ -1044,7 +1044,7 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
   protected newPointA?: [elemA: Element, placement: MultiUnitOrderedPairString];
   protected newPointB?: [elemB: Element, placement: MultiUnitOrderedPairString];
 
-  protected prevConnectorConfig: WebchalkConnectorElementConfig = {} as WebchalkConnectorElementConfig;
+  protected prevConnectorConfig: Pick<DrawConnectorConfig, 'autoRedrawEnabled'> = {} as Pick<DrawConnectorConfig, 'autoRedrawEnabled'>;
 
   get categoryImmutableConfig() {
     return {
@@ -1335,7 +1335,7 @@ export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefin
   protected prevPointA?: [elemA: Element, placement: MultiUnitOrderedPairString] | null;
   protected prevPointB?: [elemB: Element, placement: MultiUnitOrderedPairString] | null;
   
-  protected prevConnectorConfig: WebchalkConnectorElementConfig = {} as WebchalkConnectorElementConfig;
+  protected prevConnectorConfig: Pick<DrawConnectorConfig, 'autoRedrawEnabled'> = {} as Pick<DrawConnectorConfig, 'autoRedrawEnabled'>;
 
   get categoryImmutableConfig() {
     return {

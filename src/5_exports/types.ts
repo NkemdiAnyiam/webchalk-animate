@@ -58,7 +58,9 @@ export {
 
 
 export type {
-  WebchalkConnectorElementConfig,
+  DrawConnectorConfig,
+  ConnectorPoint,
+  ConnectorPointArg,
 } from "../3_components/WebchalkConnectorElement";
 export {
   WebchalkConnectorElement,

@@ -57,21 +57,12 @@ stylesheet.replaceSync(
 );
 
 /**
- * An object containing configuration options for a new {@link WebchalkConnectorElement}.
- * @category Interfaces
- * @interface
- */
-export type WebchalkConnectorElementConfig = {
-  autoRedrawEnabled: boolean;
-};
-
-/**
  * An object containing configuration options to define the styling, location, and behavior of the new connector.
  * 
  * @category Interface
  * @interface
  */
-type CreateConnectorConfig = {
+export type DrawConnectorConfig = {
   /**
    * A tuple specifying the location in the DOM where the connector should be inserted. If `null`, the connector will not
    * be automatically inserted to the DOM.
@@ -84,7 +75,7 @@ type CreateConnectorConfig = {
   /**
    * If `true`, the endpoints of the connector will continuously update to match any positional changes in the target elements.
    * @remarks
-   * If {@link CreateConnectorConfig.domLocation|domLocation} is used to insert the connector close to the target endpoints
+   * If {@link DrawConnectorConfig.domLocation|domLocation} is used to insert the connector close to the target endpoints
    * and neither endpoints will undergo transformations, specifying `false` is appropriate for optimization since the
    * target elements will not be moving with respect to the connector.
    * @defaultValue
@@ -151,9 +142,9 @@ export interface DrawConnector {
   /**
    * Factory function for creating a new {@link WebchalkConnectorElement}.
    * By default, the new connector will automatically be attached to the DOM.
-   * @param pointA - A {@link ConnectorPointInput} representing the target for point A of the connector.
-   * @param pointB - A {@link ConnectorPointInput} representing the target for point B of the connector.
-   * @param config - A {@link CreateConnectorConfig} configuration object for defining the behavior, location, and some attributes of the connector.
+   * @param pointA - A {@link ConnectorPointArg} representing the target for point A of the connector.
+   * @param pointB - A {@link ConnectorPointArg} representing the target for point B of the connector.
+   * @param config - A {@link DrawConnectorConfig} configuration object for defining the behavior, location, and some attributes of the connector.
    * @returns A new {@link WebchalkConnectorElement} instance.
    * 
    * @remarks
@@ -190,9 +181,9 @@ export interface DrawConnector {
    * <!-- EX:E id="drawConnector.example" -->
    */
   drawConnector(
-    pointA: ConnectorPointInput | null,
-    pointB: ConnectorPointInput | null,
-    config?: Partial<CreateConnectorConfig>
+    pointA: ConnectorPointArg | null,
+    pointB: ConnectorPointArg | null,
+    config?: Partial<DrawConnectorConfig>
   ): WebchalkConnectorElement;
 }
 
@@ -213,7 +204,7 @@ export type ConnectorPoint = [element: DOMElement, placement: MultiUnitOrderedPa
  * 
  * @see {@link ShapeFactories.drawConnector}
  */
-export type ConnectorPointInput = [element: Element | null | undefined, placement: MultiUnitOrderedPairString];
+export type ConnectorPointArg = [element: Element | null | undefined, placement: MultiUnitOrderedPairString];
 
 export class WebchalkConnectorElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-connector', WebchalkConnectorElement); }
@@ -410,28 +401,6 @@ export class WebchalkConnectorElement extends HTMLElement {
           this.pauseAutoRedraw();
         }
         break;
-
-      // case 'marker-a':
-      //   if (newValue === null || newValue === 'false') {
-      //     this.shadowRoot?.getElementById(`${this.markerIdPrefix}-a--layer`)?.style.setProperty('display', 'none');
-      //     this.shadowRoot?.getElementById(`${this.markerIdPrefix}-a--mask`)?.style.setProperty('display', 'none');
-      //   }
-      //   else {
-      //     this.shadowRoot?.getElementById(`${this.markerIdPrefix}-a--layer`)?.style.removeProperty('display');
-      //     this.shadowRoot?.getElementById(`${this.markerIdPrefix}-a--mask`)?.style.removeProperty('display');
-      //   }
-      //   break;
-
-      // case 'marker-b':
-      //   if (newValue === null || newValue === 'false') {
-      //     this.shadowRoot?.getElementById(`${this.markerIdPrefix}-a--layer`)?.style.setProperty('display', 'none');
-      //     this.shadowRoot?.getElementById(`${this.markerIdPrefix}-a--mask`)?.style.setProperty('display', 'none');
-      //   }
-      //   else {
-      //     this.shadowRoot?.getElementById(`${this.markerIdPrefix}-a--layer`)?.style.removeProperty('display');
-      //     this.shadowRoot?.getElementById(`${this.markerIdPrefix}-a--mask`)?.style.removeProperty('display');
-      //   }
-      //   break;
     }
   }
 
@@ -461,12 +430,14 @@ export class WebchalkConnectorElement extends HTMLElement {
     
     // example: ".first-block, (left, 20% + 30px)"
     const matchPointFormat = pointSpecifier.match(/(.+),\s*(\(.+\))/);
-    if (!matchPointFormat) { throw new CustomErrorClasses.InvalidConnectorError(``); }
+    if (!matchPointFormat) { throw new CustomErrorClasses.InvalidConnectorError(`Invalid point-${pointLetter.toLowerCase()} attribute value "${pointSpecifier}"`); }
 
     const [selector, ordPair] = matchPointFormat.slice(1) as [string, MultiUnitOrderedPairString];
 
     const targElem = document.querySelector(selector);
-    if (!targElem) { throw new CustomErrorClasses.InvalidConnectorError(''); }
+    if (!targElem) { throw new CustomErrorClasses.InvalidConnectorError(
+      `The element searched for using the selector "${selector}" (based on the provided point-${pointLetter.toLowerCase()} attribute value "${pointSpecifier}") could not be found.`
+    ); }
 
     return [targElem, ordPair];
   }
@@ -475,7 +446,7 @@ export class WebchalkConnectorElement extends HTMLElement {
    * Sets or removes visual markers for the specified points of the connector using either {@link ConnectorMarkerDimensions} to set a marker or `null` to remove a marker.
    * @param newMarkers - An object that indicates which points to edit. Unspecified points are not changed.
    */
-  setMarkers(newMarkers: CreateConnectorConfig['markers']) {
+  setMarkers(newMarkers: DrawConnectorConfig['markers']) {
     const {
       A, B
     } = newMarkers;
@@ -560,15 +531,15 @@ export class WebchalkConnectorElement extends HTMLElement {
   }
 
   /**
-   * Sets or removes the specified points of the connector using either {@link ConnectorPointInput} to set a point or `null` to remove a point.
+   * Sets or removes the specified points of the connector using either {@link ConnectorPointArg} to set a point or `null` to remove a point.
    * @param newPoints - An object that indicates which points to edit. Unspecified points are not changed.
    * @param options - An options object specifying additional configuration options.
    * @param options.updateNow - If `true`, the connector will visually update immediately after the new points are set.
    * @returns The now current points of the connector (result of {@link WebchalkConnectorElement.getPoints | getPoints()}).
    */
   setPoints(newPoints: {
-    A?: ConnectorPointInput | null;
-    B?: ConnectorPointInput | null;
+    A?: ConnectorPointArg | null;
+    B?: ConnectorPointArg | null;
   }, options: {
     /**
      * If `true`, the connector will visually update after the new points are set.
@@ -647,13 +618,12 @@ export class WebchalkConnectorElement extends HTMLElement {
     }
     if (!pointA || !pointB || !pointA[0].isConnected || !pointB[0].isConnected) {
       this.ax = this.ay = this.bx = this.by = 0;
-      // this.pauseAutoRedraw();
       return;
     }
 
-    // to properly place the endpoints, we need the positions of their bounding boxes
+    // To properly place the endpoints, we need the positions of their bounding boxes.
     
-    // CHANGE NOTE: Use offsetParent instead of direct parent to properly get nearest positioned ancestor
+    // Use offsetParent instead of direct parent to properly get nearest positioned ancestor
     const offsetParent = this.offsetParent;
 
     // if offsetParent is null, then the connector or an ancestor is invisible (so no point in updating)
@@ -728,13 +698,13 @@ export class WebchalkConnectorElement extends HTMLElement {
     }
     if (!isNaN(this.continuousTrackingReqId)) { this.pauseAutoRedraw(); }
     this.haltContinuousUpdates = false;
-    this.redrawRAF();
+    this.autoRedrawRAF();
   }
 
-  private redrawRAF = (): void => {
+  private autoRedrawRAF = (): void => {
     if (this.haltContinuousUpdates) { return; }
     this.redraw();
-    this.continuousTrackingReqId = window.requestAnimationFrame(this.redrawRAF);
+    this.continuousTrackingReqId = window.requestAnimationFrame(this.autoRedrawRAF);
   }
 
   /**
