@@ -479,8 +479,10 @@ export class WebchalkConnectorElement extends HTMLElement {
     
     const oldMarkerEl = this.gBody.querySelector(`marker#${this.markerIdPrefix}-${lower}--layer`) as SVGMarkerElement;
     const newMarkerAStr = /*html*/`
-      <marker id="${this.markerIdPrefix}-${lower}--layer" markerWidth="${markerWidth}" markerHeight="${markerHeight}"
-      refX="${markerWidth-1}" refY="${markerHeight/2}" orient=${capital === 'A' ? 'auto-start-reverse' : 'auto'}>
+      <marker
+        id="${this.markerIdPrefix}-${lower}--layer" markerWidth="${markerWidth}" markerHeight="${markerHeight}"
+        refX="${markerWidth-1}" refY="${markerHeight/2}" orient=${capital === 'A' ? 'auto-start-reverse' : 'auto'}
+      >
         <path d="M0,0 L0,${markerHeight} L${markerWidth},${markerHeight/2} L0,0" />
       </marker>
     `;
@@ -489,8 +491,10 @@ export class WebchalkConnectorElement extends HTMLElement {
     
     const oldMarkerAMaskEl = this.gBody.querySelector(`marker#${this.markerIdPrefix}-${lower}--mask`) as SVGMarkerElement;
     const newMarkerAMaskStr = /*html*/`
-      <marker id="${this.markerIdPrefix}-${lower}--mask" markerWidth="${markerWidth}" markerHeight="${markerHeight}"
-      refX="${markerWidth-1}" refY="${markerHeight/2}" orient=${capital === 'A' ? 'auto-start-reverse' : 'auto'}>
+      <marker
+        id="${this.markerIdPrefix}-${lower}--mask" markerWidth="${markerWidth}" markerHeight="${markerHeight}"
+        refX="${markerWidth-1}" refY="${markerHeight/2}" orient=${capital === 'A' ? 'auto-start-reverse' : 'auto'}
+      >
         <path d="M0,0 L0,${markerHeight} L${markerWidth},${markerHeight/2} L0,0" />
       </marker>
     `;
