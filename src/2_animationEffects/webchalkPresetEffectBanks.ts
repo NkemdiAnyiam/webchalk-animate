@@ -945,17 +945,17 @@ export const libPresetConnectorEntrances = {
       // using CSS variables to control marker-end or marker-start opacity with easing step-end
       // makes it possible to instantly hide a marker and re-reveal it at the end
       const fromAFrames = [
-        {['--b-marker-opacity']: 0, easing: 'step-end'},
+        {['--marker-b-opacity']: 0, easing: 'step-end'},
         {strokeDashoffset: 1, offset: 0},
         {strokeDashoffset: 0, offset: 1},
-        {['--b-marker-opacity']: 1},
+        {['--marker-b-opacity']: 1},
       ];
 
       const fromBFrames = [
-        {['--a-marker-opacity']: 0, easing: 'step-end'},
+        {['--marker-a-opacity']: 0, easing: 'step-end'},
         {strokeDashoffset: -1, offset: 0},
         {strokeDashoffset: 0, offset: 1},
-        {['--a-marker-opacity']: 1},
+        {['--marker-a-opacity']: 1},
       ];
 
       let keyframes: Keyframes;
@@ -1053,17 +1053,17 @@ export const libPresetConnectorExits = {
      */
     buildFrameGenerators(direction: 'from-A' | 'from-B' | 'from-top' | 'from-bottom' | 'from-left' | 'from-right' = 'from-A') {
       const fromStartFrames = [
-        {['--a-marker-opacity']: 1, easing: 'step-start'},
+        {['--marker-a-opacity']: 1, easing: 'step-start'},
         {strokeDashoffset: 0, offset: 0},
         {strokeDashoffset: -1, offset: 1},
-        {['--a-marker-opacity']: 0},
+        {['--marker-a-opacity']: 0},
       ];
 
       const fromEndFrames = [
-        {['--b-marker-opacity']: 1, easing: 'step-start'},
+        {['--marker-b-opacity']: 1, easing: 'step-start'},
         {strokeDashoffset: 0, offset: 0},
         {strokeDashoffset: 1, offset: 1},
-        {['--b-marker-opacity']: 0},
+        {['--marker-b-opacity']: 0},
       ];
 
       let keyframes : Keyframes;

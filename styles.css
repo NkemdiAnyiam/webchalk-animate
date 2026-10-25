@@ -39,7 +39,9 @@ body {
 }
 
 .connector--green {
-  stroke: darkgreen;}
+  stroke: darkgreen;
+  fill: darkblue;
+}
 
 .playback-buttons {
   /* position: fixed;

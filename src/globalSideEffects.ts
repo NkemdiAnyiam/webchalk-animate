@@ -19,14 +19,14 @@ export function injectGlobals() {
   // opacity of connector markers
   if (window.CSS.registerProperty) {
     window.CSS.registerProperty({
-      name: "--b-marker-opacity",
+      name: "--marker-b-opacity",
       syntax: "<number>",
       inherits: true,
       initialValue: '1',
     });
   
     window.CSS.registerProperty({
-      name: "--a-marker-opacity",
+      name: "--marker-a-opacity",
       syntax: "<number>",
       inherits: true,
       initialValue: '1',

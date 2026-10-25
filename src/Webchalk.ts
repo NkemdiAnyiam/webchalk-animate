@@ -7,13 +7,13 @@ import {
 } from "./1_playbackStructures/AnimationClipCategories";
 import { AnimSequence, AnimSequenceConfig } from "./1_playbackStructures/AnimationSequence";
 import { AnimTimeline, AnimTimelineConfig } from "./1_playbackStructures/AnimationTimeline";
-import { DrawConnector, WebchalkConnectorElement, WebchalkConnectorElementConfig } from "./3_components/WebchalkConnectorElement";
+import { DrawConnector, WebchalkConnectorElement } from "./3_components/WebchalkConnectorElement";
 import {
   libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions,
   libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions,
   libPresetTextEdits
 } from "./2_animationEffects/webchalkPresetEffectBanks";
-import { DOMElement, MultiUnitPlacementX, MultiUnitPlacementY, ScrollingOptions } from "./4_utils/interfaces";
+import { DOMElement, ScrollingOptions } from "./4_utils/interfaces";
 import { PresetEffectBank, EffectNameIn, PresetEffectDefinition, EffectOptions, definePresetEffectBank, ExtendableBankCategoryToClipType, PresetEffectBankToCategory, definePresetEffect } from "./2_animationEffects/presetEffectCreation";
 // import { StrictPropertyCheck } from "./4_utils/utilityTypes";
 // import { DEFAULT_CONFIG_ERROR, IMMUTABLE_CONFIG_ERROR } from "./4_utils/errors";

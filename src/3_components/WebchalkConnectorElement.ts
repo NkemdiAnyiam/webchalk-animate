@@ -7,8 +7,8 @@ const stylesheet = new CSSStyleSheet();
 stylesheet.replaceSync(
   /*css*/`:host {
     /* marker opacity property registered in injectGlobals() */
-    --a-marker-opacity: 1;
-    --b-marker-opacity: 1;
+    --marker-a-opacity: 1;
+    --marker-b-opacity: 1;
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
@@ -51,16 +51,25 @@ stylesheet.replaceSync(
   }
   
   marker {
+    display: none;
     stroke: none;
   }`
 );
 
+/**
+ * An object containing configuration options for a new {@link WebchalkConnectorElement}.
+ * @category Interfaces
+ * @interface
+ */
 export type WebchalkConnectorElementConfig = {
   autoRedrawEnabled: boolean;
 };
 
 /**
  * An object containing configuration options to define the styling, location, and behavior of the new connector.
+ * 
+ * @category Interface
+ * @interface
  */
 type CreateConnectorConfig = {
   /**
@@ -71,7 +80,7 @@ type CreateConnectorConfig = {
    * ['last-child', document.querySelector('.webchalk-assets-container')]
    * ```
    */
-  domLocation?: [where: 'before' | 'after' | 'first-child' | 'last-child', element: Element | null | undefined] | null;
+  domLocation: [where: 'before' | 'after' | 'first-child' | 'last-child', element: Element | null | undefined] | null;
   /**
    * If `true`, the endpoints of the connector will continuously update to match any positional changes in the target elements.
    * @remarks
@@ -83,15 +92,59 @@ type CreateConnectorConfig = {
    * true
    * ```
    */
-  autoRedrawEnabled?: boolean;
+  autoRedrawEnabled: boolean;
   /**
    * An array of CSS classes that will be added to the connector's HTML class attribute.
    */
-  cssClasses?: string[];
+  cssClasses: string[];
   /**
    * An id that will be applied to the connectors HTML id attribute.
    */
-  cssId?: string;
+  cssId: string;
+  /**
+   * An object for adding a marker shape at the connector's points.
+   */
+  markers: {
+    /**
+     * An object whose presence indicates to add a marker to point A. The width and height can optionally be set as well.
+     * If `null` is provided instead of an object, the marker is removed.
+     */
+    A?: ConnectorMarkerDimensions | null;
+    /**
+     * An object whose presence indicates to add a marker to point B. The width and height can optionally be set as well.
+     * If `null` is provided instead of an object, the marker is removed.
+     */
+    B?: ConnectorMarkerDimensions | null;
+  }
+};
+
+/**
+ * An object specifying the width and height of a marker at a point for a {@link WebchalkConnectorElement}.
+ * 
+ * @category Subtypes
+ */
+type ConnectorMarkerDimensions = {
+  /**
+   * A string representing the width of the marker in pixels.
+   * Example:
+   *  * `{width: '10px'}`
+   * 
+   * @defaultValue
+   * ```ts
+   * '5px'
+   * ```
+   */
+  width?: `${number}${'px'}`;
+  /**
+   * A string representing the height of the marker in pixels.
+   * Example:
+   *  * `{height: '10px'}`
+   * @defaultValue
+   * ```ts
+   * '7px'
+   * ```
+   */
+  height?: `${number}${'px'}`;
 };
 
 export interface DrawConnector {
@@ -139,7 +192,7 @@ export interface DrawConnector {
   drawConnector(
     pointA: ConnectorPointInput | null,
     pointB: ConnectorPointInput | null,
-    config?: CreateConnectorConfig
+    config?: Partial<CreateConnectorConfig>
   ): WebchalkConnectorElement;
 }
 
@@ -165,7 +218,7 @@ export type ConnectorPointInput = [element: Element | null | undefined, placemen
 export class WebchalkConnectorElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-connector', WebchalkConnectorElement); }
   private static staticId: number = 0;
-  private static observedAttributes = ['tracking-disabled'];
+  private static observedAttributes = ['tracking-disabled', 'marker-a', 'marker-b'];
 
   /** @see {@link ShapeFactories.drawConnector} */
   static create<T extends Parameters<DrawConnector['drawConnector']>>(pointA: T[0], pointB: T[1], config: T[2] = {}): WebchalkConnectorElement {
@@ -174,15 +227,17 @@ export class WebchalkConnectorElement extends HTMLElement {
 
     // handle config
     const {
-      domLocation = ['last-child', document.querySelector('.webchalk-assets-container')],
+      autoRedrawEnabled = true,
       cssClasses = [],
       cssId,
-      autoRedrawEnabled = true,
+      markers,
+      domLocation = ['last-child', document.querySelector('.webchalk-assets-container')],
     } = config;
 
     newConnector.autoRedrawEnabled = autoRedrawEnabled;
     newConnector.classList.add(...cssClasses);
     if (cssId) { newConnector.id = cssId; }
+    if (markers) { newConnector.setMarkers(markers); }
 
     // insert connector into DOM
     if (domLocation !== null) {
@@ -206,9 +261,20 @@ export class WebchalkConnectorElement extends HTMLElement {
 
   private connectorId: number = 0;
   readonly markerIdPrefix: string;
-  // TODO: do something with the marker fields
-  usesMarkerB: boolean = false;
-  usesMarkerA: boolean = false;
+  get usesMarkerA(): boolean {
+    return this.hasAttribute('marker-a') && this.getAttribute('marker-a') !== 'false';
+  }
+  set usesMarkerA(usesMarkerA: boolean) {
+    if (usesMarkerA) { this.setAttribute('marker-a', 'true'); }
+    else { this.removeAttribute('marker-a'); }
+  }
+  get usesMarkerB(): boolean {
+    return this.hasAttribute('marker-b') && this.getAttribute('marker-b') !== 'false';
+  }
+  set usesMarkerB(usesMarkerB: boolean) {
+    if (usesMarkerB) { this.setAttribute('marker-b', 'true'); }
+    else { this.removeAttribute('marker-b'); }
+  }
   private lineLayer: SVGLineElement;
   private lineMask: SVGLineElement;
   private gBody: SVGGElement;
@@ -262,10 +328,6 @@ export class WebchalkConnectorElement extends HTMLElement {
     const markerIdPrefix = `markerArrow--${this.connectorId}`;
     this.markerIdPrefix = markerIdPrefix;
     const maskId = `mask--${this.connectorId}`;
-    this.usesMarkerA = this.hasAttribute('a-marker');
-    this.usesMarkerB = this.hasAttribute('b-marker');
-    const markerWidth: number = Number(this.getAttribute('marker-width')) || 5;
-    const markerHeight: number = Number(this.getAttribute('marker-height')) || 7;
 
     // TODO: In the future, https://github.com/w3c/csswg-drafts/issues/8361 could help prevent <svg> from contributing to overflow
     const htmlString = /*html*/`
@@ -276,10 +338,17 @@ export class WebchalkConnectorElement extends HTMLElement {
         }
 
         #${markerIdPrefix}-a--layer {
-          opacity: var(--a-marker-opacity);
+          opacity: var(--marker-a-opacity);
         }
         #${markerIdPrefix}-b--layer {
-          opacity: var(--b-marker-opacity);
+          opacity: var(--marker-b-opacity);
+        }
+
+        :host([marker-a]) marker[id^=${markerIdPrefix}-a] {
+          display: revert;
+        }
+        :host([marker-b]) marker[id^=${markerIdPrefix}-b] {
+          display: revert;
         }
       </style>
 
@@ -287,44 +356,20 @@ export class WebchalkConnectorElement extends HTMLElement {
         <g class="connector__g-body">
           <mask id="${maskId}" maskUnits="userSpaceOnUse">
             <g class="connector__mask-group">
-              ${
-                this.usesMarkerA ?
-                `<marker id="${markerIdPrefix}-a--mask" markerWidth="${markerWidth}" markerHeight="${markerHeight}" refX="${markerWidth-1}" refY="${markerHeight/2}" orient="auto-start-reverse">
-                  <path d="M0,0 L0,${markerHeight} L${markerWidth},${markerHeight/2} L0,0" />
-                </marker>` :
-                ''
-              }
-              ${
-                this.usesMarkerB ?
-                `<marker id="${markerIdPrefix}-b--mask" markerWidth="${markerWidth}" markerHeight="${markerHeight}" refX="${markerWidth-1}" refY="${markerHeight/2}" orient="auto">
-                  <path d="M0,0 L0,${markerHeight} L${markerWidth},${markerHeight/2} L0,0" />
-                </marker>` :
-                ''
-              }
+              <marker id="${markerIdPrefix}-a--mask" orient="auto-start-reverse"></marker>
+              <marker id="${markerIdPrefix}-b--mask" orient="auto"></marker>
 
               <line
-                ${this.usesMarkerA ? `marker-start="url(#${markerIdPrefix}-a--mask)"` : ''}
-                ${this.usesMarkerB ? `marker-end="url(#${markerIdPrefix}-b--mask)"` : ''}
+                marker-start="url(#${markerIdPrefix}-a--mask)"
+                marker-end="url(#${markerIdPrefix}-b--mask)"
                 class="connector__line connector__line--mask"
               />
             </g>
           </mask>
 
           <g mask="url(#${maskId})" class="connector__layer-group">
-            ${
-              this.usesMarkerA ?
-              `<marker id="${markerIdPrefix}-a--layer" markerWidth="${markerWidth}" markerHeight="${markerHeight}" refX="${markerWidth-1}" refY="${markerHeight/2}" orient="auto-start-reverse">
-                <path d="M0,0 L0,${markerHeight} L${markerWidth},${markerHeight/2} L0,0" />
-              </marker>` :
-              ''
-            }
-            ${
-              this.usesMarkerB ?
-              `<marker id="${markerIdPrefix}-b--layer" markerWidth="${markerWidth}" markerHeight="${markerHeight}" refX="${markerWidth-1}" refY="${markerHeight/2}" orient="auto">
-                <path d="M0,0 L0,${markerHeight} L${markerWidth},${markerHeight/2} L0,0" />
-              </marker>` :
-              ''
-            }
+            <marker id="${markerIdPrefix}-a--layer" orient="auto-start-reverse"></marker>
+            <marker id="${markerIdPrefix}-b--layer" orient="auto"></marker>
 
             <line
               class="connector__line connector__line--layer"
@@ -345,7 +390,58 @@ export class WebchalkConnectorElement extends HTMLElement {
     this.lineMask = this.gBody.querySelector('.connector__line--mask') as SVGLineElement;
     this.mask = this.gBody.querySelector('mask') as SVGMaskElement;
 
+    this.setMarkers({
+      ...(this.usesMarkerA ? {A: {}} : {}),
+      ...(this.usesMarkerB ? {B: {}} : {}),
+    }
+    );
     this.checkInlinePoints();
+  }
+
+  private attributeChangedCallback(attrName: string, oldValue: string, newValue: string) {
+    if (oldValue === newValue) { return; }
+
+    switch(attrName) {
+      case 'tracking-disabled':
+        if (newValue === null || newValue === 'false') {
+          this.resumeAutoRedraw();
+        }
+        else {
+          this.pauseAutoRedraw();
+        }
+        break;
+
+      // case 'marker-a':
+      //   if (newValue === null || newValue === 'false') {
+      //     this.shadowRoot?.getElementById(`${this.markerIdPrefix}-a--layer`)?.style.setProperty('display', 'none');
+      //     this.shadowRoot?.getElementById(`${this.markerIdPrefix}-a--mask`)?.style.setProperty('display', 'none');
+      //   }
+      //   else {
+      //     this.shadowRoot?.getElementById(`${this.markerIdPrefix}-a--layer`)?.style.removeProperty('display');
+      //     this.shadowRoot?.getElementById(`${this.markerIdPrefix}-a--mask`)?.style.removeProperty('display');
+      //   }
+      //   break;
+
+      // case 'marker-b':
+      //   if (newValue === null || newValue === 'false') {
+      //     this.shadowRoot?.getElementById(`${this.markerIdPrefix}-a--layer`)?.style.setProperty('display', 'none');
+      //     this.shadowRoot?.getElementById(`${this.markerIdPrefix}-a--mask`)?.style.setProperty('display', 'none');
+      //   }
+      //   else {
+      //     this.shadowRoot?.getElementById(`${this.markerIdPrefix}-a--layer`)?.style.removeProperty('display');
+      //     this.shadowRoot?.getElementById(`${this.markerIdPrefix}-a--mask`)?.style.removeProperty('display');
+      //   }
+      //   break;
+    }
+  }
+
+  private connectedCallback() {
+    if (this.autoRedrawEnabled) { this.resumeAutoRedraw(); }
+    else { this.redraw(); }
+  }
+
+  private disconnectedCallback() {
+    this.pauseAutoRedraw();
   }
 
   /**
@@ -375,26 +471,81 @@ export class WebchalkConnectorElement extends HTMLElement {
     return [targElem, ordPair];
   }
 
-  private attributeChangedCallback(attrName: string, oldValue: string, newValue: string) {
-    if (oldValue === newValue) { return; }
+  /**
+   * Sets or removes visual markers for the specified points of the connector using either {@link ConnectorMarkerDimensions} to set a marker or `null` to remove a marker.
+   * @param newMarkers - An object that indicates which points to edit. Unspecified points are not changed.
+   */
+  setMarkers(newMarkers: CreateConnectorConfig['markers']) {
+    const {
+      A, B
+    } = newMarkers;
 
-    if (attrName === 'tracking-disabled') {
-      if (newValue === null || newValue === 'false') {
-        this.resumeAutoRedraw();
-      }
-      else {
-        this.pauseAutoRedraw();
-      }
+    if (A) {
+      this.usesMarkerA = true;
+      this.setMarkersHelper(A, 'A');
+    }
+    else if (A === null) {
+      this.usesMarkerA = false;
+    }
+
+    if (B) {
+      this.usesMarkerB = true;
+      this.setMarkersHelper(B, 'B');
+    }
+    else if (B === null) {
+      this.usesMarkerB = false;
     }
   }
 
-  private connectedCallback() {
-    if (this.autoRedrawEnabled) { this.resumeAutoRedraw(); }
-    else { this.redraw(); }
+  private setMarkersHelper(dimensions: ConnectorMarkerDimensions, letter: 'A' | 'B') {
+    const capital = letter.toUpperCase() as Uppercase<typeof letter>;
+    const lower = letter.toLowerCase() as Lowercase<typeof letter>;
+
+    if (dimensions.width) { this.setAttribute('marker-a-width', dimensions.width); }
+    if (dimensions.height) { this.setAttribute('marker-a-height', dimensions.height); }
+    const markerWidth = Number.parseFloat(this.getAttribute('marker-a-width') ?? this.getAttribute('marker-width') ?? '5px');
+    const markerHeight = Number.parseFloat(this.getAttribute('marker-a-height') ?? this.getAttribute('marker-height') ?? '7px');
+    
+    const oldMarkerEl = this.gBody.querySelector(`marker#${this.markerIdPrefix}-${lower}--layer`) as SVGMarkerElement;
+    const newMarkerAStr = /*html*/`
+      <marker id="${this.markerIdPrefix}-${lower}--layer" markerWidth="${markerWidth}" markerHeight="${markerHeight}"
+      refX="${markerWidth-1}" refY="${markerHeight/2}" orient=${capital === 'A' ? 'auto-start-reverse' : 'auto'}>
+        <path d="M0,0 L0,${markerHeight} L${markerWidth},${markerHeight/2} L0,0" />
+      </marker>
+    `;
+    oldMarkerEl.insertAdjacentHTML('afterend', newMarkerAStr);
+    oldMarkerEl.remove();
+    
+    const oldMarkerAMaskEl = this.gBody.querySelector(`marker#${this.markerIdPrefix}-${lower}--mask`) as SVGMarkerElement;
+    const newMarkerAMaskStr = /*html*/`
+      <marker id="${this.markerIdPrefix}-${lower}--mask" markerWidth="${markerWidth}" markerHeight="${markerHeight}"
+      refX="${markerWidth-1}" refY="${markerHeight/2}" orient=${capital === 'A' ? 'auto-start-reverse' : 'auto'}>
+        <path d="M0,0 L0,${markerHeight} L${markerWidth},${markerHeight/2} L0,0" />
+      </marker>
+    `;
+    oldMarkerAMaskEl.insertAdjacentHTML('afterend', newMarkerAMaskStr);
+    oldMarkerAMaskEl.remove();
   }
 
-  private disconnectedCallback() {
-    this.pauseAutoRedraw();
+  /**
+   * Removes the markers from the specified points of the connector.
+   * This is equivalent to calling {@link WebchalkConnectorElement.setMarkers | setMarkers()}
+   * and setting the specified markers to `null`.
+   * @param points - A string indicating which points should have their markers removed.
+   */
+  removeMarkers(points: 'A' | 'B' | 'both') {
+    switch(points) {
+      case "A":
+        this.setMarkers({A: null});
+        break;
+      case "B":
+        this.setMarkers({B: null});
+        break;
+      case "both":
+        this.setMarkers({A: null, B: null});
+        break;
+      default: throw new RangeError(`Invalid string value "${points}". Must specify "A", "B", or "both".`);
+    }
   }
 
   /**
@@ -409,7 +560,7 @@ export class WebchalkConnectorElement extends HTMLElement {
   }
 
   /**
-   * Sets the points of the connector using either {@link ConnectorPointInput} to set a point or `null` to remove a point.
+   * Sets or removes the specified points of the connector using either {@link ConnectorPointInput} to set a point or `null` to remove a point.
    * @param newPoints - An object that indicates which points to edit. Unspecified points are not changed.
    * @param options - An options object specifying additional configuration options.
    * @param options.updateNow - If `true`, the connector will visually update immediately after the new points are set.
@@ -466,10 +617,10 @@ export class WebchalkConnectorElement extends HTMLElement {
   /**
    * Sets the specified points of the connector to `null`. This is equivalent to calling {@link WebchalkConnectorElement.setPoints | setPoints()}
    * and setting the specified points to `null`.
-   * @param endpoints - A string indicating which points to remove.
+   * @param points - A string indicating which points to remove.
    */
-  removePoints(endpoints: 'A' | 'B' | 'both') {
-    switch(endpoints) {
+  removePoints(points: 'A' | 'B' | 'both') {
+    switch(points) {
       case "A":
         this.setPoints({A: null});
         break;
@@ -479,7 +630,7 @@ export class WebchalkConnectorElement extends HTMLElement {
       case "both":
         this.setPoints({A: null, B: null});
         break;
-      default: throw new RangeError(`Invalid string value "${endpoints}". Must specify "A", "B", or "both".`);
+      default: throw new RangeError(`Invalid string value "${points}". Must specify "A", "B", or "both".`);
     }
   }
 

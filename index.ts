@@ -27,6 +27,10 @@ console.log('comparison result:', result);
 
 const conn = drawConnector([redSquare, '(center, middle)'], [blueCircle, '(center, middle)'], {
   cssClasses: ['connector', 'connector--green'],
+  markers: {
+    A: {},
+    B: {}
+  }
 });
 // const conn = document.querySelector('.connector');
 // setTimeout(() => {conn.removeEndpoints('A')}, 1000);
