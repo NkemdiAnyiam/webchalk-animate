@@ -472,10 +472,10 @@ export class WebchalkConnectorElement extends HTMLElement {
     const capital = letter.toUpperCase() as Uppercase<typeof letter>;
     const lower = letter.toLowerCase() as Lowercase<typeof letter>;
 
-    if (dimensions.width) { this.setAttribute('marker-a-width', dimensions.width); }
-    if (dimensions.height) { this.setAttribute('marker-a-height', dimensions.height); }
-    const markerWidth = Number.parseFloat(this.getAttribute('marker-a-width') ?? this.getAttribute('marker-width') ?? '5px');
-    const markerHeight = Number.parseFloat(this.getAttribute('marker-a-height') ?? this.getAttribute('marker-height') ?? '7px');
+    if (dimensions.width) { this.setAttribute(`marker-${lower}-width`, dimensions.width); }
+    if (dimensions.height) { this.setAttribute(`marker-${lower}-height`, dimensions.height); }
+    const markerWidth = Number.parseFloat(this.getAttribute(`marker-${lower}-width`) ?? this.getAttribute('marker-width') ?? '5px');
+    const markerHeight = Number.parseFloat(this.getAttribute(`marker-${lower}-height`) ?? this.getAttribute('marker-height') ?? '7px');
     
     const oldMarkerEl = this.gBody.querySelector(`marker#${this.markerIdPrefix}-${lower}--layer`) as SVGMarkerElement;
     const newMarkerAStr = /*html*/`
