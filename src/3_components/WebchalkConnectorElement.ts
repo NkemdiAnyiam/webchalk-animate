@@ -328,6 +328,11 @@ export class WebchalkConnectorElement extends HTMLElement {
           marker-end: url(#${markerIdPrefix}-b--layer);
         }
 
+        .connector__line--mask {
+          marker-start: url(#${markerIdPrefix}-a--mask);
+          marker-end: url(#${markerIdPrefix}-b--mask);
+        }
+
         #${markerIdPrefix}-a--layer {
           opacity: var(--marker-a-opacity);
         }
@@ -350,11 +355,7 @@ export class WebchalkConnectorElement extends HTMLElement {
               <marker id="${markerIdPrefix}-a--mask" orient="auto-start-reverse"></marker>
               <marker id="${markerIdPrefix}-b--mask" orient="auto"></marker>
 
-              <line
-                marker-start="url(#${markerIdPrefix}-a--mask)"
-                marker-end="url(#${markerIdPrefix}-b--mask)"
-                class="connector__line connector__line--mask"
-              />
+              <line class="connector__line connector__line--mask" />
             </g>
           </mask>
 
@@ -362,10 +363,7 @@ export class WebchalkConnectorElement extends HTMLElement {
             <marker id="${markerIdPrefix}-a--layer" orient="auto-start-reverse"></marker>
             <marker id="${markerIdPrefix}-b--layer" orient="auto"></marker>
 
-            <line
-              class="connector__line connector__line--layer"
-              pathLength="1"
-            />
+            <line class="connector__line connector__line--layer" pathLength="1" />
           </g>
         </g>
       </svg>
