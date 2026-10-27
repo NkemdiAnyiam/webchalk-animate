@@ -14,8 +14,9 @@ stylesheet.replaceSync(
     left: 0 !important;
     stroke: black;
     fill: black;
-    display: initial;
+    stroke-width: 3px;
     line-height: 0 !important;
+    display: initial;
     pointer-events: none;
   }
   
