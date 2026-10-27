@@ -341,7 +341,7 @@ export class WebchalkConnectorElement extends HTMLElement {
     this.markerIdPrefix = markerIdPrefix;
     const maskId = `mask--${this.connectorId}`;
 
-    // TODO: In the future, https://github.com/w3c/csswg-drafts/issues/8361 could help prevent <svg> from contributing to overflow
+    // FUTURE: In the future, https://github.com/w3c/csswg-drafts/issues/8361 could help prevent <svg> from contributing to overflow
     const htmlString = /*html*/`
       <style>
         .connector__line--layer {
