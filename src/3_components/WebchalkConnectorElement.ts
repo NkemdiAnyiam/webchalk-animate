@@ -536,6 +536,13 @@ export class WebchalkConnectorElement extends HTMLElement {
 
     oldMarkerMaskEl.insertAdjacentHTML('afterend', newMarkerMaskStr);
     oldMarkerMaskEl.remove();
+
+    if (!this.isConnected) { return; }
+    // if (!pointA || !pointB || !pointA[0].isConnected || !pointB[0].isConnected) {
+    //   this.ax = this.ay = this.bx = this.by = 0;
+    //   return;
+    // }
+    this.redrawMarkers();
   }
 
   /**
@@ -557,6 +564,8 @@ export class WebchalkConnectorElement extends HTMLElement {
         break;
       default: throw new RangeError(`Invalid string value "${points}". Must specify "A", "B", or "both".`);
     }
+
+    this.redrawMarkers();
   }
 
   /**
@@ -712,23 +721,7 @@ export class WebchalkConnectorElement extends HTMLElement {
 
     if (changedX || changedY) {
       this._lineLength = Math.sqrt(Math.pow(bx - ax, 2) + Math.pow(by - ay, 2));
-
-      // If markers are present, shorten that side of the mask line by the equivalent of the marker width
-      // (marker refX is already set to 0 to compensate) to cut off the pieces of the layer line that stick
-      // outside of the marker.S
-      if (this.usesMarkerA) {
-        const ax_mask = ax + (1 / this.lineLength) * (bx - ax) * this.markerAWidth;
-        const ay_mask = ay + (1 / this.lineLength) * (by - ay) * this.markerAWidth;
-        this.lineMask.x1.baseVal.value = ax_mask;
-        this.lineMask.y1.baseVal.value = ay_mask;
-      }
-
-      if (this.usesMarkerB) {
-        const bx_mask = bx + (1 / this.lineLength) * (ax - bx) * this.markerBWidth;
-        const by_mask = by + (1 / this.lineLength) * (ay - by) * this.markerBWidth;
-        this.lineMask.x2.baseVal.value = bx_mask;
-        this.lineMask.y2.baseVal.value = by_mask;
-      }
+      this.redrawMarkers();
     }
 
     // When modifying the coordinates of the <line> within the <mask>, the mask bounds apparently are not updated.
@@ -741,6 +734,36 @@ export class WebchalkConnectorElement extends HTMLElement {
     if (changedY) {
       this.mask.height.baseVal.valueAsString = `${Math.abs(by - ay) + 50}`;
       this.mask.y.baseVal.valueAsString = `${Math.min(ay, by) - 25}`;
+    }
+  }
+
+  /**
+   * Redraws the mask line to compensate for markers to prevent layer line from poking out of markers at the end.
+   */
+  private redrawMarkers() {
+    if (!(this.usesMarkerA || this.usesMarkerB)) { return; }
+
+    const { ax, ay, bx, by } = this;
+
+    // If markers are present, shorten that side of the mask line by the equivalent of the marker width
+    // (marker refX is already set to 0 to compensate) to cut off the pieces of the layer line that stick
+    // outside of the markers.
+    let lineUnitLength: number;
+
+    if (this.usesMarkerA) {
+      lineUnitLength = this.lineLength > 0 ? 1 / this.lineLength : 0;
+      const ax_mask = ax + (lineUnitLength) * (bx - ax) * this.markerAWidth;
+      const ay_mask = ay + (lineUnitLength) * (by - ay) * this.markerAWidth;
+      this.lineMask.x1.baseVal.value = ax_mask;
+      this.lineMask.y1.baseVal.value = ay_mask;
+    }
+
+    if (this.usesMarkerB) {
+      lineUnitLength ??= this.lineLength > 0 ? 1 / this.lineLength : 0;
+      const bx_mask = bx + (lineUnitLength) * (ax - bx) * this.markerBWidth;
+      const by_mask = by + (lineUnitLength) * (ay - by) * this.markerBWidth;
+      this.lineMask.x2.baseVal.value = bx_mask;
+      this.lineMask.y2.baseVal.value = by_mask;
     }
   }
 
