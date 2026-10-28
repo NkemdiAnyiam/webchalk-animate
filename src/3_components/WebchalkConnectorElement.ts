@@ -219,7 +219,7 @@ export type ConnectorPointArg = [element: Element | null | undefined, placement:
 export class WebchalkConnectorElement extends HTMLElement {
   /**@internal*/ static addToCustomElementRegistry() { customElements.define('webchalk-connector', WebchalkConnectorElement); }
   private static staticId: number = 0;
-  private static observedAttributes = ['tracking-disabled'];
+  private static observedAttributes = ['tracking-disabled', 'marker-a', 'marker-b'];
 
   /** @see {@link ShapeFactories.drawConnector} */
   static create<T extends Parameters<DrawConnector['drawConnector']>>(pointA: T[0], pointB: T[1], config: T[2] = {}): WebchalkConnectorElement {
@@ -263,25 +263,22 @@ export class WebchalkConnectorElement extends HTMLElement {
   private connectorId: number = 0;
   readonly markerIdPrefix: string;
   get usesMarkerA(): boolean {
-    return this.hasAttribute('marker-a') && this.getAttribute('marker-a') !== 'false';
-  }
-  private set usesMarkerA(usesMarkerA: boolean) {
-    if (usesMarkerA) { this.setAttribute('marker-a', 'true'); }
-    else {
-      this.removeAttribute('marker-a');
-      this.markerAWidth = 0;
-    }
+    const attrVal = this.getAttribute('marker-a');
+    return (attrVal !== null) && (attrVal !== 'false');
   }
   get usesMarkerB(): boolean {
-    return this.hasAttribute('marker-b') && this.getAttribute('marker-b') !== 'false';
+    const attrVal = this.getAttribute('marker-b');
+    return (attrVal !== null) && (attrVal !== 'false');
   }
-  private set usesMarkerB(usesMarkerB: boolean) {
+  set usesMarkerA(usesMarkerA: boolean) {
+    if (usesMarkerA) { this.setAttribute('marker-a', 'true'); }
+    else { this.removeAttribute('marker-a'); }
+  }
+  set usesMarkerB(usesMarkerB: boolean) {
     if (usesMarkerB) { this.setAttribute('marker-b', 'true'); }
-    else {
-      this.removeAttribute('marker-b');
-      this.markerBWidth = 0;
-    }
+    else { this.removeAttribute('marker-b'); }
   }
+  private queueRedrawMask = false;
   private lineLayer: SVGLineElement;
   private lineMask: SVGLineElement;
   private gBody: SVGGElement;
@@ -294,7 +291,10 @@ export class WebchalkConnectorElement extends HTMLElement {
   private pointB: ConnectorPoint | null = null;
   private _lineLength = 0;
   get lineLength() { return this._lineLength; }
-  get autoRedrawEnabled(): boolean { return !this.hasAttribute('tracking-disabled') || this.getAttribute('tracking-disabled') === 'false'; };
+  get autoRedrawEnabled(): boolean {
+    const attrVal = this.getAttribute('tracking-disabled');
+    return (attrVal === null) || attrVal !== 'false';
+  };
   set autoRedrawEnabled(trackingEnabled: boolean) {
     if (trackingEnabled) { this.removeAttribute('tracking-disabled'); }
     else { this.setAttribute('tracking-disabled', 'true'); }
@@ -312,19 +312,19 @@ export class WebchalkConnectorElement extends HTMLElement {
 
   private set ax(val: number) {
     this.lineLayer.x1.baseVal.value = val;
-    this.lineMask.x1.baseVal.value = val;
+    // this.lineMask.x1.baseVal.value = val;
   }
   private set bx(val: number) {
     this.lineLayer.x2.baseVal.value = val;
-    this.lineMask.x2.baseVal.value = val;
+    // this.lineMask.x2.baseVal.value = val;
   }
   private set ay(val: number) {
     this.lineLayer.y1.baseVal.value = val;
-    this.lineMask.y1.baseVal.value = val;
+    // this.lineMask.y1.baseVal.value = val;
   }
   private set by(val: number) {
     this.lineLayer.y2.baseVal.value = val;
-    this.lineMask.y2.baseVal.value = val;
+    // this.lineMask.y2.baseVal.value = val;
   }
 
   getBoundingClientRect() {
@@ -409,8 +409,6 @@ export class WebchalkConnectorElement extends HTMLElement {
   }
 
   private attributeChangedCallback(attrName: string, oldValue: string, newValue: string) {
-    if (oldValue === newValue) { return; }
-
     switch(attrName) {
       case 'tracking-disabled':
         if (newValue === null || newValue === 'false') {
@@ -419,6 +417,12 @@ export class WebchalkConnectorElement extends HTMLElement {
         else {
           this.pauseAutoRedraw();
         }
+        break;
+
+      case 'marker-a':
+      case 'marker-b':
+        if (this.isConnected) { this.redrawMaskLine(); }
+        else { this.queueRedrawMask = true; }
         break;
     }
   }
@@ -471,26 +475,18 @@ export class WebchalkConnectorElement extends HTMLElement {
       A, B
     } = newMarkers;
 
-    if (A) {
-      this.usesMarkerA = true;
-      this.setMarkersHelper(A, 'A');
-    }
-    else if (A === null) {
-      this.usesMarkerA = false;
-    }
-
-    if (B) {
-      this.usesMarkerB = true;
-      this.setMarkersHelper(B, 'B');
-    }
-    else if (B === null) {
-      this.usesMarkerB = false;
-    }
+    if (A !== undefined) { this.setMarkersHelper(A, 'A'); }
+    if (B !== undefined) { this.setMarkersHelper(B, 'B'); }
   }
 
-  private setMarkersHelper(dimensions: ConnectorMarkerDimensions, letter: 'A' | 'B') {
-    const capital = letter.toUpperCase() as Uppercase<typeof letter>;
-    const lower = letter.toLowerCase() as Lowercase<typeof letter>;
+  private setMarkersHelper(dimensions: ConnectorMarkerDimensions | null, letter: 'A' | 'B') {
+    const uCase = letter.toUpperCase() as Uppercase<typeof letter>;
+    const lCase = letter.toLowerCase() as Lowercase<typeof letter>;
+
+    if (dimensions === null) {
+      this[`usesMarker${uCase}`] = false;
+      return;
+    }
 
     const {
       width,
@@ -498,20 +494,20 @@ export class WebchalkConnectorElement extends HTMLElement {
       // scaleWithStrokeWidth = true,
     } = dimensions;
 
-    if (width) { this.setAttribute(`marker-${lower}-width`, width); }
-    if (height) { this.setAttribute(`marker-${lower}-height`, height); }
+    if (width) { this.setAttribute(`marker-${lCase}-width`, width); }
+    if (height) { this.setAttribute(`marker-${lCase}-height`, height); }
     
-    const markerWidth = Number.parseFloat(this.getAttribute(`marker-${lower}-width`) ?? this.getAttribute('marker-width') ?? '10px');
-    this[`marker${capital}Width`] = markerWidth;
-    const markerHeight = Number.parseFloat(this.getAttribute(`marker-${lower}-height`) ?? this.getAttribute('marker-height') ?? '10px');
+    const markerWidth = Number.parseFloat(this.getAttribute(`marker-${lCase}-width`) ?? this.getAttribute('marker-width') ?? '10px');
+    this[`marker${uCase}Width`] = markerWidth;
+    const markerHeight = Number.parseFloat(this.getAttribute(`marker-${lCase}-height`) ?? this.getAttribute('marker-height') ?? '10px');
     
     // create new layer marker
-    const oldMarkerEl = this.gBody.querySelector(`marker#${this.markerIdPrefix}-${lower}--layer`) as SVGMarkerElement;
+    const oldMarkerEl = this.gBody.querySelector(`marker#${this.markerIdPrefix}-${lCase}--layer`) as SVGMarkerElement;
     const newMarkerStr = /*html*/`
       <marker
-        id="${this.markerIdPrefix}-${lower}--layer"
+        id="${this.markerIdPrefix}-${lCase}--layer"
         markerWidth="${markerWidth}" markerHeight="${markerHeight}"
-        refX="${markerWidth}" refY="${markerHeight/2}" orient=${capital === 'A' ? 'auto-start-reverse' : 'auto'}
+        refX="${markerWidth}" refY="${markerHeight/2}" orient=${uCase === 'A' ? 'auto-start-reverse' : 'auto'}
         markerUnits="userSpaceOnUse"
       >
         <path d="M0,0 L0,${markerHeight} L${markerWidth},${markerHeight/2} L0,0" />
@@ -522,12 +518,12 @@ export class WebchalkConnectorElement extends HTMLElement {
     oldMarkerEl.remove();
     
     // create new mask marker
-    const oldMarkerMaskEl = this.gBody.querySelector(`marker#${this.markerIdPrefix}-${lower}--mask`) as SVGMarkerElement;
+    const oldMarkerMaskEl = this.gBody.querySelector(`marker#${this.markerIdPrefix}-${lCase}--mask`) as SVGMarkerElement;
     const newMarkerMaskStr = /*html*/`
       <marker
-        id="${this.markerIdPrefix}-${lower}--mask"
+        id="${this.markerIdPrefix}-${lCase}--mask"
         markerWidth="${markerWidth}" markerHeight="${markerHeight}"
-        refX="${0}" refY="${markerHeight/2}" orient=${capital === 'A' ? 'auto-start-reverse' : 'auto'}
+        refX="${0}" refY="${markerHeight/2}" orient=${uCase === 'A' ? 'auto-start-reverse' : 'auto'}
         markerUnits="userSpaceOnUse"
       >
         <path d="M0,0 L0,${markerHeight} L${markerWidth},${markerHeight/2} L0,0" />
@@ -537,12 +533,7 @@ export class WebchalkConnectorElement extends HTMLElement {
     oldMarkerMaskEl.insertAdjacentHTML('afterend', newMarkerMaskStr);
     oldMarkerMaskEl.remove();
 
-    if (!this.isConnected) { return; }
-    // if (!pointA || !pointB || !pointA[0].isConnected || !pointB[0].isConnected) {
-    //   this.ax = this.ay = this.bx = this.by = 0;
-    //   return;
-    // }
-    this.redrawMarkers();
+    this[`usesMarker${uCase}`] = true;
   }
 
   /**
@@ -564,8 +555,6 @@ export class WebchalkConnectorElement extends HTMLElement {
         break;
       default: throw new RangeError(`Invalid string value "${points}". Must specify "A", "B", or "both".`);
     }
-
-    this.redrawMarkers();
   }
 
   /**
@@ -721,7 +710,10 @@ export class WebchalkConnectorElement extends HTMLElement {
 
     if (changedX || changedY) {
       this._lineLength = Math.sqrt(Math.pow(bx - ax, 2) + Math.pow(by - ay, 2));
-      this.redrawMarkers();
+      this.redrawMaskLine();
+    }
+    else if (this.queueRedrawMask) {
+      this.redrawMaskLine();
     }
 
     // When modifying the coordinates of the <line> within the <mask>, the mask bounds apparently are not updated.
@@ -738,10 +730,11 @@ export class WebchalkConnectorElement extends HTMLElement {
   }
 
   /**
-   * Redraws the mask line to compensate for markers to prevent layer line from poking out of markers at the end.
+   * Redraws the mask line to A) match the layer line and B) compensate for markers to
+   * prevent layer line from poking out of markers at the end.
    */
-  private redrawMarkers() {
-    if (!(this.usesMarkerA || this.usesMarkerB)) { return; }
+  private redrawMaskLine() {
+    this.queueRedrawMask = false;
 
     const { ax, ay, bx, by } = this;
 
@@ -749,21 +742,30 @@ export class WebchalkConnectorElement extends HTMLElement {
     // (marker refX is already set to 0 to compensate) to cut off the pieces of the layer line that stick
     // outside of the markers.
     let lineUnitLength: number;
+    const lineMask = this.lineMask;
 
     if (this.usesMarkerA) {
       lineUnitLength = this.lineLength > 0 ? 1 / this.lineLength : 0;
       const ax_mask = ax + (lineUnitLength) * (bx - ax) * this.markerAWidth;
       const ay_mask = ay + (lineUnitLength) * (by - ay) * this.markerAWidth;
-      this.lineMask.x1.baseVal.value = ax_mask;
-      this.lineMask.y1.baseVal.value = ay_mask;
+      lineMask.x1.baseVal.value = ax_mask;
+      lineMask.y1.baseVal.value = ay_mask;
+    }
+    else {
+      lineMask.x1.baseVal.value = this.ax;
+      lineMask.y1.baseVal.value = this.ay;
     }
 
     if (this.usesMarkerB) {
       lineUnitLength ??= this.lineLength > 0 ? 1 / this.lineLength : 0;
       const bx_mask = bx + (lineUnitLength) * (ax - bx) * this.markerBWidth;
       const by_mask = by + (lineUnitLength) * (ay - by) * this.markerBWidth;
-      this.lineMask.x2.baseVal.value = bx_mask;
-      this.lineMask.y2.baseVal.value = by_mask;
+      lineMask.x2.baseVal.value = bx_mask;
+      lineMask.y2.baseVal.value = by_mask;
+    }
+    else {
+      lineMask.x2.baseVal.value = this.bx;
+      lineMask.y2.baseVal.value = this.by;
     }
   }
 
