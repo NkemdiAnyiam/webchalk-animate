@@ -60,7 +60,7 @@ stylesheet.replaceSync(
 /**
  * An object containing configuration options to define the styling, location, and behavior of the new connector.
  * 
- * @category Interface
+ * @category Interfaces
  * @interface
  */
 export type DrawConnectorConfig = {
@@ -83,6 +83,8 @@ export type DrawConnectorConfig = {
    * ```ts
    * true
    * ```
+   * 
+   * @category Subtypes
    */
   autoRedrawEnabled: boolean;
   /**
@@ -115,7 +117,7 @@ export type DrawConnectorConfig = {
  * 
  * @category Subtypes
  */
-type ConnectorMarkerDimensions = {
+export type ConnectorMarkerDimensions = {
   /**
    * A string representing the width of the marker in pixels.
    * Example:
@@ -203,6 +205,8 @@ export interface DrawConnector {
  *  * The second entry is a string ({@link MultiUnitOrderedPairString}) representing the offset of the point with respect to the element.
  * 
  * @see {@link WebchalkConnectorElement.getPoints}
+ * 
+ * @category Subtypes
  */
 export type ConnectorPoint = [element: DOMElement, placement: MultiUnitOrderedPairString];
 
@@ -213,6 +217,8 @@ export type ConnectorPoint = [element: DOMElement, placement: MultiUnitOrderedPa
  * representing the offset of the point with respect to the element.
  * 
  * @see {@link ShapeFactories.drawConnector}
+ * 
+ * @category Subtypes
  */
 export type ConnectorPointArg = [element: Element | null | undefined, placement: MultiUnitOrderedPairString];
 

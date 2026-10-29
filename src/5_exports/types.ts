@@ -61,6 +61,7 @@ export type {
   DrawConnectorConfig,
   ConnectorPoint,
   ConnectorPointArg,
+  ConnectorMarkerDimensions,
 } from "../3_components/WebchalkConnectorElement";
 export {
   WebchalkConnectorElement,
