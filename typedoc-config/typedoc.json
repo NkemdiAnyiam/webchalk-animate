@@ -18,7 +18,6 @@
     "**/highlightjs/**/*",
     "**/pane-ui/**/*",
     "**/WebchalkPlaybackButtonElement.ts",
-    "**/componentStyleSheet.ts",
   ],
   "entryPoints": ["../src"],
   "entryPointStrategy": "expand",
