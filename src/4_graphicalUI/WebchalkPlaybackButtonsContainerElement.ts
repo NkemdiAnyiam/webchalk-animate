@@ -1,4 +1,4 @@
-import { stylesheet } from "../styles/componentStyleSheet";
+import { shadowStyleSheet } from "../styles/shadowStyleSheet";
 import { createElFromString } from "../5_utils/helpers";
 import { KeyboardShortcutOptions } from "../5_utils/interfaces";
 import { WebchalkPlaybackButtonElement } from "./WebchalkPlaybackButtonElement";
@@ -23,7 +23,7 @@ export class WebchalkPlaybackButtonsContainerElement extends HTMLElement {
   constructor() {
     super();
     const shadow = this.attachShadow({mode: 'open'});
-    shadow.adoptedStyleSheets = [hostStyleSheet, stylesheet];
+    shadow.adoptedStyleSheets = [hostStyleSheet, shadowStyleSheet];
 
     const htmlString = /*html*/`
     <div class="playback-buttons-container">

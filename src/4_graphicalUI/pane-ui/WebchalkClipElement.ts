@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { stylesheet } from '../../styles/componentStyleSheet';
+import { shadowStyleSheet } from '../../styles/shadowStyleSheet';
 import { htmlComponentStr } from './templates/ts/clip';
 
 import { AnimClip } from '../../1_playbackStructures/AnimationClip';
@@ -42,7 +42,7 @@ export class WebchalkClipElement extends HTMLElement {
   constructor() {
     super();
     const shadow = this.attachShadow({mode: 'open'});
-    shadow.adoptedStyleSheets = [stylesheet];
+    shadow.adoptedStyleSheets = [shadowStyleSheet];
     const htmlString = /*html*/`
       ${devHtmlComponentStr ?? htmlComponentStr}
     `;

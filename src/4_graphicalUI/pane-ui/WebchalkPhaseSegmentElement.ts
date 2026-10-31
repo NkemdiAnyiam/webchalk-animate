@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { stylesheet } from '../../styles/componentStyleSheet';
+import { shadowStyleSheet } from '../../styles/shadowStyleSheet';
 import { htmlComponentStr } from './templates/ts/phaseSegment';
 
 import { createElFromString, escapeHtml, repositionPopover, secondsToHMMSS, TBA_DURATION } from '../../5_utils/helpers';
@@ -31,7 +31,7 @@ export class WebchalkPhaseSegmentElement extends HTMLElement {
     this.popoverId = WebchalkPhaseSegmentElement.id++;
 
     const shadow = this.attachShadow({mode: 'open'});
-    shadow.adoptedStyleSheets = [stylesheet];
+    shadow.adoptedStyleSheets = [shadowStyleSheet];
     const htmlString = /*html*/`
       <style>
         .phase-segment__button {

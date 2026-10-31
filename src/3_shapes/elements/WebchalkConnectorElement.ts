@@ -1,7 +1,7 @@
 import { CustomErrorClasses } from "../../5_utils/errors";
 import { equalWithinTol, getBoundingClientRectOfHidden, parseMultiUnitPlacement } from "../../5_utils/helpers";
 import { DOMElement, MultiUnitOrderedPairString, ParsedMultiUnitPlacement } from "../../5_utils/interfaces";
-import { stylesheet } from "../../styles/componentStyleSheet";
+import { shadowStyleSheet } from "../../styles/shadowStyleSheet";
 import { ShapeFactoryFunctions } from "../ShapeFactoryFunctions";
 
 const hostStyleSheet = new CSSStyleSheet();
@@ -314,7 +314,7 @@ export class WebchalkConnectorElement extends HTMLElement {
     super();
     this.connectorId = WebchalkConnectorElement.staticId++;
     const shadow = this.attachShadow({mode: 'open'});
-    shadow.adoptedStyleSheets = [hostStyleSheet, stylesheet];
+    shadow.adoptedStyleSheets = [hostStyleSheet, shadowStyleSheet];
 
     const markerIdPrefix = `markerArrow--${this.connectorId}`;
     this.markerIdPrefix = markerIdPrefix;

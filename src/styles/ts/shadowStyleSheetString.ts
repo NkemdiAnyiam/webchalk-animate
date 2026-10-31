@@ -1,4 +1,4 @@
-export const componentStyleString = /*css*/`
+export const shadowStyleSheetString = /*css*/`
 @charset "UTF-8";
 .timeline {
   line-height: 1;
@@ -1725,10 +1725,6 @@ code {
   font-style: italic;
 }
 
-:host {
-  display: inline-block;
-}
-
 .playback-button {
   width: 25.6px;
   height: 25.6px;
@@ -1774,15 +1770,6 @@ code {
   fill: var(--webchalk-playback-button-symbol-color);
 }
 
-:host {
-  display: inline-block;
-  --webchalk-playback-button-press-color: #db0000;
-  --webchalk-playback-button-hold-color: #62B720;
-  --webchalk-playback-button-disabled-color: gray;
-  --webchalk-playback-button-background-color: #121213;
-  --webchalk-playback-button-symbol-color: white;
-}
-
 .playback-buttons-container {
   /* TODO: conditionally set the positioning properties depending on where a set of playback buttons is inserted
   (likely with docking) */
@@ -1809,6 +1796,38 @@ code {
   padding: 6px;
   display: flex;
   gap: 6px;
+}
+
+.connector__svg {
+  pointer-events: all;
+  visibility: hidden !important;
+  overflow: visible !important;
+}
+
+.connector__g-body {
+  visibility: initial;
+}
+
+.connector__mask-group {
+  stroke: white !important;
+  fill: white !important;
+}
+
+.connector__line {
+  fill: none;
+}
+
+.connector__line--mask {
+  stroke-dashoffset: 0 !important;
+}
+
+.connector__line--layer {
+  stroke-dasharray: 1 !important;
+}
+
+marker {
+  display: none;
+  stroke: none;
 }
 
 /*# sourceMappingURL=main.css.map */

@@ -14,8 +14,8 @@ for (const cssFileName of cssFileNames) {
     (err, cssStr) => {
       if (err) { throw new Error(err.message + `\nCSS Path: ${cssFolderPath}/${cssFileName}.css}`); }
 
-      const tsStr = `export const componentStyleString = /*css*/\`\n${cssStr.trim()}\n\`;\n`
-      const tsFileName = `componentStyleString`;
+      const tsStr = `export const shadowStyleSheetString = /*css*/\`\n${cssStr.trim()}\n\`;\n`
+      const tsFileName = `shadowStyleSheetString`;
       fs.writeFile(`${tsFolderPath}/${tsFileName}.ts`, tsStr, { encoding: 'utf-8' }, (err) => {
         if (err) { throw new Error(err.message + `\nTS Path: ${tsFolderPath}/${tsFileName}.ts}`); }
       });

@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { stylesheet } from '../../styles/componentStyleSheet';
+import { shadowStyleSheet } from '../../styles/shadowStyleSheet';
 import { htmlComponentStr } from './templates/ts/clipInfoBox';
 
 import { clamp, createCodeEl, createElFromString, dequoteJSON, escapeHtml, getOpeningTag, highlightCodeEls, numToOrdinal } from '../../5_utils/helpers';
@@ -42,7 +42,7 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
   constructor() {
     super();
     const shadow = this.attachShadow({mode: 'open'});
-    shadow.adoptedStyleSheets = [stylesheet, hostStyles];
+    shadow.adoptedStyleSheets = [shadowStyleSheet, hostStyles];
     const htmlString = /*html*/`
       ${devHtmlComponentStr ?? htmlComponentStr}
     `;

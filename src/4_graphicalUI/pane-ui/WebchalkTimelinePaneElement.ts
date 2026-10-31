@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { stylesheet } from '../../styles/componentStyleSheet';
+import { shadowStyleSheet } from '../../styles/shadowStyleSheet';
 import { AnimTimeline } from '../../1_playbackStructures/AnimationTimeline';
 import { AnimSequence } from '../../1_playbackStructures/AnimationSequence';
 import { htmlComponentStr } from './templates/ts/timelinePane';
@@ -41,7 +41,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
   constructor() {
     super();
     const shadow = this.attachShadow({mode: 'open'});
-    shadow.adoptedStyleSheets = [stylesheet];
+    shadow.adoptedStyleSheets = [shadowStyleSheet];
     const htmlString = /*html*/`
       ${devHtmlComponentStr ?? htmlComponentStr}
     `;

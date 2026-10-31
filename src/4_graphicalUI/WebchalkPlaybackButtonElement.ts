@@ -1,4 +1,4 @@
-import { stylesheet } from "../styles/componentStyleSheet";
+import { shadowStyleSheet } from "../styles/shadowStyleSheet";
 import { KeyboardKey } from "../5_utils/interfaces";
 
 const hostStyleSheet = new CSSStyleSheet();
@@ -45,7 +45,7 @@ export class WebchalkPlaybackButtonElement extends HTMLElement {
   constructor() {
     super();
     const shadow = this.attachShadow({mode: 'open'});
-    shadow.adoptedStyleSheets = [hostStyleSheet, stylesheet];
+    shadow.adoptedStyleSheets = [hostStyleSheet, shadowStyleSheet];
     
     this.shortcutKey = this.getAttribute('shortcut') ?? null;
     this.allowHolding = this.hasAttribute('allow-holding');
