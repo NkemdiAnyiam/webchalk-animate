@@ -346,3 +346,14 @@ export type KeyboardKey = Union<
   | 'ArrowLeft' | 'ArrowRight' | 'ArrowUp' | 'ArrowDown'
   | 'Space' | 'Enter' | 'Backspace'
 , string>;
+
+/**
+ * An object that can be used to assign (or remove with `null`) keyboard shortcuts for the specified playback functionalities.
+ */
+export type KeyboardShortcutOptions = {
+  stepForward?: KeyboardKey | null;
+  stepBackward?: KeyboardKey | null;
+  pause?: KeyboardKey | null;
+  fastForward?: KeyboardKey | null;
+  toggleSkipping?: KeyboardKey | null;
+};

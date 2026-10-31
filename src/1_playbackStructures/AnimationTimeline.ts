@@ -5,7 +5,8 @@ import { PickFromArray } from "../5_utils/utilityTypes";
 import { WebchalkPlaybackButtonElement } from "../4_graphicalUI/WebchalkPlaybackButtonElement";
 import { /*defaultClipFactories,*/ webchalk } from "../Webchalk";
 import { WebchalkTimelinePaneElement } from "../4_graphicalUI/pane-ui/WebchalkTimelinePaneElement";
-import { KeyboardKey } from "../5_utils/interfaces";
+import { KeyboardShortcutOptions } from "../5_utils/interfaces";
+import { WebchalkPlaybackButtonsContainerElement } from "../4_graphicalUI/WebchalkPlaybackButtonsContainerElement";
 
 // TYPE
 /**
@@ -39,13 +40,7 @@ export type AnimTimelineConfig = {
    * will just be applied when they _are_ attached. Until then, the shortcuts
    * will not trigger).
    */
-  keyboardShortcuts: {
-    stepForward?: KeyboardKey | null;
-    stepBackward?: KeyboardKey | null;
-    pause?: KeyboardKey | null;
-    fastForward?: KeyboardKey | null;
-    toggleSkipping?: KeyboardKey | null;
-  };
+  keyboardShortcuts: KeyboardShortcutOptions;
 };
 
 // TYPE
@@ -657,7 +652,7 @@ export class AnimTimeline {
   /*-:****************************************        UI METHODS        ********************************************************/
   /*-:**************************************************************************************************************************/
   /** @internal */ webchalkTimelineEl?: WebchalkTimelinePaneElement;
-  /** @internal */ playbackButtonsContainer?: HTMLElement;
+  /** @internal */ playbackButtonsContainer?: WebchalkPlaybackButtonsContainerElement;
   // TODO: put in some kind of config that user can see
   /** @internal */ get playbackButtonsAttached(): boolean { return this.playbackButtonsContainer ? true : false; }
   /** @internal */ get uiPaneAttached(): boolean { return this.webchalkTimelineEl ? true : false; }
@@ -760,30 +755,18 @@ export class AnimTimeline {
     } = options;
     const { keyboardShortcuts } = this.config;
     this.playbackButtonsContainer = createElFromString(/*html*/`
-      <div class="playback-buttons" ${this.config.timelineName ? `timeline-name="${this.config.timelineName}"` : ''}>
-        <div class="playback-buttons-inner-wrapper"></div>
-      </div>
+      <webchalk-playback-buttons-container
+        class="playback-buttons"
+        ${this.config.timelineName ? `timeline-name="${this.config.timelineName}"` : ''}
+      >
+      </webchalk-playback-buttons-container>
     `);
     buttonsContainerLocation.appendChild(this.playbackButtonsContainer);
 
     // create playback button element and attach to DOM
     const createButton = (action: WebchalkPlaybackButtonElement['action'], options: {allowHolding?: boolean} = {}) => {
-      const {
-        allowHolding = false,
-      } = options;
-      const shortcut = keyboardShortcuts[
-        action.replaceAll(/(\-)(.)/g, (match, dash, letter) => letter.toUpperCase()) as keyof typeof keyboardShortcuts
-      ] ?? null;
-      const button = createElFromString(/*html*/`
-        <webchalk-playback-button
-          action="${action}"
-          ${shortcut ? `shortcut="${shortcut}"` : ''}
-          ${allowHolding ? `allow-holding` : ''}
-        >
-        </webchalk-playback-button>
-      `);
-      this.playbackButtonsContainer!.querySelector('.playback-buttons-inner-wrapper')!.append(button);
-      return button as WebchalkPlaybackButtonElement;
+      const button = this.playbackButtonsContainer!.addButton(action, {...options, keyboardShortcuts});
+      return button;
     };
 
     // create buttons

@@ -6,9 +6,11 @@ import { WebchalkClipInfoBoxElement } from "./4_graphicalUI/pane-ui/WebchalkClip
 import { WebchalkSequenceElement } from "./4_graphicalUI/pane-ui/WebchalkSequenceElement";
 import { WebchalkTimelinePaneElement } from "./4_graphicalUI/pane-ui/WebchalkTimelinePaneElement";
 import { WebchalkPhaseSegmentElement } from "./4_graphicalUI/pane-ui/WebchalkPhaseSegmentElement";
+import { WebchalkPlaybackButtonsContainerElement } from "./4_graphicalUI/WebchalkPlaybackButtonsContainerElement";
 
 export function injectGlobals() {
   WebchalkConnectorElement.addToCustomElementRegistry();
+  WebchalkPlaybackButtonsContainerElement.addToCustomElementRegistry();
   WebchalkPlaybackButtonElement.addToCustomElementRegistry();
   WebchalkTimelinePaneElement.addToCustomElementRegistry();
   WebchalkSequenceElement.addToCustomElementRegistry();
@@ -41,48 +43,6 @@ export function injectGlobals() {
     /* Using :where makes it possible for developer to easily override the default color */
     :where(:root) {
       --webchalk-highlight-color: #F9F278;
-      --webchalk-playback-button-press-color: #db0000;
-      --webchalk-playback-button-hold-color: #62B720;
-      --webchalk-playback-button-disabled-color: gray;
-      --webchalk-playback-button-background-color: #121213;
-      --webchalk-playback-button-symbol-color: white;
-    }
-  
-    .playback-buttons {
-      /* TODO: retrieve there instead of copy-pasting */
-      --color-primary-blue: #04448E;
-      --color-gray-darkest: #121213;
-      --color-gray: #4E4E4E;
-      --color-gray-light: #E0E0E0;
-      --color-gray-lighter: #ECECEC;
-      --color-gray-lightest: #F7F7F7;
-
-      /* TODO: conditionally set the positioning properties depending on where a set of playback buttons is inserted
-      (likely with docking) */
-      position: fixed;
-      bottom: 0;
-      right: 0;
-      z-index: calc(infinity);
-      padding: 6px 8px;
-      /* background-color: color-mix(in srgb, var(--color-primary-blue) 30%, transparent); */
-      background-color: var(--color-primary-blue);
-      border: 4px solid var(--color-gray-darkest);
-      opacity: 0.4;
-      transition: opacity 0.1s;
-      transform-origin: bottom left;
-    }
-
-    .playback-buttons:hover,
-    .playback-buttons:focus-within {
-      opacity: 1;
-    }
-
-    .playback-buttons-inner-wrapper {
-      background-color: var(--color-gray-lightest);
-      padding: 6px;
-
-      display: flex;
-      gap: 6px;
     }
     
     .webchalk-display-none:not(.webchalk-force-show) {
