@@ -1,7 +1,7 @@
 import { AnimClip, AnimClipConfig, AnimClipModifiers, AnimClipTiming } from "./AnimationClip";
 import { CustomErrorClasses, errorTip, ErrorUIMessageFragments } from "../5_utils/errors";
 import { createCodeEl, createDetailsEl, fragment, getPartial, TBA_DURATION, createUListEl } from "../5_utils/helpers";
-import { Webchalk } from "../Webchalk";
+import type { Webchalk } from "../Webchalk";
 import { DOMElement, MultiUnitOrderedPairString, RootNodeEditStats, TextEditRate } from "../5_utils/interfaces";
 import { PickFromArray } from "../5_utils/utilityTypes";
 import { DrawConnectorConfig, WebchalkConnectorElement } from "../3_shapes/elements/WebchalkConnectorElement";

@@ -3,7 +3,7 @@ import { EmphasisClip, EntranceClip, ExitClip, Layer4MutableConfig, MotionClip, 
 import { DOMElement, Keyframes, Mutator } from "../5_utils/interfaces";
 import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord, StrictPropertyCheck, StrictReturnPropertyCheck, PrettifyCustomError, ErrorCheckJoiner, ValidationBloat } from "../5_utils/utilityTypes";
 import { AnimClipConfig } from "../1_playbackStructures/AnimationClip";
-import { webchalk } from "../Webchalk";
+import type { Webchalk } from "../Webchalk";
 import { deepFreeze } from "../5_utils/helpers";
 import { DEFAULT_CONFIG_ERROR, IMMUTABLE_CONFIG_ERROR, EFFECT_FRAME_GENERATORS_RETURN_ERROR_PRIMITIVE, EFFECT_FRAME_GENERATORS_RETURN_ERROR_PROPERTIES, EFFECT_FRAME_GENERATORS_RETURN_ERROR_KEYFRAMES_RW, EFFECT_FRAME_GENERATORS_RETURN_ERROR_MUTATOR_RW } from "../5_utils/errors";
 
@@ -1393,7 +1393,7 @@ export type EffectNameIn<TEffectBank extends PresetEffectBank> = Exclude<keyof {
 // function definePresetEffect<TPresetEffectDefinition extends PresetEffectBank<MotionClip>[string]> (effectCategory: 'motion', effectDefinition: TPresetEffectDefinition): TPresetEffectDefinition;
 /**
  * Allows the convenient creation of an object in the shape of a {@link PresetEffectDefinition} with full auto-completion.
- * The resulting effect definition must be passed into {@link webchalk.createAnimationClipFactories} in order to be added to the
+ * The resulting effect definition must be passed into {@link Webchalk.createAnimationClipFactories} in order to be added to the
  * preset effects registry.
  * @param effectCategory - The category of the animation effect.
  * @param effectDefinition - The effect definition object, where you will define {@link PresetEffectDefinition.buildFrameGenerators} among other properties.
@@ -1405,7 +1405,7 @@ export type EffectNameIn<TEffectBank extends PresetEffectBank> = Exclude<keyof {
  * but this is highly ill-advised because there would
  * be no autocompletion or hinting. Besides using this function or {@link definePresetEffectBank}, the other way to
  * define preset effects while still having access to Intellisense is to define them directly within the call to
- * {@link webchalk.createAnimationClipFactories}.
+ * {@link Webchalk.createAnimationClipFactories}.
  * 
  * @example
  * <!-- EX:S id="definePresetEffect" code-type="ts" -->
@@ -1534,7 +1534,7 @@ export function definePresetEffect<
 
 /**
  * Allows the convenient creation of an object in the shape of a {@link PresetEffectBank} with full auto-completion for each entry.
- * The resulting effect bank must be passed into {@link webchalk.createAnimationClipFactories} in order for its effect definitions to be
+ * The resulting effect bank must be passed into {@link Webchalk.createAnimationClipFactories} in order for its effect definitions to be
  * added to the preset effects registry.
  * @param effectCategory - The category of the animation effects.
  * @param presetEffectBank - The object where every key is an effect name and every value is a {@link PresetEffectDefinition}.
@@ -1545,7 +1545,7 @@ export function definePresetEffect<
  * objects on your own without it, but this is highly ill-advised because there would be
  * there would be no autocompletion or hinting. Besides using this function,
  * the other way define preset effects while still having access to Intellisense is to define them directly
- * within the call to {@link webchalk.createAnimationClipFactories}.
+ * within the call to {@link Webchalk.createAnimationClipFactories}.
  * 
  * @example
  * <!-- EX:S id="definePresetEffectBank" code-type="ts" -->
