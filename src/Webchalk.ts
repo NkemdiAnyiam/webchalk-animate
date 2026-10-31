@@ -367,13 +367,24 @@ export class Webchalk {
   >
   (
     additionalPresetEffectBanks: {
-      /** Object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with `Entrance()` clip factory function. */
+      /**
+       * Object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond
+       * to a {@link PresetEffectDefinition} to be used with `Entrance()` clip factory function.
+       */
       additionalEntranceEffectBank?: AdditionalEntranceBank & PresetEffectBank<EntranceClip>;
-      /** Object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Exit()` clip factory function. */
+      /**
+       * Object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond
+       * to a {@link PresetEffectDefinition} to be used with the `Exit()` clip factory function.
+       */
       additionalExitEffectBank?: AdditionalExitBank & PresetEffectBank<ExitClip>;
-      /** Object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Emphasis()` clip factory function. */
+      /**
+       * Object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond
+       * to a {@link PresetEffectDefinition} to be used with the `Emphasis()` clip factory function.
+       */
       additionalEmphasisEffectBank?: AdditionalEmphasisBank & PresetEffectBank<EmphasisClip>;
-      /** Object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond to a {@link PresetEffectDefinition} to be used with the `Motion()` clip factory function. */
+      /** Object of type {@link PresetEffectBank}, containing keys that represent effect names that each correspond
+       * to a {@link PresetEffectDefinition} to be used with the `Motion()` clip factory function.
+       */
       additionalMotionEffectBank?: AdditionalMotionBank & PresetEffectBank<MotionClip>;
     } = {},
     /**
