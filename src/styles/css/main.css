@@ -1797,4 +1797,36 @@ code {
   gap: 6px;
 }
 
+.connector__svg {
+  pointer-events: all;
+  visibility: hidden !important;
+  overflow: visible !important;
+}
+
+.connector__g-body {
+  visibility: initial;
+}
+
+.connector__mask-group {
+  stroke: white !important;
+  fill: white !important;
+}
+
+.connector__line {
+  fill: none;
+}
+
+.connector__line--mask {
+  stroke-dashoffset: 0 !important;
+}
+
+.connector__line--layer {
+  stroke-dasharray: 1 !important;
+}
+
+marker {
+  display: none;
+  stroke: none;
+}
+
 /*# sourceMappingURL=main.css.map */

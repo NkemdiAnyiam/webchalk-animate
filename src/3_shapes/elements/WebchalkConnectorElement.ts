@@ -1,10 +1,11 @@
 import { CustomErrorClasses } from "../../5_utils/errors";
 import { equalWithinTol, getBoundingClientRectOfHidden, parseMultiUnitPlacement } from "../../5_utils/helpers";
 import { DOMElement, MultiUnitOrderedPairString, ParsedMultiUnitPlacement } from "../../5_utils/interfaces";
+import { stylesheet } from "../../styles/componentStyleSheet";
 import { ShapeFactoryFunctions } from "../ShapeFactoryFunctions";
 
-const stylesheet = new CSSStyleSheet();
-stylesheet.replaceSync(
+const hostStyleSheet = new CSSStyleSheet();
+hostStyleSheet.replaceSync(
   /*css*/`:host {
     /* marker opacity property registered in injectGlobals() */
     --marker-a-opacity: 1;
@@ -18,42 +19,6 @@ stylesheet.replaceSync(
     line-height: 0 !important;
     display: initial;
     pointer-events: none;
-  }
-  
-  .connector__svg {
-    pointer-events: all;
-    visibility: hidden !important;
-    overflow: visible !important;
-  }
-        
-  .connector__g-body {
-    visibility: initial;
-  }
-  
-  .connector__mask-group {
-    stroke: white !important;
-    fill: white !important;
-  }
-  
-  .connector__layer-group {
-            
-  }
-  
-  .connector__line {
-    fill: none;
-  }
-  
-  .connector__line--mask {
-    stroke-dashoffset: 0 !important;
-  }
-  
-  .connector__line--layer {
-    stroke-dasharray: 1 !important;
-  }
-  
-  marker {
-    display: none;
-    stroke: none;
   }`
 );
 
@@ -349,7 +314,7 @@ export class WebchalkConnectorElement extends HTMLElement {
     super();
     this.connectorId = WebchalkConnectorElement.staticId++;
     const shadow = this.attachShadow({mode: 'open'});
-    shadow.adoptedStyleSheets = [stylesheet];
+    shadow.adoptedStyleSheets = [hostStyleSheet, stylesheet];
 
     const markerIdPrefix = `markerArrow--${this.connectorId}`;
     this.markerIdPrefix = markerIdPrefix;
