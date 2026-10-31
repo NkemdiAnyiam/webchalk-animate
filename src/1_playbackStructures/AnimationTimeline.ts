@@ -326,7 +326,6 @@ export class AnimTimeline {
   }
 
   private loadedSeqIndex = 0; // index into animSequences
-  // CHANGE NOTE: AnimTimeline now stores references to in-progress sequences and also does not act directly on individual animations
   private inProgressSequences: Map<number, AnimSequence> = new Map();
 
   // GROUP: Status

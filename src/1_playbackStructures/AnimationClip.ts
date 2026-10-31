@@ -1683,7 +1683,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
             catch (_) {
               // attempt to override the hidden state and apply the style.
               try {
-                domElem.classList.add('webchalk-force-show'); // CHANGE NOTE: Use new hidden classes
+                domElem.classList.add('webchalk-force-show');
                 animation.commitStyles();
                 animation.effect?.updateTiming({ fill: 'none' });
                 domElem.classList.remove('webchalk-force-show');

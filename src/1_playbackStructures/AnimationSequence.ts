@@ -363,7 +363,6 @@ export class AnimSequence {
   private animClipGroupings_endDelayFinishOrder: AnimClip[][] = [];
   private animClipGroupings_backwardActiveFinishOrder: AnimClip[][] = [];
   private animClip_forwardGroupings: AnimClip[][] = [[]];
-  // CHANGE NOTE: AnimSequence now stores references to all in-progress clips
   private inProgressClips: Map<number, AnimClip> = new Map();
   
   private fullyFinished: FullyFinishedPromise<this> = this.getNewFullyFinished();
