@@ -6,6 +6,15 @@
   --hem: 10px;
 }
 
+.timeline, .playback-buttons-container {
+  --color-primary-blue: #04448E;
+  --color-gray-darkest: #121213;
+  --color-gray: #4E4E4E;
+  --color-gray-light: #E0E0E0;
+  --color-gray-lighter: #ECECEC;
+  --color-gray-lightest: #F7F7F7;
+}
+
 *,
 *::before,
 *::after {
@@ -308,11 +317,6 @@ button {
   --color-glow-blue-light: #70efef;
   --color-glow-error: var(--color-error-dark);
   --color-glow-error-light: var(--color-error-light);
-  --color-gray-darkest: #121213;
-  --color-gray: #4E4E4E;
-  --color-gray-light: #E0E0E0;
-  --color-gray-lighter: #ECECEC;
-  --color-gray-lightest: #F7F7F7;
   --color-entrance-light: #9AFF9A;
   --color-entrance-dark: #004900;
   --color-entrance-darkest: #002700;
@@ -1718,6 +1722,79 @@ code {
 .phase-segment__empty-list-note {
   padding-left: calc(0.4 * var(--hem));
   font-style: italic;
+}
+
+.playback-button {
+  width: 25.6px;
+  height: 25.6px;
+  background-color: var(--webchalk-playback-button-background-color);
+  border: 1.4px solid var(--webchalk-playback-button-background-color);
+  border-radius: 2px;
+  padding: 1.8px !important;
+  box-shadow: 3.2px 3.2px 3.2px rgba(0, 0, 0, 0.4);
+  transform: scale(1);
+  transition: all 0.02s;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.playback-button--disabledPointerFromPause,
+.playback-button--disabledPointerFromStepping {
+  cursor: not-allowed;
+}
+
+.playback-button--disabledFromTimelineEdge,
+.playback-button--disabledFromPause,
+.playback-button--disabledFromStepping {
+  background-color: var(--webchalk-playback-button-disabled-color);
+  cursor: not-allowed;
+}
+
+.playback-button--pressed {
+  transform: scale(0.9);
+  box-shadow: 0.64px 0.64px 0.64px rgba(0, 0, 0, 0.8);
+}
+
+:host([trigger=press]) .playback-button--pressed {
+  background-color: var(--webchalk-playback-button-press-color);
+}
+
+:host([trigger=hold]) .playback-button--pressed {
+  background-color: var(--webchalk-playback-button-hold-color);
+}
+
+.playback-button__symbol {
+  width: 100%;
+  height: auto;
+  fill: var(--webchalk-playback-button-symbol-color);
+}
+
+.playback-buttons-container {
+  /* TODO: conditionally set the positioning properties depending on where a set of playback buttons is inserted
+  (likely with docking) */
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  z-index: calc(infinity);
+  padding: 6px 8px;
+  /* background-color: color-mix(in srgb, var(--color-primary-blue) 30%, transparent); */
+  background-color: var(--color-primary-blue);
+  border: 4px solid var(--color-gray-darkest);
+  opacity: 0.4;
+  transition: opacity 0.1s;
+  transform-origin: bottom left;
+}
+
+.playback-buttons-container:hover,
+.playback-buttons-container:focus-within {
+  opacity: 1;
+}
+
+.playback-buttons-container__inner-wrapper {
+  background-color: var(--color-gray-lightest);
+  padding: 6px;
+  display: flex;
+  gap: 6px;
 }
 
 /*# sourceMappingURL=main.css.map */

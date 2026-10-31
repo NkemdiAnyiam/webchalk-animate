@@ -6,6 +6,15 @@
   }
 }
 
+.timeline, .playback-buttons-container {
+  --color-primary-blue: #04448E;
+  --color-gray-darkest: #121213;
+  --color-gray: #4E4E4E;
+  --color-gray-light: #E0E0E0;
+  --color-gray-lighter: #ECECEC;
+  --color-gray-lightest: #F7F7F7;
+}
+
 *,
 *::before,
 *::after {

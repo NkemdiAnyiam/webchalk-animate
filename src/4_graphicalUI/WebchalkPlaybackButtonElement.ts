@@ -1,57 +1,10 @@
+import { stylesheet } from "../styles/componentStyleSheet";
 import { KeyboardKey } from "../5_utils/interfaces";
 
-const stylesheet = new CSSStyleSheet();
-stylesheet.replaceSync(
+const hostStyleSheet = new CSSStyleSheet();
+hostStyleSheet.replaceSync(
   /*css*/`:host {
     display: inline-block;
-  }
-
-  .playback-button {
-    width: 25.6px;
-    height: 25.6px;
-    background-color: var(--webchalk-playback-button-background-color);
-    border: 1.4px solid var(--webchalk-playback-button-background-color);
-    border-radius: 2px;
-    padding: 1.8px !important;
-  
-    box-shadow: 3.2px 3.2px 3.2px rgba(0, 0, 0, 0.4);
-    transform: scale(1);
-    transition: all 0.02s;
-  
-    cursor: pointer;
-    
-    display: inline-block;
-  }
-  
-  .playback-button--disabledPointerFromPause,
-  .playback-button--disabledPointerFromStepping {
-    cursor: not-allowed;
-  }
-  
-  .playback-button--disabledFromTimelineEdge,
-  .playback-button--disabledFromPause,
-  .playback-button--disabledFromStepping {
-    background-color: var(--webchalk-playback-button-disabled-color);
-    cursor: not-allowed;
-  }
-  
-  .playback-button--pressed {
-    transform: scale(0.90);
-    box-shadow: 0.64px 0.64px 0.64px rgba(0, 0, 0, 0.8);
-  }
-  
-  :host([trigger="press"]) .playback-button--pressed {
-    background-color: var(--webchalk-playback-button-press-color);
-  }
-  
-  :host([trigger="hold"]) .playback-button--pressed {
-    background-color: var(--webchalk-playback-button-hold-color);
-  }
-  
-  .playback-button__symbol {
-    width: 100%;
-    height: auto;
-    fill: var(--webchalk-playback-button-symbol-color);
   }`
 );
 
@@ -92,7 +45,7 @@ export class WebchalkPlaybackButtonElement extends HTMLElement {
   constructor() {
     super();
     const shadow = this.attachShadow({mode: 'open'});
-    shadow.adoptedStyleSheets = [stylesheet];
+    shadow.adoptedStyleSheets = [hostStyleSheet, stylesheet];
     
     this.shortcutKey = this.getAttribute('shortcut') ?? null;
     this.allowHolding = this.hasAttribute('allow-holding');
