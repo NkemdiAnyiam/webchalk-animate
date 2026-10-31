@@ -1,7 +1,7 @@
 node_modules
 dist
 dist-dev
-**/templates/styles/css
+**/src/styles/css
 **/tarballs
 typedoc-config/assets/plugins
 typedoc-config/assets/styles/**
