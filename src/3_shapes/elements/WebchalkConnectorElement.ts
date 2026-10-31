@@ -352,16 +352,16 @@ export class WebchalkConnectorElement extends HTMLElement {
         <g class="connector__g-body">
           <mask id="${maskId}" maskUnits="userSpaceOnUse">
             <g class="connector__mask-group">
-              <marker id="${markerIdPrefix}-a--mask" orient="auto-start-reverse"></marker>
-              <marker id="${markerIdPrefix}-b--mask" orient="auto"></marker>
+              <marker id="${markerIdPrefix}-a--mask" class="connector__marker" orient="auto-start-reverse"></marker>
+              <marker id="${markerIdPrefix}-b--mask" class="connector__marker" orient="auto"></marker>
 
               <line class="connector__line connector__line--mask" />
             </g>
           </mask>
 
           <g mask="url(#${maskId})" class="connector__layer-group">
-            <marker id="${markerIdPrefix}-a--layer" orient="auto-start-reverse"></marker>
-            <marker id="${markerIdPrefix}-b--layer" orient="auto"></marker>
+            <marker id="${markerIdPrefix}-a--layer" class="connector__marker" orient="auto-start-reverse"></marker>
+            <marker id="${markerIdPrefix}-b--layer" class="connector__marker" orient="auto"></marker>
 
             <line class="connector__line connector__line--layer" pathLength="1" />
           </g>
@@ -484,6 +484,7 @@ export class WebchalkConnectorElement extends HTMLElement {
     const oldMarkerEl = this.gBody.querySelector(`marker#${this.markerIdPrefix}-${lCase}--layer`) as SVGMarkerElement;
     const newMarkerStr = /*html*/`
       <marker
+        class="connector__marker"
         id="${this.markerIdPrefix}-${lCase}--layer"
         markerWidth="${markerWidth}" markerHeight="${markerHeight}"
         refX="${markerWidth}" refY="${markerHeight/2}" orient=${uCase === 'A' ? 'auto-start-reverse' : 'auto'}
@@ -500,6 +501,7 @@ export class WebchalkConnectorElement extends HTMLElement {
     const oldMarkerMaskEl = this.gBody.querySelector(`marker#${this.markerIdPrefix}-${lCase}--mask`) as SVGMarkerElement;
     const newMarkerMaskStr = /*html*/`
       <marker
+        class="connector__marker"
         id="${this.markerIdPrefix}-${lCase}--mask"
         markerWidth="${markerWidth}" markerHeight="${markerHeight}"
         refX="${0}" refY="${markerHeight/2}" orient=${uCase === 'A' ? 'auto-start-reverse' : 'auto'}
