@@ -66,8 +66,6 @@ type CustomKeyframeEffectOptions = {
    */
   startsWithPrevious: boolean;
 
-  // TODO: figure out best way to handle commitStyles behavior regarding effects that
-  // don't actually need to use commitStyles()
   /**
    * Determines whether the effects of the animation will persist after the clip finishes.
    *  * If `false`, the effects of the animation will not persist after the clip finishes.
@@ -1688,7 +1686,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
                 animation.effect?.updateTiming({ fill: 'none' });
                 domElem.classList.remove('webchalk-force-show');
               }
-              // If this fails, then the element's parent is hidden. Do not attempt to remedy; throw error instead.
+              // If this fails, then the element's parent is hidden. Do not attempt to remedy—just throw error instead.
               catch (err: unknown) {
                 const reasons = [];
                 if (getComputedStyle(domElem).display === 'none') {
@@ -1703,8 +1701,9 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
                 }
                 throw this.generateError(CustomErrorClasses.CommitStylesError,
                   [detab`Failed to commit styles on the element while it was unrendered.\
-                  Animation styles normally cannot be saved on unrendered elements in JavaScript, but Webchalk allows it ONLY IF\
-                  the element is unrendered due to having the CSS class "webchalk-display-none". If there is ANY other reason\
+                  Animation styles that contain normal keyframes normally cannot be saved\
+                  on unrendered elements in JavaScript, but Webchalk allows it ONLY IF\
+                  the cause of the element being unrendered is having the CSS class "webchalk-display-none". If there is ANY other reason\
                   for the element not being rendered, the styles cannot be committed.
                   Detected reasons:\n`
                   + reasons.map((reason, index) => `    ${index + 1}) ${reason}`).join('\n')],
