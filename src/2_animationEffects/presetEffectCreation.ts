@@ -1,11 +1,11 @@
 import { AnimClip } from "../1_playbackStructures/AnimationClip";
 import { EmphasisClip, EntranceClip, ExitClip, Layer4MutableConfig, MotionClip, TextEditorClip } from "../1_playbackStructures/AnimationClipCategories";
-import { DOMElement, Keyframes, Mutator } from "../4_utils/interfaces";
-import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord, StrictPropertyCheck, StrictReturnPropertyCheck, PrettifyCustomError, ErrorCheckJoiner, ValidationBloat } from "../4_utils/utilityTypes";
+import { DOMElement, Keyframes, Mutator } from "../5_utils/interfaces";
+import { StripDuplicateMethodAutocompletion, ReadonlyPick, ReadonlyRecord, StrictPropertyCheck, StrictReturnPropertyCheck, PrettifyCustomError, ErrorCheckJoiner, ValidationBloat } from "../5_utils/utilityTypes";
 import { AnimClipConfig } from "../1_playbackStructures/AnimationClip";
 import { webchalk } from "../Webchalk";
-import { deepFreeze } from "../4_utils/helpers";
-import { DEFAULT_CONFIG_ERROR, IMMUTABLE_CONFIG_ERROR, EFFECT_FRAME_GENERATORS_RETURN_ERROR_PRIMITIVE, EFFECT_FRAME_GENERATORS_RETURN_ERROR_PROPERTIES, EFFECT_FRAME_GENERATORS_RETURN_ERROR_KEYFRAMES_RW, EFFECT_FRAME_GENERATORS_RETURN_ERROR_MUTATOR_RW } from "../4_utils/errors";
+import { deepFreeze } from "../5_utils/helpers";
+import { DEFAULT_CONFIG_ERROR, IMMUTABLE_CONFIG_ERROR, EFFECT_FRAME_GENERATORS_RETURN_ERROR_PRIMITIVE, EFFECT_FRAME_GENERATORS_RETURN_ERROR_PROPERTIES, EFFECT_FRAME_GENERATORS_RETURN_ERROR_KEYFRAMES_RW, EFFECT_FRAME_GENERATORS_RETURN_ERROR_MUTATOR_RW } from "../5_utils/errors";
 
 /**
  * An object containing up to 4 callback functions that will be called to

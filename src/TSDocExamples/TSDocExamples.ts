@@ -500,7 +500,7 @@ clip3.play(); // triangle transitions FROM 0 opacity to its current opacity
 /**** EX:S id="ConnectorEntranceClip.example" */
 // retrieve connector entrance clip factory function and connector factory function
 const { ConnectorEntrance } = webchalk.createAnimationClipFactories();
-const { drawConnector } = webchalk.shapeFactories;
+const { drawConnector } = webchalk.shapes;
 
 // select elements from the DOM
 const circle1 = document.querySelector('.circle--left');
@@ -2033,7 +2033,7 @@ const clip3 = Transition(square, '~to', [{width: '200px'}], {duration: 0.5, remo
 
 {
 /**** EX:S id="drawConnector.example" */
-const { drawConnector } = webchalk.shapeFactories;
+const { drawConnector } = webchalk.shapes;
 
 // SELECT ELEMENTS FROM THE SCREEN
 const square = document.querySelector('.square');

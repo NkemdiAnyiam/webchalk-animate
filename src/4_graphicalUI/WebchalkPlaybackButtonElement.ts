@@ -1,4 +1,4 @@
-import { KeyboardKey } from "../4_utils/interfaces";
+import { KeyboardKey } from "../5_utils/interfaces";
 
 const stylesheet = new CSSStyleSheet();
 stylesheet.replaceSync(

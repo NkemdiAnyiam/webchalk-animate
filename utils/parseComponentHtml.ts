@@ -8,8 +8,8 @@ const htmlFileNames = [
   'timeline-pane',
 ];
 
-const htmlFolderPath = `${__dirname}/../src/3_components/pane-ui/templates/html`;
-const tsFolderPath = `${__dirname}/../src/3_components/pane-ui/templates/ts`
+const htmlFolderPath = `${__dirname}/../src/4_graphicalUI/pane-ui/templates/html`;
+const tsFolderPath = `${__dirname}/../src/4_graphicalUI/pane-ui/templates/ts`
 
 for (const htmlFileName of htmlFileNames) {
   fs.readFile(

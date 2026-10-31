@@ -1,4 +1,4 @@
 export {
   CustomErrorClasses,
   generateError,
-} from "../4_utils/errors";
+} from "../5_utils/errors";

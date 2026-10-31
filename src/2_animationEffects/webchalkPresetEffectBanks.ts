@@ -11,10 +11,10 @@ import {
 } from "../1_playbackStructures/AnimationClipCategories";
 import { webchalk } from "../Webchalk";
 import { definePresetEffectBank, formatBank, PresetEffectBank } from "./presetEffectCreation";
-import { computeSelfScrollingBounds, constructInfixTextNodeList, createRootNodeEditStats, deepFreeze, getBoundingClientRectOfHidden, infixTextDelete, infixTextInsert, negateNumString, numCharsInNode, numWordsInNode, parseXYAlignmentString, parseXYTupleString, WORDS_REGEX } from "../4_utils/helpers";
-import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions, Keyframes, RootNodeEditStats, InfixTextNodeList, TextNodeDatum, TextEditOptions } from "../4_utils/interfaces";
+import { computeSelfScrollingBounds, constructInfixTextNodeList, createRootNodeEditStats, deepFreeze, getBoundingClientRectOfHidden, infixTextDelete, infixTextInsert, negateNumString, numCharsInNode, numWordsInNode, parseXYAlignmentString, parseXYTupleString, WORDS_REGEX } from "../5_utils/helpers";
+import { MoveToOptions, TranslateOptions, CssLengthUnit, ScrollingOptions, Keyframes, RootNodeEditStats, InfixTextNodeList, TextNodeDatum, TextEditOptions } from "../5_utils/interfaces";
 import { useEasing } from "./easing";
-import { CustomErrorClasses } from "../4_utils/errors";
+import { CustomErrorClasses } from "../5_utils/errors";
 export type {
   WebchalkPresetEntranceEffects as EntranceEffects,
   WebchalkPresetConnectorEntranceEffects as ConnectorEntranceEffects,

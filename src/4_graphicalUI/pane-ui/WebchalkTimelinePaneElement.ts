@@ -4,7 +4,7 @@ import { AnimTimeline } from '../../1_playbackStructures/AnimationTimeline';
 import { AnimSequence } from '../../1_playbackStructures/AnimationSequence';
 import { htmlComponentStr } from './templates/ts/timelinePane';
 
-import { createElFromString, escapeHtml, highlightCodeEls, repositionPopover } from '../../4_utils/helpers';
+import { createElFromString, escapeHtml, highlightCodeEls, repositionPopover } from '../../5_utils/helpers';
 // import { defaultClipFactories } from './src/Webchalk';
 import { AnimClip } from '../../1_playbackStructures/AnimationClip';
 import { WebchalkClipElement } from './WebchalkClipElement';

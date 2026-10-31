@@ -7,23 +7,17 @@ import {
 } from "./1_playbackStructures/AnimationClipCategories";
 import { AnimSequence, AnimSequenceConfig } from "./1_playbackStructures/AnimationSequence";
 import { AnimTimeline, AnimTimelineConfig } from "./1_playbackStructures/AnimationTimeline";
-import { DrawConnector, WebchalkConnectorElement } from "./3_components/WebchalkConnectorElement";
+import { WebchalkConnectorElement } from "./3_shapes/elements/WebchalkConnectorElement";
 import {
   libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions,
   libPresetConnectorEntrances, libPresetConnectorExits, libPresetScrolls, libPresetTransitions,
   libPresetTextEdits
 } from "./2_animationEffects/webchalkPresetEffectBanks";
-import { DOMElement, ScrollingOptions } from "./4_utils/interfaces";
+import { DOMElement, ScrollingOptions } from "./5_utils/interfaces";
 import { PresetEffectBank, EffectNameIn, PresetEffectDefinition, EffectOptions, definePresetEffectBank, ExtendableBankCategoryToClipType, PresetEffectBankToCategory, definePresetEffect } from "./2_animationEffects/presetEffectCreation";
-// import { StrictPropertyCheck } from "./4_utils/utilityTypes";
-// import { DEFAULT_CONFIG_ERROR, IMMUTABLE_CONFIG_ERROR } from "./4_utils/errors";
-
-/**
- * An object containing functions that can be used to create specific HTML components (such as connectors).
- */
-export interface ShapeFactories extends DrawConnector {
-
-}
+import { ShapeFactoryFunctions, shapeFactoryFunctions } from "./3_shapes/ShapeFactoryFunctions";
+// import { StrictPropertyCheck } from "./5_utils/utilityTypes";
+// import { DEFAULT_CONFIG_ERROR, IMMUTABLE_CONFIG_ERROR } from "./5_utils/errors";
 
 /**
  * @hideconstructor
@@ -658,7 +652,7 @@ export class Webchalk {
        * ```ts
        * // retrieve connector entrance clip factory function and connector factory function
        * const { ConnectorEntrance } = webchalk.createAnimationClipFactories();
-       * const { drawConnector } = webchalk.shapeFactories;
+       * const { drawConnector } = webchalk.shapes;
        * 
        * // select elements from the DOM
        * const circle1 = document.querySelector('.circle--left');
@@ -829,11 +823,10 @@ export class Webchalk {
   }
 
   /**
-   * An object containing functions that can be used to create specific HTML components (such as connectors).
+   * An object containing various functions that can be used to create
+   * WebChalk's custom HTML elements (such as {@link WebchalkConnectorElement}).
    */
-  readonly shapeFactories: ShapeFactories = {
-    drawConnector: WebchalkConnectorElement.create,
-  };
+  readonly shapes: ShapeFactoryFunctions = shapeFactoryFunctions;
 
   /**@internal*/
   scrollAnchorsStack: [target: Element, scrollOptions: ScrollingOptions][] = [];

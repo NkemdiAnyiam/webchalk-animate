@@ -3,8 +3,8 @@ import { stylesheet } from './componentStyleSheet';
 import { htmlComponentStr } from './templates/ts/clip';
 
 import { AnimClip } from '../../1_playbackStructures/AnimationClip';
-import { TBA_DURATION } from '../../4_utils/helpers';
-import { EffectCategory } from '../../4_utils/interfaces';
+import { TBA_DURATION } from '../../5_utils/helpers';
+import { EffectCategory } from '../../5_utils/interfaces';
 import { WebchalkSequenceElement } from './WebchalkSequenceElement';
 import { WebchalkClipInfoBoxElement } from './WebchalkClipInfoBoxElement';
 import { WebchalkPhaseSegmentElement } from './WebchalkPhaseSegmentElement';

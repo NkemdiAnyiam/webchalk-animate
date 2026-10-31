@@ -1,7 +1,7 @@
-import { CustomErrorClasses } from "../4_utils/errors";
-import { equalWithinTol, getBoundingClientRectOfHidden, parseMultiUnitPlacement } from "../4_utils/helpers";
-import { DOMElement, MultiUnitOrderedPairString, ParsedMultiUnitPlacement } from "../4_utils/interfaces";
-import { ShapeFactories } from "../Webchalk";
+import { CustomErrorClasses } from "../../5_utils/errors";
+import { equalWithinTol, getBoundingClientRectOfHidden, parseMultiUnitPlacement } from "../../5_utils/helpers";
+import { DOMElement, MultiUnitOrderedPairString, ParsedMultiUnitPlacement } from "../../5_utils/interfaces";
+import { ShapeFactoryFunctions } from "../ShapeFactoryFunctions";
 
 const stylesheet = new CSSStyleSheet();
 stylesheet.replaceSync(
@@ -58,7 +58,9 @@ stylesheet.replaceSync(
 );
 
 /**
- * An object containing configuration options to define the styling, location, and behavior of the new connector.
+ * An object containing configuration options to define the styling, location, and behavior of a new connector.
+ * 
+ * @see {@link ShapeFactoryFunctions.drawConnector}
  * 
  * @category Interfaces
  * @interface
@@ -83,8 +85,6 @@ export type DrawConnectorConfig = {
    * ```ts
    * true
    * ```
-   * 
-   * @category Subtypes
    */
   autoRedrawEnabled: boolean;
   /**
@@ -125,7 +125,7 @@ export type ConnectorMarkerDimensions = {
    * 
    * @defaultValue
    * ```ts
-   * '5px'
+   * '10px'
    * ```
    */
   width?: `${number}${'px'}`;
@@ -135,7 +135,7 @@ export type ConnectorMarkerDimensions = {
    *  * `{height: '10px'}`
    * @defaultValue
    * ```ts
-   * '7px'
+   * '10px'
    * ```
    */
   height?: `${number}${'px'}`;
@@ -150,7 +150,15 @@ export type ConnectorMarkerDimensions = {
   // scaleWithStrokeWidth?: boolean;
 };
 
-export interface DrawConnector {
+/**
+ * Represents an object containing any factory functions for creating new {@link WebchalkConnectorElement} instances.
+ * To see all other shape factory functions, explore {@link ShapeFactoryFunctions}.
+ * 
+ * @see {@link ShapeFactoryFunctions}
+ * 
+ * @category Factory Functions
+ */
+export interface ShapeFactoryFunctions_Connector {
   /**
    * Factory function for creating a new {@link WebchalkConnectorElement}.
    * By default, the new connector will automatically be attached to the DOM.
@@ -166,7 +174,7 @@ export interface DrawConnector {
    * @example
    * <!-- EX:S id="drawConnector.example" code-type="ts" -->
    * ```ts
-   * const { drawConnector } = webchalk.shapeFactories;
+   * const { drawConnector } = webchalk.shapes;
    * 
    * // SELECT ELEMENTS FROM THE SCREEN
    * const square = document.querySelector('.square');
@@ -211,12 +219,12 @@ export interface DrawConnector {
 export type ConnectorPoint = [element: DOMElement, placement: MultiUnitOrderedPairString];
 
 /**
- * A tuple representing an endpoint for a {@link WebchalkConnectorElement}. Used in {@link ShapeFactories.drawConnector}.
+ * A tuple representing an endpoint for a {@link WebchalkConnectorElement}. Used in {@link ShapeFactoryFunctions.drawConnector}.
  *  * The first entry of the tuple is the element that will be pointed at.
  *  * The second entry of the tuple is a string ({@link MultiUnitOrderedPairString})
  * representing the offset of the point with respect to the element.
  * 
- * @see {@link ShapeFactories.drawConnector}
+ * @see {@link ShapeFactoryFunctions.drawConnector}
  * 
  * @category Subtypes
  */
@@ -227,8 +235,8 @@ export class WebchalkConnectorElement extends HTMLElement {
   private static staticId: number = 0;
   private static observedAttributes = ['tracking-disabled', 'marker-a', 'marker-b'];
 
-  /** @see {@link ShapeFactories.drawConnector} */
-  static create<T extends Parameters<DrawConnector['drawConnector']>>(pointA: T[0], pointB: T[1], config: T[2] = {}): WebchalkConnectorElement {
+  /** @see {@link ShapeFactoryFunctions.drawConnector} */
+  static create<T extends Parameters<ShapeFactoryFunctions_Connector['drawConnector']>>(pointA: T[0], pointB: T[1], config: T[2] = {}): WebchalkConnectorElement {
     const newConnector = new WebchalkConnectorElement();
     newConnector.setPoints({A: pointA, B: pointB});
 

@@ -1,9 +1,9 @@
 import { AnimClip, PromiseWithId, ScheduledTask } from "./AnimationClip";
-import { CustomErrorClasses, ClipErrorGenerator } from "../4_utils/errors";
-import { DOMElement, Keyframes } from "../4_utils/interfaces";
+import { CustomErrorClasses, ClipErrorGenerator } from "../5_utils/errors";
+import { DOMElement, Keyframes } from "../5_utils/interfaces";
 import { useEasing } from "../2_animationEffects/easing";
-import { detab, equalWithinTol, generateId, PERCENTAGE_REGEX, RELATIVE_TIME_POSITION_REGEX, TBA_DURATION } from "../4_utils/helpers";
-import { WebchalkPhaseSegmentElement } from "../3_components/pane-ui/WebchalkPhaseSegmentElement";
+import { detab, equalWithinTol, generateId, PERCENTAGE_REGEX, RELATIVE_TIME_POSITION_REGEX, TBA_DURATION } from "../5_utils/helpers";
+import { WebchalkPhaseSegmentElement } from "../4_graphicalUI/pane-ui/WebchalkPhaseSegmentElement";
 
 abstract class WebchalkAnimationBase extends Animation {
   forwardEffect: KeyframeEffect;

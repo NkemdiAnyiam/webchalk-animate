@@ -1,4 +1,4 @@
-import { Union } from "../4_utils/utilityTypes";
+import { Union } from "../5_utils/utilityTypes";
 
 /**
  * Custom preset easing strings.

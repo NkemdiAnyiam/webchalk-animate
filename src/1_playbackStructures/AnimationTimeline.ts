@@ -1,11 +1,11 @@
 import { AnimSequence } from "./AnimationSequence";
-import { CustomErrorClasses, errorTip, generateError, TimelineErrorGenerator, ErrorUIMessageFragments } from "../4_utils/errors";
-import { createElFromString, getPartial, xor } from "../4_utils/helpers";
-import { PickFromArray } from "../4_utils/utilityTypes";
-import { WebchalkPlaybackButtonElement } from "../3_components/WebchalkPlaybackButtonElement";
+import { CustomErrorClasses, errorTip, generateError, TimelineErrorGenerator, ErrorUIMessageFragments } from "../5_utils/errors";
+import { createElFromString, getPartial, xor } from "../5_utils/helpers";
+import { PickFromArray } from "../5_utils/utilityTypes";
+import { WebchalkPlaybackButtonElement } from "../4_graphicalUI/WebchalkPlaybackButtonElement";
 import { /*defaultClipFactories,*/ webchalk } from "../Webchalk";
-import { WebchalkTimelinePaneElement } from "../3_components/pane-ui/WebchalkTimelinePaneElement";
-import { KeyboardKey } from "../4_utils/interfaces";
+import { WebchalkTimelinePaneElement } from "../4_graphicalUI/pane-ui/WebchalkTimelinePaneElement";
+import { KeyboardKey } from "../5_utils/interfaces";
 
 // TYPE
 /**

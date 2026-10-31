@@ -14,7 +14,7 @@ const {
 
 const {
   drawConnector
-} = webchalk.shapeFactories;
+} = webchalk.shapes;
 
 const redSquare = document.querySelector('.square');
 const blueCircle = document.querySelector('.circle');

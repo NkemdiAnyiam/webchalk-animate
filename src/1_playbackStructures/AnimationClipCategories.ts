@@ -1,10 +1,10 @@
 import { AnimClip, AnimClipConfig, AnimClipModifiers, AnimClipTiming } from "./AnimationClip";
-import { CustomErrorClasses, errorTip, ErrorUIMessageFragments } from "../4_utils/errors";
-import { createCodeEl, createDetailsEl, fragment, getPartial, TBA_DURATION, createUListEl } from "../4_utils/helpers";
+import { CustomErrorClasses, errorTip, ErrorUIMessageFragments } from "../5_utils/errors";
+import { createCodeEl, createDetailsEl, fragment, getPartial, TBA_DURATION, createUListEl } from "../5_utils/helpers";
 import { Webchalk } from "../Webchalk";
-import { DOMElement, MultiUnitOrderedPairString, RootNodeEditStats, TextEditRate } from "../4_utils/interfaces";
-import { PickFromArray } from "../4_utils/utilityTypes";
-import { DrawConnectorConfig, WebchalkConnectorElement } from "../3_components/WebchalkConnectorElement";
+import { DOMElement, MultiUnitOrderedPairString, RootNodeEditStats, TextEditRate } from "../5_utils/interfaces";
+import { PickFromArray } from "../5_utils/utilityTypes";
+import { DrawConnectorConfig, WebchalkConnectorElement } from "../3_shapes/elements/WebchalkConnectorElement";
 import { PresetEffectDefinition, PresetEffectBank, EffectOptions, Layer3MutableClipConfig, EffectNameIn } from "../2_animationEffects/presetEffectCreation";
 import { libPresetEntrances, libPresetExits, libPresetEmphases, libPresetMotions, libPresetConnectorEntrances, libPresetConnectorExits, libPresetTransitions, libPresetScrolls, libPresetTextEdits } from "../2_animationEffects/webchalkPresetEffectBanks";
 
@@ -997,7 +997,7 @@ export interface ConnectorEntranceClipModifiers extends AnimClipModifiers, Pick<
  * ```ts
  * // retrieve connector entrance clip factory function and connector factory function
  * const { ConnectorEntrance } = webchalk.createAnimationClipFactories();
- * const { drawConnector } = webchalk.shapeFactories;
+ * const { drawConnector } = webchalk.shapes;
  * 
  * // select elements from the DOM
  * const circle1 = document.querySelector('.circle--left');
@@ -1290,7 +1290,7 @@ export interface ConnectorExitClipConfig extends AnimClipConfig {
  * ```ts
  * // retrieve connector entrance clip factory function and connector factory function
  * const { ConnectorEntrance } = webchalk.createAnimationClipFactories();
- * const { drawConnector } = webchalk.shapeFactories;
+ * const { drawConnector } = webchalk.shapes;
  * 
  * // select elements from the DOM
  * const circle1 = document.querySelector('.circle--left');

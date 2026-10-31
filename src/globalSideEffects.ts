@@ -1,11 +1,11 @@
-import { createElFromString, createStyles } from "./4_utils/helpers";
-import { WebchalkConnectorElement } from "./3_components/WebchalkConnectorElement";
-import { WebchalkPlaybackButtonElement } from "./3_components/WebchalkPlaybackButtonElement";
-import { WebchalkClipElement } from "./3_components/pane-ui/WebchalkClipElement";
-import { WebchalkClipInfoBoxElement } from "./3_components/pane-ui/WebchalkClipInfoBoxElement";
-import { WebchalkSequenceElement } from "./3_components/pane-ui/WebchalkSequenceElement";
-import { WebchalkTimelinePaneElement } from "./3_components/pane-ui/WebchalkTimelinePaneElement";
-import { WebchalkPhaseSegmentElement } from "./3_components/pane-ui/WebchalkPhaseSegmentElement";
+import { createElFromString, createStyles } from "./5_utils/helpers";
+import { WebchalkConnectorElement } from "./3_shapes/elements/WebchalkConnectorElement";
+import { WebchalkPlaybackButtonElement } from "./4_graphicalUI/WebchalkPlaybackButtonElement";
+import { WebchalkClipElement } from "./4_graphicalUI/pane-ui/WebchalkClipElement";
+import { WebchalkClipInfoBoxElement } from "./4_graphicalUI/pane-ui/WebchalkClipInfoBoxElement";
+import { WebchalkSequenceElement } from "./4_graphicalUI/pane-ui/WebchalkSequenceElement";
+import { WebchalkTimelinePaneElement } from "./4_graphicalUI/pane-ui/WebchalkTimelinePaneElement";
+import { WebchalkPhaseSegmentElement } from "./4_graphicalUI/pane-ui/WebchalkPhaseSegmentElement";
 
 export function injectGlobals() {
   WebchalkConnectorElement.addToCustomElementRegistry();

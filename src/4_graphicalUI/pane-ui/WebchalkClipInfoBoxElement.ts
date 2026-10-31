@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import { stylesheet } from './componentStyleSheet';
 import { htmlComponentStr } from './templates/ts/clipInfoBox';
 
-import { clamp, createCodeEl, createElFromString, dequoteJSON, escapeHtml, getOpeningTag, highlightCodeEls, numToOrdinal } from '../../4_utils/helpers';
+import { clamp, createCodeEl, createElFromString, dequoteJSON, escapeHtml, getOpeningTag, highlightCodeEls, numToOrdinal } from '../../5_utils/helpers';
 /** @ts-ignore */
 import { AnimClip } from '../../1_playbackStructures/AnimationClip';
 

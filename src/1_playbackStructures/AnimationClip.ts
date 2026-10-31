@@ -3,14 +3,14 @@ import { AnimTimeline } from "./AnimationTimeline";
 import { EntranceClip, MotionClip, TransitionClip } from "./AnimationClipCategories";
 import { webchalk, Webchalk } from "../Webchalk";
 import { EffectOptions, PresetEffectBank, PresetEffectDefinition, EffectFrameGeneratorSet } from "../2_animationEffects/presetEffectCreation";
-import { call, deepComparison, detab, getPartial, mergeArrays, TBA_DURATION, xor } from "../4_utils/helpers";
+import { call, deepComparison, detab, getPartial, mergeArrays, TBA_DURATION, xor } from "../5_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
-import { CustomErrorClasses, ClipErrorGenerator, errorTip, generateError, ErrorUIMessageFragments } from "../4_utils/errors";
-import { DOMElement, EffectCategory, Mutator, StyleProperty } from "../4_utils/interfaces";
-import { WebchalkConnectorElement } from "../3_components/WebchalkConnectorElement";
+import { CustomErrorClasses, ClipErrorGenerator, errorTip, generateError, ErrorUIMessageFragments } from "../5_utils/errors";
+import { DOMElement, EffectCategory, Mutator, StyleProperty } from "../5_utils/interfaces";
+import { WebchalkConnectorElement } from "../3_shapes/elements/WebchalkConnectorElement";
 import { WebchalkAnimation, NestedWebchalkAnimation } from "./WebchalkAnimation";
-import { PartialPick, PickFromArray, WithRequired } from "../4_utils/utilityTypes";
-import { WebchalkClipElement } from "../3_components/pane-ui/WebchalkClipElement";
+import { PartialPick, PickFromArray, WithRequired } from "../5_utils/utilityTypes";
+import { WebchalkClipElement } from "../4_graphicalUI/pane-ui/WebchalkClipElement";
 
 // /**
 //  * Spreads {@link objOrIterable} whether it is an array of keyframes

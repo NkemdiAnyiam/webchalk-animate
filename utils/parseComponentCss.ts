@@ -4,8 +4,8 @@ const cssFileNames = [
   'main',
 ];
 
-const cssFolderPath = `${__dirname}/../src/3_components/pane-ui/templates/styles/css`;
-const tsFolderPath = `${__dirname}/../src/3_components/pane-ui/templates/ts`
+const cssFolderPath = `${__dirname}/../src/4_graphicalUI/pane-ui/templates/styles/css`;
+const tsFolderPath = `${__dirname}/../src/4_graphicalUI/pane-ui/templates/ts`
 
 for (const cssFileName of cssFileNames) {
   fs.readFile(

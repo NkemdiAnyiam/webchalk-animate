@@ -1,10 +1,10 @@
 import { AnimClip } from "./AnimationClip";
 import { AnimTimeline } from "./AnimationTimeline";
-import { CustomErrorClasses, errorTip, generateError, SequenceErrorGenerator, ErrorUIMessageFragments } from "../4_utils/errors";
-import { getPartial, TBA_DURATION } from "../4_utils/helpers";
-import { PickFromArray } from "../4_utils/utilityTypes";
+import { CustomErrorClasses, errorTip, generateError, SequenceErrorGenerator, ErrorUIMessageFragments } from "../5_utils/errors";
+import { getPartial, TBA_DURATION } from "../5_utils/helpers";
+import { PickFromArray } from "../5_utils/utilityTypes";
 import { webchalk } from "../Webchalk";
-import { WebchalkSequenceElement } from "../3_components/pane-ui/WebchalkSequenceElement";
+import { WebchalkSequenceElement } from "../4_graphicalUI/pane-ui/WebchalkSequenceElement";
 
 // TODO: update field descriptions
 // TYPE
