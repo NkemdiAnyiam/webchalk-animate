@@ -39,7 +39,7 @@ const reduceClutter = function reduceClutter() {
     // }
   }
 
-  const h3 = document.querySelector(`h3:has(> a[href="#createAnimationClipFactories"])`);
+  const h3 = document.querySelector(`h3:has(> a[href="#createanimationclipfactories"])`);
   if (!h3) { return; }
   const section = h3.closest('.tsd-panel.tsd-member');
   if (!section) { throw new Error() }
