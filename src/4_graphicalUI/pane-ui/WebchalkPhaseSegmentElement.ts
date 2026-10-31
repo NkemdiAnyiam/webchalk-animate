@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { stylesheet } from './componentStyleSheet';
+import { stylesheet } from '../../styles/componentStyleSheet';
 import { htmlComponentStr } from './templates/ts/phaseSegment';
 
 import { createElFromString, escapeHtml, repositionPopover, secondsToHMMSS, TBA_DURATION } from '../../5_utils/helpers';

@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { stylesheet } from './componentStyleSheet';
+import { stylesheet } from '../../styles/componentStyleSheet';
 import { htmlComponentStr } from './templates/ts/sequence';
 
 import { createElFromString, escapeHtml, secondsToHMMSS } from '../../5_utils/helpers';

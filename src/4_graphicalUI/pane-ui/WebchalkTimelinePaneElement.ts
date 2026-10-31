@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { stylesheet } from './componentStyleSheet';
+import { stylesheet } from '../../styles/componentStyleSheet';
 import { AnimTimeline } from '../../1_playbackStructures/AnimationTimeline';
 import { AnimSequence } from '../../1_playbackStructures/AnimationSequence';
 import { htmlComponentStr } from './templates/ts/timelinePane';

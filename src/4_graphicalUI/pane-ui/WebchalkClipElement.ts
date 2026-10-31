@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { stylesheet } from './componentStyleSheet';
+import { stylesheet } from '../../styles/componentStyleSheet';
 import { htmlComponentStr } from './templates/ts/clip';
 
 import { AnimClip } from '../../1_playbackStructures/AnimationClip';

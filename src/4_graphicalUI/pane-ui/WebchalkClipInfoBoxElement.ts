@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { stylesheet } from './componentStyleSheet';
+import { stylesheet } from '../../styles/componentStyleSheet';
 import { htmlComponentStr } from './templates/ts/clipInfoBox';
 
 import { clamp, createCodeEl, createElFromString, dequoteJSON, escapeHtml, getOpeningTag, highlightCodeEls, numToOrdinal } from '../../5_utils/helpers';
