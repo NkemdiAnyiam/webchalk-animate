@@ -1192,9 +1192,9 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   async finish(parentSequence: AnimSequence): Promise<this>;
   async finish(parentSequence?: AnimSequence): Promise<this> {
     if (this.parentSequence !== parentSequence) { this.throwChildPlaybackError(this.finish.name); }
+    
     // finish() is not allowed to execute if clip is paused
-    // TODO: maybe throw an error instead of just returning
-    if (this.isPaused) { return this; }
+    if (this.isPaused) { throw new CustomErrorClasses.LockedOperationError(`Calling finish() on a paused clip is prohibited.`); }
     
     // Needs to play/rewind first if not already in progress.
     // This is essentially for the case where the animation is NOT part of a sequence and finish()
