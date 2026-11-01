@@ -1,12 +1,11 @@
 import { AnimClip } from "./AnimationClip";
-import { AnimTimeline } from "./AnimationTimeline";
+import { AnimTimeline, AnimTimelineUIMethods } from "./AnimationTimeline";
 import { CustomErrorClasses, errorTip, generateError, SequenceErrorGenerator, ErrorUIMessageFragments } from "../5_utils/errors";
 import { getPartial, TBA_DURATION } from "../5_utils/helpers";
 import { PickFromArray } from "../5_utils/utilityTypes";
 import { webchalk } from "../Webchalk";
 import { WebchalkSequenceElement } from "../4_graphicalUI/pane-ui/WebchalkSequenceElement";
 
-// TODO: update field descriptions
 // TYPE
 /**
  * An object containing configuration options used to define the timing and details of the animation sequence.
@@ -15,20 +14,26 @@ import { WebchalkSequenceElement } from "../4_graphicalUI/pane-ui/WebchalkSequen
  */
 export type AnimSequenceConfig = {
   /**
-   * A string that is logged when debugging mode is enabled.
+   * A string that summarizes the purpose of the animation sequence.
+   * It is displayed as the sequence's header in the timeline pane GUI.
    * @defaultValue
    * ```ts
    * '<blank sequence description>'
    * ```
+   * 
+   * @see {@link AnimTimelineUIMethods.attachTimelinePane}
    */
   description: string;
 
   /**
-   * An object that specifies new section headings that should start at this sequence, which will be displayed in the UI.
+   * An object that specifies new section headings that should start at this sequence, which will be displayed in the GUI
+   * and be accessible as jump points.
    * @defaultValue
    * ```ts
    * null
    * ```
+   * 
+   * @see {@link AnimTimeline.jumpToSequenceHeading}
    */
   headings: {
     h2?: string;

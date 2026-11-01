@@ -181,6 +181,7 @@ export type AddSequencesOptions = {
 // TYPE
 /**
  * An object containing methods related to the visible HTML UI for the timeline.
+ * Accessible via the {@link AnimTimeline.ui} object.
  * @category Interfaces
  * @interface
  */
