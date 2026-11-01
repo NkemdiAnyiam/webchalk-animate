@@ -1207,7 +1207,6 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     }
   }
 
-  // accepts a time to wait for (converted to an endDelay) and returns a Promise that is resolved at that time
   /**
    * Returns a `Promise` that is resolved when the animation clip reaches the specified time in the specified direction.
    * @param direction - The direction the animation will be going when the Promise is resolved.
