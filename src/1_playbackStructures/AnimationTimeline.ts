@@ -334,6 +334,7 @@ export class AnimTimeline {
   private isAnimating = false; // true if currently in the middle of executing animations; false otherwise
   private skippingOn = false; // used to determine whether or not all animations should be instantaneous
   private isPaused = false;
+  private pauseKey?: string;
   private currentDirection: 'forward' | 'backward' = 'forward'; // set to 'forward' after stepForward() or 'backward' after stepBackward()
   private isJumping = false; // true if currently using jumpTo()
   private get stepNumber(): number { return this.loadedSeqIndex + 1; }
@@ -1043,7 +1044,7 @@ export class AnimTimeline {
     const toPlay = sequences[this.loadedSeqIndex];
     this.webchalkTimelineEl?.scrollToSequence(toPlay, this.currentDirection);
     this.inProgressSequences.set(toPlay.id, toPlay);
-    await sequences[this.loadedSeqIndex].play(); // wait for the current AnimSequence to finish all of its animations
+    await sequences[this.loadedSeqIndex].play(this); // wait for the current AnimSequence to finish all of its animations
     this.inProgressSequences.delete(toPlay.id);
 
     ++this.loadedSeqIndex;
@@ -1076,7 +1077,7 @@ export class AnimTimeline {
     const toRewind = sequences[prevSeqIndex];
     this.webchalkTimelineEl?.scrollToSequence(toRewind, this.currentDirection);
     this.inProgressSequences.set(toRewind.id, toRewind);
-    await sequences[prevSeqIndex].rewind();
+    await sequences[prevSeqIndex].rewind(this);
     this.inProgressSequences.delete(toRewind.id);
     
     const autorewindPrevious = !this.atBeginning && (
@@ -1092,7 +1093,6 @@ export class AnimTimeline {
   }
 
   // TODO: prevent all button interactions and playback operations when error is present
-  // pauses or unpauses playback
   /**
    * Pauses the animation timeline if it is unpaused or unpauses it if it is currently paused.
    * @param options - An options object specifying the behavior of the toggle.
@@ -1138,11 +1138,12 @@ export class AnimTimeline {
    */
   pause(): this;
   /**@internal*/
-  pause(options?: { viaButton: boolean }): this;
-  pause(options?: { viaButton: boolean }): this {
+  pause(options?: { viaButton: boolean; pauseKey?: string; }): this;
+  pause(options?: { viaButton: boolean; pauseKey?: string; }): this {
+    if (options?.pauseKey) { this.pauseKey = options.pauseKey; }
     this.isPaused = true;
     if (!options?.viaButton) { this.playbackButtons.pauseButton?.styleActivation(); }
-    this.doForInProgressSequences(sequence => sequence.pause());
+    this.doForInProgressSequences(sequence => sequence.pause({parentTimeline: this}));
     return this;
   }
   
@@ -1153,11 +1154,18 @@ export class AnimTimeline {
    */
   unpause(): this;
   /**@internal*/
-  unpause(options?: { viaButton: boolean }): this;
-  unpause(options?: { viaButton: boolean }): this {
+  unpause(options?: { viaButton: boolean; pauseKey?: string; }): this;
+  unpause(options?: { viaButton: boolean; pauseKey?: string; }): this {
+    if (options?.pauseKey !== this.pauseKey) {
+      throw this.generateError(
+        CustomErrorClasses.LockedOperationError, [`Manually unpausing is prohibited when executing scheduled tasks.`]
+      );
+    }
+
+    this.pauseKey = undefined;
     this.isPaused = false;
     if (!options?.viaButton) { this.playbackButtons.pauseButton?.styleDeactivation(); }
-    this.doForInProgressSequences(sequence => sequence.unpause());
+    this.doForInProgressSequences(sequence => sequence.unpause({parentTimeline: this}));
     if (this.skippingOn) { this.finishInProgressSequences(); }
     return this;
   }
@@ -1692,7 +1700,7 @@ export class AnimTimeline {
    * @group Playback Methods
    */
   async finishInProgressSequences(): Promise<this> {
-    return this.doForInProgressSequences_async(sequence => sequence.finish());
+    return this.doForInProgressSequences_async(sequence => sequence.finish(this));
   }
 
   // get all currently running animations that belong to this timeline and perform operation() with them

@@ -226,8 +226,8 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
   onActiveFinish: Function = () => {};
   onEndDelayFinish: Function = () => {};
   
-  pauseForTasks: Function = () => { throw new Error(`This should never be called before being defined by parent clip`); };
-  unpauseFromTasks: Function = () => { throw new Error(`This should never be called before being defined by parent clip`); };
+  pauseForTasks: (options: {pauseKey: string}) => void = () => { throw new Error(`This should never be called before being defined by parent clip`); };
+  unpauseFromTasks: (options: {pauseKey: string}) => void = () => { throw new Error(`This should never be called before being defined by parent clip`); };
 
   nestedAnimations: NestedWebchalkAnimation[] = [];
   createNestedAnimation(...args: ConstructorParameters<typeof NestedWebchalkAnimation>): NestedWebchalkAnimation {
@@ -286,6 +286,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     const effect = super.effect!;
     const phaseSegments = this.direction === 'forward' ? this.phaseSegmentsForward : this.phaseSegmentsBackward;
     let blockedForTasks: boolean | null = null;
+    let pauseKey: string = '';
     // Traverse live array instead of static length since entries could be added mid-loop
     for (const segment of phaseSegments) {
       const {
@@ -301,7 +302,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         }
         // if playback was paused for tasks, resume playback
         if (blockedForTasks === true) {
-          this.unpauseFromTasks();
+          this.unpauseFromTasks({pauseKey});
           blockedForTasks = false;
         }
         if (this.isExpediting) {
@@ -323,8 +324,9 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       header.completed = true;
 
       // Await any blockers for the completion of this phase
+      pauseKey = generateId();
       if (taskParts.length > 0) {
-        this.pauseForTasks();
+        this.pauseForTasks({pauseKey});
         blockedForTasks = true;
         // For any functions, replace the entry with the function call (which could potentially result in a promise)
         // If animation is "rewinding", tasks should be processed in reverse order...
@@ -360,7 +362,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     
     // accounts for the possibility of the very last segment pausing for a task...
     // ... in which case unpauseFromTasks() can't be called since the loop terminates
-    if (blockedForTasks) { this.unpauseFromTasks(); }
+    if (blockedForTasks) { this.unpauseFromTasks({pauseKey}); }
     this.inProgress = false;
     this.isFinished = true;
     this.isExpediting = false;

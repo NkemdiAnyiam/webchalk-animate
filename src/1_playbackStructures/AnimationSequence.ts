@@ -380,6 +380,7 @@ export class AnimSequence {
 
   // GROUP: Status
   private isPaused = false;
+  private pauseKey?: string;
   private isRunning = false;
   private usingFinish = false;
   private inProgress = false;
@@ -888,7 +889,10 @@ export class AnimSequence {
    * @returns A promise that is resolved when the sequence finishes playing.
    * @group Playback Methods
    */
-  async play(): Promise<this> {
+  async play(): Promise<this>;
+  async play(parentTimeline: AnimTimeline): Promise<this>;
+  async play(parentTimeline?: AnimTimeline): Promise<this> {
+    if (this.parentTimeline !== parentTimeline) { this.throwChildPlaybackError(this.play.name); }
     if (this.inProgress) { return this; }
     this.inProgress = true;
     this.isRunning = true;
@@ -999,7 +1003,10 @@ export class AnimSequence {
    * @returns A promise that is resolved when the sequence finishes rewinding.
    * @group Playback Methods
    */
-  async rewind(): Promise<this> {
+  async rewind(): Promise<this>;
+  async rewind(parentTimeline: AnimTimeline): Promise<this>;
+  async rewind(parentTimeline?: AnimTimeline): Promise<this> {
+    if (this.parentTimeline !== parentTimeline) { this.throwChildPlaybackError(this.rewind.name); }
     if (this.inProgress) { return this; }
     this.direction = 'backward';
     this.webchalkSequenceEl?.toggleDarkenSchedule(false);
@@ -1101,11 +1108,15 @@ export class AnimSequence {
    *  * If the sequence is not already in progress, this method does nothing.
    * @group Playback Methods
    */
-  pause(): this {
+  pause(): this;
+  pause(options?: {parentTimeline?: AnimTimeline; pauseKey?: string;}): this;
+  pause(options?: {parentTimeline?: AnimTimeline; pauseKey?: string;}): this {
+    if (this.parentTimeline !== options?.parentTimeline) { this.throwChildPlaybackError(this.pause.name); }
+    if (options?.pauseKey) { this.pauseKey = options.pauseKey; }
     if (!this.isRunning) { return this; }
     this.isRunning = false;
     this.isPaused = true;
-    this.doForInProgressClips(animClip => animClip.pause(this));
+    this.doForInProgressClips(animClip => animClip.pause({parentSequence: this}));
     return this;
   }
 
@@ -1114,11 +1125,21 @@ export class AnimSequence {
    *  * If the sequence is not currently paused, this method does nothing.
    * @group Playback Methods
    */
-  unpause(): this {
+  unpause(): this;
+  unpause(options?: {parentTimeline?: AnimTimeline; pauseKey?: string;}): this;
+  unpause(options?: {parentTimeline?: AnimTimeline; pauseKey?: string;}): this {
+    if (this.parentTimeline !== options?.parentTimeline) { this.throwChildPlaybackError(this.unpause.name); }
+    if (options?.pauseKey !== this.pauseKey) {
+      throw this.generateError(
+        CustomErrorClasses.LockedOperationError, [`Manually unpausing is prohibited when executing scheduled tasks.`]
+      );
+    }
+    
+    this.pauseKey = undefined;
     if (!this.isPaused) { return this; }
     this.isRunning = true;
     this.isPaused = false;
-    this.doForInProgressClips(animClip => animClip.unpause(this));
+    this.doForInProgressClips(animClip => animClip.unpause({parentSequence: this}));
     return this;
   }
 
@@ -1130,7 +1151,10 @@ export class AnimSequence {
    *  * Does not work if the sequence is currently paused.
    * @group Playback Methods
    */
-  async finish(): Promise<this> {
+  async finish(): Promise<this>;
+  async finish(parentTimeline: AnimTimeline): Promise<this>;
+  async finish(parentTimeline?: AnimTimeline): Promise<this> {
+    if (this.parentTimeline !== parentTimeline) { this.throwChildPlaybackError(this.finish.name); }
     if (this.usingFinish || this.isPaused) { return this; }
     this.usingFinish = true; // resets to false at the end of play() and rewind()
 
@@ -1389,6 +1413,10 @@ export class AnimSequence {
       sequence: this,
       timeline: this.parentTimeline
     });
+  }
+
+  private throwChildPlaybackError(funcName: string): never {
+    throw this.generateError(CustomErrorClasses.ChildPlaybackError, [`Cannot directly call ${funcName}() on an animation sequence while it is part of a timeline.`]);
   }
 
   // TODO: figure out why this doesn't return this.generateError()

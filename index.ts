@@ -54,8 +54,16 @@ const seq1 = webchalk.newSequence(
   },
   [
   ]);
+
+  // making sure trying to unpause while paused for tasks is locked
+  const clip = ConnectorEntrance(conn, '~trace', [], {hideNowType: 'display-none'});
+  // clip.scheduleTask('activePhase', '50%', {onPlay: () => {
+  //   setTimeout(() => timeline.unpause(), 2000);
+  //   return new Promise(resolve => setTimeout(resolve, 10000))
+  // }});
+
   seq1.addClips([
-    ConnectorEntrance(conn, '~trace', [], {hideNowType: 'display-none'}),
+    clip,
     Motion(redSquare, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move red square'}),
     Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000, cssClasses: {toAddOnFinish: ['yo', 'bro']}}),
     TextEditor(redSquare, '~insert-text', ['HELLO WORLD! To what do I owe you all the pleasure?'], {durationOrRate: '300wpm', startsWithPrevious: true, description: 'Insert text to square', delay: 1000}),
