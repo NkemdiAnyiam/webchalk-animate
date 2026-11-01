@@ -1,6 +1,6 @@
 import { AnimSequence } from "./AnimationSequence";
 import { CustomErrorClasses, errorTip, generateError, TimelineErrorGenerator, ErrorUIMessageFragments } from "../5_utils/errors";
-import { createElFromString, getPartial, xor } from "../5_utils/helpers";
+import { createElFromString, getPartial, indexToOrdinal, xor } from "../5_utils/helpers";
 import { PickFromArray } from "../5_utils/utilityTypes";
 import { WebchalkPlaybackButtonElement } from "../4_graphicalUI/WebchalkPlaybackButtonElement";
 import { /*defaultClipFactories,*/ webchalk } from "../Webchalk";
@@ -514,21 +514,26 @@ export class AnimTimeline {
     }
 
     // validate sequences being added
-    for(const animSequence of sequences) {
+    for(let i = 0; i < sequences.length; ++i) {
+      const animSequence = sequences[i];
+
       if (!(animSequence instanceof AnimSequence)) {
-        throw this.generateError(CustomErrorClasses.InvalidChildError, [`At least one of the objects being added is not an AnimSequence.`]);
+        throw this.generateError(CustomErrorClasses.InvalidChildError, [`The ${indexToOrdinal(i)} object (index ${i}) in the given array is not an AnimSequence instance.`]);
       }
+
       if (animSequence.getHierarchy('parentTimeline')) {
-        // TODO: Improve error message
-        throw this.generateError(CustomErrorClasses.InvalidChildError, [`At least one of the sequences being added is already part of some timeline.`]);
+        const thisOrSome = animSequence.getHierarchy('parentTimeline') === this ? 'this' : 'some';
+        throw this.generateError(CustomErrorClasses.InvalidChildError, [`The ${indexToOrdinal(i)} sequence (index ${i}) in the given array is already part of ${thisOrSome} timeline.`]);
       }
+
       if (animSequence.getStatus('lockedStructure')) {
-        throw this.generateError(CustomErrorClasses.InvalidChildError, [`At least one of the sequences being added is in progress or in a forward finished state.`]);
+        throw this.generateError(CustomErrorClasses.InvalidChildError, [`The ${indexToOrdinal(i)} sequence (index ${i}) in the given array is in progress or in a forward finished state (i.e., it has been played but not rewound).`]);
       }
+
       if (!animSequence.setLineage(this)) {
         throw this.generateError(
           CustomErrorClasses.InvalidChildError,
-          [`At least one of the sequences being added appears in the given array multiple times.`]
+          [`The ${indexToOrdinal(i)} sequence (index ${i}) in the given array was already present earlier in the array. Duplicates are not allowed.`]
         );
       }
     };

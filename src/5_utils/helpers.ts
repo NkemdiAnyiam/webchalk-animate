@@ -147,13 +147,13 @@ export function deepComparison(first: unknown, second: unknown) {
 }
 
 /**
- * 
- * @param value 
- * @returns 
+ * Converts a number to the corresponding ordinal string.
+ * @param value - The number to convert.
+ * @returns A string containing {@link value} and the appropriate ordinal suffix.
  * 
  * @ignore
  */
-export function numToOrdinal(value: number | `${number}`) {
+export function numToOrdinal(value: number | `${number}`): `${number}${'st' | 'nd' | 'rd' | 'th'}` {
   const suffixes = ["th", "st", "nd", "rd"];
   
   return value + ((num: number) => {
@@ -167,18 +167,18 @@ export function numToOrdinal(value: number | `${number}`) {
 
     // Pick suffix from array based on ones digit
     return onesDigit < 4 ? suffixes[onesDigit] : suffixes[0]; 
-  })(Number(value));
+  })(Number(value)) as `${number}${'st' | 'nd' | 'rd' | 'th'}`;
 }
 
 /**
- * 
- * @param value 
- * @returns 
+ * Converts an index to the corresponding 1-based ordinal string.
+ * @param index - The index to convert.
+ * @returns A string containing the 1-based number ({@link index} `+ 1`) and the appropriate ordinal suffix.
  * 
  * @ignore
  */
-export function indexToOrdinal(value: number | `${number}`) {
-  return numToOrdinal(Number(value) + 1);
+export function indexToOrdinal(index: number | `${number}`) {
+  return numToOrdinal(Number(index) + 1);
 }
 
 /**

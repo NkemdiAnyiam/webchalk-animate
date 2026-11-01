@@ -1,7 +1,7 @@
 import { AnimClip } from "./AnimationClip";
 import { AnimTimeline, AnimTimelineUIMethods } from "./AnimationTimeline";
 import { CustomErrorClasses, errorTip, generateError, SequenceErrorGenerator, ErrorUIMessageFragments } from "../5_utils/errors";
-import { getPartial, TBA_DURATION } from "../5_utils/helpers";
+import { getPartial, indexToOrdinal, TBA_DURATION } from "../5_utils/helpers";
 import { PickFromArray } from "../5_utils/utilityTypes";
 import { webchalk } from "../Webchalk";
 import { WebchalkSequenceElement } from "../4_graphicalUI/pane-ui/WebchalkSequenceElement";
@@ -724,13 +724,14 @@ export class AnimSequence {
     // validate clips being added
     for (let i = 0; i < clips.length; ++i) {
       const animClip = clips[i];
+
       if (!(animClip instanceof AnimClip)) {
-        throw this.generateError(CustomErrorClasses.InvalidChildError, [`At least one of the objects being added is not an AnimClip.`]);
+        throw this.generateError(CustomErrorClasses.InvalidChildError, [`The ${indexToOrdinal(i)} object (index ${i}) in the given array is not an AnimClip instance.`]);
       }
 
       if (animClip.getHierarchy('parentSequence')) {
-        // TODO: Improve error message
-        throw this.generateError(CustomErrorClasses.InvalidChildError, [`At least one of the clips being added is already part of some sequence.`]);
+        const thisOrSome = animClip.getHierarchy('parentSequence') === this ? 'this' : 'some';
+        throw this.generateError(CustomErrorClasses.InvalidChildError, [`The ${indexToOrdinal(i)} clip (index ${i}) in the given array is already part of ${thisOrSome} sequence.`]);
       }
       
       if (!animClip.setLineage('sequence', this)) {
@@ -738,7 +739,10 @@ export class AnimSequence {
         for (let j = 0; j < i; ++j) {
           clips[j].removeLineage('sequence');
         }
-        throw new CustomErrorClasses.InvalidChildError(`At least one of the clips being added appears in the given array multiple times.`);
+        throw this.generateError(
+          CustomErrorClasses.InvalidChildError,
+          [`The ${indexToOrdinal(i)} clip (index ${i}) in the given array was already present earlier in the array. Duplicates are not allowed.`]
+        );
       };
     }
 
