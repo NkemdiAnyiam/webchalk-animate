@@ -1373,7 +1373,6 @@ export class ConnectorExitClip<TPresetEffectDefinition extends PresetEffectDefin
     const hiddenVisibility = visibility === 'hidden';
     const hidden = hiddenDisplay || hiddenVisibility;
 
-    console.log(hidingClassName, hiddenDisplay, hiddenVisibility, hidden)
     if (hidingClassName || hidden) {
       throw this.generateError(CustomErrorClasses.InvalidExitAttempt,
         [`ConnectorExit() can only play on elements that are not already hidden. The connector here is already hidden by the following:`
