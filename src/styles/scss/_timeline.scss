@@ -409,6 +409,7 @@ input::-webkit-calendar-picker-indicator {
   background-color: var(--color-error-dark);
   line-height: 1.5;
   color: var(--color-error-light);
+  overflow: auto;
 
   display: none;
 }
@@ -442,7 +443,7 @@ input::-webkit-calendar-picker-indicator {
 
 .timeline__error-panel-inner-wrapper {
   height: 100%;
-  overflow: auto;
+  // overflow: auto;
 }
 
 .timeline__error-panel-resizer {
@@ -451,7 +452,6 @@ input::-webkit-calendar-picker-indicator {
   left: 0;
   display: none;
   z-index: 1;
-  // background-color: green;
 
   &--dock-bottom {
     height: 100%;
@@ -474,9 +474,6 @@ input::-webkit-calendar-picker-indicator {
   padding: hem(1) hem(2);
   color: var(--color-error-light);
   background-color: #330200;
-
-  // display: flex;
-  // align-items: center;
 }
 
 .timeline__error-panel-heading-text {
@@ -484,10 +481,6 @@ input::-webkit-calendar-picker-indicator {
   font-size: hem(1.4);
   line-break: anywhere;
   @include line-clamp(1);
-}
-
-// TODO: probably don't need this
-.timeline__error-panel-body-wrapper {
 }
 
 .timeline__error-panel-body {
