@@ -1140,7 +1140,6 @@ export class AnimSequence {
     return this;
   }
 
-  // TODO: check to see if it's necessary to prevent direct finish() calls if sequence has a parent timeline
   /**
    * Forces the animation sequence to instantly finish.
    *  * This works even if the animation sequence is not already currently in progress.
