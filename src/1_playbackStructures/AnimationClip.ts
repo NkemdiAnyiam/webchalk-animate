@@ -1296,9 +1296,10 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
    *  * If the clip is part of a structure (like a sequence), the entire structure is paused as well.
    * @param phase - The phase of the animation to place the blocks in.
    * @param timePosition - The time position within the phase when the task should be performed.
-   * @param task - An object that contains the functions that should be called when {@link timePosition} is reached.
+   * @param task - An object (in the form of a {@link ScheduledTask}) that contains the functions that should be called when {@link timePosition} is reached.
    * @param schedulingOptions - An options object defining the behavior of the scheduling.
    * @param schedulingOptions.frequencyLimit - The maximum number of times the task can be performed.
+   * @param schedulingOptions.description - A text description for the task that can be displayed in the UI.
    * @returns The string id (auto-generated) referring to the task and its spot in the schedule.
    * 
    * @example
