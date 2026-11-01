@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import { shadowStyleSheet } from '../../styles/shadowStyleSheet';
 import { htmlComponentStr } from './templates/ts/clipInfoBox';
 
-import { clamp, createCodeEl, createElFromString, dequoteJSON, escapeHtml, getOpeningTag, highlightCodeEls, numToOrdinal } from '../../5_utils/helpers';
+import { clamp, createCodeEl, createElFromString, dequoteJSON, escapeHtml, getOpeningTag, highlightCodeEls, numToOrdinal, TBA_DURATION } from '../../5_utils/helpers';
 /** @ts-ignore */
 import { AnimClip } from '../../1_playbackStructures/AnimationClip';
 
@@ -241,7 +241,7 @@ ${escapeHtml(category)}(
         frag.appendChild(createElFromString(/*html*/`
           <section class="clip-info-box__section">
             ${createElFromString('<p class="clip-info-box__section-name">Final Configuration</p>').outerHTML}
-            ${createCodeEl(escapeHtml(dequoteJSON(clip.getConfig())), 'ts', 'block').outerHTML}
+            ${createCodeEl(escapeHtml(dequoteJSON(clip.getConfig()).replace(`duration: ${TBA_DURATION}`, 'duration: (not yet computed)')), 'ts', 'block').outerHTML}
           </section>
         `));
       }

@@ -794,7 +794,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     const result: AnimClipTiming = {
       startsWithPrevious: config.startsWithPrevious,
       startsNextClipToo: config.startsNextClipToo,
-      duration: config.duration, // TODO: try printing something besides the TBA_DURATION value to timeline pane info box
+      duration: config.duration,
       delay: config.delay,
       endDelay: config.endDelay,
       currentTime: this.currentTime,
