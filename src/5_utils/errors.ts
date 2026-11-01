@@ -244,10 +244,6 @@ export const errorTip = (tip: string) => {
 export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg = ['<unspecified error>'], components = {}) => {
   const {timeline, sequence, clip, element} = components;
   const [logMessageStr, uiMessageFrags] = msg;
-  
-  if (timeline) { timeline.setError({errorName: ErrorClassOrInstance.name, uiMessageFrags}); }
-  if (sequence) { sequence.setErrored(); }
-  if (clip) { clip.setErrored(); }
 
   const locationPostfix = (
     `\n\n${'-'.repeat(25)}LOCATION${'-'.repeat(25)}` +
@@ -272,6 +268,10 @@ export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg =
     ) +
     `\n${'-'.repeat(58)}`
   );
+  
+  if (timeline) { timeline.setError({errorName: ErrorClassOrInstance.name, uiMessageFrags, logMessageStr, locationPostfix}); }
+  if (sequence) { sequence.setErrored(); }
+  if (clip) { clip.setErrored(); }
   
   if (ErrorClassOrInstance instanceof Error) {
     /** @ts-ignore */

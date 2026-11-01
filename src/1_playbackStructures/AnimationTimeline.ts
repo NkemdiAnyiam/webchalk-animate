@@ -102,6 +102,8 @@ export type AnimTimelineStatus = {
   error?: {
     errorName: string;
     uiMessageFrags?: ErrorUIMessageFragments;
+    logMessageStr?: string;
+    locationPostfix?: string;
   };
 };
 

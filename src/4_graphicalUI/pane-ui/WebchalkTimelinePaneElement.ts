@@ -321,7 +321,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     const errorPanelEl = this.shadowRoot!.querySelector('.timeline__error-panel') as HTMLElement;
     const headingEl = errorPanelEl.querySelector('.timeline__error-panel-heading-text') as HTMLHeadingElement;
     const bodyEl = errorPanelEl.querySelector('.timeline__error-panel-body') as HTMLHeadingElement;
-    const {errorName, uiMessageFrags} = this.animTimeline!.getStatus('error')!;
+    const {errorName, uiMessageFrags, logMessageStr, locationPostfix} = this.animTimeline!.getStatus('error')!;
 
     headingEl.textContent = `ERROR: ${escapeHtml(errorName)}`;
     bodyEl.innerHTML = '';
@@ -343,10 +343,24 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       if (location) { appendSection('Location', location); }
     }
     else {
-      appendSection(
-        'Description',
-        new Text(`This error does not have a UI render yet. View the browser console to see this error's explanation. To view the console, right-click and select "Inspect", and then navigate to the "Console" tab.`)
-      );
+      {
+        const nodes = (locationPostfix ?? '').trim().split('\n').flatMap(str => [new Text(str), createElFromString('<br />')]).slice(0, -1);
+        const frag = new DocumentFragment();
+        frag.append(...nodes);
+        appendSection('View Console', new Text(`The error below does not have a UI render yet. View the browser console to see this error's explanation with better typesetting. To view the console, right-click and select "Inspect", and then navigate to the "Console" tab.`));
+      }
+      {
+        const nodes = (logMessageStr ?? '').trim().split('\n').flatMap(str => [new Text(str), createElFromString('<br />')]).slice(0, -1);
+        const frag = new DocumentFragment();
+        frag.append(...nodes);
+        appendSection('Description', frag);
+      }
+      {
+        const nodes = (locationPostfix ?? '').trim().split('\n').flatMap(str => [new Text(str), createElFromString('<br />')]).slice(0, -1);
+        const frag = new DocumentFragment();
+        frag.append(...nodes);
+        appendSection('Location', frag);
+      }
     }
 
     highlightCodeEls(bodyEl);
