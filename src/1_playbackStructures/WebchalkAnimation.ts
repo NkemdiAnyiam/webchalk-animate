@@ -588,7 +588,6 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     return promise;
   }
 
-  // TODO: rename to TimeGate instead of Promise
   unscheduleResolver<T extends Parameters<AnimClip['unscheduleResolver']>>(promiseId: T[0]): (value: void | PromiseLike<void>) => void {
     let resolverContainer: PhaseSegment['resolverContainers'][number] | undefined = undefined;
 
