@@ -116,6 +116,7 @@
   width: hem(2);
   border: 3.5px solid var(--hue-dark);
   border-right: none;
+  background-color: color-mix(in oklab, var(--hue-light) 20%, transparent);
 }
 
 .clip__length-bar--duration {
@@ -130,6 +131,7 @@
   width: hem(4);
   border: 3.5px solid var(--hue-dark);
   border-left: none;
+  background-color: color-mix(in oklab, var(--hue-light) 20%, transparent);
 }
 
 .clip__phase-segments {
