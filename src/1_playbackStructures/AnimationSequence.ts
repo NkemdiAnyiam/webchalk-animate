@@ -862,8 +862,8 @@ export class AnimSequence {
    * @group UI Methods
    */
   attachUI() {
-    // TODO: improve error message
-    if (this.uiAttached) { throw new Error('AnimSequence UI already attached'); }
+    // if (this.uiAttached) { throw new Error('AnimSequence UI already attached'); }
+    if (this.uiAttached) { return; }
     this.webchalkSequenceEl = new WebchalkSequenceElement();
     this.webchalkSequenceEl.animSequence = this;
   }
