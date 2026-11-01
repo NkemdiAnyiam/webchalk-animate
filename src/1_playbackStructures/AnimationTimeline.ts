@@ -496,8 +496,24 @@ export class AnimTimeline {
     
     if (sequences.length === 0) { return this; }
 
-    // TODO: handle possibility of adding at invalid atIndex
+    // validate insertion location
+    const atIndex = loc
+      // if index specified, make sure a negative value is converted to a usable positive value
+      ? (
+        loc.atIndex >= 0
+          ? loc.atIndex
+          : Math.max(this.animSequences.length + loc.atIndex, 0)
+        )
+      : this.animSequences.length;
+    
+    if (atIndex > this.animSequences.length) {
+      throw this.generateError(
+        RangeError,
+        [`atIndex value ${atIndex} out of bounds. atIndex cannot be greater than the index of the next empty index within the timeline (in this case, ${this.animSequences.length}).`]
+      );
+    }
 
+    // validate sequences being added
     for(const animSequence of sequences) {
       if (!(animSequence instanceof AnimSequence)) {
         throw this.generateError(CustomErrorClasses.InvalidChildError, [`At least one of the objects being added is not an AnimSequence.`]);
@@ -517,8 +533,7 @@ export class AnimTimeline {
       }
     };
     
-    // insert clips
-    const atIndex = loc ? loc.atIndex : this.animSequences.length;
+    // insert sequences
     this.animSequences.splice(atIndex, 0, ...sequences);
     // update the sequence numbers of the new sequences and any sequences that are now after them in the array
     for (let i = atIndex; i < this.animSequences.length; ++i) {

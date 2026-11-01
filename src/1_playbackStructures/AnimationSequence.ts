@@ -687,7 +687,6 @@ export class AnimSequence {
    * @group Structure
    */
   addClips(animClips: AnimClip[]): this;
-  // TODO: prevent play() and rewind() when sequence contains undefined entries (I don't think this will ever happen?)
   /**
    * Adds {@link AnimClip} objects to the specified location within the sequence.
    * @param location - An options object specifying the location at which the clips should be inserted.
@@ -705,6 +704,24 @@ export class AnimSequence {
 
     if (clips.length === 0) { return this; }
 
+    // validate insertion index
+    const atIndex = loc
+      // if index specified, make sure a negative value is converted to a usable positive value
+      ? (
+        loc.atIndex >= 0
+          ? loc.atIndex
+          : Math.max(this.animClips.length + loc.atIndex, 0)
+        )
+      : this.animClips.length;
+    
+    if (atIndex > this.animClips.length) {
+      throw this.generateError(
+        RangeError,
+        [`atIndex value ${atIndex} out of bounds. atIndex cannot be greater than the index of the next empty index within the sequence (in this case, ${this.animClips.length}).`]
+      );
+    }
+
+    // validate clips being added
     for (let i = 0; i < clips.length; ++i) {
       const animClip = clips[i];
       if (!(animClip instanceof AnimClip)) {
@@ -726,7 +743,6 @@ export class AnimSequence {
     }
 
     // insert clips
-    const atIndex = loc ? loc.atIndex : this.animClips.length;
     this.animClips.splice(atIndex, 0, ...clips);
     // update the clip numbers of the new clips and any clips that are now after them in the array
     for (let i = atIndex; i < this.animClips.length; ++i) {
