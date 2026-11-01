@@ -558,7 +558,7 @@ export class AnimTimeline {
    * @returns 
    * @group Structure
    */
-  removeSequences(animSequences: AnimSequence[]): this {
+  removeSequences(animSequences: AnimSequence[]): AnimSequence[] {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeSequences.name); }
 
     // sort the array of sequences to remove so that we can traverse them in reverse order
@@ -573,10 +573,9 @@ export class AnimTimeline {
     for (let i = sortedTargetSequences.length - 1; i >= 0; --i) {
       const index = this.findSequenceIndex(sortedTargetSequences[i]);
       if (index === -1) {
-        // TODO: improve error
         throw this.generateError(
           CustomErrorClasses.InvalidChildError,
-          [`At least one of the sequences being removed from this timeline was already not in the timeline.`]
+          [`The ${indexToOrdinal(i)} sequence (index ${i}) being removed from this timeline was already not in the timeline.`]
         );
       }
       if (index <= this.loadedSeqIndex - 1) {
@@ -594,7 +593,7 @@ export class AnimTimeline {
       lowestIndex = Math.min(lowestIndex, index)
     }
 
-    if (removedSequences.length === 0) { return this; }
+    if (removedSequences.length === 0) { return removedSequences; }
 
     // confirm deletion
     for (const sequence of removedSequences) {
@@ -614,7 +613,7 @@ export class AnimTimeline {
       this.playbackButtons.stepForwardButton?.classList.add(DISABLED_FROM_EDGE);
     }
 
-    return this;
+    return removedSequences;
   }
 
   /**

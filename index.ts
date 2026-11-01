@@ -55,27 +55,27 @@ const seq1 = webchalk.newSequence(
   [
   ]);
 
-  // making sure trying to unpause while paused for tasks is locked
-  const clip = ConnectorEntrance(conn, '~trace', [], {hideNowType: 'display-none'});
-  // clip.scheduleTask('activePhase', '50%', {onPlay: () => {
-  //   setTimeout(() => timeline.unpause(), 2000);
-  //   return new Promise(resolve => setTimeout(resolve, 10000))
-  // }});
+// making sure trying to unpause while paused for tasks is locked
+const clip = ConnectorEntrance(conn, '~trace', [], {hideNowType: 'display-none'});
+// clip.scheduleTask('activePhase', '50%', {onPlay: () => {
+//   setTimeout(() => timeline.unpause(), 2000);
+//   return new Promise(resolve => setTimeout(resolve, 10000))
+// }});
 
-  seq1.addClips([
-    clip,
-    Motion(redSquare, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move red square'}),
-    Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000, cssClasses: {toAddOnFinish: ['yo', 'bro']}}),
-    TextEditor(redSquare, '~insert-text', ['HELLO WORLD! To what do I owe you all the pleasure?'], {durationOrRate: '300wpm', startsWithPrevious: true, description: 'Insert text to square', delay: 1000}),
-    Exit(redSquare, '~fade-out', [], {duration: 1000, description: 'Exit red square'}),
-    Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000}),
-    Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000}),
-    Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: false, description: 'Move blue circle', delay: 1000}),
-    Entrance(redSquare, '~pinwheel', [1, 'clockwise'], {duration: 500, description: 'Enter red square'}),
-    ConnectorExit(conn, '~trace', [], {}),
-    ConnectorEntrance(conn, '~trace', [], {newPoints: { A: [blueCircle, `(left, top)`], B: [blueCircle, `(right, bottom)`] }}),
-    Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 5000}),
-    Exit(redSquare, '~fade-out', [], {description: 'Exit red square'}),
+seq1.addClips([
+  clip,
+  Motion(redSquare, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move red square'}),
+  Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000, cssClasses: {toAddOnFinish: ['yo', 'bro']}}),
+  TextEditor(redSquare, '~insert-text', ['HELLO WORLD! To what do I owe you all the pleasure?'], {durationOrRate: '300wpm', startsWithPrevious: true, description: 'Insert text to square', delay: 1000}),
+  Exit(redSquare, '~fade-out', [], {duration: 1000, description: 'Exit red square'}),
+  Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000}),
+  Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 1000}),
+  Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: false, description: 'Move blue circle', delay: 1000}),
+  Entrance(redSquare, '~pinwheel', [1, 'clockwise'], {duration: 500, description: 'Enter red square'}),
+  ConnectorExit(conn, '~trace', [], {}),
+  ConnectorEntrance(conn, '~trace', [], {newPoints: { A: [blueCircle, `(left, top)`], B: [blueCircle, `(right, bottom)`] }}),
+  Motion(blueCircle, '~translate', [{translate: '200px 0'}], {startsWithPrevious: true, description: 'Move blue circle', delay: 5000}),
+  Exit(redSquare, '~fade-out', [], {description: 'Exit red square'}),
 ]);
 seq1.setHeadings({h2: 'Iteration 1', h3: 'Create array'});
 timeline.addSequences([seq1]);

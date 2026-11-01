@@ -766,7 +766,7 @@ export class AnimSequence {
    * @returns 
    * @group Structure
    */
-  removeClips(animClips: AnimClip[]): this {
+  removeClips(animClips: AnimClip[]): AnimClip[] {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeClips.name); }
 
     // sort the array of clips to remove so that we can traverse them in reverse order
@@ -781,17 +781,16 @@ export class AnimSequence {
     for (let i = sortedTargetClips.length - 1; i >= 0; --i) {
       const index = this.findClipIndex(sortedTargetClips[i]);
       if (index === -1) {
-        // TODO: improve error
         throw this.generateError(
           CustomErrorClasses.InvalidChildError,
-          [`At least one of the clips being removed from this sequence was already not in the sequence.`]
+          [`The ${indexToOrdinal(i)} clip (index ${i}) being removed from this sequence was already not in the sequence.`]
         );
       }
       removedClips.push(...finalAnimClips.splice(index, 1));
       lowestIndex = Math.min(lowestIndex, index);
     }
 
-    if (removedClips.length === 0) { return this; }
+    if (removedClips.length === 0) { return removedClips; }
     
     // confirm deletion
     for (let i = 0; i < removedClips.length; ++i) {
@@ -807,8 +806,7 @@ export class AnimSequence {
 
     this.commit();
 
-    // TODO: return the array of removed clips
-    return this;
+    return removedClips;
   }
   
   /**
