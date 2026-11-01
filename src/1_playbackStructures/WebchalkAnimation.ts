@@ -327,7 +327,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       if (taskParts.length > 0) {
         this.pauseForTasks();
         blockedForTasks = true;
-        // For any functions, replace the entry with the return value (a promise)
+        // For any functions, replace the entry with the function call (which could potentially result in a promise)
         // If animation is "rewinding", tasks should be processed in reverse order...
         // ... to ensure that side-effects from tasks are stable
         await Promise.all(
