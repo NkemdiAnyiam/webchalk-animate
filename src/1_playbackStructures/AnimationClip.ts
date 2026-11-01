@@ -1070,8 +1070,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
    * @group UI Methods
    */
   attachUI() {
-    // TODO: improve error message
-    if (this.uiAttached) { throw this.generateError(new Error('AnimClip UI already attached.')); }
+    if (this.uiAttached) { return; }
     this.webchalkClipEl = new WebchalkClipElement();
     this.webchalkClipEl.animClip = this;
   }
@@ -1090,7 +1089,6 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
    * @group UI Methods
    */
   detachUI() {
-    // if (!this.uiAttached) { throw this.generateError(Error('AnimClip UI is already not attached.')); }
     if (!this.uiAttached) { return; }
     this.webchalkClipEl!.remove();
     this.webchalkClipEl = undefined;
