@@ -226,7 +226,6 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
   onActiveFinish: Function = () => {};
   onEndDelayFinish: Function = () => {};
   
-  // FIXME: The behavior for pausing for tasks while expedition is in act is undefined
   pauseForTasks: Function = () => { throw new Error(`This should never be called before being defined by parent clip`); };
   unpauseFromTasks: Function = () => { throw new Error(`This should never be called before being defined by parent clip`); };
 
