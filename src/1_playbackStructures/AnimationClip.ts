@@ -1598,10 +1598,9 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
           // FORWARD
           case 'forward':
             // handle CSS classes and pre-start function
-            // TODO: add classes to all elements???
             this.domElem.classList.add(...config.cssClasses.toAddOnStart ?? []);
             this.domElem.classList.remove(...config.cssClasses.toRemoveOnStart ?? []);
-            this._onStartForward();
+            this._onStartForward(); // TODO: allow setting of additional custom on_ functions.
             
             // Generate keyframes
             // Keyframe generation is done here so that generations operations that rely on the side effects of class modifications and _onStartForward()...
@@ -1724,7 +1723,6 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
             }
           }
     
-          // TODO: figure this out for co animations
           switch(direction) {
             case 'forward':
               this.domElem.classList.add(...config.cssClasses.toAddOnFinish ?? []);
