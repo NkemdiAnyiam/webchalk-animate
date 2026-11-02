@@ -250,11 +250,11 @@ export class WebchalkConnectorElement extends HTMLElement {
     return (attrVal !== null) && (attrVal !== 'false');
   }
   set usesMarkerA(usesMarkerA: boolean) {
-    if (usesMarkerA) { this.setAttribute('marker-a', 'true'); }
+    if (usesMarkerA) { this.setAttribute('marker-a', ''); }
     else { this.removeAttribute('marker-a'); }
   }
   set usesMarkerB(usesMarkerB: boolean) {
-    if (usesMarkerB) { this.setAttribute('marker-b', 'true'); }
+    if (usesMarkerB) { this.setAttribute('marker-b', ''); }
     else { this.removeAttribute('marker-b'); }
   }
   private queueRedrawMask = false;
@@ -276,7 +276,7 @@ export class WebchalkConnectorElement extends HTMLElement {
   };
   set autoRedrawEnabled(trackingEnabled: boolean) {
     if (trackingEnabled) { this.removeAttribute('tracking-disabled'); }
-    else { this.setAttribute('tracking-disabled', 'true'); }
+    else { this.setAttribute('tracking-disabled', ''); }
   }
   private haltContinuousUpdates = false;
   private continuousTrackingReqId: number = NaN;
