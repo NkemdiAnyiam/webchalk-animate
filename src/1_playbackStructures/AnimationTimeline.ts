@@ -777,7 +777,6 @@ export class AnimTimeline {
     const { keyboardShortcuts } = this.config;
     this.playbackButtonsContainer = createElFromString(/*html*/`
       <webchalk-playback-buttons-container
-        class="playback-buttons"
         ${this.config.timelineName ? `timeline-name="${this.config.timelineName}"` : ''}
       >
       </webchalk-playback-buttons-container>
