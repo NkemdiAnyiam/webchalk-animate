@@ -205,6 +205,7 @@ button {
   width: calc(2 * var(--hem));
   border: 3.5px solid var(--hue-dark);
   border-right: none;
+  background-color: color-mix(in oklab, var(--hue-light) 20%, transparent);
 }
 
 .clip__length-bar--duration {
@@ -218,6 +219,7 @@ button {
   width: calc(4 * var(--hem));
   border: 3.5px solid var(--hue-dark);
   border-left: none;
+  background-color: color-mix(in oklab, var(--hue-light) 20%, transparent);
 }
 
 .clip__phase-segments {
@@ -646,6 +648,7 @@ input::-webkit-calendar-picker-indicator {
   background-color: var(--color-error-dark);
   line-height: 1.5;
   color: var(--color-error-light);
+  overflow: auto;
   display: none;
 }
 
@@ -677,7 +680,6 @@ input::-webkit-calendar-picker-indicator {
 
 .timeline__error-panel-inner-wrapper {
   height: 100%;
-  overflow: auto;
 }
 
 .timeline__error-panel-resizer {
@@ -1771,19 +1773,11 @@ code {
 }
 
 .playback-buttons-container {
-  /* TODO: conditionally set the positioning properties depending on where a set of playback buttons is inserted
-  (likely with docking) */
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  z-index: calc(infinity);
   padding: 6px 8px;
-  /* background-color: color-mix(in srgb, var(--color-primary-blue) 30%, transparent); */
   background-color: var(--color-primary-blue);
   border: 4px solid var(--color-gray-darkest);
   opacity: 0.4;
   transition: opacity 0.1s;
-  transform-origin: bottom left;
 }
 
 .playback-buttons-container:hover,
@@ -1825,7 +1819,7 @@ code {
   stroke-dasharray: 1 !important;
 }
 
-marker {
+.connector__marker {
   display: none;
   stroke: none;
 }
