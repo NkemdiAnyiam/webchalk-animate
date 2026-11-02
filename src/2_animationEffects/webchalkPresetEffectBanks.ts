@@ -1180,8 +1180,7 @@ export const libPresetScrolls = {
         webchalk.scrollAnchorsStack.push([target, scrollOptions]);
 
         if (getComputedStyle(target).display === 'none') {
-          // TODO: improve warning
-          console.warn('Tried to scroll to invisible element');
+          console.warn(`The scroll operation cannot be computed because the target element,`, target, `, is unrendered.`);
           return () => {};
         }
         return () => {
