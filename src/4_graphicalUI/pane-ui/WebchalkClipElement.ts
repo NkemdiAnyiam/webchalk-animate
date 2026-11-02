@@ -35,7 +35,7 @@ export class WebchalkClipElement extends HTMLElement {
 
    /** @internal */ parentWebchalkSequenceEl: WebchalkSequenceElement | undefined;
   private infoBoxShown = false;
-  private category: EffectCategory = '' as EffectCategory; // TODO: incorporate better
+  private category: EffectCategory = '' as EffectCategory;
 
   animClip?: AnimClip;
   
