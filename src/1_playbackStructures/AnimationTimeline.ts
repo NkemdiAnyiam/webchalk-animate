@@ -267,7 +267,7 @@ export type AnimTimelineUIMethods = {
  */
 export class AnimTimeline {
   private static id = 0;
-  private static currentUiAttachedTimeline: AnimTimeline | null = null;
+  private static currentGUIAttachedTimeline: AnimTimeline | null = null;
 
   private config: AnimTimelineConfig = {
     debugMode: false,
@@ -716,7 +716,13 @@ export class AnimTimeline {
     // TODO: include some way to close the pane ui or something
     // if (this.uiPaneAttached) { throw new Error('AnimTimeline Pane UI already attached'); }
     if (this.uiPaneAttached) { return; }
-    if (AnimTimeline.currentUiAttachedTimeline) { throw new CustomErrorClasses.GraphicalUIError(`An AnimTimeline UI is already attached {name: "${AnimTimeline.currentUiAttachedTimeline.getConfig().timelineName}". It must be detached first.`); }
+    // makes it so that there can only be one timeline GUI present at a time
+    if (AnimTimeline.currentGUIAttachedTimeline) {
+      throw new CustomErrorClasses.GraphicalUIError(
+        `An AnimTimeline UI is already attached {name: "${AnimTimeline.currentGUIAttachedTimeline.getConfig().timelineName}". It must be detached first.`
+      );
+    }
+
     this.webchalkTimelineEl = new WebchalkTimelinePaneElement();
     this.webchalkTimelineEl.animTimeline = this;
     this.webchalkTimelineEl.style.display = 'none';
@@ -729,7 +735,7 @@ export class AnimTimeline {
 
     this.webchalkTimelineEl.readTimeline();
     this.webchalkTimelineEl.style.removeProperty('display');
-    AnimTimeline.currentUiAttachedTimeline = this;
+    AnimTimeline.currentGUIAttachedTimeline = this;
   }
 
   private detachTimelinePane() {
@@ -742,7 +748,7 @@ export class AnimTimeline {
       sequence.detachUI();
     }
 
-    AnimTimeline.currentUiAttachedTimeline = null;
+    AnimTimeline.currentGUIAttachedTimeline = null;
   }
 
   private _playbackButtons: PlaybackButtons = {
