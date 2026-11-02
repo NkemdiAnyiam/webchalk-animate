@@ -706,7 +706,7 @@ export class AnimTimeline {
     // TODO: include some way to close the pane ui or something
     // if (this.uiPaneAttached) { throw new Error('AnimTimeline Pane UI already attached'); }
     if (this.uiPaneAttached) { return; }
-    if (AnimTimeline.currentUiAttachedTimeline) { throw new Error(`An AnimTimeline UI is already attached {name: "${AnimTimeline.currentUiAttachedTimeline.getConfig().timelineName}". It must be detached first.`); }
+    if (AnimTimeline.currentUiAttachedTimeline) { throw new CustomErrorClasses.GraphicalUIError(`An AnimTimeline UI is already attached {name: "${AnimTimeline.currentUiAttachedTimeline.getConfig().timelineName}". It must be detached first.`); }
     this.webchalkTimelineEl = new WebchalkTimelinePaneElement();
     this.webchalkTimelineEl.animTimeline = this;
     this.webchalkTimelineEl.style.display = 'none';

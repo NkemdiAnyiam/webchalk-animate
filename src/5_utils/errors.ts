@@ -192,6 +192,13 @@ class InvalidEffectError extends Error {
   }
 }
 
+class GraphicalUIError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'GraphicalUIError';
+  }
+}
+
 /**
  * @category hidden
  */
@@ -209,6 +216,7 @@ export const CustomErrorClasses = {
   ChildPlaybackError,
   InvalidChildError,
   InvalidEffectError,
+  GraphicalUIError,
 };
 
 /**
