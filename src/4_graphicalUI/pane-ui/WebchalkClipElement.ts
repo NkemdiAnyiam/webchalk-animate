@@ -26,7 +26,7 @@ const categoryToAbbrev = (category: EffectCategory): string => {
     case 'Connector Entrance': return 'CEn';
     case 'Connector Exit': return 'CEx';
     case 'Text Editor': return 'TE';
-    // TODO: error handling for category to abbreviation
+    default: throw new RangeError(`Invalid category ${category}.`);
   }
 };
 
