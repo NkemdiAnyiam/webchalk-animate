@@ -245,6 +245,13 @@ export type AnimTimelineUIMethods = {
    * @group UI Methods
    */
   enablePlaybackButtons(): void;
+  /**
+   * Returns an object containing details about the timeline's GUI.
+   */
+  getState(): {
+    timelinePaneAttached: boolean;
+    playbackButtonsAttached: boolean;
+  }
 }
 
 /**
@@ -685,9 +692,8 @@ export class AnimTimeline {
   /*-:**************************************************************************************************************************/
   /** @internal */ webchalkTimelineEl?: WebchalkTimelinePaneElement;
   /** @internal */ playbackButtonsContainer?: WebchalkPlaybackButtonsContainerElement;
-  // TODO: put in some kind of config that user can see
   /** @internal */ get playbackButtonsAttached(): boolean { return this.playbackButtonsContainer ? true : false; }
-  /** @internal */ get uiPaneAttached(): boolean { return this.webchalkTimelineEl ? true : false; }
+  /** @internal */ get timelinePaneAttached(): boolean { return this.webchalkTimelineEl ? true : false; }
   
   /**
    * An object containing methods related to the visible HTML UI for the timeline. Contains:
@@ -709,13 +715,21 @@ export class AnimTimeline {
       setKeyboardShortcuts: (keyboardShortcuts) => this.setKeyboardShortcuts(keyboardShortcuts),
       enablePlaybackButtons: () => this.enablePlaybackButtons(),
       disablePlaybackButtons: () => this.disablePlaybackButtons(),
+      getState: () => this.getState(),
     };
+  }
+
+  private getState() {
+    return {
+      playbackButtonsAttached: this.playbackButtonsAttached,
+      timelinePaneAttached: this.timelinePaneAttached,
+    }
   }
 
   private attachTimelinePane() {
     // TODO: include some way to close the pane ui or something
     // if (this.uiPaneAttached) { throw new Error('AnimTimeline Pane UI already attached'); }
-    if (this.uiPaneAttached) { return; }
+    if (this.timelinePaneAttached) { return; }
     // makes it so that there can only be one timeline GUI present at a time
     if (AnimTimeline.currentGUIAttachedTimeline) {
       throw new CustomErrorClasses.GraphicalUIError(
@@ -740,7 +754,7 @@ export class AnimTimeline {
 
   private detachTimelinePane() {
     // if (!this.uiAttached) { throw this.generateError(Error('AnimTimeline UI is already not attached.')); }
-    if (!this.uiPaneAttached) { return; }
+    if (!this.timelinePaneAttached) { return; }
     this.webchalkTimelineEl!.remove();
     this.webchalkTimelineEl = undefined;
 
