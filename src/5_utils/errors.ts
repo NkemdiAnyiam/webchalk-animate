@@ -253,6 +253,7 @@ export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg =
   const {timeline, sequence, clip, element} = components;
   const [logMessageStr, uiMessageFrags] = msg;
 
+  // TODO: create GUI version of location string
   const locationPostfix = (
     `\n\n${'-'.repeat(25)}LOCATION${'-'.repeat(25)}` +
     (timeline
@@ -263,14 +264,16 @@ export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg =
       : ''
     ) +
     (sequence
-      ? `\nSequence: [Jump tag: ${sequence.getJumpTag()}] [Description: ${sequence.getDescription()}]` +
+      ? `\nSequence: [Jump tag: ${sequence.getJumpTag()}]` +
+        `\n          [Description: ${sequence.getDescription()}]` +
         (clip ? `\n          [At the ${indexToOrdinal(sequence.findClipIndex(clip!))} clip]` : '') +
         (clip ? `\n${'-'.repeat(20)}` : '')
       : ''
     ) +
     (clip
-      // TODO: maybe add new line for description
-      ? `\nClip:     [Category: ${clip.getEffectDetails('category')}] [Effect: ${clip.getEffectDetails('effectName')}] [Description: ${clip.getConfig().description}]` +
+      ? `\nClip:     [Category: ${clip.getEffectDetails('category')}]` +
+        `\n          [Effect: ${clip.getEffectDetails('effectName')}]` +
+        `\n          [Description: ${clip.getConfig().description}]` +
         `\nDOM Tag:  ${getOpeningTag(element)}`
       : ''
     ) +
