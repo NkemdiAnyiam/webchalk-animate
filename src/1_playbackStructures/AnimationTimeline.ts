@@ -1,6 +1,6 @@
 import { AnimSequence } from "./AnimationSequence";
 import { CustomErrorClasses, errorTip, generateError, TimelineErrorGenerator, ErrorUIMessageFragments } from "../5_utils/errors";
-import { createElFromString, getPartial, indexToOrdinal, xor } from "../5_utils/helpers";
+import { createElFromString, dequoteJSON, getPartial, indexToOrdinal, xor } from "../5_utils/helpers";
 import { PickFromArray } from "../5_utils/utilityTypes";
 import { WebchalkPlaybackButtonElement } from "../4_graphicalUI/WebchalkPlaybackButtonElement";
 import { /*defaultClipFactories,*/ webchalk } from "../Webchalk";
@@ -1541,8 +1541,9 @@ export class AnimTimeline {
       narrowSearchRange('h5', h5);
       narrowSearchRange('h6', h6);
 
-      // TODO: pretty print object
-      if (initialTargetIndex === -1) { throw new Error(`Sequence heading search failed given the following conditions: headingSpecifics: ${headingSpecifics}.`); }
+      if (initialTargetIndex === -1) {
+        throw new Error(`Sequence heading search failed given the following heading conditions: ${dequoteJSON(headingSpecifics)}.`);
+      }
       finalTargetIndex = initialTargetIndex + targetOffset;
     }
 
