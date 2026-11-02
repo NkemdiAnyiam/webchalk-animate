@@ -380,7 +380,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
             case 'step': {
               const stepNumber = Number(inputEl.value);
               if (!stepNumber) { return; }
-              this.animTimeline?.jumpToPosition(stepNumber - 1);
+              this.animTimeline?.jumpToStep(stepNumber - 1);
             }
             break;
             case 'tag': {

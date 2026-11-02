@@ -319,7 +319,7 @@ export class WebchalkSequenceElement extends HTMLElement {
     const jumpButtonEl = this.shadowRoot!.querySelector('.sequence__control--jump-button') as HTMLButtonElement;
     const handleClick = () => {
       const {sequenceNumber, parentTimeline} = this.animSequence!.getHierarchy();
-      parentTimeline!.jumpToPosition(sequenceNumber - 1);
+      parentTimeline!.jumpToStep(sequenceNumber - 1);
     };
 
     jumpButtonEl.addEventListener('click', handleClick);

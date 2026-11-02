@@ -1336,16 +1336,15 @@ export class AnimTimeline {
     return this.jumpTo({ headingSpecifics, targetOffset, autoplayDetection });
   }
 
-  // TODO: add clarification that position as a number is a 0-based index. Might even want to change that
   /**
-   * Jumps instantly to the position within the timeline based on the {@link position} argument.
-   * @param position - The target position within the timeline.
+   * Jumps instantly to the position within the timeline based on the {@link step} argument.
+   * @param step - The target position within the timeline (the step number (an integer), `'beginning'`, or `'end'`).
    * @param options - An options object defining the offset of the jump and whether to consider autoplay.
    * @returns A {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise | Promise} that resolves when the timeline has finished jumping.
    * @group Playback Methods
    */
-  jumpToPosition(
-    position: 'beginning' | 'end' | number,
+  jumpToStep(
+    step: 'beginning' | 'end' | number,
     options: {
       /** An offset that adds to the initial landing position. */
       targetOffset?: number;
@@ -1368,7 +1367,7 @@ export class AnimTimeline {
       targetOffset = 0,
       autoplayDetection = 'none',
     } = options;
-    return this.jumpTo({ position, targetOffset, autoplayDetection });
+    return this.jumpTo({ step, targetOffset, autoplayDetection });
   }
 
   // immediately jumps to an AnimSequence in animSequences with the matching search arguments
@@ -1388,7 +1387,7 @@ export class AnimTimeline {
     targetOffset: number;
     autoplayDetection: 'forward' | 'backward' | 'none';
   }): Promise<this>;
-  private async jumpTo(options: {position: 'beginning' | 'end' | number; targetOffset: number; autoplayDetection: 'forward' | 'backward' | 'none';}): Promise<this>;
+  private async jumpTo(options: {step: 'beginning' | 'end' | number; targetOffset: number; autoplayDetection: 'forward' | 'backward' | 'none';}): Promise<this>;
   private async jumpTo(
     options: {
       targetOffset: number; autoplayDetection: 'forward' | 'backward' | 'none';
@@ -1398,29 +1397,29 @@ export class AnimTimeline {
         jumpTag: string | RegExp;
         search?: 'forward' | 'backward' | 'forward-from-beginning' | 'backward-from-end';
         searchOffset?: number;
-        position?: never;
+        step?: never;
         headingSpecifics?: never;
       }
       | {
         headingSpecifics: {h2?: string | RegExp; h3?: string | RegExp; h4?: string | RegExp; h5?: string | RegExp; h6?: string | RegExp;};
-        position?: never;
+        step?: never;
         jumpTag?: never;
       }
-      | {position: 'beginning' | 'end' | number; jumpTag?: never; headingSpecifics?: never;}
+      | {step: 'beginning' | 'end' | number; jumpTag?: never; headingSpecifics?: never;}
     ),
   ): Promise<this> {
     if (this.isAnimating) { throw new Error('Cannot use jumpTo() while currently animating.'); }
     // Calls to jumpTo() must be separated using await or something that similarly prevents simultaneous execution of code
     if (this.isJumping) { throw new Error('Cannot perform simultaneous calls to jumpTo() in timeline.'); }
 
-    const { targetOffset, autoplayDetection, position, jumpTag, headingSpecifics } = options;
+    const { targetOffset, autoplayDetection, step, jumpTag, headingSpecifics } = options;
 
     // cannot specify multiple jump types
-    if (!xor(jumpTag !== undefined, xor(position !== undefined, headingSpecifics))) {
-      throw new TypeError(`jumpTo() must receive exactly one of tag, position, or headingSpecifics, not multiple. Received: ${jumpTag !== undefined ? `tag="${jumpTag}";` : ''} ${position !== undefined ? `position="${position}";` : ''}" ${headingSpecifics !== null ? `headingSpecifics="${headingSpecifics}";` : ''}.`);
+    if (!xor(jumpTag !== undefined, xor(step !== undefined, headingSpecifics))) {
+      throw new TypeError(`jumpTo() must receive exactly one of tag, position, or headingSpecifics, not multiple. Received: ${jumpTag !== undefined ? `tag="${jumpTag}";` : ''} ${step !== undefined ? `position="${step}";` : ''}" ${headingSpecifics !== null ? `headingSpecifics="${headingSpecifics}";` : ''}.`);
     }
     // must specify at least one jump type
-    if ((jumpTag === undefined) && (position === undefined) && !headingSpecifics) {
+    if ((jumpTag === undefined) && (step === undefined) && !headingSpecifics) {
       throw new TypeError(`jumpTo() must receive a tag, position, or headingSpecifics. None were received.`);
     }
     if (!Number.isSafeInteger(targetOffset)) { throw new TypeError(`Invalid offset "${targetOffset}". Value must be an integer.`); }
@@ -1466,19 +1465,19 @@ export class AnimTimeline {
       finalTargetIndex = initialIndex + targetOffset;
     }
     // find target index based on either the beginning or end of the timeline or a specific step
-    else if (position !== undefined) {
+    else if (step !== undefined) {
       switch(true) {
-        case position === "beginning":
+        case step === "beginning":
           finalTargetIndex = 0 + targetOffset;
           break;
-        case position === "end":
+        case step === "end":
           finalTargetIndex = this.numSequences + targetOffset;
           break;
-        case typeof position === 'number':
-          if (!Number.isSafeInteger(position)) { throw new TypeError(`Invalid position "${position}". When using a number, value must be an integer.`); }
-          finalTargetIndex = position;
+        case typeof step === 'number':
+          if (!Number.isSafeInteger(step)) { throw new TypeError(`Invalid position "${step}". When using a number, value must be an integer.`); }
+          finalTargetIndex = step;
           break;
-        default: throw new RangeError(`Invalid jumpTo() position "${position}". Must be "beginning", "end", or an integer.`);
+        default: throw new RangeError(`Invalid jumpTo() position "${step}". Must be "beginning", "end", or an integer.`);
       }
     }
     // find target index based on multi-level search using headingSpecifics
@@ -1549,7 +1548,7 @@ export class AnimTimeline {
 
     // check to see if requested target index is within timeline bounds
     {
-      const errorPrefixString = `Jumping to ${jumpTag ? `tag "${jumpTag}"` : `position "${position}"`} with offset "${targetOffset}" goes`;
+      const errorPrefixString = `Jumping to ${jumpTag ? `tag "${jumpTag}"` : `position "${step}"`} with offset "${targetOffset}" goes`;
       const errorPostfixString = `but requested index was ${finalTargetIndex}.`;
       if (finalTargetIndex < 0)
       { throw new RangeError(`${errorPrefixString} before timeline bounds. Minimum index = 0, ${errorPostfixString}`); }
