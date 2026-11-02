@@ -1795,7 +1795,6 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
         >,
         reverseKeyframesEffect,
         reverseMutatorEffect,
-        // TODO: dispose of old sets when necessary
         nestedEffectFrameGeneratorSets,
       };
 
