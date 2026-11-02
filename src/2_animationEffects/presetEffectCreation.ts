@@ -1371,22 +1371,19 @@ export type PresetEffectBank<TClip extends AnimClip = AnimClip> = ReadonlyRecord
  */
 export type EffectOptions<TPresetEffectDefinition extends PresetEffectDefinition> = Parameters<TPresetEffectDefinition['buildFrameGenerators']>;
 
-// CHANGE NOTE: EffectNameIn now handles keyof and Extract
-// extracts only those strings in an object whose paired value is a PresetEffectDefinition
 /**
  * Detects the keys corresponding to {@link PresetEffectDefinition} entries within a {@link PresetEffectBank}.
- * Any property within the specified bank that does not hold an effect definition is not considered
- * an "effect" name and is thus excluded.
+ * Any property within the specified bank that does not hold an effect definition (a {@link PresetEffectDefinition})
+ * is not considered an "effect" name and is thus excluded.
  * @category Utility Types
  */
 export type EffectNameIn<TEffectBank extends PresetEffectBank> = Exclude<keyof {
-  // extra constraint on key prevents hidden bank categorizers from appearing...
-  // ... whenever EffectNameIn is used as a string type constraint)
+  // Extra constraint on key prevents hidden bank categorizers from appearing
+  // whenever EffectNameIn is used as a string type constraint)
   [key in keyof TEffectBank as TEffectBank[key] extends PresetEffectDefinition ? (key extends ExtendableBankCategoryToHiddenBankCategorizer<any> ? never : key) : never]: TEffectBank[key];
-}, number | symbol>;/** @ignore */
+}, number | symbol>;
 
 
-// TODO: Probably delete this function
 // function definePresetEffect<TPresetEffectDefinition extends PresetEffectBank<EntranceClip>[string]> (effectCategory: 'entrance', effectDefinition: TPresetEffectDefinition): TPresetEffectDefinition;
 // function definePresetEffect<TPresetEffectDefinition extends PresetEffectBank<ExitClip>[string]> (effectCategory: 'exit', effectDefinition: TPresetEffectDefinition): TPresetEffectDefinition;
 // function definePresetEffect<TPresetEffectDefinition extends PresetEffectBank<EmphasisClip>[string]> (effectCategory: 'emphasis', effectDefinition: TPresetEffectDefinition): TPresetEffectDefinition;
@@ -1400,12 +1397,14 @@ export type EffectNameIn<TEffectBank extends PresetEffectBank> = Exclude<keyof {
  * @returns - The same {@link effectDefinition} object you passed into the function.
  * 
  * @remarks
- * // TODO: come back to this remark
  * This function is purely for convenience. You could create {@link PresetEffectDefinition} objects on your own without it,
  * but this is highly ill-advised because there would
  * be no autocompletion or hinting. Besides using this function or {@link definePresetEffectBank}, the other way to
  * define preset effects while still having access to Intellisense is to define them directly within the call to
  * {@link Webchalk.createAnimationClipFactories}.
+ * 
+ * @see {@link definePresetEffectBank}
+ * @see {@link Webchalk.createAnimationClipFactories}
  * 
  * @example
  * <!-- EX:S id="definePresetEffect" code-type="ts" -->
@@ -1495,7 +1494,6 @@ export type EffectNameIn<TEffectBank extends PresetEffectBank> = Exclude<keyof {
  * <!-- EX:E id="definePresetEffect" -->
  * 
  * @category Effect Definition
- * @ignore
  */
 export function definePresetEffect<
   TCategory extends ExtendableBankCategory,

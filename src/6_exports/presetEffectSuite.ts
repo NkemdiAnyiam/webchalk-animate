@@ -1,5 +1,5 @@
 export {
-  // definePresetEffect,
+  definePresetEffect,
   definePresetEffectBank,
   copyPresetEffectFromBank
 } from "../2_animationEffects/presetEffectCreation";
