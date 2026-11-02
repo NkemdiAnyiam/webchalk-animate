@@ -67,7 +67,6 @@
     'sequences error';
   grid-template-rows: max-content 1fr;
   grid-template-columns: 1fr auto;
-
 }
 
 .timeline {
@@ -409,12 +408,13 @@ input::-webkit-calendar-picker-indicator {
   background-color: var(--color-error-dark);
   line-height: 1.5;
   color: var(--color-error-light);
-  overflow: auto;
 
   display: none;
 }
 
 .timeline__error-panel[dock="bottom"] {
+  --error-panel-height: calc(500px - 52px); // hardcoded to the starting height of timeline pane - height of timeline header
+
   top: 0;
   left: 0;
   width: 800px;
@@ -442,8 +442,8 @@ input::-webkit-calendar-picker-indicator {
 }
 
 .timeline__error-panel-inner-wrapper {
-  height: 100%;
-  // overflow: auto;
+  max-height: var(--error-panel-height);
+  overflow: auto;
 }
 
 .timeline__error-panel-resizer {

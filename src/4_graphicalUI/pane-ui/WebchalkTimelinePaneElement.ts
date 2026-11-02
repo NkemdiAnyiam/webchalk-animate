@@ -71,6 +71,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       // if swapping dock from bottom to the side, remove sizing styling that would mess up UI
       if (oldValue?.match(/bottom/) && newValue.match(/right|left/)) {
         timelineEl.style.removeProperty('height');
+        errorPanelEl.style.removeProperty('--error-panel-height');
         errorPanelEl.style.removeProperty('width');
       }
       if (oldValue?.match(/right|left/) && newValue.match(/bottom/)) {
@@ -254,7 +255,10 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       const handleDrag = dock === 'bottom'
         ? (e: MouseEvent) => {
           // timelineUI.style.height = `${Number.parseFloat(getComputedStyle(timelineUI).height) - e.movementY}px`;
-          timelineUI.style.height = `${window.innerHeight - e.y}px`;
+          const newHeight = window.innerHeight - e.y
+          timelineUI.style.height = `${newHeight}px`;
+          // console.log(newHeight - (timelineUI.querySelector('.timeline__header') as HTMLElement).getBoundingClientRect().height)
+          errorPanelEl.style.setProperty('--error-panel-height', newHeight - (timelineUI.querySelector('.timeline__header') as HTMLElement).getBoundingClientRect().height + 'px');
           // timelineUI.style.contentVisibility = 'hidden';
         }
         : dock === 'right'
