@@ -759,7 +759,6 @@ export class AnimSequence {
     return this;
   }
 
-  // TODO: handle schedule updates
   /**
    * Removes the specified {@link AnimClip} objects from the sequence.
    * @param animClips - The array of animation clips to remove.
