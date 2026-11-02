@@ -237,6 +237,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       if (!timelineResizer.classList.contains('timeline__resizer')) { return; }
       
       const timelineUI = e.currentTarget as HTMLElement;
+      const errorPanelEl = timelineUI.querySelector('.timeline__error-panel') as HTMLElement;
       const sequencesContainerEl = timelineUI.querySelector('.timeline__sequences-container') as HTMLElement;
       // unhighlight all text to prevent annoying dragging issues
       document.getSelection()?.removeAllRanges();
@@ -246,6 +247,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       // Drastically decreases cost of reflows for high numbers of sequences (~150+) and clips (~300+).
       // Also provides a nice visual purpose for removing the sequences (letting user see behind the timeline pane).
       sequencesContainerEl.style.display = 'none';
+      errorPanelEl.style.display = 'none';
       timelineUI.style.opacity = '0.5';
 
       const dock = this.getAttribute('dock');
@@ -268,6 +270,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
         timelineUI.classList.remove('user-select-none');
         // timelineUI.style.contentVisibility = 'visible';
         sequencesContainerEl.style.removeProperty('display');
+        errorPanelEl.style.removeProperty('display');
         timelineUI.style.removeProperty('opacity');
       }
 
