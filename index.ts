@@ -53,7 +53,8 @@ const seq1 = webchalk.newSequence(
     jumpTag: 'JIMMINY!'
   },
   [
-  ]);
+  ]
+);
 
 // making sure trying to unpause while paused for tasks is locked
 const clip = ConnectorEntrance(conn, '~trace', [], {hideNowType: 'display-none'});
