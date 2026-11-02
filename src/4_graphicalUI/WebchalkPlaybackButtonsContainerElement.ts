@@ -12,6 +12,13 @@ hostStyleSheet.replaceSync(
     --webchalk-playback-button-disabled-color: gray;
     --webchalk-playback-button-background-color: #121213;
     --webchalk-playback-button-symbol-color: white;
+  }
+  
+  :host(:not([custom-location])) {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    z-index: calc(infinity);
   }`
 );
 
@@ -36,6 +43,12 @@ export class WebchalkPlaybackButtonsContainerElement extends HTMLElement {
     const element = template.content.cloneNode(true);
     shadow.append(element);
     this.buttonsContainerElement = this.shadowRoot!.querySelector('.playback-buttons-container') as HTMLDivElement;
+  }
+
+  private connectedCallback() {
+    if (this.parentElement !== document.querySelector('.webchalk-assets-container')) {
+      this.setAttribute('custom-location', '');
+    }
   }
 
   addButton(

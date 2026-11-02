@@ -196,18 +196,28 @@ export type AnimTimelineUIMethods = {
    * @group UI Methods
    */
   detachTimelinePane(): void;
-  // TODO: update description
   /**
-   * Inserts a container into the page containing `<webchalk-playback-button>` elements whose
-   * `timeline-name` attributes are equivalent to this timeline's `timelineName` configuration option,
-   * then links those buttons to this timeline.
+   * Attaches a `webchalk-playback-buttons-container` element to the page containing `<webchalk-playback-button>` elements,
+   * which will be linked to this timeline.
    *  * By default, all button types are injected.
    * @param options - An object containing settings to define the behavior of the buttons setup.
    * @param options.buttonsContainerLocation - The HTML element where the buttons container should be placed.
    * @param options.buttonsSubset - An array of strings indicating which specific buttons we want to link.
    * @group UI Methods
    */
-  attachPlaybackButtons(): void;
+  attachPlaybackButtons(options?: {
+    // TODO: Include jumping menu inside playback buttons container
+    /**
+     * The HTML element where the buttons container should be placed.
+     * @defaultValue
+     * ```ts
+     * document.querySelector('.webchalk-assets-container')
+     * ```
+     */
+    buttonsContainerLocation?: HTMLElement | null;
+    /** An array of strings indicating which specific buttons we want to link. By default, all buttons are included. */
+    buttonsSubset?: PlaybackButtonPurpose[];
+  }): void;
   /**
    * Removes the playback buttons attached to the timeline.
    * @group UI Methods
@@ -694,7 +704,7 @@ export class AnimTimeline {
     return {
       attachTimelinePane: () => this.attachTimelinePane(),
       detachTimelinePane: () => this.detachTimelinePane(),
-      attachPlaybackButtons: () => this.attachPlaybackButtons(),
+      attachPlaybackButtons: (options) => this.attachPlaybackButtons(options),
       detachPlaybackButtons: () => this.detachPlaybackButtons(),
       setKeyboardShortcuts: (keyboardShortcuts) => this.setKeyboardShortcuts(keyboardShortcuts),
       enablePlaybackButtons: () => this.enablePlaybackButtons(),
@@ -751,23 +761,17 @@ export class AnimTimeline {
    */
   get playbackButtons(): Readonly<PlaybackButtons> { return {...this._playbackButtons}; }
 
-  private attachPlaybackButtons(options: {
-    // TODO: Include jumping menu inside playback buttons container
-    /**
-     * The HTML element where the buttons container should be placed.
-     * @defaultValue
-     * ```ts
-     * document.querySelector('.webchalk-assets-container')
-     * ```
-     */
-    buttonsContainerLocation?: HTMLElement;
-    /** An array of strings indicating which specific buttons we want to link. By default, all buttons are searched for. */
-    buttonsSubset?: PlaybackButtonPurpose[];
-  } = {}): this {
-    // TODO: improve error
-    if (this.playbackButtonsContainer) { throw new Error('The playback buttons for this timeline have already been attached. To remove the current ones, call the detachPlaybackButtons() method.'); }
+  private attachPlaybackButtons(options: Parameters<AnimTimelineUIMethods['attachPlaybackButtons']>[0] = {}): this {
+    if (this.playbackButtonsContainer) { throw new CustomErrorClasses.GraphicalUIError('The playback buttons for this timeline have already been attached. To remove the current ones, call the detachPlaybackButtons() method.'); }
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.attachPlaybackButtons.name); }
     // if (!this.config.timelineName) { throw new Error(`A timeline cannot link playback buttons if the timeline's timelineName config option is not set.`); }
+
+    if (options.buttonsContainerLocation === null) {
+      throw this.generateError(
+        CustomErrorClasses.InvalidElementError,
+        [`If {buttonsContainerLocation} is specified, it must not be null.`]
+      );
+    }
 
     // Get button container location, subset of buttons to attach, and any keyboard shortcuts.
     const {
@@ -916,34 +920,6 @@ export class AnimTimeline {
         toggleSkippingButton.classList.remove(PRESSED);
         toggleSkippingButton.active = false;
       };
-    }
-
-    // TODO: update the warning code below
-    let wasWarned = false;
-    const warnedList: string[] = [];
-
-    const warnButton = (button: WebchalkPlaybackButtonElement | null | undefined, purpose: PlaybackButtonPurpose) => {
-      if (!button && buttonsSubset.includes(purpose)) {
-        warnedList.push(purpose);
-        wasWarned = true;
-      }
-    }
-
-    warnButton(stepForwardButton, 'Step Forward');
-    warnButton(pauseButton, 'Pause');
-    warnButton(stepBackwardButton, 'Step Backward');
-    warnButton(fastForwardButton, 'Fast Forward');
-    warnButton(toggleSkippingButton, 'Toggle Skipping');
-    if (wasWarned) {
-      console.warn(
-        `Some buttons for timeline named "${this.config.timelineName}" not found.`
-        + ` Missing buttons: ${warnedList.join(', ')}.`
-        + errorTip(
-          `For <webchalk-playback-button> tags to be detected, their 'timeline-name' attribute (or the 'timeline-name' attribute of`
-          + ` their parent container) must match this timeline's 'timelineName' configuration option.`
-          + ` If this timeline does not need to detect any buttons, you may set its 'autoLinkButtons' config option to false`
-        + ` to prevent this warning.`)
-      );
     }
 
     Object.assign(this._playbackButtons, {
