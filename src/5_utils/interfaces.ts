@@ -6,33 +6,12 @@ import { AnimClip } from "../1_playbackStructures/AnimationClip";
 import { EffectFrameGeneratorSet } from "../2_animationEffects/presetEffectCreation";
 import { Union } from "./utilityTypes";
 
-// type FrozenPrefix = '__';
-// export type FromFrozenKey<S extends string> = S extends `${FrozenPrefix}${infer key}` ? key : never;
-// export type FromFrozenKeys<T extends Partial<AnimClipConfig> | undefined> = keyof { [key in Extract<keyof T, string> as FromFrozenKey<key>]: void };
-// export type ToFrozenKey<S extends string> = S extends `${FrozenPrefix}${string}` ? never : `${FrozenPrefix}${S}`;
-// export type ToFrozenKeys<T extends AnimClipConfig> = keyof { [key in Extract<keyof T, string> as ToFrozenKey<key>]: void }
-
-// export type AddFreezableConfig<TClipConfig extends AnimClipConfig> = PrefixProps<TClipConfig, FrozenPrefix> & TClipConfig;
-
-// /**
-//  * Returns {@link TClipConfig} without any props marked as frozen in {@link TPresetEffectDefinition}'s config.
-//  * @interface StripFrozenConfig
-//  * @template TClipConfig - Configuration interface for AnimClip or an AnimClip subclass.
-//  * @template TPresetEffectDefinition - An effect definition in any preset effect bank.
-//  */
-// export type StripFrozenConfig<
-//   TClipConfig extends AnimClipConfig,
-//   TPresetEffectDefinition extends PresetEffectDefinition
-// > = Omit<TClipConfig, FromFrozenKeys<TPresetEffectDefinition['defaultConfig']>>;
-
 /**
  * A practical union of the 3 subclasses of {@link Element}.
  * Mostly useful for autocompletions. For example, the `style` property does
  * not exist on {@link Element}, but it does exist on its subclasses. 
  */
 export type DOMElement = HTMLElement | SVGElement | MathMLElement;
-
-// TODO: maybe move CssLength-based examples to be injected
 
 /**
  * Options for determining the offset to add to an element's translation.
