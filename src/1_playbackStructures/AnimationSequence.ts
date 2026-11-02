@@ -1409,9 +1409,8 @@ export class AnimSequence {
     throw this.generateError(CustomErrorClasses.ChildPlaybackError, [`Cannot directly call ${funcName}() on an animation sequence while it is part of a timeline.`]);
   }
 
-  // TODO: figure out why this doesn't return this.generateError()
   protected generateLockedStructureError = (methodName: string) => {
-    return generateError(
+    return this.generateError(
       CustomErrorClasses.LockedOperationError,
       [`Cannot use ${methodName}() while the sequence is in progress or in a forward finished state.`
       + errorTip(

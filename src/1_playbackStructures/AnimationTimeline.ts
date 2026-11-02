@@ -1749,7 +1749,7 @@ export class AnimTimeline {
   }
 
   protected generateLockedStructureError = (methodName: string) => {
-    return generateError(
+    return this.generateError(
       CustomErrorClasses.LockedOperationError,
       [`Cannot use ${methodName}() while the timeline is in progress.`]
     );
