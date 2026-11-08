@@ -2058,3 +2058,170 @@ const connModified = drawConnector([square, '(center, top)'], [circle, '(center,
 });
 /**** EX:E id="drawConnector.example" */
 }
+
+
+
+
+
+
+
+{
+/**** EX:S id="TextEditOptions.ignoreMatchCase" */
+const { TextEditor } = webchalk.createAnimationClipFactories();
+
+// Get element from the DOM. Let's say it at least contains the text "Hello world! How are you?"
+const textBox = document.querySelector('.text-box');
+
+// Creates a clip that searches the target element for the text "hello world" and deletes it.
+const clip = TextEditor(textBox, '~delete-text', [{ignoreMatchCase: true, match: 'hEllO WOrlD'}]);
+
+// Result: changes textBox's contents to "! How are you?".
+clip.play();
+/**** EX:E id="TextEditOptions.ignoreMatchCase" */
+}
+
+{
+/**** EX:S id="TextEditOptions.useCaptureGroups" */
+const { TextEditor } = webchalk.createAnimationClipFactories();
+
+// Get element from the DOM. Let's say it at least contains
+// the text "My ID is E777, and my number is 111-111-1111".
+const textBox = document.querySelector('.text-box');
+
+// Creates a clip that looks for a string matching the regex /My ID is (\w\d)+, and my number is (\d+)/
+// and replaces the portions in parentheses with "A090" and "555-123-1234".
+const clip = TextEditor(textBox, '~replace-text', [
+  ['A090', '[REDACTED]'],
+  {
+    match: /My ID is (\w\d)+, and my number is (\d+)/,
+    useCaptureGroups: true
+  }
+]);
+
+// Result: changes textBox's contents to "My ID is A090, and my number is [REDACTED]".
+clip.play();
+
+/**** EX:E id="TextEditOptions.useCaptureGroups" */
+}
+
+{
+/**** EX:S id="TextEditOptions.match" */
+const { TextEditor } = webchalk.createAnimationClipFactories();
+
+// Get element from the DOM. Let's say it at least contains the text "Hello! How are you?"
+const textBox = document.querySelector('.text-box');
+
+// Creates a clip that searches textBox for the string "Hello"
+// and inserts " world" after it.
+const clip1 = TextEditor(textBox, '~insert-text', [' world', {match: 'Hello'}]);
+
+// Creates a clip that searches textBox for the string "is the weather"
+// and replaces it with "are you".
+const clip2 = TextEditor(textBox, '~replace-text', ['is the weather', {match: 'are you'}]);
+
+// Result: changes textBox's contents to "Hello world! How is the weather?".
+webchalk.newSequence([clip1, clip2]).play();
+/**** EX:E id="TextEditOptions.match" */
+}
+
+{
+/**** EX:S id="TextEditOptions.joinMatches" */
+const { TextEditor } = webchalk.createAnimationClipFactories();
+
+// Get element from the DOM. Let's say it at least contains
+// the text "I tried the door. I tried the window. I tried the chimney."
+const textBox = document.querySelector('.text-box');
+
+// Creates a clip that searches textBox for every occurrence of the string "I tried"
+// and alternates between inserting the string " entering" and the string " breaking" after them.
+// (This is because {joinMatches} is true by default.)
+const clip1 = TextEditor(textBox, '~insert-text', [
+  [' entering', ' breaking'],
+  {
+    match: 'I tried',
+    findAllMatches: true,
+  }
+]);
+
+// Creates a clip that searches textBox for every occurrence of the string "I"
+// and alternates between replacing them with the string "He" and the string "She".
+const clip2 = TextEditor(textBox, '~replace-text', [
+  ['He', 'She'],
+  {
+    match: 'I',
+    findAllMatches: true,
+  }
+]);
+
+// Creates a clip that searches textBox for every occurrence of the string "I"
+// and replaces them only with the string "He". This is because {joinMatches} was set to false,
+// so each occurrence of "I" is treated completely independently. "She" goes completely unused,
+// which is likely not what was intended.
+// Let's not use this clip.
+const clip3Bad = TextEditor(textBox, '~replace-text', [
+  ['He', 'She'],
+  {
+    match: 'I',
+    findAllMatches: true,
+    joinMatches: false
+  }
+]);
+
+// Creates a clip that searches textBox for every occurrence of a string that matches
+// the regular expression /(.*) tried .* the (.*)\./ and alternates between replacing
+// the two captured groups with "Tim" & "front", "Sarah" & "side", and "Jeremy" & "top".
+const clip4 = TextEditor(textBox, '~replace-text', [
+  ['Tim', 'front', 'Sarah', 'side', 'Jeremy', 'top'],
+  {
+    match: /(.*) tried .* the (.*)\./,
+    findAllMatches: true,
+  }
+]);
+
+// Creates a clip that searches textBox for every occurrence of a string that matches
+// the regular expression /(.*) tried .* the (.*)\./ and replaces each pair of captured groups
+// only with "Tim" & "front". This is because {joinMatches} was set to false, so each occurrence
+// of matches for /(.*) tried .* the (.*)\./ is treated completely independently. "Sarah",
+// "side", "Jeremy", and "top" go completely unused, which is likely not what was intended.
+// Let's not use this clip.
+const clip5Bad = TextEditor(textBox, '~replace-text', [
+  ['Tim', 'front', 'Sarah', 'side', 'Jeremy', 'top'],
+  {
+    match: /(.*) tried .* the (.*)\./,
+    findAllMatches: true,
+    joinMatches: false,
+  }
+]);
+
+// Result: changes textBox's contents from "I tried the door. I tried the window. I tried the chimney"
+// to "Tim tried entering the front. Sarah tried breaking the side. Jeremy tried entering the top."
+webchalk.newSequence([
+  // clip1 -> "I tried entering the door. I tried breaking the window. I tried entering the chimney."
+  clip1,
+  // clip2 -> "He tried entering the door. She tried breaking the window. He tried entering the chimney."
+  clip2,
+  // clip4 -> "Tim tried entering the front. Sarah tried breaking the side. Jeremy tried entering the top."
+  clip4,
+]).play();
+/**** EX:E id="TextEditOptions.joinMatches" */
+}
+
+{
+/**** EX:S id="TextEditOptions.position" */
+const { TextEditor } = webchalk.createAnimationClipFactories();
+
+// Get element from the DOM. Let's say it at least contains the text "Hello! How are you?"
+const textBox = document.querySelector('.text-box');
+
+// Creates a clip that searches textBox for the string "Hello"
+// and inserts " world" after it (because {position} is "after" by default).
+const clip1 = TextEditor(textBox, '~insert-text', [' world', {match: 'Hello'}]);
+
+// Creates a clip that searches textBox for the string "Hello"
+// and inserts "Hi! " before it.
+const clip2 = TextEditor(textBox, '~insert-text', ['Hi! ', {match: 'Hello', position: 'before'}]);
+
+// Result: changes textBox's contents to "Hi! Hello world! How are you?".
+webchalk.newSequence([clip1, clip2]).play();
+/**** EX:E id="TextEditOptions.position" */
+}

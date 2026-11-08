@@ -1306,17 +1306,8 @@ export const libPresetTextEdits = {
       | 'findAllMatches'
       | 'joinMatches'
       | 'useCaptureGroups'
-      > & {
-        /**
-         * A string determining where to insert the new text relative to
-         * {@link TextEditOptions.match|match} (or if no match is specified, the entire text).
-         * @defaultValue
-         * ```ts
-         * 'after'
-         * ```
-         */
-        position?: 'before' | 'after'
-      } = {}
+      | 'position'
+      > = {}
     ) {
       const {
         letterChunking = 'by-character',
@@ -1350,8 +1341,8 @@ export const libPresetTextEdits = {
         infixList.push(...tempInfixList.filter(datum => datum.head));
       }
 
-      // If newText is an array and `bridgeMatching` is `true`, this variable is used to keep track...
-      // ... of the current index into the `newText` array.
+      // If newText is an array and `joinMatches` is `true`, this variable is used to keep track
+      // of the current index into the `newText` array.
       let newTextIndex = -1;
       for (let i = 0; i < infixList.length; ++i) {
         const datum = infixList[i];
