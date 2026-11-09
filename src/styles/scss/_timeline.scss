@@ -515,13 +515,15 @@ input::-webkit-calendar-picker-indicator {
 
 }
 
-.timeline__error-panel ul {
-  list-style-position: outside;
-  padding-left: hem(2.5);
-
-  display: flex;
-  flex-direction: column;
-  gap: hem(0.5);
+.timeline__error-panel {
+  ul, ol {
+    list-style-position: outside;
+    padding-left: hem(2.5);
+  
+    display: flex;
+    flex-direction: column;
+    gap: hem(0.5);
+  }
 }
 
 .timeline__error-panel details {
@@ -580,7 +582,8 @@ input::-webkit-calendar-picker-indicator {
 @container timeline-ui (max-width: 100px) {
   .timeline .timeline__error-panel {
     details,
-    ul {
+    ul,
+    ol {
       padding-left: 0;
     }
   }
