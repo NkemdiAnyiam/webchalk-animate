@@ -3,7 +3,7 @@ import { AnimTimeline } from "./AnimationTimeline";
 import { EntranceClip, MotionClip, TransitionClip } from "./AnimationClipCategories";
 import { webchalk, Webchalk } from "../Webchalk";
 import { EffectOptions, PresetEffectBank, PresetEffectDefinition, EffectFrameGeneratorSet } from "../2_animationEffects/presetEffectCreation";
-import { call, codeElTS, deepComparison, detab, fragment, getPartial, mergeArrays, TBA_DURATION, xor } from "../5_utils/helpers";
+import { call, codeElCSS, codeElTS, createOListEl, deepComparison, detab, fragment, getPartial, mergeArrays, TBA_DURATION, xor } from "../5_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
 import { CustomErrorClasses, ClipErrorGenerator, errorTip, generateError, ErrorUIMessageFragments } from "../5_utils/errors";
 import { DOMElement, EffectCategory, Mutator, StyleProperty } from "../5_utils/interfaces";
@@ -1735,17 +1735,22 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
               // If this fails, then the element's parent is hidden. Do not attempt to remedy—just throw error instead.
               catch (err: unknown) {
                 const reasons = [];
+                const reasonsGUI = [];
                 if (getComputedStyle(domElem).display === 'none') {
-                  reasons.push(detab`Something is causing the CSS style {display: hidden} to be applied besides the class "webchalk-display-none".`);
+                  reasons.push(detab`Something is causing the CSS style {display: hidden;} to be applied besides the class "webchalk-display-none".`);
+                  reasonsGUI.push([
+                    `Something is causing the CSS style `, codeElCSS(`{display: hidden;}`),
+                    ` to be applied besides the class `, codeElTS(`"webchalk-display-none"`), `.`
+                  ]);
                 }
                 let ancestor = domElem;
                 while (ancestor = ancestor.parentElement as DOMElement) {
                   if (!ancestor) { break; }
                   if (getComputedStyle(ancestor).display === 'none') {
                     reasons.push(detab`One of the parent elements of the element is unrendered.`);
+                    reasonsGUI.push([`One of the parent elements of the element is unrendered.`])
                   }
                 }
-                // CURRENT TODO: figure out what GUI message should look like here
                 throw this.generateError(
                   new CustomErrorClasses.CommitStylesError(detab`Failed to commit styles on the element while it was unrendered.\
                   Animation styles that contain normal keyframes normally cannot be saved\
@@ -1753,7 +1758,17 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
                   the cause of the element being unrendered is having the CSS class "webchalk-display-none". If there is ANY other reason\
                   for the element not being rendered, the styles cannot be committed.
                   Detected reasons:\n` + reasons.map((reason, index) => `    ${index + 1}) ${reason}`).join('\n')),
-                  {},
+                  {
+                    description: fragment([
+                      `Failed to commit styles on the element while it was unrendered.`,
+                      ` Animation styles that contain normal keyframes normally cannot be saved`,
+                      ` on unrendered elements in JavaScript, but Webchalk allows it ONLY IF`,
+                      ` the cause of the element being unrendered is having the CSS class `, codeElTS(`"webchalk-display-none"`),
+                      `. If there is ANY other reason for the element not being rendered, the styles cannot be committed.`,
+                      ` Detected reasons:`,
+                      createOListEl(reasonsGUI)
+                    ])
+                  },
                   domElem
                 );
               }

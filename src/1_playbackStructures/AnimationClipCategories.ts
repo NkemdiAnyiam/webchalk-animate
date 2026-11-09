@@ -1161,7 +1161,7 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
       if (!(pointAElement instanceof Element)) {
         throw this.generateError(
           new CustomErrorClasses.InvalidElementError(`Point A was specified, but the provided element (${pointAElement}) is not a valid element.`),
-          {description: fragment([`Point A was specified, but the provided element (${pointAElement}) is not a valid element.`])} // CURRENT TODO: see what this looks like
+          {description: fragment([`Point A was specified, but the provided element (`, codeElTS(`${pointAElement}`), `) is not a valid element.`])}
         );
       }
       this.newPointA = [pointAElement as DOMElement, newPointA[1]];
@@ -1180,7 +1180,7 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
       if (!(pointBElement instanceof Element)) {
         throw this.generateError(
           new CustomErrorClasses.InvalidElementError(`Point B was specified, but the provided element (${pointBElement}) is not a valid element.`),
-          {description: fragment([`Point B was specified, but the provided element (${pointBElement}) is not a valid element.`])}
+          {description: fragment([`Point B was specified, but the provided element (`, codeElTS(`${pointBElement}`), `) is not a valid element.`])}
         );
       }
       this.newPointB = [pointBElement as DOMElement, newPointB[1]];
