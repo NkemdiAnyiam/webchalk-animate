@@ -48,7 +48,6 @@ abstract class WebchalkAnimationBase extends Animation {
       },
     );
     
-    // TODO: check to see if this line is actually necessary
     this.setDirection('forward');
   }
   
@@ -1250,8 +1249,6 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       }
     };
 
-    // NEXT REMINDER: Reimplement so that delayPhase for backwards direction corresponds to endDelayPhase
-    // TODO: Determine if the NEXT REMINDER above has been correctly fulfilled
     const resetBackwardPhases = () => {
       const { delay, duration, endDelay } = this.backwardEffect.getTiming() as {[prop: string]: number};
 
