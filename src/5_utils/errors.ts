@@ -295,7 +295,7 @@ export const generateError: GeneralErrorGenerator = (errorInstance, uiMessageFra
               [`Category: ${clip.getEffectDetails('category')}`],
               [`Effect: ${clip.getEffectDetails('effectName')}`],
               [`Description: ${clip.getConfig().description}`],
-              [`DOM Tag: `, createElFromString(codeElHTML(escapeHtml(getOpeningTag(element)), 'block').outerHTML) as HTMLElement]
+              [`DOM Tag: `, createElFromString(codeElHTML(escapeHtml(getOpeningTag(element))).outerHTML) as HTMLElement]
           ]) 
           ]
         ]
