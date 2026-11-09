@@ -17,6 +17,7 @@
     "**/color.ts",
     "**/highlightjs/**/*",
     "**/4_graphicalUI/**/*",
+    "**/styles/**/*",
   ],
   "entryPoints": ["../src"],
   "entryPointStrategy": "expand",
