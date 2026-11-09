@@ -5,7 +5,7 @@ import { ExtendableBankCategory } from "../2_animationEffects/presetEffectCreati
 import { codeElHTML, createElFromString, createUListEl, escapeHtml, fragment, getOpeningTag, indexToOrdinal } from "./helpers";
 import { DOMElement } from "./interfaces";
 
-export type ErrorUIMessageFragments = {
+export type ErrorGUIMessageFragments = {
   description?: DocumentFragment,
   tips?: DocumentFragment,
   location?: DocumentFragment;
@@ -21,7 +21,7 @@ export type ClipErrorGenerator = {
     /** The Error instance to attach the location information to. */
     error: TError,
     /** The error message that will appear in the GUI error panel. */
-    uiMessageFrags?: ErrorUIMessageFragments,
+    guiMessageFrags?: ErrorGUIMessageFragments,
     /**
      * An element used to explicitly set the DOM element in the edge case where the error occurs in the clip's constructor
      * (where the field containing the DOM element is not yet set).
@@ -40,7 +40,7 @@ export type SequenceErrorGenerator = {
     /** The Error instance to which the location information will be attached. */
     error: TError,
     /** The error message that will appear before the location information. */
-    uiMessageFrags?: ErrorUIMessageFragments
+    guiMessageFrags?: ErrorGUIMessageFragments
   ): TError;
 };
 
@@ -53,7 +53,7 @@ export type TimelineErrorGenerator = {
     /** The Error to which the location information will be attached. */
     error: TError,
     /** The error message that will appear before the location information. */
-    uiMessageFrags?: ErrorUIMessageFragments
+    guiMessageFrags?: ErrorGUIMessageFragments
   ): TError;
 };
 
@@ -66,7 +66,7 @@ export type GeneralErrorGenerator = {
     /** The Error instance to be thrown. */
     errorInstance: TError,
     /** The error message describing the issue. */
-    uiMessageFrags?: ErrorUIMessageFragments,
+    guiMessageFrags?: ErrorGUIMessageFragments,
     components?: {
       /** The {@link AnimTimeline} involved in the error. */
       timeline?: AnimTimeline;
@@ -219,8 +219,8 @@ export const errorTip = (tip: string) => {
 /**
  * Creates a detailed Error containing information about the structures involved in the error along with the error message.
  * @param errorInstance - The Error instance to be thrown.
- * @param uiMessageFrags - The error message describing the issue.
- * @param components - The structures whose details should be appended to {@link uiMessageFrags}.
+ * @param guiMessageFrags - The error message describing the issue.
+ * @param components - The structures whose details should be appended to {@link guiMessageFrags}.
  * @param components.timeline - The {@link AnimTimeline} involved in the error.
  * @param components.sequence - The {@link AnimSequence} involved in the error.
  * @param components.clip - The {@link AnimClip} involved in the error.
@@ -228,7 +228,7 @@ export const errorTip = (tip: string) => {
  * 
  * @returns An Error containing details about where exactly in the timeline and/or sequence and/or clip the error occurred.
  */
-export const generateError: GeneralErrorGenerator = (errorInstance, uiMessageFrags = {}, components = {}) => {
+export const generateError: GeneralErrorGenerator = (errorInstance, guiMessageFrags = {}, components = {}) => {
   const {timeline, sequence, clip, element} = components;
   const logMessageStr = errorInstance.message;
 
@@ -259,7 +259,7 @@ export const generateError: GeneralErrorGenerator = (errorInstance, uiMessageFra
     `\n${'-'.repeat(58)}`
   );
 
-  uiMessageFrags.location = fragment([
+  guiMessageFrags.location = fragment([
     `${'-'.repeat(25)}LOCATION${'-'.repeat(25)}`,
     createUListEl([
       ...(
@@ -303,9 +303,9 @@ export const generateError: GeneralErrorGenerator = (errorInstance, uiMessageFra
       ),
     ])
   ]);
-  // uiMessageFrags.location = fragment([...locationPostfix.trim().split('\n').flatMap(str => [str, createElFromString('<br />') as HTMLElement]).slice(0, -1)]);
+  // guiMessageFrags.location = fragment([...locationPostfix.trim().split('\n').flatMap(str => [str, createElFromString('<br />') as HTMLElement]).slice(0, -1)]);
   
-  if (timeline) { timeline.setErrorState({errorName: errorInstance.name, uiMessageFrags, logMessageStr, locationPostfix}); }
+  if (timeline) { timeline.setErrorState({errorName: errorInstance.name, guiMessageFrags, logMessageStr, locationPostfix}); }
   if (sequence) { sequence.setErrored(); }
   if (clip) { clip.setErrored(); }
   

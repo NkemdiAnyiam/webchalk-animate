@@ -1,5 +1,5 @@
 import { AnimSequence } from "./AnimationSequence";
-import { CustomErrorClasses, errorTip, generateError, TimelineErrorGenerator, ErrorUIMessageFragments } from "../5_utils/errors";
+import { CustomErrorClasses, errorTip, generateError, TimelineErrorGenerator, ErrorGUIMessageFragments } from "../5_utils/errors";
 import { codeElTS, createElFromString, dequoteJSON, fragment, getPartial, indexToOrdinal, xor } from "../5_utils/helpers";
 import { PickFromArray } from "../5_utils/utilityTypes";
 import { WebchalkPlaybackButtonElement } from "../4_graphicalUI/WebchalkPlaybackButtonElement";
@@ -101,7 +101,7 @@ export type AnimTimelineStatus = {
    */
   errorState?: {
     errorName: string;
-    uiMessageFrags: ErrorUIMessageFragments;
+    guiMessageFrags: ErrorGUIMessageFragments;
     logMessageStr: string;
     locationPostfix: string;
   };
@@ -365,7 +365,7 @@ export class AnimTimeline {
   private errorState?: {
     errorName: string;
     logMessageStr: string;
-    uiMessageFrags: ErrorUIMessageFragments;
+    guiMessageFrags: ErrorGUIMessageFragments;
     locationPostfix: string;
   };
   /** @internal */
@@ -1777,8 +1777,8 @@ export class AnimTimeline {
   /*-:**************************************************************************************************************************/
   /*-:******************************************        ERRORS        **********************************************************/
   /*-:**************************************************************************************************************************/
-  protected generateError: TimelineErrorGenerator = (errorInstance, uiMessageFrags = {}) => {
-    return generateError(errorInstance, uiMessageFrags, {
+  protected generateError: TimelineErrorGenerator = (errorInstance, guiMessageFrags = {}) => {
+    return generateError(errorInstance, guiMessageFrags, {
       timeline: this
     });
   }

@@ -5,7 +5,7 @@ import { webchalk, Webchalk } from "../Webchalk";
 import { EffectOptions, PresetEffectBank, PresetEffectDefinition, EffectFrameGeneratorSet } from "../2_animationEffects/presetEffectCreation";
 import { call, codeElCSS, codeElTS, createOListEl, deepComparison, detab, fragment, getPartial, mergeArrays, TBA_DURATION, xor } from "../5_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
-import { CustomErrorClasses, ClipErrorGenerator, errorTip, generateError, ErrorUIMessageFragments } from "../5_utils/errors";
+import { CustomErrorClasses, ClipErrorGenerator, errorTip, generateError, ErrorGUIMessageFragments } from "../5_utils/errors";
 import { DOMElement, EffectCategory, Mutator, StyleProperty } from "../5_utils/interfaces";
 import { WebchalkConnectorElement } from "../3_shapes/elements/WebchalkConnectorElement";
 import { WebchalkAnimation, NestedWebchalkAnimation } from "./WebchalkAnimation";
@@ -2093,8 +2093,8 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   /*-:**************************************************************************************************************************/
   /*-:*****************************************         ERRORS         *********************************************************/
   /*-:**************************************************************************************************************************/
-  protected generateError: ClipErrorGenerator = (errorInstance, uiMessageFrags = {}, elementOverride?: DOMElement) => {
-    return generateError(errorInstance, uiMessageFrags as ErrorUIMessageFragments | undefined, {
+  protected generateError: ClipErrorGenerator = (errorInstance, guiMessageFrags = {}, elementOverride?: DOMElement) => {
+    return generateError(errorInstance, guiMessageFrags as ErrorGUIMessageFragments | undefined, {
       timeline: this.parentTimeline,
       sequence: this.parentSequence,
       clip: this,

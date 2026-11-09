@@ -1,5 +1,5 @@
 import { AnimClip, AnimClipConfig, AnimClipModifiers, AnimClipTiming } from "./AnimationClip";
-import { CustomErrorClasses, errorTip, ErrorUIMessageFragments } from "../5_utils/errors";
+import { CustomErrorClasses, errorTip, ErrorGUIMessageFragments } from "../5_utils/errors";
 import { codeElTS, createDetailsEl, fragment, getPartial, TBA_DURATION, createUListEl, codeElCSS, codeElHTML, createOListEl } from "../5_utils/helpers";
 import type { Webchalk } from "../Webchalk";
 import { DOMElement, MultiUnitOrderedPairString, RootNodeEditStats, TextEditRate } from "../5_utils/interfaces";
@@ -203,7 +203,7 @@ export class EntranceClip<TPresetEffectDefinition extends PresetEffectDefinition
       // getComputedStyle() for a child element
       const { display, visibility } = getComputedStyle(this.domElem);
       let str = ``;
-      const frags: ErrorUIMessageFragments = {};
+      const frags: ErrorGUIMessageFragments = {};
       if (display === 'none') {
         str = `The element being entered is hidden with CSS {display: none;}, but it was not using the class "webchalk-display-none".` +
         ` An element needs to be unrendered using the class "webchalk-display-none" in order for Entrance() to act on it.`;
@@ -1201,7 +1201,7 @@ export class ConnectorEntranceClip<TPresetEffectDefinition extends PresetEffectD
     if (!this.domElem.classList.contains('webchalk-display-none')) {
       const { display } = getComputedStyle(this.domElem);
       let str = ``;
-      const frags: ErrorUIMessageFragments = {description: new DocumentFragment()};
+      const frags: ErrorGUIMessageFragments = {description: new DocumentFragment()};
       if (display === 'none') {
         str = `The element being entered is hidden with CSS {display: none;}, but it was not using the class "webchalk-display-none".`
           + ` A connector element needs to be unrendered using the class "webchalk-display-none" in order for ConnectorEntrance() to act on it.`;

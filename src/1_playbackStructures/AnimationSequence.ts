@@ -1,6 +1,6 @@
 import { AnimClip } from "./AnimationClip";
 import { AnimTimeline, AnimTimelineUIMethods } from "./AnimationTimeline";
-import { CustomErrorClasses, errorTip, generateError, SequenceErrorGenerator, ErrorUIMessageFragments } from "../5_utils/errors";
+import { CustomErrorClasses, errorTip, generateError, SequenceErrorGenerator, ErrorGUIMessageFragments } from "../5_utils/errors";
 import { codeElTS, fragment, getPartial, indexToOrdinal, TBA_DURATION } from "../5_utils/helpers";
 import { PickFromArray } from "../5_utils/utilityTypes";
 import { webchalk } from "../Webchalk";
@@ -1409,8 +1409,8 @@ export class AnimSequence {
   /*-:**************************************************************************************************************************/
   /*-:******************************************        ERRORS        **********************************************************/
   /*-:**************************************************************************************************************************/
-  protected generateError: SequenceErrorGenerator = (errorInstance, uiMessageFrags = {}) => {
-    return generateError(errorInstance, uiMessageFrags, {
+  protected generateError: SequenceErrorGenerator = (errorInstance, guiMessageFrags = {}) => {
+    return generateError(errorInstance, guiMessageFrags, {
       sequence: this,
       timeline: this.parentTimeline
     });
