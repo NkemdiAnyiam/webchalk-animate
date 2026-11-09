@@ -100,10 +100,9 @@ export type AnimTimelineStatus = {
    * For your practical purposes, the presence of `errorState` can just be treated as a boolean for whether an error has occurred.
    */
   errorState?: {
-    errorName: string;
+    errorInstance: Error;
     guiMessageFrags: ErrorGUIMessageFragments;
-    logMessageStr: string;
-    locationPostfix: string;
+    locationString: string;
   };
 };
 
@@ -363,10 +362,9 @@ export class AnimTimeline {
     return false;
   }
   private errorState?: {
-    errorName: string;
-    logMessageStr: string;
+    errorInstance: Error;
     guiMessageFrags: ErrorGUIMessageFragments;
-    locationPostfix: string;
+    locationString: string;
   };
   /** @internal */
   setErrorState(errorState: AnimTimelineStatus['errorState']) {

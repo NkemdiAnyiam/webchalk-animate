@@ -230,10 +230,8 @@ export const errorTip = (tip: string) => {
  */
 export const generateError: GeneralErrorGenerator = (errorInstance, guiMessageFrags = {}, components = {}) => {
   const {timeline, sequence, clip, element} = components;
-  const logMessageStr = errorInstance.message;
 
-  // TODO: create GUI version of location string
-  const locationPostfix = (
+  const locationString = (
     `\n\n${'-'.repeat(25)}LOCATION${'-'.repeat(25)}` +
     (timeline
       ? `\nTimeline: [Timeline Name: ${timeline.getConfig().timelineName}]` +
@@ -303,14 +301,13 @@ export const generateError: GeneralErrorGenerator = (errorInstance, guiMessageFr
       ),
     ])
   ]);
-  // guiMessageFrags.location = fragment([...locationPostfix.trim().split('\n').flatMap(str => [str, createElFromString('<br />') as HTMLElement]).slice(0, -1)]);
   
-  if (timeline) { timeline.setErrorState({errorName: errorInstance.name, guiMessageFrags, logMessageStr, locationPostfix}); }
+  if (timeline) { timeline.setErrorState({errorInstance, guiMessageFrags, locationString}); }
   if (sequence) { sequence.setErrored(); }
   if (clip) { clip.setErrored(); }
   
   /** @ts-ignore */
-  return (new errorInstance.constructor(errorInstance.message + locationPostfix, {cause: errorInstance}));
+  return (new errorInstance.constructor(errorInstance.message + locationString, {cause: errorInstance}));
 };
 
 /**@ignore*/

@@ -337,7 +337,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     const errorPanelEl = this.shadowRoot!.querySelector('.timeline__error-panel') as HTMLElement;
     const headingEl = errorPanelEl.querySelector('.timeline__error-panel-heading-text') as HTMLHeadingElement;
     const bodyEl = errorPanelEl.querySelector('.timeline__error-panel-body') as HTMLHeadingElement;
-    const {errorName, guiMessageFrags, logMessageStr} = this.animTimeline!.getStatus('errorState')!;
+    const {errorInstance: {name: errorName, message: logMessage}, guiMessageFrags} = this.animTimeline!.getStatus('errorState')!;
 
     headingEl.textContent = `ERROR: ${escapeHtml(errorName)}`;
     bodyEl.innerHTML = '';
@@ -353,7 +353,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     };
 
     const {description, tips, location} = guiMessageFrags;
-    appendSection('Description', description ?? new Text(logMessageStr));
+    appendSection('Description', description ?? new Text(logMessage));
     if (tips) { appendSection('Tips', tips); }
     if (location) { appendSection('Location', location); }
 
