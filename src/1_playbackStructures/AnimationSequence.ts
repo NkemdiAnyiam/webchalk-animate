@@ -1,7 +1,7 @@
 import { AnimClip } from "./AnimationClip";
 import { AnimTimeline, AnimTimelineUIMethods } from "./AnimationTimeline";
 import { CustomErrorClasses, errorTip, generateError, SequenceErrorGenerator, ErrorUIMessageFragments } from "../5_utils/errors";
-import { getPartial, indexToOrdinal, TBA_DURATION } from "../5_utils/helpers";
+import { codeElTS, fragment, getPartial, indexToOrdinal, TBA_DURATION } from "../5_utils/helpers";
 import { PickFromArray } from "../5_utils/utilityTypes";
 import { webchalk } from "../Webchalk";
 import { WebchalkSequenceElement } from "../4_graphicalUI/pane-ui/WebchalkSequenceElement";
@@ -627,7 +627,10 @@ export class AnimSequence {
   // constructor(...animClips: AnimClip[]);
   constructor(configOrClips: Partial<AnimSequenceConfig> | AnimClip[], animClips?: AnimClip[]) {
     if (webchalk.sequenceCreatorLock) {
-      throw this.generateError(TypeError, [`Illegal constructor. Sequences can only be instantiated using webchalk.newSequence().`]);
+      throw this.generateError(
+        TypeError(`Illegal constructor. Sequences can only be instantiated using webchalk.newSequence().`),
+        {description: fragment([`Illegal constructor. Sequences can only be instantiated using `, codeElTS(`webchalk.newSequence()`), `.`])}
+      );
     }
     webchalk.sequenceCreatorLock = true;
     
@@ -716,8 +719,14 @@ export class AnimSequence {
     
     if (atIndex > this.animClips.length) {
       throw this.generateError(
-        RangeError,
-        [`atIndex value ${atIndex} out of bounds. atIndex cannot be greater than the index of the next empty index within the sequence (in this case, ${this.animClips.length}).`]
+        new RangeError(
+          `atIndex value ${atIndex} out of bounds. atIndex cannot be greater than the index of`
+          + ` the next empty index within the sequence (in this case, ${this.animClips.length}).`
+        ),
+        {description: fragment([
+          `atIndex value `, codeElTS(`${atIndex}`), ` out of bounds. atIndex cannot be greater than the index of`,
+          ` the next empty index within the sequence (in this case, ${this.animClips.length}).`
+        ])}
       );
     }
 
@@ -726,12 +735,17 @@ export class AnimSequence {
       const animClip = clips[i];
 
       if (!(animClip instanceof AnimClip)) {
-        throw this.generateError(CustomErrorClasses.InvalidChildError, [`The ${indexToOrdinal(i)} object (index ${i}) in the given array is not an AnimClip instance.`]);
+        throw this.generateError(
+          new CustomErrorClasses.InvalidChildError(`The ${indexToOrdinal(i)} object (index ${i}) in the given array is not an AnimClip instance.`),
+          {description: fragment([`The ${indexToOrdinal(i)} object (index ${i}) in the given array is not an `, codeElTS(`AnimClip`), ` instance.`])}
+        );
       }
 
       if (animClip.getHierarchy('parentSequence')) {
         const thisOrSome = animClip.getHierarchy('parentSequence') === this ? 'this' : 'some';
-        throw this.generateError(CustomErrorClasses.InvalidChildError, [`The ${indexToOrdinal(i)} clip (index ${i}) in the given array is already part of ${thisOrSome} sequence.`]);
+        throw this.generateError(
+          new CustomErrorClasses.InvalidChildError(`The ${indexToOrdinal(i)} clip (index ${i}) in the given array is already part of ${thisOrSome} sequence.`),
+        );
       }
       
       if (!animClip.setLineage('sequence', this)) {
@@ -740,8 +754,7 @@ export class AnimSequence {
           clips[j].removeLineage('sequence');
         }
         throw this.generateError(
-          CustomErrorClasses.InvalidChildError,
-          [`The ${indexToOrdinal(i)} clip (index ${i}) in the given array was already present earlier in the array. Duplicates are not allowed.`]
+          new CustomErrorClasses.InvalidChildError(`The ${indexToOrdinal(i)} clip (index ${i}) in the given array was already present earlier in the array. Duplicates are not allowed.`),
         );
       };
     }
@@ -781,8 +794,7 @@ export class AnimSequence {
       const index = this.findClipIndex(sortedTargetClips[i]);
       if (index === -1) {
         throw this.generateError(
-          CustomErrorClasses.InvalidChildError,
-          [`The ${indexToOrdinal(i)} clip (index ${i}) being removed from this sequence was already not in the sequence.`]
+          new CustomErrorClasses.InvalidChildError(`The ${indexToOrdinal(i)} clip (index ${i}) being removed from this sequence was already not in the sequence.`),
         );
       }
       removedClips.push(...finalAnimClips.splice(index, 1));
@@ -1127,7 +1139,7 @@ export class AnimSequence {
     if (this.parentTimeline !== options?.parentTimeline) { this.throwChildPlaybackError(this.unpause.name); }
     if (options?.pauseKey !== this.pauseKey) {
       throw this.generateError(
-        CustomErrorClasses.LockedOperationError, [`Manually unpausing is prohibited when executing scheduled tasks.`]
+        new CustomErrorClasses.LockedOperationError(`Manually unpausing is prohibited when executing scheduled tasks.`)
       );
     }
     
@@ -1397,25 +1409,36 @@ export class AnimSequence {
   /*-:**************************************************************************************************************************/
   /*-:******************************************        ERRORS        **********************************************************/
   /*-:**************************************************************************************************************************/
-  protected generateError: SequenceErrorGenerator = (ErrorClassOrInstance, msg = ['<unspecified error>']) => {
-    return generateError(ErrorClassOrInstance, msg as [logMessageStr: string, uiMessageFrags?: ErrorUIMessageFragments], {
+  protected generateError: SequenceErrorGenerator = (errorInstance, uiMessageFrags = {}) => {
+    return generateError(errorInstance, uiMessageFrags, {
       sequence: this,
       timeline: this.parentTimeline
     });
   }
 
   private throwChildPlaybackError(funcName: string): never {
-    throw this.generateError(CustomErrorClasses.ChildPlaybackError, [`Cannot directly call ${funcName}() on an animation sequence while it is part of a timeline.`]);
+    throw this.generateError(
+      new CustomErrorClasses.ChildPlaybackError(`Cannot directly call ${funcName}() on an animation sequence while it is part of a timeline.`),
+      {description: fragment([`Cannot directly call `, codeElTS(`${funcName}()`), ` on an animation sequence while it is part of a timeline.`])}
+    );
   }
 
   protected generateLockedStructureError = (methodName: string) => {
     return this.generateError(
-      CustomErrorClasses.LockedOperationError,
-      [`Cannot use ${methodName}() while the sequence is in progress or in a forward finished state.`
-      + errorTip(
-        `Tip: Generally, changes cannot be made to the structure of a sequence once it has left its starting point.`
-        + ` This is to preserve continuity (once a sequence moves forward, it is locked in history until it is completely rewound).`
-      )]
+      new CustomErrorClasses.LockedOperationError(
+        `Cannot use ${methodName}() while the sequence is in progress or in a forward finished state.`
+          + errorTip(
+            `Tip: Generally, changes cannot be made to the structure of a sequence once it has left its starting point.`
+            + ` This is to preserve continuity (once a sequence moves forward, it is locked in history until it is completely rewound).`
+        )
+      ),
+      {
+        description: fragment([`Cannot use `, codeElTS(`${methodName}()`), ` while the sequence is in progress or in a forward finished state.`]),
+        tips: fragment([
+          `Tip: Generally, changes cannot be made to the structure of a sequence once it has left its starting point.`,
+          ` This is to preserve continuity (once a sequence moves forward, it is locked in history until it is completely rewound).`
+        ])
+      }
     );
   }
 }

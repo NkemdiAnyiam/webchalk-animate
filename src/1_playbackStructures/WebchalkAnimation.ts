@@ -2,7 +2,7 @@ import { AnimClip, PromiseWithId, ScheduledTask } from "./AnimationClip";
 import { CustomErrorClasses, ClipErrorGenerator } from "../5_utils/errors";
 import { DOMElement, Keyframes } from "../5_utils/interfaces";
 import { useEasing } from "../2_animationEffects/easing";
-import { detab, equalWithinTol, generateId, PERCENTAGE_REGEX, RELATIVE_TIME_POSITION_REGEX, TBA_DURATION } from "../5_utils/helpers";
+import { codeElTS, createOListEl, detab, equalWithinTol, fragment, generateId, PERCENTAGE_REGEX, RELATIVE_TIME_POSITION_REGEX, TBA_DURATION } from "../5_utils/helpers";
 import { WebchalkPhaseSegmentElement } from "../4_graphicalUI/pane-ui/WebchalkPhaseSegmentElement";
 
 abstract class WebchalkAnimationBase extends Animation {
@@ -17,7 +17,11 @@ abstract class WebchalkAnimationBase extends Animation {
   constructor(target: Element | null | undefined, keyframeOptions: KeyframeEffectOptions, protected errorGenerator: ClipErrorGenerator, protected animClip: AnimClip) {
     super();
 
-    if (!target) { throw this.errorGenerator(CustomErrorClasses.InvalidElementError, [`Animation target must not be null or undefined`]); }
+    if (!target) { throw this.errorGenerator(
+      new CustomErrorClasses.InvalidElementError(`Animation target must not be null or undefined.`),
+      {description: fragment([`Animation target must not be `, codeElTS(`null`), ` or `, codeElTS(`undefined`), `.`])}
+      );
+    }
     this.target = target as DOMElement;
 
     this.forwardEffect = new KeyframeEffect(
@@ -124,7 +128,10 @@ abstract class WebchalkAnimationBase extends Animation {
         super.effect = new KeyframeEffect(backwardEffect.target, backwardEffect.getKeyframes(), {...backwardEffect.getTiming(), composite: backwardEffect.composite});
         break;
       default:
-        throw this.errorGenerator(RangeError, [`Invalid direction "${direction}" passed to setDirection(). Must be "forward" or "backward".`]);
+        throw this.errorGenerator(
+          new RangeError(`Invalid direction "${direction}" passed to setDirection(). Must be "forward" or "backward".`),
+          {description: fragment([`Invalid direction `, codeElTS(`"${direction}"`), ` passed to `, codeElTS(`setDirection()`), `. Must be `, codeElTS(`"forward"`), ` or `, codeElTS(`"backward"`), `.`])}
+        );
     }
   }
 
@@ -466,13 +473,26 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
 
     else if (this.durationPending && !String(timePosition).match(RELATIVE_TIME_POSITION_REGEX)) {
       throw this.errorGenerator(
-        CustomErrorClasses.EarlySchedulingError,
-        [detab`The new promise requested for time position "${timePosition}" could not be scheduled because\
+        new CustomErrorClasses.EarlySchedulingError(
+          detab`The new promise requested for time position "${timePosition}" could not be scheduled because\
           the duration of the clip is not yet known. A clip whose length is set with a rate rather than a duration\
-          can only schedule promises using a relative 'timePosition' value (such as {timePosition: "20%"} or {timePosition: "end"})\
+          can only schedule promises using a relative timePosition value (such as "20%" or "end")\
           before the duration is known. The duration of a rate-based clip is only known while in one of these 3 states:\
           1) The clip is currently playing; 2) The clip has finished playing and is waiting to be rewound' 3) The clip is\
-          currently rewinding.`]
+          currently rewinding.`
+        ),
+        {description: fragment([
+          `The new promise requested for time position `, codeElTS(`"${timePosition}"`), ` could not be scheduled because`,
+          ` the duration of the clip is not yet known. A clip whose length is set with a rate rather than a duration`,
+          ` can only schedule promises using a relative timePosition value`,
+          ` (such as `, codeElTS(`"20%"`), ` or `, codeElTS(`"end"`), `) before`,
+          ` the duration is known. The duration of a rate-based clip is only known while in one of these 3 states:`,
+          createOListEl([
+            [`The clip is currently playing.`],
+            [`The clip has finished playing and is waiting to be rewound.`],
+            [`The clip is currently rewinding.`]
+          ])
+        ])}
       );
     }
 
@@ -484,31 +504,43 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     if (phaseTimePosition < 0) {
       if (typeof timePosition === 'number') {
         throw this.errorGenerator(
-          CustomErrorClasses.InvalidPhasePositionError,
-          [detab`Negative 'timePosition' ${timePosition} for phase "${phase}" resulted in invalid time ${phaseTimePosition}\
+          new CustomErrorClasses.InvalidPhasePositionError(
+            detab`Negative timePosition ${timePosition} for phase "${phase}" resulted in invalid time ${phaseTimePosition}\
             (i.e., ${phaseDuration} - ${Math.abs(timePosition)}).\
-            Negative 'timePosition' values must result in the range [0, ${phaseDuration}] for this "${phase}".`]
+            Negative timePosition values must result in the range [0, ${phaseDuration}] for this "${phase}".`
+          ),
+          {description: fragment([
+            `Negative timePosition `, codeElTS(`${timePosition}`), ` for phase `, codeElTS(`"${phase}"`),
+            ` resulted in invalid time `, codeElTS(`${phaseTimePosition}`),
+            ` (i.e., `, codeElTS(`${phaseDuration} - ${Math.abs(timePosition)}`), `).`,
+            ` Negative timePosition values must result in the range [0, ${phaseDuration}] for this `, codeElTS(`"${phase}"`), `.`
+          ])}
         );
       }
       else {
         throw this.errorGenerator(
-          CustomErrorClasses.InvalidPhasePositionError,
-          [`Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`]
+          new CustomErrorClasses.InvalidPhasePositionError(`Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`),
+          {description: fragment([`Invalid timePosition value `, codeElTS(`${timePosition}`), `. Percentages must be in the range [0%, 100%].`])}
         );
       }
     }
     if (phaseTimePosition > phaseDuration) {
       if (typeof timePosition === 'number') {
         throw this.errorGenerator(
-          CustomErrorClasses.InvalidPhasePositionError,
-          [detab`Invalid positive timePosition value ${timePosition} for phase "${phase}".\
-          Positive time position values must be in the range [0, ${phaseDuration}] for this "${phase}".`]
+          new CustomErrorClasses.InvalidPhasePositionError(
+            detab`Invalid positive timePosition value ${timePosition} for phase "${phase}".\
+            Positive time position values must be in the range [0, ${phaseDuration}] for this "${phase}".`
+          ),
+          {description: fragment([
+            `Invalid positive timePosition value `, codeElTS(`${timePosition}`), ` for phase `, codeElTS(`"${phase}"`), `.`,
+            ` Positive time position values must be in the range [0, ${phaseDuration}] for this `, codeElTS(`"${phase}"`), `.`
+          ])}
         );
       }
       else {
         throw this.errorGenerator(
-          CustomErrorClasses.InvalidPhasePositionError,
-          [`Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`]
+          new CustomErrorClasses.InvalidPhasePositionError(`Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`),
+          {description: fragment([`Invalid timePosition value `, codeElTS(`${timePosition}`), `. Percentages must be in the range [0%, 100%].`])}
         );
       }
     }
@@ -634,7 +666,10 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     }
 
     if (!(resolverContainer)) {
-      throw this.errorGenerator(RangeError, [`Resolver with id "${promiseId}" was not found within this clip's scheduled promises.`]);
+      throw this.errorGenerator(
+        new RangeError(`Resolver with id "${promiseId}" was not found within this clip's scheduled promises.`),
+        {description: fragment([`Resolver with id `, codeElTS(`"${promiseId}"`), ` was not found within this clip's scheduled promises.`])}
+      );
     }
 
     delete this.resolverReschedulingQueue[promiseId];
@@ -704,7 +739,10 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     } = schedulingOptions;
 
     if (!task.onPlay && !task.onRewind) {
-      throw this.errorGenerator(TypeError, [`Invalid task object. Must contain at least one of 'onPlay' and 'onRewind' properties.`])
+      throw this.errorGenerator(
+        new TypeError(`Invalid task object. Must contain at least one of {onPlay:} and {onRewind:} properties.`),
+        {description: fragment([`Invalid task object. Must contain at least one of `, codeElTS(`{onPlay:}`), ` and `, codeElTS(`{onRewind:}`), ` properties.`])}
+      )
     }
 
     if (frequencyLimit === 0) { return id; }
@@ -779,7 +817,10 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     }
 
     if (!(taskF || taskB)) {
-      throw this.errorGenerator(RangeError, [`Task with id "${taskId}" was not found within this clip's scheduled tasks.`]);
+      throw this.errorGenerator(
+        new RangeError(`Task with id "${taskId}" was not found within this clip's scheduled tasks.`),
+        {description: fragment([`Task with id `, codeElTS(`"${taskId}"`), ` was not found within this clip's scheduled tasks.`])}
+    );
     }
 
     delete this.taskReschedulingQueue[taskId];
@@ -834,7 +875,10 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         this.taskReschedulingQueue[id].onRewindReschedulingArgs = [direction, phase, taskPart];
         break;
       default:
-        throw this.errorGenerator(RangeError, [`Invalid direction "${direction}". Must be "forward" or "backward".`]);
+        throw this.errorGenerator(
+          new RangeError(`Invalid direction "${direction}". Must be "forward" or "backward".`),
+          {description: fragment([`Invalid direction `, codeElTS(`"${direction}"`), `. Must be `, codeElTS(`"forward"`), ` or `, codeElTS(`"backward"`), `.`])}
+        );
     }
   }
 
@@ -864,18 +908,35 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     if (taskPart.frequencyLimit !== Infinity 
       && (Number.parseInt(String(taskPart.frequencyLimit)) !== taskPart.frequencyLimit || taskPart.frequencyLimit < 0)
     ) {
-      throw this.errorGenerator(RangeError, [`Invalid 'frequencyLimit' ${taskPart.frequencyLimit}. Must be either an integer at least 0 or Infinity.`]);
+      throw this.errorGenerator(
+        new RangeError(`Invalid 'frequencyLimit' ${taskPart.frequencyLimit}. Must be either an integer at least 0 or Infinity.`),
+        {description: fragment([`Invalid frequencyLimit `, codeElTS(`${taskPart.frequencyLimit}`), `. Must be either an integer at least `, codeElTS(`0`), `, or `, codeElTS(`Infinity`), `.`])}
+      );
     }
     
     if (this.durationPending && !String(timePosition).match(RELATIVE_TIME_POSITION_REGEX)) {
       throw this.errorGenerator(
-        CustomErrorClasses.EarlySchedulingError,
-        [detab`The new ${awaitedType} set for time position "${timePosition}" could not be scheduled because\
+        new CustomErrorClasses.EarlySchedulingError(
+          detab`The new ${awaitedType} set for time position "${timePosition}" could not be scheduled because\
           the duration of the clip is not yet known. A clip whose length is set with a rate rather than a duration\
-          can only schedule ${awaitedType}s using a relative 'timePosition' value (such as {timePosition: "20%"} or {timePosition: "end"})\
+          can only schedule ${awaitedType}s using a relative timePosition value (such as "20%" or "end")\
           before the duration is known. The duration of a rate-based clip is only known while in one of these 3 states:\
           1) The clip is currently playing; 2) The clip has finished playing and is waiting to be rewound' 3) The clip is\
-          currently rewinding. Once the clip finishes rewinding, the duration becomes unknown again until the clip plays again.`]
+          currently rewinding. Once the clip finishes rewinding, the duration becomes unknown again until the clip plays again.`
+        ),
+        {description: fragment([
+          `The new ${awaitedType} set for time position `, codeElTS(`"${timePosition}"`), ` could not be scheduled because`,
+          ` the duration of the clip is not yet known. A clip whose length is set with a rate rather than a duration`,
+          ` can only schedule ${awaitedType}s using a relative timePosition value`,
+          ` (such as `, codeElTS(`"20%"`), ` or `, codeElTS(`"end"`), `) before`,
+          ` the duration is known. The duration of a rate-based clip is only known while in one of these 3 states:`,
+          createOListEl([
+            [`The clip is currently playing.`],
+            [`The clip has finished playing and is waiting to be rewound.`],
+            [`The clip is currently rewinding.`]
+          ]),
+          `Once the clip finishes rewinding, the duration becomes unknown again until the clip plays again.`
+        ])}
       );
     }
 
@@ -889,11 +950,18 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       )
     ) {
       throw this.errorGenerator(
-        CustomErrorClasses.LateSchedulingError,
-        [detab`The new ${awaitedType} set for time position "${timePosition}" could not be scheduled because\
+        new CustomErrorClasses.LateSchedulingError(
+          detab`The new ${awaitedType} set for time position "${timePosition}" could not be scheduled because\
           it provided an 'onPlay' callback and the clip ${this.inProgress ? 'was rewinding' : 'has finished playing'}.\
           New ${awaitedType}s with 'onPlay' can only be scheduled while the clip is still 1) waiting to be played or 2)\
-          currently playing.`]
+          currently playing.`
+        ),
+        {description: fragment([
+          `The new ${awaitedType} set for time position `, codeElTS(`"${timePosition}"`), ` could not be scheduled because`,
+          ` it provided an `, codeElTS(`{onPlay:}`), ` callback and the clip ${this.inProgress ? 'was rewinding' : 'has finished playing'}.`,
+          ` New ${awaitedType}s with `, codeElTS(`{onPlay:}`), ` can only be scheduled while the clip is still 1) waiting to be played or 2)`,
+          ` currently playing.`
+        ])}
       );
     }
     
@@ -905,30 +973,39 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     if (phaseTimePosition < 0) {
       if (typeof timePosition === 'number') {
         throw this.errorGenerator(
-          CustomErrorClasses.InvalidPhasePositionError,
-          [detab`Negative 'timePosition' ${timePosition} for phase "${phase}" resulted in invalid time ${phaseTimePosition}\
+          new CustomErrorClasses.InvalidPhasePositionError(
+            detab`Negative timePosition ${timePosition} for phase "${phase}" resulted in invalid time ${phaseTimePosition}\
             (i.e., ${phaseDuration} - ${Math.abs(timePosition)}).\
-            Negative 'timePosition' values must result in the range [0, ${phaseDuration}] for this "${phase}".`]
+            Negative timePosition values must result in the range [0, ${phaseDuration}] for this "${phase}".`
+          ),
+          {description: fragment([
+            `Negative timePosition `, codeElTS(`${timePosition}`), ` for phase `, codeElTS(`"${phase}"`),
+            ` resulted in invalid time `, codeElTS(`${phaseTimePosition}`),
+            ` (i.e., `, codeElTS(`${phaseDuration} - ${Math.abs(timePosition)}`), `).`,
+            ` Negative timePosition values must result in the range [0, ${phaseDuration}] for this `, codeElTS(`"${phase}"`), `.`
+          ])}
         );
       }
       else {
         throw this.errorGenerator(
-          CustomErrorClasses.InvalidPhasePositionError,
-          [`Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`]
+          new CustomErrorClasses.InvalidPhasePositionError(`Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`),
+          {description: fragment([`Invalid timePosition value `, codeElTS(`${timePosition}`), `. Percentages must be in the range [0%, 100%].`])}
         );
       }
     }
     if (phaseTimePosition > phaseDuration) {
       if (typeof timePosition === 'number') {
         throw this.errorGenerator(
-          CustomErrorClasses.InvalidPhasePositionError,
-          [`Invalid timePosition value ${timePosition} for phase "${phase}". Must be in the range [0, ${phaseDuration}] for this "${phase}".`]
+          new CustomErrorClasses.InvalidPhasePositionError(`Invalid timePosition value ${timePosition} for phase "${phase}". Must be in the range [0, ${phaseDuration}] for this "${phase}".`),
+          {description: fragment([
+            `Invalid timePosition value `, codeElTS(`${timePosition}`), ` for phase `, codeElTS(`"${phase}"`), `. Must be in the range [0, ${phaseDuration}] for this `, codeElTS(`"${phase}"`), `.`
+          ])}
         );
       }
       else {
         throw this.errorGenerator(
-          CustomErrorClasses.InvalidPhasePositionError,
-          [`Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`]
+          new CustomErrorClasses.InvalidPhasePositionError(`Invalid timePosition value ${timePosition}. Percentages must be in the range [0%, 100%].`),
+          {description: fragment([`Invalid timePosition value `, codeElTS(`${timePosition}`), `. Percentages must be in the range [0%, 100%].`])}
         );
       }
     }
@@ -945,9 +1022,14 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         // should be awaited has already passed
         if (currSegment.header.activated) {
           throw this.errorGenerator(
-            CustomErrorClasses.LateSchedulingError,
-            [detab`The new ${awaitedType} set for time position "${timePosition}" could not be scheduled because\
-              the time "${timePosition}" has already passed.`]
+            new CustomErrorClasses.LateSchedulingError(
+              detab`The new ${awaitedType} set for time position "${timePosition}" could not be scheduled because\
+              the time "${timePosition}" has already passed.`
+            ),
+            {description: fragment([
+              `The new ${awaitedType} set for time position `, codeElTS(`"${timePosition}"`), ` could not be scheduled because`,
+              ` the time `, codeElTS(`"${timePosition}"`), ` has already passed.`
+            ])}
           );
         }
 
@@ -995,9 +1077,14 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         // but if curr segment is already completed, the time to await the promises has already passed
         if (currSegment.header.completed) {
           throw this.errorGenerator(
-            CustomErrorClasses.LateSchedulingError,
-            [detab`The new ${awaitedType} set for time position "${timePosition}" could not be scheduled because\
-              the time "${timePosition}" has already passed.`]
+            new CustomErrorClasses.LateSchedulingError(
+              detab`The new ${awaitedType} set for time position "${timePosition}" could not be scheduled because\
+              the time "${timePosition}" has already passed.`
+            ),
+            {description: fragment([
+              `The new ${awaitedType} set for time position `, codeElTS(`"${timePosition}"`), ` could not be scheduled because`,
+              ` the time `, codeElTS(`"${timePosition}"`), ` has already passed.`
+            ])}
           );
         }
 
@@ -1030,7 +1117,10 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     }
 
     // note: this error should never be reached
-    throw this.errorGenerator(Error, ['Something very wrong occurred for addAwaited() to not be completed.']);
+    throw this.errorGenerator(
+      new Error('Something very wrong occurred for addAwaited() to not be completed.'),
+      {description: fragment([`Something very wrong occurred for `, codeElTS(`addAwaited()`), ` to not be completed.`])}
+    );
   }
 
   private static computePhaseEmplacement(
@@ -1051,8 +1141,8 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         break;
       default:
         throw anim.errorGenerator(
-          CustomErrorClasses.InvalidPhasePositionError,
-          [`Invalid direction "${direction}". Must be "forward" or "backward".`]
+          new CustomErrorClasses.InvalidPhasePositionError(`Invalid direction "${direction}". Must be "forward" or "backward".`),
+          {description: fragment([`Invalid direction `, codeElTS(`"${direction}"`), `. Must be `, codeElTS(`"forward"`), ` or `, codeElTS(`"backward"`), `.`])}
         );
     }
     const effect = anim.getEffect(direction);
@@ -1089,8 +1179,9 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         break;
       default:
         throw anim.errorGenerator(
-          CustomErrorClasses.InvalidPhasePositionError,
-          [`Invalid phase "${phase}". Must be "delayPhase", "activePhase", "endDelayPhase", or "whole".`]
+          new CustomErrorClasses.InvalidPhasePositionError(`Invalid phase "${phase}". Must be "delayPhase", "activePhase", "endDelayPhase", or "whole".`),
+          {description: fragment([`Invalid phase `, codeElTS(`"${phase}"`), `. Must be `, codeElTS(`"delayPhase"`),
+            `, `, codeElTS(`"activePhase"`), `, `, codeElTS(`"endDelayPhase"`), `, or `, codeElTS(`"whole"`), `.`])}
         );
     }
 
@@ -1110,7 +1201,10 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         const match = timePosition.toString().match(PERCENTAGE_REGEX);
         // note: this error should never occur
         if (!match) {
-          throw anim.errorGenerator(CustomErrorClasses.InvalidPhasePositionError, [`Invalid timePosition value "${timePosition}".`]);
+          throw anim.errorGenerator(
+            new CustomErrorClasses.InvalidPhasePositionError(`Invalid timePosition value "${timePosition}".`),
+            {description: fragment([`Invalid timePosition value `, codeElTS(`"${timePosition}"`), `.`])}
+          );
         }
   
         initialPhaseTimePos = phaseDuration * (Number(match[1]) / 100);
@@ -1200,8 +1294,10 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         break;
       default:
         throw this.errorGenerator(
-          RangeError,
-          [`Invalid direction "${direction}" used in resetPromises(). Must be "forward", "backward", or "both."`]
+          new RangeError(`Invalid direction "${direction}" used in resetPromises(). Must be "forward", "backward", or "both."`),
+          {description: fragment([`Invalid direction `, codeElTS(`"${direction}"`), ` used in `, codeElTS(`resetPromises()`),
+            `. Must be `, codeElTS(`"forward"`), `, `, codeElTS(`"backward"`), `, or `, codeElTS(`"both"`), `.`
+          ])}
         );
     }
   }

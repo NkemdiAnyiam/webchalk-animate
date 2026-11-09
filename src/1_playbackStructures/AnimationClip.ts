@@ -3,7 +3,7 @@ import { AnimTimeline } from "./AnimationTimeline";
 import { EntranceClip, MotionClip, TransitionClip } from "./AnimationClipCategories";
 import { webchalk, Webchalk } from "../Webchalk";
 import { EffectOptions, PresetEffectBank, PresetEffectDefinition, EffectFrameGeneratorSet } from "../2_animationEffects/presetEffectCreation";
-import { call, deepComparison, detab, getPartial, mergeArrays, TBA_DURATION, xor } from "../5_utils/helpers";
+import { call, codeElTS, deepComparison, detab, fragment, getPartial, mergeArrays, TBA_DURATION, xor } from "../5_utils/helpers";
 import { EasingString, useEasing } from "../2_animationEffects/easing";
 import { CustomErrorClasses, ClipErrorGenerator, errorTip, generateError, ErrorUIMessageFragments } from "../5_utils/errors";
 import { DOMElement, EffectCategory, Mutator, StyleProperty } from "../5_utils/interfaces";
@@ -925,7 +925,10 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       case "timeline":
         this.parentTimeline = sequence.getHierarchy('parentTimeline');
         break;
-      default: this.generateError(RangeError, [`Invalid level "${level}". Must be "sequence" or "timeline"`]);
+      default: throw this.generateError(
+        RangeError(`Invalid level "${level}". Must be "sequence" or "timeline"`),
+        {description: fragment([`Invalid level `, codeElTS(`"level"`), `. Must be `, codeElTS(`"sequence"`), ` or `, codeElTS(`"timeline".`)])}
+      );
     }
 
     return true;
@@ -945,7 +948,10 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
       case "timeline":
         this.parentTimeline = undefined
         break;
-      default: this.generateError(RangeError, [`Invalid level "${level}". Must be "sequence" or "timeline"`]);
+      default: throw this.generateError(
+        RangeError(`Invalid level "${level}". Must be "sequence" or "timeline"`),
+        {description: fragment([`Invalid level `, codeElTS(`"${level}"`), `. Must be `, codeElTS(`"sequence"`), ` or `, codeElTS(`"timeline".`)])}
+      );
     }
     
     return this;
@@ -954,13 +960,23 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   constructor(domElem: DOMElement | null | undefined, effectName: string, bank: PresetEffectBank) {
     if (webchalk.clipCreatorLock) {
       throw this.generateError(
-        TypeError,
-        [`Illegal constructor. Clips can only be instantiated using clip factory functions.` +
-        errorTip(
-          `Tip: A "factory function" is just a function that returns an instance of a class without using 'new'.` +
-          ` Our "clip" factory functions are created by webchalk.createAnimationClipFactories(),` +
-          ` a method that returns an object containing factory functions like Entrance(), Motion(), etc.`
-        )]
+        new TypeError(
+          `Illegal constructor. Clips can only be instantiated using clip factory functions.`
+          + errorTip(
+            `Tip: A "factory function" is just a function that returns an instance of a class without using keyword 'new'.`
+            + ` Our "clip factory functions" are created by webchalk.createAnimationClipFactories(),`
+            + ` a method that returns an object containing factory functions like Entrance(), Motion(), etc.`
+          )
+        ),
+        {
+          description: fragment([`Illegal constructor. Clips can only be instantiated using clip factory functions.`]),
+          tips: fragment([
+            `A "factory function" is just a function that returns an instance of a class without using keyword `, codeElTS(`new`),
+            `. Our "clip factory functions" are created by `, codeElTS(`webchalk.createAnimationClipFactories()`),
+            `, a method that returns an object containing factory functions like `, codeElTS('Entrance()'), ', ', codeElTS('Motion()'),
+            `, etc.` 
+          ])
+        }
       );
     }
     webchalk.clipCreatorLock = true;
@@ -970,7 +986,10 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     this.effectName = effectName;
     
     if (!domElem) {
-      throw this.generateError(CustomErrorClasses.InvalidElementError, [`Element must not be null or undefined.`]);
+      throw this.generateError(
+        new CustomErrorClasses.InvalidElementError(`Element must not be null or undefined.`),
+        {description: fragment([`Element must not be `, codeElTS('null'), ` or `, codeElTS('undefined'), `.`])}
+      );
     }
     this.domElem = domElem;
     
@@ -983,7 +1002,14 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   initialize(effectOptions: EffectOptions<TPresetEffectDefinition>, effectConfig: Partial<TClipConfig> = {}): this {
     // Throw error if invalid effectName
     // Deferred until initialize() so that this.category has actually been initialized by derived class by now
-    if (!this.presetEffectDefinition) { throw this.generateError(RangeError, [`Invalid effect name: "${this.effectName}" does not exists in the "${this.category}" category.`]); }
+    if (!this.presetEffectDefinition) {
+      throw this.generateError(
+        new RangeError(`Invalid effect name: "${this.effectName}" does not exists in the "${this.category}" category.`),
+        {description: fragment([
+          `Invalid effect name: `, codeElTS(`"${this.effectName}"`), ` does not exists in the `, codeElTS(`"${this.category}"`), ` category.`
+        ])}
+      );
+    }
 
     this.effectOptions = effectOptions;
     this.usageConfig = effectConfig;
@@ -1162,9 +1188,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   unpause(options?: {parentSequence?: AnimSequence; pauseKey?: string;}): this {
     if (this.parentSequence !== options?.parentSequence) { this.throwChildPlaybackError(this.unpause.name); }
     if (options?.pauseKey !== this.pauseKey) {
-      throw this.generateError(
-        CustomErrorClasses.LockedOperationError, [`Manually unpausing is prohibited when executing scheduled tasks.`]
-      );
+      throw this.generateError(new CustomErrorClasses.LockedOperationError(`Manually unpausing is prohibited when executing scheduled tasks.`),);
     }
 
     this.pauseKey = undefined;
@@ -1205,8 +1229,11 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
         case "backward":
           return this.rewind(parentSequence!);
         default: throw this.generateError(
-          Error,
-          [`An error here should be impossible. this.animation.direction should only be 'forward' or 'backward'.`]
+          new Error(`An error here should be impossible. this.animation.direction should only be 'forward' or 'backward'.`),
+          {description: fragment([
+            `An error here should be impossible. `, codeElTS(`this.animation.direction`),
+            ` should only be `, codeElTS(`"forward"`), ` or `, codeElTS(`"backward"`), `.`
+          ])}
         );
       }
     }
@@ -1563,8 +1590,11 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
         break;
       default:
         throw this.generateError(
-          Error,
-          [`An error here should be impossible. this.animation.direction should only be 'forward' or 'backward'.`]
+          new Error(`An error here should be impossible. this.animation.direction should only be 'forward' or 'backward'.`),
+          {description: fragment([
+            `An error here should be impossible. `, codeElTS(`this.animation.direction`),
+            ` should only be `, codeElTS(`"forward"`), ` or `, codeElTS(`"backward"`), `.`
+          ])}
         );
     }
     this.useCompoundedPlaybackRate();
@@ -1665,7 +1695,13 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
             break;
     
           default:
-            throw this.generateError(RangeError, [`Invalid direction "${direction}" passed to animate(). Must be "forward" or "backward".`]);
+            throw this.generateError(
+              new RangeError(`Invalid direction "${direction}" passed to animate(). Must be "forward" or "backward".`),
+              {description: fragment([
+                `Invalid direction `, codeElTS(`"${direction}"`), ` passed to `, codeElTS(`animate()`),
+                `. Must be `, codeElTS(`"forward"`), ` or `, codeElTS(`"backward"`), `.`
+              ])}
+            );
         }
       }
       catch(err: unknown) {
@@ -1709,14 +1745,15 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
                     reasons.push(detab`One of the parent elements of the element is unrendered.`);
                   }
                 }
-                throw this.generateError(CustomErrorClasses.CommitStylesError,
-                  [detab`Failed to commit styles on the element while it was unrendered.\
+                // CURRENT TODO: figure out what GUI message should look like here
+                throw this.generateError(
+                  new CustomErrorClasses.CommitStylesError(detab`Failed to commit styles on the element while it was unrendered.\
                   Animation styles that contain normal keyframes normally cannot be saved\
                   on unrendered elements in JavaScript, but Webchalk allows it ONLY IF\
                   the cause of the element being unrendered is having the CSS class "webchalk-display-none". If there is ANY other reason\
                   for the element not being rendered, the styles cannot be committed.
-                  Detected reasons:\n`
-                  + reasons.map((reason, index) => `    ${index + 1}) ${reason}`).join('\n')],
+                  Detected reasons:\n` + reasons.map((reason, index) => `    ${index + 1}) ${reason}`).join('\n')),
+                  {},
                   domElem
                 );
               }
@@ -1908,7 +1945,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
             nestedRafMutators.backwardMutators[i]();
           }
           break;
-        default: throw this.generateError(Error, [`Something very wrong occurred for there to be an error here.`]);
+        default: throw this.generateError(Error(`Something very wrong occurred for there to be an error here.`));
       }
     }
     catch (err: unknown) { throw this.generateError(err as Error); }
@@ -2041,8 +2078,8 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   /*-:**************************************************************************************************************************/
   /*-:*****************************************         ERRORS         *********************************************************/
   /*-:**************************************************************************************************************************/
-  protected generateError: ClipErrorGenerator = (ErrorClassOrInstance, msg = ['<unspecified error>'], elementOverride?: DOMElement) => {
-    return generateError(ErrorClassOrInstance, msg as [logMessageStr: string, uiMessageFrags?: ErrorUIMessageFragments], {
+  protected generateError: ClipErrorGenerator = (errorInstance, uiMessageFrags = {}, elementOverride?: DOMElement) => {
+    return generateError(errorInstance, uiMessageFrags as ErrorUIMessageFragments | undefined, {
       timeline: this.parentTimeline,
       sequence: this.parentSequence,
       clip: this,
@@ -2051,16 +2088,26 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   }
 
   private throwChildPlaybackError(funcName: string): never {
-    throw this.generateError(CustomErrorClasses.ChildPlaybackError, [`Cannot directly call ${funcName}() on an animation clip while it is part of a sequence.`]);
+    throw this.generateError(
+      new CustomErrorClasses.ChildPlaybackError(`Cannot directly call ${funcName}() on an animation clip while it is part of a sequence.`),
+      {description: fragment([`Cannot directly call `, codeElTS(`${funcName}()`), ` on an animation clip while it is part of a sequence.`])}
+    );
   }
 
   protected preventConnector() {
     if (this.domElem instanceof WebchalkConnectorElement) {
-      throw this.generateError(CustomErrorClasses.InvalidElementError,
-        [`Connectors cannot be animated using ${this.category}().` +
-        `${errorTip(`Tip: WebchalkConnectorElement elements cannot be animated using Entrance() or Exit() because many of the animations are not really applicable.` +
-          ` Instead, any entrance or exit effects that make sense for connectors are defined in ConnectorEntrance() and ConnectorExit().`
-        )}`],
+      throw this.generateError(new CustomErrorClasses.InvalidElementError(
+        `Connectors cannot be animated using ${this.category}().`
+        + `${errorTip(`Tip: WebchalkConnectorElement elements cannot be animated using Entrance() or Exit() because many of the animations are not really applicable.`
+        + ` Instead, any entrance or exit effects that make sense for connectors are defined in ConnectorEntrance() and ConnectorExit().`
+        )}`),
+        {
+          description: fragment([`Connectors cannot be animated using `, codeElTS(`${this.category}()`), `.`]),
+          tips: fragment([
+            `Tip: `, codeElTS(`WebchalkConnectorElement`), ` elements cannot be animated using `, codeElTS(`Entrance()`),
+            ` or `, codeElTS(`Exit()`), ` because many of the animations are not really applicable.`
+          ]),
+        },
         this.domElem
       );
     }

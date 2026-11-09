@@ -1070,7 +1070,7 @@ export function createRootNodeEditStats(infixList: InfixTextNodeList, operation:
 
 export function generateId(): string { return Math.random().toString(20).substring(2, 32) + String(Date.now()); }
 
-export function createCodeEl(codeString: string, codeType: 'ts' | 'css' | 'html', presentation: 'inline' | 'block' = 'inline'): HTMLPreElement {
+export function codeEl(codeString: string, codeType: 'ts' | 'css' | 'html' = 'ts', presentation: 'inline' | 'block' = 'inline'): HTMLPreElement {
   let highlightCodeEnd = '';
   switch(codeType) {
     case "ts": highlightCodeEnd = 'typescript'; break;
@@ -1084,8 +1084,35 @@ export function createCodeEl(codeString: string, codeType: 'ts' | 'css' | 'html'
   return code;
 }
 
+export function codeElTS(codeString: string, presentation: 'inline' | 'block' = 'inline'): HTMLPreElement {
+  return codeEl(codeString, 'ts', presentation);
+}
+
+export function codeElCSS(codeString: string, presentation: 'inline' | 'block' = 'inline'): HTMLPreElement {
+  return codeEl(codeString, 'css', presentation);
+}
+
+export function codeElHTML(codeString: string, presentation: 'inline' | 'block' = 'inline'): HTMLPreElement {
+  return codeEl(codeString, 'html', presentation);
+}
+
 export function createUListEl(items: (string | HTMLElement)[][]): HTMLUListElement {
   const ulEl = createElFromString<HTMLUListElement>(`<ul></ul>`);
+  for (const item of items) {
+    const liEl = createElFromString<HTMLLIElement>(`<li></li>`);
+
+    for (const thing of item) {
+      liEl.appendChild(typeof thing === 'string' ? new Text(thing) : thing);
+    }
+
+    ulEl.appendChild(liEl);
+  }
+
+  return ulEl;
+}
+
+export function createOListEl(items: (string | HTMLElement)[][]): HTMLUListElement {
+  const ulEl = createElFromString<HTMLUListElement>(`<ol></ol>`);
   for (const item of items) {
     const liEl = createElFromString<HTMLLIElement>(`<li></li>`);
 

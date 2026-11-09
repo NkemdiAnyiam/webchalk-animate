@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import { shadowStyleSheet } from '../../styles/shadowStyleSheet';
 import { htmlComponentStr } from './templates/ts/clipInfoBox';
 
-import { clamp, createCodeEl, createElFromString, dequoteJSON, escapeHtml, getOpeningTag, highlightCodeEls, numToOrdinal, TBA_DURATION } from '../../5_utils/helpers';
+import { clamp, codeElHTML, codeElTS, createElFromString, dequoteJSON, escapeHtml, getOpeningTag, highlightCodeEls, numToOrdinal, TBA_DURATION } from '../../5_utils/helpers';
 /** @ts-ignore */
 import { AnimClip } from '../../1_playbackStructures/AnimationClip';
 
@@ -158,7 +158,7 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
                 </div>
                 <div class="row">
                   <div class="col col--head">DOM Tag</div>
-                  <div class="col col--body">${createCodeEl(escapeHtml(getOpeningTag(clip.domElem)), 'html', 'block').outerHTML}</div>
+                  <div class="col col--body">${codeElHTML(escapeHtml(getOpeningTag(clip.domElem)), 'block').outerHTML}</div>
                 </div>
               </div>
             </div>
@@ -173,7 +173,7 @@ export class WebchalkClipInfoBoxElement extends HTMLElement {
         frag.appendChild(createElFromString(`
           <section class="clip-info-box__section">
             <p class="clip-info-box__section-name">Clip Code Template</p>
-            ${createCodeEl(`
+            ${codeElTS(`
 ${escapeHtml(category)}(
   domElemVariable,
   "${escapeHtml(effectName)}",
@@ -189,7 +189,6 @@ ${escapeHtml(category)}(
   }
 )
                     `,
-                    'ts',
                     'block'
                   ).outerHTML}
           </section>
@@ -215,7 +214,7 @@ ${escapeHtml(category)}(
             frag.appendChild(createElFromString(/*html*/`
               <section class="clip-info-box__section">
                 ${createElFromString(`<p class="clip-info-box__section-name">arg${i + 1}</p>`).outerHTML}
-                ${createCodeEl(escapeHtml(dequoteJSON(arg!)), 'ts', 'block').outerHTML}
+                ${codeElTS(escapeHtml(dequoteJSON(arg!)), 'block').outerHTML}
               </section>
             `));
           }
@@ -232,7 +231,7 @@ ${escapeHtml(category)}(
           <section class="clip-info-box__section">
             ${createElFromString('<p class="clip-info-box__section-name">Your Configuration</p>').outerHTML}
             ${Object.entries(usageConfig).length > 0
-              ? createCodeEl(escapeHtml(dequoteJSON(clip.usageConfig)), 'ts', 'block').outerHTML
+              ? codeElTS(escapeHtml(dequoteJSON(clip.usageConfig)), 'block').outerHTML
               : `<p>No configuration was passed to this effect.</p>`
             }
           </section>
@@ -241,7 +240,7 @@ ${escapeHtml(category)}(
         frag.appendChild(createElFromString(/*html*/`
           <section class="clip-info-box__section">
             ${createElFromString('<p class="clip-info-box__section-name">Final Configuration</p>').outerHTML}
-            ${createCodeEl(escapeHtml(dequoteJSON(clip.getConfig()).replace(`duration: ${TBA_DURATION}`, 'duration: (not yet computed)')), 'ts', 'block').outerHTML}
+            ${codeElTS(escapeHtml(dequoteJSON(clip.getConfig()).replace(`duration: ${TBA_DURATION}`, 'duration: (not yet computed)')), 'block').outerHTML}
           </section>
         `));
       }

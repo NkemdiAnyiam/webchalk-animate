@@ -68,7 +68,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       timelineEl.setAttribute('dock', newValue);
       errorPanelEl.setAttribute('dock', newValue);
 
-      // if swapping dock from bottom to the side, remove sizing styling that would mess up UI
+      // if swapping dock from bottom to the side, remove sizing styling that would mess up GUI
       if (oldValue?.match(/bottom/) && newValue.match(/right|left/)) {
         timelineEl.style.removeProperty('height');
         errorPanelEl.style.removeProperty('--error-panel-height');
@@ -220,7 +220,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     const timeline = this.animTimeline!;
 
     // If timeline has an error
-    if (timeline.getStatus('error')) { this.handleErrorState(); }
+    if (timeline.getStatus('errorState')) { this.handleErrorState(); }
   }
 
   remove() {
@@ -328,7 +328,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     const errorPanelEl = this.shadowRoot!.querySelector('.timeline__error-panel') as HTMLElement;
     const headingEl = errorPanelEl.querySelector('.timeline__error-panel-heading-text') as HTMLHeadingElement;
     const bodyEl = errorPanelEl.querySelector('.timeline__error-panel-body') as HTMLHeadingElement;
-    const {errorName, uiMessageFrags, logMessageStr, locationPostfix} = this.animTimeline!.getStatus('error')!;
+    const {errorName, uiMessageFrags, logMessageStr} = this.animTimeline!.getStatus('errorState')!;
 
     headingEl.textContent = `ERROR: ${escapeHtml(errorName)}`;
     bodyEl.innerHTML = '';
@@ -343,32 +343,10 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       bodyEl.appendChild(sectionEl);
     };
 
-    if (uiMessageFrags) {
-      const {description, tips, location} = uiMessageFrags;
-      appendSection('Description', description);
-      if (tips) { appendSection('Tips', tips); }
-      if (location) { appendSection('Location', location); }
-    }
-    else {
-      {
-        const nodes = (locationPostfix ?? '').trim().split('\n').flatMap(str => [new Text(str), createElFromString('<br />')]).slice(0, -1);
-        const frag = new DocumentFragment();
-        frag.append(...nodes);
-        appendSection('View Console', new Text(`The error below does not have a UI render yet. View the browser console to see this error's explanation with better typesetting. To view the console, right-click and select "Inspect", and then navigate to the "Console" tab.`));
-      }
-      {
-        const nodes = (logMessageStr ?? '').trim().split('\n').flatMap(str => [new Text(str), createElFromString('<br />')]).slice(0, -1);
-        const frag = new DocumentFragment();
-        frag.append(...nodes);
-        appendSection('Description', frag);
-      }
-      {
-        const nodes = (locationPostfix ?? '').trim().split('\n').flatMap(str => [new Text(str), createElFromString('<br />')]).slice(0, -1);
-        const frag = new DocumentFragment();
-        frag.append(...nodes);
-        appendSection('Location', frag);
-      }
-    }
+    const {description, tips, location} = uiMessageFrags;
+    appendSection('Description', description ?? new Text(logMessageStr));
+    if (tips) { appendSection('Tips', tips); }
+    if (location) { appendSection('Location', location); }
 
     highlightCodeEls(bodyEl);
     this.classList.add('error');

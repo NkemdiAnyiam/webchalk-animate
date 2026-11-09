@@ -2,13 +2,13 @@ import { AnimClip } from "../1_playbackStructures/AnimationClip";
 import { AnimSequence } from "../1_playbackStructures/AnimationSequence";
 import { AnimTimeline } from "../1_playbackStructures/AnimationTimeline";
 import { ExtendableBankCategory } from "../2_animationEffects/presetEffectCreation";
-import { getOpeningTag, indexToOrdinal } from "./helpers";
+import { codeElHTML, createElFromString, createUListEl, escapeHtml, fragment, getOpeningTag, indexToOrdinal } from "./helpers";
 import { DOMElement } from "./interfaces";
 
 export type ErrorUIMessageFragments = {
-  description: DocumentFragment,
+  description?: DocumentFragment,
   tips?: DocumentFragment,
-  location?: DocumentFragment; // TODO: maybe actually use
+  location?: DocumentFragment;
 };
 
 /**
@@ -18,17 +18,10 @@ export type ErrorUIMessageFragments = {
 export type ClipErrorGenerator = {
   /** If an Error instance is passed, the location is appended to it. */
   <TError extends Error>(
-    /** The Error instance to attach the location information to */
-    error: TError
-  ): TError;
-  /**
-   * If an Error class function is passed, it is used to create an Error instance with the `msg` parameter as the error message.
-   */
-  <TError extends Error>(
-    /** The Error class that will be instantiated. */
-    ErrorClass: new (message: string) => TError,
-    /** The error message that will appear before the location information. */
-    msg: [logMessageStr: string, uiMessageFrags?: ErrorUIMessageFragments],
+    /** The Error instance to attach the location information to. */
+    error: TError,
+    /** The error message that will appear in the GUI error panel. */
+    uiMessageFrags?: ErrorUIMessageFragments,
     /**
      * An element used to explicitly set the DOM element in the edge case where the error occurs in the clip's constructor
      * (where the field containing the DOM element is not yet set).
@@ -45,16 +38,9 @@ export type SequenceErrorGenerator = {
   /** If an Error instance is passed, the location is appended to it. */
   <TError extends Error>(
     /** The Error instance to which the location information will be attached. */
-    error: TError
-  ): TError;
-  /**
-   * If an Error class function is passed, it is used to create an Error instance with the `msg` parameter as the error message.
-   */
-  <TError extends Error>(
-    /** The Error class that will be instantiated. */
-    ErrorClass: new (message: string) => TError,
+    error: TError,
     /** The error message that will appear before the location information. */
-    msg: [logMessageStr: string, uiMessageFrags?: ErrorUIMessageFragments]
+    uiMessageFrags?: ErrorUIMessageFragments
   ): TError;
 };
 
@@ -65,16 +51,9 @@ export type TimelineErrorGenerator = {
   /** If an Error instance is passed, the location is appended to it. */
   <TError extends Error>(
     /** The Error to which the location information will be attached. */
-    error: TError
-  ): TError;
-  /**
-   * If an Error class function is passed, it is used to create an Error instance with the `msg` parameter as the error message.
-   */
-  <TError extends Error>(
-    /** The Error class that will be instantiated. */
-    ErrorClass: new (message: string) => TError,
+    error: TError,
     /** The error message that will appear before the location information. */
-    msg: [logMessageStr: string, uiMessageFrags?: ErrorUIMessageFragments]
+    uiMessageFrags?: ErrorUIMessageFragments
   ): TError;
 };
 
@@ -84,19 +63,19 @@ export type TimelineErrorGenerator = {
  */
 export type GeneralErrorGenerator = {
   <TError extends Error>(
-    /** The Error instance (or Error class to be instantiated) to be thrown. */
-    ErrorClassOrInstance: TError | (new (message: string) => TError),
+    /** The Error instance to be thrown. */
+    errorInstance: TError,
     /** The error message describing the issue. */
-    msg: [logMessageStr: string, uiMessageFrags?: ErrorUIMessageFragments],
+    uiMessageFrags?: ErrorUIMessageFragments,
     components?: {
       /** The {@link AnimTimeline} involved in the error. */
-      timeline?: AnimTimeline,
+      timeline?: AnimTimeline;
       /** The {@link AnimSequence} involved in the error. */
-      sequence?: AnimSequence,
+      sequence?: AnimSequence;
       /** The {@link AnimClip} involved in the error. */
-      clip?: AnimClip,
+      clip?: AnimClip;
       /** The DOM element involved in the error. */
-      element?: DOMElement
+      element?: DOMElement;
     }
   ): TError,
 };
@@ -239,9 +218,9 @@ export const errorTip = (tip: string) => {
 
 /**
  * Creates a detailed Error containing information about the structures involved in the error along with the error message.
- * @param ErrorClassOrInstance - The Error instance (or Error class to be instantiated) to be thrown.
- * @param msg - The error message describing the issue.
- * @param components - The structures whose details should be appended to {@link msg}.
+ * @param errorInstance - The Error instance to be thrown.
+ * @param uiMessageFrags - The error message describing the issue.
+ * @param components - The structures whose details should be appended to {@link uiMessageFrags}.
  * @param components.timeline - The {@link AnimTimeline} involved in the error.
  * @param components.sequence - The {@link AnimSequence} involved in the error.
  * @param components.clip - The {@link AnimClip} involved in the error.
@@ -249,9 +228,9 @@ export const errorTip = (tip: string) => {
  * 
  * @returns An Error containing details about where exactly in the timeline and/or sequence and/or clip the error occurred.
  */
-export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg = ['<unspecified error>'], components = {}) => {
+export const generateError: GeneralErrorGenerator = (errorInstance, uiMessageFrags = {}, components = {}) => {
   const {timeline, sequence, clip, element} = components;
-  const [logMessageStr, uiMessageFrags] = msg;
+  const logMessageStr = errorInstance.message;
 
   // TODO: create GUI version of location string
   const locationPostfix = (
@@ -264,8 +243,8 @@ export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg =
       : ''
     ) +
     (sequence
-      ? `\nSequence: [Jump tag: ${sequence.getJumpTag()}]` +
-        `\n          [Description: ${sequence.getDescription()}]` +
+      ? `\nSequence: [Description: ${sequence.getDescription()}]` +
+        `\n          [Jump tag: ${sequence.getJumpTag()}]` +
         (clip ? `\n          [At the ${indexToOrdinal(sequence.findClipIndex(clip!))} clip]` : '') +
         (clip ? `\n${'-'.repeat(20)}` : '')
       : ''
@@ -279,16 +258,59 @@ export const generateError: GeneralErrorGenerator = (ErrorClassOrInstance, msg =
     ) +
     `\n${'-'.repeat(58)}`
   );
+
+  uiMessageFrags.location = fragment([
+    `${'-'.repeat(25)}LOCATION${'-'.repeat(25)}`,
+    createUListEl([
+      ...(
+        timeline
+        ? [[
+         'Timeline:',
+         createUListEl([
+            [`Timeline Name: ${timeline.getConfig().timelineName}`],
+            [`At Step# ${timeline.getStatus().stepNumber}`],
+            ...(sequence ? [[`At the ${indexToOrdinal(timeline.findSequenceIndex(sequence!))} sequence`]] : [])
+         ]) 
+        ]]
+        : []
+      ),
+      ...(
+        sequence
+        ? [[
+         'Sequence:',
+         createUListEl([
+            [`Description: ${sequence.getDescription()}`],
+            [`Jump tag: ${sequence.getJumpTag()}`],
+            ...(clip ? [[`At the ${indexToOrdinal(sequence.findClipIndex(clip!))} clip`]] : []),
+         ]) 
+        ]]
+        : []
+      ),
+      ...(
+        clip
+        ? [
+          [
+          'Clip:',
+          createUListEl([
+              [`Category: ${clip.getEffectDetails('category')}`],
+              [`Effect: ${clip.getEffectDetails('effectName')}`],
+              [`Description: ${clip.getConfig().description}`],
+              // [`DOM Tag: `, createElFromString(codeElHTML(escapeHtml(getOpeningTag(element)), 'block').outerHTML) as HTMLElement]
+          ]) 
+          ]
+        ]
+        : []
+      ),
+    ])
+  ]);
+  // uiMessageFrags.location = fragment([...locationPostfix.trim().split('\n').flatMap(str => [str, createElFromString('<br />') as HTMLElement]).slice(0, -1)]);
   
-  if (timeline) { timeline.setError({errorName: ErrorClassOrInstance.name, uiMessageFrags, logMessageStr, locationPostfix}); }
+  if (timeline) { timeline.setErrorState({errorName: errorInstance.name, uiMessageFrags, logMessageStr, locationPostfix}); }
   if (sequence) { sequence.setErrored(); }
   if (clip) { clip.setErrored(); }
   
-  if (ErrorClassOrInstance instanceof Error) {
-    /** @ts-ignore */
-    return (new ErrorClassOrInstance.constructor(ErrorClassOrInstance.message + locationPostfix, {cause: ErrorClassOrInstance}));
-  }
-  return new ErrorClassOrInstance(`${logMessageStr}` + locationPostfix);
+  /** @ts-ignore */
+  return (new errorInstance.constructor(errorInstance.message + locationPostfix, {cause: errorInstance}));
 };
 
 /**@ignore*/

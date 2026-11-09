@@ -1,6 +1,6 @@
 import { AnimSequence } from "./AnimationSequence";
 import { CustomErrorClasses, errorTip, generateError, TimelineErrorGenerator, ErrorUIMessageFragments } from "../5_utils/errors";
-import { createElFromString, dequoteJSON, getPartial, indexToOrdinal, xor } from "../5_utils/helpers";
+import { codeElTS, createElFromString, dequoteJSON, fragment, getPartial, indexToOrdinal, xor } from "../5_utils/helpers";
 import { PickFromArray } from "../5_utils/utilityTypes";
 import { WebchalkPlaybackButtonElement } from "../4_graphicalUI/WebchalkPlaybackButtonElement";
 import { /*defaultClipFactories,*/ webchalk } from "../Webchalk";
@@ -97,13 +97,13 @@ export type AnimTimelineStatus = {
 
   /**
    * If defined, this is an object containing the name and UI message fragments of the error that broke the timeline.
-   * For your practical purposes, the presence of `error` can just be treated as a Boolean.
+   * For your practical purposes, the presence of `errorState` can just be treated as a boolean for whether an error has occurred.
    */
-  error?: {
+  errorState?: {
     errorName: string;
-    uiMessageFrags?: ErrorUIMessageFragments;
-    logMessageStr?: string;
-    locationPostfix?: string;
+    uiMessageFrags: ErrorUIMessageFragments;
+    logMessageStr: string;
+    locationPostfix: string;
   };
 };
 
@@ -359,16 +359,18 @@ export class AnimTimeline {
   private get atBeginning(): boolean { return this.loadedSeqIndex === 0; }
   private get atEnd(): boolean { return this.loadedSeqIndex === this.numSequences; }
   private get lockedStructure(): boolean {
-    if (this.isAnimating || this.isJumping || this.error) { return true; }
+    if (this.isAnimating || this.isJumping || this.errorState) { return true; }
     return false;
   }
-  private error?: {
+  private errorState?: {
     errorName: string;
-    uiMessageFrags?: ErrorUIMessageFragments;
+    logMessageStr: string;
+    uiMessageFrags: ErrorUIMessageFragments;
+    locationPostfix: string;
   };
   /** @internal */
-  setError(error: AnimTimelineStatus['error']) {
-    this.error = error;
+  setErrorState(errorState: AnimTimelineStatus['errorState']) {
+    this.errorState = errorState;
     this.webchalkTimelineEl?.handleErrorState();
   }
   /**
@@ -382,7 +384,7 @@ export class AnimTimeline {
    *  * {@link AnimTimelineStatus.stepNumber|stepNumber},
    *  * {@link AnimTimelineStatus.atBeginning|atBeginning},
    *  * {@link AnimTimelineStatus.atEnd|atEnd},
-   *  * {@link AnimTimelineStatus.error|error},
+   *  * {@link AnimTimelineStatus.errorState|errorState},
    * @group Property Getter Methods
    */
   getStatus(): AnimTimelineStatus;
@@ -415,7 +417,7 @@ export class AnimTimeline {
       stepNumber: this.stepNumber,
       atBeginning: this.atBeginning,
       atEnd: this.atEnd,
-      error: this.error,
+      errorState: this.errorState,
     };
 
     return specifics ? getPartial(result, specifics) : result;
@@ -469,7 +471,10 @@ export class AnimTimeline {
   /**@internal*/
   constructor(configOrSequences: Partial<AnimTimelineConfig> | AnimSequence[] = {}, animSequences?: AnimSequence[]) {
     if (webchalk.timelineCreatorLock) {
-      throw this.generateError(TypeError, [`Illegal constructor. Timelines can only be instantiated using webchalk.newTimeline().`]);
+      throw this.generateError(
+        new TypeError(`Illegal constructor. Timelines can only be instantiated using webchalk.newTimeline().`),
+        {description: fragment([`Illegal constructor. Timelines can only be instantiated using `, codeElTS(`webchalk.newTimeline()`), `.`])}
+      );
     }
     webchalk.timelineCreatorLock = true;
     
@@ -525,8 +530,11 @@ export class AnimTimeline {
     
     if (atIndex > this.animSequences.length) {
       throw this.generateError(
-        RangeError,
-        [`atIndex value ${atIndex} out of bounds. atIndex cannot be greater than the index of the next empty index within the timeline (in this case, ${this.animSequences.length}).`]
+        new RangeError(
+          `atIndex value ${atIndex} out of bounds. atIndex cannot be greater than the index of the next empty index within the timeline (in this case, ${this.animSequences.length}).`
+        ),
+        {description: fragment([`atIndex value `, codeElTS(`${atIndex}`), ` out of bounds. atIndex cannot be greater`,
+          ` than the index of the next empty index within the timeline (in this case, ${this.animSequences.length}).`])}
       );
     }
 
@@ -535,22 +543,28 @@ export class AnimTimeline {
       const animSequence = sequences[i];
 
       if (!(animSequence instanceof AnimSequence)) {
-        throw this.generateError(CustomErrorClasses.InvalidChildError, [`The ${indexToOrdinal(i)} object (index ${i}) in the given array is not an AnimSequence instance.`]);
+        throw this.generateError(
+          new CustomErrorClasses.InvalidChildError(`The ${indexToOrdinal(i)} object (index ${i}) in the given array is not an AnimSequence instance.`),
+          {description: fragment([`The ${indexToOrdinal(i)} object (index ${i}) in the given array is not an `, codeElTS(`AnimSequence`), ` instance.`])}
+        );
       }
 
       if (animSequence.getHierarchy('parentTimeline')) {
         const thisOrSome = animSequence.getHierarchy('parentTimeline') === this ? 'this' : 'some';
-        throw this.generateError(CustomErrorClasses.InvalidChildError, [`The ${indexToOrdinal(i)} sequence (index ${i}) in the given array is already part of ${thisOrSome} timeline.`]);
+        throw this.generateError(
+          new CustomErrorClasses.InvalidChildError(`The ${indexToOrdinal(i)} sequence (index ${i}) in the given array is already part of ${thisOrSome} timeline.`),
+        );
       }
 
       if (animSequence.getStatus('lockedStructure')) {
-        throw this.generateError(CustomErrorClasses.InvalidChildError, [`The ${indexToOrdinal(i)} sequence (index ${i}) in the given array is in progress or in a forward finished state (i.e., it has been played but not rewound).`]);
+        throw this.generateError(
+          new CustomErrorClasses.InvalidChildError(`The ${indexToOrdinal(i)} sequence (index ${i}) in the given array is in progress or in a forward finished state (i.e., it has been played but not rewound).`)
+        );
       }
 
       if (!animSequence.setLineage(this)) {
         throw this.generateError(
-          CustomErrorClasses.InvalidChildError,
-          [`The ${indexToOrdinal(i)} sequence (index ${i}) in the given array was already present earlier in the array. Duplicates are not allowed.`]
+          new CustomErrorClasses.InvalidChildError(`The ${indexToOrdinal(i)} sequence (index ${i}) in the given array was already present earlier in the array. Duplicates are not allowed.`),
         );
       }
     };
@@ -591,19 +605,27 @@ export class AnimTimeline {
       const index = this.findSequenceIndex(sortedTargetSequences[i]);
       if (index === -1) {
         throw this.generateError(
-          CustomErrorClasses.InvalidChildError,
-          [`The ${indexToOrdinal(i)} sequence (index ${i}) being removed from this timeline was already not in the timeline.`]
+          new CustomErrorClasses.InvalidChildError(`The ${indexToOrdinal(i)} sequence (index ${i}) being removed from this timeline was already not in the timeline.`),
         );
       }
       if (index <= this.loadedSeqIndex - 1) {
         throw this.generateError(
-          CustomErrorClasses.TimeParadoxError,
-          [`Removing sequences that have already been played is prohibited.` +
-          errorTip(
-            `Tip: Just as changing the past is not possible, changing parts of the timeline that have already passed is not allowed.` +
-            ` In order to remove sequences from a part of the timeline that has already been played, the timeline must be rewound to before that point` +
-            ` (conceptually, it is always possible to change the future but never the past).`
-          )],
+          new CustomErrorClasses.TimeParadoxError(
+            `Removing sequences that have already been played is prohibited.`
+            + errorTip(
+              `Tip: Just as changing the past is not possible, changing parts of the timeline that have already passed is not allowed.`
+              + ` In order to remove sequences from a part of the timeline that has already been played, the timeline must be rewound to before that point`
+              + ` (conceptually, it is always possible to change the future but never the past).`
+            )
+          ),
+          {
+            description: fragment([`Removing sequences that have already been played is prohibited.`]),
+            tips: fragment([
+              `Tip: Just as changing the past is not possible, changing parts of the timeline that have already passed is not allowed.`,
+              ` In order to remove sequences from a part of the timeline that has already been played, the timeline must be rewound to before that point`,
+              ` (conceptually, it is always possible to change the future but never the past).`]
+            )
+          }
         );
       }
       removedSequences.push(...finalAnimSequences.splice(index, 1));
@@ -644,14 +666,26 @@ export class AnimTimeline {
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.removeSequencesAt.name); }
     if (startIndex <= this.loadedSeqIndex - 1) {
       throw this.generateError(
-        CustomErrorClasses.TimeParadoxError,
-        [`startIndex '${startIndex}' falls within the range of sequences that have already been played,` +
-        ` but removing sequences that have already been played is prohibited.` +
-        errorTip(
-          `Tip: Just as changing the past is not possible, changing parts of the timeline that have already passed is not allowed.` +
-          ` In order to remove sequences from a part of the timeline that has already been played, the timeline must be rewound to before that point` +
-          ` (conceptually, it is always possible to change the future but never the past).`
-        )],
+        new CustomErrorClasses.TimeParadoxError(
+          `startIndex '${startIndex}' falls within the range of sequences that have already been played,`
+          + ` but removing sequences that have already been played is prohibited.` +
+          + errorTip(
+            `Tip: Just as changing the past is not possible, changing parts of the timeline that have already passed is not allowed.`
+            + ` In order to remove sequences from a part of the timeline that has already been played, the timeline must be rewound to before that point`
+            + ` (conceptually, it is always possible to change the future but never the past).`
+          )
+        ),
+        {
+          description: fragment([
+            `startIndex `, codeElTS(`${startIndex}`), ` falls within the range of sequences that have already been played,`
+            + ` but removing sequences that have already been played is prohibited.`
+          ]),
+          tips: fragment([
+            `Tip: Just as changing the past is not possible, changing parts of the timeline that have already passed is not allowed.`,
+            ` In order to remove sequences from a part of the timeline that has already been played, the timeline must be rewound to before that point`,
+            ` (conceptually, it is always possible to change the future but never the past).`
+          ])
+        }
       );
     }
 
@@ -788,8 +822,8 @@ export class AnimTimeline {
 
     if (options.buttonsContainerLocation === null) {
       throw this.generateError(
-        CustomErrorClasses.InvalidElementError,
-        [`If {buttonsContainerLocation} is specified, it must not be null.`]
+        new CustomErrorClasses.InvalidElementError(`If {buttonsContainerLocation:} is specified, it must not be null.`),
+        {description: fragment([`If `, codeElTS(`{buttonsContainerLocation:}`), ` is specified, it must not be `, codeElTS(`null`), `.`])}
       );
     }
 
@@ -1128,7 +1162,10 @@ export class AnimTimeline {
         case 'pause': this.isPaused = true; break;
         case 'unpause': this.isPaused = false; break;
         default: {
-          throw this.generateError(RangeError, [`Invalid force value "${options.forceState}". Use "pause" to pause or "unpause" to unpause.`]);
+          throw this.generateError(
+            new RangeError(`Invalid force value "${options.forceState}". Use "pause" to pause or "unpause" to unpause.`),
+            {description: fragment([`Invalid force value `, codeElTS(`"${options.forceState}"`), `. Use `, codeElTS(`"pause"`), ` to pause or `, codeElTS(`"unpause"`), ` to unpause.`])}
+          );
         }
       }
       // if toggling did nothing, just return
@@ -1172,7 +1209,7 @@ export class AnimTimeline {
   unpause(options?: { viaButton: boolean; pauseKey?: string; }): this {
     if (options?.pauseKey !== this.pauseKey) {
       throw this.generateError(
-        CustomErrorClasses.LockedOperationError, [`Manually unpausing is prohibited when executing scheduled tasks.`]
+        new CustomErrorClasses.LockedOperationError(`Manually unpausing is prohibited when executing scheduled tasks.`)
       );
     }
 
@@ -1661,7 +1698,10 @@ export class AnimTimeline {
         case "on": this.skippingOn = true; break;
         case "off": this.skippingOn = false; break;
         default: {
-          throw this.generateError(RangeError, [`Invalid force value "${options.forceState}". Use "on" to turn on skipping or "off" to turn off skipping.`]);
+          throw this.generateError(
+            new RangeError(`Invalid force value "${options.forceState}". Use "on" to turn on skipping or "off" to turn off skipping.`),
+            {description: fragment([`Invalid force value `, codeElTS(`"${options.forceState}"`), `. Use `, codeElTS(`"on"`), ` to turn on skipping or `, codeElTS(`"off"`), ` to turn off skipping.`])}
+          );
         }
       }
       // if toggling did nothing, just return
@@ -1737,16 +1777,16 @@ export class AnimTimeline {
   /*-:**************************************************************************************************************************/
   /*-:******************************************        ERRORS        **********************************************************/
   /*-:**************************************************************************************************************************/
-  protected generateError: TimelineErrorGenerator = (ErrorClassOrInstance, msg = ['<unspecified error>']) => {
-    return generateError(ErrorClassOrInstance, msg as [logMessageStr: string, uiMessageFrags?: ErrorUIMessageFragments], {
+  protected generateError: TimelineErrorGenerator = (errorInstance, uiMessageFrags = {}) => {
+    return generateError(errorInstance, uiMessageFrags, {
       timeline: this
     });
   }
 
   protected generateLockedStructureError = (methodName: string) => {
     return this.generateError(
-      CustomErrorClasses.LockedOperationError,
-      [`Cannot use ${methodName}() while the timeline is in progress.`]
+      new CustomErrorClasses.LockedOperationError(`Cannot use ${methodName}() while the timeline is in progress.`),
+      {description: fragment([`Cannot use `, codeElTS(`${methodName}()`), ` while the timeline is in progress.`])}
     );
   }
 }
