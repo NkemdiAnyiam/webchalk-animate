@@ -413,6 +413,7 @@ input::-webkit-calendar-picker-indicator {
 }
 
 .timeline__error-panel[dock="bottom"] {
+  // used to force the inner wrapper to adhere to the height of the container so that scrolling works properly
   --error-panel-height: calc(500px - 52px); // hardcoded to the starting height of timeline pane - height of timeline header
 
   top: 0;
@@ -429,6 +430,9 @@ input::-webkit-calendar-picker-indicator {
 
 .timeline__error-panel[dock="right"],
 .timeline__error-panel[dock="left"] {
+  // used to force the inner panel to adhere to the width of the timeline pane
+  --error-panel-width: calc(500px); // hardcoded to the starting width of timeline pane
+  
   left: 0;
   bottom: 0;
   height: 400px;
@@ -443,6 +447,8 @@ input::-webkit-calendar-picker-indicator {
 
 .timeline__error-panel-inner-wrapper {
   max-height: var(--error-panel-height);
+  max-width: var(--error-panel-width);
+  height: 100%;
   overflow: auto;
 }
 

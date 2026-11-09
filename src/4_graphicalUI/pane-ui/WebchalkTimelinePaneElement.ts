@@ -76,6 +76,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       }
       if (oldValue?.match(/right|left/) && newValue.match(/bottom/)) {
         timelineEl.style.removeProperty('width');
+        errorPanelEl.style.removeProperty('--error-panel-width');
         errorPanelEl.style.removeProperty('height');
       }
 
@@ -262,8 +263,16 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
           // timelineUI.style.contentVisibility = 'hidden';
         }
         : dock === 'right'
-          ? (e: MouseEvent) => { timelineUI.style.width = `${Number.parseFloat(getComputedStyle(timelineUI).width) - e.movementX}px`; }
-          : (e: MouseEvent) => { timelineUI.style.width = `${Number.parseFloat(getComputedStyle(timelineUI).width) + e.movementX}px`; }
+          ? (e: MouseEvent) => {
+            const newWidth = Number.parseFloat(getComputedStyle(timelineUI).width) - e.movementX;
+            timelineUI.style.width = `${newWidth}px`;
+            errorPanelEl.style.setProperty('--error-panel-width', `${newWidth}px`)
+          }
+          : (e: MouseEvent) => {
+            const newWidth = Number.parseFloat(getComputedStyle(timelineUI).width) + e.movementX;
+            timelineUI.style.width = `${newWidth}px`;
+            errorPanelEl.style.setProperty('--error-panel-width', `${newWidth}px`)
+          }
           // timelineUI.style.contentVisibility = 'hidden';
 
       const handleRelease = (e: MouseEvent) => {
