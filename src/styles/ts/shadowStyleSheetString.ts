@@ -648,11 +648,11 @@ input::-webkit-calendar-picker-indicator {
   background-color: var(--color-error-dark);
   line-height: 1.5;
   color: var(--color-error-light);
-  overflow: auto;
   display: none;
 }
 
 .timeline__error-panel[dock=bottom] {
+  --error-panel-height: calc(500px - 52px);
   top: 0;
   left: 0;
   width: 800px;
@@ -666,6 +666,7 @@ input::-webkit-calendar-picker-indicator {
 
 .timeline__error-panel[dock=right],
 .timeline__error-panel[dock=left] {
+  --error-panel-width: calc(500px);
   left: 0;
   bottom: 0;
   height: 400px;
@@ -679,7 +680,10 @@ input::-webkit-calendar-picker-indicator {
 }
 
 .timeline__error-panel-inner-wrapper {
+  max-height: var(--error-panel-height);
+  max-width: var(--error-panel-width);
   height: 100%;
+  overflow: auto;
 }
 
 .timeline__error-panel-resizer {
@@ -742,7 +746,7 @@ input::-webkit-calendar-picker-indicator {
   padding: calc(0.5 * var(--hem)) calc(0.8 * var(--hem));
 }
 
-.timeline__error-panel ul {
+.timeline__error-panel ul, .timeline__error-panel ol {
   list-style-position: outside;
   padding-left: calc(2.5 * var(--hem));
   display: flex;
@@ -843,7 +847,8 @@ input::-webkit-calendar-picker-indicator {
 }
 @container timeline-ui (max-width: 100px) {
   .timeline .timeline__error-panel details,
-  .timeline .timeline__error-panel ul {
+  .timeline .timeline__error-panel ul,
+  .timeline .timeline__error-panel ol {
     padding-left: 0;
   }
 }
