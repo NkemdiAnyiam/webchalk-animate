@@ -37,9 +37,9 @@ const conn = drawConnector([redSquare, '(center, middle)'], [blueCircle, '(cente
 // setTimeout(() => {blueCircle?.remove()}, 1000);
 
 const timeline = webchalk.newTimeline({timelineName: 'Main'});
-timeline.ui.attachTimelinePane();
-timeline.ui.attachPlaybackButtons();
-timeline.ui.setKeyboardShortcuts({
+timeline.gui.attachTimelinePane();
+timeline.gui.attachPlaybackButtons();
+timeline.gui.setKeyboardShortcuts({
   stepBackward: 'ArrowLeft',
   pause: 'Space',
   stepForward: 'ArrowRight',

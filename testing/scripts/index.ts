@@ -140,15 +140,15 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   tEdit2.scheduleTask('activePhase', '80%', {onPlay: () => wait(1000), onRewind: () => wait(2000)}, {frequencyLimit: 1, description: 'Pause for 1s.'});
 
   const timeline = webchalk.newTimeline({timelineName: 'Basic', debugMode: true});
-  timeline.ui.attachPlaybackButtons();
-  timeline.ui.setKeyboardShortcuts({
+  timeline.gui.attachPlaybackButtons();
+  timeline.gui.setKeyboardShortcuts({
     fastForward: 'F', 
     pause: 'Space',
     stepBackward: 'ArrowLeft',
     stepForward: 'ArrowRight',
     toggleSkipping: 'S'
   });
-  timeline.ui.attachTimelinePane();
+  timeline.gui.attachTimelinePane();
   // await wait(1000);
   const testAdjacency = webchalk.newSequence([
     tEdit,

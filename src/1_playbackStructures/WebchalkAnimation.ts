@@ -1044,7 +1044,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
           header: {phase, timePosition, direction},
         }
 
-        // If this is a task that wants to be shown in the UI...
+        // If this is a task that wants to be shown in the GUI...
         if (awaitedType === 'task' && !taskPart.hideFromUI) {
           // If there is an existing phase segment element in the directional counterpart segment, use it.
           const sisterSegment = (direction === 'forward' ? this.phaseSegmentsBackward : this.phaseSegmentsForward)

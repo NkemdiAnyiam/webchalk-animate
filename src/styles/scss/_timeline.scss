@@ -37,7 +37,7 @@
 
   --timeline-opacity: 100%;
 
-  container-name: timeline-ui;
+  container-name: timeline-gui;
   container-type: size;
 
   position: fixed;
@@ -546,31 +546,31 @@ input::-webkit-calendar-picker-indicator {
   background-color: #221212;
 }
 
-@container timeline-ui (min-height: 0px)   { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(2.0); } } }
-@container timeline-ui (min-height: 220px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(2.5); } } }
-@container timeline-ui (min-height: 255px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(3.5); } } }
-@container timeline-ui (min-height: 290px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(4.5); } } }
-@container timeline-ui (min-height: 325px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(5.5); } } }
-@container timeline-ui (min-height: 360px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(6.5); } } }
-@container timeline-ui (min-height: 395px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(7.5); } } }
-@container timeline-ui (min-height: 430px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(8.5); } } }
-@container timeline-ui (min-height: 465px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(9.5); } } }
-@container timeline-ui (min-height: 500px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(10.5); } } }
+@container timeline-gui (min-height: 0px)   { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(2.0); } } }
+@container timeline-gui (min-height: 220px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(2.5); } } }
+@container timeline-gui (min-height: 255px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(3.5); } } }
+@container timeline-gui (min-height: 290px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(4.5); } } }
+@container timeline-gui (min-height: 325px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(5.5); } } }
+@container timeline-gui (min-height: 360px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(6.5); } } }
+@container timeline-gui (min-height: 395px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(7.5); } } }
+@container timeline-gui (min-height: 430px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(8.5); } } }
+@container timeline-gui (min-height: 465px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(9.5); } } }
+@container timeline-gui (min-height: 500px) { .timeline { ::part(sequence__schedule) { max-height: clip-based-height-units(10.5); } } }
 
-@container timeline-ui (max-width: 500px) {
+@container timeline-gui (max-width: 500px) {
   .timeline .timeline__inner-wrapper {
     --hem: 9px;
     --hems-per-second: 10;
   }
 }
-@container timeline-ui (max-width: 350px) {
+@container timeline-gui (max-width: 350px) {
   .timeline .timeline__inner-wrapper {
     --hem: 8px;
   }
 }
-@container timeline-ui (max-width: 300px) {
+@container timeline-gui (max-width: 300px) {
 }
-@container timeline-ui (max-width: 200px) {
+@container timeline-gui (max-width: 200px) {
   .timeline .timeline__inner-wrapper {
     --hem: 7px;
     --hems-per-second: 8;
@@ -579,7 +579,7 @@ input::-webkit-calendar-picker-indicator {
     word-break: break-all;
   }
 }
-@container timeline-ui (max-width: 100px) {
+@container timeline-gui (max-width: 100px) {
   .timeline .timeline__error-panel {
     details,
     ul,

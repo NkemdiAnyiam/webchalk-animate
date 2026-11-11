@@ -341,7 +341,7 @@ button {
   --font-primary-family: "Verdana";
   --font-code-family: "Cascadia Code", "Fira Code";
   --timeline-opacity: 100%;
-  container-name: timeline-ui;
+  container-name: timeline-gui;
   container-type: size;
   position: fixed;
   z-index: calc(infinity);
@@ -774,69 +774,69 @@ input::-webkit-calendar-picker-indicator {
   background-color: #221212;
 }
 
-@container timeline-ui (min-height: 0px) {
+@container timeline-gui (min-height: 0px) {
   .timeline ::part(sequence__schedule) {
     max-height: calc(var(--clip-height) * 2 + 4.2 * var(--hem));
   }
 }
-@container timeline-ui (min-height: 220px) {
+@container timeline-gui (min-height: 220px) {
   .timeline ::part(sequence__schedule) {
     max-height: calc(var(--clip-height) * 2.5 + 4.2 * var(--hem));
   }
 }
-@container timeline-ui (min-height: 255px) {
+@container timeline-gui (min-height: 255px) {
   .timeline ::part(sequence__schedule) {
     max-height: calc(var(--clip-height) * 3.5 + 4.2 * var(--hem));
   }
 }
-@container timeline-ui (min-height: 290px) {
+@container timeline-gui (min-height: 290px) {
   .timeline ::part(sequence__schedule) {
     max-height: calc(var(--clip-height) * 4.5 + 4.2 * var(--hem));
   }
 }
-@container timeline-ui (min-height: 325px) {
+@container timeline-gui (min-height: 325px) {
   .timeline ::part(sequence__schedule) {
     max-height: calc(var(--clip-height) * 5.5 + 4.2 * var(--hem));
   }
 }
-@container timeline-ui (min-height: 360px) {
+@container timeline-gui (min-height: 360px) {
   .timeline ::part(sequence__schedule) {
     max-height: calc(var(--clip-height) * 6.5 + 4.2 * var(--hem));
   }
 }
-@container timeline-ui (min-height: 395px) {
+@container timeline-gui (min-height: 395px) {
   .timeline ::part(sequence__schedule) {
     max-height: calc(var(--clip-height) * 7.5 + 4.2 * var(--hem));
   }
 }
-@container timeline-ui (min-height: 430px) {
+@container timeline-gui (min-height: 430px) {
   .timeline ::part(sequence__schedule) {
     max-height: calc(var(--clip-height) * 8.5 + 4.2 * var(--hem));
   }
 }
-@container timeline-ui (min-height: 465px) {
+@container timeline-gui (min-height: 465px) {
   .timeline ::part(sequence__schedule) {
     max-height: calc(var(--clip-height) * 9.5 + 4.2 * var(--hem));
   }
 }
-@container timeline-ui (min-height: 500px) {
+@container timeline-gui (min-height: 500px) {
   .timeline ::part(sequence__schedule) {
     max-height: calc(var(--clip-height) * 10.5 + 4.2 * var(--hem));
   }
 }
-@container timeline-ui (max-width: 500px) {
+@container timeline-gui (max-width: 500px) {
   .timeline .timeline__inner-wrapper {
     --hem: 9px;
     --hems-per-second: 10;
   }
 }
-@container timeline-ui (max-width: 350px) {
+@container timeline-gui (max-width: 350px) {
   .timeline .timeline__inner-wrapper {
     --hem: 8px;
   }
 }
-@container timeline-ui (max-width: 300px) {}
-@container timeline-ui (max-width: 200px) {
+@container timeline-gui (max-width: 300px) {}
+@container timeline-gui (max-width: 200px) {
   .timeline .timeline__inner-wrapper {
     --hem: 7px;
     --hems-per-second: 8;
@@ -845,7 +845,7 @@ input::-webkit-calendar-picker-indicator {
     word-break: break-all;
   }
 }
-@container timeline-ui (max-width: 100px) {
+@container timeline-gui (max-width: 100px) {
   .timeline .timeline__error-panel details,
   .timeline .timeline__error-panel ul,
   .timeline .timeline__error-panel ol {

@@ -16,7 +16,7 @@ import { WebchalkPlaybackButtonsContainerElement } from "../4_graphicalUI/Webcha
  */
 export type AnimTimelineConfig = {
   /**
-   * A string representing the name of the timeline. This will be shown in any UI where appropriate.
+   * A string representing the name of the timeline. This will be shown in any GUI where appropriate.
    * @defaultValue
    * ```ts
    * '<unnamed timeline>'
@@ -96,7 +96,7 @@ export type AnimTimelineStatus = {
   atEnd: boolean;
 
   /**
-   * If defined, this is an object containing the name and UI message fragments of the error that broke the timeline.
+   * If defined, this is an object containing the name and GUI message fragments of the error that broke the timeline.
    * For your practical purposes, the presence of `errorState` can just be treated as a boolean for whether an error has occurred.
    */
   errorState?: {
@@ -179,20 +179,20 @@ export type AddSequencesOptions = {
 
 // TYPE
 /**
- * An object containing methods related to the visible HTML UI for the timeline.
- * Accessible via the {@link AnimTimeline.ui} object.
+ * An object containing methods related to the visible HTML GUI for the timeline.
+ * Accessible via the {@link AnimTimeline.gui} object.
  * @category Interfaces
  * @interface
  */
 export type AnimTimelineUIMethods = {
   /**
    * Reveals a graphical user interface representing the timeline.
-   * @group UI Methods
+   * @group GUI Methods
    */
   attachTimelinePane(): void;
   /**
    * Detaches the graphical user interface representing the timeline.
-   * @group UI Methods
+   * @group GUI Methods
    */
   detachTimelinePane(): void;
   /**
@@ -202,7 +202,7 @@ export type AnimTimelineUIMethods = {
    * @param options - An object containing settings to define the behavior of the buttons setup.
    * @param options.buttonsContainerLocation - The HTML element where the buttons container should be placed.
    * @param options.buttonsSubset - An array of strings indicating which specific buttons we want to link.
-   * @group UI Methods
+   * @group GUI Methods
    */
   attachPlaybackButtons(options?: {
     // TODO: Include jumping menu inside playback buttons container
@@ -219,7 +219,7 @@ export type AnimTimelineUIMethods = {
   }): void;
   /**
    * Removes the playback buttons attached to the timeline.
-   * @group UI Methods
+   * @group GUI Methods
    */
   detachPlaybackButtons(): void;
   /**
@@ -228,20 +228,20 @@ export type AnimTimelineUIMethods = {
    * @remarks
    * Unspecified buttons will not be affected. To delete keyboard shortcuts, explicitly set `null` as the key value.
    * @returns
-   * @group UI Methods
+   * @group GUI Methods
    */
   setKeyboardShortcuts(keyboardShortcuts: AnimTimelineConfig['keyboardShortcuts']): AnimTimeline;
   /**
    * Disables this timeline's connection to its playback buttons until re-enabled
    * using {@link AnimTimeline.enablePlaybackButtons|enablePlaybackButtons()}.
-   * @group UI Methods
+   * @group GUI Methods
    */
   disablePlaybackButtons(): void;
   /**
    * Allows this timeline's linked playback buttons to trigger (and be triggered by) this timeline's playback methods.
    *  * This method is only useful if the buttons were previously
    * disabled using {@link AnimTimeline.disablePlaybackButtons|disablePlaybackButtons()}.
-   * @group UI Methods
+   * @group GUI Methods
    */
   enablePlaybackButtons(): void;
   /**
@@ -268,8 +268,8 @@ export type AnimTimelineUIMethods = {
  * @groupDescription Structure
  * Methods that relate to building the timeline or locating sequences within it.
  * 
- * @groupDescription UI Methods
- * Methods that control the connection between the timeline and visible HTML UI.
+ * @groupDescription GUI Methods
+ * Methods that control the connection between the timeline and visible HTML GUI.
  */
 export class AnimTimeline {
   private static id = 0;
@@ -720,7 +720,7 @@ export class AnimTimeline {
   }
     
   /*-:**************************************************************************************************************************/
-  /*-:****************************************        UI METHODS        ********************************************************/
+  /*-:****************************************        GUI Methods        ********************************************************/
   /*-:**************************************************************************************************************************/
   /** @internal */ webchalkTimelineEl?: WebchalkTimelinePaneElement;
   /** @internal */ playbackButtonsContainer?: WebchalkPlaybackButtonsContainerElement;
@@ -728,7 +728,7 @@ export class AnimTimeline {
   /** @internal */ get timelinePaneAttached(): boolean { return this.webchalkTimelineEl ? true : false; }
   
   /**
-   * An object containing methods related to the visible HTML UI for the timeline. Contains:
+   * An object containing methods related to the visible HTML GUI for the timeline. Contains:
    *  * {@link AnimTimelineUIMethods.attachTimelinePane | attachTimelinePane} 
    *  * {@link AnimTimelineUIMethods.detachTimelinePane | detachTimelinePane}
    *  * {@link AnimTimelineUIMethods.attachPlaybackButtons | attachPlaybackButtons}
@@ -736,9 +736,9 @@ export class AnimTimeline {
    *  * {@link AnimTimelineUIMethods.disablePlaybackButtons | disablePlaybackButtons}
    *  * {@link AnimTimelineUIMethods.enablePlaybackButtons | enablePlaybackButtons}
    *  * {@link AnimTimelineUIMethods.setKeyboardShortcuts | setKeyboardShortcuts}
-   * @group UI Methods
+   * @group GUI Methods
    */
-  get ui(): AnimTimelineUIMethods {
+  get gui(): AnimTimelineUIMethods {
     return {
       attachTimelinePane: () => this.attachTimelinePane(),
       detachTimelinePane: () => this.detachTimelinePane(),
@@ -759,13 +759,13 @@ export class AnimTimeline {
   }
 
   private attachTimelinePane() {
-    // TODO: include some way to close the pane ui or something
-    // if (this.uiPaneAttached) { throw new Error('AnimTimeline Pane UI already attached'); }
+    // TODO: include some way to close the pane gui or something
+    // if (this.uiPaneAttached) { throw new Error('AnimTimeline Pane GUI already attached'); }
     if (this.timelinePaneAttached) { return; }
     // makes it so that there can only be one timeline GUI present at a time
     if (AnimTimeline.currentGUIAttachedTimeline) {
       throw new CustomErrorClasses.GraphicalUIError(
-        `An AnimTimeline UI is already attached {name: "${AnimTimeline.currentGUIAttachedTimeline.getConfig().timelineName}". It must be detached first.`
+        `An AnimTimeline GUI is already attached {name: "${AnimTimeline.currentGUIAttachedTimeline.getConfig().timelineName}". It must be detached first.`
       );
     }
 
@@ -785,7 +785,7 @@ export class AnimTimeline {
   }
 
   private detachTimelinePane() {
-    // if (!this.uiAttached) { throw this.generateError(Error('AnimTimeline UI is already not attached.')); }
+    // if (!this.uiAttached) { throw this.generateError(Error('AnimTimeline GUI is already not attached.')); }
     if (!this.timelinePaneAttached) { return; }
     this.webchalkTimelineEl!.remove();
     this.webchalkTimelineEl = undefined;
@@ -808,7 +808,7 @@ export class AnimTimeline {
   /**
    * Object containing properties that are either references to `<webchalk-playback-button>` elements that are connected to this timeline or `null`.
    *  * A property being `null` indicates that there is currently no corresponding button on the page that is linked to this timeline.
-   * @group UI Methods
+   * @group GUI Methods
    * @internal
    */
   get playbackButtons(): Readonly<PlaybackButtons> { return {...this._playbackButtons}; }

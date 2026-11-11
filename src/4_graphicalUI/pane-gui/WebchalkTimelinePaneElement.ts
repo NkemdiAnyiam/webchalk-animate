@@ -89,7 +89,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
 
     const timelineSequences = this.shadowRoot!.querySelector('.timeline__sequences-container') as HTMLElement;
 
-    // sequence elements will be made for any sequences that don't have ui attached
+    // sequence elements will be made for any sequences that don't have gui attached
 
     // insert the first sequences and then use it as the insertion point
     const firstNewSequence = newSequences[0];

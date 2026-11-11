@@ -141,7 +141,7 @@ type KeyframeTimingOptions = {
  */
 export type AnimClipConfig = KeyframeTimingOptions & CustomKeyframeEffectOptions & {
   /**
-   * A string that is displayed in the UI if the timeline pane UI is opened and logged to the console if debugging mode is enabled.
+   * A string that is displayed in the GUI if the timeline pane GUI is opened and logged to the console if debugging mode is enabled.
    * @defaultValue
    * ```ts
    * '<blank sequence description>'
@@ -675,7 +675,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   protected effectName: string;
   protected presetEffectDefinition: TPresetEffectDefinition;
   protected effectOptions: EffectOptions<TPresetEffectDefinition> = {} as EffectOptions<TPresetEffectDefinition>;
-  /** @internal */ usageConfig: Partial<TClipConfig> = {}; // ONLY used for printing to clip info box UI
+  /** @internal */ usageConfig: Partial<TClipConfig> = {}; // ONLY used for printing to clip info box GUI
   
   /**@internal*/
   effectFrameGeneratorSet = {} as WithRequired<EffectFrameGeneratorSet, 'keyframesGenerator_play' | 'keyframesGenerator_rewind' | 'nestedEffectFrameGeneratorSets'>;
@@ -1032,12 +1032,12 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     this.animation = new WebchalkAnimation(this.domElem, keyframeOptions, this.generateError, this);
 
     this.animation.pauseForTasks = (options: {pauseKey: string}) => {
-      this.parentTimeline?.ui.disablePlaybackButtons();
+      this.parentTimeline?.gui.disablePlaybackButtons();
       this.root.pause({pauseKey: options.pauseKey});
     }
     this.animation.unpauseFromTasks = (options: {pauseKey: string}) => {
       this.root.unpause({pauseKey: options.pauseKey});
-      this.parentTimeline?.ui.enablePlaybackButtons();
+      this.parentTimeline?.gui.enablePlaybackButtons();
     }
 
     return this;
@@ -1086,14 +1086,14 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
   }
 
   /*-:**************************************************************************************************************************/
-  /*-:****************************************        UI METHODS        ********************************************************/
+  /*-:****************************************        GUI Methods        ********************************************************/
   /*-:**************************************************************************************************************************/
   /** @internal */ webchalkClipEl?: WebchalkClipElement;
   /** @internal */ get uiAttached(): boolean { return this.webchalkClipEl ? true : false; }
   
   /**
    * @internal
-   * @group UI Methods
+   * @group GUI Methods
    */
   attachUI() {
     if (this.uiAttached) { return; }
@@ -1103,16 +1103,16 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
 
   /**
    * @internal
-   * @group UI Methods
+   * @group GUI Methods
   */
   writeUI() {
-    if (!this.uiAttached) { throw this.generateError(new Error('AnimClip UI must be attached before writing.')); }
+    if (!this.uiAttached) { throw this.generateError(new Error('AnimClip GUI must be attached before writing.')); }
     this.webchalkClipEl?.readClip();
   }
 
   /**
    * @internal
-   * @group UI Methods
+   * @group GUI Methods
    */
   detachUI() {
     if (!this.uiAttached) { return; }
@@ -1292,7 +1292,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
     timePosition: number | 'beginning' | 'end' | `${number}%`,
     schedulingOptions?: {
       /**
-       * A text description for what is awaiting the specified time point. This can be displayed in the UI.
+       * A text description for what is awaiting the specified time point. This can be displayed in the GUI.
        * @defaultValue
        * ```ts
        * '<blank label>'
@@ -1337,7 +1337,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
    * @param task - An object (in the form of a {@link ScheduledTask}) that contains the functions that should be called when {@link timePosition} is reached.
    * @param schedulingOptions - An options object defining the behavior of the scheduling.
    * @param schedulingOptions.frequencyLimit - The maximum number of times the task can be performed.
-   * @param schedulingOptions.description - A text description for the task that can be displayed in the UI.
+   * @param schedulingOptions.description - A text description for the task that can be displayed in the GUI.
    * @returns The string id (auto-generated) referring to the task and its spot in the schedule.
    * 
    * @example
@@ -1435,7 +1435,7 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
        */
       frequencyLimit?: number;
       /**
-       * A text description for the task that can be displayed in the UI.
+       * A text description for the task that can be displayed in the GUI.
        * @defaultValue
        * ```ts
        * '<blank task description>'

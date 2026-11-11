@@ -107,7 +107,7 @@ export class WebchalkSequenceElement extends HTMLElement {
 
     const sequenceClips = this.shadowRoot!.querySelector('.sequence__clips') as HTMLElement;
 
-    // clip elements will be made for any clips that don't have ui attached
+    // clip elements will be made for any clips that don't have gui attached
 
     // insert the first clip and then use it as the insertion point
     const firstNewClip = newClips[0];
