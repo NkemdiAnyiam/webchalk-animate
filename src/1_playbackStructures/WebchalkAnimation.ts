@@ -3,7 +3,7 @@ import { CustomErrorClasses, ClipErrorGenerator } from "../5_utils/errors";
 import { DOMElement, Keyframes } from "../5_utils/interfaces";
 import { useEasing } from "../2_animationEffects/easing";
 import { codeElTS, createOListEl, detab, equalWithinTol, fragment, generateId, PERCENTAGE_REGEX, RELATIVE_TIME_POSITION_REGEX, TBA_DURATION } from "../5_utils/helpers";
-import { WebchalkPhaseSegmentElement } from "../4_graphicalUI/pane-ui/WebchalkPhaseSegmentElement";
+import { WebchalkPhaseSegmentElement } from "../4_graphicalUI/pane-gui/WebchalkPhaseSegmentElement";
 
 abstract class WebchalkAnimationBase extends Animation {
   forwardEffect: KeyframeEffect;

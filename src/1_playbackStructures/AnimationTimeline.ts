@@ -4,7 +4,7 @@ import { codeElTS, createElFromString, dequoteJSON, fragment, getPartial, indexT
 import { PickFromArray } from "../5_utils/utilityTypes";
 import { WebchalkPlaybackButtonElement } from "../4_graphicalUI/WebchalkPlaybackButtonElement";
 import { /*defaultClipFactories,*/ webchalk } from "../Webchalk";
-import { WebchalkTimelinePaneElement } from "../4_graphicalUI/pane-ui/WebchalkTimelinePaneElement";
+import { WebchalkTimelinePaneElement } from "../4_graphicalUI/pane-gui/WebchalkTimelinePaneElement";
 import { KeyboardShortcutOptions } from "../5_utils/interfaces";
 import { WebchalkPlaybackButtonsContainerElement } from "../4_graphicalUI/WebchalkPlaybackButtonsContainerElement";
 

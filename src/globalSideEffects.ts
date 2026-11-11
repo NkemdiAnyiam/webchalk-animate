@@ -1,11 +1,11 @@
 import { createElFromString, createStyles } from "./5_utils/helpers";
 import { WebchalkConnectorElement } from "./3_shapes/elements/WebchalkConnectorElement";
 import { WebchalkPlaybackButtonElement } from "./4_graphicalUI/WebchalkPlaybackButtonElement";
-import { WebchalkClipElement } from "./4_graphicalUI/pane-ui/WebchalkClipElement";
-import { WebchalkClipInfoBoxElement } from "./4_graphicalUI/pane-ui/WebchalkClipInfoBoxElement";
-import { WebchalkSequenceElement } from "./4_graphicalUI/pane-ui/WebchalkSequenceElement";
-import { WebchalkTimelinePaneElement } from "./4_graphicalUI/pane-ui/WebchalkTimelinePaneElement";
-import { WebchalkPhaseSegmentElement } from "./4_graphicalUI/pane-ui/WebchalkPhaseSegmentElement";
+import { WebchalkClipElement } from "./4_graphicalUI/pane-gui/WebchalkClipElement";
+import { WebchalkClipInfoBoxElement } from "./4_graphicalUI/pane-gui/WebchalkClipInfoBoxElement";
+import { WebchalkSequenceElement } from "./4_graphicalUI/pane-gui/WebchalkSequenceElement";
+import { WebchalkTimelinePaneElement } from "./4_graphicalUI/pane-gui/WebchalkTimelinePaneElement";
+import { WebchalkPhaseSegmentElement } from "./4_graphicalUI/pane-gui/WebchalkPhaseSegmentElement";
 import { WebchalkPlaybackButtonsContainerElement } from "./4_graphicalUI/WebchalkPlaybackButtonsContainerElement";
 
 export function injectGlobals() {
