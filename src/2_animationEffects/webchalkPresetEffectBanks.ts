@@ -1319,7 +1319,6 @@ export const libPresetTextEdits = {
         useCaptureGroups = false,
       } = options;
 
-      // TODO: maybe perform logic inside returned callback instead of body
       const tempInfixList = constructInfixTextNodeList(this.domElem, {match, findAllMatches, ignoreMatchCase, useCaptureGroups});
       const infixList: InfixTextNodeList = [];
 
