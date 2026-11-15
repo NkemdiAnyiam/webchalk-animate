@@ -110,8 +110,7 @@ li:has(> details > summary[data-key$="$hidden"]) {
 // body {
 // }
 
-// TODO: use proper selector after upgrading TypeDoc
-h4:has([id^="Default Value"]) {
+h4#default-value {
   & {
     margin-top: 0;
   }
