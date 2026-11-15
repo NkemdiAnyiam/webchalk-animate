@@ -139,17 +139,35 @@ export class WebchalkClipElement extends HTMLElement {
   insertPhaseSegmentEls(phaseSegmentEls: WebchalkPhaseSegmentElement[]) {
     if (phaseSegmentEls.length === 0) { return; }
 
-    const phaseSegmentsEl = this.shadowRoot!.querySelector('.clip__phase-segments') as HTMLElement;
-    // TODO: sort by timing
-    // phaseSegments.sort()
-    
-    const frag = new DocumentFragment();
-    for (const phaseSegmentEl of phaseSegmentEls) {
-      phaseSegmentEl.parentWebchalkClipEl = this;
-      phaseSegmentEl.addUI();
-      frag.append(phaseSegmentEl);
+    for (const newSegmentEl of phaseSegmentEls) { 
+      newSegmentEl.parentWebchalkClipEl = this;
+      newSegmentEl.addUI();
     }
-    phaseSegmentsEl.appendChild(frag);
+    phaseSegmentEls.sort((a, b) => a.getPositionalMs() - b.getPositionalMs());
+
+    const phaseSegmentsEl = this.shadowRoot!.querySelector('.clip__phase-segments') as HTMLElement;
+    const currentSegmentEls = [...phaseSegmentsEl.children] as WebchalkPhaseSegmentElement[]
+    
+    // Attach new segment elements in sorted order (this is a merge operation)
+    let i = 0, j = 0;
+    while ((i < phaseSegmentEls.length) && (j < currentSegmentEls.length)) {
+      const newSegmentEl = phaseSegmentEls[i];
+      const refSegmentEl = currentSegmentEls[j];
+
+      if (newSegmentEl.getPositionalMs() < refSegmentEl.getPositionalMs()) {
+        phaseSegmentsEl.insertBefore(newSegmentEl, refSegmentEl);
+        ++i;
+      }
+      else {
+        ++j;
+      }
+    }
+
+    if (i < phaseSegmentEls.length) {
+      const frag = new DocumentFragment();
+      frag.append(...phaseSegmentEls.slice(i));
+      phaseSegmentsEl.appendChild(frag);
+    }
   }
 
   attachInfoButtonHandler() {

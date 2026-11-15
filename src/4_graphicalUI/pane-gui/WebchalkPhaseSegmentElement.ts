@@ -67,20 +67,30 @@ export class WebchalkPhaseSegmentElement extends HTMLElement {
     }
   }
 
-  addUI() {
+  /**
+   * Adds up the milliseconds that will be used to determine the left margin for the element.
+   * @returns 
+   */
+  getPositionalMs() {
     let { duration, delay, endDelay } = this.parentWebchalkClipEl!.animClip!.getTiming();
-    let marginStr: string;
+    let ms: number;
     if (duration === TBA_DURATION) {
-      marginStr = this.msToHemStr(endDelay + delay + 50);
+      ms = endDelay + delay + 50;
     }
     else {
       if (this.forwardPhaseSegment) {
-        marginStr = this.msToHemStr(this.forwardPhaseSegment.endDelay + delay + duration);
+        ms = this.forwardPhaseSegment.endDelay + delay + duration
       }
       else {
-        marginStr = this.msToHemStr(-(this.backwardPhaseSegment!.endDelay + duration) + delay + duration);
+        ms = -(this.backwardPhaseSegment!.endDelay + duration) + delay + duration
       }
     }
+
+    return ms;
+  }
+
+  addUI() {
+    const marginStr = this.msToHemStr(this.getPositionalMs());
 
     (this.shadowRoot!.querySelector('.phase-segment') as HTMLElement).style.marginLeft = marginStr;
     this.shadowRoot!.querySelector('.phase-segment__button')?.setAttribute('popovertarget', `phase-segment__info-box-${this.popoverId}`);
