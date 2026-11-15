@@ -1047,8 +1047,8 @@ export class AnimTimeline {
   /**@internal*/
   async step(direction: 'forward' | 'backward', options: {viaButton: boolean}): Promise<this>;
   async step(direction: 'forward' | 'backward', options?: {viaButton: boolean}): Promise<this> {
-    if (this.isPaused) { throw this.generateError(new CustomErrorClasses.PlaybackError('Cannot step while playback is paused.')); }
-    if (this.isAnimating) { throw this.generateError(new CustomErrorClasses.PlaybackError('Cannot step while already animating.')); }
+    if (this.isPaused) { throw this.generateError(new CustomErrorClasses.ProhibitedPlaybackError('Cannot step while playback is paused.')); }
+    if (this.isAnimating) { throw this.generateError(new CustomErrorClasses.ProhibitedPlaybackError('Cannot step while already animating.')); }
     this.isAnimating = true;
 
     let continueOn;
@@ -1453,14 +1453,14 @@ export class AnimTimeline {
   ): Promise<this> {
     if (this.isAnimating) {
       throw this.generateError(
-        new CustomErrorClasses.PlaybackError('Cannot use jumpTo() while currently animating.'),
+        new CustomErrorClasses.ProhibitedPlaybackError('Cannot use jumpTo() while currently animating.'),
         {description: fragment([`Cannot use `, codeElTS(`jumpTo()`), ` while currently animating.`])}
       );
     }
     // Calls to jumpTo() must be separated using await or something that similarly prevents simultaneous execution of code
     if (this.isJumping) {
       throw this.generateError(
-        new CustomErrorClasses.PlaybackError('Cannot perform simultaneous calls to jumpTo() in timeline.'),
+        new CustomErrorClasses.ProhibitedPlaybackError('Cannot perform simultaneous calls to jumpTo() in timeline.'),
         {description: fragment([`Cannot perform simultaneous calls to `, codeElTS(`jumpTo()`), ` in timeline.`])}
       );
     }
