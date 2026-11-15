@@ -150,6 +150,20 @@ class TimeParadoxError extends Error {
   }
 }
 
+class ProhibitedPlaybackError extends LockedOperationError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ProhibitedPlaybackError';
+  }
+}
+
+class PlaybackError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'PlaybackError';
+  }
+}
+
 class ChildPlaybackError extends LockedOperationError {
   constructor(message: string) {
     super(message);
@@ -193,6 +207,8 @@ export const CustomErrorClasses = {
   EarlySchedulingError,
   TimeParadoxError,
   ChildPlaybackError,
+  ProhibitedPlaybackError,
+  PlaybackError,
   InvalidChildError,
   InvalidEffectError,
   GraphicalUIError,

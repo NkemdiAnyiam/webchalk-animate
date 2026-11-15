@@ -339,7 +339,10 @@ export class AnimTimeline {
         case "root": return this.root;
         case "sequences": return [...this.animSequences];
         case "numSequences": return this.numSequences;
-        default: throw new RangeError(`Invalid propName "${propName}"`);
+        default: throw this.generateError(
+          new RangeError(`Invalid propName "${propName}".`),
+          {description: fragment([`Invalid propName `, codeElTS(`"${propName}"`), `.`])}
+        );
       }
     }
   }
@@ -1044,8 +1047,8 @@ export class AnimTimeline {
   /**@internal*/
   async step(direction: 'forward' | 'backward', options: {viaButton: boolean}): Promise<this>;
   async step(direction: 'forward' | 'backward', options?: {viaButton: boolean}): Promise<this> {
-    if (this.isPaused) { throw new Error('Cannot step while playback is paused.'); }
-    if (this.isAnimating) { throw new Error('Cannot step while already animating.'); }
+    if (this.isPaused) { throw this.generateError(new CustomErrorClasses.PlaybackError('Cannot step while playback is paused.')); }
+    if (this.isAnimating) { throw this.generateError(new CustomErrorClasses.PlaybackError('Cannot step while already animating.')); }
     this.isAnimating = true;
 
     let continueOn;
@@ -1067,7 +1070,12 @@ export class AnimTimeline {
         break;
 
       default:
-        throw new Error(`Invalid step direction "${direction}". Must be "forward" or "backward".`);
+        throw this.generateError(
+          new RangeError(`Invalid step direction "${direction}". Must be "forward" or "backward".`),
+          {description: fragment([
+            `Invalid step direction `, codeElTS(`"${direction}"`), `. Must be `, codeElTS(`"forward"`), ` or`, codeElTS(`"backward"`), `.`
+          ])}
+        );
     }
 
     this.isAnimating = false;
@@ -1443,9 +1451,19 @@ export class AnimTimeline {
       | {step: 'beginning' | 'end' | number; jumpTag?: never; headingSpecifics?: never;}
     ),
   ): Promise<this> {
-    if (this.isAnimating) { throw new Error('Cannot use jumpTo() while currently animating.'); }
+    if (this.isAnimating) {
+      throw this.generateError(
+        new CustomErrorClasses.PlaybackError('Cannot use jumpTo() while currently animating.'),
+        {description: fragment([`Cannot use `, codeElTS(`jumpTo()`), ` while currently animating.`])}
+      );
+    }
     // Calls to jumpTo() must be separated using await or something that similarly prevents simultaneous execution of code
-    if (this.isJumping) { throw new Error('Cannot perform simultaneous calls to jumpTo() in timeline.'); }
+    if (this.isJumping) {
+      throw this.generateError(
+        new CustomErrorClasses.PlaybackError('Cannot perform simultaneous calls to jumpTo() in timeline.'),
+        {description: fragment([`Cannot perform simultaneous calls to `, codeElTS(`jumpTo()`), ` in timeline.`])}
+      );
+    }
 
     const { targetOffset, autoplayDetection, step, jumpTag, headingSpecifics } = options;
 
@@ -1509,17 +1527,28 @@ export class AnimTimeline {
           finalTargetIndex = this.numSequences + targetOffset;
           break;
         case typeof step === 'number':
-          if (!Number.isSafeInteger(step)) { throw new TypeError(`Invalid position "${step}". When using a number, value must be an integer.`); }
+          if (!Number.isSafeInteger(step)) {
+            throw this.generateError(
+              new TypeError(`Invalid position "${step}". When using a number, value must be an integer.`),
+              {description: fragment([`Invalid position `, codeElTS(`${step}`), `. When using a number, value must be an integer.`])}
+            );
+          }
           finalTargetIndex = step;
           break;
-        default: throw new RangeError(`Invalid jumpTo() position "${step}". Must be "beginning", "end", or an integer.`);
+        default: throw this.generateError(
+          new RangeError(`Invalid jumpTo() position "${step}". Must be "beginning", "end", or an integer.`),
+          {description: fragment([
+            `Invalid `, codeElTS(`jumpTo()`), ` position `, codeElTS(`"${step}"`),
+            `. Must be `, codeElTS(`"beginning"`), `, `, codeElTS(`"end"`), `, or an integer.`
+          ])}
+        );
       }
     }
     // find target index based on multi-level search using headingSpecifics
     else {
       const {h2, h3, h4, h5, h6} = headingSpecifics;
       if (!(h2 || h3 || h4 || h5 || h6)) {
-        throw new TypeError(`Invalid headingSpecifics. None of h2, h3, h4, h5, or h6 were specified.`);
+        throw this.generateError(new TypeError(`Invalid headingSpecifics. None of h2, h3, h4, h5, or h6 were specified.`));
       }
       
       // index min/max that will be narrowed down while looking for matching headings
@@ -1546,7 +1575,7 @@ export class AnimTimeline {
         else if (!level && text) { return Object.values(seqHeadings).some(heading => (text instanceof RegExp ? text.test(heading) : heading === text)); }
         // If only level, search for any heading on this sequence with the same level.
         else if (level && !text) { return Object.keys(seqHeadings).includes(level!); }
-        else { throw new TypeError(`One of level or text needs to be specified.`); }
+        else { throw this.generateError(new TypeError(`One of level or text needs to be specified.`)); }
       };
 
       const narrowSearchRange = (level: keyof typeof headingSpecifics, text?: string | RegExp) => {
@@ -1577,19 +1606,52 @@ export class AnimTimeline {
       narrowSearchRange('h6', h6);
 
       if (initialTargetIndex === -1) {
-        throw new Error(`Sequence heading search failed given the following heading conditions: ${dequoteJSON(headingSpecifics)}.`);
+        throw this.generateError(
+          new CustomErrorClasses.PlaybackError(`Sequence heading search failed given the following heading conditions: ${dequoteJSON(headingSpecifics)}.`),
+          {description: fragment([
+            `Sequence heading search failed given the following heading conditions: `,
+            codeElTS(`${dequoteJSON(headingSpecifics)}`, 'block')
+          ])}
+        )
       }
       finalTargetIndex = initialTargetIndex + targetOffset;
     }
 
     // check to see if requested target index is within timeline bounds
     {
-      const errorPrefixString = `Jumping to ${jumpTag ? `tag "${jumpTag}"` : `position "${step}"`} with offset "${targetOffset}" goes`;
-      const errorPostfixString = `but requested index was ${finalTargetIndex}.`;
-      if (finalTargetIndex < 0)
-      { throw new RangeError(`${errorPrefixString} before timeline bounds. Minimum index = 0, ${errorPostfixString}`); }
+      const errorPrefixString = `Jumping to ${jumpTag ? `tag "${jumpTag}"` : (step !== undefined ? `position "${step}"` : `the specified headings conditions`)} with offset "${targetOffset}" goes`;
+      const errorPrefixStringGUI = [
+        `Jumping to `,
+        jumpTag
+          ? [`tag `, codeElTS(`"${jumpTag}"`)]
+          : (
+            step !== undefined
+            ? [`position `, codeElTS(typeof step === 'number' ? `${step}` : `"${step}"`)]
+            : [`the specified headings conditions`]
+          ),
+        ` with offset `, codeElTS(`${targetOffset}`), ` goes`
+      ];
+      const errorPostfixString = `but requested index was ${finalTargetIndex}.${headingSpecifics ? ` Heading conditions: ${dequoteJSON(headingSpecifics)}` : ``}`;
+      const errorPostfixStringGUI = [`but requested index was `, codeElTS(`${finalTargetIndex}`), `.`, headingSpecifics ? [` Heading conditions: `, codeElTS(`${dequoteJSON(headingSpecifics)}`, 'block')] : ``];
+      if (finalTargetIndex < 0) {
+        throw this.generateError(
+          new RangeError(`${errorPrefixString} before timeline bounds. Minimum index = 0, ${errorPostfixString}`),
+          {description: fragment([
+            ...errorPrefixStringGUI.flat(), ` before timeline bounds. Minimum index = `, codeElTS(`0`),
+            `, `, ...errorPostfixStringGUI.flat()
+          ])}
+        );
+      }
       if (finalTargetIndex > this.numSequences)
-        { throw new RangeError(`${errorPrefixString} ahead of timeline bounds. Max index = ${this.numSequences}, ${errorPostfixString}`); }
+        {
+          throw this.generateError(
+            new RangeError(`${errorPrefixString} ahead of timeline bounds. Maximum index = ${this.numSequences}, ${errorPostfixString}`),
+            {description: fragment([
+              ...errorPrefixStringGUI.flat(), ` ahead of timeline bounds. Maximum index = `, codeElTS(`${this.numSequences}`),
+              `, `, ...errorPostfixStringGUI.flat()
+            ])}
+          );
+        }
     }
 
     this.isJumping = true;
