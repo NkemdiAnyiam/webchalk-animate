@@ -100,13 +100,13 @@ export class WebchalkPhaseSegmentElement extends HTMLElement {
   update(direction: 'forward' | 'backward' | 'both') {
     if ((direction === 'forward' || direction === 'both') && this.forwardPhaseSegment) {
       const { resolverContainers, taskParts } = this.forwardPhaseSegment;
-      if (resolverContainers.every(callbackObj => callbackObj.called || callbackObj.hideFromUI) && taskParts.every(taskPart => taskPart.frequencyLimit === 0)) {
+      if (resolverContainers.every(callbackObj => callbackObj.called || callbackObj.hideFromGUI) && taskParts.every(taskPart => taskPart.frequencyLimit === 0)) {
         this.remove('forward');
       }
     }
     if ((direction === 'backward' || direction === 'both') && this.backwardPhaseSegment) {
       const { resolverContainers, taskParts } = this.backwardPhaseSegment;
-      if (resolverContainers.every(callbackObj => callbackObj.called || callbackObj.hideFromUI) && taskParts.every(taskPart => taskPart.frequencyLimit === 0)) {
+      if (resolverContainers.every(callbackObj => callbackObj.called || callbackObj.hideFromGUI) && taskParts.every(taskPart => taskPart.frequencyLimit === 0)) {
         this.remove('backward');
       }
     }
@@ -182,7 +182,7 @@ export class WebchalkPhaseSegmentElement extends HTMLElement {
       const taskListEl = this.shadowRoot!.querySelector(`.phase-segment__info-box-list--tasks`) as HTMLUListElement;
       const promiseListEl = this.shadowRoot!.querySelector(`.phase-segment__info-box-subsection--${direction} .phase-segment__info-box-list--promises`) as HTMLUListElement;
 
-      const shownTaskParts = [...(phaseSegment?.taskParts ?? [])].filter(({hideFromUI}) => !hideFromUI);
+      const shownTaskParts = [...(phaseSegment?.taskParts ?? [])].filter(({hideFromGUI}) => !hideFromGUI);
 
       // If there are no backward tasks or forward tasks, insert note.
       if (direction === 'backward' && shownTaskParts.length === 0 && taskListEl.childElementCount === 0) {
@@ -243,7 +243,7 @@ export class WebchalkPhaseSegmentElement extends HTMLElement {
         }
       }
 
-      const shownPromises = phaseSegment?.resolverContainers.filter(({hideFromUI, called}) => !(hideFromUI || called)) ?? [];
+      const shownPromises = phaseSegment?.resolverContainers.filter(({hideFromGUI, called}) => !(hideFromGUI || called)) ?? [];
       if (shownPromises.length === 0) {
         const promiseEl = createElFromString(/*html*/`<p class="phase-segment__empty-list-note">No scheduled promises.</p>`);
         promiseListEl.appendChild(promiseEl);
@@ -265,7 +265,7 @@ export class WebchalkPhaseSegmentElement extends HTMLElement {
         const callbacksListEl = itemEl.querySelector('.phase-segment__callbacks-list') as HTMLUListElement;
 
         for (let i = 0; i < shownPromises.length; ++i) {
-          if (shownPromises[i].hideFromUI) { continue; }
+          if (shownPromises[i].hideFromGUI) { continue; }
           callbacksListEl.appendChild(createElFromString(/*html*/`
             <li class="phase-segment__callbacks-list-item">${escapeHtml(shownPromises[i].label ?? '')}</li>`
           ));

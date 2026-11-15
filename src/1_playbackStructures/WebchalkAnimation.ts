@@ -170,7 +170,7 @@ type ScheduledResolverContainer = {
   origTimePosition: Parameters<AnimClip['scheduleResolver']>[2];
   resolver: Function;
   called?: boolean;
-  hideFromUI?: boolean;
+  hideFromGUI?: boolean;
   label?: string;
 };
 type ScheduledTaskPart = {
@@ -179,7 +179,7 @@ type ScheduledTaskPart = {
   frequencyLimit: number;
   initialFrequencyLimit: number;
   origTimePosition: Parameters<AnimClip['scheduleTask']>[1];
-  hideFromUI?: boolean;
+  hideFromGUI?: boolean;
   description?: string;
 };
 
@@ -456,6 +456,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       /**@internal*/previousId?: string;
       /**@internal*/previousResolver?: (value: void | PromiseLike<void>) => void;
       label?: string;
+      hideFromGUI?: boolean;
     } = {}
   ): PromiseWithId<void> {
     const id = schedulingOptions.forIntegrity ? '' : (schedulingOptions.previousId ?? generateId());
@@ -544,7 +545,9 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
       }
     }
 
-    const resolverContainer: ScheduledResolverContainer = {id, resolver: resolve, origTimePosition: timePosition, label: schedulingOptions.label ?? '<blank label>'};
+    const resolverContainer: ScheduledResolverContainer = {
+      id, resolver: resolve, origTimePosition: timePosition, label: schedulingOptions.label ?? '<blank label>', hideFromGUI: schedulingOptions.hideFromGUI
+    };
     const { forIntegrity = false } = schedulingOptions;
 
     const endDelay: number = phaseEndDelayOffset + phaseTimePosition;
@@ -563,19 +566,21 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
             endDelay, mainCallbacks: [], resolverContainers: [], taskParts: [], integrityOuterResolvers: [], integrityAsyncCbs: [], skipEndDelayUpdation: phaseTimePosition === 0, header: {phase, timePosition, direction},
           }
           if (forIntegrity) { newSegment.integrityOuterResolvers.push(resolve); }
-          // TODO: if necessary, incorporate hideFromUI
           else {
             newSegment.resolverContainers.push(resolverContainer);
-            const sisterSegment = (direction === 'forward' ? this.phaseSegmentsBackward : this.phaseSegmentsForward)
-              .find(potentialSis => newSegment.endDelay === -(potentialSis.endDelay + this.animClip.getTiming('duration')));
-            if (sisterSegment?.phaseSegmentEl) {
-              newSegment.phaseSegmentEl = sisterSegment.phaseSegmentEl;
-              newSegment.phaseSegmentEl.readSegment(newSegment, direction);
-            }
-            else {
-              newSegment.phaseSegmentEl = new WebchalkPhaseSegmentElement();
-              newSegment.phaseSegmentEl?.readSegment(newSegment, direction);
-              this.animClip.webchalkClipEl?.insertPhaseSegmentEls([newSegment.phaseSegmentEl]);
+
+            if (!resolverContainer.hideFromGUI) {
+              const sisterSegment = (direction === 'forward' ? this.phaseSegmentsBackward : this.phaseSegmentsForward)
+                .find(potentialSis => newSegment.endDelay === -(potentialSis.endDelay + this.animClip.getTiming('duration')));
+              if (sisterSegment?.phaseSegmentEl) {
+                newSegment.phaseSegmentEl = sisterSegment.phaseSegmentEl;
+                newSegment.phaseSegmentEl.readSegment(newSegment, direction);
+              }
+              else {
+                newSegment.phaseSegmentEl = new WebchalkPhaseSegmentElement();
+                newSegment.phaseSegmentEl?.readSegment(newSegment, direction);
+                this.animClip.webchalkClipEl?.insertPhaseSegmentEls([newSegment.phaseSegmentEl]);
+              }
             }
           }
           phaseSegments.splice(i, 0, newSegment);
@@ -592,7 +597,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
           if (forIntegrity) { currSegment.integrityOuterResolvers.push(resolve); }
           else {
             currSegment.resolverContainers.push(resolverContainer);
-            if (!currSegment.phaseSegmentEl) {
+            if (!resolverContainer.hideFromGUI && !currSegment.phaseSegmentEl) {
               const sisterSegment = (direction === 'forward' ? this.phaseSegmentsBackward : this.phaseSegmentsForward)
                 .find(segment => currSegment.endDelay === -(segment.endDelay + this.animClip.getTiming('duration')));
               if (sisterSegment?.phaseSegmentEl) {
@@ -687,9 +692,11 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
 
     const direction = reschedulingArgs[0];
     const phase = reschedulingArgs[1];
-    const {origTimePosition: timePosition, label, id: previousId, resolver: previousResolver} = reschedulingArgs[2];
+    const {origTimePosition: timePosition, label, id: previousId, resolver: previousResolver, hideFromGUI} = reschedulingArgs[2];
 
-    this.scheduleResolver(direction, phase, timePosition, {label, previousId, previousResolver: previousResolver as (value: void | PromiseLike<void>) => void});
+    this.scheduleResolver(direction, phase, timePosition, {
+      label, previousId, previousResolver: previousResolver as (value: void | PromiseLike<void>) => void, hideFromGUI
+    });
     reschedulingArgs[0] === 'forward' ? (++this.numPromisesForward) : (++this.numPromisesBackward);
   }
 
@@ -707,7 +714,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     phase: T[1],
     resolverContainer: ScheduledResolverContainer,
   ): void {
-    this.scheduleResolver(direction, phase, resolverContainer.origTimePosition, {label: resolverContainer.label});
+    this.scheduleResolver(direction, phase, resolverContainer.origTimePosition, {label: resolverContainer.label, hideFromGUI: resolverContainer.hideFromGUI});
     if (typeof resolverContainer.origTimePosition === 'string' && resolverContainer.origTimePosition.includes('%')) {
       this.queueResolverForRescheduling(direction, phase, resolverContainer);
     }
@@ -720,8 +727,8 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
     task: T[2]
   ): void {
     const id = generateId();
-    if (task.onPlay) { this.addAwaiteds('forward', phase, timePosition, 'integrityAsyncCb', {id, callback: task.onPlay, frequencyLimit: 1, initialFrequencyLimit: 1, origTimePosition: timePosition}) };
-    if (task.onRewind) { this.addAwaiteds('backward', phase, timePosition, 'integrityAsyncCb', {id, callback: task.onRewind, frequencyLimit: 1, initialFrequencyLimit: 1, origTimePosition: timePosition}) };
+    if (task.onPlay) { this.addAwaiteds('forward', phase, timePosition, 'integrityAsyncCb', {id, callback: task.onPlay, frequencyLimit: 1, initialFrequencyLimit: 1, origTimePosition: timePosition}); }
+    if (task.onRewind) { this.addAwaiteds('backward', phase, timePosition, 'integrityAsyncCb', {id, callback: task.onRewind, frequencyLimit: 1, initialFrequencyLimit: 1, origTimePosition: timePosition}); }
   }
 
   scheduleTask<T extends Parameters<AnimClip['scheduleTask']>>(
@@ -734,7 +741,8 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
 
     const {
       frequencyLimit = Infinity,
-      description = '<blank task description>'
+      description = '<blank task description>',
+      hideFromGUI = false
     } = schedulingOptions;
 
     if (!task.onPlay && !task.onRewind) {
@@ -751,11 +759,11 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
 
     const options: {sharedPhaseSegmentEl?: WebchalkPhaseSegmentElement} = {};
     if (task.onPlay) {
-      onPlayTaskPart = {id, callback: task.onPlay, frequencyLimit, initialFrequencyLimit: frequencyLimit, origTimePosition: timePosition, description};
+      onPlayTaskPart = {id, callback: task.onPlay, frequencyLimit, initialFrequencyLimit: frequencyLimit, origTimePosition: timePosition, description, hideFromGUI};
       this.addAwaiteds('forward', phase, timePosition, 'task', onPlayTaskPart, options);
     }
     if (task.onRewind) {
-      onRewindTaskPart = {id, callback: task.onRewind, frequencyLimit, initialFrequencyLimit: frequencyLimit, origTimePosition: timePosition, description};
+      onRewindTaskPart = {id, callback: task.onRewind, frequencyLimit, initialFrequencyLimit: frequencyLimit, origTimePosition: timePosition, description, hideFromGUI};
       this.addAwaiteds('backward', phase, timePosition, 'task', onRewindTaskPart, options);
     }
 
@@ -1048,7 +1056,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         }
 
         // If this is a task that wants to be shown in the GUI...
-        if (awaitedType === 'task' && !taskPart.hideFromUI) {
+        if (awaitedType === 'task' && !taskPart.hideFromGUI) {
           // If there is an existing phase segment element in the directional counterpart segment, use it.
           const sisterSegment = (direction === 'forward' ? this.phaseSegmentsBackward : this.phaseSegmentsForward)
             .find(segment => newSegment.endDelay === -(segment.endDelay + this.animClip.getTiming('duration')));
@@ -1095,7 +1103,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
         if (awaitedType === 'integrityAsyncCb') { currSegment.integrityAsyncCbs.push(taskPart.callback); }
         else {
           currSegment.taskParts.push(taskPart);
-          if (!taskPart.hideFromUI && !currSegment.phaseSegmentEl) {
+          if (!taskPart.hideFromGUI && !currSegment.phaseSegmentEl) {
             const sisterSegment = (direction === 'forward' ? this.phaseSegmentsBackward : this.phaseSegmentsForward)
               .find(segment => currSegment.endDelay === -(segment.endDelay + this.animClip.getTiming('duration')));
             if (sisterSegment?.phaseSegmentEl) {

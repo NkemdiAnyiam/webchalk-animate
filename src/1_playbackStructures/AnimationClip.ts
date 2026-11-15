@@ -1299,6 +1299,13 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
        * ```
        */
       label?: string;
+      /**
+       * If `true`, the GUI for this task will not appear within the timeline GUI.
+       * ```ts
+       * false
+       * ```
+       */
+      hideFromGUI?: boolean
     }
   ): PromiseWithId<void> {
     return this.animation.scheduleResolver(direction, phase, timePosition, schedulingOptions);
@@ -1442,6 +1449,13 @@ export abstract class AnimClip<TPresetEffectDefinition extends PresetEffectDefin
        * ```
        */
       description?: string;
+      /**
+       * If `true`, the GUI for this task will not appear within the timeline GUI.
+       * ```ts
+       * false
+       * ```
+       */
+      hideFromGUI?: boolean
     } = {}
   ): string {
     return this.animation.scheduleTask(phase, timePosition, task, schedulingOptions);
