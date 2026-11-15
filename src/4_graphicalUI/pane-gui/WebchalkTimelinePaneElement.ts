@@ -80,7 +80,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
         errorPanelEl.style.removeProperty('height');
       }
 
-      repositionPopover(this.shadowRoot!.querySelector('.timeline__controls-wrapper--popover'));
+      repositionPopover(this.shadowRoot!.querySelector('.timeline__controls-wrapper'));
     }
   }
 

@@ -119,7 +119,7 @@
     background-color: var(--color-error-dark);
   }
   .timeline__header,
-  .timeline__controls-wrapper--popover {
+  .timeline__controls-wrapper {
     background-color: var(--color-error-dark);
     border-bottom-color: var(--color-error-darkest);
   }
@@ -218,14 +218,7 @@
   column-gap: hem(3);
 }
 
-.timeline__controls-wrapper--normal {
-  align-items: baseline;
-  flex-wrap: wrap;
-  row-gap: hem(2.4);
-}
-
-// TODO: make this just the only version and not a modifier
-.timeline__controls-wrapper--popover {
+.timeline__controls-wrapper {
   position: fixed;
   position-anchor: --controls-popover-anchor;
   top: anchor(50%);
