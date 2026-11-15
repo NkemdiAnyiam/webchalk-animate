@@ -22,7 +22,8 @@
 
 .playback-button--disabledFromTimelineEdge,
 .playback-button--disabledFromPause,
-.playback-button--disabledFromStepping {
+.playback-button--disabledFromStepping,
+.playback-button:disabled {
   background-color: var(--webchalk-playback-button-disabled-color);
   cursor: not-allowed;
 }
