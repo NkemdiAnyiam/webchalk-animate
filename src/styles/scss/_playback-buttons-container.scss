@@ -7,6 +7,12 @@
   // transform-origin: bottom left;
 }
 
+:host([disabled]) {
+  .playback-buttons-container {
+    background-color: var(--color-error-dark);
+  }
+}
+
 .playback-buttons-container:hover,
 .playback-buttons-container:focus-within {
   opacity: 1;

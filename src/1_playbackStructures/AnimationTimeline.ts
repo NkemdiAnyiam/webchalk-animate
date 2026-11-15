@@ -361,7 +361,7 @@ export class AnimTimeline {
   private get atBeginning(): boolean { return this.loadedSeqIndex === 0; }
   private get atEnd(): boolean { return this.loadedSeqIndex === this.numSequences; }
   private get lockedStructure(): boolean {
-    if (this.isAnimating || this.isJumping || this.errorState) { return true; }
+    if (this.isAnimating || this.isJumping) { return true; }
     return false;
   }
   private errorState?: {
@@ -371,6 +371,8 @@ export class AnimTimeline {
   };
   /** @internal */
   setErrorState(errorState: AnimTimelineStatus['errorState']) {
+    if (!this.isPaused) { this.pause(); };
+    this.disablePlaybackButtons();
     this.errorState = errorState;
     this.webchalkTimelineEl?.handleErrorState();
   }
@@ -819,7 +821,6 @@ export class AnimTimeline {
   private attachPlaybackButtons(options: Parameters<AnimTimelineUIMethods['attachPlaybackButtons']>[0] = {}): this {
     if (this.playbackButtonsContainer) { throw new CustomErrorClasses.GraphicalUIError('The playback buttons for this timeline have already been attached. To remove the current ones, call the detachPlaybackButtons() method.'); }
     if (this.lockedStructure) { throw this.generateLockedStructureError(this.attachPlaybackButtons.name); }
-    // if (!this.config.timelineName) { throw new Error(`A timeline cannot link playback buttons if the timeline's timelineName config option is not set.`); }
 
     if (options.buttonsContainerLocation === null) {
       throw this.generateError(
@@ -981,6 +982,8 @@ export class AnimTimeline {
       stepForwardButton, stepBackwardButton, pauseButton, fastForwardButton, toggleSkippingButton,
     });
 
+    if (this.errorState) { this.disablePlaybackButtons(); }
+
     return this;
   }
 
@@ -1008,10 +1011,12 @@ export class AnimTimeline {
   }
 
   private disablePlaybackButtons() {
+    this.playbackButtonsContainer?.setAttribute('disabled', '');
     for (const button of Object.values(this.playbackButtons)) { button?.disable(); }
   }
 
   private enablePlaybackButtons() {
+    if (this.errorState) { throw new CustomErrorClasses.GraphicalUIError(`Cannot enable playback buttons while the timeline is in an error state.`); }
     for (const button of Object.values(this.playbackButtons)) { button?.enable(); }
   }
 
@@ -1047,6 +1052,7 @@ export class AnimTimeline {
   /**@internal*/
   async step(direction: 'forward' | 'backward', options: {viaButton: boolean}): Promise<this>;
   async step(direction: 'forward' | 'backward', options?: {viaButton: boolean}): Promise<this> {
+    if (this.errorState) { throw new CustomErrorClasses.ProhibitedPlaybackError('Cannot step while the timeline is in an error state.'); }
     if (this.isPaused) { throw this.generateError(new CustomErrorClasses.ProhibitedPlaybackError('Cannot step while playback is paused.')); }
     if (this.isAnimating) { throw this.generateError(new CustomErrorClasses.ProhibitedPlaybackError('Cannot step while already animating.')); }
     this.isAnimating = true;
@@ -1146,7 +1152,6 @@ export class AnimTimeline {
     return autorewindPrevious;
   }
 
-  // TODO: prevent all button interactions and playback operations when error is present
   /**
    * Pauses the animation timeline if it is unpaused or unpauses it if it is currently paused.
    * @param options - An options object specifying the behavior of the toggle.
@@ -1162,6 +1167,7 @@ export class AnimTimeline {
      */
     forceState?: 'pause' | 'unpause'
   } = {}): this {
+    if (this.errorState) { throw new CustomErrorClasses.ProhibitedPlaybackError('Cannot toggle pause while the timeline is in an error state.'); }
     if (options.forceState) {
       const prevPauseState = this.isPaused;
       switch(options.forceState) {
@@ -1197,6 +1203,7 @@ export class AnimTimeline {
   /**@internal*/
   pause(options?: { viaButton: boolean; pauseKey?: string; }): this;
   pause(options?: { viaButton: boolean; pauseKey?: string; }): this {
+    if (this.errorState) { throw new CustomErrorClasses.ProhibitedPlaybackError('Cannot pause while the timeline is in an error state.'); }
     if (options?.pauseKey) { this.pauseKey = options.pauseKey; }
     this.isPaused = true;
     if (!options?.viaButton) { this.playbackButtons.pauseButton?.styleActivation(); }
@@ -1213,6 +1220,7 @@ export class AnimTimeline {
   /**@internal*/
   unpause(options?: { viaButton: boolean; pauseKey?: string; }): this;
   unpause(options?: { viaButton: boolean; pauseKey?: string; }): this {
+    if (this.errorState) { throw new CustomErrorClasses.ProhibitedPlaybackError('Cannot unpause while the timeline is in an error state.'); }
     if (options?.pauseKey !== this.pauseKey) {
       throw this.generateError(
         new CustomErrorClasses.LockedOperationError(`Manually unpausing is prohibited when executing scheduled tasks.`)
@@ -1451,6 +1459,9 @@ export class AnimTimeline {
       | {step: 'beginning' | 'end' | number; jumpTag?: never; headingSpecifics?: never;}
     ),
   ): Promise<this> {
+    if (this.errorState) {
+      throw new CustomErrorClasses.ProhibitedPlaybackError('Cannot use jumpTo() while the timeline is in an error state.');
+    }
     if (this.isAnimating) {
       throw this.generateError(
         new CustomErrorClasses.ProhibitedPlaybackError('Cannot use jumpTo() while currently animating.'),
@@ -1619,7 +1630,7 @@ export class AnimTimeline {
 
     // check to see if requested target index is within timeline bounds
     {
-      const errorPrefixString = `Jumping to ${jumpTag ? `tag "${jumpTag}"` : (step !== undefined ? `position "${step}"` : `the specified headings conditions`)} with offset "${targetOffset}" goes`;
+      const errorPrefixString = `Jumping to ${jumpTag ? `tag "${jumpTag}"` : (step !== undefined ? `position "${step}"` : `the specified heading conditions`)} with offset "${targetOffset}" goes`;
       const errorPrefixStringGUI = [
         `Jumping to `,
         jumpTag
@@ -1627,7 +1638,7 @@ export class AnimTimeline {
           : (
             step !== undefined
             ? [`position `, codeElTS(typeof step === 'number' ? `${step}` : `"${step}"`)]
-            : [`the specified headings conditions`]
+            : [`the specified heading conditions`]
           ),
         ` with offset `, codeElTS(`${targetOffset}`), ` goes`
       ];
