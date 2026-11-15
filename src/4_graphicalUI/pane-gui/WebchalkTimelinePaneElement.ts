@@ -135,7 +135,6 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
       case 'tag': {
         const datalistEl = this.shadowRoot!.querySelector('.timeline__control--jump--tag .timeline__jump-datalist') as HTMLDataListElement;
         const frag = new DocumentFragment();
-        // TODO: Decide whether to sort alphabetically (or add option to change the sort).
         const uniqueJumpTags = [...new Set(this.animTimeline!.getHierarchy('sequences').map(sequence => sequence.getJumpTag()))].filter(str => str);
         for (let i = 0; i < uniqueJumpTags.length; ++i) {
           const str = escapeHtml(uniqueJumpTags[i]);
