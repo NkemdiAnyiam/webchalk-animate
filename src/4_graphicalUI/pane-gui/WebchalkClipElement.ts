@@ -103,10 +103,10 @@ export class WebchalkClipElement extends HTMLElement {
     )];
     this.insertPhaseSegmentEls(phaseSegmentEls);
     
-    this.catchUpUI();
+    this.catchUpGUI();
   }
 
-  catchUpUI() {
+  catchUpGUI() {
     const clip = this.animClip!;
 
     // If clip has an error

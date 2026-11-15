@@ -164,10 +164,10 @@ export class WebchalkSequenceElement extends HTMLElement {
 
     this.attachJumpButtonListener();
 
-    this.catchUpUI();
+    this.catchUpGUI();
   }
 
-  catchUpUI() {
+  catchUpGUI() {
     const sequence = this.animSequence!;
 
     // If sequence is playing or finished

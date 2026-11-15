@@ -214,10 +214,10 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
 
     this.insertSequences(0, timeline.getHierarchy().sequences);
 
-    this.catchUpUI();
+    this.catchUpGUI();
   }
 
-  catchUpUI() {
+  catchUpGUI() {
     const timeline = this.animTimeline!;
 
     // If timeline has an error
