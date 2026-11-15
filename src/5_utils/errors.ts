@@ -258,7 +258,6 @@ export const generateError: GeneralErrorGenerator = (errorInstance, guiMessageFr
   );
 
   guiMessageFrags.location = fragment([
-    `${'-'.repeat(25)}LOCATION${'-'.repeat(25)}`,
     createUListEl([
       ...(
         timeline

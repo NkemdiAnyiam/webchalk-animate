@@ -921,10 +921,11 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
           can only schedule ${awaitedType}s using a relative timePosition value (such as "20%" or "end")\
           before the duration is known. The duration of a rate-based clip is only known while in one of these 3 states:\
           1) The clip is currently playing; 2) The clip has finished playing and is waiting to be rewound' 3) The clip is\
-          currently rewinding. Once the clip finishes rewinding, the duration becomes unknown again until the clip plays again.`
+          currently rewinding. (Note: Once the clip finishes rewinding, the duration becomes unknown again until the clip plays again.)`
         ),
         {description: fragment([
-          `The new ${awaitedType} set for time position `, codeElTS(`"${timePosition}"`), ` could not be scheduled because`,
+          `The new ${awaitedType} set for time position `, codeElTS(typeof timePosition === 'number' ? `${timePosition}` : `"${timePosition}"`),
+          ` could not be scheduled because`,
           ` the duration of the clip is not yet known. A clip whose length is set with a rate rather than a duration`,
           ` can only schedule ${awaitedType}s using a relative timePosition value`,
           ` (such as `, codeElTS(`"20%"`), ` or `, codeElTS(`"end"`), `) before`,
@@ -934,7 +935,7 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
             [`The clip has finished playing and is waiting to be rewound.`],
             [`The clip is currently rewinding.`]
           ]),
-          `Once the clip finishes rewinding, the duration becomes unknown again until the clip plays again.`
+          `(Note: Once the clip finishes rewinding, the duration becomes unknown again until the clip plays again.)`
         ])}
       );
     }
@@ -956,7 +957,8 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
           currently playing.`
         ),
         {description: fragment([
-          `The new ${awaitedType} set for time position `, codeElTS(`"${timePosition}"`), ` could not be scheduled because`,
+          `The new ${awaitedType} set for time position `, codeElTS(typeof timePosition === 'number' ? `${timePosition}` : `"${timePosition}"`),
+          ` could not be scheduled because`,
           ` it provided an `, codeElTS(`{onPlay:}`), ` callback and the clip ${this.inProgress ? 'was rewinding' : 'has finished playing'}.`,
           ` New ${awaitedType}s with `, codeElTS(`{onPlay:}`), ` can only be scheduled while the clip is still 1) waiting to be played or 2)`,
           ` currently playing.`
@@ -1026,7 +1028,8 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
               the time "${timePosition}" has already passed.`
             ),
             {description: fragment([
-              `The new ${awaitedType} set for time position `, codeElTS(`"${timePosition}"`), ` could not be scheduled because`,
+              `The new ${awaitedType} set for time position `, codeElTS(typeof timePosition === 'number' ? `${timePosition}` : `"${timePosition}"`),
+              ` could not be scheduled because`,
               ` the time `, codeElTS(`"${timePosition}"`), ` has already passed.`
             ])}
           );
@@ -1081,7 +1084,8 @@ export class WebchalkAnimation extends WebchalkAnimationBase {
               the time "${timePosition}" has already passed.`
             ),
             {description: fragment([
-              `The new ${awaitedType} set for time position `, codeElTS(`"${timePosition}"`), ` could not be scheduled because`,
+              `The new ${awaitedType} set for time position `, codeElTS(typeof timePosition === 'number' ? `${timePosition}` : `"${timePosition}"`),
+              ` could not be scheduled because`,
               ` the time `, codeElTS(`"${timePosition}"`), ` has already passed.`
             ])}
           );
