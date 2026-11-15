@@ -1040,7 +1040,6 @@ export class AnimTimeline {
   }
 
   // steps forward or backward and does error-checking
-  // TODO: potentially move setting of this.isAnimating to stepForward() and stepBackward()
   /**
    * Takes 1 step in the specified direction.
    *  * If any sequences are set to autoplay, the timeline automatically continues stepping through them.
