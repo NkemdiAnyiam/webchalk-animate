@@ -5,11 +5,10 @@ export const htmlComponentStr = /*html*/`
     </div>
   </div> -->
 
-  <div class="sequence__content">
+  <section class="sequence__content">
     <header class="sequence__header">
       <div class="sequence__header-row">
-        <!-- TODO: probably not going to be h2 anymore with inclusion of optional headings -->
-        <h2 class="sequence__number"></h2>
+        <p class="sequence__number"></p>
         <p class="sequence__description"></p>
       </div>
     </header>
@@ -88,6 +87,6 @@ export const htmlComponentStr = /*html*/`
         <div class="sequence__dark-overlay"></div>
       </div>
     </div>
-  </div>
+  </section>
 </div>
 `;

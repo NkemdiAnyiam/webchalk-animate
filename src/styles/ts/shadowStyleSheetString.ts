@@ -14,6 +14,9 @@ export const shadowStyleSheetString = /*css*/`
   --color-gray-light: #E0E0E0;
   --color-gray-lighter: #ECECEC;
   --color-gray-lightest: #F7F7F7;
+  --color-error-dark: #4B2F36;
+  --color-error-darkest: #330200;
+  --color-error-light: #FFB3D2;
 }
 
 *,
@@ -308,9 +311,16 @@ button {
   font-family: Georgia;
   font-size: calc(1.2 * var(--hem));
   font-weight: 900;
+  transition: background-color 0.1s;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.clip__info-button:hover {
+  background-color: color-mix(in srgb, var(--clip-bg) 95%, black);
+}
+.clip__info-button:active {
+  background-color: color-mix(in srgb, var(--clip-bg) 90%, black);
 }
 
 /* TIMELINE */
@@ -335,9 +345,6 @@ button {
   --color-text-editor-light: #CDCDCD;
   --color-text-editor-dark: #242424;
   --color-text-editor-darkest: #141414;
-  --color-error-dark: #4B2F36;
-  --color-error-darkest: #330200;
-  --color-error-light: #FFB3D2;
   --font-primary-family: "Verdana";
   --font-code-family: "Cascadia Code", "Fira Code";
   --timeline-opacity: 100%;
@@ -407,7 +414,7 @@ button {
   background-color: var(--color-error-dark);
 }
 :host(.error) .timeline__header,
-:host(.error) .timeline__controls-wrapper--popover {
+:host(.error) .timeline__controls-wrapper {
   background-color: var(--color-error-dark);
   border-bottom-color: var(--color-error-darkest);
 }
@@ -498,13 +505,7 @@ button {
   column-gap: calc(3 * var(--hem));
 }
 
-.timeline__controls-wrapper--normal {
-  align-items: baseline;
-  flex-wrap: wrap;
-  row-gap: calc(2.4 * var(--hem));
-}
-
-.timeline__controls-wrapper--popover {
+.timeline__controls-wrapper {
   position: fixed;
   position-anchor: --controls-popover-anchor;
   top: anchor(50%);
@@ -518,36 +519,36 @@ button {
   flex-direction: column;
   row-gap: calc(1.8 * var(--hem));
 }
-.timeline__controls-wrapper--popover:not(:popover-open) {
+.timeline__controls-wrapper:not(:popover-open) {
   display: none;
 }
-.timeline__controls-wrapper--popover:not([popover-visible]) {
+.timeline__controls-wrapper:not([popover-visible]) {
   opacity: 0;
 }
-.timeline__controls-wrapper--popover[popover-showabove] {
+.timeline__controls-wrapper[popover-showabove] {
   top: unset;
   bottom: anchor(50%);
 }
-.timeline__controls-wrapper--popover[popover-showleft] {
+.timeline__controls-wrapper[popover-showleft] {
   left: unset;
   right: anchor(50%);
 }
-.timeline__controls-wrapper--popover:not([popover-showleft]):not([popover-showabove]) {
+.timeline__controls-wrapper:not([popover-showleft]):not([popover-showabove]) {
   border-top-left-radius: initial;
 }
-.timeline__controls-wrapper--popover[popover-showleft]:not([popover-showabove]) {
+.timeline__controls-wrapper[popover-showleft]:not([popover-showabove]) {
   border-top-right-radius: initial;
 }
-.timeline__controls-wrapper--popover:not([popover-showleft])[popover-showabove] {
+.timeline__controls-wrapper:not([popover-showleft])[popover-showabove] {
   border-bottom-left-radius: initial;
 }
-.timeline__controls-wrapper--popover[popover-showleft][popover-showabove] {
+.timeline__controls-wrapper[popover-showleft][popover-showabove] {
   border-bottom-right-radius: initial;
 }
-.timeline__controls-wrapper--popover .timeline__control {
+.timeline__controls-wrapper .timeline__control {
   flex-direction: column;
 }
-.timeline__controls-wrapper--popover .timeline__control .timeline__opacity-slider-wrapper {
+.timeline__controls-wrapper .timeline__control .timeline__opacity-slider-wrapper {
   align-self: initial;
 }
 
@@ -1678,8 +1679,8 @@ code {
 }
 
 .phase-segment__info-box-list-item {
-  border: 1px solid var(--color-gray-darkest);
-  border-bottom: 2px solid currentColor;
+  border: 2px solid var(--color-gray-darkest);
+  border-top: 3px solid currentColor;
   padding-bottom: calc(0.5 * var(--hem));
   padding: calc(0.2 * var(--hem)) calc(0.4 * var(--hem));
   display: flex;
@@ -1753,7 +1754,8 @@ code {
 
 .playback-button--disabledFromTimelineEdge,
 .playback-button--disabledFromPause,
-.playback-button--disabledFromStepping {
+.playback-button--disabledFromStepping,
+.playback-button:disabled {
   background-color: var(--webchalk-playback-button-disabled-color);
   cursor: not-allowed;
 }
@@ -1783,6 +1785,10 @@ code {
   border: 4px solid var(--color-gray-darkest);
   opacity: 0.4;
   transition: opacity 0.1s;
+}
+
+:host([disabled]) .playback-buttons-container {
+  background-color: var(--color-error-dark);
 }
 
 .playback-buttons-container:hover,

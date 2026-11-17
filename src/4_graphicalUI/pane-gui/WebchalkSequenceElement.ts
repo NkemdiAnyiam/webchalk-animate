@@ -51,6 +51,11 @@ export class WebchalkSequenceElement extends HTMLElement {
     this.playheadTrailEl = shadow.querySelector('.sequence__playhead-trail') as HTMLElement;
 
     this.updateMaxSecondsDisplayed(11);
+
+    // ARIA
+    const sequenceContentEl = shadow.querySelector('.sequence__content') as HTMLElement;
+    sequenceContentEl.ariaLabelledByElements = [shadow.querySelector('.sequence__number')!];
+    sequenceContentEl.ariaDescribedByElements = [shadow.querySelector('.sequence__description')!];
   }
 
   updateMaxSecondsDisplayed(seconds: number) {
@@ -200,6 +205,7 @@ export class WebchalkSequenceElement extends HTMLElement {
   updateSequenceNumber(sequenceNumber: number) {
     const sequenceNumberEl = this.shadowRoot!.querySelector('.sequence__number') as HTMLElement;
     sequenceNumberEl.textContent = `${sequenceNumber}.`;
+    sequenceNumberEl.setAttribute('aria-label', `Sequence ${sequenceNumber}`);
   }
 
   updateDescription(description: string) {
@@ -227,11 +233,15 @@ export class WebchalkSequenceElement extends HTMLElement {
         sequenceHeadingsEl.innerHTML = '';
       }
 
-      // TODO: incorporate aria
       for (const [level, text] of Object.entries(headings)) {
         const newHeadingEl = createElFromString(/*html*/`
           <div class="sequence__heading-container">
-            <p class="sequence__heading sequence__heading--${escapeHtml(level)}">${escapeHtml(text)}</p>
+            <${level}
+              class="sequence__heading sequence__heading--${escapeHtml(level)}"
+              aria-label="${escapeHtml(text)}"
+            >
+              ${escapeHtml(text)}
+            </${level}>
           </div>`
         );
         sequenceHeadingsEl.append(newHeadingEl);

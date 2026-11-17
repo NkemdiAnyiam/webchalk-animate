@@ -50,6 +50,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     template.innerHTML = htmlString;
     const element = template.content.cloneNode(true);
     shadow.append(element);
+
     this.setAttribute('dock', 'bottom');
 
     this.attachTimelineUIResizer();
@@ -59,6 +60,9 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     this.attachScheduleDraggers();
     this.attachControlsButtonListener();
     this.attachDockListener();
+
+    // ARIA
+    this.setAttribute('role', 'region');
   }
 
   private attributeChangedCallback(attrName: string, oldValue: string, newValue: string) {
@@ -209,7 +213,12 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     const timeline = this.animTimeline!;
     
     const timelineEl = this.shadowRoot!.querySelector('.timeline') as HTMLElement;
-    timelineEl.querySelector('.timeline__name')!.textContent = timeline.getConfig().timelineName;
+    const headingEl = timelineEl.querySelector('.timeline__name') as HTMLHeadingElement;
+    const timelineName = timeline.getConfig().timelineName;
+    headingEl.textContent = timelineName;
+
+    headingEl.setAttribute('aria-label', headingEl.textContent);
+    this.setAttribute('aria-label', `Timeline: ${timelineName}`);
 
     this.insertSequences(0, timeline.getHierarchy().sequences);
 

@@ -26,7 +26,7 @@ export const htmlComponentStr = /*html*/`
           </button>
         </div>
 
-        <div class="timeline__controls-wrapper timeline__controls-wrapper--popover" id="timeline__controls-wrapper" popover>
+        <div class="timeline__controls-wrapper" id="timeline__controls-wrapper" popover>
           
           <div class="timeline__control timeline__control--jump timeline__control--jump--step">
             <label for="timeline__jump-input timeline__jump-input--step">Step</label>
