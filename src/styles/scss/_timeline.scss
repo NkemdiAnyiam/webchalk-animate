@@ -497,7 +497,7 @@ input::-webkit-calendar-picker-indicator {
 	background-color: var(--color-error-darkest);
 	color: var(--hue-light);
 	font-weight: 600;
-	padding: calc(0.5 * var(--hem)) calc(0.8 * var(--hem));
+	padding: hem(0.5) hem(0.8);
 }
 
 .timeline__error-panel-section-body {
