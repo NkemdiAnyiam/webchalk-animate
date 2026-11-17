@@ -353,7 +353,7 @@ export class WebchalkTimelinePaneElement extends HTMLElement {
     const appendSection = (sectionName: string, sectionContents: Node) => {
       const sectionEl = createElFromString(`<div class="timeline__error-panel-section"></div>`);
       const sectionBodyEl = createElFromString(`<div class="timeline__error-panel-section-body"></div>`);
-      const headingEl = createElFromString(`<h3 class="timeline__error-panel-subheading">${sectionName}</h3>`);
+      const headingEl = createElFromString(`<h3 class="timeline__error-panel-section-name">${sectionName}</h3>`);
       sectionEl.appendChild(headingEl);
       sectionBodyEl.appendChild(sectionContents);
       sectionEl.append(sectionBodyEl);

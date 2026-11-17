@@ -740,7 +740,7 @@ input::-webkit-calendar-picker-indicator {
   gap: calc(0.5 * var(--hem));
 }
 
-.timeline__error-panel-subheading {
+.timeline__error-panel-section-name {
   background-color: var(--color-error-darkest);
   color: var(--hue-light);
   font-weight: 600;
