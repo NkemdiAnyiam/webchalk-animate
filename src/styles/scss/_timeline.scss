@@ -486,11 +486,10 @@ input::-webkit-calendar-picker-indicator {
   gap: hem(1.5);
 }
 
-// TODO: really similar to clip info box styling. might do something to keep it DRY
 .timeline__error-panel-section {
 	display: flex;
 	flex-direction: column;
-	gap: calc(0.5 * var(--hem));
+	gap: hem(0.5);
 }
 
 .timeline__error-panel-section-name {
